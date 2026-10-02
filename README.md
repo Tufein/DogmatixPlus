@@ -195,3 +195,8 @@ Ideas and requests are welcome as [issues](https://github.com/cortinadev/dogmati
 ## Disclaimer
 
 This app is for educational purposes only. Users are responsible for ensuring they have the legal right to download any content.
+
+## Credits
+
+Cortinadev: For making the app.
+
