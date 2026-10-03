@@ -757,6 +757,44 @@
     <string name="switch_update_newer">Atualização %1$d nas fontes; tens a %2$d</string>
     <string name="switch_update_current">Tens a atualização mais recente (%1$d)</string>
     <string name="switch_dlc_line">DLC: %1$d nas fontes, %2$d no dispositivo</string>
+    <string name="nav_collections">Coleções</string>
+    <string name="nav_switch">Atualizações e DLC da Switch</string>
+    <string name="nav_dat">Verificação DAT</string>
+    <string name="tools_collections_hint">As tuas listas de jogos: abrir, mudar o nome, apagar</string>
+    <string name="tools_switch_hint">Atualizações e DLC mais recentes para os teus jogos Switch</string>
+    <string name="tools_dat_hint">Verifica os teus jogos com DAT No-Intro / Redump</string>
+    <string name="collections_rename">Mudar o nome</string>
+    <string name="collections_delete_title">Apagar %1$s?</string>
+    <string name="collections_delete_message">Só a lista é apagada; os jogos ficam na biblioteca e no dispositivo.</string>
+    <string name="collections_empty">Ainda sem coleções. Adiciona um jogo a partir da ficha (X) ou cria uma aqui.</string>
+    <string name="switch_fetch_all">Obter tudo (%1$d)</string>
+    <string name="switch_fetch">Obter (%1$d)</string>
+    <string name="switch_none_on_disk">Nenhum jogo Switch com title ID no nome no dispositivo</string>
+    <string name="switch_all_current">Os %1$d jogos Switch estão em dia com as fontes</string>
+    <string name="dat_imported">DAT lido: %1$d jogos</string>
+    <string name="dat_import_failed">Não foi possível ler o DAT: %1$s</string>
+    <string name="dat_no_folder">Esta consola ainda não tem pasta no dispositivo</string>
+    <string name="dat_rename_failed">Não foi possível mudar o nome de %1$s</string>
+    <string name="dat_renamed">%1$d de %2$d ficheiros renomeados</string>
+    <string name="dat_intro">Um ficheiro DAT lista cada dump correto de um sistema com as suas somas (no No-Intro ou Redump). Importa um por consola e depois verifica a pasta da consola.</string>
+    <string name="dat_set_line">%1$s %2$s · %3$d jogos</string>
+    <string name="dat_none">Sem DAT</string>
+    <string name="dat_none_hint">Ainda sem DAT: importa o .dat (ou o .zip) para esta consola</string>
+    <string name="dat_import">Importar DAT</string>
+    <string name="dat_replace">Outro DAT</string>
+    <string name="dat_check">Verificar</string>
+    <string name="dat_remove">Remover DAT</string>
+    <string name="dat_checking">A verificar %1$d de %2$d: %3$s</string>
+    <string name="dat_summary">✓ %1$d bons · %2$d nome errado · %3$d desconhecidos · %4$d não verificados</string>
+    <string name="dat_missing_line">%1$d dos %2$d jogos do DAT não estão nesta pasta</string>
+    <string name="dat_section_misnamed">Bons, mas com outro nome</string>
+    <string name="dat_section_misnamed_hint">Mudar o nome dá-lhes o nome do DAT (os frontends reconhecem-no melhor)</string>
+    <string name="dat_rename_all">Mudar o nome a todos (%1$d)</string>
+    <string name="dat_rename">Mudar o nome</string>
+    <string name="dat_section_unknown">Não estão no DAT</string>
+    <string name="dat_section_unknown_hint">Um dump mau ou alterado (patch, hack), ou um jogo que o DAT não lista</string>
+    <string name="dat_section_missing">Em falta nesta pasta</string>
+    <string name="dat_section_missing_hint">%1$d jogos (mostram-se os primeiros 200)</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save mudou nos dois lados — abre o Dogmatix para escolher</item>
         <item quantity="other">%d saves mudaram nos dois lados — abre o Dogmatix para escolher</item>
@@ -872,6 +910,14 @@
     <plurals name="details_in_collections">
         <item quantity="one">Em %1$d coleção</item>
         <item quantity="other">Em %1$d coleções</item>
+    </plurals>
+    <plurals name="collections_games">
+        <item quantity="one">%1$d jogo</item>
+        <item quantity="other">%1$d jogos</item>
+    </plurals>
+    <plurals name="switch_dlc_missing">
+        <item quantity="one">%1$d DLC não está no dispositivo</item>
+        <item quantity="other">%1$d DLC não estão no dispositivo</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

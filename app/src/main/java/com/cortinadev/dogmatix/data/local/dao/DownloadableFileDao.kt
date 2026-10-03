@@ -219,6 +219,10 @@ interface DownloadableFileDao {
     @Query("SELECT * FROM downloadable_files WHERE firstSeenAt >= :since AND firstSeenAt > 0 ORDER BY firstSeenAt DESC LIMIT :limit")
     suspend fun newestSince(since: Long, limit: Int): List<DownloadableFileEntity>
 
+    /** Consoles with Switch container files (nsp, nsz, xci, xcz). */
+    @Query("SELECT DISTINCT consoleId FROM downloadable_files WHERE lower(fileName) LIKE '%.nsp' OR lower(fileName) LIKE '%.nsz' OR lower(fileName) LIKE '%.xci' OR lower(fileName) LIKE '%.xcz'")
+    suspend fun switchConsoles(): List<String>
+
     /** All rows of one console (Switch updates / DLC). */
     @Query("SELECT * FROM downloadable_files WHERE consoleId = :consoleId")
     suspend fun filesOf(consoleId: String): List<DownloadableFileEntity>

@@ -807,6 +807,44 @@
     <string name="switch_update_newer">Update %1$d in your sources; you have %2$d</string>
     <string name="switch_update_current">You have the newest update (%1$d)</string>
     <string name="switch_dlc_line">DLC: %1$d in your sources, %2$d on this device</string>
+    <string name="nav_collections">Collections</string>
+    <string name="nav_switch">Switch updates &amp; DLC</string>
+    <string name="nav_dat">DAT check</string>
+    <string name="tools_collections_hint">Your own lists of games: open, rename, delete</string>
+    <string name="tools_switch_hint">Newer updates and DLC for the Switch games you have</string>
+    <string name="tools_dat_hint">Check your games against No-Intro / Redump DAT files</string>
+    <string name="collections_rename">Rename</string>
+    <string name="collections_delete_title">Delete %1$s?</string>
+    <string name="collections_delete_message">Only the list goes; the games stay in your library and on your device.</string>
+    <string name="collections_empty">No collections yet. Add a game to one from its details card (X), or make one here.</string>
+    <string name="switch_fetch_all">Get all (%1$d)</string>
+    <string name="switch_fetch">Get (%1$d)</string>
+    <string name="switch_none_on_disk">No Switch games with a title ID in their file name on this device</string>
+    <string name="switch_all_current">All %1$d Switch games are up to date with your sources</string>
+    <string name="dat_imported">DAT read: %1$d games</string>
+    <string name="dat_import_failed">Could not read the DAT: %1$s</string>
+    <string name="dat_no_folder">This console has no folder on this device yet</string>
+    <string name="dat_rename_failed">Could not rename %1$s</string>
+    <string name="dat_renamed">%1$d of %2$d files renamed</string>
+    <string name="dat_intro">A DAT file lists every good dump of a system with its checksums (get them from No-Intro or Redump). Import one per console, then check the console\'s folder.</string>
+    <string name="dat_set_line">%1$s %2$s · %3$d games</string>
+    <string name="dat_none">No DAT</string>
+    <string name="dat_none_hint">No DAT yet: import the .dat (or the .zip it comes in) for this console</string>
+    <string name="dat_import">Import DAT</string>
+    <string name="dat_replace">Other DAT</string>
+    <string name="dat_check">Check</string>
+    <string name="dat_remove">Remove DAT</string>
+    <string name="dat_checking">Checking %1$d of %2$d: %3$s</string>
+    <string name="dat_summary">✓ %1$d good · %2$d wrong name · %3$d unknown · %4$d not checked</string>
+    <string name="dat_missing_line">%1$d of the %2$d games in the DAT are not in this folder</string>
+    <string name="dat_section_misnamed">Good, but another name</string>
+    <string name="dat_section_misnamed_hint">Renaming gives them the DAT\'s name (frontends and scrapers recognise those best)</string>
+    <string name="dat_rename_all">Rename all (%1$d)</string>
+    <string name="dat_rename">Rename</string>
+    <string name="dat_section_unknown">Not in the DAT</string>
+    <string name="dat_section_unknown_hint">A bad or changed dump (a patch, a hack), or a game this DAT does not list</string>
+    <string name="dat_section_missing">Missing from this folder</string>
+    <string name="dat_section_missing_hint">%1$d games (the first 200 are shown)</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save changed on both sides — open Dogmatix to choose</item>
         <item quantity="other">%d saves changed on both sides — open Dogmatix to choose</item>
@@ -922,6 +960,14 @@
     <plurals name="details_in_collections">
         <item quantity="one">In %1$d collection</item>
         <item quantity="other">In %1$d collections</item>
+    </plurals>
+    <plurals name="collections_games">
+        <item quantity="one">%1$d game</item>
+        <item quantity="other">%1$d games</item>
+    </plurals>
+    <plurals name="switch_dlc_missing">
+        <item quantity="one">%1$d DLC not on this device</item>
+        <item quantity="other">%1$d DLC not on this device</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

@@ -806,6 +806,44 @@
     <string name="switch_update_newer">Update %1$d in je bronnen; jij hebt %2$d</string>
     <string name="switch_update_current">Je hebt de nieuwste update (%1$d)</string>
     <string name="switch_dlc_line">DLC: %1$d in je bronnen, %2$d op dit toestel</string>
+    <string name="nav_collections">Collecties</string>
+    <string name="nav_switch">Switch-updates en DLC</string>
+    <string name="nav_dat">DAT-controle</string>
+    <string name="tools_collections_hint">Je eigen lijsten met games: openen, hernoemen, verwijderen</string>
+    <string name="tools_switch_hint">Nieuwere updates en DLC voor je Switch-games</string>
+    <string name="tools_dat_hint">Controleer je games met DAT-bestanden van No-Intro / Redump</string>
+    <string name="collections_rename">Hernoemen</string>
+    <string name="collections_delete_title">%1$s verwijderen?</string>
+    <string name="collections_delete_message">Alleen de lijst verdwijnt; de games blijven in je bibliotheek en op je toestel.</string>
+    <string name="collections_empty">Nog geen collecties. Voeg een game toe via de detailkaart (X), of maak er hier een.</string>
+    <string name="switch_fetch_all">Alles ophalen (%1$d)</string>
+    <string name="switch_fetch">Ophalen (%1$d)</string>
+    <string name="switch_none_on_disk">Geen Switch-games met een title ID in de bestandsnaam op dit toestel</string>
+    <string name="switch_all_current">Alle %1$d Switch-games zijn bij met je bronnen</string>
+    <string name="dat_imported">DAT ingelezen: %1$d games</string>
+    <string name="dat_import_failed">Kon de DAT niet lezen: %1$s</string>
+    <string name="dat_no_folder">Deze console heeft nog geen map op dit toestel</string>
+    <string name="dat_rename_failed">Kon %1$s niet hernoemen</string>
+    <string name="dat_renamed">%1$d van %2$d bestanden hernoemd</string>
+    <string name="dat_intro">Een DAT-bestand somt elke goede dump van een systeem op met zijn controlegetallen (te halen bij No-Intro of Redump). Lees er één per console in en controleer dan de map van de console.</string>
+    <string name="dat_set_line">%1$s %2$s · %3$d games</string>
+    <string name="dat_none">Geen DAT</string>
+    <string name="dat_none_hint">Nog geen DAT: lees het .dat-bestand (of de .zip waarin het zit) voor deze console in</string>
+    <string name="dat_import">DAT inlezen</string>
+    <string name="dat_replace">Andere DAT</string>
+    <string name="dat_check">Controleren</string>
+    <string name="dat_remove">DAT verwijderen</string>
+    <string name="dat_checking">Controle %1$d van %2$d: %3$s</string>
+    <string name="dat_summary">✓ %1$d goed · %2$d verkeerde naam · %3$d onbekend · %4$d niet gecontroleerd</string>
+    <string name="dat_missing_line">%1$d van de %2$d games in de DAT staan niet in deze map</string>
+    <string name="dat_section_misnamed">Goed, maar andere naam</string>
+    <string name="dat_section_misnamed_hint">Hernoemen geeft ze de naam uit de DAT (frontends en scrapers herkennen die het best)</string>
+    <string name="dat_rename_all">Alles hernoemen (%1$d)</string>
+    <string name="dat_rename">Hernoemen</string>
+    <string name="dat_section_unknown">Niet in de DAT</string>
+    <string name="dat_section_unknown_hint">Een slechte of aangepaste dump (patch, hack), of een game die deze DAT niet kent</string>
+    <string name="dat_section_missing">Ontbreekt in deze map</string>
+    <string name="dat_section_missing_hint">%1$d games (de eerste 200 worden getoond)</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save is op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
         <item quantity="other">%d saves zijn op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
@@ -921,6 +959,14 @@
     <plurals name="details_in_collections">
         <item quantity="one">In %1$d collectie</item>
         <item quantity="other">In %1$d collecties</item>
+    </plurals>
+    <plurals name="collections_games">
+        <item quantity="one">%1$d game</item>
+        <item quantity="other">%1$d games</item>
+    </plurals>
+    <plurals name="switch_dlc_missing">
+        <item quantity="one">%1$d DLC niet op dit toestel</item>
+        <item quantity="other">%1$d DLC niet op dit toestel</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

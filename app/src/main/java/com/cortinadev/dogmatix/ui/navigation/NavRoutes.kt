@@ -17,10 +17,13 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     object Storage : NavRoutes("storage", R.string.nav_storage, R.drawable.ic_folder)
     object Wishlist : NavRoutes("wishlist", R.string.nav_wishlist, R.drawable.ic_star)
     object Files : NavRoutes("files", R.string.nav_files, R.drawable.ic_folder)
+    object Collections : NavRoutes("collections", R.string.nav_collections, R.drawable.ic_star)
+    object Switch : NavRoutes("switch", R.string.nav_switch, R.drawable.ic_gamepad)
+    object Dat : NavRoutes("dat", R.string.nav_dat, R.drawable.ic_check)
 
     companion object {
         /** The four sections shown as tabs; Contact, RomM and the library tools are reached from Settings. */
         val tabs by lazy { listOf(Home, Downloads, Sources, Settings) }
-        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files }
+        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat }
     }
 }

@@ -13,7 +13,9 @@ data class DiskEntry(
     val isDirectory: Boolean,
     /** Document URI under the picked tree; usable for [DiskScanner.delete] and as a child [DiskDir]. */
     val uri: Uri,
-    val documentId: String
+    val documentId: String,
+    /** Last change (epoch millis) as the provider reports it; 0 when unknown. */
+    val lastModified: Long = 0L
 )
 
 /** A directory inside a SAF tree: the tree it was granted through plus its own document id. */
@@ -31,7 +33,8 @@ object DiskScanner {
         DocumentsContract.Document.COLUMN_DOCUMENT_ID,
         DocumentsContract.Document.COLUMN_DISPLAY_NAME,
         DocumentsContract.Document.COLUMN_MIME_TYPE,
-        DocumentsContract.Document.COLUMN_SIZE
+        DocumentsContract.Document.COLUMN_SIZE,
+        DocumentsContract.Document.COLUMN_LAST_MODIFIED
     )
 
     /** The root directory of a persisted tree URI string, or null when it is not a tree. */
@@ -110,7 +113,8 @@ object DiskScanner {
                     }
                     val isDir = cursor.getString(2) == DocumentsContract.Document.MIME_TYPE_DIR
                     val size = if (cursor.isNull(3)) 0L else cursor.getLong(3)
-                    out += DiskEntry(name, size, isDir, DocumentsContract.buildDocumentUriUsingTree(dir.treeUri, id), id)
+                    val modified = if (cursor.isNull(4)) 0L else cursor.getLong(4)
+                    out += DiskEntry(name, size, isDir, DocumentsContract.buildDocumentUriUsingTree(dir.treeUri, id), id, modified)
                 }
                 out
             }

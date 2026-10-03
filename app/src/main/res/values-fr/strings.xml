@@ -811,6 +811,44 @@
     <string name="switch_update_newer">Mise à jour %1$d dans vos sources ; vous avez la %2$d</string>
     <string name="switch_update_current">Vous avez la dernière mise à jour (%1$d)</string>
     <string name="switch_dlc_line">DLC : %1$d dans vos sources, %2$d sur l\'appareil</string>
+    <string name="nav_collections">Collections</string>
+    <string name="nav_switch">Mises à jour et DLC Switch</string>
+    <string name="nav_dat">Vérification DAT</string>
+    <string name="tools_collections_hint">Vos propres listes de jeux : ouvrir, renommer, supprimer</string>
+    <string name="tools_switch_hint">Mises à jour et DLC plus récents pour vos jeux Switch</string>
+    <string name="tools_dat_hint">Vérifiez vos jeux avec des DAT No-Intro / Redump</string>
+    <string name="collections_rename">Renommer</string>
+    <string name="collections_delete_title">Supprimer %1$s ?</string>
+    <string name="collections_delete_message">Seule la liste disparaît ; les jeux restent dans la bibliothèque et sur l\'appareil.</string>
+    <string name="collections_empty">Pas encore de collection. Ajoutez un jeu depuis sa fiche (X) ou créez-en une ici.</string>
+    <string name="switch_fetch_all">Tout obtenir (%1$d)</string>
+    <string name="switch_fetch">Obtenir (%1$d)</string>
+    <string name="switch_none_on_disk">Aucun jeu Switch avec un title ID dans le nom de fichier sur l\'appareil</string>
+    <string name="switch_all_current">Les %1$d jeux Switch sont à jour par rapport à vos sources</string>
+    <string name="dat_imported">DAT lu : %1$d jeux</string>
+    <string name="dat_import_failed">Impossible de lire le DAT : %1$s</string>
+    <string name="dat_no_folder">Cette console n\'a pas encore de dossier sur l\'appareil</string>
+    <string name="dat_rename_failed">Impossible de renommer %1$s</string>
+    <string name="dat_renamed">%1$d fichiers sur %2$d renommés</string>
+    <string name="dat_intro">Un fichier DAT liste chaque bon dump d\'un système avec ses sommes de contrôle (chez No-Intro ou Redump). Importez-en un par console, puis vérifiez le dossier de la console.</string>
+    <string name="dat_set_line">%1$s %2$s · %3$d jeux</string>
+    <string name="dat_none">Pas de DAT</string>
+    <string name="dat_none_hint">Pas encore de DAT : importez le .dat (ou son .zip) pour cette console</string>
+    <string name="dat_import">Importer un DAT</string>
+    <string name="dat_replace">Autre DAT</string>
+    <string name="dat_check">Vérifier</string>
+    <string name="dat_remove">Retirer le DAT</string>
+    <string name="dat_checking">Vérification %1$d sur %2$d : %3$s</string>
+    <string name="dat_summary">✓ %1$d bons · %2$d mal nommés · %3$d inconnus · %4$d non vérifiés</string>
+    <string name="dat_missing_line">%1$d des %2$d jeux du DAT ne sont pas dans ce dossier</string>
+    <string name="dat_section_misnamed">Bons, mais autre nom</string>
+    <string name="dat_section_misnamed_hint">Les renommer leur donne le nom du DAT (mieux reconnu par les frontends)</string>
+    <string name="dat_rename_all">Tout renommer (%1$d)</string>
+    <string name="dat_rename">Renommer</string>
+    <string name="dat_section_unknown">Absents du DAT</string>
+    <string name="dat_section_unknown_hint">Un dump mauvais ou modifié (patch, hack), ou un jeu absent de ce DAT</string>
+    <string name="dat_section_missing">Absents de ce dossier</string>
+    <string name="dat_section_missing_hint">%1$d jeux (les 200 premiers sont affichés)</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d sauvegarde modifiée des deux côtés — ouvrez Dogmatix pour choisir</item>
         <item quantity="other">%d sauvegardes modifiées des deux côtés — ouvrez Dogmatix pour choisir</item>
@@ -926,6 +964,14 @@
     <plurals name="details_in_collections">
         <item quantity="one">Dans %1$d collection</item>
         <item quantity="other">Dans %1$d collections</item>
+    </plurals>
+    <plurals name="collections_games">
+        <item quantity="one">%1$d jeu</item>
+        <item quantity="other">%1$d jeux</item>
+    </plurals>
+    <plurals name="switch_dlc_missing">
+        <item quantity="one">%1$d DLC absent de l\'appareil</item>
+        <item quantity="other">%1$d DLC absents de l\'appareil</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

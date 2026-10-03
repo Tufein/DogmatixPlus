@@ -102,6 +102,9 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { ToolRow(stringResource(R.string.nav_storage), listOf(stringResource(R.string.tools_storage_hint)), { go(NavRoutes.Storage) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_wishlist), listOf(stringResource(R.string.tools_wishlist_hint)), { go(NavRoutes.Wishlist) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_files), listOf(stringResource(R.string.tools_files_hint)), { go(NavRoutes.Files) }, trailing = chevron) }
+            item { ToolRow(stringResource(R.string.nav_collections), listOf(stringResource(R.string.tools_collections_hint)), { go(NavRoutes.Collections) }, trailing = chevron) }
+            item { ToolRow(stringResource(R.string.nav_switch), listOf(stringResource(R.string.tools_switch_hint)), { go(NavRoutes.Switch) }, trailing = chevron) }
+            item { ToolRow(stringResource(R.string.nav_dat), listOf(stringResource(R.string.tools_dat_hint)), { go(NavRoutes.Dat) }, trailing = chevron) }
             item {
                 val launch = { csvLauncher.launch("dogmatixplus-collection-${LocalDate.now()}.csv") }
                 ToolRow(stringResource(R.string.tools_export_csv), listOf(stringResource(R.string.tools_export_csv_hint)), launch) { PillButton(stringResource(R.string.tools_export_action), launch) }
