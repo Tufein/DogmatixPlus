@@ -33,6 +33,14 @@ class DogmatixApplication : Application() {
     @Inject
     lateinit var rommTrustService: com.cortinadev.dogmatix.data.service.RommTrustService
 
+    /** Injected so the marks of games on the RomM server are read from the first launch. */
+    @Inject
+    lateinit var rommLibraryService: com.cortinadev.dogmatix.data.service.RommLibraryService
+
+    /** Injected so the background save sync job follows its settings from the start. */
+    @Inject
+    lateinit var saveSyncScheduler: com.cortinadev.dogmatix.data.service.SaveSyncScheduler
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
     override fun onCreate() {
@@ -81,7 +89,18 @@ class DogmatixApplication : Application() {
             description = getString(R.string.notification_channel_downloads_desc)
             setShowBadge(false)
         }
-        getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(channel)
+        manager.createNotificationChannel(
+            NotificationChannel(SYNC_CHANNEL_ID, getString(R.string.notification_channel_sync), NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = getString(R.string.notification_channel_sync_desc)
+            }
+        )
+        manager.createNotificationChannel(
+            NotificationChannel(WISHLIST_CHANNEL_ID, getString(R.string.notification_channel_wishlist), NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = getString(R.string.notification_channel_wishlist_desc)
+            }
+        )
     }
 
     /**
@@ -101,5 +120,7 @@ class DogmatixApplication : Application() {
 
     companion object {
         const val DOWNLOAD_CHANNEL_ID = "download_channel"
+        const val SYNC_CHANNEL_ID = "sync_channel"
+        const val WISHLIST_CHANNEL_ID = "wishlist_channel"
     }
 }

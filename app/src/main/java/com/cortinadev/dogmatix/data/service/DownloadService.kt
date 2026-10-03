@@ -16,6 +16,13 @@ import com.cortinadev.dogmatix.util.ArchiveExtractionUtils
 import com.cortinadev.dogmatix.util.Constants
 import com.cortinadev.dogmatix.util.RommSource
 import com.cortinadev.dogmatix.util.DebridMatcher
+import com.cortinadev.dogmatix.util.Checksums
+import com.cortinadev.dogmatix.util.ExpectedHash
+import com.cortinadev.dogmatix.util.StorageHelper
+import com.cortinadev.dogmatix.util.VerifyState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +65,8 @@ class DownloadService @Inject constructor(
     private val historyDao: DownloadHistoryDao,
     private val torBoxClient: TorBoxClient,
     private val realDebridClient: RealDebridClient,
-    private val rommClient: RommClient
+    private val rommClient: RommClient,
+    private val downloadGate: DownloadGate
 ) {
     val downloads: StateFlow<List<DownloadItemModel>> = downloadProgressTracker.downloads
 
@@ -69,6 +77,17 @@ class DownloadService @Inject constructor(
      */
     private val _finished = MutableSharedFlow<String>(extraBufferCapacity = 32)
     val finished: SharedFlow<String> = _finished.asSharedFlow()
+
+    private val _waiting = MutableStateFlow<Set<String>>(emptySet())
+    /** Downloads held back by the schedule (Wi-Fi / charger / night); see [DownloadGate]. */
+    val waitingFiles: StateFlow<Set<String>> = _waiting.asStateFlow()
+    val gate: DownloadGate get() = downloadGate
+
+    private val _verification = MutableStateFlow<Map<String, VerifyState>>(emptyMap())
+    /** Result of checking a finished download against the hash its source published. */
+    val verification: StateFlow<Map<String, VerifyState>> = _verification.asStateFlow()
+    /** Hash the server announced in the response headers of the transfer in progress, per file. */
+    private val headerHashes = ConcurrentHashMap<String, String>()
 
     private val downloadJobs = ConcurrentHashMap<String, Job>()
     private var downloadSemaphore = Semaphore(3)
@@ -127,6 +146,7 @@ class DownloadService @Inject constructor(
         val job = serviceScope.launch {
             try {
                 downloadSemaphore.withPermit {
+                    awaitSchedule(file.fileName)
                     // Brief delay to allow the foreground service and initial UI state to settle
                     // before network/torrent activity begins.
                     delay(1000L)
@@ -143,6 +163,17 @@ class DownloadService @Inject constructor(
             }
         }
         downloadJobs[file.fileName] = job
+    }
+
+    /** Waits while the user's schedule (Wi-Fi only, charging only, night only) says no. */
+    private suspend fun awaitSchedule(fileName: String) {
+        if (downloadGate.waiting.value.isEmpty()) return
+        _waiting.update { it + fileName }
+        try {
+            downloadGate.awaitGo()
+        } finally {
+            _waiting.update { it - fileName }
+        }
     }
 
     /** Routes a file to the debrid, torrent or plain HTTP path (decided at start and on every retry). */
@@ -197,6 +228,7 @@ class DownloadService @Inject constructor(
         val entity = downloadEntities[fileName] ?: return
         // Reset the existing list entry in place — calling startDownload would add a duplicate.
         downloadProgressTracker.resetDownloadForRetry(fileName)
+        _verification.update { it - fileName }
         serviceScope.launch {
             historyDao.markRestarted(fileName, DownloadStatus.DOWNLOADING.name, System.currentTimeMillis())
         }
@@ -204,6 +236,7 @@ class DownloadService @Inject constructor(
         val job = serviceScope.launch {
             try {
                 downloadSemaphore.withPermit {
+                    awaitSchedule(entity.fileName)
                     delay(1000L)
                     perform(entity)
                 }
@@ -225,6 +258,7 @@ class DownloadService @Inject constructor(
         val entity = downloadEntities.remove(fileName)
         val extracted = extractedFilesMap.remove(fileName) ?: emptyList()
         val debrid = debridTorrents.remove(fileName)
+        _verification.update { it - fileName }
         serviceScope.launch {
             if (debrid != null) debrid.first.delete(debrid.second)
             else if (entity?.isTorrent == true) torrentDownloadService.cancelDownload(entity)
@@ -526,6 +560,11 @@ class DownloadService @Inject constructor(
                 startOffset = 0L
             }
             val contentLength = connection.contentLengthLong.let { if (it > 0) it + startOffset else it }
+            // A server that announces the hash of the whole body lets the finished file be checked.
+            if (startOffset == 0L) {
+                (Checksums.fromContentMd5(connection.getHeaderField("Content-MD5")) ?: Checksums.fromDigestHeader(connection.getHeaderField("Digest")))
+                    ?.let { headerHashes[file.fileName] = it } ?: headerHashes.remove(file.fileName)
+            }
 
             streamWithProgress(inputStream, outputStream, file, speedLimit, contentLength, startOffset)
             handlePostDownload(file, documentFile, subPath)
@@ -606,6 +645,7 @@ class DownloadService @Inject constructor(
             updateStatus(file.fileName, DownloadStatus.COMPLETED)
             _finished.tryEmit(file.fileName)
             checkServiceLifecycle()
+            verifyInBackground(file, documentFile)
             return
         }
 
@@ -625,6 +665,45 @@ class DownloadService @Inject constructor(
         updateStatus(file.fileName, DownloadStatus.COMPLETED)
         _finished.tryEmit(file.fileName)
         checkServiceLifecycle()
+    }
+
+    /**
+     * Compares the finished file with the hash its source published (RomM lists one per game; some
+     * servers send `Content-MD5` / `Digest`). Nothing to compare = nothing shown. Runs on its own so
+     * the download is already usable while a big file is read through.
+     */
+    private fun verifyInBackground(file: DownloadableFileEntity, documentFile: DocumentFile) {
+        val expected: ExpectedHash = Checksums.parse(file.expectedHash) ?: Checksums.parse(headerHashes.remove(file.fileName)) ?: return
+        serviceScope.launch {
+            _verification.update { it + (file.fileName to VerifyState.CHECKING) }
+            val state = runCatching {
+                val actual = context.contentResolver.openInputStream(documentFile.uri)?.use { Checksums.hexOf(it, expected.algo) }
+                if (actual != null && Checksums.matches(expected, actual)) VerifyState.VERIFIED else VerifyState.MISMATCH
+            }.getOrElse { e ->
+                Log.w(TAG, "Could not check ${file.fileName}: ${e.message}")
+                null
+            }
+            _verification.update { if (state == null) it - file.fileName else it + (file.fileName to state) }
+            if (state == VerifyState.MISMATCH) Log.w(TAG, "Checksum of ${file.fileName} differs from the one the source published")
+        }
+    }
+
+    /**
+     * An intent that opens the finished download in whichever app handles the file (an emulator,
+     * a file manager), or null when the file cannot be found. For a download that was unpacked, the
+     * game file is picked from what was extracted (a sheet or image rather than its tracks).
+     */
+    suspend fun openIntentFor(fileName: String): Intent? {
+        val entity = downloadEntities[fileName] ?: return null
+        val dirUri = downloadFileManager.getDownloadDirectoryUri(entity)
+        if (dirUri == android.net.Uri.EMPTY) return null
+        val dir = StorageHelper.createDirectory(context, dirUri.toString(), downloadFileManager.getSubPath(entity)) ?: return null
+        val priority = listOf("m3u", "cue", "gdi", "chd", "iso", "pbp", "ccd", "mds")
+        val names = uploadCandidates(fileName).sortedBy { n -> priority.indexOf(n.substringAfterLast('.').lowercase()).let { if (it < 0) priority.size else it } }
+        val doc = names.firstNotNullOfOrNull { dir.findFile(it)?.takeIf { f -> f.isFile } } ?: return null
+        return Intent(Intent.ACTION_VIEW)
+            .setDataAndType(doc.uri, "application/octet-stream")
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
     }
 
     private suspend fun updateStatus(fileName: String, status: DownloadStatus) =

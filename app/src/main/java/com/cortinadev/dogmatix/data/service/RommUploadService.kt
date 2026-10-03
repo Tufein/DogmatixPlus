@@ -8,6 +8,9 @@ import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.RommPlatformMapper
 import com.cortinadev.dogmatix.util.RommSource
 import com.cortinadev.dogmatix.util.StorageHelper
+import com.cortinadev.dogmatix.util.UploadSession
+import com.cortinadev.dogmatix.util.UploadSessions
+import java.io.File
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,16 +47,30 @@ class RommUploadService @Inject constructor(
     private val downloadService: DownloadService,
     private val downloadableFileDao: DownloadableFileDao,
     private val downloadFileManager: DownloadFileManager,
-    private val rommClient: RommClient
+    private val rommClient: RommClient,
+    private val rommLibraryService: RommLibraryService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val uploadLock = Mutex()
+    private val sessionFile = File(context.filesDir, "romm_upload_sessions.json")
+    /** Server-side upload sessions that were cut short; continued instead of started over. Guarded by [uploadLock]. */
+    private val sessions = LinkedHashMap<String, UploadSession>()
 
     private val _uploads = MutableStateFlow<Map<String, UploadState>>(emptyMap())
     /** Upload state per download file name; absent = nothing to show. */
     val uploads: StateFlow<Map<String, UploadState>> = _uploads.asStateFlow()
 
     init {
+        loadSessions()
+        // An upload cut short by a dying process is picked up again once the downloads list is back.
+        scope.launch {
+            downloadService.downloads.first { it.isNotEmpty() || sessions.isEmpty() }
+            delay(3_000L)
+            if (settingsRepository.rommAutoUpload.first()) {
+                val pending = uploadLock.withLock { sessions.values.map { it.downloadFileName }.distinct() }
+                pending.forEach { launch { enqueue(it) } }
+            }
+        }
         // Fires once per download, only when the file is really in place (see DownloadService.finished).
         scope.launch {
             downloadService.finished.collect { fileName ->
@@ -82,7 +99,10 @@ class RommUploadService @Inject constructor(
             val result = runCatching { uploadAll(file, names, platformId) }
             _uploads.update {
                 it + (fileName to result.fold(
-                    onSuccess = { UploadState(UploadStatus.DONE, 1f) },
+                    onSuccess = {
+                        names.forEach { rommLibraryService.markUploaded(file.consoleId, it) }
+                        UploadState(UploadStatus.DONE, 1f)
+                    },
                     onFailure = { e -> Log.w(TAG, "RomM upload failed for $fileName: ${e.message}"); UploadState(UploadStatus.FAILED, message = e.message.orEmpty()) }
                 ))
             }
@@ -105,7 +125,7 @@ class RommUploadService @Inject constructor(
             for (attempt in 0 until ATTEMPTS) {
                 try {
                     if (attempt > 0) delay(3_000L)
-                    uploadOne(doc.uri, name, doc.length(), platformId) { done ->
+                    uploadOne(doc.uri, name, doc.length(), platformId, file.fileName) { done ->
                         _uploads.update { it + (file.fileName to UploadState(UploadStatus.UPLOADING, (sent + done).toFloat() / totalBytes.coerceAtLeast(1))) }
                     }
                     lastError = null
@@ -121,33 +141,94 @@ class RommUploadService @Inject constructor(
         }
     }
 
-    private suspend fun uploadOne(uri: android.net.Uri, name: String, size: Long, platformId: Int, onProgress: (Long) -> Unit) {
+    /**
+     * Sends one file in chunks. A cut-short upload keeps its server session (and is written to
+     * disk), so the next try continues at the first chunk the server has not got instead of
+     * sending everything again; if the server no longer knows the session it starts over.
+     */
+    private suspend fun uploadOne(uri: android.net.Uri, name: String, size: Long, platformId: Int, downloadFileName: String, onProgress: (Long) -> Unit) {
         val chunks = RommPlatformMapper.chunkCount(size, CHUNK_SIZE)
-        val uploadId = rommClient.uploadStart(platformId, name, size, chunks)
-        try {
-            context.contentResolver.openInputStream(uri)?.use { input ->
-                val buffer = ByteArray(CHUNK_SIZE)
-                var index = 0
-                var done = 0L
-                while (index < chunks) {
-                    var filled = 0
-                    while (filled < buffer.size) {
-                        val n = input.read(buffer, filled, buffer.size - filled)
-                        if (n < 0) break
-                        filled += n
-                    }
-                    rommClient.uploadChunk(uploadId, index, buffer, filled)
-                    done += filled
-                    onProgress(done)
-                    index++
-                    if (filled < buffer.size) break
+        // Runs inside the upload lock (see enqueue), so the session list is not touched concurrently.
+        var resumed = UploadSessions.resumable(sessions.values, platformId, name, size, chunks, System.currentTimeMillis())
+        while (true) {
+            val session = resumed ?: UploadSession(
+                downloadFileName, platformId, name, size, chunks,
+                rommClient.uploadStart(platformId, name, size, chunks), 0, System.currentTimeMillis()
+            ).also { remember(it) }
+            try {
+                sendChunks(uri, name, session, chunks, onProgress)
+                rommClient.uploadComplete(session.uploadId)
+                forget(session)
+                Log.i(TAG, "Uploaded $name to RomM platform $platformId" + if (resumed != null) " (resumed at chunk ${session.nextChunk})" else "")
+                return
+            } catch (e: Exception) {
+                val code = (e as? JsonHttp.HttpException)?.code
+                if (resumed != null && !UploadSessions.isTransient(code)) {
+                    // The server dropped the half-finished upload: forget it and send the file afresh.
+                    Log.i(TAG, "RomM no longer has the upload of $name (HTTP $code); starting over")
+                    forget(session)
+                    resumed = null
+                    continue
                 }
-            } ?: throw RommException("Could not read $name")
-            rommClient.uploadComplete(uploadId)
-            Log.i(TAG, "Uploaded $name to RomM platform $platformId")
-        } catch (e: Exception) {
-            rommClient.uploadCancel(uploadId)
-            throw e
+                if (UploadSessions.isTransient(code)) {
+                    Log.i(TAG, "Upload of $name interrupted; it can continue at the next try")
+                } else {
+                    forget(session)
+                    rommClient.uploadCancel(session.uploadId)
+                }
+                throw e
+            }
+        }
+    }
+
+    private suspend fun sendChunks(uri: android.net.Uri, name: String, session: UploadSession, chunks: Int, onProgress: (Long) -> Unit) {
+        context.contentResolver.openInputStream(uri)?.use { input ->
+            var skip = UploadSessions.offsetOf(session.nextChunk, CHUNK_SIZE)
+            while (skip > 0) {
+                val skipped = input.skip(skip)
+                if (skipped <= 0) { if (input.read() < 0) break else skip-- } else skip -= skipped
+            }
+            val buffer = ByteArray(CHUNK_SIZE)
+            var index = session.nextChunk
+            var done = UploadSessions.offsetOf(session.nextChunk, CHUNK_SIZE)
+            while (index < chunks) {
+                var filled = 0
+                while (filled < buffer.size) {
+                    val n = input.read(buffer, filled, buffer.size - filled)
+                    if (n < 0) break
+                    filled += n
+                }
+                rommClient.uploadChunk(session.uploadId, index, buffer, filled)
+                done += filled
+                onProgress(done)
+                index++
+                remember(session.copy(nextChunk = index.coerceAtMost(chunks - 1), updatedAt = System.currentTimeMillis()).takeIf { index < chunks })
+                if (filled < buffer.size) break
+            }
+        } ?: throw RommException("Could not read $name")
+    }
+
+    private fun remember(session: UploadSession?) {
+        session ?: return
+        sessions[session.key] = session
+        saveSessions()
+    }
+
+    private fun forget(session: UploadSession) {
+        sessions.remove(session.key)
+        saveSessions()
+    }
+
+    private fun loadSessions() {
+        runCatching { if (sessionFile.exists()) UploadSessions.decode(sessionFile.readText()).forEach { sessions[it.key] = it } }
+    }
+
+    private fun saveSessions() {
+        runCatching {
+            if (sessions.isEmpty()) { sessionFile.delete(); return }
+            val tmp = File(sessionFile.parentFile, sessionFile.name + ".tmp")
+            tmp.writeText(UploadSessions.encode(sessions.values))
+            if (!tmp.renameTo(sessionFile)) { sessionFile.delete(); tmp.renameTo(sessionFile) }
         }
     }
 }

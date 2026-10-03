@@ -553,4 +553,20 @@
     <string name="save_sync_summary_failed">%1$d fehlgeschlagen</string>
     <string name="save_sync_toast">Spielstände mit RomM synchronisiert: ↑ %1$d · ↓ %2$d</string>
     <string name="save_sync_toast_conflicts">Synchronisieren: %1$d Spielstand/-stände auf beiden Seiten geändert — siehe Einstellungen → Spielstände synchronisieren</string>
+
+    <!-- 1.2.0-alpha.1 strings (generated) -->
+    <string name="notification_channel_sync">Spielstand-Sync</string>
+    <string name="notification_channel_sync_desc">Meldet, wenn ein Spielstand deine Entscheidung braucht</string>
+    <string name="notification_channel_wishlist">Wunschliste</string>
+    <string name="notification_channel_wishlist_desc">Meldet, wenn ein gewünschtes Spiel auftaucht</string>
+    <string name="save_sync_bg_title">Spielstand-Sync</string>
+    <plurals name="save_sync_bg_conflicts">
+        <item quantity="one">%d Spielstand wurde auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
+        <item quantity="other">%d Spielstände wurden auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
+    </plurals>
+    <plurals name="save_sync_bg_failed">
+        <item quantity="one">%d Spielstand konnte nicht synchronisiert werden</item>
+        <item quantity="other">%d Spielstände konnten nicht synchronisiert werden</item>
+    </plurals>
+    <!-- end 1.2.0-alpha.1 strings -->
 </resources>

@@ -53,7 +53,8 @@ class RommScrapingService @Inject constructor(
                     consoleId = console.id,
                     downloadUrl = RommSource.downloadUrl(base, rom.id, rom.fsName),
                     fileSize = rom.fsSizeBytes,
-                    fileExtension = rom.fsName.substringAfterLast('.', "").let { if (it.isEmpty()) "" else ".$it" }
+                    fileExtension = rom.fsName.substringAfterLast('.', "").let { if (it.isEmpty()) "" else ".$it" },
+                    expectedHash = rom.hash
                 )
                 tags += (tagStrings + contentTypeTag).distinct().map { FileTagEntity(fileId = 0L, tag = it) }
             }

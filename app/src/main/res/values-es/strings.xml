@@ -527,4 +527,20 @@
     <string name="save_sync_summary_failed">%1$d con error</string>
     <string name="save_sync_toast">Partidas sincronizadas con RomM: ↑ %1$d · ↓ %2$d</string>
     <string name="save_sync_toast_conflicts">Sincronización: %1$d partida(s) cambiadas en ambos lados — ver Ajustes → Sincronizar partidas</string>
+
+    <!-- 1.2.0-alpha.1 strings (generated) -->
+    <string name="notification_channel_sync">Sincronización de partidas</string>
+    <string name="notification_channel_sync_desc">Avisa cuando una partida necesita tu decisión</string>
+    <string name="notification_channel_wishlist">Lista de deseos</string>
+    <string name="notification_channel_wishlist_desc">Avisa cuando aparece un juego que quieres</string>
+    <string name="save_sync_bg_title">Sincronización de partidas</string>
+    <plurals name="save_sync_bg_conflicts">
+        <item quantity="one">%d partida cambió en ambos lados — abre Dogmatix para elegir</item>
+        <item quantity="other">%d partidas cambiaron en ambos lados — abre Dogmatix para elegir</item>
+    </plurals>
+    <plurals name="save_sync_bg_failed">
+        <item quantity="one">No se pudo sincronizar %d partida</item>
+        <item quantity="other">No se pudieron sincronizar %d partidas</item>
+    </plurals>
+    <!-- end 1.2.0-alpha.1 strings -->
 </resources>
