@@ -16,10 +16,11 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     object Sets : NavRoutes("sets", R.string.nav_sets, R.drawable.ic_folder)
     object Storage : NavRoutes("storage", R.string.nav_storage, R.drawable.ic_folder)
     object Wishlist : NavRoutes("wishlist", R.string.nav_wishlist, R.drawable.ic_star)
+    object Files : NavRoutes("files", R.string.nav_files, R.drawable.ic_folder)
 
     companion object {
         /** The four sections shown as tabs; Contact, RomM and the library tools are reached from Settings. */
         val tabs by lazy { listOf(Home, Downloads, Sources, Settings) }
-        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist }
+        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files }
     }
 }

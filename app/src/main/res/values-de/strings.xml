@@ -723,6 +723,29 @@
     <string name="source_result_failed">⚠ %1$s · %2$s</string>
     <string name="scan_report_hint">Ausgelastete Server erholen sich meist innerhalb einer Minute; nur diese erneut zu scannen klappt oft.</string>
     <string name="scan_report_retry">Diese erneut scannen</string>
+    <string name="nav_files">Dateimanager</string>
+    <string name="tools_files_hint">Schau in deine Ordner: Größen, Spieldateien, defekte Disc-Sets</string>
+    <string name="files_root_downloads">Download-Ordner</string>
+    <string name="files_root_esde">ES-DE-Ordner</string>
+    <string name="files_root_hint">Ein Ordner, den die App nutzen darf</string>
+    <string name="files_summary">%1$d Ordner · %2$d Dateien · %3$s</string>
+    <string name="files_up">Nach oben</string>
+    <string name="files_sort_size">Nach Größe</string>
+    <string name="files_sort_name">Nach Name</string>
+    <string name="files_measure">Ordnergröße</string>
+    <string name="files_sizing">Wird berechnet…</string>
+    <string name="files_size_result">Dieser Ordner: %1$s in %2$d Dateien</string>
+    <string name="files_check">Sets prüfen</string>
+    <string name="files_check_ok">Keine defekten Disc-Sets in diesem Ordner</string>
+    <string name="files_empty">Dieser Ordner ist leer</string>
+    <string name="files_badge_game">Spiel</string>
+    <string name="files_delete_title">Endgültig löschen?</string>
+    <string name="files_delete_file_message">%1$s (%2$s) wird gelöscht. Es gibt keinen Papierkorb.</string>
+    <string name="files_delete_folder_message">Der Ordner %1$s und alles darin wird gelöscht. Es gibt keinen Papierkorb.</string>
+    <string name="files_info_size">Größe: %1$s (%2$d Bytes)</string>
+    <string name="files_info_type">Typ: .%1$s</string>
+    <string name="files_info_game">Zählt für die Bibliothekswerkzeuge als Spiel</string>
+    <string name="files_info_not_game">Keine Spieldatei: die Werkzeuge lassen sie in Ruhe</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d Spielstand wurde auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
         <item quantity="other">%d Spielstände wurden auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
@@ -790,6 +813,10 @@
     <plurals name="scan_report_title">
         <item quantity="one">%1$d Quelle konnte nicht gescannt werden</item>
         <item quantity="other">%1$d Quellen konnten nicht gescannt werden</item>
+    </plurals>
+    <plurals name="files_check_problems">
+        <item quantity="one">%1$d Problem in diesem Ordner</item>
+        <item quantity="other">%1$d Probleme in diesem Ordner</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

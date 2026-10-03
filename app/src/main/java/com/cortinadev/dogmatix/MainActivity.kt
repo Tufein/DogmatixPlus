@@ -363,6 +363,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.Sets.route) { SetsScreen() }
                     composable(NavRoutes.Storage.route) { StorageScreen() }
                     composable(NavRoutes.Wishlist.route) { WishlistScreen(navController) }
+                    composable(NavRoutes.Files.route) { com.cortinadev.dogmatix.ui.screens.tools.FileExplorerScreen() }
                 }
             }
 

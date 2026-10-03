@@ -697,6 +697,29 @@
     <string name="source_result_failed">⚠ %1$s · %2$s</string>
     <string name="scan_report_hint">Los servidores saturados suelen recuperarse en un minuto; escanear solo estas otra vez suele funcionar.</string>
     <string name="scan_report_retry">Escanear estas otra vez</string>
+    <string name="nav_files">Explorador de archivos</string>
+    <string name="tools_files_hint">Mira dentro de tus carpetas: tamaños, archivos de juego, discos incompletos</string>
+    <string name="files_root_downloads">Carpeta de descargas</string>
+    <string name="files_root_esde">Carpeta de ES-DE</string>
+    <string name="files_root_hint">Una carpeta que la app puede usar</string>
+    <string name="files_summary">%1$d carpetas · %2$d archivos · %3$s</string>
+    <string name="files_up">Subir</string>
+    <string name="files_sort_size">Por tamaño</string>
+    <string name="files_sort_name">Por nombre</string>
+    <string name="files_measure">Tamaño de carpeta</string>
+    <string name="files_sizing">Sumando…</string>
+    <string name="files_size_result">Esta carpeta: %1$s en %2$d archivos</string>
+    <string name="files_check">Comprobar</string>
+    <string name="files_check_ok">No hay discos incompletos en esta carpeta</string>
+    <string name="files_empty">Esta carpeta está vacía</string>
+    <string name="files_badge_game">Juego</string>
+    <string name="files_delete_title">¿Borrar definitivamente?</string>
+    <string name="files_delete_file_message">Se borrará %1$s (%2$s). No hay papelera.</string>
+    <string name="files_delete_folder_message">Se borrará la carpeta %1$s con todo su contenido. No hay papelera.</string>
+    <string name="files_info_size">Tamaño: %1$s (%2$d bytes)</string>
+    <string name="files_info_type">Tipo: .%1$s</string>
+    <string name="files_info_game">Cuenta como juego para las herramientas</string>
+    <string name="files_info_not_game">No es un archivo de juego: las herramientas lo ignoran</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d partida cambió en ambos lados — abre Dogmatix para elegir</item>
         <item quantity="other">%d partidas cambiaron en ambos lados — abre Dogmatix para elegir</item>
@@ -764,6 +787,10 @@
     <plurals name="scan_report_title">
         <item quantity="one">No se pudo escanear %1$d fuente</item>
         <item quantity="other">No se pudieron escanear %1$d fuentes</item>
+    </plurals>
+    <plurals name="files_check_problems">
+        <item quantity="one">%1$d problema en esta carpeta</item>
+        <item quantity="other">%1$d problemas en esta carpeta</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

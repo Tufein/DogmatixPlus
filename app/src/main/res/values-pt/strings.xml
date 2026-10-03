@@ -674,6 +674,29 @@
     <string name="source_result_failed">⚠ %1$s · %2$s</string>
     <string name="scan_report_hint">Os servidores sobrecarregados costumam recuperar num minuto; analisar só estas de novo resulta muitas vezes.</string>
     <string name="scan_report_retry">Analisar estas de novo</string>
+    <string name="nav_files">Explorador de ficheiros</string>
+    <string name="tools_files_hint">Vê dentro das pastas: tamanhos, ficheiros de jogo, discos incompletos</string>
+    <string name="files_root_downloads">Pasta de downloads</string>
+    <string name="files_root_esde">Pasta do ES-DE</string>
+    <string name="files_root_hint">Uma pasta que a app pode usar</string>
+    <string name="files_summary">%1$d pastas · %2$d ficheiros · %3$s</string>
+    <string name="files_up">Subir</string>
+    <string name="files_sort_size">Por tamanho</string>
+    <string name="files_sort_name">Por nome</string>
+    <string name="files_measure">Tamanho da pasta</string>
+    <string name="files_sizing">A somar…</string>
+    <string name="files_size_result">Esta pasta: %1$s em %2$d ficheiros</string>
+    <string name="files_check">Verificar</string>
+    <string name="files_check_ok">Nenhum disco incompleto nesta pasta</string>
+    <string name="files_empty">Esta pasta está vazia</string>
+    <string name="files_badge_game">Jogo</string>
+    <string name="files_delete_title">Apagar definitivamente?</string>
+    <string name="files_delete_file_message">%1$s (%2$s) será apagado. Não há reciclagem.</string>
+    <string name="files_delete_folder_message">A pasta %1$s e tudo o que contém serão apagados. Não há reciclagem.</string>
+    <string name="files_info_size">Tamanho: %1$s (%2$d bytes)</string>
+    <string name="files_info_type">Tipo: .%1$s</string>
+    <string name="files_info_game">Conta como jogo para as ferramentas</string>
+    <string name="files_info_not_game">Não é um ficheiro de jogo: as ferramentas ignoram-no</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save mudou nos dois lados — abre o Dogmatix para escolher</item>
         <item quantity="other">%d saves mudaram nos dois lados — abre o Dogmatix para escolher</item>
@@ -741,6 +764,10 @@
     <plurals name="scan_report_title">
         <item quantity="one">%1$d fonte não pôde ser analisada</item>
         <item quantity="other">%1$d fontes não puderam ser analisadas</item>
+    </plurals>
+    <plurals name="files_check_problems">
+        <item quantity="one">%1$d problema nesta pasta</item>
+        <item quantity="other">%1$d problemas nesta pasta</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

@@ -728,6 +728,29 @@
     <string name="source_result_failed">⚠ %1$s · %2$s</string>
     <string name="scan_report_hint">Les serveurs surchargés se rétablissent souvent en une minute ; ne rescanner que celles-ci suffit souvent.</string>
     <string name="scan_report_retry">Rescanner celles-ci</string>
+    <string name="nav_files">Explorateur de fichiers</string>
+    <string name="tools_files_hint">Regardez dans vos dossiers : tailles, fichiers de jeu, jeux incomplets</string>
+    <string name="files_root_downloads">Dossier de téléchargement</string>
+    <string name="files_root_esde">Dossier ES-DE</string>
+    <string name="files_root_hint">Un dossier que l\'app peut utiliser</string>
+    <string name="files_summary">%1$d dossiers · %2$d fichiers · %3$s</string>
+    <string name="files_up">Remonter</string>
+    <string name="files_sort_size">Par taille</string>
+    <string name="files_sort_name">Par nom</string>
+    <string name="files_measure">Taille du dossier</string>
+    <string name="files_sizing">Calcul…</string>
+    <string name="files_size_result">Ce dossier : %1$s en %2$d fichiers</string>
+    <string name="files_check">Vérifier</string>
+    <string name="files_check_ok">Aucun jeu incomplet dans ce dossier</string>
+    <string name="files_empty">Ce dossier est vide</string>
+    <string name="files_badge_game">Jeu</string>
+    <string name="files_delete_title">Supprimer définitivement ?</string>
+    <string name="files_delete_file_message">%1$s (%2$s) sera supprimé. Il n\'y a pas de corbeille.</string>
+    <string name="files_delete_folder_message">Le dossier %1$s et tout son contenu seront supprimés. Il n\'y a pas de corbeille.</string>
+    <string name="files_info_size">Taille : %1$s (%2$d octets)</string>
+    <string name="files_info_type">Type : .%1$s</string>
+    <string name="files_info_game">Compte comme un jeu pour les outils</string>
+    <string name="files_info_not_game">Pas un fichier de jeu : les outils l\'ignorent</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d sauvegarde modifiée des deux côtés — ouvrez Dogmatix pour choisir</item>
         <item quantity="other">%d sauvegardes modifiées des deux côtés — ouvrez Dogmatix pour choisir</item>
@@ -795,6 +818,10 @@
     <plurals name="scan_report_title">
         <item quantity="one">%1$d source n\'a pas pu être analysée</item>
         <item quantity="other">%1$d sources n\'ont pas pu être analysées</item>
+    </plurals>
+    <plurals name="files_check_problems">
+        <item quantity="one">%1$d problème dans ce dossier</item>
+        <item quantity="other">%1$d problèmes dans ce dossier</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>
