@@ -31,6 +31,16 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
+### New in 2.0
+- **Faster rescans**: sources whose list did not change are skipped (6 sources of 4,000 games: from 18 s to 2 s). A source that fails keeps its games, and a web source can have **reserve addresses**.
+- **Scan in the background** (daily, on Wi-Fi, while charging, at night) with a notification when new games turn up; new games get a **New** badge, a filter and a *Newest first* sort.
+- **Collections**: your own lists next to the favourites.
+- **Download everything shown**, after a check of count, size and free space; optionally only the best version of each game.
+- **Nintendo Switch updates and DLC**: see which update or DLC you are missing and fetch it.
+- **DAT check** against No-Intro / Redump: good dumps, wrong names (renamed with one tap), unknown files and missing games.
+- **The speed limit works** (it never did before) for all downloads together, torrents included, optionally not at night.
+- **File explorer** can rename, move and unpack; **share your sources as a QR code**; **install updates from inside the app**; a **home-screen widget**; a **bold focus ring** for TV and handheld use.
+
 ### Find games
 - **One list** with the games from all your sources.
 - **Search** that forgives mistakes: accents, dashes and doubled letters don't matter, so "yugioh" finds *Yu-Gi-Oh!*.

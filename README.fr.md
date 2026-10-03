@@ -31,6 +31,16 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveau dans 2.0
+- **Réanalyses plus rapides** : les sources dont la liste n'a pas changé sont ignorées (6 sources de 4 000 jeux : de 18 s à 2 s). Une source en échec garde ses jeux, et une source web peut avoir des **adresses de secours**.
+- **Analyse en arrière-plan** (chaque jour, en Wi-Fi, en charge, la nuit) avec une notification quand de nouveaux jeux apparaissent ; les nouveaux jeux ont un badge **Nouveau**, un filtre et un tri *Plus récents d'abord*.
+- **Collections** : vos propres listes, à côté des favoris.
+- **Tout télécharger** ce qui est affiché, après vérification du nombre, de la taille et de l'espace libre ; au choix seulement la meilleure version de chaque jeu.
+- **Mises à jour et DLC Nintendo Switch** : voyez ce qui vous manque et récupérez-le.
+- **Vérification DAT** avec No-Intro / Redump : bons dumps, mauvais noms (renommés d'une touche), fichiers inconnus et jeux manquants.
+- **La limite de vitesse fonctionne** (ce n'était jamais le cas) pour tous les téléchargements ensemble, torrents compris, au choix sans limite la nuit.
+- L'**explorateur de fichiers** renomme, déplace et extrait ; **partagez vos sources en code QR** ; **installez les mises à jour depuis l'app** ; un **widget** d'écran d'accueil ; un **contour de focus épais** pour la télé et les consoles portables.
+
 ### Trouver des jeux
 - **Une seule liste** avec les jeux de toutes vos sources.
 - **Une recherche** qui pardonne les erreurs : les accents, les tirets et les lettres doublées n’ont pas d’importance, donc « yugioh » trouve *Yu-Gi-Oh!*.

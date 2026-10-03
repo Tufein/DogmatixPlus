@@ -31,6 +31,16 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 2.0
+- **Reescaneos más rápidos**: se omiten las fuentes cuya lista no cambió (6 fuentes de 4000 juegos: de 18 s a 2 s). Una fuente que falla conserva sus juegos, y una fuente web puede tener **direcciones de reserva**.
+- **Escaneo en segundo plano** (cada día, con wifi, mientras carga, de noche) con un aviso cuando aparecen juegos nuevos; los juegos nuevos llevan la etiqueta **Nuevo**, un filtro y el orden *Más recientes primero*.
+- **Colecciones**: tus propias listas junto a los favoritos.
+- **Descargar todo lo que se muestra**, tras comprobar cantidad, tamaño y espacio libre; si quieres, solo la mejor versión de cada juego.
+- **Actualizaciones y DLC de Nintendo Switch**: mira qué actualización o DLC te falta y descárgalo.
+- **Comprobación DAT** con No-Intro / Redump: volcados buenos, nombres incorrectos (renombrados con un toque), archivos desconocidos y juegos que faltan.
+- **El límite de velocidad funciona** (antes nunca lo hizo) para todas las descargas juntas, torrents incluidos, y si quieres sin límite de noche.
+- El **explorador de archivos** renombra, mueve y descomprime; **comparte tus fuentes como código QR**; **instala actualizaciones desde la app**; un **widget** de pantalla de inicio; un **borde de foco grueso** para la tele y las portátiles.
+
 ### Encontrar juegos
 - **Una sola lista** con los juegos de todas tus fuentes.
 - **Búsqueda** que perdona los errores: los acentos, los guiones y las letras dobles no importan, así que «yugioh» encuentra *Yu-Gi-Oh!*.

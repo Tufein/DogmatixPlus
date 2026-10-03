@@ -561,7 +561,7 @@
     <string name="notification_channel_wishlist_desc">Meldet, wenn ein gewünschtes Spiel auftaucht</string>
     <string name="save_sync_bg_title">Spielstand-Sync</string>
     <string name="settings_tools">Bibliothekswerkzeuge</string>
-    <string name="settings_tools_hint">Duplikate, Spielsets, Speicher, Wunschliste, Export</string>
+    <string name="settings_tools_hint">Duplikate, Sets, Dateien, Sammlungen, Switch, DAT-Prüfung, Export</string>
     <string name="nav_sets">Spielsets</string>
     <string name="nav_storage">Speicher</string>
     <string name="nav_wishlist">Wunschliste</string>

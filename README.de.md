@@ -31,6 +31,16 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 2.0
+- **Schnellere Scans**: Quellen, deren Liste sich nicht geändert hat, werden übersprungen (6 Quellen mit 4.000 Spielen: von 18 s auf 2 s). Eine Quelle, die scheitert, behält ihre Spiele, und eine Webquelle kann **Ausweichadressen** haben.
+- **Scannen im Hintergrund** (täglich, über WLAN, beim Laden, nachts) mit einer Meldung, wenn neue Spiele auftauchen; neue Spiele bekommen ein **Neu**-Abzeichen, einen Filter und die Sortierung *Neueste zuerst*.
+- **Sammlungen**: eigene Listen neben den Favoriten.
+- **Alles Angezeigte herunterladen**, nach einer Prüfung von Anzahl, Größe und freiem Speicher; auf Wunsch nur die beste Version jedes Spiels.
+- **Nintendo-Switch-Updates und DLC**: sieh, welches Update oder DLC dir fehlt, und hol es.
+- **DAT-Prüfung** mit No-Intro / Redump: gute Dumps, falsche Namen (mit einem Tipp umbenannt), unbekannte Dateien und fehlende Spiele.
+- **Das Geschwindigkeitslimit funktioniert** (vorher nie) für alle Downloads zusammen, Torrents eingeschlossen, auf Wunsch nachts ohne Limit.
+- Der **Dateimanager** kann umbenennen, verschieben und entpacken; **teile deine Quellen als QR-Code**; **installiere Updates aus der App**; ein **Startbildschirm-Widget**; ein **dicker Fokusrahmen** für Fernseher und Handheld.
+
 ### Spiele finden
 - **Eine Liste** mit den Spielen aus all deinen Quellen.
 - Eine **Suche**, die Fehler verzeiht: Akzente, Bindestriche und doppelte Buchstaben spielen keine Rolle, also findet „yugioh“ auch *Yu-Gi-Oh!*.

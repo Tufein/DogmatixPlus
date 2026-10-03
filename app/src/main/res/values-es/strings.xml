@@ -535,7 +535,7 @@
     <string name="notification_channel_wishlist_desc">Avisa cuando aparece un juego que quieres</string>
     <string name="save_sync_bg_title">Sincronización de partidas</string>
     <string name="settings_tools">Herramientas de la biblioteca</string>
-    <string name="settings_tools_hint">Duplicados, juegos de varios archivos, almacenamiento, deseos, exportar</string>
+    <string name="settings_tools_hint">Duplicados, juegos de varios archivos, archivos, colecciones, Switch, DAT, exportar</string>
     <string name="nav_sets">Juegos de varios archivos</string>
     <string name="nav_storage">Almacenamiento</string>
     <string name="nav_wishlist">Lista de deseos</string>

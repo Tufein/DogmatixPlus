@@ -512,7 +512,7 @@
     <string name="notification_channel_wishlist_desc">Ti avvisa quando compare un gioco che desideri</string>
     <string name="save_sync_bg_title">Sincronizzazione dei salvataggi</string>
     <string name="settings_tools">Strumenti della libreria</string>
-    <string name="settings_tools_hint">Duplicati, set di giochi, spazio, desideri, esportazione</string>
+    <string name="settings_tools_hint">Duplicati, set, file, collezioni, Switch, controllo DAT, esportazione</string>
     <string name="nav_sets">Set di giochi</string>
     <string name="nav_storage">Spazio</string>
     <string name="nav_wishlist">Lista dei desideri</string>

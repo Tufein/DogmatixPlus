@@ -566,7 +566,7 @@
     <string name="notification_channel_wishlist_desc">Vous prévient quand un jeu souhaité apparaît</string>
     <string name="save_sync_bg_title">Synchro des sauvegardes</string>
     <string name="settings_tools">Outils de la bibliothèque</string>
-    <string name="settings_tools_hint">Doublons, jeux multi-fichiers, stockage, souhaits, export</string>
+    <string name="settings_tools_hint">Doublons, jeux multi-fichiers, fichiers, collections, Switch, DAT, export</string>
     <string name="nav_sets">Jeux multi-fichiers</string>
     <string name="nav_storage">Stockage</string>
     <string name="nav_wishlist">Liste de souhaits</string>

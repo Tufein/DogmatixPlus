@@ -561,7 +561,7 @@
     <string name="notification_channel_wishlist_desc">Meldt wanneer een gewenste game opduikt</string>
     <string name="save_sync_bg_title">Save-sync</string>
     <string name="settings_tools">Bibliotheekhulpmiddelen</string>
-    <string name="settings_tools_hint">Dubbele games, sets, opslag, verlanglijst, export</string>
+    <string name="settings_tools_hint">Dubbele games, sets, bestanden, collecties, Switch, DAT-controle, export</string>
     <string name="nav_sets">Game-sets</string>
     <string name="nav_storage">Opslag</string>
     <string name="nav_wishlist">Verlanglijst</string>

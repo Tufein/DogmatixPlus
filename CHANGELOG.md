@@ -3,6 +3,63 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [2.0.0] – 2026-10-03 · Dogmatix+
+
+### Scanning
+- **Rescans skip what did not change.** Every library row now remembers its source, and a rescan
+  replaces one source at a time. A web directory that sends an `ETag` / `Last-Modified` is asked
+  whether it changed (a *304* costs almost nothing); otherwise the listing is compared with the one
+  from last time. A magnet that was read before is not fetched again at all (its content cannot
+  change). Measured on the test set: a rescan of six unchanged sources of 4,000 games went from
+  18 s to 2 s. *Settings → Library tools → Library overview → Full rescan* still reads everything.
+- **A source that fails keeps what it gave last time** instead of disappearing from the library
+  until the next good scan.
+- **Reserve addresses** per web source: tried in order when the source's own address fails; the
+  line under the source says when a reserve address answered.
+- **Background scan** (*Settings → Scan sources automatically*): every 12 h, day, two days or
+  week, by default only on Wi-Fi, while charging and at night. A notification says how many new
+  games turned up (and whether sources failed).
+
+### Library
+- **New games**: files a rescan found in the last 14 days get a *New* badge; the *New* filter and the
+  *Newest first* sort show them. The line under each source says how many it added.
+- **Collections**: your own lists ("Couch co-op", "To finish") next to the favourites. Add a game
+  from its details card (X), filter the library by collection, manage them in *Library tools →
+  Collections*. They travel in exports and backups.
+- **Download everything shown**: one button downloads every game the filters show — optionally only
+  the best version of each game — after showing the count, the total size and the free space (and
+  refusing when it does not fit). Games you have or are downloading are skipped; at most 500 at once.
+- **Nintendo Switch updates and DLC**: files with a title ID (`[0100…]`) are recognised as base game,
+  update or DLC. The details card says which update your sources have against the one on your device
+  and how many DLC are missing, with buttons to fetch them; *Library tools → Switch updates & DLC*
+  lists every game on your device that has something newer.
+- **DAT check** (*Library tools → DAT check*): import a No-Intro / Redump / TOSEC DAT (also inside a
+  ZIP) per console and check the console's folder: good dumps, good dumps under another name (rename
+  one or all to the DAT's name), files the DAT does not know, and the games you do not have yet.
+  ZIPs are checked from their index without unpacking; other files are hashed once and remembered.
+
+### Downloads
+- **The speed limit now works and covers all downloads together**: it was set in KB/s but applied as
+  MB/s, so it never slowed anything down. Web downloads now share one limit (three downloads no
+  longer get three times the limit), it follows the setting while downloading, and torrents get it
+  too. New: **no limit at night** (the night window of the downloads).
+
+### Tools and the rest
+- **File explorer**: rename, move (to any folder the app may use) and unpack archives.
+- **Share sources as QR codes**: *Sources → Share* shows the list as one or more QR codes; the other
+  device reads them with its camera or from pictures (screenshots work too) and takes the list over.
+- **Install updates from the app**: when *Check for updates* finds a newer release it offers to
+  download the APK, checks it against the release's SHA256SUMS and hands it to Android's installer.
+- **Home-screen widget**: downloads in progress and the newest games.
+- **Bold focus ring** (*Settings*): a thicker ring with a dark edge, easier to follow with a
+  controller on a TV or in sunlight. The new screens can be used entirely with a gamepad.
+
+### Changed
+- Database version 11 (the update migrates it; the first rescan after updating reads every source
+  once, because sources were not remembered per row before).
+- ZXing (QR codes) is a new dependency.
+- 302 unit tests.
+
 ## [1.3.0] – 2026-10-03 · Dogmatix+
 
 ### Fixed

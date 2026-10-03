@@ -31,6 +31,16 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 2.0
+- **Snellere herscans**: bronnen waarvan de lijst niet veranderde, worden overgeslagen (6 bronnen van 4.000 games: van 18 naar 2 seconden). Een bron die faalt, houdt zijn games, en een webbron kan **reserve-adressen** hebben.
+- **Scannen op de achtergrond** (dagelijks, via wifi, tijdens het laden, 's nachts) met een melding als er nieuwe games opduiken; nieuwe games krijgen een badge **Nieuw**, een filter en de sortering *Nieuwste eerst*.
+- **Collecties**: je eigen lijsten naast de favorieten.
+- **Alles wat getoond wordt downloaden**, na een controle van aantal, grootte en vrije ruimte; desgewenst alleen de beste versie van elke game.
+- **Nintendo Switch-updates en DLC**: zie welke update of DLC je mist en haal ze op.
+- **DAT-controle** met No-Intro / Redump: goede dumps, verkeerde namen (met één tik hernoemd), onbekende bestanden en ontbrekende games.
+- **De snelheidslimiet werkt** (dat deed hij eerder nooit) voor alle downloads samen, torrents inbegrepen, desgewenst niet 's nachts.
+- De **bestandsverkenner** kan hernoemen, verplaatsen en uitpakken; **deel je bronnen als QR-code**; **installeer updates vanuit de app**; een **widget** op je startscherm; een **dikke focusrand** voor tv en handheld.
+
 ### Games vinden
 - **Eén lijst** met de games uit al je bronnen.
 - **Zoeken** dat fouten vergeeft: accenten, streepjes en dubbele letters maken niet uit, dus "yugioh" vindt *Yu-Gi-Oh!*.

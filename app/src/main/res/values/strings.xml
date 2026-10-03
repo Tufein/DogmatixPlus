@@ -562,7 +562,7 @@
     <string name="notification_channel_wishlist_desc">Tells you when a game you want shows up</string>
     <string name="save_sync_bg_title">Save sync</string>
     <string name="settings_tools">Library tools</string>
-    <string name="settings_tools_hint">Duplicates, game sets, storage, wishlist, export</string>
+    <string name="settings_tools_hint">Duplicates, sets, files, collections, Switch, DAT check, export</string>
     <string name="nav_sets">Game sets</string>
     <string name="nav_storage">Storage</string>
     <string name="nav_wishlist">Wishlist</string>
