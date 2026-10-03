@@ -32,6 +32,19 @@ interface SettingsRepository {
     val saveSyncSavesDir: Flow<String>
     val saveSyncStatesDir: Flow<String>
     val saveSyncAuto: Flow<Boolean>
+    val rommTrustFingerprint: Flow<String>
+    val rommMarkGames: Flow<Boolean>
+    val saveSyncDeletions: Flow<Boolean>
+    val saveSyncBackground: Flow<Boolean>
+    val saveSyncBgIntervalHours: Flow<Int>
+    val saveSyncBgWifiOnly: Flow<Boolean>
+    val saveSyncBgCharging: Flow<Boolean>
+    val downloadWifiOnly: Flow<Boolean>
+    val downloadChargingOnly: Flow<Boolean>
+    val downloadNightOnly: Flow<Boolean>
+    val downloadNightStart: Flow<Int>
+    val downloadNightEnd: Flow<Int>
+    val updatePreReleases: Flow<Boolean>
 
     suspend fun updateDownloadDirectory(path: String): Preferences
     suspend fun setSeparateByConsole(enabled: Boolean): Preferences
@@ -60,4 +73,16 @@ interface SettingsRepository {
     suspend fun setSaveSyncSavesDir(uri: String): Preferences
     suspend fun setSaveSyncStatesDir(uri: String): Preferences
     suspend fun setSaveSyncAuto(enabled: Boolean): Preferences
+    suspend fun setRommTrustFingerprint(hex: String): Preferences
+    suspend fun setRommMarkGames(enabled: Boolean): Preferences
+    suspend fun setSaveSyncDeletions(enabled: Boolean): Preferences
+    suspend fun setSaveSyncBackground(enabled: Boolean): Preferences
+    suspend fun setSaveSyncBgIntervalHours(hours: Int): Preferences
+    suspend fun setSaveSyncBgWifiOnly(enabled: Boolean): Preferences
+    suspend fun setSaveSyncBgCharging(enabled: Boolean): Preferences
+    suspend fun setDownloadWifiOnly(enabled: Boolean): Preferences
+    suspend fun setDownloadChargingOnly(enabled: Boolean): Preferences
+    suspend fun setDownloadNightOnly(enabled: Boolean): Preferences
+    suspend fun setDownloadNightWindow(startMinutes: Int, endMinutes: Int): Preferences
+    suspend fun setUpdatePreReleases(enabled: Boolean): Preferences
 }

@@ -10,6 +10,8 @@ import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.dao.FavouriteDao
 import com.cortinadev.dogmatix.data.local.dao.GameMetadataDao
 import com.cortinadev.dogmatix.data.local.dao.ManufacturerDao
+import com.cortinadev.dogmatix.data.local.dao.WishlistDao
+import com.cortinadev.dogmatix.data.local.entity.WishlistEntity
 import com.cortinadev.dogmatix.data.local.entity.ConsoleEntity
 import com.cortinadev.dogmatix.data.local.entity.DownloadHistoryEntity
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
@@ -20,8 +22,8 @@ import com.cortinadev.dogmatix.data.local.entity.ManufacturerEntity
 import com.cortinadev.dogmatix.data.local.queries.DownloadableFileFts
 
 @Database(
-    entities = [ManufacturerEntity::class, ConsoleEntity::class, DownloadableFileEntity::class, FileTagEntity::class, DownloadableFileFts::class, DownloadHistoryEntity::class, GameMetadataEntity::class, FavouriteEntity::class],
-    version = 9,
+    entities = [ManufacturerEntity::class, ConsoleEntity::class, DownloadableFileEntity::class, FileTagEntity::class, DownloadableFileFts::class, DownloadHistoryEntity::class, GameMetadataEntity::class, FavouriteEntity::class, WishlistEntity::class],
+    version = 10,
     exportSchema = false
 )
 abstract class DogmatixDatabase : RoomDatabase() {
@@ -31,8 +33,25 @@ abstract class DogmatixDatabase : RoomDatabase() {
     abstract fun downloadHistoryDao(): DownloadHistoryDao
     abstract fun gameMetadataDao(): GameMetadataDao
     abstract fun favouriteDao(): FavouriteDao
+    abstract fun wishlistDao(): WishlistDao
 
     companion object {
+        /** Wishlist table; the hash a source publishes for a file (checked after the download). */
+        val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS wishlist (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "title TEXT NOT NULL, " +
+                        "consoleId TEXT DEFAULT NULL, " +
+                        "addedAt INTEGER NOT NULL, " +
+                        "notifiedAt INTEGER DEFAULT NULL)"
+                )
+                db.execSQL("ALTER TABLE downloadable_files ADD COLUMN expectedHash TEXT DEFAULT NULL")
+                db.execSQL("ALTER TABLE download_history ADD COLUMN expectedHash TEXT DEFAULT NULL")
+            }
+        }
+
         /** Generalises the TorBox resume ids to any debrid service (string ids); SQLite < 3.35 can't drop columns, so rebuild. */
         val MIGRATION_8_9 = object : Migration(8, 9) {
             override fun migrate(db: SupportSQLiteDatabase) {

@@ -63,7 +63,8 @@ class DownloadableFileRepository @Inject constructor(
                     fileSize = result.fileSize,
                     fileExtension = result.fileExtension,
                     torrentFileIndex = result.torrentFileIndex,
-                    torrentMagnet = result.torrentMagnet
+                    torrentMagnet = result.torrentMagnet,
+                    expectedHash = result.expectedHash
                 ),
                 tags = result.tags?.split("|")?.filter { it.isNotBlank() } ?: emptyList()
             )

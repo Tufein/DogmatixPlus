@@ -29,7 +29,9 @@ data class DownloadHistoryEntity(
     /** Debrid service + its torrent/file ids while a debrid download is in flight, so a retry can resume it. */
     @ColumnInfo(defaultValue = "NULL") val debridProvider: String? = null,
     @ColumnInfo(defaultValue = "NULL") val debridTorrentId: String? = null,
-    @ColumnInfo(defaultValue = "NULL") val debridFileId: Int? = null
+    @ColumnInfo(defaultValue = "NULL") val debridFileId: Int? = null,
+    /** Hash the source published for the file (`algorithm:hex`); the finished download is checked against it. */
+    @ColumnInfo(defaultValue = "NULL") val expectedHash: String? = null
 ) {
     fun toEntity(): DownloadableFileEntity = DownloadableFileEntity(
         name = name,
@@ -39,7 +41,8 @@ data class DownloadHistoryEntity(
         fileSize = fileSize,
         fileExtension = fileExtension,
         torrentFileIndex = torrentFileIndex,
-        torrentMagnet = torrentMagnet
+        torrentMagnet = torrentMagnet,
+        expectedHash = expectedHash
     )
 
     /** In-flight statuses can't be resumed after a process death, so they come back as STOPPED. */
@@ -75,7 +78,8 @@ data class DownloadHistoryEntity(
             torrentMagnet = file.torrentMagnet,
             status = item.status.name,
             startedAt = item.startedAt,
-            finishedAt = item.finishedAt
+            finishedAt = item.finishedAt,
+            expectedHash = file.expectedHash
         )
     }
 }

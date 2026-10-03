@@ -25,7 +25,7 @@ interface DownloadableFileDao {
      */
     @Query("""
         SELECT df.id, df.name, df.fileName, df.consoleId, df.downloadUrl, df.fileSize,
-               df.fileExtension, df.torrentFileIndex, df.torrentMagnet,
+               df.fileExtension, df.torrentFileIndex, df.torrentMagnet, df.expectedHash,
                GROUP_CONCAT(t.tag, '|') as tags
         FROM downloadable_files df
         LEFT JOIN downloadable_file_tags t ON df.id = t.fileId
@@ -57,7 +57,7 @@ interface DownloadableFileDao {
                OR (:source = 2 AND df.downloadUrl LIKE '%/api/roms/%/content/%')
                OR (:source = 3 AND df.torrentFileIndex IS NULL AND df.downloadUrl NOT LIKE '%/api/roms/%/content/%'))
         GROUP BY df.id, df.name, df.fileName, df.consoleId, df.downloadUrl, df.fileSize,
-                 df.fileExtension, df.torrentFileIndex, df.torrentMagnet
+                 df.fileExtension, df.torrentFileIndex, df.torrentMagnet, df.expectedHash
         ORDER BY
             CASE WHEN :sort = 0 THEN df.name END ASC,
             CASE WHEN :sort = 1 THEN df.name END DESC,
@@ -99,6 +99,17 @@ interface DownloadableFileDao {
 
     @Query("SELECT fileName FROM downloadable_files WHERE consoleId = :consoleId")
     suspend fun fileNamesFor(consoleId: String): List<String>
+
+    /** The other versions of a game: same console, same cleaned title (see `searchKey`). */
+    @Query("SELECT * FROM downloadable_files WHERE consoleId = :consoleId AND searchKey = :searchKey")
+    suspend fun versionsOf(consoleId: String, searchKey: String): List<DownloadableFileEntity>
+
+    @Query("SELECT t.tag FROM downloadable_file_tags t WHERE t.fileId = :fileId")
+    suspend fun tagsOf(fileId: Long): List<String>
+
+    /** Library rows whose title contains [key] (a [SearchNormalizer] key), optionally of one console. */
+    @Query("SELECT COUNT(*) FROM downloadable_files WHERE searchKey LIKE '%' || :key || '%' AND (:consoleId IS NULL OR consoleId = :consoleId)")
+    suspend fun countMatching(key: String, consoleId: String?): Int
 
     @Query("SELECT * FROM downloadable_files WHERE fileName = :fileName LIMIT 1")
     suspend fun getFileByFileName(fileName: String): DownloadableFileEntity?
@@ -190,6 +201,7 @@ data class DownloadableFileWithTagsResult(
     val fileExtension: String,
     val torrentFileIndex: Int?,
     val torrentMagnet: String?,
+    val expectedHash: String?,
     val tags: String?
 )
 

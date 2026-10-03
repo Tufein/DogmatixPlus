@@ -29,16 +29,21 @@ object BackupJson {
         listOf(
             SettingsKeys.SEPARATE_BY_CONSOLE, SettingsKeys.AUTO_UNZIP, SettingsKeys.SWAP_FACE_BUTTONS,
             SettingsKeys.ONBOARDING_DONE, SettingsKeys.TORBOX_ENABLED, SettingsKeys.ROMM_AUTO_UPLOAD,
-            SettingsKeys.SAVE_SYNC_AUTO
+            SettingsKeys.SAVE_SYNC_AUTO, SettingsKeys.ROMM_MARK_GAMES, SettingsKeys.SAVE_SYNC_DELETIONS,
+            SettingsKeys.SAVE_SYNC_BACKGROUND, SettingsKeys.SAVE_SYNC_BG_WIFI_ONLY, SettingsKeys.SAVE_SYNC_BG_CHARGING,
+            SettingsKeys.DOWNLOAD_WIFI_ONLY, SettingsKeys.DOWNLOAD_CHARGING_ONLY, SettingsKeys.DOWNLOAD_NIGHT_ONLY,
+            SettingsKeys.UPDATE_PRE_RELEASES
         ).forEach { put(it.name, "b") }
-        listOf(SettingsKeys.CONCURRENT_DOWNLOADS, SettingsKeys.METADATA_TIMEOUT_S, SettingsKeys.MAX_SEARCH_RESULTS)
-            .forEach { put(it.name, "i") }
+        listOf(
+            SettingsKeys.CONCURRENT_DOWNLOADS, SettingsKeys.METADATA_TIMEOUT_S, SettingsKeys.MAX_SEARCH_RESULTS,
+            SettingsKeys.SAVE_SYNC_BG_INTERVAL_H, SettingsKeys.DOWNLOAD_NIGHT_START, SettingsKeys.DOWNLOAD_NIGHT_END
+        ).forEach { put(it.name, "i") }
         put(SettingsKeys.LIMIT_SPEED.name, "f")
         listOf(
             SettingsKeys.DOWNLOAD_DIRECTORY, SettingsKeys.THEME_MODE, SettingsKeys.GAMEPAD_LAYOUT, SettingsKeys.ACCENT_COLOR,
             SettingsKeys.DEBRID_PROVIDER, SettingsKeys.TORBOX_API_KEY, SettingsKeys.REAL_DEBRID_API_KEY,
             SettingsKeys.ESDE_DIRECTORY, SettingsKeys.IISU_DIRECTORY, SettingsKeys.ROMM_URL, SettingsKeys.ROMM_TOKEN,
-            SettingsKeys.SAVE_SYNC_SAVES_DIR, SettingsKeys.SAVE_SYNC_STATES_DIR
+            SettingsKeys.SAVE_SYNC_SAVES_DIR, SettingsKeys.SAVE_SYNC_STATES_DIR, SettingsKeys.ROMM_TRUST_FINGERPRINT
         ).forEach { put(it.name, "s") }
         listOf(
             SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES, SettingsKeys.FAVORITE_LANGUAGES,
@@ -97,6 +102,8 @@ object BackupJson {
         name == SettingsKeys.METADATA_TIMEOUT_S.name ->
             (value as Int).coerceIn(TorrentConstants.MIN_METADATA_TIMEOUT_S, TorrentConstants.MAX_METADATA_TIMEOUT_S)
         name == SettingsKeys.MAX_SEARCH_RESULTS.name -> (value as Int).coerceAtLeast(0)
+        name == SettingsKeys.SAVE_SYNC_BG_INTERVAL_H.name -> (value as Int).coerceIn(1, 24)
+        name == SettingsKeys.DOWNLOAD_NIGHT_START.name || name == SettingsKeys.DOWNLOAD_NIGHT_END.name -> (value as Int).coerceIn(0, 1439)
         name == SettingsKeys.LIMIT_SPEED.name -> (value as Float).let { if (it.isNaN() || it <= 0f) Float.POSITIVE_INFINITY else it }
         name in pairSets -> (value as Set<*>).filterIsInstance<String>()
             .filter { it.indexOf(':') > 0 && it.substringAfter(':').isNotEmpty() }.toSet()

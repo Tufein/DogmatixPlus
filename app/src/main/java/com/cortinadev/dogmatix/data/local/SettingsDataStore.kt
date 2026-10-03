@@ -61,6 +61,26 @@ object SettingsKeys {
     val SAVE_SYNC_AUTO = booleanPreferencesKey("save_sync_auto")
     /** `consoleId:epochMillis` of the last finished source scan per console (library overview). */
     val CONSOLE_SCANNED_AT = stringSetPreferencesKey("console_scanned_at")
+    /** SHA-256 (hex) of the RomM server certificate the user chose to trust (self-signed HTTPS). */
+    val ROMM_TRUST_FINGERPRINT = stringPreferencesKey("romm_trust_fingerprint")
+    /** Mark games that are already on the RomM server in the library. */
+    val ROMM_MARK_GAMES = booleanPreferencesKey("romm_mark_games")
+    /** Also sync deletions of saves (a save removed on one side is removed on the other). */
+    val SAVE_SYNC_DELETIONS = booleanPreferencesKey("save_sync_deletions")
+    /** Sync saves in the background (periodic job) without opening the app. */
+    val SAVE_SYNC_BACKGROUND = booleanPreferencesKey("save_sync_background")
+    val SAVE_SYNC_BG_INTERVAL_H = intPreferencesKey("save_sync_bg_interval_h")
+    val SAVE_SYNC_BG_WIFI_ONLY = booleanPreferencesKey("save_sync_bg_wifi_only")
+    val SAVE_SYNC_BG_CHARGING = booleanPreferencesKey("save_sync_bg_charging")
+    /** Downloads wait for Wi-Fi / the charger / the night window. */
+    val DOWNLOAD_WIFI_ONLY = booleanPreferencesKey("download_wifi_only")
+    val DOWNLOAD_CHARGING_ONLY = booleanPreferencesKey("download_charging_only")
+    val DOWNLOAD_NIGHT_ONLY = booleanPreferencesKey("download_night_only")
+    /** Night window as minutes after midnight. */
+    val DOWNLOAD_NIGHT_START = intPreferencesKey("download_night_start")
+    val DOWNLOAD_NIGHT_END = intPreferencesKey("download_night_end")
+    /** The update check also offers pre-releases (alpha / beta). */
+    val UPDATE_PRE_RELEASES = booleanPreferencesKey("update_pre_releases")
 }
 
 /** Language tags are upper-cased ISO codes ("EN", "ES"), matching how files are tagged. */
@@ -119,6 +139,19 @@ class SettingsDataStore @Inject constructor(
     val saveSyncSavesDir: Flow<String> = context.dataStore.data.map { it[SettingsKeys.SAVE_SYNC_SAVES_DIR] ?: "" }
     val saveSyncStatesDir: Flow<String> = context.dataStore.data.map { it[SettingsKeys.SAVE_SYNC_STATES_DIR] ?: "" }
     val saveSyncAuto: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.SAVE_SYNC_AUTO] ?: false }
+    val rommTrustFingerprint: Flow<String> = context.dataStore.data.map { it[SettingsKeys.ROMM_TRUST_FINGERPRINT] ?: "" }
+    val rommMarkGames: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.ROMM_MARK_GAMES] ?: true }
+    val saveSyncDeletions: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.SAVE_SYNC_DELETIONS] ?: false }
+    val saveSyncBackground: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.SAVE_SYNC_BACKGROUND] ?: false }
+    val saveSyncBgIntervalHours: Flow<Int> = context.dataStore.data.map { it[SettingsKeys.SAVE_SYNC_BG_INTERVAL_H] ?: 6 }
+    val saveSyncBgWifiOnly: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.SAVE_SYNC_BG_WIFI_ONLY] ?: true }
+    val saveSyncBgCharging: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.SAVE_SYNC_BG_CHARGING] ?: false }
+    val downloadWifiOnly: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.DOWNLOAD_WIFI_ONLY] ?: false }
+    val downloadChargingOnly: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.DOWNLOAD_CHARGING_ONLY] ?: false }
+    val downloadNightOnly: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.DOWNLOAD_NIGHT_ONLY] ?: false }
+    val downloadNightStart: Flow<Int> = context.dataStore.data.map { it[SettingsKeys.DOWNLOAD_NIGHT_START] ?: 23 * 60 }
+    val downloadNightEnd: Flow<Int> = context.dataStore.data.map { it[SettingsKeys.DOWNLOAD_NIGHT_END] ?: 7 * 60 }
+    val updatePreReleases: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.UPDATE_PRE_RELEASES] ?: false }
     /** consoleId → RomM platform id. */
     val rommPlatformMap: Flow<Map<String, Int>> = context.dataStore.data.map { preferences ->
         (preferences[SettingsKeys.ROMM_PLATFORM_MAP] ?: emptySet()).mapNotNull {
@@ -164,6 +197,21 @@ class SettingsDataStore @Inject constructor(
     suspend fun setSaveSyncSavesDir(uri: String) = context.dataStore.edit { it[SettingsKeys.SAVE_SYNC_SAVES_DIR] = uri }
     suspend fun setSaveSyncStatesDir(uri: String) = context.dataStore.edit { it[SettingsKeys.SAVE_SYNC_STATES_DIR] = uri }
     suspend fun setSaveSyncAuto(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.SAVE_SYNC_AUTO] = enabled }
+    suspend fun setRommTrustFingerprint(hex: String) = context.dataStore.edit { it[SettingsKeys.ROMM_TRUST_FINGERPRINT] = hex.trim().lowercase() }
+    suspend fun setRommMarkGames(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.ROMM_MARK_GAMES] = enabled }
+    suspend fun setSaveSyncDeletions(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.SAVE_SYNC_DELETIONS] = enabled }
+    suspend fun setSaveSyncBackground(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.SAVE_SYNC_BACKGROUND] = enabled }
+    suspend fun setSaveSyncBgIntervalHours(hours: Int) = context.dataStore.edit { it[SettingsKeys.SAVE_SYNC_BG_INTERVAL_H] = hours }
+    suspend fun setSaveSyncBgWifiOnly(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.SAVE_SYNC_BG_WIFI_ONLY] = enabled }
+    suspend fun setSaveSyncBgCharging(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.SAVE_SYNC_BG_CHARGING] = enabled }
+    suspend fun setDownloadWifiOnly(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.DOWNLOAD_WIFI_ONLY] = enabled }
+    suspend fun setDownloadChargingOnly(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.DOWNLOAD_CHARGING_ONLY] = enabled }
+    suspend fun setDownloadNightOnly(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.DOWNLOAD_NIGHT_ONLY] = enabled }
+    suspend fun setDownloadNightWindow(startMinutes: Int, endMinutes: Int) = context.dataStore.edit {
+        it[SettingsKeys.DOWNLOAD_NIGHT_START] = startMinutes.coerceIn(0, 1439)
+        it[SettingsKeys.DOWNLOAD_NIGHT_END] = endMinutes.coerceIn(0, 1439)
+    }
+    suspend fun setUpdatePreReleases(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.UPDATE_PRE_RELEASES] = enabled }
     /** [platformId] null removes the mapping. */
     suspend fun updateRommPlatform(consoleId: String, platformId: Int?) {
         context.dataStore.edit { settings ->

@@ -32,6 +32,9 @@ data class DownloadableFileEntity(
     /** Lenient form of [name] used for searching; see [SearchNormalizer]. */
     @ColumnInfo(defaultValue = "")
     val searchKey: String = SearchNormalizer.key(name),
+    /** Hash the source publishes for the file, as `algorithm:hex` (`sha1:…`, `md5:…`, `crc32:…`); null when unknown. */
+    @ColumnInfo(defaultValue = "NULL")
+    val expectedHash: String? = null,
 ) {
     val isTorrent: Boolean get() = torrentFileIndex != null && torrentMagnet != null
 }

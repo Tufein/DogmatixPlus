@@ -23,8 +23,8 @@ android {
         applicationId = "com.cortinadev.dogmatix"
         minSdk = 29
         targetSdk = 36
-        versionCode = 13
-        versionName = "1.1.0-beta.1"
+        versionCode = 14
+        versionName = "1.2.0-alpha.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
