@@ -72,6 +72,7 @@ import com.cortinadev.dogmatix.data.model.DebridProvider
 import com.cortinadev.dogmatix.ui.common.GamepadLayout
 import com.cortinadev.dogmatix.ui.theme.AccentPresets
 import com.cortinadev.dogmatix.util.Constants
+import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.TorrentConstants
 import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
 import com.cortinadev.dogmatix.ui.theme.ThemeMode
@@ -153,10 +154,18 @@ fun SettingsScreen(
     val backupImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri?.let { viewModel.readBackup(context, it.toString()) }
     }
-    fun exportBackup() = backupExportLauncher.launch("dogmatix-backup-${LocalDate.now()}.json")
-    fun importBackup() = backupImportLauncher.launch(arrayOf("application/json", "application/octet-stream", "text/plain", "*/*"))
     // The shell's instance, so the rescan after a restore survives leaving Settings.
     val sourcesViewModel: SourcesViewModel = hiltViewModel(LocalActivity.current as ComponentActivity)
+    fun exportBackup() = backupExportLauncher.launch("dogmatix-backup-${LocalDate.now()}.json")
+    val backupBusyMessage = stringResource(R.string.backup_import_busy)
+    fun importBackup() {
+        // A restore replaces every source: not while they are being scanned (the ViewModel checks again).
+        if (sourcesViewModel.isRescanning.value) {
+            ToastUtil.showInfo(context, backupBusyMessage)
+            return
+        }
+        backupImportLauncher.launch(arrayOf("application/json", "application/octet-stream", "text/plain", "*/*"))
+    }
     val pendingRestore by viewModel.pendingRestore.collectAsState()
     pendingRestore?.let { pending ->
         val date = if (pending.createdAt > 0) DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(pending.createdAt)) else "?"

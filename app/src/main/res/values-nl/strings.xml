@@ -438,7 +438,7 @@
     <string name="settings_duplicates">Dubbele games</string>
     <string name="settings_duplicates_hint">Vind games die meer dan eens op schijf staan en maak ruimte vrij</string>
     <string name="settings_backup_export">Back-up maken</string>
-    <string name="settings_backup_export_hint">Instellingen, bronnen, favorieten en downloads in één bestand (inclusief je API-sleutels)</string>
+    <string name="settings_backup_export_hint">Bevat je API-sleutels · instellingen, bronnen, favorieten en downloads in één bestand</string>
     <string name="settings_backup_export_action">Exporteren</string>
     <string name="settings_backup_import">Back-up terugzetten</string>
     <string name="settings_backup_import_hint">Vervangt instellingen, bronnen en favorieten door die uit een back-up</string>
@@ -450,7 +450,10 @@
     <string name="backup_import_message">Back-up van %1$s (Dogmatix %2$s).\n\nJe huidige instellingen, bronnen en favorieten worden vervangen, daarna wordt elke bron opnieuw gescand.</string>
     <string name="backup_import_action">Terugzetten</string>
     <string name="backup_import_done">Teruggezet: %1$d instellingen, %2$d consoles, %3$d favorieten, %4$d downloads</string>
-    <string name="backup_import_repick">%1$d map(pen) zijn niet toegankelijk op deze installatie: kies ze opnieuw in Instellingen of Bronnen</string>
+    <plurals name="backup_import_repick">
+        <item quantity="one">%1$d map is niet toegankelijk op deze installatie: kies hem opnieuw in Instellingen of Bronnen</item>
+        <item quantity="other">%1$d mappen zijn niet toegankelijk op deze installatie: kies ze opnieuw in Instellingen of Bronnen</item>
+    </plurals>
     <string name="backup_import_restart">Start Dogmatix opnieuw om de teruggezette downloadlijst te zien</string>
     <string name="backup_import_failed">Terugzetten mislukt: %1$s</string>
     <string name="tools_scanning">Je downloadmappen worden gelezen…</string>
@@ -468,11 +471,14 @@
     </plurals>
     <string name="duplicates_none">Geen dubbele games in %1$d bestanden</string>
     <string name="duplicates_kind_identical">Hetzelfde bestand in meerdere mappen</string>
-    <string name="duplicates_kind_variant">Verschillende versies (regio, revisie, vertaling)</string>
+    <string name="duplicates_kind_variant">Verschillende versies of formaten (regio, revisie, vertaling)</string>
     <string name="duplicates_largest">grootste</string>
     <string name="duplicates_delete">Verwijderen</string>
     <string name="duplicates_delete_title">Van schijf verwijderen?</string>
-    <string name="duplicates_delete_message">%1$s\n%2$s\n\n%3$s (%4$s) wordt definitief verwijderd.</string>
+    <plurals name="duplicates_delete_message">
+        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s) wordt definitief verwijderd.</item>
+        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s) worden definitief verwijderd.</item>
+    </plurals>
     <string name="duplicates_deleted">%1$s verwijderd</string>
     <string name="duplicates_delete_failed">Kon %1$s niet verwijderen</string>
     <string name="overview_totals">%1$d consoles · %2$d games geïndexeerd · %3$d in bezit (%4$d%%)</string>
@@ -508,4 +514,6 @@
     <string name="language_nl">Nederlands</string>
     <string name="language_fr">Français</string>
     <string name="language_de">Deutsch</string>
+    <string name="backup_import_busy">Wacht tot de bronnenscan klaar is en zet de back-up daarna terug</string>
+    <string name="backup_newer_version">Deze back-up is gemaakt met een nieuwere versie van Dogmatix: werk de app bij om hem terug te zetten</string>
 </resources>

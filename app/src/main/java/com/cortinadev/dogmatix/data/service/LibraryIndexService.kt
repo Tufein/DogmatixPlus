@@ -79,6 +79,11 @@ class LibraryIndexService @Inject constructor(
     fun isOwned(file: DownloadableFileEntity, keys: Set<String> = _ownedKeys.value): Boolean =
         LibraryKeys.isOwned(file.consoleId, file.fileName, keys)
 
+    /** Starts a [refresh] on the service's own scope: it outlives the screen that asked for it. */
+    fun requestRefresh() {
+        scope.launch { refresh() }
+    }
+
     suspend fun refresh() = withContext(Dispatchers.IO) {
         val root = settingsRepository.downloadDirectory.first()
         val custom = settingsRepository.consoleDownloadDirectories.first()

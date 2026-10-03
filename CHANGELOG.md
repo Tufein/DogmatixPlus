@@ -3,6 +3,46 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [Unreleased] – library tools & translations
+
+### Added
+- **Duplicate games** (Settings): finds games that are on disk more than once per console —
+  the same file in several folders, or different releases / formats of one title (regions,
+  revisions, a ROM next to its `.zip`) — shows how much space each group frees and deletes the
+  copy you pick after a confirmation that lists every file it removes. Because it deletes
+  files, it is built to report too little rather than too much:
+  - only known game formats (ROMs, disc images, archives) are compared; documents, saves in
+    unknown formats, engine data, updates / DLC, BIOS files and generic names are never offered;
+  - a game's companion files stay one unit (`.cue` + `.bin` + `(Track N)`, `.cue` + `.iso` +
+    audio tracks, `DOOM.EXE` + `DOOM.WAD`), and a folder holding one disc image
+    (`disc.gdi` + `track01.bin`…) counts, and is deleted, as one game;
+  - discs, disk sides, tapes and parts (`Disc 2`, `Disc Two`, `Disc II`, `Tape 1 of 2`) are never
+    compared against each other, and saves / states / patches next to a ROM are never touched;
+  - program folders, folder-format games (PS3, Wii U, GameCube…) and anything deeper than one
+    folder below the console folder are counted but not compared;
+  - outside console folders a zip / chd / iso says nothing about the system, so it is only
+    offered when name and size are identical;
+  - the same file reached through two storage routes (internal storage, the Downloads
+    provider, an SD card) is counted once, and copies that cannot be told apart from one file
+    seen twice are not offered.
+- **Library overview** (Settings): per console the games the last scan indexed, how many you
+  already own, what is on disk (games and size), the download folder and when it was last
+  scanned, with badges for consoles that need attention (no sources, nothing found, never
+  scanned). One console or all sources can be rescanned from there; folders and loose files
+  that match no console are listed.
+- **Backup & restore** (Settings): one JSON file with settings, sources, favourites and the
+  downloads list (it includes API keys — keep it private). A restore first checks the whole
+  file, then applies it in one go that leaving the screen cannot cancel, replaces the sources
+  in a single database transaction, keeps uploaded `.torrent` sources, keeps folders this
+  install cannot access (and asks to pick them again), drops settings of the wrong type, and
+  is refused while a source scan runs. Files written by debug and minified release builds
+  restore into each other.
+- **Scan progress**: the scan indicator fills up and shows the percentage of sources done;
+  the library overview adds "x of y sources done", an estimate of the time left and a bar.
+- **Dutch, French and German** translations of the whole app (next to English and Spanish),
+  selectable in Settings → Language. Texts that were hard-coded in English (scan errors and
+  messages, the download notification, the update toast) now come from the translations.
+
 ## [1.2] – 2026-09-02
 
 ### Added

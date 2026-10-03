@@ -11,6 +11,7 @@ import com.cortinadev.dogmatix.util.LibraryKeys
 import com.cortinadev.dogmatix.util.SourcesJson
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.DiskDir
+import com.cortinadev.dogmatix.util.DiskEntry
 import com.cortinadev.dogmatix.util.DiskFile
 import com.cortinadev.dogmatix.util.DiskScanner
 import com.cortinadev.dogmatix.util.FileParsingUtils
@@ -19,6 +20,7 @@ import com.cortinadev.dogmatix.util.ConsoleFolderAliases
 import com.cortinadev.dogmatix.util.StorageHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -72,7 +74,7 @@ data class LibraryOverview(
     val indexed: Int get() = consoles.sumOf { it.indexed }
     val owned: Int get() = consoles.sumOf { it.owned }
     val onDisk: Int get() = consoles.sumOf { it.onDisk } + unassignedGames
-    val onDiskBytes: Long get() = disk.files.filter { DuplicateFinder.isGameFile(it.name) }.sumOf { it.size }
+    val onDiskBytes: Long get() = disk.files.filter { DuplicateFinder.isGameFile(it) }.sumOf { it.size }
 }
 
 /**
@@ -128,51 +130,116 @@ class LibraryScanService @Inject constructor(
         val root = settingsRepository.downloadDirectory.first()
         val custom = settingsRepository.consoleDownloadDirectories.first()
         val consoleIds = consoleDao.getAllConsoles().first().map { it.id }
-        val files = ArrayList<DiskFile>()
-        val unmatched = ArrayList<String>()
         val rootDisplay = FileParsingUtils.toUserReadablePath(root)
-        // A per-console directory may sit inside the download directory: walk it only once (as
-        // the custom one), or every file in it would show up as its own duplicate.
-        val customDirs = custom.mapNotNull { (consoleId, uri) -> DiskScanner.rootOf(uri)?.let { consoleId to it } }
-        val skip = customDirs.map { it.second.documentId }.toSet()
+        val rootDir = DiskScanner.rootOf(root)
+        val rootKey = rootDir?.let { DiskScanner.canonicalKey(it) }
+        val walk = Walk()
 
-        DiskScanner.rootOf(root)?.let { rootDir ->
-            for (child in DiskScanner.list(context, rootDir)) {
-                if (child.name.startsWith(".") || child.documentId in skip) continue
-                if (child.isDirectory) {
-                    val consoleId = consoleIds.firstOrNull { ConsoleFolderAliases.matches(it, child.name) }
-                    if (consoleId == null) unmatched += child.name
-                    val scope = consoleId ?: "folder:${ConsoleFolderAliases.normalize(child.name)}"
-                    walk(DiskScanner.dirOf(rootDir, child), scope, consoleId, "$rootDisplay/${child.name}", depth = 1, into = files, skip = skip)
-                } else {
-                    files += DiskFile("", null, rootDisplay, child.name, child.size, child.uri.toString())
-                }
+        // Per-console directories first: they say explicitly which console their files belong
+        // to. They may also sit inside the download directory (or be the same folder reached
+        // through another provider), so the root walk below skips them. A per-console directory
+        // that is the download directory itself only claims its loose files (its sub-folders are
+        // still matched by name), and one that contains the download directory never walks into it.
+        val customDirs = custom.mapNotNull { (consoleId, uri) -> DiskScanner.rootOf(uri)?.let { Triple(consoleId, uri, it) } }
+        val rootConsole = customDirs.firstOrNull { DiskScanner.canonicalKey(it.third) == rootKey }?.first
+        walk.customKeys += customDirs.map { DiskScanner.canonicalKey(it.third) }.filter { it != rootKey }
+        rootKey?.let { walk.walkedDirs += it }
+        customDirs.forEach { (consoleId, uri, dir) ->
+            // The same folder picked for two consoles is listed once, for the first of them.
+            if (walk.walkedDirs.add(DiskScanner.canonicalKey(dir))) {
+                walk.rootId = "custom:" + DiskScanner.canonicalKey(dir)
+                walk.dir(dir, consoleId, consoleId, FileParsingUtils.toUserReadablePath(uri), depth = 0, top = 0)
             }
         }
-        customDirs.forEach { (consoleId, dir) ->
-            walk(dir, consoleId, consoleId, FileParsingUtils.toUserReadablePath(custom.getValue(consoleId)), depth = 0, into = files, skip = skip - dir.documentId)
+        walk.rootId = "root:" + rootKey
+
+        val unmatched = ArrayList<String>()
+        if (rootDir != null && rootKey != null) {
+            for (child in DiskScanner.list(context, rootDir)) {
+                if (child.name.startsWith(".")) continue
+                if (child.isDirectory) {
+                    val childDir = DiskScanner.dirOf(rootDir, child)
+                    if (DiskScanner.canonicalKey(childDir) in walk.customKeys) continue
+                    val consoleId = consoleIds.firstOrNull { ConsoleFolderAliases.matches(it, child.name) }
+                    if (consoleId == null) unmatched += child.name
+                    val scope = consoleId ?: "folder:${child.name}"
+                    walk.dir(childDir, scope, consoleId, "$rootDisplay/${child.name}", depth = 1, top = 1)
+                } else {
+                    walk.file(rootDir, rootKey, child, rootConsole ?: "", rootConsole, rootDisplay, level = 0)
+                }
+            }
         }
 
         val freeBytes = (listOf(root) + custom.values).firstOrNull { it.isNotBlank() }
             ?.let { StorageHelper.getFreeBytes(context, it) }
-        DiskSnapshot(files, unmatched.sortedBy { it.lowercase() }, rootDisplay, freeBytes)
+        DiskSnapshot(walk.files, unmatched.sortedBy { it.lowercase() }, rootDisplay, freeBytes)
     }
 
-    /** Deletes every file of [entry]; returns how many were removed and refreshes the owned index. */
-    suspend fun delete(entry: GameEntry): Int = withContext(Dispatchers.IO) {
+    /**
+     * Deletes every file of [entry] (and the folder of a per-game folder once it is empty);
+     * returns how many files were removed. Runs to the end even when the caller is cancelled
+     * (leaving the screen), so a game is never left half deleted. The owned-index refresh is
+     * only requested: it walks the whole library and must not hold up the caller.
+     */
+    suspend fun delete(entry: GameEntry): Int = withContext(NonCancellable + Dispatchers.IO) {
         val removed = entry.files.count { DiskScanner.delete(context, it.uri.toUri()) }
-        if (removed > 0) libraryIndexService.refresh()
+        if (entry.isFolderGame && removed == entry.files.size) {
+            entry.files.first().dirUri.takeIf { it.isNotEmpty() }?.toUri()?.let { dirUri ->
+                // Providers delete folders recursively: only when a complete listing says it is empty
+                // (saves, covers and other files the scan ignores keep the folder in place).
+                val dir = DiskScanner.dirOf(dirUri)
+                if (dir != null && DiskScanner.listOrNull(context, dir)?.isEmpty() == true) DiskScanner.delete(context, dirUri)
+            }
+        }
+        if (removed > 0) libraryIndexService.requestRefresh()
         removed
     }
 
-    private fun walk(dir: DiskDir, scope: String, consoleId: String?, display: String, depth: Int, into: MutableList<DiskFile>, skip: Set<String>) {
-        for (child in DiskScanner.list(context, dir)) {
-            if (child.name.startsWith(".") || child.documentId in skip) continue
-            if (child.isDirectory) {
-                if (depth < 2) walk(DiskScanner.dirOf(dir, child), scope, consoleId, "$display/${child.name}", depth + 1, into, skip)
-            } else {
-                into += DiskFile(scope, consoleId, display, child.name, child.size, child.uri.toString())
+    /** State of one disk walk: every folder and file is emitted once, whatever path led to it. */
+    private inner class Walk {
+        val files = ArrayList<DiskFile>()
+        /** Which walk is running (download folder or one per-console folder); stored on each file. */
+        var rootId = ""
+        val customKeys = HashSet<String>()
+        val walkedDirs = HashSet<String>()
+        private val seenFiles = HashSet<String>()
+
+        /** Lists [dir]; files deeper than [top] sit in a sub-folder of their console folder. */
+        fun dir(dir: DiskDir, scope: String, consoleId: String?, display: String, depth: Int, top: Int) {
+            val dirKey = DiskScanner.canonicalKey(dir)
+            for (child in DiskScanner.list(context, dir)) {
+                if (child.name.startsWith(".")) continue
+                if (child.isDirectory) {
+                    if (depth >= 2) continue
+                    val childDir = DiskScanner.dirOf(dir, child)
+                    val childKey = DiskScanner.canonicalKey(childDir)
+                    // A nested per-console directory is walked as its own console.
+                    if (childKey in customKeys || !walkedDirs.add(childKey)) continue
+                    dir(childDir, scope, consoleId, "$display/${child.name}", depth + 1, top)
+                } else {
+                    file(dir, dirKey, child, scope, consoleId, display, level = (depth - top).coerceAtLeast(0))
+                }
             }
+        }
+
+        fun file(dir: DiskDir, dirKey: String, child: DiskEntry, scope: String, consoleId: String?, display: String, level: Int) {
+            val inSubfolder = level > 0
+            val fileKey = DiskScanner.canonicalKey(dir.treeUri, child.documentId)
+            if (!seenFiles.add(fileKey)) return
+            files += DiskFile(
+                scope = scope,
+                consoleId = consoleId,
+                folder = display,
+                name = child.name,
+                size = child.size,
+                uri = child.uri.toString(),
+                dirId = dirKey,
+                fileId = fileKey,
+                inSubfolder = inSubfolder,
+                level = level,
+                rootId = rootId,
+                dirUri = DiskScanner.uriOf(dir).toString()
+            )
         }
     }
 }

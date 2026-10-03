@@ -37,7 +37,10 @@ import kotlinx.coroutines.flow.map
 import java.io.IOException
 import androidx.core.net.toUri
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import com.cortinadev.dogmatix.data.state.RescanStateHolder
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -76,7 +79,8 @@ class SettingsViewModel @Inject constructor(
     private val esdeConfigService: EsdeConfigService,
     private val iisuConfigService: IisuConfigService,
     private val daijishoConfigService: DaijishoConfigService,
-    private val backupService: BackupService
+    private val backupService: BackupService,
+    private val rescanStateHolder: RescanStateHolder
 ) : ViewModel() {
 
     /** A backup picked for restore, waiting for the user's confirmation. */
@@ -85,42 +89,55 @@ class SettingsViewModel @Inject constructor(
     private val _pendingRestore = MutableStateFlow<PendingRestore?>(null)
     val pendingRestore: StateFlow<PendingRestore?> = _pendingRestore.asStateFlow()
 
-    /** Writes a backup into the document the user created through SAF. */
+    /**
+     * Writes a backup into the document the user created through SAF. Runs to the end even if
+     * Settings is closed meanwhile (an abandoned export would leave an empty file behind).
+     * Texts come from [context] (it carries the in-app language); toasts use the application
+     * context because the screen may be gone by the time they show.
+     */
     fun exportBackup(context: Context, uri: String) {
+        val appContext = context.applicationContext
         viewModelScope.launch {
-            runCatching {
-                val (json, summary) = backupService.export()
-                withContext(Dispatchers.IO) {
-                    context.contentResolver.openOutputStream(uri.toUri(), "wt")?.use { it.write(json.toByteArray(Charsets.UTF_8)) }
-                        ?: throw IOException("Cannot open $uri")
+            withContext(NonCancellable) {
+                runCatching {
+                    val (json, summary) = backupService.export()
+                    withContext(Dispatchers.IO) {
+                        appContext.contentResolver.openOutputStream(uri.toUri(), "wt")?.use { it.write(json.toByteArray(Charsets.UTF_8)) }
+                            ?: throw IOException("Cannot open $uri")
+                    }
+                    summary
+                }.onSuccess {
+                    ToastUtil.showSuccess(appContext, context.getString(R.string.backup_export_done, it.settings, it.consoles, it.favourites, it.downloads))
+                }.onFailure {
+                    ToastUtil.showError(appContext, context.getString(R.string.backup_export_failed, it.message ?: ""))
                 }
-                summary
-            }.onSuccess {
-                ToastUtil.showSuccess(context, context.getString(R.string.backup_export_done, it.settings, it.consoles, it.favourites, it.downloads))
-            }.onFailure {
-                ToastUtil.showError(context, context.getString(R.string.backup_export_failed, it.message ?: ""))
             }
         }
     }
 
     /** Reads and checks the picked file; the restore itself waits for [restoreBackup]. */
     fun readBackup(context: Context, uri: String) {
+        if (refuseWhileScanning(context)) return
         viewModelScope.launch {
-            runCatching { backupService.read(uri) }
-                .onSuccess { backup ->
-                    _pendingRestore.value = PendingRestore(
-                        backup = backup,
-                        createdAt = runCatching { backup.get("createdAt").asLong }.getOrDefault(0L),
-                        appVersion = runCatching { backup.get("appVersion").asString }.getOrDefault("?")
-                    )
-                }
-                .onFailure {
-                    ToastUtil.showError(
-                        context,
-                        if (it is BackupService.InvalidBackupException) context.getString(R.string.backup_invalid)
-                        else context.getString(R.string.backup_import_failed, it.message ?: "")
-                    )
-                }
+            try {
+                val backup = backupService.read(uri)
+                _pendingRestore.value = PendingRestore(
+                    backup = backup,
+                    createdAt = runCatching { backup.get("createdAt").asLong }.getOrDefault(0L),
+                    appVersion = runCatching { backup.get("appVersion").asString }.getOrDefault("?")
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                ToastUtil.showError(
+                    context,
+                    when (e) {
+                        is BackupService.InvalidBackupException -> context.getString(R.string.backup_invalid)
+                        is BackupService.NewerBackupException -> context.getString(R.string.backup_newer_version)
+                        else -> context.getString(R.string.backup_import_failed, e.message ?: "")
+                    }
+                )
+            }
         }
     }
 
@@ -128,20 +145,48 @@ class SettingsViewModel @Inject constructor(
         _pendingRestore.value = null
     }
 
-    /** Restores the confirmed backup; [onSourcesRestored] starts the rescan of the new sources. */
+    /**
+     * Restores the confirmed backup; [onSourcesRestored] then starts the rescan of the new
+     * sources. Not refused half-way and not cancelled by leaving Settings: the restore, its
+     * messages and the rescan all happen, or the restore did not start at all.
+     */
     fun restoreBackup(context: Context, onSourcesRestored: () -> Unit) {
         val pending = _pendingRestore.value ?: return
         _pendingRestore.value = null
+        if (refuseWhileScanning(context)) return
+        val appContext = context.applicationContext
         viewModelScope.launch {
-            runCatching { backupService.restore(pending.backup) }
-                .onSuccess {
-                    ToastUtil.showSuccess(context, context.getString(R.string.backup_import_done, it.settings, it.consoles, it.favourites, it.downloads))
-                    if (it.foldersToRepick > 0) ToastUtil.showInfo(context, context.getString(R.string.backup_import_repick, it.foldersToRepick))
-                    if (it.downloads > 0) ToastUtil.showInfo(context, context.getString(R.string.backup_import_restart))
-                    if (it.consoles > 0) onSourcesRestored()
+            withContext(NonCancellable) {
+                // Marked as busy while the sources are replaced, so no scan or import can start
+                // half-way; released right before the rescan of the restored sources.
+                rescanStateHolder.setRescanning(true)
+                val result = try {
+                    runCatching { backupService.restore(pending.backup) }
+                } finally {
+                    rescanStateHolder.setRescanning(false)
                 }
-                .onFailure { ToastUtil.showError(context, context.getString(R.string.backup_import_failed, it.message ?: "")) }
+                result
+                    .onSuccess {
+                        ToastUtil.showSuccess(appContext, context.getString(R.string.backup_import_done, it.settings, it.consoles, it.favourites, it.downloads))
+                        if (it.foldersToRepick > 0) {
+                            ToastUtil.showInfo(appContext, context.resources.getQuantityString(R.plurals.backup_import_repick, it.foldersToRepick, it.foldersToRepick))
+                        }
+                        if (it.downloads > 0) ToastUtil.showInfo(appContext, context.getString(R.string.backup_import_restart))
+                        if (it.consoles > 0) onSourcesRestored()
+                    }
+                    .onFailure { ToastUtil.showError(appContext, context.getString(R.string.backup_import_failed, it.message ?: "")) }
+            }
         }
+    }
+
+    /**
+     * A restore replaces every source; while a scan is running it would be scanning the old ones
+     * and the rescan of the restored sources would be skipped. Same rule as importing sources.
+     */
+    private fun refuseWhileScanning(context: Context): Boolean {
+        if (!rescanStateHolder.isRescanning.value) return false
+        ToastUtil.showInfo(context, context.getString(R.string.backup_import_busy))
+        return true
     }
 
     /** Non-null while the Daijishō sheet with the values to type is open. */

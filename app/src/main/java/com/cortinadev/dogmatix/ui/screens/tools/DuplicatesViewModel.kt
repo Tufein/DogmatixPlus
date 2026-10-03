@@ -11,6 +11,7 @@ import com.cortinadev.dogmatix.util.DuplicateGroup
 import com.cortinadev.dogmatix.util.GameEntry
 import com.cortinadev.dogmatix.util.ToastUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -48,35 +49,57 @@ class DuplicatesViewModel @Inject constructor(
             _uiState.update { it.copy(scanning = true) }
             val folderSet = settingsRepository.downloadDirectory.first().isNotBlank() ||
                 settingsRepository.consoleDownloadDirectories.first().isNotEmpty()
-            val snapshot = runCatching { scanService.scan() }.getOrNull()
+            // A newer rescan cancels this one: stop here instead of publishing an empty result.
+            val snapshot = try {
+                scanService.scan()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                null
+            }
             val files = snapshot?.files.orEmpty()
             _uiState.value = DuplicatesUiState(
                 scanning = false,
                 folderSet = folderSet,
-                filesChecked = files.count { DuplicateFinder.isGameFile(it.name) },
+                filesChecked = files.count { DuplicateFinder.isGameFile(it) },
                 groups = DuplicateFinder.find(files)
             )
         }
     }
 
-    /** Deletes [entry] from disk and drops it from its group (and the group once one copy is left). */
+    /**
+     * Deletes [entry] from disk. The row leaves the list right away (so it cannot be confirmed
+     * twice); the delete itself finishes even if the screen is closed meanwhile. If nothing
+     * could be removed the list is read again from disk.
+     */
     fun delete(context: Context, entry: GameEntry) {
+        // Messages are resolved now, with the screen's context (it carries the in-app language);
+        // the toasts use the application context because the screen may be gone by then.
+        val appContext = context.applicationContext
+        val failed = context.getString(R.string.duplicates_delete_failed, entry.baseName)
+        val deleted = context.getString(R.string.duplicates_deleted, entry.baseName)
+        _uiState.update { state -> state.copy(groups = state.groups.without(entry)) }
         viewModelScope.launch {
-            val removed = runCatching { scanService.delete(entry) }.getOrDefault(0)
+            val removed = try {
+                scanService.delete(entry)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                0
+            }
             if (removed == 0) {
-                ToastUtil.showError(context, context.getString(R.string.duplicates_delete_failed, entry.baseName))
+                ToastUtil.showError(appContext, failed)
+                rescan()
                 return@launch
             }
-            ToastUtil.showSuccess(context, context.getString(R.string.duplicates_deleted, entry.baseName))
-            _uiState.update { state ->
-                state.copy(
-                    filesChecked = state.filesChecked - removed,
-                    groups = state.groups.mapNotNull { group ->
-                        val left = group.entries.filterNot { it == entry }
-                        if (left.size < 2) null else group.copy(entries = left)
-                    }
-                )
-            }
+            ToastUtil.showSuccess(appContext, deleted)
+            _uiState.update { it.copy(filesChecked = (it.filesChecked - removed).coerceAtLeast(0)) }
         }
+    }
+
+    /** The groups without [entry]; a group left with a single copy is no longer a duplicate. */
+    private fun List<DuplicateGroup>.without(entry: GameEntry): List<DuplicateGroup> = mapNotNull { group ->
+        val left = group.entries.filterNot { it.id == entry.id }
+        if (left.size < 2) null else group.copy(entries = left)
     }
 }

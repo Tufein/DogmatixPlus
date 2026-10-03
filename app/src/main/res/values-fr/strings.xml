@@ -86,7 +86,7 @@
     <string name="filter_sort">Trier</string>
     <string name="filter_any">Tous</string>
     <string name="filter_all">Tout</string>
-    <string name="filter_selected_count">%1$d sélectionnés</string>
+    <string name="filter_selected_count">Sélection : %1$d</string>
     <string name="filter_show_more">Afficher plus…</string>
     <string name="filter_show_less">Afficher moins</string>
     <string name="sort_name_asc">A → Z</string>
@@ -104,7 +104,7 @@
     <string name="column_size">TAILLE</string>
 
     <!-- Downloads -->
-    <string name="downloads_summary">%1$d actifs · %2$d terminés</string>
+    <string name="downloads_summary">Actifs : %1$d · Terminés : %2$d</string>
     <string name="downloads_empty">Aucun téléchargement. Choisissez un jeu dans la bibliothèque.</string>
     <plurals name="downloads_selected">
         <item quantity="one">%1$d sélectionné</item>
@@ -257,7 +257,7 @@
 
     <!-- Downloads -->
     <string name="download_started">Le téléchargement de « %1$s » a commencé</string>
-    <string name="download_speed">%1$.2f Mo/s</string>
+    <string name="download_speed">%1$.2f MB/s</string>
     <string name="download_started_at">Démarré %1$s</string>
     <string name="download_finished_at">%1$s</string>
     <string name="download_size">Taille : %1$s</string>
@@ -279,10 +279,10 @@
     <string name="keep_files">Garder les fichiers</string>
 
     <!-- File Sizes -->
-    <string name="file_size_bytes">%1$d o</string>
-    <string name="file_size_kb">%1$.1f Ko</string>
-    <string name="file_size_mb">%1$.1f Mo</string>
-    <string name="file_size_gb">%1$.1f Go</string>
+    <string name="file_size_bytes">%1$d B</string>
+    <string name="file_size_kb">%1$.1f KB</string>
+    <string name="file_size_mb">%1$.1f MB</string>
+    <string name="file_size_gb">%1$.1f GB</string>
 
     <!-- Settings -->
     <string name="settings_title">Paramètres</string>
@@ -439,7 +439,7 @@
     <string name="settings_duplicates">Jeux en double</string>
     <string name="settings_duplicates_hint">Trouvez les jeux présents plusieurs fois sur le disque et libérez de l’espace</string>
     <string name="settings_backup_export">Sauvegarder</string>
-    <string name="settings_backup_export_hint">Paramètres, sources, favoris et téléchargements dans un seul fichier (vos clés API incluses)</string>
+    <string name="settings_backup_export_hint">Contient vos clés API · paramètres, sources, favoris et téléchargements dans un seul fichier</string>
     <string name="settings_backup_export_action">Exporter</string>
     <string name="settings_backup_import">Restaurer une sauvegarde</string>
     <string name="settings_backup_import_hint">Remplace paramètres, sources et favoris par ceux d’une sauvegarde</string>
@@ -451,7 +451,11 @@
     <string name="backup_import_message">Sauvegarde du %1$s (Dogmatix %2$s).\n\nVos paramètres, sources et favoris actuels seront remplacés, puis chaque source sera rescannée.</string>
     <string name="backup_import_action">Restaurer</string>
     <string name="backup_import_done">Restauré : %1$d paramètres, %2$d consoles, %3$d favoris, %4$d téléchargements</string>
-    <string name="backup_import_repick">%1$d dossier(s) inaccessible(s) sur cette installation : choisissez-les à nouveau dans Paramètres ou Sources</string>
+    <plurals name="backup_import_repick">
+        <item quantity="one">%1$d dossier est inaccessible sur cette installation : choisissez-le à nouveau dans Paramètres ou Sources</item>
+        <item quantity="many">%1$d dossiers sont inaccessibles sur cette installation : choisissez-les à nouveau dans Paramètres ou Sources</item>
+        <item quantity="other">%1$d dossiers sont inaccessibles sur cette installation : choisissez-les à nouveau dans Paramètres ou Sources</item>
+    </plurals>
     <string name="backup_import_restart">Redémarrez Dogmatix pour voir la liste de téléchargements restaurée</string>
     <string name="backup_import_failed">Échec de la restauration : %1$s</string>
     <string name="tools_scanning">Lecture de vos dossiers de téléchargement…</string>
@@ -471,21 +475,25 @@
     </plurals>
     <string name="duplicates_none">Aucun doublon parmi %1$d fichiers</string>
     <string name="duplicates_kind_identical">Même fichier dans plusieurs dossiers</string>
-    <string name="duplicates_kind_variant">Versions différentes (région, révision, traduction)</string>
+    <string name="duplicates_kind_variant">Versions ou formats différents (région, révision, traduction)</string>
     <string name="duplicates_largest">le plus gros</string>
     <string name="duplicates_delete">Supprimer</string>
     <string name="duplicates_delete_title">Supprimer du disque ?</string>
-    <string name="duplicates_delete_message">%1$s\n%2$s\n\n%3$s (%4$s) seront supprimés définitivement.</string>
+    <plurals name="duplicates_delete_message">
+        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s) sera supprimé définitivement.</item>
+        <item quantity="many">%1$s\n%2$s\n\n%3$s (%4$s) seront supprimés définitivement.</item>
+        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s) seront supprimés définitivement.</item>
+    </plurals>
     <string name="duplicates_deleted">%1$s supprimé</string>
     <string name="duplicates_delete_failed">Impossible de supprimer %1$s</string>
-    <string name="overview_totals">%1$d consoles · %2$d jeux indexés · %3$d possédés (%4$d%%)</string>
+    <string name="overview_totals">Consoles : %1$d · Jeux indexés : %2$d · Possédés : %3$d (%4$d %%)</string>
     <string name="overview_disk">Sur le disque : %1$d jeux, %2$s · %3$s libres</string>
     <string name="overview_disk_no_free">Sur le disque : %1$d jeux, %2$s</string>
     <string name="overview_rescan_all">Rescanner toutes les sources</string>
     <string name="overview_rescan_all_title">Rescanner toutes les sources ?</string>
     <string name="overview_rescan_all_message">Chaque source est de nouveau récupérée et indexée. Avec beaucoup de torrents, cela peut prendre un moment.</string>
     <string name="overview_scan_running">Scan en cours : %1$s</string>
-    <string name="overview_console_stats">%1$d indexés · %2$d possédés · %3$d sur le disque (%4$s)</string>
+    <string name="overview_console_stats">Indexés : %1$d · Possédés : %2$d · Sur le disque : %3$d (%4$s)</string>
     <string name="overview_scanned">scanné %1$s</string>
     <string name="overview_never_scanned">date du scan inconnue</string>
     <string name="overview_status_ok">OK</string>
@@ -506,9 +514,11 @@
     <string name="update_available">Mise à jour disponible ! Dernière version : %1$s</string>
     <string name="scan_progress">%1$d %% · %2$s</string>
     <string name="overview_scan_percent">Scan des sources : %1$d %%</string>
-    <string name="overview_scan_sources">%1$d sources sur %2$d terminées</string>
-    <string name="overview_scan_sources_eta">%1$d sources sur %2$d terminées · encore environ %3$s</string>
+    <string name="overview_scan_sources">Sources terminées : %1$d sur %2$d</string>
+    <string name="overview_scan_sources_eta">Sources terminées : %1$d sur %2$d · encore environ %3$s</string>
     <string name="language_nl">Nederlands</string>
     <string name="language_fr">Français</string>
     <string name="language_de">Deutsch</string>
+    <string name="backup_import_busy">Attendez la fin du scan des sources, puis restaurez la sauvegarde</string>
+    <string name="backup_newer_version">Cette sauvegarde a été créée par une version plus récente de Dogmatix : mettez l’application à jour pour la restaurer</string>
 </resources>

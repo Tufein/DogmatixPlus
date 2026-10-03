@@ -2,6 +2,8 @@ package com.cortinadev.dogmatix.data.repository
 
 import android.content.Context
 import androidx.core.net.toUri
+import androidx.room.withTransaction
+import com.cortinadev.dogmatix.data.local.DogmatixDatabase
 import com.cortinadev.dogmatix.data.local.dao.ConsoleDao
 import com.cortinadev.dogmatix.data.local.dao.ManufacturerDao
 import com.cortinadev.dogmatix.data.local.entity.ConsoleEntity
@@ -39,6 +41,7 @@ import javax.inject.Singleton
 @Singleton
 class SourcesRepository @Inject constructor(
     @param:ApplicationContext private val context: Context,
+    private val database: DogmatixDatabase,
     private val manufacturerDao: ManufacturerDao,
     private val consoleDao: ConsoleDao,
     private val torrentHandleRegistry: TorrentHandleRegistry,
@@ -205,18 +208,22 @@ class SourcesRepository @Inject constructor(
         importFromText(text)
     }
 
-    /** [importFromUri] for a document already in memory (a backup carries one). */
-    suspend fun importFromText(text: String): Int = withContext(Dispatchers.IO) {
+    /**
+     * [importFromUri] for a document already in memory (a backup carries one). The old sources
+     * and the indexed games are replaced in one transaction, so an interruption can never leave
+     * the sources half replaced. With [keepLocalTorrents] (a backup restore) the uploaded
+     * `.torrent` copies of the consoles that come back are kept: they cannot travel in a backup.
+     */
+    suspend fun importFromText(text: String, keepLocalTorrents: Boolean = false): Int = withContext(Dispatchers.IO) {
         val doc = SourcesJson.parseDocument(text)
         require(doc.isNotEmpty()) { "No sources found in file" }
 
-        // Release the torrents of everything we are about to drop.
-        consoleDao.getAllConsoles().first().forEach { releaseSources(SourcesJson.parseUrlEntries(it.urls)) }
-        databaseScrapingService.clearAllData()
-        consoleDao.clearAll()
-        manufacturerDao.clearAll()
+        val old = consoleDao.getAllConsoles().first()
+        val kept: Map<String, List<UrlEntry>> = if (!keepLocalTorrents) emptyMap() else old.associate { console ->
+            console.id to SourcesJson.parseUrlEntries(console.urls).filter { it.url.startsWith("/") && File(it.url).exists() }
+        }.filterValues { it.isNotEmpty() }
 
-        manufacturerDao.insertManufacturers(doc.map { ManufacturerEntity(id = it.id, name = it.name) })
+        val manufacturers = doc.map { ManufacturerEntity(id = it.id, name = it.name) }
         val consoles = doc.flatMap { m ->
             m.consoles.map { c ->
                 val urls = c.urls.mapNotNull { u ->
@@ -227,13 +234,26 @@ class SourcesRepository @Inject constructor(
                     }
                     stored?.let { u.copy(url = it) }
                 }
+                val localTorrents = kept[c.id].orEmpty().filterNot { k -> urls.any { it.url == k.url } }
                 ConsoleEntity(
-                    id = c.id, name = c.name, manufacturerId = m.id, urls = SourcesJson.serializeUrlEntries(urls),
+                    id = c.id, name = c.name, manufacturerId = m.id, urls = SourcesJson.serializeUrlEntries(urls + localTorrents),
                     shortName = c.shortName.orEmpty(), folderAliases = ConsoleAliasRegistry.serializeAliases(c.folderAliases)
                 )
             }
         }
-        consoleDao.insertConsoles(consoles)
+
+        database.withTransaction {
+            databaseScrapingService.clearAllData()
+            consoleDao.clearAll()
+            manufacturerDao.clearAll()
+            manufacturerDao.insertManufacturers(manufacturers)
+            consoleDao.insertConsoles(consoles)
+        }
+
+        // Release the torrents (and our .torrent copies) of the sources that are gone. Only after
+        // the commit: it touches files and the torrent session, which a rollback cannot undo.
+        val remaining = consoles.flatMap { SourcesJson.parseUrlEntries(it.urls).map { u -> u.url } }.toSet()
+        old.forEach { console -> releaseSources(SourcesJson.parseUrlEntries(console.urls).filterNot { it.url in remaining }) }
         consoles.size
     }
 

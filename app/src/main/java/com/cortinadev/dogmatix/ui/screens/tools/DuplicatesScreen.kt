@@ -44,13 +44,14 @@ fun DuplicatesScreen(viewModel: DuplicatesViewModel = hiltViewModel()) {
     pendingDelete?.let { entry ->
         ConfirmDialog(
             title = stringResource(R.string.duplicates_delete_title),
-            message = stringResource(
-                R.string.duplicates_delete_message,
+            message = pluralStringResource(
+                R.plurals.duplicates_delete_message,
+                entry.files.size,
                 entry.baseName,
                 entry.folder,
                 pluralStringResource(R.plurals.tools_files, entry.files.size, entry.files.size),
                 formatBytes(entry.size)
-            ),
+            ) + deletedFileList(entry),
             confirmText = stringResource(R.string.duplicates_delete),
             onConfirm = { viewModel.delete(context, entry) },
             onDismiss = { pendingDelete = null }
@@ -90,7 +91,9 @@ fun DuplicatesScreen(viewModel: DuplicatesViewModel = hiltViewModel()) {
             if (!ui.scanning) {
                 ui.groups.forEachIndexed { index, group ->
                     item(key = "group:$index:${group.scope}|${group.title}") { GroupHeader(group) }
-                    items(group.entries, key = { it.files.first().uri }) { entry ->
+                    // Keyed per group as well: a file can never be in two groups, but a duplicate
+                    // key would crash the whole list, so the key does not rely on that.
+                    items(group.entries, key = { "$index|${it.id}" }) { entry ->
                         val largest = entry === group.entries.first()
                         val details = formatBytes(entry.size) + " · " +
                             pluralStringResource(R.plurals.tools_files, entry.files.size, entry.files.size) +
@@ -109,11 +112,20 @@ fun DuplicatesScreen(viewModel: DuplicatesViewModel = hiltViewModel()) {
     }
 }
 
+/** Names of the files a multi-file delete removes, so it is never a surprise. */
+private fun deletedFileList(entry: GameEntry): String {
+    val shown = entry.files.take(MAX_LISTED_FILES).joinToString("\n") { "• " + it.name }
+    val more = entry.files.size - MAX_LISTED_FILES
+    return "\n\n" + shown + if (more > 0) "\n• … (+$more)" else ""
+}
+
+private const val MAX_LISTED_FILES = 8
+
 @Composable
 private fun GroupHeader(group: DuplicateGroup) {
     val where = group.consoleId?.let { ConsoleFormatter.getConsoleDisplayName(it) }
         ?: if (group.scope.isEmpty()) stringResource(R.string.tools_root_folder)
-        else stringResource(R.string.tools_unknown_folder, group.entries.first().folder.substringAfterLast('/'))
+        else stringResource(R.string.tools_unknown_folder, group.scope.removePrefix("folder:"))
     val kind = stringResource(
         if (group.kind == DuplicateGroup.Kind.IDENTICAL) R.string.duplicates_kind_identical else R.string.duplicates_kind_variant
     )

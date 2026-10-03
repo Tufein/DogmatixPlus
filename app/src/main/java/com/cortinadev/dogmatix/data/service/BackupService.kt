@@ -16,18 +16,15 @@ import com.cortinadev.dogmatix.data.local.SettingsKeys
 import com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao
 import com.cortinadev.dogmatix.data.local.dao.FavouriteDao
 import com.cortinadev.dogmatix.data.local.dataStore
-import com.cortinadev.dogmatix.data.local.entity.DownloadHistoryEntity
-import com.cortinadev.dogmatix.data.local.entity.FavouriteEntity
-import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.repository.SourcesRepository
+import com.cortinadev.dogmatix.util.BackupJson
+import com.cortinadev.dogmatix.util.SourcesJson
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.google.gson.JsonPrimitive
-import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -44,7 +41,8 @@ import javax.inject.Singleton
  * ```
  * Folder settings are SAF grants that belong to this installation: on restore they are only
  * applied when the app still holds the permission, otherwise the current value is kept and the
- * user is asked to pick the folder again.
+ * user is asked to pick the folder again. Sources that are local `.torrent` copies cannot travel
+ * in a backup; a restore keeps the ones this install already has.
  */
 @Singleton
 class BackupService @Inject constructor(
@@ -64,67 +62,89 @@ class BackupService @Inject constructor(
 
     class InvalidBackupException : IllegalArgumentException("Not a Dogmatix backup")
 
+    /** The file was written by a newer Dogmatix whose format this version does not know. */
+    class NewerBackupException(val version: Int) : IllegalArgumentException("Backup format $version is newer than ${BackupJson.VERSION}")
+
     private val gson = GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create()
 
     suspend fun export(): Pair<String, Summary> = withContext(Dispatchers.IO) {
         val prefs = context.dataStore.data.first().asMap()
         val settings = JsonObject()
-        prefs.forEach { (key, value) -> encode(value)?.let { settings.add(key.name, it) } }
+        prefs.forEach { (key, value) -> BackupJson.encodeSetting(value)?.let { settings.add(key.name, it) } }
 
         val sources = JsonParser.parseString(sourcesRepository.exportDocument()).asJsonObject
         val favourites = favouriteDao.getAll()
-        val history = downloadHistoryDao.getAll().map { it.copy(debridProvider = null, debridTorrentId = null, debridFileId = null) }
+        val history = downloadHistoryDao.getAll()
 
         val root = JsonObject().apply {
-            addProperty("format", FORMAT)
-            addProperty("version", VERSION)
+            addProperty("format", BackupJson.FORMAT)
+            addProperty("version", BackupJson.VERSION)
             addProperty("createdAt", System.currentTimeMillis())
             addProperty("appVersion", BuildConfig.VERSION_NAME)
             add("settings", settings)
             add("sources", sources)
-            add("favourites", gson.toJsonTree(favourites))
-            add("downloadHistory", gson.toJsonTree(history))
+            add("favourites", BackupJson.favouritesToJson(favourites))
+            add("downloadHistory", BackupJson.historyToJson(history))
         }
-        gson.toJson(root) to Summary(settings.size(), sources.entrySet().sumOf { (_, m) ->
-            m.asJsonObject.keySet().count { !it.startsWith("_") }
-        }, favourites.size, history.size)
+        gson.toJson(root) to Summary(settings.size(), consoleCount(sources), favourites.size, history.size)
     }
 
-    /** Reads the document at [uri] and checks it is a backup; nothing is changed yet. */
+    /**
+     * Reads the document at [uri] and checks it is a backup this version understands; nothing is
+     * changed yet. The picker accepts any file, and ROM folders hold multi-GB images: anything
+     * larger than [MAX_BACKUP_BYTES] (far above any real backup) is rejected without reading it all.
+     */
     suspend fun read(uri: String): JsonObject = withContext(Dispatchers.IO) {
-        val text = context.contentResolver.openInputStream(uri.toUri())?.bufferedReader()?.use { it.readText() }
-            ?: throw IllegalStateException("Cannot open $uri")
+        val bytes = context.contentResolver.openInputStream(uri.toUri())?.use { input ->
+            val out = java.io.ByteArrayOutputStream()
+            val buffer = ByteArray(64 * 1024)
+            while (true) {
+                val n = input.read(buffer)
+                if (n < 0) break
+                if (out.size() + n > MAX_BACKUP_BYTES) throw InvalidBackupException()
+                out.write(buffer, 0, n)
+            }
+            out.toByteArray()
+        } ?: throw IllegalStateException("Cannot open $uri")
+        val text = bytes.toString(Charsets.UTF_8)
         val root = runCatching { JsonParser.parseString(text).asJsonObject }.getOrNull()
-        if (root == null || root.get("format")?.asString != FORMAT) throw InvalidBackupException()
+        val format = runCatching { root?.get("format")?.asString }.getOrNull()
+        if (root == null || format != BackupJson.FORMAT) throw InvalidBackupException()
+        val version = runCatching { root.get("version").asInt }.getOrDefault(0)
+        if (version > BackupJson.VERSION) throw NewerBackupException(version)
         root
     }
 
+    /**
+     * Restores [backup] in two phases. First every section is read and checked, so a damaged
+     * file fails before anything is touched. Then everything is applied in one go that cannot be
+     * cancelled (leaving the screen half-way must not leave a half-restored app); the sources are
+     * replaced in a single database transaction.
+     */
     suspend fun restore(backup: JsonObject): Summary = withContext(Dispatchers.IO) {
-        val (settingsCount, repick) = backup.getAsJsonObject("settings")?.let { restoreSettings(it) } ?: (0 to 0)
+        // Null when the file has no settings section: then the current settings stay untouched.
+        val settings = (backup.get("settings") as? JsonObject)?.entrySet()
+            ?.mapNotNull { (name, element) -> BackupJson.decodeSetting(name, element)?.let { name to it } }
+        val sourcesText = (backup.get("sources") as? JsonObject)
+            ?.takeIf { consoleCount(it) > 0 }
+            ?.toString()
+            ?.also { require(SourcesJson.parseDocument(it).isNotEmpty()) { "No sources found in file" } }
+        val favourites = BackupJson.favouritesFromJson(backup.get("favourites"))
+        val downloads = BackupJson.historyFromJson(backup.get("downloadHistory"))
 
-        val consoles = backup.getAsJsonObject("sources")
-            ?.takeIf { doc -> doc.entrySet().any { (_, m) -> m.isJsonObject && m.asJsonObject.keySet().any { !it.startsWith("_") } } }
-            ?.let { sourcesRepository.importFromText(it.toString()) } ?: 0
-
-        val favourites = backup.getAsJsonArray("favourites")?.let { array ->
-            val rows = gson.fromJson<List<FavouriteEntity>>(array, object : TypeToken<List<FavouriteEntity>>() {}.type)
-                .filter { (it.consoleId as String?) != null && (it.fileName as String?) != null }
-            favouriteDao.upsertAll(rows)
-            rows.size
-        } ?: 0
-
-        val downloads = backup.getAsJsonArray("downloadHistory")?.let { array ->
-            val rows = gson.fromJson<List<DownloadHistoryEntity>>(array, object : TypeToken<List<DownloadHistoryEntity>>() {}.type)
-                .filter { it.isComplete() }
-            downloadHistoryDao.insertMissing(rows)
-            rows.size
-        } ?: 0
-
-        Summary(settingsCount, consoles, favourites, downloads, repick)
+        withContext(NonCancellable) {
+            val (restored, repick) = settings?.let { restoreSettings(it) } ?: (0 to 0)
+            val consoles = sourcesText?.let { sourcesRepository.importFromText(it, keepLocalTorrents = true) } ?: 0
+            // The sources are committed by now: a failure of the smaller parts (a full disk…) must
+            // not hide that, or the restored sources would never be scanned.
+            val favouritesDone = runCatching { favouriteDao.upsertAll(favourites) }.isSuccess
+            val downloadsDone = runCatching { downloadHistoryDao.insertMissing(downloads) }.isSuccess
+            Summary(restored, consoles, if (favouritesDone) favourites.size else 0, if (downloadsDone) downloads.size else 0, repick)
+        }
     }
 
     /** Replaces the settings with the backed-up ones; returns (restored, folders the user must pick again). */
-    private suspend fun restoreSettings(settings: JsonObject): Pair<Int, Int> {
+    private suspend fun restoreSettings(settings: List<Pair<String, Any>>): Pair<Int, Int> {
         val granted = context.contentResolver.persistedUriPermissions.map { it.uri.toString() }.toSet()
         var restored = 0
         var repick = 0
@@ -133,20 +153,20 @@ class BackupService @Inject constructor(
             val currentFolders = FOLDER_KEYS.associateWith { prefs[stringPreferencesKey(it)] }
             val currentConsoleDirs = prefs[SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES].orEmpty()
             prefs.clear()
-            settings.entrySet().forEach { (name, element) ->
-                val obj = element.takeIf { it.isJsonObject }?.asJsonObject ?: return@forEach
+            settings.forEach { (name, value) ->
                 when (name) {
                     in FOLDER_KEYS -> {
-                        val value = runCatching { obj.get("v").asString }.getOrDefault("")
-                        if (value.isEmpty() || value in granted) {
-                            prefs[stringPreferencesKey(name)] = value
+                        val uri = value as String
+                        if (uri.isEmpty() || uri in granted) {
+                            prefs[stringPreferencesKey(name)] = uri
                             restored++
                         } else {
                             repick++
                         }
                     }
                     SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES.name -> {
-                        val entries = runCatching { obj.getAsJsonArray("v").map { it.asString } }.getOrDefault(emptyList())
+                        @Suppress("UNCHECKED_CAST")
+                        val entries = value as Set<String>
                         val usable = entries.filter { it.substringAfter(':', "") in granted }
                         repick += entries.size - usable.size
                         val usableIds = usable.map { it.substringBefore(':') }.toSet()
@@ -154,7 +174,10 @@ class BackupService @Inject constructor(
                             usable.toSet() + currentConsoleDirs.filter { it.substringBefore(':') !in usableIds }
                         restored++
                     }
-                    else -> if (decodeInto(prefs, name, obj)) restored++
+                    else -> {
+                        prefs.put(name, value)
+                        restored++
+                    }
                 }
             }
             currentFolders.forEach { (name, value) ->
@@ -170,47 +193,26 @@ class BackupService @Inject constructor(
         return restored to repick
     }
 
-    private fun encode(value: Any): JsonObject? {
-        val (type, json) = when (value) {
-            is Boolean -> "b" to JsonPrimitive(value)
-            is Int -> "i" to JsonPrimitive(value)
-            is Long -> "l" to JsonPrimitive(value)
-            // As text: the speed limit is +Infinity, which JSON numbers cannot hold.
-            is Float -> "f" to JsonPrimitive(value.toString())
-            is Double -> "d" to JsonPrimitive(value.toString())
-            is String -> "s" to JsonPrimitive(value)
-            is Set<*> -> "ss" to JsonArray().apply { value.filterIsInstance<String>().forEach { add(it) } }
-            else -> return null
+    /** Writes a value decoded by [BackupJson.decodeSetting] under a key of its own type. */
+    private fun MutablePreferences.put(name: String, value: Any) {
+        @Suppress("UNCHECKED_CAST")
+        when (value) {
+            is Boolean -> this[booleanPreferencesKey(name)] = value
+            is Int -> this[intPreferencesKey(name)] = value
+            is Long -> this[longPreferencesKey(name)] = value
+            is Float -> this[floatPreferencesKey(name)] = value
+            is Double -> this[doublePreferencesKey(name)] = value
+            is String -> this[stringPreferencesKey(name)] = value
+            is Set<*> -> this[stringSetPreferencesKey(name)] = value as Set<String>
         }
-        return JsonObject().apply { addProperty("t", type); add("v", json) }
     }
 
-    private fun decodeInto(prefs: MutablePreferences, name: String, obj: JsonObject): Boolean {
-        val v = obj.get("v") ?: return false
-        return runCatching {
-            when (obj.get("t")?.asString) {
-                "b" -> prefs[booleanPreferencesKey(name)] = v.asBoolean
-                "i" -> prefs[intPreferencesKey(name)] = v.asInt
-                "l" -> prefs[longPreferencesKey(name)] = v.asLong
-                "f" -> prefs[floatPreferencesKey(name)] = v.asString.toFloat()
-                "d" -> prefs[doublePreferencesKey(name)] = v.asString.toDouble()
-                "s" -> prefs[stringPreferencesKey(name)] = v.asString
-                "ss" -> prefs[stringSetPreferencesKey(name)] = v.asJsonArray.map { it.asString }.toSet()
-                else -> return false
-            }
-            true
-        }.getOrDefault(false)
-    }
-
-    /** Gson fills fields without constructors, so rows from a hand-edited file may hold nulls. */
-    @Suppress("SENSELESS_COMPARISON")
-    private fun DownloadHistoryEntity.isComplete(): Boolean =
-        fileName != null && name != null && consoleId != null && downloadUrl != null &&
-            fileExtension != null && status != null && runCatching { DownloadStatus.valueOf(status) }.isSuccess
+    /** Consoles in a sources document (manufacturer keys starting with `_` are metadata). */
+    private fun consoleCount(sources: JsonObject): Int =
+        sources.entrySet().sumOf { (_, m) -> if (m.isJsonObject) m.asJsonObject.entrySet().count { (k, v) -> !k.startsWith("_") && v.isJsonObject } else 0 }
 
     companion object {
-        const val FORMAT = "dogmatix-backup"
-        const val VERSION = 1
+        private const val MAX_BACKUP_BYTES = 8 * 1024 * 1024
         private val FOLDER_KEYS = setOf(
             SettingsKeys.DOWNLOAD_DIRECTORY.name,
             SettingsKeys.ESDE_DIRECTORY.name,

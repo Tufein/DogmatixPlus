@@ -438,7 +438,7 @@
     <string name="settings_duplicates">Doppelte Spiele</string>
     <string name="settings_duplicates_hint">Finde Spiele, die mehrfach auf der Festplatte liegen, und gib Speicher frei</string>
     <string name="settings_backup_export">Sichern</string>
-    <string name="settings_backup_export_hint">Einstellungen, Quellen, Favoriten und Downloads in einer Datei (inklusive deiner API-Schlüssel)</string>
+    <string name="settings_backup_export_hint">Enthält deine API-Schlüssel · Einstellungen, Quellen, Favoriten und Downloads in einer Datei</string>
     <string name="settings_backup_export_action">Exportieren</string>
     <string name="settings_backup_import">Sicherung wiederherstellen</string>
     <string name="settings_backup_import_hint">Ersetzt Einstellungen, Quellen und Favoriten durch die einer Sicherung</string>
@@ -450,7 +450,10 @@
     <string name="backup_import_message">Sicherung vom %1$s (Dogmatix %2$s).\n\nDeine aktuellen Einstellungen, Quellen und Favoriten werden ersetzt, danach wird jede Quelle neu gescannt.</string>
     <string name="backup_import_action">Wiederherstellen</string>
     <string name="backup_import_done">Wiederhergestellt: %1$d Einstellungen, %2$d Konsolen, %3$d Favoriten, %4$d Downloads</string>
-    <string name="backup_import_repick">%1$d Ordner sind in dieser Installation nicht zugänglich: wähle sie in Einstellungen oder Quellen neu</string>
+    <plurals name="backup_import_repick">
+        <item quantity="one">%1$d Ordner ist in dieser Installation nicht zugänglich: wähle ihn in Einstellungen oder Quellen neu</item>
+        <item quantity="other">%1$d Ordner sind in dieser Installation nicht zugänglich: wähle sie in Einstellungen oder Quellen neu</item>
+    </plurals>
     <string name="backup_import_restart">Starte Dogmatix neu, um die wiederhergestellte Downloadliste zu sehen</string>
     <string name="backup_import_failed">Wiederherstellen fehlgeschlagen: %1$s</string>
     <string name="tools_scanning">Deine Download-Ordner werden gelesen…</string>
@@ -468,11 +471,14 @@
     </plurals>
     <string name="duplicates_none">Keine Duplikate unter %1$d Dateien</string>
     <string name="duplicates_kind_identical">Gleiche Datei in mehreren Ordnern</string>
-    <string name="duplicates_kind_variant">Verschiedene Versionen (Region, Revision, Übersetzung)</string>
+    <string name="duplicates_kind_variant">Verschiedene Versionen oder Formate (Region, Revision, Übersetzung)</string>
     <string name="duplicates_largest">größte</string>
     <string name="duplicates_delete">Löschen</string>
     <string name="duplicates_delete_title">Von der Festplatte löschen?</string>
-    <string name="duplicates_delete_message">%1$s\n%2$s\n\n%3$s (%4$s) werden endgültig gelöscht.</string>
+    <plurals name="duplicates_delete_message">
+        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s) wird endgültig gelöscht.</item>
+        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s) werden endgültig gelöscht.</item>
+    </plurals>
     <string name="duplicates_deleted">%1$s gelöscht</string>
     <string name="duplicates_delete_failed">%1$s konnte nicht gelöscht werden</string>
     <string name="overview_totals">%1$d Konsolen · %2$d Spiele indexiert · %3$d im Besitz (%4$d%%)</string>
@@ -508,4 +514,6 @@
     <string name="language_nl">Nederlands</string>
     <string name="language_fr">Français</string>
     <string name="language_de">Deutsch</string>
+    <string name="backup_import_busy">Warte, bis der Quellen-Scan fertig ist, und stelle die Sicherung dann wieder her</string>
+    <string name="backup_newer_version">Diese Sicherung stammt von einer neueren Dogmatix-Version: aktualisiere die App, um sie wiederherzustellen</string>
 </resources>

@@ -408,7 +408,7 @@
     <string name="settings_duplicates">Juegos duplicados</string>
     <string name="settings_duplicates_hint">Busca juegos que están más de una vez en disco y libera espacio</string>
     <string name="settings_backup_export">Copia de seguridad</string>
-    <string name="settings_backup_export_hint">Ajustes, fuentes, favoritos y descargas en un archivo (incluye tus claves API)</string>
+    <string name="settings_backup_export_hint">Incluye tus claves API · ajustes, fuentes, favoritos y descargas en un archivo</string>
     <string name="settings_backup_export_action">Exportar</string>
     <string name="settings_backup_import">Restaurar copia</string>
     <string name="settings_backup_import_hint">Sustituye ajustes, fuentes y favoritos por los de una copia</string>
@@ -420,7 +420,11 @@
     <string name="backup_import_message">Copia del %1$s (Dogmatix %2$s).\n\nTus ajustes, fuentes y favoritos actuales se sustituyen y después se vuelven a escanear todas las fuentes.</string>
     <string name="backup_import_action">Restaurar</string>
     <string name="backup_import_done">Restaurados %1$d ajustes, %2$d consolas, %3$d favoritos, %4$d descargas</string>
-    <string name="backup_import_repick">%1$d carpeta(s) no son accesibles en esta instalación: vuelve a elegirlas en Ajustes o Fuentes</string>
+    <plurals name="backup_import_repick">
+        <item quantity="one">%1$d carpeta no es accesible en esta instalación: vuelve a elegirla en Ajustes o Fuentes</item>
+        <item quantity="many">%1$d carpetas no son accesibles en esta instalación: vuelve a elegirlas en Ajustes o Fuentes</item>
+        <item quantity="other">%1$d carpetas no son accesibles en esta instalación: vuelve a elegirlas en Ajustes o Fuentes</item>
+    </plurals>
     <string name="backup_import_restart">Reinicia Dogmatix para ver la lista de descargas restaurada</string>
     <string name="backup_import_failed">Fallo al restaurar: %1$s</string>
     <string name="tools_scanning">Leyendo tus carpetas de descarga…</string>
@@ -440,15 +444,19 @@
     </plurals>
     <string name="duplicates_none">Ningún duplicado entre %1$d archivos</string>
     <string name="duplicates_kind_identical">El mismo archivo en varias carpetas</string>
-    <string name="duplicates_kind_variant">Versiones distintas (región, revisión, traducción)</string>
+    <string name="duplicates_kind_variant">Versiones o formatos distintos (región, revisión, traducción)</string>
     <string name="duplicates_largest">el más grande</string>
     <string name="duplicates_delete">Borrar</string>
     <string name="duplicates_delete_title">¿Borrar del disco?</string>
-    <string name="duplicates_delete_message">%1$s\n%2$s\n\n%3$s (%4$s) se borrarán definitivamente.</string>
+    <plurals name="duplicates_delete_message">
+        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s) se borrará definitivamente.</item>
+        <item quantity="many">%1$s\n%2$s\n\n%3$s (%4$s) se borrarán definitivamente.</item>
+        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s) se borrarán definitivamente.</item>
+    </plurals>
     <string name="duplicates_deleted">Borrado %1$s</string>
     <string name="duplicates_delete_failed">No se pudo borrar %1$s</string>
     <string name="overview_totals">%1$d consolas · %2$d juegos indexados · %3$d en tu colección (%4$d%%)</string>
-    <string name="overview_disk">En disco: %1$d juegos, %2$s · libre %3$s</string>
+    <string name="overview_disk">En disco: %1$d juegos, %2$s · %3$s libres</string>
     <string name="overview_disk_no_free">En disco: %1$d juegos, %2$s</string>
     <string name="overview_rescan_all">Reescanear todas las fuentes</string>
     <string name="overview_rescan_all_title">¿Reescanear todas las fuentes?</string>
@@ -475,9 +483,11 @@
     <string name="update_available">¡Actualización disponible! Última versión: %1$s</string>
     <string name="scan_progress">%1$d%% · %2$s</string>
     <string name="overview_scan_percent">Escaneando fuentes: %1$d%%</string>
-    <string name="overview_scan_sources">%1$d de %2$d fuentes hechas</string>
-    <string name="overview_scan_sources_eta">%1$d de %2$d fuentes hechas · quedan unos %3$s</string>
+    <string name="overview_scan_sources">%1$d de %2$d fuentes completadas</string>
+    <string name="overview_scan_sources_eta">%1$d de %2$d fuentes completadas · quedan unos %3$s</string>
     <string name="language_nl">Nederlands</string>
     <string name="language_fr">Français</string>
     <string name="language_de">Deutsch</string>
+    <string name="backup_import_busy">Espera a que termine el escaneo de fuentes y restaura la copia después</string>
+    <string name="backup_newer_version">Esta copia se hizo con una versión más reciente de Dogmatix: actualiza la app para restaurarla</string>
 </resources>

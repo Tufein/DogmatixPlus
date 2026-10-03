@@ -7,6 +7,7 @@ import com.cortinadev.dogmatix.data.service.LibraryScanService
 import com.cortinadev.dogmatix.data.state.RescanStateHolder
 import com.cortinadev.dogmatix.data.state.ScanProgress
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,7 +50,14 @@ class LibraryOverviewViewModel @Inject constructor(
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
             _uiState.update { it.copy(loading = true) }
-            val overview = runCatching { scanService.overview() }.getOrNull()
+            // A newer refresh cancels this one: stop here instead of clearing its loading state.
+            val overview = try {
+                scanService.overview()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                null
+            }
             _uiState.value = LibraryOverviewUiState(loading = false, overview = overview ?: _uiState.value.overview)
         }
     }
