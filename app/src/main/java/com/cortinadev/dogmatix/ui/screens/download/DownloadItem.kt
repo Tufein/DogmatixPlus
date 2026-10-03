@@ -70,6 +70,8 @@ fun DownloadItem(
     upload: UploadState? = null,
     /** Why this download has not started (Wi-Fi / charger / night), or null. */
     waitingReason: String? = null,
+    /** Place in the queue (1 = next to start) while waiting for a free slot; null otherwise. */
+    queuePosition: Int? = null,
     /** Result of comparing the finished file with the hash its source published. */
     verify: VerifyState? = null,
     selectionMode: Boolean = false,
@@ -99,7 +101,9 @@ fun DownloadItem(
         DownloadStatus.DOWNLOADING -> R.drawable.ic_arrow_down
         DownloadStatus.QUEUED -> R.drawable.ic_web
     }
-    val statusLabel = if (waitingReason != null && status == DownloadStatus.DOWNLOADING) waitingReason else when (status) {
+    val statusLabel = if (waitingReason != null && status == DownloadStatus.DOWNLOADING) waitingReason
+    else if (queuePosition != null && status == DownloadStatus.DOWNLOADING) stringResource(R.string.status_in_queue, queuePosition)
+    else when (status) {
         DownloadStatus.QUEUED -> stringResource(R.string.status_queued_debrid, viewModel.debridLabel.collectAsState().value, (item.progress * 100).toInt())
         DownloadStatus.COMPLETED -> stringResource(R.string.status_completed)
         DownloadStatus.FAILED -> stringResource(R.string.status_failed)
@@ -129,7 +133,8 @@ fun DownloadItem(
         null -> ""
     }
     val busy = status == DownloadStatus.COPYING || status == DownloadStatus.UNZIPPING ||
-        (status == DownloadStatus.QUEUED && item.progress <= 0f) || (waitingReason != null && status == DownloadStatus.DOWNLOADING)
+        (status == DownloadStatus.QUEUED && item.progress <= 0f) || (waitingReason != null && status == DownloadStatus.DOWNLOADING) ||
+        (queuePosition != null && status == DownloadStatus.DOWNLOADING)
     val actionSize: Dp = if (compact) 36.dp else 44.dp
 
     // A (or a tap) on the row runs the primary action; the side buttons stay for touch and
@@ -245,6 +250,10 @@ fun DownloadItem(
 
         // The selection bar owns the actions while ticking rows.
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (queuePosition != null && !selectionMode) {
+                ActionButton(R.drawable.ic_arrow_up, stringResource(R.string.queue_move_up), actionSize, scheme.onSurface) { viewModel.moveUp(item.fileName) }
+                ActionButton(R.drawable.ic_arrow_down, stringResource(R.string.queue_move_down), actionSize, scheme.onSurface) { viewModel.moveDown(item.fileName) }
+            }
             when (if (selectionMode) null else status) {
                 DownloadStatus.QUEUED, DownloadStatus.DOWNLOADING, DownloadStatus.UNZIPPING -> {
                     if (status == DownloadStatus.DOWNLOADING && isTorrent) {

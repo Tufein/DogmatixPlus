@@ -20,9 +20,13 @@ object EsdeFavourites {
         }.distinct().toList()
 
     /** Library file names (of one console) that match [favourites], by name without extension, ignoring case. */
-    fun match(favourites: List<String>, libraryFileNames: List<String>): List<String> {
+    fun match(favourites: List<String>, libraryFileNames: List<String>): List<String> =
+        matchEach(favourites, libraryFileNames).values.distinct()
+
+    /** Per favourite, the library file name it matches (favourites without a match are left out). */
+    fun matchEach(favourites: List<String>, libraryFileNames: List<String>): Map<String, String> {
         val byBase = libraryFileNames.groupBy { base(FileParsingUtils.decodeUrlEncodedFileName(it)) }
-        return favourites.flatMap { byBase[base(it)].orEmpty().take(1) }.distinct()
+        return favourites.mapNotNull { f -> byBase[base(f)]?.firstOrNull()?.let { f to it } }.toMap()
     }
 
     private fun base(name: String): String = name.substringBeforeLast('.').lowercase().trim()

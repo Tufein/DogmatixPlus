@@ -39,6 +39,28 @@ class FrontendShortcutService @Inject constructor(
         val folders: List<String> = emptyList()
     )
 
+    /**
+     * A shortcut for a saved library view (`★ <name>.dgmtx`) in the folder of every console of the
+     * view, so a frontend lists it next to that console's games. Returns how many were written.
+     */
+    suspend fun deployView(view: com.cortinadev.dogmatix.util.LibraryView): Int = withContext(Dispatchers.IO) {
+        val customDirs = settingsRepository.consoleDownloadDirectories.first()
+        val downloadDir = settingsRepository.downloadDirectory.first()
+        val resolved = pathResolver.resolveAll(view.consoles, downloadDir, settingsRepository.separateByConsole.first(), customDirs)
+        val name = "★ " + com.cortinadev.dogmatix.util.DatMatcher.safeFileName(view.name) + "." + DgmtxFile.EXTENSION
+        val body = "# Dogmatix shortcut — ${view.name}\n# Opening this file shows this saved view in Dogmatix.\n${view.deepLink()}\n"
+        view.consoles.count { consoleId ->
+            val path = resolved[consoleId] ?: return@count false
+            val baseUri = customDirs[consoleId] ?: downloadDir
+            if (path.source == ResolvedDownloadPath.Source.UNSET || baseUri.isEmpty()) return@count false
+            runCatching {
+                val doc = StorageHelper.createFile(context = context, uriString = baseUri, subPath = path.subPath, fileName = name,
+                    mimeType = "application/octet-stream", overwrite = true) ?: return@runCatching false
+                StorageHelper.getOutputStream(context, doc)?.use { it.write(body.toByteArray(Charsets.UTF_8)); true } ?: false
+            }.getOrDefault(false)
+        }
+    }
+
     suspend fun deployShortcuts(): Result = withContext(Dispatchers.IO) {
         val consoles = consoleRepository.getAllConsoles().first()
         val customDirs = settingsRepository.consoleDownloadDirectories.first()

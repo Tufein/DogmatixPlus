@@ -83,6 +83,16 @@ class DatViewModel @Inject constructor(
         }
     }
 
+    fun fetchRedump(context: Context, consoleId: String) {
+        val app = context.applicationContext
+        ToastUtil.showInfo(app, app.getString(R.string.dat_redump_fetching))
+        viewModelScope.launch {
+            runCatching { dat.importFromRedump(consoleId) }
+                .onSuccess { if (it != null) ToastUtil.showSuccess(app, app.getString(R.string.dat_imported, it)) }
+                .onFailure { ToastUtil.showError(app, app.getString(R.string.dat_import_failed, it.message ?: "")) }
+        }
+    }
+
     fun verify(context: Context, consoleId: String) {
         if (job?.isActive == true) return
         val app = context.applicationContext
@@ -164,6 +174,9 @@ fun DatScreen(viewModel: DatViewModel = hiltViewModel()) {
         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             PillButton(stringResource(if (set == null) R.string.dat_import else R.string.dat_replace)) {
                 picker.launch(arrayOf("application/xml", "text/xml", "application/zip", "application/octet-stream", "text/plain", "*/*"))
+            }
+            if (com.cortinadev.dogmatix.util.RedumpSystems.systemFor(consoleId) != null) {
+                PillButton(stringResource(R.string.dat_redump)) { viewModel.fetchRedump(context, consoleId) }
             }
             if (set != null) {
                 if (running == null) PillButton(stringResource(R.string.dat_check)) { viewModel.verify(context, consoleId) }

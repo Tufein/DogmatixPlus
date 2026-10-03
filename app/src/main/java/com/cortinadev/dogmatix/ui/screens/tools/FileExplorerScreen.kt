@@ -244,6 +244,38 @@ class FileExplorerViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Applies an IPS / UPS / BPS patch to [entry] and writes the result next to it as a new file
+     * (`Game [Patch name].ext`); the original stays as it is.
+     */
+    fun applyPatch(context: Context, entry: DiskEntry, patchUri: android.net.Uri) {
+        val dir = _state.value.path.lastOrNull()?.second ?: return
+        val app = context.applicationContext
+        if (entry.size > com.cortinadev.dogmatix.util.RomPatcher.MAX_SIZE) {
+            ToastUtil.showError(app, app.getString(R.string.patch_too_large)); return
+        }
+        _state.update { it.copy(busy = app.getString(R.string.patch_working, entry.name)) }
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val resolver = app.contentResolver
+                    val patchName = androidx.documentfile.provider.DocumentFile.fromSingleUri(app, patchUri)?.name ?: "patch"
+                    val patch = resolver.openInputStream(patchUri)!!.use { it.readBytes() }
+                    val rom = resolver.openInputStream(entry.uri)!!.use { it.readBytes() }
+                    val out = com.cortinadev.dogmatix.util.RomPatcher.apply(rom, patch)
+                    val name = com.cortinadev.dogmatix.util.RomPatcher.outputName(entry.name, patchName)
+                    val target = DocumentsContract.createDocument(resolver, DiskScanner.uriOf(dir), "application/octet-stream", name) ?: error("cannot create $name")
+                    resolver.openOutputStream(target)!!.use { it.write(out) }
+                    name
+                }
+            }
+            _state.update { it.copy(busy = null) }
+            result.onSuccess { ToastUtil.showSuccess(app, app.getString(R.string.patch_done, it)) }
+                .onFailure { ToastUtil.showError(app, app.getString(R.string.patch_failed, it.message ?: "")) }
+            refresh()
+        }
+    }
+
     /** Unpacks an archive into the folder it is in (the archive stays). */
     fun extract(context: Context, entry: DiskEntry) {
         val dir = _state.value.path.lastOrNull()?.second ?: return
@@ -278,6 +310,12 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
     BackHandler(enabled = !ui.atRoots) { viewModel.up() }
 
     var renaming by remember { mutableStateOf<DiskEntry?>(null) }
+    var patching by remember { mutableStateOf<DiskEntry?>(null) }
+    val patchPicker = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.OpenDocument()) { uri ->
+        val entry = patching
+        if (uri != null && entry != null) viewModel.applyPatch(context, entry, uri)
+        patching = null
+    }
     selected?.let { entry ->
         FileDetailsDialog(
             entry = entry,
@@ -285,6 +323,7 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
             onDelete = { selected = null; confirmDelete = entry },
             onRename = { selected = null; renaming = entry },
             onMove = { selected = null; viewModel.startMove(entry) },
+            onPatch = { selected = null; patching = entry; patchPicker.launch(arrayOf("*/*")) },
             onExtract = if (com.cortinadev.dogmatix.util.ArchiveUtils.isExtractable(entry.name.substringAfterLast('.', ""))) ({ selected = null; viewModel.extract(context, entry) }) else null,
             onDismiss = { selected = null }
         )
@@ -411,6 +450,7 @@ private fun FileDetailsDialog(
     onDelete: () -> Unit,
     onRename: () -> Unit,
     onMove: () -> Unit,
+    onPatch: () -> Unit,
     onExtract: (() -> Unit)?,
     onDismiss: () -> Unit
 ) {
@@ -430,6 +470,7 @@ private fun FileDetailsDialog(
                     PillButton(stringResource(R.string.files_rename), onRename)
                     PillButton(stringResource(R.string.files_move), onMove)
                     onExtract?.let { PillButton(stringResource(R.string.files_extract), it) }
+                    if (DuplicateFinder.isGameFile(entry.name) && onExtract == null) PillButton(stringResource(R.string.patch_apply), onPatch)
                 }
             }
         },

@@ -102,6 +102,9 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var pendingFilters: PendingLibraryFilters
     @Inject lateinit var saveSyncService: SaveSyncService
     @Inject lateinit var appSettings: com.cortinadev.dogmatix.data.local.AppSettings
+    @Inject lateinit var downloadService: com.cortinadev.dogmatix.data.service.DownloadService
+    @Inject lateinit var metadataService: com.cortinadev.dogmatix.data.service.GameMetadataService
+    private var secondScreen: com.cortinadev.dogmatix.ui.secondscreen.SecondScreenPresenter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,6 +112,15 @@ class MainActivity : AppCompatActivity() {
         hideSystemBars()
         Gamepad.startWatching(this)
         handleDeepLink(intent)
+        // A second display (dual-screen handheld, TV) shows the game under the cursor and the downloads.
+        lifecycleScope.launch {
+            appSettings.secondScreen.collect { on ->
+                secondScreen?.stop()
+                secondScreen = if (!on) null else com.cortinadev.dogmatix.ui.secondscreen.SecondScreenPresenter(
+                    this@MainActivity, downloadService.downloads
+                ) { item -> metadataService.lookup(item.file.name, item.file.consoleId) }.also { it.start() }
+            }
+        }
         setContent {
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             val settings by settingsViewModel.uiState.collectAsState()
@@ -149,8 +161,18 @@ class MainActivity : AppCompatActivity() {
             pendingFilters.openSection(it)
             intent.removeExtra(PendingLibraryFilters.EXTRA_OPEN_ROUTE)
         }
+        // Shared text (a link from a browser or chat) or a magnet link opened in the app.
+        if (intent?.action == Intent.ACTION_SEND) {
+            com.cortinadev.dogmatix.util.SharedLinks.parse(intent.getStringExtra(Intent.EXTRA_TEXT))?.let(pendingFilters::share)
+                ?: ToastUtil.showError(this, getString(R.string.share_no_link))
+            return
+        }
         if (intent?.action != Intent.ACTION_VIEW) return
         val data = intent.data ?: return
+        if (data.scheme.equals("magnet", ignoreCase = true)) {
+            com.cortinadev.dogmatix.util.SharedLinks.parse(intent.dataString)?.let(pendingFilters::share)
+            return
+        }
         if (DeepLinkParser.SCHEME.equals(data.scheme, ignoreCase = true)) {
             DeepLinkParser.parse(intent.dataString)?.let(pendingFilters::submit)
             return
@@ -192,6 +214,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onGenericMotionEvent(event: MotionEvent): Boolean =
         Gamepad.onGenericMotionEvent(event) || super.onGenericMotionEvent(event)
+
+    override fun onDestroy() {
+        secondScreen?.stop()
+        super.onDestroy()
+    }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
@@ -259,6 +286,10 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
     LaunchedEffect(Unit) {
         sourcesViewModel.initializeSources()
     }
+
+    // A link shared to the app: download it or add it as a source.
+    val shared by pendingFilters.shared.collectAsState()
+    shared?.let { link -> com.cortinadev.dogmatix.ui.screens.share.ShareTargetDialog(link, onDismiss = pendingFilters::dismissShare) }
 
     val scanReport by sourcesViewModel.scanReport.collectAsState()
     scanReport?.let { failed ->
@@ -381,6 +412,8 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.Collections.route) { com.cortinadev.dogmatix.ui.screens.tools.CollectionsScreen(navController) }
                     composable(NavRoutes.Switch.route) { com.cortinadev.dogmatix.ui.screens.tools.SwitchScreen() }
                     composable(NavRoutes.Dat.route) { com.cortinadev.dogmatix.ui.screens.tools.DatScreen() }
+                    composable(NavRoutes.Bios.route) { com.cortinadev.dogmatix.ui.screens.tools.BiosScreen() }
+                    composable(NavRoutes.Stats.route) { com.cortinadev.dogmatix.ui.screens.tools.StatsScreen() }
                 }
             }
 

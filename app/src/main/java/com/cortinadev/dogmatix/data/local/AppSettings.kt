@@ -24,6 +24,13 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
         val AUTO_SCAN_LAST = longPreferencesKey("auto_scan_last")
         val SPEED_LIMIT_DAY_ONLY = booleanPreferencesKey("speed_limit_day_only")
         val BOLD_FOCUS = booleanPreferencesKey("bold_focus")
+        val BIOS_DIR = androidx.datastore.preferences.core.stringPreferencesKey("bios_dir")
+        val MIN_FREE_GB = intPreferencesKey("min_free_gb")
+        val AUTO_BACKUP = booleanPreferencesKey("auto_backup")
+        val AUTO_BACKUP_DIR = androidx.datastore.preferences.core.stringPreferencesKey("auto_backup_dir")
+        val AUTO_BACKUP_LAST = longPreferencesKey("auto_backup_last")
+        val LIBRARY_VIEWS = androidx.datastore.preferences.core.stringPreferencesKey("library_views")
+        val SECOND_SCREEN = booleanPreferencesKey("second_screen")
     }
 
     /** Scan the sources by itself now and then (see [com.cortinadev.dogmatix.data.service.AutoScanScheduler]). */
@@ -38,6 +45,26 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
     val speedLimitDayOnly: Flow<Boolean> = context.dataStore.data.map { it[Keys.SPEED_LIMIT_DAY_ONLY] ?: false }
     /** A thicker, high-contrast focus ring for TV / handheld use. */
     val boldFocus: Flow<Boolean> = context.dataStore.data.map { it[Keys.BOLD_FOCUS] ?: false }
+
+    /** SAF tree of the emulator's BIOS / system folder (RetroArch: `system`). */
+    val biosDir: Flow<String> = context.dataStore.data.map { it[Keys.BIOS_DIR] ?: "" }
+    /** Downloads wait (and running ones stop) below this much free space, in GB; 0 = off. */
+    val minFreeGb: Flow<Int> = context.dataStore.data.map { it[Keys.MIN_FREE_GB] ?: 0 }
+    val autoBackup: Flow<Boolean> = context.dataStore.data.map { it[Keys.AUTO_BACKUP] ?: false }
+    val autoBackupDir: Flow<String> = context.dataStore.data.map { it[Keys.AUTO_BACKUP_DIR] ?: "" }
+    val autoBackupLast: Flow<Long> = context.dataStore.data.map { it[Keys.AUTO_BACKUP_LAST] ?: 0L }
+    /** Saved library filters as JSON (see [com.cortinadev.dogmatix.util.LibraryViews]). */
+    val libraryViews: Flow<String> = context.dataStore.data.map { it[Keys.LIBRARY_VIEWS] ?: "[]" }
+    /** Show game details / downloads on a second display when one is connected. */
+    val secondScreen: Flow<Boolean> = context.dataStore.data.map { it[Keys.SECOND_SCREEN] ?: true }
+
+    suspend fun setBiosDir(uri: String) = context.dataStore.edit { it[Keys.BIOS_DIR] = uri }
+    suspend fun setMinFreeGb(gb: Int) = context.dataStore.edit { it[Keys.MIN_FREE_GB] = gb.coerceAtLeast(0) }
+    suspend fun setAutoBackup(on: Boolean) = context.dataStore.edit { it[Keys.AUTO_BACKUP] = on }
+    suspend fun setAutoBackupDir(uri: String) = context.dataStore.edit { it[Keys.AUTO_BACKUP_DIR] = uri }
+    suspend fun setAutoBackupLast(at: Long) = context.dataStore.edit { it[Keys.AUTO_BACKUP_LAST] = at }
+    suspend fun setLibraryViews(json: String) = context.dataStore.edit { it[Keys.LIBRARY_VIEWS] = json }
+    suspend fun setSecondScreen(on: Boolean) = context.dataStore.edit { it[Keys.SECOND_SCREEN] = on }
 
     suspend fun setAutoScan(on: Boolean) = context.dataStore.edit { it[Keys.AUTO_SCAN] = on }
     suspend fun setAutoScanHours(hours: Int) = context.dataStore.edit { it[Keys.AUTO_SCAN_HOURS] = hours }

@@ -41,6 +41,18 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Links shared to the app (2.5): a URL or magnet in shared text, or a magnet link opened here. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="magnet" />
+            </intent-filter>
             <!-- Deep links: dogmatix://library?console=…&region=…&q=…&fav=1 (see util/DeepLinkParser). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -77,6 +89,10 @@
             android:foregroundServiceType="dataSync" />
         <service
             android:name=".data.service.SaveSyncJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name=".data.service.AutoBackupJobService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <service

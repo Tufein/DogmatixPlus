@@ -46,14 +46,56 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class CollectionsViewModel @Inject constructor(
     private val repository: CollectionsRepository,
-    private val pendingFilters: PendingLibraryFilters
+    private val pendingFilters: PendingLibraryFilters,
+    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings,
+    private val shortcuts: com.cortinadev.dogmatix.data.service.FrontendShortcutService,
+    private val rommCollections: com.cortinadev.dogmatix.data.service.RommCollectionsService,
+    settings: com.cortinadev.dogmatix.data.repository.SettingsRepository
 ) : ViewModel() {
+    val views: StateFlow<List<com.cortinadev.dogmatix.util.LibraryView>> = appSettings.libraryViews
+        .map { com.cortinadev.dogmatix.util.LibraryViews.fromJson(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** RomM is set up, so collections can be synced with it. */
+    val rommReady: StateFlow<Boolean> = settings.rommUrl.map { it.isNotBlank() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    /** Opens a saved view in the library (through the same hand-off as a deep link). */
+    fun openView(view: com.cortinadev.dogmatix.util.LibraryView) {
+        com.cortinadev.dogmatix.util.DeepLinkParser.parse(view.deepLink())?.let(pendingFilters::submit)
+    }
+
+    fun deleteView(id: String) {
+        viewModelScope.launch {
+            appSettings.setLibraryViews(com.cortinadev.dogmatix.util.LibraryViews.toJson(views.value.filterNot { it.id == id }))
+        }
+    }
+
+    fun shortcut(context: android.content.Context, view: com.cortinadev.dogmatix.util.LibraryView) {
+        val app = context.applicationContext
+        viewModelScope.launch {
+            if (view.consoles.isEmpty()) { com.cortinadev.dogmatix.util.ToastUtil.showError(app, app.getString(R.string.view_shortcut_needs_console)); return@launch }
+            val n = runCatching { shortcuts.deployView(view) }.getOrDefault(0)
+            if (n > 0) com.cortinadev.dogmatix.util.ToastUtil.showSuccess(app, app.getString(R.string.view_shortcut_done, n))
+            else com.cortinadev.dogmatix.util.ToastUtil.showError(app, app.getString(R.string.view_shortcut_failed))
+        }
+    }
+
+    fun syncRomm(context: android.content.Context, push: Boolean) {
+        val app = context.applicationContext
+        viewModelScope.launch {
+            runCatching { if (push) rommCollections.push() else rommCollections.pull() }
+                .onSuccess { com.cortinadev.dogmatix.util.ToastUtil.showSuccess(app, app.getString(if (push) R.string.romm_collections_pushed else R.string.romm_collections_pulled, it.collections, it.games, it.skipped)) }
+                .onFailure { com.cortinadev.dogmatix.util.ToastUtil.showError(app, app.getString(R.string.romm_collections_failed, it.message ?: "")) }
+        }
+    }
     val collections: StateFlow<List<CollectionWithCount>?> = repository.collections
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
@@ -69,6 +111,9 @@ class CollectionsViewModel @Inject constructor(
 @Composable
 fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewModel = hiltViewModel()) {
     val collections by viewModel.collections.collectAsState()
+    val views by viewModel.views.collectAsState()
+    val rommReady by viewModel.rommReady.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
     var naming by remember { mutableStateOf<CollectionWithCount?>(null) }
     var creating by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<CollectionWithCount?>(null) }
@@ -96,13 +141,19 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         Row(modifier = Modifier.fillMaxWidth().padding(end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) { ToolsTitle(stringResource(R.string.nav_collections)) }
-            PillButton(stringResource(R.string.collections_new)) { creating = true }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                if (rommReady) {
+                    PillButton(stringResource(R.string.romm_collections_pull)) { viewModel.syncRomm(context, push = false) }
+                    PillButton(stringResource(R.string.romm_collections_push)) { viewModel.syncRomm(context, push = true) }
+                }
+                PillButton(stringResource(R.string.collections_new)) { creating = true }
+            }
         }
         val list = collections
         when {
             list == null -> Unit
-            list.isEmpty() -> InfoCard(listOf(stringResource(R.string.collections_empty)), Modifier.padding(16.dp))
             else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 12.dp)) {
+                if (list.isEmpty()) item { InfoCard(listOf(stringResource(R.string.collections_empty)), Modifier.padding(16.dp)) }
                 items(list, key = { it.id }) { c ->
                     ToolRow(
                         title = c.name,
@@ -113,6 +164,16 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             PillButton(stringResource(R.string.collections_rename)) { naming = c }
                             PillButton(stringResource(R.string.dialog_delete)) { deleting = c }
+                        }
+                    }
+                }
+                item { SectionHeader(stringResource(R.string.views_title), stringResource(R.string.views_hint)) }
+                if (views.isEmpty()) item { InfoCard(listOf(stringResource(R.string.views_empty)), Modifier.padding(16.dp)) }
+                items(views, key = { "v" + it.id }) { v ->
+                    ToolRow(v.name, listOf(v.consoles.joinToString(", ") { com.cortinadev.dogmatix.util.ConsoleFormatter.getConsoleShortName(it) }.ifEmpty { "—" }), onClick = { viewModel.openView(v) }) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            PillButton(stringResource(R.string.view_shortcut)) { viewModel.shortcut(context, v) }
+                            PillButton(stringResource(R.string.dialog_delete)) { viewModel.deleteView(v.id) }
                         }
                     }
                 }

@@ -120,9 +120,16 @@ fun SettingsScreen(
     val ui by viewModel.uiState.collectAsState()
     val more by extra.state.collectAsState()
     val v2 by extra.v2.collectAsState()
+    val v25 by extra.v25.collectAsState()
     val updateOffer by extra.updateOffer.collectAsState()
     val updateProgress by extra.updateProgress.collectAsState()
     val context = LocalContext.current
+    val backupDirLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        uri?.let {
+            context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            extra.setAutoBackupDir(context, it.toString())
+        }
+    }
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     updateOffer?.let { tag ->
         ConfirmDialog(
@@ -359,6 +366,14 @@ fun SettingsScreen(
         },
         SettingsRow(right = true) {
             SettingRow(
+                title = stringResource(R.string.settings_second_screen),
+                hint = stringResource(R.string.settings_second_screen_hint),
+                onClick = { extra.setSecondScreen(context, !v25.secondScreen) },
+                onAdjust = { extra.setSecondScreen(context, it > 0) }
+            ) { ThemedSwitch(v25.secondScreen) { extra.setSecondScreen(context, it) } }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
                 title = stringResource(R.string.settings_bold_focus),
                 hint = stringResource(R.string.settings_bold_focus_hint),
                 onClick = { extra.setBoldFocus(context, !v2.boldFocus) },
@@ -397,6 +412,19 @@ fun SettingsScreen(
                 onClick = { extra.setSpeedLimitDayOnly(context, !v2.speedLimitDayOnly) },
                 onAdjust = { extra.setSpeedLimitDayOnly(context, it > 0) }
             ) { ThemedSwitch(v2.speedLimitDayOnly) { extra.setSpeedLimitDayOnly(context, it) } }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
+                title = stringResource(R.string.settings_min_free),
+                hint = stringResource(R.string.settings_min_free_hint),
+                onClick = { extra.shiftMinFree(context, 1) },
+                onAdjust = { extra.shiftMinFree(context, it) }
+            ) {
+                Stepper(
+                    if (v25.minFreeGb == 0) stringResource(R.string.settings_off) else "${v25.minFreeGb} GB",
+                    onDecrement = { extra.shiftMinFree(context, -1) }, onIncrement = { extra.shiftMinFree(context, 1) }, valueWidth = 96.dp
+                )
+            }
         },
         SettingsRow(right = true) {
             SettingRow(
@@ -557,6 +585,30 @@ fun SettingsScreen(
                 onClick = ::exportBackup
             ) {
                 PillButton(stringResource(R.string.settings_backup_export_action), ::exportBackup)
+            }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
+                title = stringResource(R.string.settings_auto_backup),
+                hint = when {
+                    v25.autoBackup && v25.autoBackupDir.isBlank() -> stringResource(R.string.settings_auto_backup_pick)
+                    v25.autoBackupLast > 0 -> stringResource(R.string.settings_auto_backup_last, android.text.format.DateUtils.getRelativeTimeSpanString(v25.autoBackupLast).toString())
+                    else -> stringResource(R.string.settings_auto_backup_hint)
+                },
+                onClick = { extra.setAutoBackup(context, !v25.autoBackup) },
+                onAdjust = { extra.setAutoBackup(context, it > 0) }
+            ) { ThemedSwitch(v25.autoBackup) { extra.setAutoBackup(context, it) } }
+        },
+        SettingsRow(right = true, visible = v25.autoBackup) {
+            SettingRow(
+                title = stringResource(R.string.settings_auto_backup_folder),
+                hint = v25.autoBackupDir.ifBlank { stringResource(R.string.settings_not_set) }.let { if (it.startsWith("content://")) com.cortinadev.dogmatix.util.FileParsingUtils.toUserReadablePath(it) else it },
+                onClick = { backupDirLauncher.launch(null) }
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    PillButton(stringResource(R.string.settings_change)) { backupDirLauncher.launch(null) }
+                    if (v25.autoBackupDir.isNotBlank()) PillButton(stringResource(R.string.auto_backup_now)) { extra.backupNow(context) }
+                }
             }
         },
         SettingsRow(right = true) {

@@ -83,6 +83,47 @@ class RommClient @Inject constructor(
         out
     }
 
+    /** A RomM collection: its id, name and the ROMs in it. */
+    data class RommCollection(val id: Int, val name: String, val romIds: List<Int>)
+
+    /** The user's collections (`GET /api/collections`). */
+    suspend fun collections(): List<RommCollection> = withContext(Dispatchers.IO) {
+        val json = JsonHttp.requireOk(JsonHttp.request("GET", "${baseUrl()}/api/collections", headers())).json
+        val items = when {
+            json == null -> return@withContext emptyList()
+            json.isJsonArray -> json.asJsonArray
+            json.isJsonObject -> json.asJsonObject.getAsJsonArray("items") ?: return@withContext emptyList()
+            else -> return@withContext emptyList()
+        }
+        items.mapNotNull { el ->
+            val o = el as? JsonObject ?: return@mapNotNull null
+            val id = o.get("id")?.takeUnless { it.isJsonNull }?.asInt ?: return@mapNotNull null
+            val ids = (o.get("rom_ids") as? com.google.gson.JsonArray)?.mapNotNull { runCatching { it.asInt }.getOrNull() }
+                ?: (o.get("roms") as? com.google.gson.JsonArray)?.mapNotNull { r -> (r as? JsonObject)?.get("id")?.asInt }
+                ?: emptyList()
+            RommCollection(id, o.str("name"), ids)
+        }
+    }
+
+    /** Creates a collection named [name]; returns its id. */
+    suspend fun createCollection(name: String): Int = withContext(Dispatchers.IO) {
+        val (body, type) = JsonHttp.multipartBody(mapOf("name" to name, "description" to "Dogmatix+"))
+        val obj = JsonHttp.requireOk(JsonHttp.request("POST", "${baseUrl()}/api/collections", headers(), body = body, contentType = type)).json
+            ?.takeIf { it.isJsonObject }?.asJsonObject ?: throw RommException("RomM did not return the new collection")
+        obj.get("id").asInt
+    }
+
+    /**
+     * Sets the ROMs of collection [id] (`PUT /api/collections/{id}` with `rom_ids` as a JSON list in
+     * the form, as RomM's web interface sends it).
+     */
+    suspend fun setCollectionRoms(id: Int, name: String, romIds: List<Int>) = withContext(Dispatchers.IO) {
+        val ids = romIds.distinct().joinToString(",", "[", "]")
+        val (body, type) = JsonHttp.multipartBody(mapOf("name" to name, "rom_ids" to ids))
+        JsonHttp.requireOk(JsonHttp.request("PUT", "${baseUrl()}/api/collections/$id", headers(), body = body, contentType = type))
+        Unit
+    }
+
     /** Returns the number of platforms the server reports, as a connection check. */
     suspend fun testConnection(url: String, token: String): Int = withContext(Dispatchers.IO) {
         platforms(url.trim().trimEnd('/'), mapOf("Authorization" to authHeader(token))).size

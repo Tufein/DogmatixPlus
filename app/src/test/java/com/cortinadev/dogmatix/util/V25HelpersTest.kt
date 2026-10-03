@@ -127,6 +127,15 @@ class V25HelpersTest {
         assertTrue(BackupRotation.isDue(3 * day, 10 * day, 7))
     }
 
+    @Test fun `downloads wait below the free-space limit`() {
+        val gb = 1_073_741_824L
+        val conditions = DownloadConditions(minFreeBytes = 5 * gb)
+        assertEquals(listOf(WaitReason.STORAGE), DownloadPolicy.waitingFor(conditions, DeviceConditions(true, true, 0, freeBytes = 2 * gb)))
+        assertTrue(DownloadPolicy.waitingFor(conditions, DeviceConditions(true, true, 0, freeBytes = 9 * gb)).isEmpty())
+        assertTrue(DownloadPolicy.waitingFor(conditions, DeviceConditions(true, true, 0, freeBytes = null)).isEmpty())
+        assertTrue(DownloadPolicy.waitingFor(DownloadConditions(), DeviceConditions(true, true, 0, freeBytes = 1)).isEmpty())
+    }
+
     @Test fun `rom ids come out of romm download urls`() {
         assertEquals(42, RommSource.romIdOf(RommSource.downloadUrl("https://romm.local", 42, "a b.zip")))
         assertNull(RommSource.romIdOf("https://x.org/a.zip"))

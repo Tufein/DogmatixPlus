@@ -143,6 +143,8 @@ fun HomeScreen(
     val collectionId by viewModel.collectionId.collectAsState()
     val collections by viewModel.collections.collectAsState()
     var showBulk by remember { mutableStateOf(false) }
+    val views by viewModel.views.collectAsState()
+    var savingView by remember { mutableStateOf(false) }
     var showCollectionPicker by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
@@ -168,6 +170,8 @@ fun HomeScreen(
     // Row under the D-pad cursor: X opens its details card.
     var focusedItem by remember { mutableStateOf<DownloadableFileWithTags?>(null) }
     val focusManager = LocalFocusManager.current
+    // The game under the cursor also goes to a second screen, when there is one.
+    LaunchedEffect(focusedItem) { com.cortinadev.dogmatix.ui.secondscreen.SecondScreenState.focus(focusedItem) }
     // Folding hides whichever side holds the focus, so it is handed over explicitly
     // (two frames later when expanding: the panel has to be laid out first).
     val collapseFilters = {
@@ -226,6 +230,13 @@ fun HomeScreen(
             selected = setOf(collectionId.toString()),
             single = true,
             onSelectionChange = { sel -> viewModel.setCollection(sel.firstOrNull()?.toLongOrNull() ?: 0L) }
+        ),
+        FilterRowSpec(
+            label = stringResource(R.string.filter_view),
+            options = listOf(FilterOption("", "—")) + views.map { FilterOption(it.id, it.name) },
+            selected = setOf(viewModel.matchingViewId().orEmpty()),
+            single = true,
+            onSelectionChange = { sel -> views.firstOrNull { it.id == sel.firstOrNull() }?.let(viewModel::applyView) }
         ),
         FilterRowSpec(
             label = stringResource(R.string.filter_source),
@@ -318,6 +329,13 @@ fun HomeScreen(
         )
     }
 
+    val viewSavedMessage = stringResource(R.string.view_saved, "%s")
+    if (savingView) {
+        com.cortinadev.dogmatix.ui.screens.home.components.SaveViewDialog(
+            onSave = { name -> savingView = false; scope.launch { if (viewModel.saveView(name)) showMessage(viewSavedMessage.format(name.trim())) } },
+            onDismiss = { savingView = false }
+        )
+    }
     val bulkQueuedMessage = stringResource(R.string.bulk_queued, "%d")
     if (showBulk) {
         com.cortinadev.dogmatix.ui.screens.home.components.BulkDownloadDialog(
@@ -516,6 +534,7 @@ fun HomeScreen(
                             maxLines = 1,
                             modifier = Modifier.weight(1f)
                         )
+                        if (activeFilterCount > 0 || query.isNotBlank()) PanelArrow(R.drawable.ic_star, stringResource(R.string.view_save)) { savingView = true }
                         if (results.isNotEmpty()) PanelArrow(R.drawable.ic_arrow_down, stringResource(R.string.bulk_title)) { showBulk = true }
                         PanelArrow(R.drawable.ic_arrow_left, stringResource(R.string.collapse_filters)) { collapseFilters() }
                     }
@@ -620,7 +639,8 @@ fun HomeScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.weight(1f)
                     )
-                    if (results.isNotEmpty()) BulkLink { showBulk = true }
+                    if (activeFilterCount > 0 || query.isNotBlank()) BulkLink(stringResource(R.string.view_save)) { savingView = true }
+                    if (results.isNotEmpty()) BulkLink(stringResource(R.string.bulk_link)) { showBulk = true }
                 }
                 ResultList(
                     results = results,
@@ -878,10 +898,10 @@ private fun ResultList(
 
 /** "Download all" next to the result count (portrait). */
 @Composable
-private fun BulkLink(onClick: () -> Unit) {
+private fun BulkLink(label: String, onClick: () -> Unit) {
     val source = rememberFocusSource()
     Text(
-        stringResource(R.string.bulk_link),
+        label,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier

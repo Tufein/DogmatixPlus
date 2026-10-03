@@ -219,6 +219,14 @@ interface DownloadableFileDao {
     @Query("SELECT * FROM downloadable_files WHERE firstSeenAt >= :since AND firstSeenAt > 0 ORDER BY firstSeenAt DESC LIMIT :limit")
     suspend fun newestSince(since: Long, limit: Int): List<DownloadableFileEntity>
 
+    /** Rows served by a RomM server (their URL carries the rom id). */
+    @Query("SELECT * FROM downloadable_files WHERE downloadUrl LIKE '%/api/roms/%/content/%'")
+    suspend fun rommRows(): List<DownloadableFileEntity>
+
+    /** When rescans found files, since [since] (statistics). */
+    @Query("SELECT firstSeenAt FROM downloadable_files WHERE firstSeenAt >= :since AND firstSeenAt > 0")
+    suspend fun firstSeenSince(since: Long): List<Long>
+
     /** Consoles with Switch container files (nsp, nsz, xci, xcz). */
     @Query("SELECT DISTINCT consoleId FROM downloadable_files WHERE lower(fileName) LIKE '%.nsp' OR lower(fileName) LIKE '%.nsz' OR lower(fileName) LIKE '%.xci' OR lower(fileName) LIKE '%.xcz'")
     suspend fun switchConsoles(): List<String>

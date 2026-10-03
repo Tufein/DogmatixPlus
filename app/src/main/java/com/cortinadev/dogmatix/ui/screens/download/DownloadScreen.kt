@@ -64,16 +64,19 @@ fun DownloadScreen(
     val uploads by viewModel.uploads.collectAsState()
     val waitingFiles by viewModel.waitingFiles.collectAsState()
     val waitingReasons by viewModel.waitingReasons.collectAsState()
+    val queued by viewModel.queued.collectAsState()
     val verification by viewModel.verification.collectAsState()
     val shortfall by viewModel.queueShortfall.collectAsState()
     val waitWifi = stringResource(R.string.wait_wifi)
     val waitCharger = stringResource(R.string.wait_charger)
     val waitNight = stringResource(R.string.wait_night)
+    val waitStorage = stringResource(R.string.wait_storage)
     val waitingText = waitingReasons.joinToString(" · ") {
         when (it) {
             WaitReason.WIFI -> waitWifi
             WaitReason.CHARGER -> waitCharger
             WaitReason.NIGHT -> waitNight
+            WaitReason.STORAGE -> waitStorage
         }
     }
     val selection by viewModel.selection.collectAsState()
@@ -104,7 +107,8 @@ fun DownloadScreen(
             when (button) {
                 // Select ticks the row under the cursor; that is what opens selection mode with a pad.
                 GamepadButton.FAVOURITE -> focusedRow?.let { viewModel.toggleSelection(it.fileName) }
-                GamepadButton.Y -> if (selectionMode) viewModel.toggleSelectAll()
+                // Y: select all while ticking; otherwise a waiting download jumps to the front of the queue.
+                GamepadButton.Y -> if (selectionMode) viewModel.toggleSelectAll() else focusedRow?.let { viewModel.moveToFront(it.fileName) }
                 GamepadButton.X -> if (selectionMode) {
                     viewModel.deleteSelected()
                 } else {
@@ -202,6 +206,7 @@ fun DownloadScreen(
                         details = details[item.fileName],
                         upload = uploads[item.fileName],
                         waitingReason = waitingText.takeIf { it.isNotEmpty() && item.fileName in waitingFiles },
+                        queuePosition = queued.indexOf(item.fileName).takeIf { it >= 0 }?.plus(1),
                         verify = verification[item.fileName],
                         compact = isLandscape,
                         viewModel = viewModel,

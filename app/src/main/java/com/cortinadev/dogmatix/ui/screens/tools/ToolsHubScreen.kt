@@ -41,7 +41,23 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
-class ToolsHubViewModel @Inject constructor(private val tools: LibraryToolsService) : ViewModel() {
+class ToolsHubViewModel @Inject constructor(
+    private val tools: LibraryToolsService,
+    private val esdeFavourites: com.cortinadev.dogmatix.data.service.EsdeFavouritesService
+) : ViewModel() {
+
+    /** Stars the games ES-DE has as favourites; says how many. */
+    fun importEsdeFavourites(context: Context) {
+        val app = context.applicationContext
+        viewModelScope.launch {
+            val r = runCatching { esdeFavourites.import() }.getOrNull()
+            when {
+                r == null -> ToastUtil.showError(app, app.getString(R.string.esde_favs_no_folder))
+                else -> ToastUtil.showSuccess(app, app.getString(R.string.esde_favs_done, r.found, r.starred, r.unmatched))
+            }
+        }
+    }
+
 
     /** Writes the whole collection to [uri] as a CSV file or a web page. */
     fun export(context: Context, uri: String, html: Boolean) {
@@ -105,6 +121,12 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { ToolRow(stringResource(R.string.nav_collections), listOf(stringResource(R.string.tools_collections_hint)), { go(NavRoutes.Collections) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_switch), listOf(stringResource(R.string.tools_switch_hint)), { go(NavRoutes.Switch) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_dat), listOf(stringResource(R.string.tools_dat_hint)), { go(NavRoutes.Dat) }, trailing = chevron) }
+            item { ToolRow(stringResource(R.string.nav_bios), listOf(stringResource(R.string.tools_bios_hint)), { go(NavRoutes.Bios) }, trailing = chevron) }
+            item { ToolRow(stringResource(R.string.nav_stats), listOf(stringResource(R.string.tools_stats_hint)), { go(NavRoutes.Stats) }, trailing = chevron) }
+            item {
+                val run = { viewModel.importEsdeFavourites(context) }
+                ToolRow(stringResource(R.string.esde_favs), listOf(stringResource(R.string.esde_favs_hint)), run) { PillButton(stringResource(R.string.esde_favs_action), run) }
+            }
             item {
                 val launch = { csvLauncher.launch("dogmatixplus-collection-${LocalDate.now()}.csv") }
                 ToolRow(stringResource(R.string.tools_export_csv), listOf(stringResource(R.string.tools_export_csv_hint)), launch) { PillButton(stringResource(R.string.tools_export_action), launch) }

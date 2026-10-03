@@ -60,6 +60,12 @@ class DownloadViewModel @Inject constructor(
     /** Lets everything that is waiting for the schedule start now. */
     fun startWaitingNow() = downloadService.gate.startNow()
 
+    /** Downloads waiting for a free slot, in the order they will start. */
+    val queued: StateFlow<List<String>> = downloadService.queued
+    fun moveUp(fileName: String) = downloadService.moveUp(fileName)
+    fun moveDown(fileName: String) = downloadService.moveDown(fileName)
+    fun moveToFront(fileName: String) = downloadService.moveToFront(fileName)
+
     /** Bytes the queue is short of the free space; 0 when it fits or the space is unknown. */
     val queueShortfall: StateFlow<Long> = combine(downloadService.downloads, libraryIndexService.freeBytes) { list, free ->
         val need = StorageInsights.queueNeed(

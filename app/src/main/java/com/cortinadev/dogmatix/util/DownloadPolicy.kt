@@ -7,14 +7,22 @@ data class DownloadConditions(
     val nightOnly: Boolean = false,
     /** Night window as minutes after midnight; it may run past midnight (23:00 → 07:00). */
     val nightStart: Int = 23 * 60,
-    val nightEnd: Int = 7 * 60
+    val nightEnd: Int = 7 * 60,
+    /** Free space below which downloads wait; 0 = no limit. */
+    val minFreeBytes: Long = 0L
 ) {
-    val any: Boolean get() = wifiOnly || chargingOnly || nightOnly
+    val any: Boolean get() = wifiOnly || chargingOnly || nightOnly || minFreeBytes > 0
 }
 
-data class DeviceConditions(val onUnmeteredNetwork: Boolean, val charging: Boolean, val minuteOfDay: Int)
+data class DeviceConditions(
+    val onUnmeteredNetwork: Boolean,
+    val charging: Boolean,
+    val minuteOfDay: Int,
+    /** Free space where downloads go; null when unknown (then it never holds anything back). */
+    val freeBytes: Long? = null
+)
 
-enum class WaitReason { WIFI, CHARGER, NIGHT }
+enum class WaitReason { WIFI, CHARGER, NIGHT, STORAGE }
 
 object DownloadPolicy {
 
@@ -23,7 +31,11 @@ object DownloadPolicy {
         if (conditions.wifiOnly && !device.onUnmeteredNetwork) add(WaitReason.WIFI)
         if (conditions.chargingOnly && !device.charging) add(WaitReason.CHARGER)
         if (conditions.nightOnly && !inWindow(device.minuteOfDay, conditions.nightStart, conditions.nightEnd)) add(WaitReason.NIGHT)
+        if (lowOnSpace(conditions.minFreeBytes, device.freeBytes)) add(WaitReason.STORAGE)
     }
+
+    /** True when a limit is set and the known free space is below it. */
+    fun lowOnSpace(minFreeBytes: Long, freeBytes: Long?): Boolean = minFreeBytes > 0 && freeBytes != null && freeBytes < minFreeBytes
 
     /** [minute] lies in [start, end); a window whose end is not after its start wraps past midnight. */
     fun inWindow(minute: Int, start: Int, end: Int): Boolean = when {

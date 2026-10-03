@@ -81,6 +81,17 @@ class DatService @Inject constructor(
     /** Reads the DAT (or a ZIP with one) at [uri] for [consoleId]; returns the number of games. */
     suspend fun import(consoleId: String, uri: Uri): Int = withContext(Dispatchers.IO) {
         val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: error("Cannot open $uri")
+        importBytes(consoleId, bytes, uri.lastPathSegment?.substringAfterLast('/').orEmpty())
+    }
+
+    /** Fetches the newest Redump DAT of [consoleId]'s system (no account needed); null when Redump has none. */
+    suspend fun importFromRedump(consoleId: String): Int? = withContext(Dispatchers.IO) {
+        val system = com.cortinadev.dogmatix.util.RedumpSystems.systemFor(consoleId) ?: return@withContext null
+        val bytes = JsonHttp.download(com.cortinadev.dogmatix.util.RedumpSystems.url(system), maxBytes = 200L * 1024 * 1024, readTimeoutMs = 120_000)
+        importBytes(consoleId, bytes, "Redump $system")
+    }
+
+    private suspend fun importBytes(consoleId: String, bytes: ByteArray, nameHint: String): Int {
         val text = if (bytes.size > 4 && bytes[0] == 'P'.code.toByte() && bytes[1] == 'K'.code.toByte()) {
             ZipInputStream(bytes.inputStream()).use { zip ->
                 generateSequence { zip.nextEntry }.firstOrNull { !it.isDirectory && (it.name.endsWith(".dat", true) || it.name.endsWith(".xml", true)) }
@@ -90,10 +101,9 @@ class DatService @Inject constructor(
         val dat = DatParser.parse(text)
         require(dat.games.isNotEmpty()) { "No games in this DAT" }
         val roms = dat.games.flatMap { g -> g.roms.map { DatRomEntity(consoleId = consoleId, gameName = g.name, romName = it.name, size = it.size, crc = it.crc, md5 = it.md5, sha1 = it.sha1) } }
-        val name = dat.name.ifBlank { uri.lastPathSegment?.substringAfterLast('/').orEmpty() }
-        dao.replace(DatSetEntity(consoleId, name, dat.version, dat.games.size, roms.size), roms)
+        dao.replace(DatSetEntity(consoleId, dat.name.ifBlank { nameHint }, dat.version, dat.games.size, roms.size), roms)
         _reports.update { it - consoleId }
-        dat.games.size
+        return dat.games.size
     }
 
     suspend fun remove(consoleId: String) {

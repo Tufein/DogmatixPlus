@@ -40,14 +40,15 @@ import javax.inject.Singleton
 @Singleton
 class DownloadGate @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    appSettings: com.cortinadev.dogmatix.data.local.AppSettings
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val conditions: StateFlow<DownloadConditions> = combine(
         combine(settingsRepository.downloadWifiOnly, settingsRepository.downloadChargingOnly, settingsRepository.downloadNightOnly) { w, c, n -> Triple(w, c, n) },
-        settingsRepository.downloadNightStart, settingsRepository.downloadNightEnd
-    ) { (wifi, charging, night), start, end -> DownloadConditions(wifi, charging, night, start, end) }
+        settingsRepository.downloadNightStart, settingsRepository.downloadNightEnd, appSettings.minFreeGb
+    ) { (wifi, charging, night), start, end, minGb -> DownloadConditions(wifi, charging, night, start, end, minGb * 1_073_741_824L) }
         .stateIn(scope, SharingStarted.Eagerly, DownloadConditions())
 
     private val device = MutableStateFlow(DeviceConditions(onUnmeteredNetwork = true, charging = true, minuteOfDay = minuteOfDay()))
@@ -62,11 +63,23 @@ class DownloadGate @Inject constructor(
         watchPower()
         scope.launch {
             while (true) {
+                device.update { it.copy(minuteOfDay = minuteOfDay(), freeBytes = freeBytesNow()) }
                 delay(30_000)
-                device.update { it.copy(minuteOfDay = minuteOfDay()) }
             }
         }
     }
+
+    /** True while free space is below the limit of Settings (a running download stops then). */
+    suspend fun lowOnSpace(): Boolean {
+        val free = freeBytesNow()
+        device.update { it.copy(freeBytes = free) }
+        return DownloadPolicy.lowOnSpace(conditions.value.minFreeBytes, free)
+    }
+
+    private suspend fun freeBytesNow(): Long? = runCatching {
+        val dir = settingsRepository.downloadDirectory.first()
+        if (dir.isBlank()) null else com.cortinadev.dogmatix.util.StorageHelper.getFreeBytes(context, dir)
+    }.getOrNull()
 
     /** Suspends until the conditions allow a download to start (or [startNow] was pressed meanwhile). */
     suspend fun awaitGo() {

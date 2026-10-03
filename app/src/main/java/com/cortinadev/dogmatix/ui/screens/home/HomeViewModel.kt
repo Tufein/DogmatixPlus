@@ -64,8 +64,45 @@ class HomeViewModel @Inject constructor(
     private val pendingFilters: PendingLibraryFilters,
     private val rommLibrary: RommLibraryService,
     private val wishlist: WishlistRepository,
-    private val collectionsRepository: com.cortinadev.dogmatix.data.repository.CollectionsRepository
+    private val collectionsRepository: com.cortinadev.dogmatix.data.repository.CollectionsRepository,
+    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings
 ) : ViewModel() {
+
+    // ---- 2.5: saved views ("smart collections") ------------------------------------------------
+
+    val views: StateFlow<List<com.cortinadev.dogmatix.util.LibraryView>> = appSettings.libraryViews
+        .map { com.cortinadev.dogmatix.util.LibraryViews.fromJson(it) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** The current filters as a view (no id or name yet). */
+    private fun currentView(id: String = "", name: String = "") = com.cortinadev.dogmatix.util.LibraryView(
+        id = id, name = name, query = _searchQuery.value, consoles = _selectedConsoles.value, tags = _activeTags.value,
+        favouritesOnly = _favouritesOnly.value, newOnly = _newOnly.value, collectionId = _collectionId.value,
+        source = _source.value.name, sort = _sort.value.name
+    )
+
+    /** The saved view whose filters are exactly the current ones, if any. */
+    fun matchingViewId(): String? = views.value.firstOrNull { it.copy(id = "", name = "") == currentView() }?.id
+
+    suspend fun saveView(name: String): Boolean {
+        val clean = name.trim().take(60)
+        if (clean.isEmpty()) return false
+        val others = views.value.filterNot { it.name.equals(clean, ignoreCase = true) }
+        val view = currentView(java.util.UUID.randomUUID().toString(), clean)
+        appSettings.setLibraryViews(com.cortinadev.dogmatix.util.LibraryViews.toJson(others + view))
+        return true
+    }
+
+    fun applyView(view: com.cortinadev.dogmatix.util.LibraryView) {
+        _searchQuery.value = view.query
+        _selectedConsoles.value = view.consoles
+        _activeTags.value = view.tags
+        _favouritesOnly.value = view.favouritesOnly
+        _newOnly.value = view.newOnly
+        _collectionId.value = view.collectionId
+        _source.value = runCatching { SourceFilter.valueOf(view.source) }.getOrDefault(SourceFilter.ALL)
+        _sort.value = runCatching { SortOption.valueOf(view.sort) }.getOrDefault(SortOption.NAME_ASC)
+    }
 
     // ---- 2.0: new games, collections, bulk download, Switch updates / DLC ----------------------
 

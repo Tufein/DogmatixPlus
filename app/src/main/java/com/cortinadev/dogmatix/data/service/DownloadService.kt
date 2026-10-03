@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
+import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao
 import com.cortinadev.dogmatix.data.local.entity.DownloadHistoryEntity
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
@@ -51,6 +52,9 @@ private const val TAG = "DownloadService"
 /** Upper bound for an uncached torrent to be fetched by the debrid service before we give up. */
 private const val DEBRID_MAX_WAIT_MS = 6 * 60 * 60 * 1000L
 
+/** A download stopped because free space fell below the limit set in Settings; it can be retried. */
+class LowStorageException(fileName: String) : Exception("Not enough free space for $fileName")
+
 @Singleton
 class DownloadService @Inject constructor(
     @param:ApplicationContext private val context: Context,
@@ -67,7 +71,8 @@ class DownloadService @Inject constructor(
     private val torBoxClient: TorBoxClient,
     private val realDebridClient: RealDebridClient,
     private val rommClient: RommClient,
-    private val downloadGate: DownloadGate
+    private val downloadGate: DownloadGate,
+    private val consoleDao: com.cortinadev.dogmatix.data.local.dao.ConsoleDao
 ) {
     val downloads: StateFlow<List<DownloadItemModel>> = downloadProgressTracker.downloads
 
@@ -91,7 +96,15 @@ class DownloadService @Inject constructor(
     private val headerHashes = ConcurrentHashMap<String, String>()
 
     private val downloadJobs = ConcurrentHashMap<String, Job>()
-    private var downloadSemaphore = Semaphore(3)
+    /** The download slots and the order of what waits for one (the user can reorder it). */
+    private val queue = com.cortinadev.dogmatix.util.DownloadQueue(3)
+
+    /** Downloads waiting for a free slot, first to start first. */
+    val queued: StateFlow<List<String>> = queue.waiting
+
+    fun moveUp(fileName: String) = queue.moveUp(fileName)
+    fun moveDown(fileName: String) = queue.moveDown(fileName)
+    fun moveToFront(fileName: String) = queue.moveToFront(fileName)
     private var foregroundServiceStarted = false
     private val downloadEntities = ConcurrentHashMap<String, DownloadableFileEntity>()
     private val extractedFilesMap = ConcurrentHashMap<String, List<String>>()
@@ -106,9 +119,7 @@ class DownloadService @Inject constructor(
 
     init {
         serviceScope.launch {
-            settingsRepository.concurrentDownloads.collect { max ->
-                downloadSemaphore = Semaphore(max)
-            }
+            settingsRepository.concurrentDownloads.collect { max -> queue.setSlots(max) }
         }
         serviceScope.launch { restoreHistory() }
     }
@@ -146,7 +157,7 @@ class DownloadService @Inject constructor(
 
         val job = serviceScope.launch {
             try {
-                downloadSemaphore.withPermit {
+                withSlot(file.fileName) {
                     awaitSchedule(file.fileName)
                     // Brief delay to allow the foreground service and initial UI state to settle
                     // before network/torrent activity begins.
@@ -156,6 +167,9 @@ class DownloadService @Inject constructor(
             } catch (e: kotlinx.coroutines.CancellationException) {
                 updateStatus(file.fileName, if (pausingFiles.remove(file.fileName)) DownloadStatus.PAUSED else DownloadStatus.STOPPED)
                 throw e
+            } catch (e: LowStorageException) {
+                updateStatus(file.fileName, DownloadStatus.STOPPED)
+                notifyLowStorage()
             } catch (e: Exception) {
                 Log.e(TAG, "Download failed for ${file.fileName}: ${e.message}")
                 updateStatus(file.fileName, DownloadStatus.FAILED)
@@ -164,6 +178,27 @@ class DownloadService @Inject constructor(
             }
         }
         downloadJobs[file.fileName] = job
+    }
+
+    private suspend fun withSlot(fileName: String, block: suspend () -> Unit) {
+        queue.acquire(fileName)
+        try { block() } finally { queue.release() }
+    }
+
+    /** Tells the user (once per minute at most) that downloads stopped for lack of space. */
+    @Volatile private var lastLowStorageNotice = 0L
+    private fun notifyLowStorage() {
+        val now = System.currentTimeMillis()
+        if (now - lastLowStorageNotice < 60_000) return
+        lastLowStorageNotice = now
+        if (!androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()) return
+        val notification = androidx.core.app.NotificationCompat.Builder(context, com.cortinadev.dogmatix.DogmatixApplication.SCAN_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_error)
+            .setContentTitle(context.getString(R.string.storage_low_title))
+            .setContentText(context.getString(R.string.storage_low_text))
+            .setAutoCancel(true)
+            .build()
+        context.getSystemService(android.app.NotificationManager::class.java).notify(4221, notification)
     }
 
     /** Waits while the user's schedule (Wi-Fi only, charging only, night only) says no. */
@@ -236,7 +271,7 @@ class DownloadService @Inject constructor(
         startForegroundService()
         val job = serviceScope.launch {
             try {
-                downloadSemaphore.withPermit {
+                withSlot(entity.fileName) {
                     awaitSchedule(entity.fileName)
                     delay(1000L)
                     perform(entity)
@@ -244,6 +279,9 @@ class DownloadService @Inject constructor(
             } catch (e: kotlinx.coroutines.CancellationException) {
                 updateStatus(entity.fileName, if (pausingFiles.remove(entity.fileName)) DownloadStatus.PAUSED else DownloadStatus.STOPPED)
                 throw e
+            } catch (e: LowStorageException) {
+                updateStatus(entity.fileName, DownloadStatus.STOPPED)
+                notifyLowStorage()
             } catch (e: Exception) {
                 Log.e(TAG, "Retry failed for ${entity.fileName}: ${e.message}")
                 updateStatus(entity.fileName, DownloadStatus.FAILED)
@@ -511,6 +549,7 @@ class DownloadService @Inject constructor(
         resumable: Boolean = false,
         urlProvider: suspend () -> String = { file.downloadUrl }
     ) {
+        var lastError: Exception? = null
         repeat(3) { attempt ->
             try {
                 if (attempt > 0) delay(2000L * attempt)
@@ -518,12 +557,39 @@ class DownloadService @Inject constructor(
                 return
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
+            } catch (e: LowStorageException) {
+                throw e
             } catch (e: Exception) {
                 Log.w(TAG, "Attempt ${attempt + 1} failed for ${file.fileName}: ${e.message}")
-                if (attempt == 2) throw e
+                lastError = e
             }
         }
+        // A file of a web source with reserve addresses: the same file there, in their order.
+        for (url in mirrorsOf(file)) {
+            try {
+                Log.i(TAG, "Trying ${file.fileName} from a reserve address")
+                performHttpDownloadAttempt(file, url, resumable = false)
+                return
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: LowStorageException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "Reserve address failed for ${file.fileName}: ${e.message}")
+                lastError = e
+            }
+        }
+        throw lastError ?: Exception("Download failed")
     }
+
+    /** The file under the other addresses of the web source it came from (none for torrents, RomM, debrid). */
+    private suspend fun mirrorsOf(file: DownloadableFileEntity): List<String> = runCatching {
+        if (file.isTorrent) return emptyList()
+        val entries = com.cortinadev.dogmatix.util.SourcesJson.parseUrlEntries(consoleDao.getConsoleById(file.consoleId)?.urls ?: return emptyList())
+        entries.filter { it.enabled && it.mirrors.isNotEmpty() }.firstNotNullOfOrNull { entry ->
+            com.cortinadev.dogmatix.util.MirrorUrls.alternatives(file.downloadUrl, entry.url, entry.mirrors).takeIf { it.isNotEmpty() }
+        }.orEmpty()
+    }.getOrDefault(emptyList())
 
     private suspend fun performHttpDownloadAttempt(file: DownloadableFileEntity, downloadUrl: String, resumable: Boolean = false) {
         val downloadDirUri = downloadFileManager.getDownloadDirectoryUri(file)
@@ -589,6 +655,7 @@ class DownloadService @Inject constructor(
         startOffset: Long = 0L
     ) {
         val buffer = ByteArray(Constants.BUFFER_SIZE)
+        var sinceSpaceCheck = 0L
         var downloaded = startOffset
         val startTime = System.currentTimeMillis()
         var lastUpdateTime = startTime
@@ -606,6 +673,12 @@ class DownloadService @Inject constructor(
             downloaded += bytesRead
             // One limit for all downloads together (and it follows the setting while downloading).
             bandwidthLimiter.acquire(bytesRead)
+            // Every 32 MB: stop (keeping the part) when free space drops below the limit of Settings.
+            sinceSpaceCheck += bytesRead
+            if (sinceSpaceCheck >= 32L * 1024 * 1024) {
+                sinceSpaceCheck = 0
+                if (downloadGate.lowOnSpace()) throw LowStorageException(file.fileName)
+            }
 
             val now = System.currentTimeMillis()
 

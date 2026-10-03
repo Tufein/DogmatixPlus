@@ -57,6 +57,14 @@ class DogmatixApplication : Application() {
     @Inject
     lateinit var widgetUpdater: com.cortinadev.dogmatix.widget.WidgetUpdater
 
+    /** Injected so finished downloads go into the statistics log from the first one. */
+    @Inject
+    lateinit var downloadLog: com.cortinadev.dogmatix.data.service.DownloadLog
+
+    /** Injected so the weekly automatic backup follows its settings from the start. */
+    @Inject
+    lateinit var autoBackupScheduler: com.cortinadev.dogmatix.data.service.AutoBackupScheduler
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
     override fun onCreate() {

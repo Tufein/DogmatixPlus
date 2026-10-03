@@ -40,8 +40,18 @@ data class V2SettingsState(
     val boldFocus: Boolean = false
 )
 
+/** The settings added in 2.5. */
+data class V25SettingsState(
+    val minFreeGb: Int = 0,
+    val autoBackup: Boolean = false,
+    val autoBackupDir: String = "",
+    val autoBackupLast: Long = 0L,
+    val secondScreen: Boolean = true
+)
+
 @HiltViewModel
 class ExtraSettingsViewModel @Inject constructor(
+    private val autoBackupScheduler: com.cortinadev.dogmatix.data.service.AutoBackupScheduler,
     private val settings: SettingsRepository,
     private val appSettings: AppSettings,
     private val updateInstaller: com.cortinadev.dogmatix.data.service.UpdateInstaller,
@@ -61,6 +71,30 @@ class ExtraSettingsViewModel @Inject constructor(
     ) { (a, h, w, c), night, last, dayOnly, bold ->
         V2SettingsState(a as Boolean, h as Int, w as Boolean, c as Boolean, night, last, dayOnly, bold)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V2SettingsState())
+
+    val v25: StateFlow<V25SettingsState> = combine(
+        appSettings.minFreeGb, appSettings.autoBackup, appSettings.autoBackupDir, appSettings.autoBackupLast, appSettings.secondScreen
+    ) { gb, backup, dir, last, second -> V25SettingsState(gb, backup, dir, last, second) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V25SettingsState())
+
+    fun shiftMinFree(context: Context, delta: Int) = executeWithToast(context, TAG) {
+        val choices = listOf(0, 1, 2, 5, 10, 20, 50)
+        val i = choices.indexOf(v25.value.minFreeGb).takeIf { it >= 0 } ?: 0
+        appSettings.setMinFreeGb(choices[(i + delta).coerceIn(0, choices.lastIndex)])
+    }
+    fun setAutoBackup(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoBackup(on) }
+    fun setAutoBackupDir(context: Context, uri: String) = executeWithToast(context, TAG) { appSettings.setAutoBackupDir(uri) }
+    fun setSecondScreen(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setSecondScreen(on) }
+
+    /** Writes an automatic backup right away (to check the folder works). */
+    fun backupNow(context: Context) {
+        val app = context.applicationContext
+        viewModelScope.launch {
+            val name = runCatching { autoBackupScheduler.runIfDue(force = true) }.getOrNull()
+            if (name != null) ToastUtil.showSuccess(app, app.getString(R.string.auto_backup_done, name))
+            else ToastUtil.showError(app, app.getString(R.string.auto_backup_failed))
+        }
+    }
 
     fun setAutoScan(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoScan(on) }
     fun setAutoScanWifi(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoScanWifiOnly(on) }

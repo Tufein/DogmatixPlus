@@ -46,6 +46,12 @@ class PendingLibraryFilters @Inject constructor() {
     val openRoute: StateFlow<String?> = _openRoute.asStateFlow()
 
     fun openSection(route: String) { _openRoute.value = route }
+
+    /** A link shared to the app (browser, chat), waiting for the user to say what to do with it. */
+    private val _shared = MutableStateFlow<com.cortinadev.dogmatix.util.SharedLink?>(null)
+    val shared: StateFlow<com.cortinadev.dogmatix.util.SharedLink?> = _shared.asStateFlow()
+    fun share(link: com.cortinadev.dogmatix.util.SharedLink) { _shared.value = link }
+    fun dismissShare() { _shared.value = null }
     fun consumeSection(): String? = _openRoute.getAndUpdate { null }
 
     companion object {
