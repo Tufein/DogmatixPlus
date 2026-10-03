@@ -25,7 +25,7 @@ interface DownloadableFileDao {
      */
     @Query("""
         SELECT df.id, df.name, df.fileName, df.consoleId, df.downloadUrl, df.fileSize,
-               df.fileExtension, df.torrentFileIndex, df.torrentMagnet, df.expectedHash,
+               df.fileExtension, df.torrentFileIndex, df.torrentMagnet, df.expectedHash, df.firstSeenAt,
                GROUP_CONCAT(t.tag, '|') as tags
         FROM downloadable_files df
         LEFT JOIN downloadable_file_tags t ON df.id = t.fileId
@@ -52,13 +52,18 @@ interface DownloadableFileDao {
           AND (:favouritesOnly = 0 OR EXISTS (
                 SELECT 1 FROM favourites f WHERE f.consoleId = df.consoleId AND f.fileName = df.fileName
           ))
+          AND (:newSince = 0 OR df.firstSeenAt >= :newSince)
+          AND (:collectionId = 0 OR EXISTS (
+                SELECT 1 FROM collection_items ci WHERE ci.collectionId = :collectionId AND ci.consoleId = df.consoleId AND ci.fileName = df.fileName
+          ))
           AND (:source = 0
                OR (:source = 1 AND df.torrentFileIndex IS NOT NULL)
                OR (:source = 2 AND df.downloadUrl LIKE '%/api/roms/%/content/%')
                OR (:source = 3 AND df.torrentFileIndex IS NULL AND df.downloadUrl NOT LIKE '%/api/roms/%/content/%'))
         GROUP BY df.id, df.name, df.fileName, df.consoleId, df.downloadUrl, df.fileSize,
-                 df.fileExtension, df.torrentFileIndex, df.torrentMagnet, df.expectedHash
+                 df.fileExtension, df.torrentFileIndex, df.torrentMagnet, df.expectedHash, df.firstSeenAt
         ORDER BY
+            CASE WHEN :sort = 4 THEN df.firstSeenAt END DESC,
             CASE WHEN :sort = 0 THEN df.name END ASC,
             CASE WHEN :sort = 1 THEN df.name END DESC,
             CASE WHEN :sort = 2 THEN df.fileSize END DESC,
@@ -82,9 +87,13 @@ interface DownloadableFileDao {
         fileTypes: List<String>,
         fileTypesCount: Int,
         favouritesOnly: Boolean,
+        /** Only files a rescan found at or after this time; 0 = no limit. */
+        newSince: Long,
+        /** Only games in this collection; 0 = any. */
+        collectionId: Long,
         /** [com.cortinadev.dogmatix.data.model.SourceFilter] ordinal: 0 all, 1 torrent, 2 RomM, 3 direct HTTP. */
         source: Int,
-        /** [com.cortinadev.dogmatix.data.model.SortOption] ordinal: 0 A→Z, 1 Z→A, 2 biggest first, 3 smallest first. */
+        /** [com.cortinadev.dogmatix.data.model.SortOption] ordinal: 0 A→Z, 1 Z→A, 2 biggest first, 3 smallest first, 4 newest first. */
         sort: Int,
         limit: Int = 100,
         offset: Int = 0
@@ -181,6 +190,56 @@ interface DownloadableFileDao {
     @Query("DELETE FROM downloadable_files")
     suspend fun clearAll()
 
+    @Query("SELECT fileName, firstSeenAt FROM downloadable_files WHERE consoleId = :consoleId AND (sourceUrl = :sourceUrl OR sourceUrl = '')")
+    suspend fun seenIn(consoleId: String, sourceUrl: String): List<FileSeen>
+
+    @Query("SELECT COUNT(*) FROM downloadable_files WHERE consoleId = :consoleId AND sourceUrl = :sourceUrl")
+    suspend fun countSource(consoleId: String, sourceUrl: String): Int
+
+    @Query("DELETE FROM downloadable_files WHERE consoleId = :consoleId AND sourceUrl = :sourceUrl")
+    suspend fun deleteSourceFiles(consoleId: String, sourceUrl: String)
+
+    @Query("DELETE FROM downloadable_file_tags WHERE fileId IN (SELECT id FROM downloadable_files WHERE consoleId = :consoleId AND sourceUrl = :sourceUrl)")
+    suspend fun deleteSourceTags(consoleId: String, sourceUrl: String)
+
+    @Transaction
+    suspend fun deleteSource(consoleId: String, sourceUrl: String) {
+        deleteSourceTags(consoleId, sourceUrl)
+        deleteSourceFiles(consoleId, sourceUrl)
+    }
+
+    /** Every (console, source) pair that has rows; '' is a row indexed before 2.0. */
+    @Query("SELECT DISTINCT consoleId, sourceUrl FROM downloadable_files")
+    suspend fun indexedSources(): List<IndexedSource>
+
+    /** How many files rescans found since [since] (widget, notification). */
+    @Query("SELECT COUNT(*) FROM downloadable_files WHERE firstSeenAt >= :since AND firstSeenAt > 0")
+    suspend fun countNewSince(since: Long): Int
+
+    @Query("SELECT * FROM downloadable_files WHERE firstSeenAt >= :since AND firstSeenAt > 0 ORDER BY firstSeenAt DESC LIMIT :limit")
+    suspend fun newestSince(since: Long, limit: Int): List<DownloadableFileEntity>
+
+    /** All rows of one console (Switch updates / DLC). */
+    @Query("SELECT * FROM downloadable_files WHERE consoleId = :consoleId")
+    suspend fun filesOf(consoleId: String): List<DownloadableFileEntity>
+
+    /**
+     * Replaces the rows of one source (and, the first time after the update to 2.0, the console's
+     * rows from before sources were remembered) with [files] in one transaction. A file the source
+     * listed before keeps when it was first seen; a file it did not list before gets [now] — unless
+     * the source had no rows yet, then nothing counts as new (its first scan).
+     */
+    @Transaction
+    suspend fun replaceSource(consoleId: String, sourceUrl: String, files: List<DownloadableFileEntity>, tags: List<List<String>>, now: Long): SourceWrite {
+        val seen = HashMap<String, Long>()
+        seenIn(consoleId, sourceUrl).forEach { seen[it.fileName] = maxOf(seen[it.fileName] ?: 0L, it.firstSeenAt) }
+        val known = seen.isNotEmpty()
+        deleteSource(consoleId, sourceUrl)
+        deleteSource(consoleId, "")
+        val stamped = files.map { it.copy(consoleId = consoleId, sourceUrl = sourceUrl, firstSeenAt = seen[it.fileName] ?: if (known) now else 0L) }
+        return SourceWrite(insertSource(stamped, tags), stamped.count { it.firstSeenAt == now })
+    }
+
     @Query("SELECT id, name FROM downloadable_files WHERE searchKey = ''")
     suspend fun getFilesMissingSearchKey(): List<FileIdName>
 
@@ -217,6 +276,7 @@ data class DownloadableFileWithTagsResult(
     val torrentFileIndex: Int?,
     val torrentMagnet: String?,
     val expectedHash: String?,
+    val firstSeenAt: Long,
     val tags: String?
 )
 
@@ -229,5 +289,12 @@ data class ConsoleWithFileCount(
 )
 
 data class FileIdName(val id: Long, val name: String)
+
+/** What [DownloadableFileDao.replaceSource] wrote: tag rows, and files the source did not list before. */
+data class SourceWrite(val tags: Int, val newFiles: Int)
+
+data class FileSeen(val fileName: String, val firstSeenAt: Long)
+
+data class IndexedSource(val consoleId: String, val sourceUrl: String)
 
 data class ConsoleFileCount(val consoleId: String, val count: Int)

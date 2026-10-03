@@ -42,12 +42,23 @@ class TorrentHandleRegistry @Inject constructor(
             // "metadata too large" and re-tried forever); multi-TB collection torrents need more.
             session.applySettings(
                 org.libtorrent4j.SettingsPack().apply { setMaxMetadataSize(TorrentConstants.MAX_METADATA_SIZE_BYTES) }
+                    .downloadRateLimit(rateLimit.coerceIn(0, Int.MAX_VALUE.toLong()).toInt())
             )
             TorrentConstants.DHT_BOOTSTRAP_NODES.forEach { (host, port) ->
                 try { session.swig().add_dht_node(org.libtorrent4j.swig.string_int_pair(host, port)) }
                 catch (e: Exception) { Log.w(TAG, "DHT node $host:$port failed: ${e.message}") }
             }
             Log.i(TAG, "libtorrent4j session started")
+        }
+    }
+
+    /** Download limit of the whole torrent session in bytes per second; 0 = none. Kept for a session started later. */
+    @Volatile private var rateLimit: Long = 0
+
+    fun setDownloadRateLimit(bytesPerSecond: Long) {
+        rateLimit = bytesPerSecond
+        if (session.isRunning) {
+            session.applySettings(org.libtorrent4j.SettingsPack().downloadRateLimit(bytesPerSecond.coerceIn(0, Int.MAX_VALUE.toLong()).toInt()))
         }
     }
 

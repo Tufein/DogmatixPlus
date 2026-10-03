@@ -141,6 +141,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleDeepLink(intent: Intent?) {
+        intent?.getStringExtra(PendingLibraryFilters.EXTRA_OPEN_ROUTE)?.let {
+            pendingFilters.openSection(it)
+            intent.removeExtra(PendingLibraryFilters.EXTRA_OPEN_ROUTE)
+        }
         if (intent?.action != Intent.ACTION_VIEW) return
         val data = intent.data ?: return
         if (DeepLinkParser.SCHEME.equals(data.scheme, ignoreCase = true)) {
@@ -283,6 +287,12 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
         if (pendingVersion > 0 && navController.currentBackStackEntry?.destination?.route != NavRoutes.Home.route) {
             navController.switchTo(NavRoutes.Home)
         }
+    }
+    // The widget's download line: open that section.
+    val openRoute by pendingFilters.openRoute.collectAsState()
+    LaunchedEffect(openRoute) {
+        val route = pendingFilters.consumeSection() ?: return@LaunchedEffect
+        NavRoutes.allRoutes.firstOrNull { it.route == route }?.let { navController.switchTo(it) }
     }
     // After a gamepad section switch the focus ring goes away: focus is parked on an invisible
     // sink (clearing it would make Compose re-focus the first tab). The next D-pad press puts

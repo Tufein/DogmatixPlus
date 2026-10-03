@@ -36,7 +36,7 @@ class TorrentScrapingService @Inject constructor(
     private val registry: TorrentHandleRegistry
 ) {
 
-    suspend fun scrapeAndInsert(urlEntry: UrlEntry, console: Console): Pair<Int, Int> =
+    suspend fun scrapeAndInsert(urlEntry: UrlEntry, console: Console): SourceIndexResult =
         withContext(Dispatchers.IO) {
             val magnet = urlEntry.url
 
@@ -55,7 +55,8 @@ class TorrentScrapingService @Inject constructor(
             if (entries.isEmpty()) {
                 Log.w(TAG, "No files found in torrent")
                 rescanStateHolder.setTorrentFetchProgress("")
-                return@withContext Pair(0, 0)
+                downloadableFileDao.replaceSource(console.id, magnet, emptyList(), emptyList(), System.currentTimeMillis())
+                return@withContext SourceIndexResult(0, 0)
             }
 
             val allFiles = ArrayList<DownloadableFileEntity>(entries.size)
@@ -81,7 +82,8 @@ class TorrentScrapingService @Inject constructor(
 
             // One transaction; tags follow their file by position (two files of the same name in
             // different torrent folders used to share one id).
-            val tagCount = downloadableFileDao.insertSource(allFiles, allTags)
+            val write = downloadableFileDao.replaceSource(console.id, magnet, allFiles, allTags, System.currentTimeMillis())
+            val tagCount = write.tags
             rescanStateHolder.setTorrentFetchProgress("")
 
             Log.i(TAG, "Inserted ${allFiles.size} files, $tagCount tags for ${console.name}")
@@ -89,7 +91,7 @@ class TorrentScrapingService @Inject constructor(
             // NOTE: We no longer release the handle here.
             // Keeping it in the session allows immediate starting of downloads.
 
-            Pair(allFiles.size, tagCount)
+            SourceIndexResult(allFiles.size, tagCount, write.newFiles)
         }
 
     companion object { private const val TAG = "TorrentScrapingService" }

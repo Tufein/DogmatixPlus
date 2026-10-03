@@ -45,6 +45,18 @@ class DogmatixApplication : Application() {
     @Inject
     lateinit var wishlistRepository: com.cortinadev.dogmatix.data.repository.WishlistRepository
 
+    /** Injected so the background source scan follows its settings from the start. */
+    @Inject
+    lateinit var autoScanScheduler: com.cortinadev.dogmatix.data.service.AutoScanScheduler
+
+    /** Injected so the speed limit (and its night exception) applies from the first download. */
+    @Inject
+    lateinit var bandwidthLimiter: com.cortinadev.dogmatix.data.service.BandwidthLimiter
+
+    /** Injected so the home-screen widget follows downloads and scans from the start. */
+    @Inject
+    lateinit var widgetUpdater: com.cortinadev.dogmatix.widget.WidgetUpdater
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
     override fun onCreate() {
@@ -101,6 +113,11 @@ class DogmatixApplication : Application() {
             }
         )
         manager.createNotificationChannel(
+            NotificationChannel(SCAN_CHANNEL_ID, getString(R.string.notification_channel_scan), NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = getString(R.string.notification_channel_scan_desc)
+            }
+        )
+        manager.createNotificationChannel(
             NotificationChannel(WISHLIST_CHANNEL_ID, getString(R.string.notification_channel_wishlist), NotificationManager.IMPORTANCE_DEFAULT).apply {
                 description = getString(R.string.notification_channel_wishlist_desc)
             }
@@ -126,5 +143,6 @@ class DogmatixApplication : Application() {
         const val DOWNLOAD_CHANNEL_ID = "download_channel"
         const val SYNC_CHANNEL_ID = "sync_channel"
         const val WISHLIST_CHANNEL_ID = "wishlist_channel"
+        const val SCAN_CHANNEL_ID = "scan_channel"
     }
 }

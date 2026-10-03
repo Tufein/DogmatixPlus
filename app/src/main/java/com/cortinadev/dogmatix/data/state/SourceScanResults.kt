@@ -19,7 +19,18 @@ data class SourceScanResult(
     val files: Int?,
     val failure: FailureKind? = null,
     val httpCode: Int? = null,
-    val at: Long = System.currentTimeMillis()
+    val at: Long = System.currentTimeMillis(),
+    /** The listing had not changed since the scan before, so its rows were kept as they were. */
+    val unchanged: Boolean = false,
+    /** Files this scan found that the source did not list before. */
+    val newFiles: Int = 0,
+    /** The address that answered when it was not the source's own (a reserve address). */
+    val servedBy: String? = null,
+    /** What the listing looked like ([com.cortinadev.dogmatix.util.ListingCheck]); used to skip an unchanged one next time. */
+    val etag: String? = null,
+    val lastModified: String? = null,
+    val bodyHash: String? = null,
+    val fingerprint: String? = null
 )
 
 /**
@@ -42,6 +53,10 @@ class SourceScanResults @Inject constructor(@param:ApplicationContext context: C
         save(_results.value)
     }
 
+    fun get(consoleId: String, url: String): SourceScanResult? = _results.value[key(consoleId, url)]
+
+    private fun JsonObject.str(name: String): String? = get(name)?.takeUnless { it.isJsonNull }?.asString
+
     private fun load(): Map<String, SourceScanResult> = runCatching {
         if (!file.exists()) return emptyMap()
         JsonParser.parseString(file.readText()).asJsonObject.getAsJsonArray("results").mapNotNull { el ->
@@ -51,7 +66,14 @@ class SourceScanResults @Inject constructor(@param:ApplicationContext context: C
                     files = o.get("files")?.takeUnless { it.isJsonNull }?.asInt,
                     failure = o.get("failure")?.takeUnless { it.isJsonNull }?.asString?.let { FailureKind.valueOf(it) },
                     httpCode = o.get("httpCode")?.takeUnless { it.isJsonNull }?.asInt,
-                    at = o.get("at").asLong
+                    at = o.get("at").asLong,
+                    unchanged = o.get("unchanged")?.takeUnless { it.isJsonNull }?.asBoolean ?: false,
+                    newFiles = o.get("newFiles")?.takeUnless { it.isJsonNull }?.asInt ?: 0,
+                    servedBy = o.str("servedBy"),
+                    etag = o.str("etag"),
+                    lastModified = o.str("lastModified"),
+                    bodyHash = o.str("bodyHash"),
+                    fingerprint = o.str("fingerprint")
                 )
             }.getOrNull()
         }.toMap()
@@ -68,6 +90,13 @@ class SourceScanResults @Inject constructor(@param:ApplicationContext context: C
                     r.failure?.let { addProperty("failure", it.name) }
                     r.httpCode?.let { addProperty("httpCode", it) }
                     addProperty("at", r.at)
+                    if (r.unchanged) addProperty("unchanged", true)
+                    if (r.newFiles > 0) addProperty("newFiles", r.newFiles)
+                    r.servedBy?.let { addProperty("servedBy", it) }
+                    r.etag?.let { addProperty("etag", it) }
+                    r.lastModified?.let { addProperty("lastModified", it) }
+                    r.bodyHash?.let { addProperty("bodyHash", it) }
+                    r.fingerprint?.let { addProperty("fingerprint", it) }
                 })
             }
             val tmp = File(file.parentFile, file.name + ".tmp")

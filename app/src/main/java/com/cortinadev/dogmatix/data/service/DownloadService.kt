@@ -57,6 +57,7 @@ class DownloadService @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val archiveExtractorService: ArchiveExtractorService,
     private val downloadSpeedController: DownloadSpeedController,
+    private val bandwidthLimiter: BandwidthLimiter,
     private val downloadHttpClient: DownloadHttpClient,
     private val downloadProgressTracker: DownloadProgressTracker,
     private val downloadFileManager: DownloadFileManager,
@@ -529,9 +530,6 @@ class DownloadService @Inject constructor(
         if (downloadDirUri == android.net.Uri.EMPTY)
             throw Exception("Download directory not configured or no longer accessible.")
 
-        var speedLimit = settingsRepository.limitSpeed.first()
-        val speedLimitJob = downloadSpeedController.createSpeedLimiter { speedLimit = it }
-
         var inputStream: InputStream? = null
         var outputStream: OutputStream? = null
         var documentFile: DocumentFile? = null
@@ -566,7 +564,7 @@ class DownloadService @Inject constructor(
                     ?.let { headerHashes[file.fileName] = it } ?: headerHashes.remove(file.fileName)
             }
 
-            streamWithProgress(inputStream, outputStream, file, speedLimit, contentLength, startOffset)
+            streamWithProgress(inputStream, outputStream, file, contentLength, startOffset)
             handlePostDownload(file, documentFile, subPath)
 
         } catch (e: kotlinx.coroutines.CancellationException) {
@@ -578,7 +576,6 @@ class DownloadService @Inject constructor(
             updateStatus(file.fileName, DownloadStatus.FAILED)
             throw e
         } finally {
-            speedLimitJob.cancel()
             inputStream?.close()
             outputStream?.close()
         }
@@ -588,17 +585,14 @@ class DownloadService @Inject constructor(
         input: InputStream,
         output: OutputStream,
         file: DownloadableFileEntity,
-        initialSpeedLimit: Float,
         contentLength: Long,
         startOffset: Long = 0L
     ) {
         val buffer = ByteArray(Constants.BUFFER_SIZE)
         var downloaded = startOffset
-        var bytesSinceCheck = 0L
         val startTime = System.currentTimeMillis()
         var lastUpdateTime = startTime
         var lastDownloaded = startOffset
-        var lastSpeedCheckTime = startTime
 
         while (true) {
             val bytesRead = input.read(buffer)
@@ -610,16 +604,10 @@ class DownloadService @Inject constructor(
 
             output.write(buffer, 0, bytesRead)
             downloaded += bytesRead
-            bytesSinceCheck += bytesRead
+            // One limit for all downloads together (and it follows the setting while downloading).
+            bandwidthLimiter.acquire(bytesRead)
 
             val now = System.currentTimeMillis()
-            val timeSinceCheck = (now - lastSpeedCheckTime) / 1000f
-            if (timeSinceCheck >= Constants.SPEED_CHECK_INTERVAL_MS / 1000f) {
-                val spd = downloadSpeedController.calculateSpeed(bytesSinceCheck, timeSinceCheck)
-                downloadSpeedController.applySpeedThrottling(spd, initialSpeedLimit, bytesSinceCheck, timeSinceCheck)
-                lastSpeedCheckTime = now
-                bytesSinceCheck = 0L
-            }
 
             val progress = if (contentLength > 0)
                 ArchiveExtractionUtils.calculateProgress(downloaded, contentLength) else 0f

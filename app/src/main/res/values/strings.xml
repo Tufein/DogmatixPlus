@@ -747,6 +747,12 @@
     <string name="files_info_type">Type: .%1$s</string>
     <string name="files_info_game">Counts as a game for the library tools</string>
     <string name="files_info_not_game">Not a game file: the library tools leave it alone</string>
+    <string name="notification_channel_scan">Source scans</string>
+    <string name="notification_channel_scan_desc">What a background scan found</string>
+    <string name="autoscan_done_title">Background scan finished</string>
+    <string name="widget_description">Downloads in progress and new games</string>
+    <string name="widget_no_downloads">No downloads running</string>
+    <string name="widget_no_new">No new games lately</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save changed on both sides — open Dogmatix to choose</item>
         <item quantity="other">%d saves changed on both sides — open Dogmatix to choose</item>
@@ -818,6 +824,26 @@
     <plurals name="files_check_problems">
         <item quantity="one">%1$d problem in this folder</item>
         <item quantity="other">%1$d problems in this folder</item>
+    </plurals>
+    <plurals name="autoscan_new_title">
+        <item quantity="one">%1$d new game found</item>
+        <item quantity="other">%1$d new games found</item>
+    </plurals>
+    <plurals name="autoscan_sources">
+        <item quantity="one">%1$d source scanned</item>
+        <item quantity="other">%1$d sources scanned</item>
+    </plurals>
+    <plurals name="autoscan_failed">
+        <item quantity="one">%1$d failed</item>
+        <item quantity="other">%1$d failed</item>
+    </plurals>
+    <plurals name="widget_downloads">
+        <item quantity="one">%1$d download · %2$d%%</item>
+        <item quantity="other">%1$d downloads · %2$d%%</item>
+    </plurals>
+    <plurals name="widget_new_games">
+        <item quantity="one">%1$d new game</item>
+        <item quantity="other">%1$d new games</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

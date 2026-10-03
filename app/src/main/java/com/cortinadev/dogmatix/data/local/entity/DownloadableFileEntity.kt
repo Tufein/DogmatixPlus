@@ -17,7 +17,7 @@ import com.cortinadev.dogmatix.util.SearchNormalizer
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("consoleId")]
+    indices = [Index("consoleId"), Index(value = ["consoleId", "sourceUrl"])]
 )
 data class DownloadableFileEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -35,6 +35,12 @@ data class DownloadableFileEntity(
     /** Hash the source publishes for the file, as `algorithm:hex` (`sha1:…`, `md5:…`, `crc32:…`); null when unknown. */
     @ColumnInfo(defaultValue = "NULL")
     val expectedHash: String? = null,
+    /** The source (URL as configured) this row came from; a rescan replaces one source's rows at a time. '' = indexed before 2.0. */
+    @ColumnInfo(defaultValue = "")
+    val sourceUrl: String = "",
+    /** When a rescan first found this file; 0 = it came with the source's first scan (not "new"). */
+    @ColumnInfo(defaultValue = "0")
+    val firstSeenAt: Long = 0L,
 ) {
     val isTorrent: Boolean get() = torrentFileIndex != null && torrentMagnet != null
 }

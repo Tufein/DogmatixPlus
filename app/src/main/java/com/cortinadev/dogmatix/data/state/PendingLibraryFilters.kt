@@ -13,7 +13,11 @@ data class LibraryFilterRequest(
     val consoles: Set<String> = emptySet(),
     val tags: Set<String> = emptySet(),
     val query: String? = null,
-    val favouritesOnly: Boolean? = null
+    val favouritesOnly: Boolean? = null,
+    /** Show only what recent rescans found (`new=1`). */
+    val newOnly: Boolean? = null,
+    /** Show one own collection (`collection=<id>`). */
+    val collectionId: Long? = null
 )
 
 /**
@@ -36,4 +40,16 @@ class PendingLibraryFilters @Inject constructor() {
     }
 
     fun consume(): LibraryFilterRequest? = _request.getAndUpdate { null }
+
+    /** A section the app should switch to (the widget's download line); taken by the shell. */
+    private val _openRoute = MutableStateFlow<String?>(null)
+    val openRoute: StateFlow<String?> = _openRoute.asStateFlow()
+
+    fun openSection(route: String) { _openRoute.value = route }
+    fun consumeSection(): String? = _openRoute.getAndUpdate { null }
+
+    companion object {
+        /** Intent extra with a route to open (see [openSection]). */
+        const val EXTRA_OPEN_ROUTE = "com.cortinadev.dogmatix.OPEN_ROUTE"
+    }
 }

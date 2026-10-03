@@ -697,6 +697,12 @@
     <string name="files_info_type">Tipo: .%1$s</string>
     <string name="files_info_game">Conta come gioco per gli strumenti</string>
     <string name="files_info_not_game">Non è un file di gioco: gli strumenti lo ignorano</string>
+    <string name="notification_channel_scan">Scansioni delle fonti</string>
+    <string name="notification_channel_scan_desc">Cosa ha trovato una scansione in background</string>
+    <string name="autoscan_done_title">Scansione in background completata</string>
+    <string name="widget_description">Download in corso e nuovi giochi</string>
+    <string name="widget_no_downloads">Nessun download in corso</string>
+    <string name="widget_no_new">Nessun nuovo gioco di recente</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d salvataggio è cambiato su entrambi i lati — apri Dogmatix per scegliere</item>
         <item quantity="other">%d salvataggi sono cambiati su entrambi i lati — apri Dogmatix per scegliere</item>
@@ -768,6 +774,26 @@
     <plurals name="files_check_problems">
         <item quantity="one">%1$d problema in questa cartella</item>
         <item quantity="other">%1$d problemi in questa cartella</item>
+    </plurals>
+    <plurals name="autoscan_new_title">
+        <item quantity="one">%1$d nuovo gioco trovato</item>
+        <item quantity="other">%1$d nuovi giochi trovati</item>
+    </plurals>
+    <plurals name="autoscan_sources">
+        <item quantity="one">%1$d fonte scansionata</item>
+        <item quantity="other">%1$d fonti scansionate</item>
+    </plurals>
+    <plurals name="autoscan_failed">
+        <item quantity="one">%1$d non riuscita</item>
+        <item quantity="other">%1$d non riuscite</item>
+    </plurals>
+    <plurals name="widget_downloads">
+        <item quantity="one">%1$d download · %2$d%%</item>
+        <item quantity="other">%1$d download · %2$d%%</item>
+    </plurals>
+    <plurals name="widget_new_games">
+        <item quantity="one">%1$d nuovo gioco</item>
+        <item quantity="other">%1$d nuovi giochi</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

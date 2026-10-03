@@ -12,6 +12,12 @@ import com.cortinadev.dogmatix.data.local.dao.GameMetadataDao
 import com.cortinadev.dogmatix.data.local.dao.ManufacturerDao
 import com.cortinadev.dogmatix.data.local.dao.WishlistDao
 import com.cortinadev.dogmatix.data.local.entity.WishlistEntity
+import com.cortinadev.dogmatix.data.local.entity.CollectionEntity
+import com.cortinadev.dogmatix.data.local.entity.CollectionItemEntity
+import com.cortinadev.dogmatix.data.local.entity.DatRomEntity
+import com.cortinadev.dogmatix.data.local.entity.DatSetEntity
+import com.cortinadev.dogmatix.data.local.dao.CollectionDao
+import com.cortinadev.dogmatix.data.local.dao.DatDao
 import com.cortinadev.dogmatix.data.local.entity.ConsoleEntity
 import com.cortinadev.dogmatix.data.local.entity.DownloadHistoryEntity
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
@@ -22,8 +28,8 @@ import com.cortinadev.dogmatix.data.local.entity.ManufacturerEntity
 import com.cortinadev.dogmatix.data.local.queries.DownloadableFileFts
 
 @Database(
-    entities = [ManufacturerEntity::class, ConsoleEntity::class, DownloadableFileEntity::class, FileTagEntity::class, DownloadableFileFts::class, DownloadHistoryEntity::class, GameMetadataEntity::class, FavouriteEntity::class, WishlistEntity::class],
-    version = 10,
+    entities = [ManufacturerEntity::class, ConsoleEntity::class, DownloadableFileEntity::class, FileTagEntity::class, DownloadableFileFts::class, DownloadHistoryEntity::class, GameMetadataEntity::class, FavouriteEntity::class, WishlistEntity::class, CollectionEntity::class, CollectionItemEntity::class, DatSetEntity::class, DatRomEntity::class],
+    version = 11,
     exportSchema = false
 )
 abstract class DogmatixDatabase : RoomDatabase() {
@@ -34,8 +40,38 @@ abstract class DogmatixDatabase : RoomDatabase() {
     abstract fun gameMetadataDao(): GameMetadataDao
     abstract fun favouriteDao(): FavouriteDao
     abstract fun wishlistDao(): WishlistDao
+    abstract fun collectionDao(): CollectionDao
+    abstract fun datDao(): DatDao
 
     companion object {
+        /**
+         * 2.0: every row remembers its source (a rescan replaces one source at a time and can skip
+         * an unchanged one) and when a rescan first found it; own collections; imported DAT files.
+         */
+        val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE downloadable_files ADD COLUMN sourceUrl TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE downloadable_files ADD COLUMN firstSeenAt INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_downloadable_files_consoleId_sourceUrl ON downloadable_files (consoleId, sourceUrl)")
+                db.execSQL("CREATE TABLE IF NOT EXISTS collections (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, createdAt INTEGER NOT NULL)")
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS collection_items (collectionId INTEGER NOT NULL, consoleId TEXT NOT NULL, " +
+                        "fileName TEXT NOT NULL, addedAt INTEGER NOT NULL, PRIMARY KEY(collectionId, consoleId, fileName))"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_collection_items_consoleId_fileName ON collection_items (consoleId, fileName)")
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS dat_sets (consoleId TEXT NOT NULL PRIMARY KEY, name TEXT NOT NULL, version TEXT NOT NULL, " +
+                        "games INTEGER NOT NULL, roms INTEGER NOT NULL, importedAt INTEGER NOT NULL)"
+                )
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS dat_roms (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, consoleId TEXT NOT NULL, " +
+                        "gameName TEXT NOT NULL, romName TEXT NOT NULL, size INTEGER NOT NULL, crc TEXT, md5 TEXT, sha1 TEXT)"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_dat_roms_consoleId_crc ON dat_roms (consoleId, crc)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_dat_roms_consoleId_sha1 ON dat_roms (consoleId, sha1)")
+            }
+        }
+
         /** Wishlist table; the hash a source publishes for a file (checked after the download). */
         val MIGRATION_9_10 = object : Migration(9, 10) {
             override fun migrate(db: SupportSQLiteDatabase) {

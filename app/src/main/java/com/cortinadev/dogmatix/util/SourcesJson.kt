@@ -29,6 +29,9 @@ data class SourceConsole(
 /** A starred game carried by a sources export, so favourites travel to another device. */
 data class SourceFavourite(val consoleId: String, val fileName: String, val addedAt: Long)
 
+/** An own collection carried by a sources export: its name and games (console + file name). */
+data class SourceCollection(val name: String, val items: List<Pair<String, String>>)
+
 /**
  * Reads and writes the sources document shared by `assets/consoles.json`, the export/import
  * feature and the per-console `urls` column in Room.
@@ -47,6 +50,11 @@ data class SourceFavourite(val consoleId: String, val fileName: String, val adde
  * older versions skip:
  * ```
  * "_favourites": [ { "console": "nintendo_gameboy_advance", "file": "…zip", "added": 1759…000 } ]
+ * ```
+ * and (2.0) the own collections, and per URL the reserve addresses:
+ * ```
+ * "_collections": [ { "name": "Couch co-op", "games": [ { "console": "…", "file": "…" } ] } ]
+ * "urls": [ { "url": "…", "mirrors": ["https://mirror…/"] } ]
  * ```
  */
 object SourcesJson {
@@ -78,7 +86,11 @@ object SourcesJson {
     }
 
     /** Serialises manufacturers (with display names) into the document format. */
-    fun serializeDocument(manufacturers: List<SourceManufacturer>, favourites: List<SourceFavourite> = emptyList()): String {
+    fun serializeDocument(
+        manufacturers: List<SourceManufacturer>,
+        favourites: List<SourceFavourite> = emptyList(),
+        collections: List<SourceCollection> = emptyList()
+    ): String {
         val root = JsonObject()
         manufacturers.forEach { manufacturer ->
             val manufacturerObj = JsonObject()
@@ -104,8 +116,38 @@ object SourcesJson {
                 }
             })
         }
+        if (collections.isNotEmpty()) {
+            root.add(COLLECTIONS_KEY, JsonArray().apply {
+                collections.sortedBy { it.name.lowercase() }.forEach { c ->
+                    add(JsonObject().apply {
+                        addProperty("name", c.name)
+                        add("games", JsonArray().apply {
+                            c.items.forEach { (console, file) -> add(JsonObject().apply { addProperty("console", console); addProperty("file", file) }) }
+                        })
+                    })
+                }
+            })
+        }
         return gson.toJson(root)
     }
+
+    /** The own collections of a document; none when it has no (valid) list. Never throws. */
+    fun parseCollections(json: String): List<SourceCollection> = runCatching {
+        val array = JsonParser.parseString(json).asJsonObject.get(COLLECTIONS_KEY) as? JsonArray ?: return emptyList()
+        array.mapNotNull { item ->
+            val obj = item as? JsonObject ?: return@mapNotNull null
+            val name = obj.stringOrNull("name")?.trim() ?: return@mapNotNull null
+            val games = (obj.get("games") as? JsonArray).orEmpty().mapNotNull { g ->
+                val o = g as? JsonObject ?: return@mapNotNull null
+                val console = o.stringOrNull("console")?.trim() ?: return@mapNotNull null
+                val file = o.stringOrNull("file") ?: return@mapNotNull null
+                console to file
+            }.distinct()
+            SourceCollection(name, games)
+        }
+    }.getOrDefault(emptyList())
+
+    private fun JsonArray?.orEmpty(): List<JsonElement> = this?.toList() ?: emptyList()
 
     /** The favourites of a document ([serializeDocument]); none when it has no (valid) list. Never throws. */
     fun parseFavourites(json: String): List<SourceFavourite> = runCatching {
@@ -135,6 +177,7 @@ object SourcesJson {
     }
 
     private const val FAVOURITES_KEY = "_favourites"
+    private const val COLLECTIONS_KEY = "_collections"
 
     /** Parses the `urls` column of a console row. Never throws: a bad column reads as empty. */
     fun parseUrlEntries(json: String): List<UrlEntry> = try {
@@ -173,7 +216,7 @@ object SourcesJson {
                 ?.let { runCatching { ContentType.valueOf(it.uppercase()) }.getOrNull() }
                 ?: ContentType.GAME
             val enabled = obj.get("enabled")?.takeIf { it.isJsonPrimitive }?.asJsonPrimitive?.let { runCatching { it.asBoolean }.getOrNull() } ?: true
-            UrlEntry(url = url, contentType = contentType, folders = parseStrings(obj.get("folders")), enabled = enabled)
+            UrlEntry(url = url, contentType = contentType, folders = parseStrings(obj.get("folders")), enabled = enabled, mirrors = parseStrings(obj.get("mirrors")).filter { it != url })
         }
     }
 
@@ -185,6 +228,7 @@ object SourcesJson {
             obj.addProperty("contentType", entry.contentType.name)
             if (entry.folders.isNotEmpty()) obj.add("folders", stringsToJson(entry.folders))
             if (!entry.enabled) obj.addProperty("enabled", false)
+            if (entry.mirrors.isNotEmpty()) obj.add("mirrors", stringsToJson(entry.mirrors))
             array.add(obj)
         }
         return array

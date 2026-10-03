@@ -23,6 +23,10 @@ class DownloadableFileRepository @Inject constructor(
         consoleIds: Set<String> = emptySet(),
         tags: Set<String> = emptySet(),
         favouritesOnly: Boolean = false,
+        /** Only files a rescan found at or after this time; 0 = all. */
+        newSince: Long = 0L,
+        /** Only games in this collection; 0 = all. */
+        collectionId: Long = 0L,
         source: SourceFilter = SourceFilter.ALL,
         sort: SortOption = SortOption.NAME_ASC,
         limit: Int = 100,
@@ -47,6 +51,8 @@ class DownloadableFileRepository @Inject constructor(
             fileTypes = kind(TagKind.FILE_TYPE),
             fileTypesCount = kind(TagKind.FILE_TYPE).size,
             favouritesOnly = favouritesOnly,
+            newSince = newSince,
+            collectionId = collectionId,
             source = source.ordinal,
             sort = sort.ordinal,
             limit = limit,
@@ -64,7 +70,8 @@ class DownloadableFileRepository @Inject constructor(
                     fileExtension = result.fileExtension,
                     torrentFileIndex = result.torrentFileIndex,
                     torrentMagnet = result.torrentMagnet,
-                    expectedHash = result.expectedHash
+                    expectedHash = result.expectedHash,
+                    firstSeenAt = result.firstSeenAt
                 ),
                 tags = result.tags?.split("|")?.filter { it.isNotBlank() } ?: emptyList()
             )

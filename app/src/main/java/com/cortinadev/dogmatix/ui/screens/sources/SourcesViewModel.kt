@@ -14,10 +14,8 @@ import com.cortinadev.dogmatix.data.model.UrlEntry
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.repository.SourcesRepository
 import com.cortinadev.dogmatix.data.service.ConsoleDownloadPathResolver
-import com.cortinadev.dogmatix.data.service.DatabaseScrapingService
 import com.cortinadev.dogmatix.data.service.RommClient
 import com.cortinadev.dogmatix.data.service.RommPlatform
-import com.cortinadev.dogmatix.data.service.DefaultSourcesLoader
 import com.cortinadev.dogmatix.data.service.FolderMergeService
 import com.cortinadev.dogmatix.data.service.LibraryIndexService
 import com.cortinadev.dogmatix.data.state.RescanStateHolder
@@ -42,15 +40,14 @@ import javax.inject.Inject
 class SourcesViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val sources: SourcesRepository,
-    private val databaseScrapingService: DatabaseScrapingService,
-    private val defaultSourcesLoader: DefaultSourcesLoader,
     private val rescanStateHolder: RescanStateHolder,
     private val settingsRepository: SettingsRepository,
     private val pathResolver: ConsoleDownloadPathResolver,
     private val folderMergeService: FolderMergeService,
     private val libraryIndexService: LibraryIndexService,
     private val rommClient: RommClient,
-    private val scanResults: com.cortinadev.dogmatix.data.state.SourceScanResults
+    private val scanResults: com.cortinadev.dogmatix.data.state.SourceScanResults,
+    private val scanService: com.cortinadev.dogmatix.data.service.SourceScanService
 ) : ViewModel() {
 
     /** The last scan's outcome per source (`consoleId|url`), shown under each URL. */
@@ -61,28 +58,11 @@ class SourcesViewModel @Inject constructor(
 
     fun dismissScanReport() = rescanStateHolder.dismissScanReport()
 
-    /**
-     * Scans again only the sources that failed (nothing else is cleared): servers often recover
-     * within a minute, and a second, calmer pass usually gets the rest.
-     */
+    /** Scans again only the sources that failed (nothing else is touched). */
     fun retryFailedSources() {
         val failed = scanReport.value.orEmpty()
         rescanStateHolder.dismissScanReport()
-        if (failed.isEmpty() || rescanStateHolder.isRescanning.value) return
-        viewModelScope.launch {
-            val byConsole = failed.groupBy { it.consoleId }
-            withRescanState {
-                rescanStateHolder.startProgress(failed.size)
-                coroutineScope {
-                    byConsole.forEach { (consoleId, list) ->
-                        val entity = sources.getConsoleEntity(consoleId) ?: return@forEach
-                        val urls = SourcesJson.parseUrlEntries(entity.urls).filter { u -> u.enabled && list.any { it.url == u.url } }
-                        if (urls.isEmpty()) return@forEach
-                        launch { scrapeConsole(Console(entity.id, entity.name, urls), entity.manufacturerId) }
-                    }
-                }
-            }
-        }
+        scanService.retryFailed(failed)
     }
 
     /** RomM platforms offered in the source dialog; empty when RomM is not configured or unreachable. */
@@ -234,17 +214,17 @@ class SourcesViewModel @Inject constructor(
         viewModelScope.launch { sources.deleteManufacturer(manufacturerId) }
     }
 
-    fun addUrl(consoleId: String, url: String, contentType: ContentType) {
+    fun addUrl(consoleId: String, url: String, contentType: ContentType, mirrors: List<String> = emptyList()) {
         viewModelScope.launch {
-            if (!sources.addUrl(consoleId, url, contentType)) {
+            if (!sources.addUrl(consoleId, url, contentType, mirrors = mirrors)) {
                 rescanStateHolder.setErrorMessage(context.getString(R.string.sources_url_not_added))
             }
         }
     }
 
-    fun updateUrl(consoleId: String, index: Int, url: String, contentType: ContentType) {
+    fun updateUrl(consoleId: String, index: Int, url: String, contentType: ContentType, mirrors: List<String> = emptyList()) {
         viewModelScope.launch {
-            if (!sources.updateUrl(consoleId, index, url, contentType)) {
+            if (!sources.updateUrl(consoleId, index, url, contentType, mirrors)) {
                 rescanStateHolder.setErrorMessage(context.getString(R.string.sources_url_not_added))
             }
         }
@@ -258,112 +238,16 @@ class SourcesViewModel @Inject constructor(
         viewModelScope.launch { sources.setUrlEnabled(consoleId, index, enabled) }
     }
 
-    // ---- Scraping -----------------------------------------------------------------------------
+    // ---- Scraping (runs in [SourceScanService], so it outlives this screen) -------------------
 
-    /**
-     * Called once per app start. First run: seed from the bundled list and scrape it all.
-     * Later runs: pull in anything a new app version added to the bundled list and scrape just that.
-     */
-    fun initializeSources() {
-        viewModelScope.launch {
-            if (rescanStateHolder.isRescanning.value) return@launch
-            if (sources.isEmpty()) {
-                defaultSourcesLoader.loadDefaultSourcesToDatabase()
-                scrapeAll(R.string.sources_scrape_start)
-            } else {
-                val added = defaultSourcesLoader.syncNewDefaults()
-                if (added.isEmpty()) return@launch
-                withRescanState {
-                    rescanStateHolder.startProgress(added.sumOf { (_, urls) -> scanWeight(urls) })
-                    val started = AtomicInteger()
-                    coroutineScope {
-                        added.forEach { (entity, newUrls) ->
-                            launch {
-                                rescanStateHolder.setProgressMessage(
-                                    context.getString(R.string.sources_processing_console, started.incrementAndGet(), added.size, entity.name))
-                                scrapeConsole(Console(entity.id, entity.name, newUrls), entity.manufacturerId)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    /** Called once per app start: seeds and scans on the first run, else scans only new bundled sources. */
+    fun initializeSources() { scanService.initialize() }
 
-    fun rescanAllSources() {
-        if (rescanStateHolder.isRescanning.value) return
-        viewModelScope.launch {
-            databaseScrapingService.clearAllData()
-            scrapeAll(R.string.sources_rescan_start)
-        }
-    }
+    /** Every source; unchanged listings are kept as they are unless [force]. */
+    fun rescanAllSources(force: Boolean = false) { scanService.scanAll(force) }
 
-    fun refreshConsole(consoleId: String) {
-        if (rescanStateHolder.isRescanning.value) return
-        viewModelScope.launch {
-            val entity = sources.getConsoleEntity(consoleId) ?: return@launch
-            withRescanState {
-                rescanStateHolder.setProgressMessage(context.getString(R.string.sources_refreshing_console, entity.name))
-                rescanStateHolder.startProgress(scanWeight(SourcesJson.parseUrlEntries(entity.urls)))
-                databaseScrapingService.clearConsoleData(consoleId)
-                scrapeConsole(Console(entity.id, entity.name, SourcesJson.parseUrlEntries(entity.urls)), entity.manufacturerId)
-            }
-        }
-    }
-
-    private suspend fun scrapeAll(startMessage: Int) = withRescanState {
-        val current = manufacturers.first()
-        val total = current.sumOf { it.consoles.size }
-        rescanStateHolder.setProgressMessage(context.getString(startMessage, total))
-        rescanStateHolder.startProgress(current.sumOf { m -> m.consoles.sumOf { scanWeight(it.urls) } })
-        // All consoles at once: the scraping service caps how many sources of each kind run
-        // together, so a slow torrent no longer holds up every console behind it.
-        val started = AtomicInteger()
-        coroutineScope {
-            current.forEach { manufacturer ->
-                manufacturer.consoles.forEach { console ->
-                    launch {
-                        rescanStateHolder.setProgressMessage(
-                            context.getString(R.string.sources_processing_console, started.incrementAndGet(), total, console.name))
-                        scrapeConsole(console, manufacturer.id)
-                    }
-                }
-            }
-        }
-    }
-
-    private suspend fun scrapeConsole(console: Console, manufacturerId: String) {
-        databaseScrapingService.scrapeManufacturer(
-            Manufacturer(manufacturerId, manufacturerId, listOf(console)),
-            // Failures are collected and reported once at the end, not one dialog each.
-            onScrapeError = rescanStateHolder::addFailure,
-            onSourceDone = rescanStateHolder::advanceProgress,
-            onSourceResult = { c, url, files, failure ->
-                scanResults.record(c.id, url, com.cortinadev.dogmatix.data.state.SourceScanResult(files, failure?.kind, failure?.httpCode))
-            }
-        )
-        // A console with nothing enabled still counts as one step (see scanWeight).
-        if (console.urls.none { it.enabled }) rescanStateHolder.advanceProgress()
-        // Shown per console in the library overview.
-        runCatching { settingsRepository.markConsoleScanned(console.id, System.currentTimeMillis()) }
-    }
-
-    /** Steps a console adds to the scan progress: one per enabled source, at least one. */
-    private fun scanWeight(urls: List<UrlEntry>): Int = urls.count { it.enabled }.coerceAtLeast(1)
-
-    private suspend fun withRescanState(block: suspend () -> Unit) {
-        rescanStateHolder.setRescanning(true)
-        rescanStateHolder.beginScanReport()
-        databaseScrapingService.resetForScan()
-        try {
-            block()
-            rescanStateHolder.publishScanReport()
-        } finally {
-            rescanStateHolder.setRescanning(false)
-            rescanStateHolder.clearProgressMessage()
-            rescanStateHolder.clearTorrentFetchProgress()
-        }
-    }
+    /** One console, every listing read again. */
+    fun refreshConsole(consoleId: String) { scanService.scanConsole(consoleId) }
 
     fun clearRescanError() {
         rescanStateHolder.setErrorMessage(null)
@@ -399,7 +283,7 @@ class SourcesViewModel @Inject constructor(
             }
             _importMessage.value = context.getString(R.string.sources_import_done, result.consoles) +
                 if (result.newFavourites > 0) "\n" + context.getString(R.string.sources_import_favourites, result.newFavourites) else ""
-            scrapeAll(R.string.sources_rescan_start)
+            scanService.scanAll(force = true).join()
             libraryIndexService.refresh()
         }
     }

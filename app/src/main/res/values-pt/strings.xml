@@ -697,6 +697,12 @@
     <string name="files_info_type">Tipo: .%1$s</string>
     <string name="files_info_game">Conta como jogo para as ferramentas</string>
     <string name="files_info_not_game">Não é um ficheiro de jogo: as ferramentas ignoram-no</string>
+    <string name="notification_channel_scan">Análises das fontes</string>
+    <string name="notification_channel_scan_desc">O que uma análise em segundo plano encontrou</string>
+    <string name="autoscan_done_title">Análise em segundo plano concluída</string>
+    <string name="widget_description">Transferências em curso e jogos novos</string>
+    <string name="widget_no_downloads">Sem transferências em curso</string>
+    <string name="widget_no_new">Sem jogos novos ultimamente</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save mudou nos dois lados — abre o Dogmatix para escolher</item>
         <item quantity="other">%d saves mudaram nos dois lados — abre o Dogmatix para escolher</item>
@@ -768,6 +774,26 @@
     <plurals name="files_check_problems">
         <item quantity="one">%1$d problema nesta pasta</item>
         <item quantity="other">%1$d problemas nesta pasta</item>
+    </plurals>
+    <plurals name="autoscan_new_title">
+        <item quantity="one">%1$d jogo novo encontrado</item>
+        <item quantity="other">%1$d jogos novos encontrados</item>
+    </plurals>
+    <plurals name="autoscan_sources">
+        <item quantity="one">%1$d fonte analisada</item>
+        <item quantity="other">%1$d fontes analisadas</item>
+    </plurals>
+    <plurals name="autoscan_failed">
+        <item quantity="one">%1$d falhou</item>
+        <item quantity="other">%1$d falharam</item>
+    </plurals>
+    <plurals name="widget_downloads">
+        <item quantity="one">%1$d transferência · %2$d%%</item>
+        <item quantity="other">%1$d transferências · %2$d%%</item>
+    </plurals>
+    <plurals name="widget_new_games">
+        <item quantity="one">%1$d jogo novo</item>
+        <item quantity="other">%1$d jogos novos</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

@@ -132,22 +132,22 @@ class SourcesRepository @Inject constructor(
      * Appends a source. `content://` URIs (a picked .torrent) are copied into internal storage;
      * magnets are trimmed to the tracker limit. Returns false if the entry could not be stored.
      */
-    suspend fun addUrl(consoleId: String, url: String, contentType: ContentType, folders: List<String> = emptyList()): Boolean {
+    suspend fun addUrl(consoleId: String, url: String, contentType: ContentType, folders: List<String> = emptyList(), mirrors: List<String> = emptyList()): Boolean {
         val console = consoleDao.getConsoleById(consoleId) ?: return false
         val stored = normalizeUrl(url) ?: return false
-        val urls = SourcesJson.parseUrlEntries(console.urls) + UrlEntry(stored, contentType, folders)
+        val urls = SourcesJson.parseUrlEntries(console.urls) + UrlEntry(stored, contentType, folders, mirrors = cleanMirrors(stored, mirrors))
         consoleDao.updateConsole(console.copy(urls = SourcesJson.serializeUrlEntries(urls)))
         return true
     }
 
     /** Replaces the entry at [index]; a changed torrent source releases the old handle. */
-    suspend fun updateUrl(consoleId: String, index: Int, url: String, contentType: ContentType): Boolean {
+    suspend fun updateUrl(consoleId: String, index: Int, url: String, contentType: ContentType, mirrors: List<String>? = null): Boolean {
         val console = consoleDao.getConsoleById(consoleId) ?: return false
         val urls = SourcesJson.parseUrlEntries(console.urls).toMutableList()
         val old = urls.getOrNull(index) ?: return false
         val stored = if (url.trim() == old.url) old.url else normalizeUrl(url) ?: return false
         if (stored != old.url) releaseSource(old.url)
-        urls[index] = old.copy(url = stored, contentType = contentType)
+        urls[index] = old.copy(url = stored, contentType = contentType, mirrors = mirrors?.let { cleanMirrors(stored, it) } ?: old.mirrors)
         consoleDao.updateConsole(console.copy(urls = SourcesJson.serializeUrlEntries(urls)))
         return true
     }
@@ -285,6 +285,11 @@ class SourcesRepository @Inject constructor(
     }
 
     // ---- Helpers ------------------------------------------------------------------------------
+
+    /** Reserve addresses only make sense for web directories: trimmed, http(s), not the address itself, no repeats. */
+    private fun cleanMirrors(url: String, mirrors: List<String>): List<String> =
+        if (!url.startsWith("http", ignoreCase = true)) emptyList()
+        else mirrors.map { it.trim() }.filter { it.startsWith("http", ignoreCase = true) && it != url }.distinct()
 
     private fun ConsoleEntity.toModel() = Console(
         id = id, name = name, urls = SourcesJson.parseUrlEntries(urls),

@@ -746,6 +746,12 @@
     <string name="files_info_type">Type: .%1$s</string>
     <string name="files_info_game">Telt als game voor de bibliotheekhulpmiddelen</string>
     <string name="files_info_not_game">Geen gamebestand: de bibliotheekhulpmiddelen laten het met rust</string>
+    <string name="notification_channel_scan">Bronscans</string>
+    <string name="notification_channel_scan_desc">Wat een scan op de achtergrond vond</string>
+    <string name="autoscan_done_title">Scan op de achtergrond klaar</string>
+    <string name="widget_description">Lopende downloads en nieuwe games</string>
+    <string name="widget_no_downloads">Geen downloads bezig</string>
+    <string name="widget_no_new">Geen nieuwe games de laatste tijd</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save is op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
         <item quantity="other">%d saves zijn op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
@@ -817,6 +823,26 @@
     <plurals name="files_check_problems">
         <item quantity="one">%1$d probleem in deze map</item>
         <item quantity="other">%1$d problemen in deze map</item>
+    </plurals>
+    <plurals name="autoscan_new_title">
+        <item quantity="one">%1$d nieuwe game gevonden</item>
+        <item quantity="other">%1$d nieuwe games gevonden</item>
+    </plurals>
+    <plurals name="autoscan_sources">
+        <item quantity="one">%1$d bron gescand</item>
+        <item quantity="other">%1$d bronnen gescand</item>
+    </plurals>
+    <plurals name="autoscan_failed">
+        <item quantity="one">%1$d mislukt</item>
+        <item quantity="other">%1$d mislukt</item>
+    </plurals>
+    <plurals name="widget_downloads">
+        <item quantity="one">%1$d download · %2$d%%</item>
+        <item quantity="other">%1$d downloads · %2$d%%</item>
+    </plurals>
+    <plurals name="widget_new_games">
+        <item quantity="one">%1$d nieuwe game</item>
+        <item quantity="other">%1$d nieuwe games</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

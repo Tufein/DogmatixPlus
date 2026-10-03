@@ -31,7 +31,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): DogmatixDatabase =
         Room.databaseBuilder(context, DogmatixDatabase::class.java, "dogmatix_db")
-            .addMigrations(DogmatixDatabase.MIGRATION_1_2, DogmatixDatabase.MIGRATION_2_3, DogmatixDatabase.MIGRATION_3_4, DogmatixDatabase.MIGRATION_4_5, DogmatixDatabase.MIGRATION_5_6, DogmatixDatabase.MIGRATION_6_7, DogmatixDatabase.MIGRATION_7_8, DogmatixDatabase.MIGRATION_8_9, DogmatixDatabase.MIGRATION_9_10)
+            .addMigrations(DogmatixDatabase.MIGRATION_1_2, DogmatixDatabase.MIGRATION_2_3, DogmatixDatabase.MIGRATION_3_4, DogmatixDatabase.MIGRATION_4_5, DogmatixDatabase.MIGRATION_5_6, DogmatixDatabase.MIGRATION_6_7, DogmatixDatabase.MIGRATION_7_8, DogmatixDatabase.MIGRATION_8_9, DogmatixDatabase.MIGRATION_9_10, DogmatixDatabase.MIGRATION_10_11)
             .build()
 
     @Provides
@@ -39,6 +39,12 @@ object DatabaseModule {
 
     @Provides
     fun provideWishlistDao(db: DogmatixDatabase): WishlistDao = db.wishlistDao()
+
+    @Provides
+    fun provideCollectionDao(db: DogmatixDatabase): com.cortinadev.dogmatix.data.local.dao.CollectionDao = db.collectionDao()
+
+    @Provides
+    fun provideDatDao(db: DogmatixDatabase): com.cortinadev.dogmatix.data.local.dao.DatDao = db.datDao()
 
     @Provides
     fun provideConsoleDao(db: DogmatixDatabase): ConsoleDao = db.consoleDao()

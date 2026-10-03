@@ -30,7 +30,7 @@ class RommScrapingService @Inject constructor(
     private val downloadableFileDao: DownloadableFileDao,
     private val rescanStateHolder: RescanStateHolder
 ) {
-    suspend fun scrapeAndInsert(urlEntry: UrlEntry, console: Console): Pair<Int, Int> = withContext(Dispatchers.IO) {
+    suspend fun scrapeAndInsert(urlEntry: UrlEntry, console: Console): SourceIndexResult = withContext(Dispatchers.IO) {
         val slug = RommSource.slugOf(urlEntry.url) ?: throw Exception("Invalid RomM source '${urlEntry.url}' (expected romm://<platform>)")
         val base = rommClient.configuredBaseUrl().ifEmpty { throw Exception("RomM server not configured (Settings → RomM)") }
         rescanStateHolder.setTorrentFetchProgress(context.getString(R.string.scrape_listing_romm, slug))
@@ -40,7 +40,8 @@ class RommScrapingService @Inject constructor(
             val roms = rommClient.roms(platform.id)
             if (roms.isEmpty()) {
                 Log.i(TAG, "No ROMs on RomM for $slug")
-                return@withContext Pair(0, 0)
+                downloadableFileDao.replaceSource(console.id, urlEntry.url, emptyList(), emptyList(), System.currentTimeMillis())
+                return@withContext SourceIndexResult(0, 0)
             }
             val files = ArrayList<DownloadableFileEntity>(roms.size)
             val tags = ArrayList<List<String>>(roms.size)
@@ -58,9 +59,9 @@ class RommScrapingService @Inject constructor(
                 )
                 tags += (tagStrings + contentTypeTag).distinct()
             }
-            val tagCount = downloadableFileDao.insertSource(files, tags)
-            Log.i(TAG, "Indexed ${files.size} ROM(s) from RomM platform $slug")
-            Pair(files.size, tagCount)
+            val write = downloadableFileDao.replaceSource(console.id, urlEntry.url, files, tags, System.currentTimeMillis())
+            Log.i(TAG, "Indexed ${files.size} ROM(s) (${write.newFiles} new) from RomM platform $slug")
+            SourceIndexResult(files.size, write.tags, write.newFiles)
         } finally {
             rescanStateHolder.setTorrentFetchProgress("")
         }

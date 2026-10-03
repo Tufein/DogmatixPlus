@@ -13,6 +13,7 @@ import java.net.URLDecoder
  *
  * Values are kept verbatim here; `DeepLinkResolver` maps them onto real ids / tag spellings.
  * - `q`: search text. `fav`: `1`/`true` shows favourites only, `0`/`false` all games.
+ * - `new`: `1` shows only what recent rescans found. `collection`: the id of an own collection.
  *
  * Pure JVM (no `android.net.Uri`) so it can be unit-tested.
  */
@@ -34,7 +35,9 @@ object DeepLinkParser {
         val tags = TAG_PARAMS.flatMap { params.values(it) }.toSet()
         val query = params["q"]?.trim()?.takeIf { it.isNotEmpty() }
         val fav = params["fav"]?.lowercase()?.let { it == "1" || it == "true" || it == "yes" }
-        return LibraryFilterRequest(consoles = consoles, tags = tags, query = query, favouritesOnly = fav)
+        val new = params["new"]?.lowercase()?.let { it == "1" || it == "true" || it == "yes" }
+        val collection = params["collection"]?.trim()?.toLongOrNull()?.takeIf { it > 0 }
+        return LibraryFilterRequest(consoles = consoles, tags = tags, query = query, favouritesOnly = fav, newOnly = new, collectionId = collection)
     }
 
     private fun Map<String, String>.values(key: String): Set<String> =
