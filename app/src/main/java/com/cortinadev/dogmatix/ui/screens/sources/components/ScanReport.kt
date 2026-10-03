@@ -40,8 +40,13 @@ fun failureText(kind: FailureKind, code: Int?): String = when (kind) {
 @Composable
 fun sourceResultText(result: SourceScanResult): String {
     val ago = DateUtils.getRelativeTimeSpanString(result.at).toString()
-    return result.failure?.let { stringResource(R.string.source_result_failed, failureText(it, result.httpCode), ago) }
-        ?: stringResource(R.string.source_result_ok, result.files ?: 0, ago)
+    result.failure?.let { return stringResource(R.string.source_result_failed, failureText(it, result.httpCode), ago) }
+    val extras = buildList {
+        if (result.unchanged) add(stringResource(R.string.source_result_unchanged))
+        if (result.newFiles > 0) add(stringResource(R.string.source_result_new, result.newFiles))
+        if (result.servedBy != null) add(stringResource(R.string.source_result_mirror))
+    }
+    return stringResource(R.string.source_result_ok, result.files ?: 0, ago) + extras.joinToString("") { " · $it" }
 }
 
 /**

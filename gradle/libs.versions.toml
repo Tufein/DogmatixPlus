@@ -25,6 +25,7 @@ roomKtx = "2.8.4"
 jsoup = "1.22.1"
 sevenZipJBinding = "Release-16.02-2.03"
 coil = "2.7.0"
+zxing = "3.5.3"
 
 [libraries]
 # Core Android
@@ -52,6 +53,9 @@ androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navig
 
 # Data Store
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+
+# QR codes (sharing the source list)
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 
 # Images
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }

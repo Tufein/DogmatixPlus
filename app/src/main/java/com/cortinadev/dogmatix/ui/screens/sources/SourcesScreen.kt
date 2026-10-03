@@ -83,6 +83,29 @@ fun SourcesScreen(
         onResult = { uri -> uri?.let { viewModel.importSources(it.toString()) } }
     )
 
+    var showShare by remember { mutableStateOf(false) }
+    val qrParts by viewModel.qrParts.collectAsState()
+    val qrImport by viewModel.qrImport.collectAsState()
+    val qrPictures = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris -> viewModel.readQr(uris) }
+    var photoUri by remember { mutableStateOf<Uri?>(null) }
+    val qrCamera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> photoUri?.takeIf { ok }?.let { viewModel.readQr(listOf(it)) } }
+    fun takeQrPhoto() {
+        val file = java.io.File(java.io.File(context.cacheDir, "qr").apply { mkdirs() }, "qr-${System.currentTimeMillis()}.jpg")
+        val uri = androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+        photoUri = uri
+        runCatching { qrCamera.launch(uri) }.onFailure { qrPictures.launch("image/*") }
+    }
+    qrParts?.let { com.cortinadev.dogmatix.ui.screens.sources.components.QrShowDialog(it, onDismiss = viewModel::hideQr) }
+    qrImport?.let {
+        ConfirmDialog(
+            title = stringResource(R.string.qr_import_title),
+            message = stringResource(R.string.qr_import_message),
+            confirmText = stringResource(R.string.sources_import),
+            onConfirm = viewModel::confirmQrImport,
+            onDismiss = viewModel::dismissQrImport
+        )
+    }
+
     fun shareExport(uri: Uri) {
         val send = Intent(Intent.ACTION_SEND).apply {
             type = "application/json"
@@ -105,7 +128,7 @@ fun SourcesScreen(
                 isLandscape = isLandscape,
                 onAddConsole = { viewModel.showAddConsoleDialog() },
                 onRescan = { viewModel.rescanAllSources() },
-                onExport = { viewModel.exportSources(::shareExport) },
+                onExport = { showShare = true },
                 onImport = { viewModel.confirmImport() }
             )
         }
@@ -174,6 +197,15 @@ fun SourcesScreen(
     }
 
     val dialog by viewModel.dialog.collectAsState()
+    if (showShare) {
+        com.cortinadev.dogmatix.ui.screens.sources.components.ShareSourcesDialog(
+            onFile = { showShare = false; viewModel.exportSources(::shareExport) },
+            onShowQr = { showShare = false; viewModel.showQr() },
+            onReadQrCamera = { showShare = false; takeQrPhoto() },
+            onReadQrPictures = { showShare = false; qrPictures.launch("image/*") },
+            onDismiss = { showShare = false }
+        )
+    }
 
     val rommPlatforms by viewModel.rommPlatforms.collectAsState()
     val importMessage by viewModel.importMessage.collectAsState()
@@ -213,13 +245,13 @@ fun SourcesScreen(
         is SourcesDialog.AddUrl -> AddUrlDialog(
             rommPlatforms = rommPlatforms,
             onDismiss = { viewModel.dismissDialog() },
-            onConfirm = { url, contentType -> viewModel.addUrl(d.consoleId, url, contentType) }
+            onConfirm = { url, contentType, mirrors -> viewModel.addUrl(d.consoleId, url, contentType, mirrors) }
         )
         is SourcesDialog.EditUrl -> AddUrlDialog(
             existing = d.entry,
             rommPlatforms = rommPlatforms,
             onDismiss = { viewModel.dismissDialog() },
-            onConfirm = { url, contentType -> viewModel.updateUrl(d.consoleId, d.index, url, contentType) }
+            onConfirm = { url, contentType, mirrors -> viewModel.updateUrl(d.consoleId, d.index, url, contentType, mirrors) }
         )
         is SourcesDialog.ConfirmDeleteConsole -> ConfirmDialog(
             title = stringResource(R.string.sources_delete_console_title, d.name),

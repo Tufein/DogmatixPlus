@@ -267,6 +267,65 @@ class SourcesViewModel @Inject constructor(
         }
     }
 
+    // ---- QR codes ------------------------------------------------------------------------------
+
+    private val _qrParts = MutableStateFlow<List<String>?>(null)
+    /** The source list as QR codes while that dialog is open. */
+    val qrParts: StateFlow<List<String>?> = _qrParts.asStateFlow()
+
+    fun showQr() {
+        viewModelScope.launch {
+            runCatching { com.cortinadev.dogmatix.util.QrTransfer.encode(sources.exportDocument(includeFavourites = false)) }
+                .onSuccess { _qrParts.value = it }
+                .onFailure { rescanStateHolder.setErrorMessage(context.getString(R.string.sources_export_failed, it.message ?: "")) }
+        }
+    }
+
+    fun hideQr() { _qrParts.value = null }
+
+    private var qrCollector = com.cortinadev.dogmatix.util.QrTransfer.Collector()
+
+    /** A complete list read from QR codes, waiting for the user to confirm the import. */
+    private val _qrImport = MutableStateFlow<String?>(null)
+    val qrImport: StateFlow<String?> = _qrImport.asStateFlow()
+
+    /** Reads QR codes from pictures; once every part of a list is in, offers to import it. */
+    fun readQr(uris: List<Uri>) {
+        if (uris.isEmpty()) return
+        viewModelScope.launch {
+            val texts = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                uris.mapNotNull { com.cortinadev.dogmatix.ui.screens.sources.components.QrCodes.read(context, it) }
+            }
+            val accepted = texts.count { qrCollector.add(it) }
+            val complete = qrCollector.text()
+            when {
+                complete != null -> { _qrImport.value = complete; qrCollector = com.cortinadev.dogmatix.util.QrTransfer.Collector() }
+                accepted == 0 -> _importMessage.value = context.getString(R.string.qr_none_found)
+                else -> _importMessage.value = context.getString(R.string.qr_progress, qrCollector.have, qrCollector.total)
+            }
+        }
+    }
+
+    fun dismissQrImport() { _qrImport.value = null }
+
+    /** Replaces all sources with the list read from QR codes, then reads every source again. */
+    fun confirmQrImport() {
+        val text = _qrImport.value ?: return
+        _qrImport.value = null
+        if (rescanStateHolder.isRescanning.value) return
+        viewModelScope.launch {
+            val consoles = try {
+                sources.importFromText(text)
+            } catch (e: Exception) {
+                _importMessage.value = context.getString(R.string.sources_import_failed, e.message ?: "")
+                return@launch
+            }
+            _importMessage.value = context.getString(R.string.sources_import_done, consoles)
+            scanService.scanAll(force = true).join()
+            libraryIndexService.refresh()
+        }
+    }
+
     private val _importMessage = MutableStateFlow<String?>(null)
     val importMessage: StateFlow<String?> = _importMessage.asStateFlow()
     fun clearImportMessage() { _importMessage.value = null }

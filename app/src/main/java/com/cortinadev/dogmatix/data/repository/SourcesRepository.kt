@@ -49,7 +49,8 @@ class SourcesRepository @Inject constructor(
     private val consoleDao: ConsoleDao,
     private val favouriteDao: FavouriteDao,
     private val torrentHandleRegistry: TorrentHandleRegistry,
-    private val databaseScrapingService: DatabaseScrapingService
+    private val databaseScrapingService: DatabaseScrapingService,
+    private val collections: CollectionsRepository
 ) {
 
     /** Manufacturers with their consoles and parsed URL entries; consoles without a manufacturer are dropped. */
@@ -203,7 +204,9 @@ class SourcesRepository @Inject constructor(
         }
         val favourites = if (!includeFavourites) emptyList() else
             favouriteDao.getAll().map { SourceFavourite(it.consoleId, it.fileName, it.addedAt) }
-        return SourcesJson.serializeDocument(doc, favourites)
+        // The own collections travel with the favourites (file export), not in a backup's sources part.
+        val ownCollections = if (!includeFavourites) emptyList() else collections.export()
+        return SourcesJson.serializeDocument(doc, favourites, ownCollections)
     }
 
     /**
@@ -215,6 +218,7 @@ class SourcesRepository @Inject constructor(
         val text = context.contentResolver.openInputStream(uri.toUri())?.bufferedReader()?.use { it.readText() }
             ?: throw IllegalStateException("Cannot open $uri")
         val consoles = importFromText(text)
+        runCatching { collections.import(SourcesJson.parseCollections(text)) }
         ImportResult(consoles, importFavourites(text))
     }
 

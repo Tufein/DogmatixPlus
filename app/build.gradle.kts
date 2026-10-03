@@ -120,6 +120,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.androidx.documentfile)
     implementation(libs.jsoup)
+    implementation(libs.zxing.core)
     implementation(libs.seven.zip.jbinding)
     implementation(libs.kotlinx.coroutines.core)
 

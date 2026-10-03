@@ -51,7 +51,8 @@ class BackupService @Inject constructor(
     private val sourcesRepository: SourcesRepository,
     private val favouriteDao: FavouriteDao,
     private val downloadHistoryDao: DownloadHistoryDao,
-    private val wishlistDao: WishlistDao
+    private val wishlistDao: WishlistDao,
+    private val collections: com.cortinadev.dogmatix.data.repository.CollectionsRepository
 ) {
     data class Summary(
         val settings: Int,
@@ -87,6 +88,10 @@ class BackupService @Inject constructor(
             add("sources", sources)
             add("favourites", BackupJson.favouritesToJson(favourites))
             add("wishlist", BackupJson.wishlistToJson(wishlistDao.getAll()))
+            collections.export().takeIf { it.isNotEmpty() }?.let { list ->
+                com.google.gson.JsonParser.parseString(SourcesJson.serializeDocument(emptyList(), collections = list)).asJsonObject.get("_collections")
+                    ?.let { add("collections", it) }
+            }
             add("downloadHistory", BackupJson.historyToJson(history))
         }
         gson.toJson(root) to Summary(settings.size(), consoleCount(sources), favourites.size, history.size)
@@ -135,6 +140,7 @@ class BackupService @Inject constructor(
         val favourites = BackupJson.favouritesFromJson(backup.get("favourites"))
         val downloads = BackupJson.historyFromJson(backup.get("downloadHistory"))
         val wishlist = BackupJson.wishlistFromJson(backup.get("wishlist"))
+        val savedCollections = backup.get("collections")?.let { SourcesJson.parseCollections(JsonObject().apply { add("_collections", it) }.toString()) }.orEmpty()
 
         withContext(NonCancellable) {
             val (restored, repick) = settings?.let { restoreSettings(it) } ?: (0 to 0)
@@ -148,6 +154,7 @@ class BackupService @Inject constructor(
                 val have = wishlistDao.getAll().map { it.key to it.consoleId }.toSet()
                 wishlistDao.upsertAll(wishlist.filter { (it.key to it.consoleId) !in have })
             }
+            runCatching { collections.import(savedCollections) }
             Summary(restored, consoles, if (favouritesDone) favourites.size else 0, if (downloadsDone) downloads.size else 0, repick)
         }
     }

@@ -55,10 +55,10 @@ fun LibraryOverviewScreen(viewModel: LibraryOverviewViewModel = hiltViewModel())
     var confirmRescanAll by remember { mutableStateOf(false) }
     if (confirmRescanAll) {
         ConfirmDialog(
-            title = stringResource(R.string.overview_rescan_all_title),
-            message = stringResource(R.string.overview_rescan_all_message),
+            title = stringResource(R.string.overview_full_rescan_title),
+            message = stringResource(R.string.overview_full_rescan_message),
             confirmText = stringResource(R.string.pad_rescan),
-            onConfirm = sourcesViewModel::rescanAllSources,
+            onConfirm = { sourcesViewModel.rescanAllSources(force = true) },
             onDismiss = { confirmRescanAll = false }
         )
     }
@@ -101,8 +101,8 @@ fun LibraryOverviewScreen(viewModel: LibraryOverviewViewModel = hiltViewModel())
             }
             item(key = "rescanAll") {
                 ToolRow(
-                    title = stringResource(R.string.overview_rescan_all),
-                    lines = emptyList(),
+                    title = stringResource(R.string.overview_full_rescan),
+                    lines = listOf(stringResource(R.string.overview_full_rescan_hint)),
                     onClick = { if (!isRescanning) confirmRescanAll = true }
                 ) {
                     PillButton(stringResource(R.string.pad_rescan)) { if (!isRescanning) confirmRescanAll = true }

@@ -32,9 +32,11 @@ fun AddUrlDialog(
     /** Platforms of the RomM server from Settings; one chip each sets the URL to `romm://<slug>`. */
     rommPlatforms: List<RommPlatform> = emptyList(),
     onDismiss: () -> Unit,
-    onConfirm: (String, ContentType) -> Unit
+    onConfirm: (String, ContentType, List<String>) -> Unit
 ) {
     var url by remember { mutableStateOf(existing?.url.orEmpty()) }
+    // Reserve addresses, one per line (web directories only).
+    var mirrors by remember { mutableStateOf(existing?.mirrors.orEmpty().joinToString("\n")) }
     var contentType by remember { mutableStateOf(existing?.contentType ?: ContentType.GAME) }
     val urlFocus = rememberInitialFocus()
     val editing = existing != null
@@ -87,6 +89,19 @@ fun AddUrlDialog(
                     RommPlatformChips(platforms = rommPlatforms, selected = RommSource.slugOf(url)) { url = RommSource.sourceFor(it.slug) }
                 }
 
+                if (url.trim().startsWith("http", ignoreCase = true)) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = mirrors,
+                        onValueChange = { mirrors = it },
+                        label = { Text(stringResource(R.string.dialog_mirrors_label)) },
+                        supportingText = { Text(stringResource(R.string.dialog_mirrors_hint)) },
+                        minLines = 1,
+                        maxLines = 4,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(stringResource(R.string.dialog_content_type), style = MaterialTheme.typography.titleSmall)
@@ -97,7 +112,10 @@ fun AddUrlDialog(
         confirmButton = {
             DialogButton(
                 text = stringResource(if (editing) R.string.dialog_save else R.string.dialog_add),
-                onClick = { onConfirm(url.trim(), contentType); onDismiss() },
+                onClick = {
+                    onConfirm(url.trim(), contentType, mirrors.lines().map { it.trim() }.filter { it.isNotEmpty() })
+                    onDismiss()
+                },
                 enabled = url.isNotBlank()
             )
         },
