@@ -1,308 +1,137 @@
 # DogmatixPlus
 
-An unofficial modification of **[Dogmatix](https://github.com/cortinadev/dogmatix) 1.2** — the handheld-friendly fork of **[Milou](https://github.com/santiifm/milou)**, an Android app for discovering, downloading and managing retro games. Milou indexes the contents of `.torrent` files, magnet links and web directories, tags every file by console, region and language, and downloads straight into your ROMs folder; Dogmatix rebuilt the interface so the whole app works from a D-pad and buttons on Android handhelds; **DogmatixPlus adds tools to look after the library you build with it**: a duplicate finder, a library overview, backup & restore, scan progress, and Dutch, French and German.
+**Find, download and organise retro games on your Android phone or handheld.**
 
-> The scraping, indexing, download and extraction engine is Milou's work ([santiifm](https://github.com/santiifm)); the handheld interface, gamepad support, frontend integration, debrid and RomM support are Dogmatix's ([Rafa Cortina](https://github.com/cortinadev)). Everything they built is still here — see [Credits](#credits).
+DogmatixPlus keeps one big, searchable list of the games from the sources *you* add, downloads them into the right folders, and helps you keep your collection tidy. It works with touch *and* with a game controller, so it feels at home on handhelds such as the Retroid, Anbernic or Kinhank.
 
-## Download
-
-Get the APK from the **[Releases page](https://github.com/Tufein/DogmatixPlus/releases)**.
-
-| File | Package | Use it for |
-|---|---|---|
-| `DogmatixPlus-debug.apk` | `com.cortinadev.dogmatix.debug` | Trying it out. Installs **next to** the official Dogmatix with its own data. |
-| `DogmatixPlus-release.apk` | `com.cortinadev.dogmatix` | A smaller (minified) build. It is signed with a debug key, **not** the official one, so Android will not install it over the official app: uninstall that first (make a backup before). Updates from the original developer cannot be installed over it. |
-
-Both need Android 10 (API 29) or newer. The release notes carry SHA-256 checksums so you can check what you downloaded. On a handheld, copy the APK over (cable, cloud or SD card) and open it with a file manager.
-
-## Screenshots
+> **The app comes without any games or download links.** You add your own sources, and you are responsible for only downloading what you are allowed to have.
 
 <table>
   <tr>
-    <td align="center" valign="top"><img src="docs/screenshots/library.png" width="210" alt="The library"><br><sub>Library — a green ✓ marks games you already have</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/duplicates.png" width="210" alt="Duplicate games"><br><sub>Duplicate games, grouped per console</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/delete-dialog.png" width="210" alt="Delete confirmation"><br><sub>Nothing is deleted before you see every file</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/overview.png" width="210" alt="Library overview"><br><sub>Library overview, per console</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/library.png" width="210" alt="The library"><br><sub>Your games in one list — a green ✓ means you already have it</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/duplicates.png" width="210" alt="Duplicate games"><br><sub>Find games you have twice</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/overview.png" width="210" alt="Library overview"><br><sub>See your collection per console</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/scan-progress.png" width="210" alt="Scan progress"><br><sub>See how far a scan is</sub></td>
   </tr>
   <tr>
-    <td align="center" valign="top"><img src="docs/screenshots/scan-progress.png" width="210" alt="Scan progress"><br><sub>Scan progress with percentage and time left</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/settings.png" width="210" alt="Settings"><br><sub>Settings: overview, duplicates, back up, restore</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/credits.png" width="210" alt="Credits"><br><sub>Credits: the whole lineage</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/delete-dialog.png" width="210" alt="Delete confirmation"><br><sub>You always see which files will go</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/settings.png" width="210" alt="Settings"><br><sub>The new tools are in Settings</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/credits.png" width="210" alt="Credits"><br><sub>Credits for everyone involved</sub></td>
+    <td></td>
   </tr>
 </table>
 
-On a handheld, in landscape, the library keeps Dogmatix's filter panel next to the list:
+<p align="center"><img src="docs/screenshots/library-landscape.png" width="720" alt="The library in landscape on a handheld"></p>
 
-<p align="center"><img src="docs/screenshots/library-landscape.png" width="720" alt="The library in landscape on a handheld-sized screen"></p>
+*The screenshots use made-up game titles and empty placeholder files.*
 
-*The screenshots use made-up game titles and empty placeholder files (they show the app, not any real games).*
+---
 
-## What DogmatixPlus adds
+## What can it do?
 
-Everything is under **Settings**, works with a gamepad and with touch, and is available in English, Spanish, Dutch, French and German.
+### Find games
+- **One list** with the games from all your sources.
+- **Search** that forgives mistakes: accents, dashes and doubled letters don't matter, so "yugioh" finds *Yu-Gi-Oh!*.
+- **Filter** by console, region, language and type, and **sort** by name or size.
+- A green **✓** marks the games you already have.
+- **★ Favourites**: star the games you like and show only those.
 
-### Duplicate games
-*Settings → Duplicate games* finds games that are on disk more than once, per console, and frees the space.
+### Download games
+- Works with **direct links, torrents and magnet links**.
+- **Several downloads at once**, with pause, resume, retry and a speed limit.
+- **ZIP and 7z files are unpacked** for you.
+- Every console gets **its own folder**. Folders you already have (like `gba` or `psx`) are reused, and you can merge two folders that mean the same console.
+- Your **download list is kept** when you close the app. Select several downloads to stop, retry or delete them together.
+- Optional: **TorBox** and **Real-Debrid** — paid services that fetch torrents for you, so the download is a normal fast file.
 
-- **Two kinds of group**: *the same file in several folders* (same name and size) and *different versions or formats of one title* — regions, revisions, translations, a ROM next to its `.zip`. Each group shows how much space you win by keeping only the largest copy, which is marked.
-- **Deleting is deliberate**: pick a copy and a confirmation lists every file that will go; only then is it deleted. A game's companion files go as one unit — `.cue` + `.bin` + `(Track N)`, `.cue` + `.iso` + audio tracks — and a per-game folder holding one disc image (`disc.gdi` + `track01.bin`…) counts as one game and is removed once empty. The delete finishes even if you leave the screen.
-- **Built to report too little rather than too much**, because it deletes files:
-  - only known game formats (ROMs, disc images, archives) are compared; documents, saves in unknown formats, engine data, updates / DLC and BIOS files are counted but never offered;
-  - discs, disk sides, tapes and parts (`Disc 2`, `Disc Two`, `Disc II`, `Tape 1 of 2`) are never compared against each other, and saves, states and patches next to a ROM are never touched;
-  - program folders, folder-format games (PS3, Wii U, GameCube…) and anything deeper than one folder below the console folder are not compared;
-  - outside console folders a `.zip` / `.chd` / `.iso` says nothing about the system, so it is only offered when name and size are identical;
-  - the same file reached through two storage routes (internal storage, the Downloads provider, an SD card) is counted once, and copies that cannot be told apart from one file seen twice are not offered.
-- **Limits worth knowing**: different games that share a title (for example *Star Wars* on the NES in Japan and the US) can show up as "versions" — the file names in the confirmation tell them apart; and a console that is not set up in Sources is treated as an unknown folder, so its games need an identical twin to be offered.
-- Scanning uses one provider query per folder instead of one per file, so thousands of ROMs stay quick.
+### Keep your collection tidy *(new in DogmatixPlus)*
+- **Duplicate games**: finds games that are on your device more than once, shows how much space you win, and lets you delete the extra copy. Nothing is deleted before you have seen exactly which files will go.
+- **Library overview**: for every console, how many games are listed, how many you own, how many are on your device and how big that is, and when it was last scanned.
+- **Back up and restore**: save your settings, sources, favourites and downloads in one file and put them back later — handy for a new device.
+- **Scan progress**: a percentage and the time left while your sources are being read.
 
-### Library overview
-*Settings → Library overview* puts the scan next to what is on your disk.
+### Made for handhelds
+- **Control everything with a gamepad**: D-pad, A/B/X/Y and the shoulder buttons. On-screen hints at the bottom match your pad (Xbox, Nintendo or PlayStation), and you can swap the buttons if your pad reports them the other way round.
+- **Landscape and portrait** layouts, with a filter panel next to the list on wide screens.
+- **Light, dark or pure black** theme (nice on OLED screens) and five accent colours.
 
-- Totals: consoles, games indexed, games you own (and the percentage), games on disk with their size, and the free space.
-- Per console: indexed, owned, on disk (count and size), the resolved download folder, **when it was last scanned**, and a badge — *OK*, *No sources*, *Nothing found* or *Not scanned*.
-- Rescan one console or all sources from here; folders without a console and loose games are listed so nothing hides. The numbers refresh by themselves when a scan finishes.
+### Works with your game launcher
+- **ES-DE** and **iiSU** get a "Search for more games" entry in every console, set up with one button. **Daijishō** shows you the few values to type in.
 
-### Backup & restore
-*Settings → Back up* writes one JSON file with your settings, sources, favourites and downloads list; *Restore backup* brings it back.
+### Works with RomM
+- Send finished downloads to your **RomM** server, or use RomM as a source of games.
 
-- **It contains your API keys** (TorBox, Real-Debrid, RomM) — keep the file private.
-- A restore **reads and checks the whole file first**, then applies it in one step that leaving the screen cannot cancel; the sources are replaced in a single database transaction, so an interruption never leaves them half replaced.
-- It keeps what a backup cannot carry: uploaded `.torrent` sources stay, and folders this install has no access to are kept as they are (you are asked to pick them again). Settings with the wrong type are dropped instead of crashing the app, numbers are kept within what Settings offers, backup files with a newer format version are refused, and a restore is refused while a source scan runs.
-- The format uses fixed field names, so a backup made by one build restores in another, including the minified release build.
+### Your sources, your way
+- Add sources by hand, or **import and export** them as a file to share between devices.
+- A short **first-start guide** helps you pick your ROMs folder and import your sources.
 
-### Scan progress
-While sources are scanned the indicator in the top bar fills up and shows a **percentage**, counted per source. The overview adds *x of y sources done*, an estimate of the **time left** and a progress bar (the estimate is rough while torrents are involved).
+### Languages
+- **English, Spanish, Dutch, French and German** (*Settings → Language*, or follow your phone).
 
-### Dutch, French and German
-The whole app — including scan messages, errors, the download notification and the update notice that used to be fixed English — is available in **Dutch, French and German** next to English and Spanish. Pick it in *Settings → Language*, or let it follow the system; Android's per-app language setting lists them too.
+---
 
-### Smaller changes
-- The app version is **1.0.0** (DogmatixPlus numbers its own releases); the Credits screen shows the whole lineage, and the update check now reads this repository's releases instead of the original project's.
-- The `.md` extension counts as a Mega Drive ROM inside console folders (but not `README.md`).
-- 136 unit tests (58 more than Dogmatix 1.2) cover the new logic; the new screens were also tried on an emulator, in portrait and landscape, in the debug and in the minified release build.
+## Install
 
-The full list is in [CHANGELOG.md](CHANGELOG.md).
+1. Open the **[Releases page](https://github.com/Tufein/DogmatixPlus/releases)** on your phone or handheld, or download there and copy the file over.
+2. Download one of the two files:
+   - **`DogmatixPlus-debug.apk`** — *the easy choice.* It installs **next to** the official Dogmatix, so nothing of yours is touched.
+   - **`DogmatixPlus-release.apk`** — a smaller version. It can't be installed over the official Dogmatix; you would have to remove that first (make a backup first).
+3. Open the file and allow **"install unknown apps"** if Android asks.
 
-## Why Dogmatix exists
+You need **Android 10 or newer**. The app is not on Google Play.
 
-*This and the sections below are the Dogmatix documentation by [cortinadev](https://github.com/cortinadev/dogmatix), kept in full and updated where DogmatixPlus changes something.*
+## First start
 
-Milou was designed for phones and touch. On a handheld with a small landscape screen and a controller, that meant tapping a FAB to move between sections, opening full-screen overlays to filter, and reaching for the touchscreen for almost everything. The goal of Dogmatix, the fork DogmatixPlus builds on, is:
+1. The welcome guide explains the basics.
+2. **Pick your ROMs folder** — the folder where your games should go.
+3. **Import your sources** (a file with your game lists) — or skip and add sources later in the **Sources** tab.
+4. Open the **Library**, find a game and tap it (or press **A**) to download it.
 
-- **Gamepad first**: every action reachable from D-pad, A/B/X/Y and shoulder buttons, with a visible focus ring and an on-screen legend.
-- **Landscape first**: fixed filter panel next to the list, tabs on top, no wasted vertical space. Portrait still works, with a bottom bar and modal sheets.
-- **Flat, minimal look**: a single accent colour, light/dark theme, Manrope typeface, no cards-inside-cards.
-- **Works with or without a controller**: every flow is designed for D-pad/buttons first and then checked with touch.
+## Using a gamepad
 
-## What Dogmatix changed from Milou
-
-### First run (new)
-- Onboarding wizard: what Dogmatix does → pick the root ROMs folder → import a sources JSON. Every step can be skipped; B goes one step back; it never shows again once finished.
-- The app ships **without default sources** (`consoles.json` is empty). Import a JSON (see *Sources*) or add consoles by hand.
-
-### Shell and navigation
-- The floating "Menu" button is gone. Landscape shows numbered tabs on top (Library · Downloads · Sources · Settings); portrait shows a bottom bar with a downloads badge.
-- Full-screen immersive mode with swipe-to-reveal system bars; status bar icons follow the theme.
-- Free space of the download volume shown in the shell; a rescan indicator next to the tabs.
-
-### Gamepad support (new)
-- Controller detection via `InputManager`; the legend at the bottom only appears when a gamepad is connected and is contextual to the focused area.
-- **ZL / ZR** (L2/R2, button or axis) switch section · **LB / RB** switch panel (filters ⇄ list) · **R3** folds / unfolds the filter panel (opens / closes the filter sheet in portrait) · **X** opens the game details popup on the focused row (B or X closes it) · **Y** focuses search · **A** confirms · **B** undoes one layer at a time (sheet/dropdown → search → text → filters → focus back to tabs) and never closes the app.
-- The legend is kept short on the list and filter panels (B and LB / RB are left out) so it fits on one line even on 4:3 screens; it scrolls sideways if it still does not fit.
-- Every interactive control has a visible focus ring; when changing section the focus parks and the first D-pad press lands on the active tab.
-
-### Library
-- Fixed filter panel (Console, Region, Language, Tag, Favourites, Source, Sort) with ◀ ▶ quick change and multi-select dropdowns; portrait uses console chips and a modal filter sheet. Sort offers A → Z, Z → A and size in both directions (ties broken by name, so paging never repeats a game).
-- The panel folds into a thin rail (arrow at its bottom-right corner, or R3) to give the list the full width; the slide is animated at 60 fps on the K56, with names, search box and focus ring following the panel edge and ellipses appearing progressively.
-- Rows show a short console chip (NES, SNES, PS2…), tags and file extension. When the list is narrower than 560 dp (4:3 screens, or the panel open on a narrow one) rows stack the name above the tags instead of the single-line table, so names are never squeezed out.
-- ✓ mark on games that are already in the download folder (`LibraryIndexService`, matched by name with and without extension).
-- ★ **Favourites**: Select (or the ★ button in the details popup) stars a game; a "Favourites" filter row shows only starred games. Stored in their own Room table keyed by console + file name, so they survive rescans.
-- Lenient search: accents, punctuation and doubled letters are ignored, so "yugioh" finds *Yu-Gi-Oh!* and "virtual tenis" finds *Virtua Tennis* (`SearchNormalizer`).
-- Favorite languages (set in Settings) appear first in the language filter.
-- Game details popup (X on a row): cover art, year, developer, genres and synopsis from RAWG, falling back to TheGamesDB; results (hits and misses) are cached in Room. API keys go in a git-ignored `.env` (`RAWG_API_KEY`, `THEGAMESDB_API_KEY`); without them the popup just says "no data".
-
-### Downloads
-- Each row shows the same tags as the library, so repeated versions of a game can be told apart.
-- The downloads list is persisted in Room (`DownloadHistory`), so it survives app restarts; in-flight items come back as *Stopped* and can be retried (debrid downloads resume where they left off, see below).
-- Rows can also show the RomM upload state (*↑ RomM n%*, *Uploaded*, *failed* + retry).
-- **Multi-selection**: Select (long press with touch) ticks rows and turns the summary line into an action bar with only the actions the ticked rows accept — retry, pause, stop, delete — with a single confirmation for the lot. While selecting, A ticks, Y ticks/unticks everything, X deletes and B drops the selection.
-- **Pause / resume for torrents**: the pause button parks a download keeping its data; play resumes from the pieces already on disk, even after the app was closed in between.
-- Direct HTTP and RomM downloads keep their partial file when they stop or fail and the retry continues it with a `Range` request instead of starting over.
-
-### Sources
-- Same structure as Milou, restyled (flat cards, tonal buttons) and navigable with the controller: dialogs open with the field focused, B closes them, deleting a console or URL asks for confirmation (focus starts on *Cancel*).
-- URLs can be edited in place, not only added and removed. Deleting a manufacturer also deletes its consoles.
-- **Export / import**: the share icon writes a `dogmatix-sources.json` and opens the Android share sheet; the import icon picks a JSON, replaces every source, rescans everything and re-indexes the library. The format is the one of upstream's `consoles.json` plus display names, a `short` label and folder `aliases` per console — export from any device to get one; no sources file is shipped in this repository.
-- Each console stores its **short name** (the chip label: GBA, PS2…) and its **folder aliases** (names that count as its download folder). Empty values fall back to the built-in tables, and both are editable in the console dialog, so imported or hand-made consoles behave like the built-in ones.
-- If a newer build ships additions in `consoles.json`, they are merged into the existing sources (nothing the user changed is touched) and only the new entries are scraped.
-- Download-folder card with the resolved path per console.
-- When "separate subfolders by console" is on and the chosen directory already contains a folder used by popular frontends (`gb`, `psx`, `snes`… — ES-DE, RetroArch, Batocera, EmulationStation naming), Dogmatix reuses it instead of creating a new one (`ConsoleFolderAliases`, `ConsoleDownloadPathResolver`).
-- Merge folders dialog: when several folders for the same console live side by side (e.g. `gba` and `Gameboy Advance`), move everything into the one you pick.
-
-### Debrid services (TorBox, Real-Debrid)
-- Settings → *Debrid service* (Off / TorBox / Real-Debrid) + the matching *API key* row (with a *Test* button that reports the account). When a service is selected, torrent rows are handed to it: the magnet is submitted, the row shows *TorBox n%* / *Real-Debrid n%* while the service fetches it (cached torrents finish at once), then the file is downloaded over plain HTTP through the usual path (speed limit, per-console folder, auto-unzip). Cancelling deletes it from the account; the file is matched by name and size (`DebridMatcher`). Retrying a failed torrent re-reads the setting, so the service can be switched between attempts.
-- [TorBox](https://torbox.app): key from *Settings → API*. [Real-Debrid](https://real-debrid.com/apitoken): needs a **premium** account (free accounts can validate the key but `addMagnet` answers `permission_denied`, which the row reports as *Failed*); the wanted file is selected with `selectFiles` before the service fetches it, and the link goes through `unrestrict/link`.
-- **Resumable**: the service's torrent/file ids are kept in the download history, the partial file stays on disk, and a retry after the app was killed continues with an HTTP `Range` request instead of starting over (debrid links serve ranges; plain HTTP sources still restart from zero).
-- **Limitation**: TorBox zips torrents with 100+ files and its cache is shared, so for the big Myrient/No-Intro sets it can only hand back one huge `.zip`, not single ROMs (`allow_zip=false` only affects torrents nobody has cached yet). When that happens Dogmatix removes the torrent from the account and silently falls back to the direct torrent download for that file, so the toggle is safe to leave on.
-
-### RomM
-- Settings → *RomM server*: URL, API token (`rmm_…` client token or `user:password`), *Test connection*, *Upload finished downloads*, and one stepper per console to pick the RomM platform it uploads to. Suggestions come from the same folder-alias table used for frontend folders (`gba`, `psx`, `snes`…); *Apply suggestions* maps every unmapped console at once.
-- Every download that finishes while the switch is on (and whose console is mapped) is uploaded with RomM's chunked API (`/api/roms/upload/start` → chunks → `complete`); extracted archives upload each extracted file. The Downloads row shows *↑ RomM n%*, *Uploaded* or *failed* with a retry button. Uploads are not resumed after the process dies — use the retry button. Plain `http://` servers are allowed (cleartext traffic is enabled for the app); self-signed HTTPS is not supported.
-- **RomM as a source**: in Sources → *Add URL*, pick one of the server's platforms (or type `romm://<slug>`) and the console indexes every ROM RomM has for it; downloads go through RomM's `/api/roms/{id}/content/…` with the account credentials, and files that came from RomM are never uploaded back.
-- RomM only lists a ROM once it has scanned it, and scanning is not exposed through its REST API: either run a scan from the RomM web UI after uploading, or start RomM with `ENABLE_RESCAN_ON_FILESYSTEM_CHANGE=true` so uploaded files are picked up automatically.
-
-### Settings
-- Theme (System / Light / Dark / **True black**, a pure `#000000` background for AMOLED screens) and accent colour (5 presets), persisted in DataStore.
-- Language (System / English / Spanish / Dutch / French / German). *(DogmatixPlus added Dutch, French and German.)*
-- Download directory, concurrent downloads and speed limit as steppers (◀ ▶ with the controller), switches for auto-unzip and per-console subfolders, favorite languages picker, "About & contact".
-- *Maximum search results* stepper (50 / 100 / 250 / 500 / Unlimited, default 100): how many games a library search loads at once; *Load more* fetches the next batch, *Unlimited* lists everything the filters match.
-- *Metadata timeout* stepper (10–180 s, default 20): how long a rescan or a direct torrent download waits for a magnet's file list before giving up — raise it on slow trackers/DHT.
-- *Debrid service* stepper (Off / TorBox / Real-Debrid) with a single *API key* row for the selected service (dialog with *Test*); the key is masked in the row and stored only on the device.
-- *Gamepad layout* stepper (Xbox / Nintendo / PlayStation): draws the button legend the way your pad is printed — Xbox A/B/X/Y with `LB · RB` / `LT · RT`, Nintendo the same letters in Super Famicom colours (A red, B yellow, X blue, Y green) with `L · R` / `ZL · ZR`, PlayStation ✕ ○ □ △ each in its own colour with `L1 · R1` / `L2 · R2`. Names and colours only: A (✕) always accepts and B (○) always goes back.
-- *Swap A/B and X/Y* switch, for pads that report their face buttons the other way round: it moves the actions and leaves the legend untouched, dialogs and the filter sheet included.
-- **Frontends**: *Frontend shortcuts* drops a `.dgmtx` shortcut into every console folder; *Configure ES-DE* and *Configure iiSU* do the whole frontend setup in one button, and *Set up Daijishō* hands over the values its emulator form needs — see [FRONTENDS.md](FRONTENDS.md) and the *Deep links* section below.
-- Two-column layout in landscape.
-- **DogmatixPlus rows**: *Library overview*, *Duplicate games*, *Back up* and *Restore backup* (see [What DogmatixPlus adds](#what-dogmatixplus-adds)).
-
-### Under the hood
-- Package renamed to `com.cortinadev.dogmatix` (upstream: `com.santiifm.milou`); application class, database and theme renamed accordingly. The app id changed, so Dogmatix installs as a separate app and does not update over a Milou install.
-- Room schema at v9 with explicit migrations (search key, download history, game metadata cache, per-console short name and folder aliases, favourites, debrid resume ids).
-- All source handling lives in `SourcesRepository`; the JSON format is read and written by one pure `SourcesJson` object shared by the bundled asset, the Room `urls` column and export/import. Sources are routed by URL: `magnet:`/`.torrent` → libtorrent, `romm://` → the RomM API, anything else → HTML directory scraping.
-- Downloads are routed in `DownloadService.perform()`: debrid service (when selected; `DebridClient` implemented by `TorBoxClient` and `RealDebridClient`) → HTTP with resume; torrent → libtorrent; HTTP otherwise (with the RomM credentials when the file comes from the RomM server). Integrations talk to their APIs with a tiny `JsonHttp` helper over `HttpURLConnection` + Gson — no OkHttp.
-- Secrets (TorBox / Real-Debrid keys, RomM token) live only in the app's DataStore; nothing is baked into the APK or the repository.
-- DogmatixPlus adds `DuplicateFinder`, `DiskScanner`, `LibraryScanService`, `BackupJson` and `BackupService` (see [What DogmatixPlus adds](#what-dogmatixplus-adds)); the unit tests grew from 78 to 136.
-- Unit tests for the pure logic: search/parsing (`SearchNormalizer`, `ConsoleFolderAliases`, `GameTitleCleaner`, `LibraryKeys`), sources (`SourcesJson`), deep links and shortcuts (`DeepLinkParser`, `DeepLinkResolver`, `DgmtxFile`), frontends (`EsdeXml`, `IisuJson`, `DaijishoSetup`), debrid and RomM (`DebridMatcher`, `RommPlatformMapper`, `RommSource`), and the gamepad legend (`GamepadLayout`).
-- Removed: FAB, `SearchSection`, old filter overlays/dropdowns, `RomList`, `SmallButtons`, `CommonButton`, `Spacing`/`Layout`.
-
-## How it works (inherited from Milou)
-
-A file called **Burnout Paradise (En,Es,Fr) (NTSC).zip** in a torrent becomes
-**Name: Burnout Paradise · Tags: Languages [En, Es, Fr], Region [NTSC], Console: Xbox 360, Manufacturer: Microsoft, Extension: .zip**.
-
-1. **First launch**: the app starts with no sources (`consoles.json` is empty). Add consoles by hand or import a sources JSON from the Sources tab (export one from a device that already has sources; source files are deliberately not part of this repository).
-2. **Search**: filter by console, region, language, type or extension.
-3. **Download**: press A / tap on a game; torrents and direct HTTP links are both supported.
-4. **Manage**: follow progress in Downloads; archives are extracted automatically.
-5. **Configure**: download folder, per-console paths, speed limit, concurrency, theme.
-
-## Building
-
-Requirements: JDK 17 or newer (the releases were built with JDK 21), Android SDK platform 36, build-tools 36.0.0.
-
-```bash
-git clone https://github.com/Tufein/DogmatixPlus.git
-cd DogmatixPlus
-
-./gradlew assembleDebug      # debug APK (applicationId com.cortinadev.dogmatix.debug)
-./gradlew assembleRelease    # release APK (minified, signed with the debug keystore)
-./gradlew test               # JVM unit tests
-./gradlew lint
-```
-
-The debug build uses the `.debug` application-id suffix so it can be installed next to a release build. The package is `com.cortinadev.dogmatix` (renamed from upstream's `com.santiifm.milou`).
-
-### Project structure
-```
-app/src/main/java/com/cortinadev/dogmatix/
-├── data/        Room entities/DAOs, repositories, services (scraping, torrents, downloads, extraction, library scan, backup)
-├── di/          Hilt modules
-├── ui/
-│   ├── common/      Gamepad detection and shortcut bus
-│   ├── components/  AppShell, TagChip, FocusHighlight, Stepper, GamepadLegend
-│   ├── screens/     onboarding, home (Library), download, sources, settings, tools (overview, duplicates), contact
-│   └── theme/       DogmatixTheme, palettes, ThemeMode, accent presets
-└── util/        File-name parsing, folder aliases, search normalization, storage helpers
-app/src/main/assets/consoles.json   Default sources (empty in Dogmatix)
-app/src/test/                       JVM unit tests
-```
-
-## Tech stack
-
-### The app
-- **Language**: Kotlin 2.3.20 — all of the code (Java 11 source / target), Android `minSdk` 29, `compileSdk` / `targetSdk` 36
-- **UI**: Jetpack Compose (BOM 2026.03.01), Material 3, Navigation Compose 2.9.7, Coil 2.7.0 (cover art)
-- **DI**: Hilt 2.59.2 (KSP)
-- **Persistence**: Room 2.8.4 + FTS, DataStore Preferences 1.2.1
-- **Files**: Storage Access Framework (`DocumentsContract`, `DocumentFile`) for the ROM folders — one provider query per folder when scanning
-- **Torrents**: libtorrent4j 2.1.0-39 (arm64-v8a, armeabi-v7a, x86_64) · **HTTP**: `HttpURLConnection`, Jsoup 1.22.1
-- **JSON**: Gson 2.13.2, plus hand-written readers and writers for sources and backups (they stay readable after R8 renames fields)
-- **Archives**: 7-Zip-JBinding-4Android (ZIP/7z)
-- **Concurrency**: Kotlin Coroutines 1.10.2 + Flow
-
-### How DogmatixPlus was built
-- **Build**: Gradle 9.3.1 (wrapper) with Android Gradle Plugin 9.1.0, JDK 21 (OpenJDK), Android SDK platform 36 and build-tools 36.0.0 from the command-line tools; **R8** minification and resource shrinking for the release build
-- **Tests**: JUnit 4 — 136 JVM unit tests for the pure logic — and Android Lint
-- **Trying it out**: the Android Emulator (an Android 15 / API 35 arm64 Google APIs image) driven with `adb` — installing, taps and swipes, logcat, screenshots, and `truncate` to create made-up ROM files — in portrait and landscape, in the debug and in the minified release build
-- **Checking the APKs**: `aapt2` (package, version, languages) and `apksigner` (signature) on every APK before it was released
-- **Test data**: small Python 3 scripts (not part of this repository) ran a local web server with made-up game indexes, so scans, the progress display and the duplicate finder could be tried without any real sources
-- **Releases**: git and the GitHub REST API for commits, tags and the release with its APKs and checksums
-- **AI assistance**: an AI coding assistant wrote and refactored code, tests and documentation, and independent AI review passes were run over the changes before they were published (see [Credits](#credits))
-
-## Deep links
-
-Other apps and frontends can open the library with filters already applied:
-
-```
-dogmatix://library?console=nintendo_snes&region=USA,Europe&lang=En&type=GAME&q=mario&fav=1
-```
-
-| Parameter | Meaning |
+| Button | What it does |
 |---|---|
-| `console` | Console ids as shown in Sources (comma-separated) |
-| `region`, `lang`, `type`, `filetype`, `tag` | Library tags (comma-separated); the kind is inferred from the value |
-| `q` | Search text |
-| `fav` | `1`/`true` shows favourites only, `0`/`false` everything |
+| D-pad | Move around |
+| **A** | Choose / download |
+| **B** | Go back one step |
+| **X** | Game info |
+| **Y** | Search |
+| **Select** | Star or unstar a game |
+| **LB / RB** | Switch between the filters and the list |
+| **ZL / ZR** | Previous / next section |
+| **R3** | Fold or unfold the filter panel |
 
-Try it with `adb shell am start -a android.intent.action.VIEW -d "dogmatix://library?console=nintendo_snes&q=mario"`. A link opened while the app is on another tab switches to the Library; one opened during onboarding is applied once onboarding finishes.
+Everything also works by touch. The hints only show while a controller is connected.
 
-Dogmatix also opens `.dgmtx` shortcut files (a text file carrying one of these links), and
-Settings → *Frontend shortcuts* drops one into every platform folder — that's how it shows up
-as an "emulator" inside ES-DE, iiSU or Daijishō. ES-DE and iiSU also get a one-button setup
-in Settings ("Configure ES-DE" / "Configure iiSU"); Daijishō has no importable emulator
-configuration, so "Set up Daijishō" hands over the values to type into it. See
-[FRONTENDS.md](FRONTENDS.md) for the frontend configuration.
+## Good to know
 
-## Controller cheat sheet
+- **Deleting duplicates is permanent.** The app shows every file first, but there is no recycle bin.
+- **A backup file contains your account keys** (TorBox, Real-Debrid, RomM). Keep it private.
+- **The game info window stays empty in the downloads here**, because it needs a free key from a game database that is added when the app is built.
+- DogmatixPlus does not look for games on its own. It only reads the sources **you** add.
 
-| Button | Action |
-|---|---|
-| D-pad | Move focus |
-| A | Select / download |
-| B | Back one layer (close sheet, clear search, back to tabs) |
-| X | Game details popup (B or X closes) |
-| Y | Focus search |
-| Select | Star / unstar the focused game · in Downloads, tick rows for multi-selection |
-| LB / RB | Switch panel |
-| R3 | Fold / unfold the filter panel |
-| ZL / ZR | Previous / next section |
-
-Everything is also reachable by touch; the legend only appears while a controller is connected, and button names and colours follow the *Gamepad layout* setting (Xbox / Nintendo / PlayStation).
-
-## Roadmap
-
-Planned features, in no particular order:
-
-- **RomM: mark games already in RomM** as owned in the library (today only uploads are supported).
-- **Favourites sync** across devices via the sources export.
-
-Ideas and requests for DogmatixPlus are welcome as [issues](https://github.com/Tufein/DogmatixPlus/issues); for the original Dogmatix, see [cortinadev/dogmatix](https://github.com/cortinadev/dogmatix/issues).
-
-## Disclaimer
-
-This app is for educational purposes only. Users are responsible for ensuring they have the legal right to download any content.
-
-Milou and Dogmatix do not carry a licence, so all rights to their code stay with their authors. DogmatixPlus is an unofficial personal modification, shared for educational purposes and not affiliated with either project. If you are one of the original authors and would like something changed or removed, please open an issue.
+---
 
 ## Credits
 
-DogmatixPlus is a small layer on top of two projects. Most of what you use every day is theirs.
+DogmatixPlus is a small layer on top of two other projects. Most of what you use every day is theirs.
 
-| Project | Who | What it brought |
+| Project | Made by | What it brought |
 |---|---|---|
-| **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | The original app and its whole engine: indexing of torrents, magnets and web directories, tagging by console / region / language, searching, direct and torrent downloads, archive extraction. |
-| **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) ([cortina.dev](https://cortina.dev)) | The handheld rebuild: gamepad-first navigation and legend, landscape layout, themes, favourites, multi-selection and pause / resume in Downloads, onboarding, ES-DE / iiSU / Daijishō integration, TorBox and Real-Debrid, RomM, the `dogmatix://` deep links. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | The duplicate finder, the library overview, backup & restore, scan progress with percentage and time left, the Dutch, French and German translations (and moving the last hard-coded English texts into them), the update check pointing at this repository, version 1.0.0, this documentation and the releases. |
+| **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | The original app and its whole engine: reading sources, sorting games by console / region / language, searching, downloading and unpacking. |
+| **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) | The handheld version: gamepad control, landscape layout, themes, favourites, pause and resume, the first-start guide, ES-DE / iiSU / Daijishō, TorBox and Real-Debrid, RomM. |
+| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Duplicate finder, library overview, back up and restore, scan progress, the Dutch, French and German translations, and these releases. |
 
-DogmatixPlus was **made with the help of A.I.**: the code, the tests and this documentation were written together with an AI assistant, then checked in several independent review rounds and tried on an emulator. Decisions, direction and publishing are the maintainer's.
+DogmatixPlus was **made with the help of A.I.**: the code, the tests and the documentation were written together with an AI assistant and checked in several review rounds. Decisions, direction and publishing are the maintainer's.
 
-Libraries the apps rely on are listed under [Tech stack](#tech-stack): Jetpack Compose, Hilt, Room, libtorrent4j, 7-Zip-JBinding, Jsoup and Kotlin Coroutines.
+## Disclaimer
+
+This app is for educational purposes only. You are responsible for making sure you have the legal right to download any content.
+
+Milou and Dogmatix have no licence, so all rights to their code stay with their authors. DogmatixPlus is an unofficial personal modification and is not affiliated with either project. If you are one of the original authors and would like something changed or removed, please open an issue.
+
+---
+
+## For developers
+
+The technical details — how it is built, how the duplicate finder decides, the folder layout, deep links, the tech stack and more — are in **[TECHNICAL.md](TECHNICAL.md)**. See also [FRONTENDS.md](FRONTENDS.md) for the launcher setup and [CHANGELOG.md](CHANGELOG.md) for every change.
