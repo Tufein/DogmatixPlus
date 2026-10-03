@@ -63,8 +63,92 @@ class HomeViewModel @Inject constructor(
     private val favourites: FavouritesRepository,
     private val pendingFilters: PendingLibraryFilters,
     private val rommLibrary: RommLibraryService,
-    private val wishlist: WishlistRepository
+    private val wishlist: WishlistRepository,
+    private val collectionsRepository: com.cortinadev.dogmatix.data.repository.CollectionsRepository
 ) : ViewModel() {
+
+    // ---- 2.0: new games, collections, bulk download, Switch updates / DLC ----------------------
+
+    private val _newOnly = MutableStateFlow(false)
+    /** Only what rescans found in the last [com.cortinadev.dogmatix.util.NewGames.DAYS] days. */
+    val newOnly: StateFlow<Boolean> = _newOnly.asStateFlow()
+    fun setNewOnly(on: Boolean) { _newOnly.value = on }
+
+    private val _collectionId = MutableStateFlow(0L)
+    /** The collection shown; 0 = all games. */
+    val collectionId: StateFlow<Long> = _collectionId.asStateFlow()
+    fun setCollection(id: Long) { _collectionId.value = id }
+
+    val collections: StateFlow<List<com.cortinadev.dogmatix.data.local.dao.CollectionWithCount>> = collectionsRepository.collections
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /** Puts the game of the open details card in or out of collection [id]; returns whether it is in it now. */
+    suspend fun toggleCollection(item: DownloadableFileWithTags, id: Long): Boolean {
+        val inIt = collectionsRepository.toggle(id, item.file)
+        _details.value?.takeIf { it.item == item }?.let { _details.value = it.copy(collectionIds = collectionsRepository.collectionsOf(item.file)) }
+        return inIt
+    }
+
+    /** Creates a collection and puts [item] in it. */
+    suspend fun createCollectionWith(item: DownloadableFileWithTags, name: String): Boolean {
+        val id = collectionsRepository.create(name) ?: return false
+        if (id !in collectionsRepository.collectionsOf(item.file)) toggleCollection(item, id)
+        return true
+    }
+
+    fun isNew(file: DownloadableFileEntity): Boolean = com.cortinadev.dogmatix.util.NewGames.isNew(file.firstSeenAt, System.currentTimeMillis())
+
+    /** File names on disk for [consoleId] (from the library index keys of its folders). */
+    private fun ownedNamesFor(consoleId: String): List<String> {
+        val scopes = com.cortinadev.dogmatix.util.LibraryKeys.scopesFor(consoleId)
+        return libraryIndex.ownedKeys.value.mapNotNull { key ->
+            val bar = key.indexOf('|')
+            if (bar < 0 || key.substring(0, bar) !in scopes) null else key.substring(bar + 1)
+        }
+    }
+
+    /** What "Download all" would queue for the current filters ([bestOnly]: one version per game). */
+    suspend fun planBulk(bestOnly: Boolean): com.cortinadev.dogmatix.util.BulkPlan {
+        val rows = repository.searchFilesWithTags(
+            query = _searchQuery.value, consoleIds = _selectedConsoles.value, tags = _activeTags.value,
+            favouritesOnly = _favouritesOnly.value, newSince = newSince(), collectionId = _collectionId.value,
+            source = _source.value, sort = _sort.value, limit = com.cortinadev.dogmatix.util.BulkPlanner.MAX_FILES * 4, offset = 0
+        )
+        val owned = ownedKeys.value
+        val active = activeDownloads.value
+        val languages = settingsRepository.favoriteLanguages.first()
+        return com.cortinadev.dogmatix.util.BulkPlanner.plan(
+            rows.map {
+                com.cortinadev.dogmatix.util.BulkCandidate(
+                    it.file.id, it.file.consoleId, it.file.searchKey.ifEmpty { com.cortinadev.dogmatix.util.SearchNormalizer.key(it.file.name) },
+                    it.file.fileName, it.file.fileSize, it.tags, isOwned(it.file, owned), isDownloading(it.file, active)
+                )
+            },
+            bestOnly, VersionPicker.regionPreference(languages), languages, libraryIndex.freeBytes.value
+        ).also { lastBulkRows = rows.associateBy { it.file.id } }
+    }
+
+    private var lastBulkRows: Map<Long, DownloadableFileWithTags> = emptyMap()
+
+    /** Queues every game of [plan]; returns how many. */
+    suspend fun startBulk(plan: com.cortinadev.dogmatix.util.BulkPlan, context: Context): Int {
+        val rows = plan.chosen.mapNotNull { lastBulkRows[it.id] }
+        if (rows.isEmpty()) return 0
+        val downloadDirectory = settingsRepository.downloadDirectory.first()
+        if (downloadDirectory.isEmpty() || !StorageHelper.isValidUri(context, downloadDirectory)) {
+            ToastUtil.showError(context, context.getString(R.string.error_download_dir_missing))
+            return 0
+        }
+        rows.forEach { downloadService.startDownload(it.file) }
+        return rows.size
+    }
+
+    /** Starts the download of a library row found by the Switch section (an update or a DLC). */
+    fun downloadRow(file: DownloadableFileEntity) {
+        viewModelScope.launch { downloadService.startDownload(file) }
+    }
+
+    private fun newSince(): Long = if (_newOnly.value) com.cortinadev.dogmatix.util.NewGames.since(System.currentTimeMillis()) else 0L
 
     /** `consoleId|name` keys of the games the RomM server has (empty when marking is off). */
     val rommKeys: StateFlow<Set<String>> = rommLibrary.keys
@@ -119,6 +203,14 @@ class HomeViewModel @Inject constructor(
             )?.id else null
             val best = versions.firstOrNull { it.file.fileName == bestId }
             if (_details.value?.item == item) _details.value = _details.value!!.copy(versionCount = versions.size, best = best)
+            if (_details.value?.item == item) _details.value = _details.value!!.copy(collectionIds = collectionsRepository.collectionsOf(item.file))
+            // A Switch game: its updates and DLC in the library, against what is on disk.
+            com.cortinadev.dogmatix.util.SwitchTitles.parse(item.file.fileName)?.let { title ->
+                val rows = runCatching { repository.filesOf(item.file.consoleId) }.getOrDefault(emptyList())
+                val status = com.cortinadev.dogmatix.util.SwitchTitles.analyse(rows, { it.fileName }, ownedNamesFor(item.file.consoleId), onlyOwned = false)
+                    .firstOrNull { it.baseId == title.baseId }
+                if (_details.value?.item == item) _details.value = _details.value!!.copy(switchTitle = title, switch = status)
+            }
             val found = metadataService.lookup(item.file.name, item.file.consoleId)
             if (_details.value?.item == item) _details.value = _details.value!!.copy(loading = false, details = found)
         }
@@ -193,12 +285,15 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 combine(_searchQuery, _selectedConsoles, _activeTags) { q, c, t -> Triple(q, c, t) },
-                combine(_sort, _favouritesOnly, _source, rescanStateHolder.lastRescanTime) { s, f, src, _ -> Triple(s, f, src) },
+                combine(_sort, _favouritesOnly, _source, rescanStateHolder.lastRescanTime, combine(_newOnly, _collectionId) { n, c -> n to c }) { s, f, src, _, nc -> FilterExtra(s, f, src, nc.first, nc.second) },
                 // Re-query when a star changes while "Favourites only" is on, else the row would linger.
                 combine(_favouritesOnly, favourites.keys) { only, keys -> if (only) keys else emptySet() }.distinctUntilChanged(),
                 pageSize
-            ) { (query, consoles, tags), (sort, favouritesOnly, source), _, limit ->
-                FilterParams(query = query, consoles = consoles, tags = tags, sort = sort, favouritesOnly = favouritesOnly, source = source, limit = limit)
+            ) { (query, consoles, tags), extra, _, limit ->
+                FilterParams(
+                    query = query, consoles = consoles, tags = tags, sort = extra.sort, favouritesOnly = extra.favouritesOnly, source = extra.source, limit = limit,
+                    newSince = if (extra.newOnly) com.cortinadev.dogmatix.util.NewGames.since(System.currentTimeMillis()) else 0L, collectionId = extra.collectionId
+                )
             }.collect { params ->
                 currentOffset = 0
                 val initialResults = performSearch(params)
@@ -229,6 +324,11 @@ class HomeViewModel @Inject constructor(
         _activeTags.value = tags
         _searchQuery.value = request.query.orEmpty()
         request.favouritesOnly?.let { _favouritesOnly.value = it }
+        request.newOnly?.let {
+            _newOnly.value = it
+            if (it) _sort.value = SortOption.NEWEST
+        }
+        request.collectionId?.let { _collectionId.value = it }
     }
 
     fun toggleConsoleFilter(consoleId: String) {
@@ -287,6 +387,8 @@ class HomeViewModel @Inject constructor(
         _sort.value = SortOption.NAME_ASC
         _favouritesOnly.value = false
         _source.value = SourceFilter.ALL
+        _newOnly.value = false
+        _collectionId.value = 0L
     }
 
     private suspend fun performSearch(params: FilterParams): List<DownloadableFileWithTags> {
@@ -296,6 +398,8 @@ class HomeViewModel @Inject constructor(
             consoleIds = params.consoles,
             tags = params.tags,
             favouritesOnly = params.favouritesOnly,
+            newSince = params.newSince,
+            collectionId = params.collectionId,
             source = params.source,
             sort = params.sort,
             limit = params.limit,
@@ -337,6 +441,8 @@ class HomeViewModel @Inject constructor(
             consoleIds = _selectedConsoles.value,
             tags = _activeTags.value,
             favouritesOnly = _favouritesOnly.value,
+            newSince = newSince(),
+            collectionId = _collectionId.value,
             source = _source.value,
             sort = _sort.value,
             limit = limit,
@@ -376,8 +482,12 @@ data class FilterParams(
     val sort: SortOption,
     val favouritesOnly: Boolean = false,
     val source: SourceFilter = SourceFilter.ALL,
-    val limit: Int = Constants.DEFAULT_MAX_SEARCH_RESULTS
+    val limit: Int = Constants.DEFAULT_MAX_SEARCH_RESULTS,
+    val newSince: Long = 0L,
+    val collectionId: Long = 0L
 )
+
+private data class FilterExtra(val sort: SortOption, val favouritesOnly: Boolean, val source: SourceFilter, val newOnly: Boolean, val collectionId: Long)
 
 data class DetailsState(
     val item: DownloadableFileWithTags,
@@ -386,5 +496,10 @@ data class DetailsState(
     /** How many versions of this game the library lists (this one included). */
     val versionCount: Int = 1,
     /** The version that suits the user best when it is not simply this one; null otherwise. */
-    val best: DownloadableFileWithTags? = null
+    val best: DownloadableFileWithTags? = null,
+    /** Own collections this game is in. */
+    val collectionIds: Set<Long> = emptySet(),
+    /** For a Switch file with a title ID: what it is, and its game's updates / DLC. */
+    val switchTitle: com.cortinadev.dogmatix.util.SwitchTitles.Title? = null,
+    val switch: com.cortinadev.dogmatix.util.SwitchTitles.GameStatus<DownloadableFileEntity>? = null
 )

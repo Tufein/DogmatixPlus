@@ -774,6 +774,38 @@
     <string name="update_no_checksum">De release heeft geen controlegetal voor de APK; niet geïnstalleerd</string>
     <string name="update_checksum_mismatch">De download klopt niet met het controlegetal van de release; niet geïnstalleerd</string>
     <string name="update_install_failed">Update mislukt: %1$s</string>
+    <string name="new_badge">Nieuw</string>
+    <string name="filter_new">Nieuw</string>
+    <string name="filter_new_only">Gevonden in de laatste 14 dagen</string>
+    <string name="filter_new_only_short">Nieuw</string>
+    <string name="filter_collection">Collectie</string>
+    <string name="sort_newest">Nieuwste eerst</string>
+    <string name="sort_newest_short">Nieuwst</string>
+    <string name="bulk_link">Alles downloaden</string>
+    <string name="bulk_title">Alles wat getoond wordt downloaden</string>
+    <string name="bulk_best_only">Alleen de beste versie van elke game</string>
+    <string name="bulk_counting">Bezig met tellen…</string>
+    <string name="bulk_free">Vrije ruimte: %1$s</string>
+    <string name="bulk_no_room">Niet genoeg vrije ruimte voor dit alles. Verfijn eerst de filters.</string>
+    <string name="bulk_capped">Hoogstens %1$d games tegelijk</string>
+    <string name="bulk_start">%1$d downloaden</string>
+    <string name="bulk_queued">%1$s downloads in de wachtrij</string>
+    <string name="collection_added">Toegevoegd aan %1$s</string>
+    <string name="details_switch_get_update">Update ophalen</string>
+    <string name="details_switch_get_dlc">DLC ophalen (%1$d)</string>
+    <string name="details_collections">Collecties</string>
+    <string name="collections_pick_title">Collecties</string>
+    <string name="collections_none_yet">Nog geen collecties. Maak er hieronder een.</string>
+    <string name="collections_new">Nieuwe collectie</string>
+    <string name="collections_add">Toevoegen</string>
+    <string name="switch_kind_base">Basisgame</string>
+    <string name="switch_kind_update">Update %1$d</string>
+    <string name="switch_kind_dlc">DLC</string>
+    <string name="switch_no_update_listed">Geen update in je bronnen</string>
+    <string name="switch_update_none_owned">Update %1$d in je bronnen; geen op dit toestel</string>
+    <string name="switch_update_newer">Update %1$d in je bronnen; jij hebt %2$d</string>
+    <string name="switch_update_current">Je hebt de nieuwste update (%1$d)</string>
+    <string name="switch_dlc_line">DLC: %1$d in je bronnen, %2$d op dit toestel</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save is op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
         <item quantity="other">%d saves zijn op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
@@ -869,6 +901,26 @@
     <plurals name="settings_days">
         <item quantity="one">%1$d dag</item>
         <item quantity="other">%1$d dagen</item>
+    </plurals>
+    <plurals name="bulk_summary">
+        <item quantity="one">%1$d game · %2$s</item>
+        <item quantity="other">%1$d games · %2$s</item>
+    </plurals>
+    <plurals name="bulk_skipped_owned">
+        <item quantity="one">%1$d al op dit toestel</item>
+        <item quantity="other">%1$d al op dit toestel</item>
+    </plurals>
+    <plurals name="bulk_skipped_active">
+        <item quantity="one">%1$d al bezig</item>
+        <item quantity="other">%1$d al bezig</item>
+    </plurals>
+    <plurals name="bulk_skipped_versions">
+        <item quantity="one">%1$d andere versie overgeslagen</item>
+        <item quantity="other">%1$d andere versies overgeslagen</item>
+    </plurals>
+    <plurals name="details_in_collections">
+        <item quantity="one">In %1$d collectie</item>
+        <item quantity="other">In %1$d collecties</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

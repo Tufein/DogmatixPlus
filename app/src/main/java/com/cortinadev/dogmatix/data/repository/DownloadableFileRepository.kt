@@ -92,6 +92,9 @@ class DownloadableFileRepository @Inject constructor(
 
     suspend fun clearAll() = dao.clearAll()
 
+    /** Every row of one console (Switch updates / DLC). */
+    suspend fun filesOf(consoleId: String): List<DownloadableFileEntity> = dao.filesOf(consoleId)
+
     suspend fun backfillSearchKeys() = dao.backfillSearchKeys()
 
     /** '*' means "no text filter" in the DAO queries; anything else is a lenient LIKE pattern. */

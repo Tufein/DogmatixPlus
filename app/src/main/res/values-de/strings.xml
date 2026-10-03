@@ -774,6 +774,38 @@
     <string name="update_no_checksum">Keine Prüfsumme für die APK; nicht installiert</string>
     <string name="update_checksum_mismatch">Der Download passt nicht zur Prüfsumme; nicht installiert</string>
     <string name="update_install_failed">Update fehlgeschlagen: %1$s</string>
+    <string name="new_badge">Neu</string>
+    <string name="filter_new">Neu</string>
+    <string name="filter_new_only">In den letzten 14 Tagen gefunden</string>
+    <string name="filter_new_only_short">Neu</string>
+    <string name="filter_collection">Sammlung</string>
+    <string name="sort_newest">Neueste zuerst</string>
+    <string name="sort_newest_short">Neueste</string>
+    <string name="bulk_link">Alle laden</string>
+    <string name="bulk_title">Alles Angezeigte herunterladen</string>
+    <string name="bulk_best_only">Nur die beste Version jedes Spiels</string>
+    <string name="bulk_counting">Wird gezählt…</string>
+    <string name="bulk_free">Freier Speicher: %1$s</string>
+    <string name="bulk_no_room">Nicht genug freier Speicher dafür. Grenze zuerst die Filter ein.</string>
+    <string name="bulk_capped">Höchstens %1$d Spiele auf einmal</string>
+    <string name="bulk_start">%1$d laden</string>
+    <string name="bulk_queued">%1$s Downloads eingereiht</string>
+    <string name="collection_added">Zu %1$s hinzugefügt</string>
+    <string name="details_switch_get_update">Update holen</string>
+    <string name="details_switch_get_dlc">DLC holen (%1$d)</string>
+    <string name="details_collections">Sammlungen</string>
+    <string name="collections_pick_title">Sammlungen</string>
+    <string name="collections_none_yet">Noch keine Sammlungen. Lege unten eine an.</string>
+    <string name="collections_new">Neue Sammlung</string>
+    <string name="collections_add">Hinzufügen</string>
+    <string name="switch_kind_base">Basisspiel</string>
+    <string name="switch_kind_update">Update %1$d</string>
+    <string name="switch_kind_dlc">DLC</string>
+    <string name="switch_no_update_listed">Kein Update in deinen Quellen</string>
+    <string name="switch_update_none_owned">Update %1$d in deinen Quellen; keines auf dem Gerät</string>
+    <string name="switch_update_newer">Update %1$d in deinen Quellen; du hast %2$d</string>
+    <string name="switch_update_current">Du hast das neueste Update (%1$d)</string>
+    <string name="switch_dlc_line">DLC: %1$d in deinen Quellen, %2$d auf dem Gerät</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d Spielstand wurde auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
         <item quantity="other">%d Spielstände wurden auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
@@ -869,6 +901,26 @@
     <plurals name="settings_days">
         <item quantity="one">%1$d Tag</item>
         <item quantity="other">%1$d Tage</item>
+    </plurals>
+    <plurals name="bulk_summary">
+        <item quantity="one">%1$d Spiel · %2$s</item>
+        <item quantity="other">%1$d Spiele · %2$s</item>
+    </plurals>
+    <plurals name="bulk_skipped_owned">
+        <item quantity="one">%1$d schon auf dem Gerät</item>
+        <item quantity="other">%1$d schon auf dem Gerät</item>
+    </plurals>
+    <plurals name="bulk_skipped_active">
+        <item quantity="one">%1$d läuft schon</item>
+        <item quantity="other">%1$d laufen schon</item>
+    </plurals>
+    <plurals name="bulk_skipped_versions">
+        <item quantity="one">%1$d andere Version ausgelassen</item>
+        <item quantity="other">%1$d andere Versionen ausgelassen</item>
+    </plurals>
+    <plurals name="details_in_collections">
+        <item quantity="one">In %1$d Sammlung</item>
+        <item quantity="other">In %1$d Sammlungen</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

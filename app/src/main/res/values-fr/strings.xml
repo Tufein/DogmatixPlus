@@ -779,6 +779,38 @@
     <string name="update_no_checksum">Pas de somme de contrôle pour l\'APK ; non installé</string>
     <string name="update_checksum_mismatch">Le fichier ne correspond pas à la somme de contrôle ; non installé</string>
     <string name="update_install_failed">Échec de la mise à jour : %1$s</string>
+    <string name="new_badge">Nouveau</string>
+    <string name="filter_new">Nouveautés</string>
+    <string name="filter_new_only">Trouvés ces 14 derniers jours</string>
+    <string name="filter_new_only_short">Nouveaux</string>
+    <string name="filter_collection">Collection</string>
+    <string name="sort_newest">Plus récents d\'abord</string>
+    <string name="sort_newest_short">Récents</string>
+    <string name="bulk_link">Tout télécharger</string>
+    <string name="bulk_title">Télécharger tout ce qui est affiché</string>
+    <string name="bulk_best_only">Seulement la meilleure version de chaque jeu</string>
+    <string name="bulk_counting">Calcul…</string>
+    <string name="bulk_free">Espace libre : %1$s</string>
+    <string name="bulk_no_room">Pas assez d\'espace libre pour tout cela. Affinez d\'abord les filtres.</string>
+    <string name="bulk_capped">Au plus %1$d jeux à la fois</string>
+    <string name="bulk_start">Télécharger %1$d</string>
+    <string name="bulk_queued">%1$s téléchargements en file</string>
+    <string name="collection_added">Ajouté à %1$s</string>
+    <string name="details_switch_get_update">Obtenir la mise à jour</string>
+    <string name="details_switch_get_dlc">Obtenir les DLC (%1$d)</string>
+    <string name="details_collections">Collections</string>
+    <string name="collections_pick_title">Collections</string>
+    <string name="collections_none_yet">Pas encore de collection. Créez-en une ci-dessous.</string>
+    <string name="collections_new">Nouvelle collection</string>
+    <string name="collections_add">Ajouter</string>
+    <string name="switch_kind_base">Jeu de base</string>
+    <string name="switch_kind_update">Mise à jour %1$d</string>
+    <string name="switch_kind_dlc">DLC</string>
+    <string name="switch_no_update_listed">Aucune mise à jour dans vos sources</string>
+    <string name="switch_update_none_owned">Mise à jour %1$d dans vos sources ; aucune sur l\'appareil</string>
+    <string name="switch_update_newer">Mise à jour %1$d dans vos sources ; vous avez la %2$d</string>
+    <string name="switch_update_current">Vous avez la dernière mise à jour (%1$d)</string>
+    <string name="switch_dlc_line">DLC : %1$d dans vos sources, %2$d sur l\'appareil</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d sauvegarde modifiée des deux côtés — ouvrez Dogmatix pour choisir</item>
         <item quantity="other">%d sauvegardes modifiées des deux côtés — ouvrez Dogmatix pour choisir</item>
@@ -874,6 +906,26 @@
     <plurals name="settings_days">
         <item quantity="one">%1$d jour</item>
         <item quantity="other">%1$d jours</item>
+    </plurals>
+    <plurals name="bulk_summary">
+        <item quantity="one">%1$d jeu · %2$s</item>
+        <item quantity="other">%1$d jeux · %2$s</item>
+    </plurals>
+    <plurals name="bulk_skipped_owned">
+        <item quantity="one">%1$d déjà sur l\'appareil</item>
+        <item quantity="other">%1$d déjà sur l\'appareil</item>
+    </plurals>
+    <plurals name="bulk_skipped_active">
+        <item quantity="one">%1$d déjà en cours</item>
+        <item quantity="other">%1$d déjà en cours</item>
+    </plurals>
+    <plurals name="bulk_skipped_versions">
+        <item quantity="one">%1$d autre version ignorée</item>
+        <item quantity="other">%1$d autres versions ignorées</item>
+    </plurals>
+    <plurals name="details_in_collections">
+        <item quantity="one">Dans %1$d collection</item>
+        <item quantity="other">Dans %1$d collections</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

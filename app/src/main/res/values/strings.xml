@@ -775,6 +775,38 @@
     <string name="update_no_checksum">The release has no checksum for the APK; not installed</string>
     <string name="update_checksum_mismatch">The download does not match the release\'s checksum; not installed</string>
     <string name="update_install_failed">Update failed: %1$s</string>
+    <string name="new_badge">New</string>
+    <string name="filter_new">New</string>
+    <string name="filter_new_only">Found in the last 14 days</string>
+    <string name="filter_new_only_short">New</string>
+    <string name="filter_collection">Collection</string>
+    <string name="sort_newest">Newest first</string>
+    <string name="sort_newest_short">Newest</string>
+    <string name="bulk_link">Download all</string>
+    <string name="bulk_title">Download everything shown</string>
+    <string name="bulk_best_only">Only the best version of each game</string>
+    <string name="bulk_counting">Counting…</string>
+    <string name="bulk_free">Free space: %1$s</string>
+    <string name="bulk_no_room">Not enough free space for all of this. Narrow the filters first.</string>
+    <string name="bulk_capped">At most %1$d games at a time</string>
+    <string name="bulk_start">Download %1$d</string>
+    <string name="bulk_queued">%1$s downloads queued</string>
+    <string name="collection_added">Added to %1$s</string>
+    <string name="details_switch_get_update">Get update</string>
+    <string name="details_switch_get_dlc">Get DLC (%1$d)</string>
+    <string name="details_collections">Collections</string>
+    <string name="collections_pick_title">Collections</string>
+    <string name="collections_none_yet">No collections yet. Make one below.</string>
+    <string name="collections_new">New collection</string>
+    <string name="collections_add">Add</string>
+    <string name="switch_kind_base">Base game</string>
+    <string name="switch_kind_update">Update %1$d</string>
+    <string name="switch_kind_dlc">DLC</string>
+    <string name="switch_no_update_listed">No update in your sources</string>
+    <string name="switch_update_none_owned">Update %1$d in your sources; none on this device</string>
+    <string name="switch_update_newer">Update %1$d in your sources; you have %2$d</string>
+    <string name="switch_update_current">You have the newest update (%1$d)</string>
+    <string name="switch_dlc_line">DLC: %1$d in your sources, %2$d on this device</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save changed on both sides — open Dogmatix to choose</item>
         <item quantity="other">%d saves changed on both sides — open Dogmatix to choose</item>
@@ -870,6 +902,26 @@
     <plurals name="settings_days">
         <item quantity="one">%1$d day</item>
         <item quantity="other">%1$d days</item>
+    </plurals>
+    <plurals name="bulk_summary">
+        <item quantity="one">%1$d game · %2$s</item>
+        <item quantity="other">%1$d games · %2$s</item>
+    </plurals>
+    <plurals name="bulk_skipped_owned">
+        <item quantity="one">%1$d already on this device</item>
+        <item quantity="other">%1$d already on this device</item>
+    </plurals>
+    <plurals name="bulk_skipped_active">
+        <item quantity="one">%1$d already downloading</item>
+        <item quantity="other">%1$d already downloading</item>
+    </plurals>
+    <plurals name="bulk_skipped_versions">
+        <item quantity="one">%1$d other version left out</item>
+        <item quantity="other">%1$d other versions left out</item>
+    </plurals>
+    <plurals name="details_in_collections">
+        <item quantity="one">In %1$d collection</item>
+        <item quantity="other">In %1$d collections</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

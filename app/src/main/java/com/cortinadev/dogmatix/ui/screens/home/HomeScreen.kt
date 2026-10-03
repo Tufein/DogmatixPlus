@@ -139,6 +139,11 @@ fun HomeScreen(
     val activeDownloads by viewModel.activeDownloads.collectAsState()
     val favoriteLanguages by viewModel.favoriteLanguages.collectAsState()
     val detailsState by viewModel.details.collectAsState()
+    val newOnly by viewModel.newOnly.collectAsState()
+    val collectionId by viewModel.collectionId.collectAsState()
+    val collections by viewModel.collections.collectAsState()
+    var showBulk by remember { mutableStateOf(false) }
+    var showCollectionPicker by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -206,6 +211,23 @@ fun HomeScreen(
             onSelectionChange = { viewModel.setFavouritesOnly(FAV_ONLY in it) }
         ),
         FilterRowSpec(
+            label = stringResource(R.string.filter_new),
+            options = listOf(
+                FilterOption(FAV_ALL, stringResource(R.string.filter_all)),
+                FilterOption(FAV_ONLY, stringResource(R.string.filter_new_only), stringResource(R.string.filter_new_only_short))
+            ),
+            selected = setOf(if (newOnly) FAV_ONLY else FAV_ALL),
+            single = true,
+            onSelectionChange = { viewModel.setNewOnly(FAV_ONLY in it) }
+        ),
+        FilterRowSpec(
+            label = stringResource(R.string.filter_collection),
+            options = listOf(FilterOption("0", stringResource(R.string.filter_all))) + collections.map { FilterOption(it.id.toString(), it.name) },
+            selected = setOf(collectionId.toString()),
+            single = true,
+            onSelectionChange = { sel -> viewModel.setCollection(sel.firstOrNull()?.toLongOrNull() ?: 0L) }
+        ),
+        FilterRowSpec(
             label = stringResource(R.string.filter_source),
             options = listOf(
                 FilterOption(SourceFilter.ALL.name, stringResource(R.string.filter_all)),
@@ -223,14 +245,16 @@ fun HomeScreen(
                 FilterOption(SortOption.NAME_ASC.name, stringResource(R.string.sort_name_asc)),
                 FilterOption(SortOption.NAME_DESC.name, stringResource(R.string.sort_name_desc)),
                 FilterOption(SortOption.SIZE_DESC.name, stringResource(R.string.sort_size_desc), stringResource(R.string.sort_size_desc_short)),
-                FilterOption(SortOption.SIZE_ASC.name, stringResource(R.string.sort_size_asc), stringResource(R.string.sort_size_asc_short))
+                FilterOption(SortOption.SIZE_ASC.name, stringResource(R.string.sort_size_asc), stringResource(R.string.sort_size_asc_short)),
+                FilterOption(SortOption.NEWEST.name, stringResource(R.string.sort_newest), stringResource(R.string.sort_newest_short))
             ),
             selected = setOf(sort.name),
             single = true,
             onSelectionChange = { sel -> viewModel.setSort(sel.firstOrNull()?.let { SortOption.valueOf(it) } ?: SortOption.NAME_ASC) }
         )
     )
-    val activeFilterCount = selectedConsoles.size + activeTags.size + (if (favouritesOnly) 1 else 0) + (if (sourceFilter != SourceFilter.ALL) 1 else 0)
+    val activeFilterCount = selectedConsoles.size + activeTags.size + (if (favouritesOnly) 1 else 0) + (if (sourceFilter != SourceFilter.ALL) 1 else 0) +
+        (if (newOnly) 1 else 0) + (if (collectionId != 0L) 1 else 0)
 
     val startedMessage = stringResource(R.string.download_started, "%s")
     val favouriteAddedMessage = stringResource(R.string.favourite_added, "%s")
@@ -294,8 +318,38 @@ fun HomeScreen(
         )
     }
 
+    val bulkQueuedMessage = stringResource(R.string.bulk_queued, "%d")
+    if (showBulk) {
+        com.cortinadev.dogmatix.ui.screens.home.components.BulkDownloadDialog(
+            plan = { viewModel.planBulk(it) },
+            onConfirm = { plan ->
+                showBulk = false
+                scope.launch { showMessage(bulkQueuedMessage.replace("%d", viewModel.startBulk(plan, context).toString())) }
+            },
+            onDismiss = { showBulk = false }
+        )
+    }
+    val collectionAddedMessage = stringResource(R.string.collection_added, "%s")
+    if (showCollectionPicker) detailsState?.let { state ->
+        com.cortinadev.dogmatix.ui.screens.home.components.CollectionPickerDialog(
+            collections = collections,
+            selected = state.collectionIds,
+            onToggle = { id -> scope.launch { viewModel.toggleCollection(state.item, id) } },
+            onCreate = { name -> scope.launch { if (viewModel.createCollectionWith(state.item, name)) showMessage(collectionAddedMessage.format(name.trim())) } },
+            onDismiss = { showCollectionPicker = false }
+        )
+    }
+    val updateQueuedMessage = stringResource(R.string.download_started, "%s")
     detailsState?.let { state ->
+        val switch = state.switch
         GameDetailsDialog(
+            onCollections = { showCollectionPicker = true },
+            onDownloadUpdate = switch?.takeIf { it.updateAvailable }?.newestUpdate?.first?.let { row ->
+                { viewModel.downloadRow(row); showMessage(updateQueuedMessage.format(row.name)) }
+            },
+            onDownloadDlc = switch?.missingDlc?.takeIf { it.isNotEmpty() }?.let { rows ->
+                { rows.forEach(viewModel::downloadRow); showMessage(bulkQueuedMessage.replace("%d", rows.size.toString())) }
+            },
             state = state,
             consoleName = ConsoleFormatter.getConsoleShortName(state.item.file.consoleId),
             favourite = viewModel.isFavourite(state.item.file, favouriteKeys),
@@ -344,6 +398,7 @@ fun HomeScreen(
             expandedFilter != null -> expandedFilter = null
             searchActive -> { focusManager.clearFocus(); searchActive = false }
             query.isNotEmpty() -> viewModel.setSearch("")
+            showCollectionPicker -> showCollectionPicker = false
             activeFilterCount > 0 || sort != SortOption.NAME_ASC -> viewModel.clearAllFilters()
             else -> runCatching { Gamepad.sectionFocus.requestFocus() }
         }
@@ -461,6 +516,7 @@ fun HomeScreen(
                             maxLines = 1,
                             modifier = Modifier.weight(1f)
                         )
+                        if (results.isNotEmpty()) PanelArrow(R.drawable.ic_arrow_down, stringResource(R.string.bulk_title)) { showBulk = true }
                         PanelArrow(R.drawable.ic_arrow_left, stringResource(R.string.collapse_filters)) { collapseFilters() }
                     }
                 }
@@ -498,6 +554,7 @@ fun HomeScreen(
                             isOnRomm = { viewModel.isOnRomm(it.file, rommKeys, rommBase) },
                             isFavourite = { viewModel.isFavourite(it.file, favouriteKeys) },
                             isDownloading = { viewModel.isDownloading(it.file, activeDownloads) },
+                            isNew = { viewModel.isNew(it.file) },
                             onRowFocused = { focusedItem = it },
                             onRowLongClick = viewModel::openDetails,
                             query = query,
@@ -553,12 +610,18 @@ fun HomeScreen(
                     onSelect = viewModel::setConsoleSelection,
                     modifier = Modifier.padding(vertical = 10.dp)
                 )
-                Text(
-                    resultsLabel(results.size, hasMoreResults),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 30.dp, bottom = 6.dp)
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(start = 30.dp, end = 20.dp, bottom = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        resultsLabel(results.size, hasMoreResults),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (results.isNotEmpty()) BulkLink { showBulk = true }
+                }
                 ResultList(
                     results = results,
                     compact = false,
@@ -571,6 +634,7 @@ fun HomeScreen(
                     isOnRomm = { viewModel.isOnRomm(it.file, rommKeys, rommBase) },
                     isFavourite = { viewModel.isFavourite(it.file, favouriteKeys) },
                     isDownloading = { viewModel.isDownloading(it.file, activeDownloads) },
+                    isNew = { viewModel.isNew(it.file) },
                     onRowFocused = { focusedItem = it },
                     onRowLongClick = viewModel::openDetails,
                     query = query,
@@ -686,6 +750,7 @@ private fun ResultList(
     isOwned: (DownloadableFileWithTags) -> Boolean,
     isFavourite: (DownloadableFileWithTags) -> Boolean,
     isDownloading: (DownloadableFileWithTags) -> Boolean,
+    isNew: (DownloadableFileWithTags) -> Boolean,
     onRowFocused: (DownloadableFileWithTags) -> Unit,
     onRowLongClick: (DownloadableFileWithTags) -> Unit,
     modifier: Modifier = Modifier,
@@ -776,6 +841,7 @@ private fun ResultList(
                 onRomm = isOnRomm(item),
                 favourite = isFavourite(item),
                 downloading = isDownloading(item),
+                isNew = isNew(item),
                 contentShift = contentShift,
                 // RB from the filters lands on the first row currently on screen.
                 modifier = when {
@@ -808,6 +874,22 @@ private fun ResultList(
             }
         }
     }
+}
+
+/** "Download all" next to the result count (portrait). */
+@Composable
+private fun BulkLink(onClick: () -> Unit) {
+    val source = rememberFocusSource()
+    Text(
+        stringResource(R.string.bulk_link),
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .focusRing(source, 8.dp)
+            .clickable(interactionSource = source, indication = null, onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    )
 }
 
 /** Plain arrow (same tint and size as the filter dropdown arrows) that folds / unfolds the filter panel. */

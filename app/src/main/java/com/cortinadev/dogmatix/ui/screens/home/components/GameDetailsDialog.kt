@@ -25,6 +25,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -49,6 +53,7 @@ import coil.compose.AsyncImage
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.model.GameDetails
 import com.cortinadev.dogmatix.ui.components.TagRow
+import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.focusRing
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.stripExtension
@@ -71,7 +76,12 @@ fun GameDetailsDialog(
     /** The RomM server already has this game. */
     onRomm: Boolean = false,
     /** Downloads the version the library ranks best for the user (see [DetailsState.best]). */
-    onDownloadBest: (() -> Unit)? = null
+    onDownloadBest: (() -> Unit)? = null,
+    /** Opens the collection picker. */
+    onCollections: (() -> Unit)? = null,
+    /** Switch: downloads the newest update / the DLC that are not on disk. */
+    onDownloadUpdate: (() -> Unit)? = null,
+    onDownloadDlc: (() -> Unit)? = null
 ) {
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val scheme = MaterialTheme.colorScheme
@@ -124,7 +134,27 @@ fun GameDetailsDialog(
                 Body(state, title, consoleName, scroll, Modifier.heightIn(max = 300.dp), onRomm)
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth()) {
+            @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+            androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth()) {
+                if (onDownloadUpdate != null) {
+                    val updateSource = rememberFocusSource()
+                    TextButton(onClick = onDownloadUpdate, interactionSource = updateSource, modifier = Modifier.focusRing(updateSource, 20.dp)) {
+                        Text(stringResource(R.string.details_switch_get_update))
+                    }
+                }
+                if (onDownloadDlc != null) {
+                    val dlcSource = rememberFocusSource()
+                    TextButton(onClick = onDownloadDlc, interactionSource = dlcSource, modifier = Modifier.focusRing(dlcSource, 20.dp)) {
+                        Text(stringResource(R.string.details_switch_get_dlc, state.switch?.missingDlc?.size ?: 0))
+                    }
+                }
+                if (onCollections != null) {
+                    val collectionsSource = rememberFocusSource()
+                    TextButton(onClick = onCollections, interactionSource = collectionsSource, modifier = Modifier.focusRing(collectionsSource, 20.dp)) {
+                        Text(if (state.collectionIds.isEmpty()) stringResource(R.string.details_collections)
+                             else pluralStringResource(R.plurals.details_in_collections, state.collectionIds.size, state.collectionIds.size))
+                    }
+                }
                 val favouriteSource = rememberFocusSource()
                 TextButton(onClick = onToggleFavourite, interactionSource = favouriteSource, modifier = Modifier.focusRing(favouriteSource, 20.dp)) {
                     Text(stringResource(if (favourite) R.string.details_unfavourite else R.string.details_favourite))
@@ -195,6 +225,8 @@ private fun Body(state: DetailsState, title: String, consoleName: String, scroll
             )
         }
 
+        state.switchTitle?.let { title -> SwitchLines(title, state.switch) }
+
         Box(modifier = Modifier.weight(1f, fill = false)) {
             when {
                 state.loading -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(vertical = 8.dp)) {
@@ -214,5 +246,86 @@ private fun Body(state: DetailsState, title: String, consoleName: String, scroll
         }
     }
 }
+
+/** What a Switch file is (base game, update, DLC) and how its game's updates and DLC stand. */
+@Composable
+private fun SwitchLines(title: com.cortinadev.dogmatix.util.SwitchTitles.Title, status: com.cortinadev.dogmatix.util.SwitchTitles.GameStatus<*>?) {
+    val scheme = MaterialTheme.colorScheme
+    val kind = when (title.kind) {
+        com.cortinadev.dogmatix.util.SwitchTitles.Kind.BASE -> stringResource(R.string.switch_kind_base)
+        com.cortinadev.dogmatix.util.SwitchTitles.Kind.UPDATE -> stringResource(R.string.switch_kind_update, title.release ?: 0L)
+        com.cortinadev.dogmatix.util.SwitchTitles.Kind.DLC -> stringResource(R.string.switch_kind_dlc)
+    }
+    Text("$kind · ${title.id}", style = MaterialTheme.typography.labelMedium, color = scheme.onSurfaceVariant)
+    if (status == null) return
+    val update = status.newestUpdate?.second
+    val updateText = when {
+        update == null -> stringResource(R.string.switch_no_update_listed)
+        status.ownedUpdate == null -> stringResource(R.string.switch_update_none_owned, update / 65_536)
+        status.updateAvailable -> stringResource(R.string.switch_update_newer, update / 65_536, status.ownedUpdate / 65_536)
+        else -> stringResource(R.string.switch_update_current, status.ownedUpdate / 65_536)
+    }
+    Text(updateText, style = MaterialTheme.typography.labelMedium, color = if (status.updateAvailable) scheme.primary else scheme.onSurfaceVariant)
+    if (status.dlcInLibrary > 0) Text(
+        stringResource(R.string.switch_dlc_line, status.dlcInLibrary, status.dlcOwned),
+        style = MaterialTheme.typography.labelMedium, color = if (status.missingDlc.isNotEmpty()) scheme.primary else scheme.onSurfaceVariant
+    )
+}
+
+/**
+ * The own collections, ticked where [state]'s game is in them, plus a field to start a new one.
+ * A tap puts the game in or takes it out right away.
+ */
+@Composable
+fun CollectionPickerDialog(
+    collections: List<com.cortinadev.dogmatix.data.local.dao.CollectionWithCount>,
+    selected: Set<Long>,
+    onToggle: (Long) -> Unit,
+    onCreate: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    val closeFocus = com.cortinadev.dogmatix.ui.components.rememberInitialFocus()
+    androidx.compose.material3.AlertDialog(
+        modifier = Modifier.closeOnGamepadB(onDismiss),
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.collections_pick_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState())) {
+                if (collections.isEmpty()) Text(stringResource(R.string.collections_none_yet), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                collections.forEach { c ->
+                    val source = rememberFocusSource()
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .focusRing(source)
+                            .toggleRow(c.id in selected, source) { onToggle(c.id) }
+                            .padding(horizontal = 8.dp, vertical = 8.dp)
+                    ) {
+                        androidx.compose.material3.Checkbox(checked = c.id in selected, onCheckedChange = null)
+                        Text(c.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(c.count.toString(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+                    androidx.compose.material3.OutlinedTextField(
+                        value = name, onValueChange = { name = it.take(60) }, singleLine = true,
+                        label = { Text(stringResource(R.string.collections_new)) }, modifier = Modifier.weight(1f)
+                    )
+                    TextButton(onClick = { if (name.isNotBlank()) { onCreate(name); name = "" } }, enabled = name.isNotBlank()) {
+                        Text(stringResource(R.string.collections_add))
+                    }
+                }
+            }
+        },
+        confirmButton = { com.cortinadev.dogmatix.ui.components.DialogButton(text = stringResource(R.string.dialog_close), onClick = onDismiss, initialFocus = closeFocus) }
+    )
+}
+
+private fun Modifier.toggleRow(value: Boolean, source: androidx.compose.foundation.interaction.MutableInteractionSource, onToggle: () -> Unit): Modifier =
+    this.toggleable(value = value, interactionSource = source, indication = null, onValueChange = { onToggle() })
 
 private const val SCROLL_STEP = 160f

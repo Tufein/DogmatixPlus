@@ -54,6 +54,8 @@ fun RomRow(
     onRomm: Boolean = false,
     favourite: Boolean = false,
     downloading: Boolean = false,
+    /** A recent rescan found this file (see [com.cortinadev.dogmatix.util.NewGames]). */
+    isNew: Boolean = false,
     /**
      * Horizontal shift (px) of the left-anchored content, read at placement time so the filter
      * panel animation can slide names along without re-measuring the row. 0 when idle.
@@ -84,6 +86,7 @@ fun RomRow(
                 if (favourite) FavouriteBadge()
                 if (downloading) DownloadingBadge() else if (owned) OwnedBadge()
                 if (onRomm) RommBadge()
+                if (isNew) NewBadge()
                 Text(
                     stripExtension(rom.name),
                     style = MaterialTheme.typography.bodyLarge,
@@ -117,6 +120,7 @@ fun RomRow(
                     if (favourite) FavouriteBadge()
                     if (downloading) DownloadingBadge() else if (owned) OwnedBadge()
                     if (onRomm) RommBadge()
+                    if (isNew) NewBadge()
                     Text(
                         stripExtension(rom.name),
                         style = MaterialTheme.typography.bodyLarge,
@@ -180,6 +184,21 @@ private fun RommBadge() {
         modifier = Modifier
             .clip(RoundedCornerShape(6.dp))
             .background(MaterialTheme.colorScheme.secondaryContainer)
+            .padding(horizontal = 6.dp, vertical = 1.dp)
+    )
+}
+
+/** Small "New" pill: a recent rescan found this file. */
+@Composable
+private fun NewBadge() {
+    Text(
+        stringResource(R.string.new_badge),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onTertiaryContainer,
+        maxLines = 1,
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(MaterialTheme.colorScheme.tertiaryContainer)
             .padding(horizontal = 6.dp, vertical = 1.dp)
     )
 }
