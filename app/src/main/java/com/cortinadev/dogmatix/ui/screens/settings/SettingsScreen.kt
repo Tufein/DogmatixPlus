@@ -390,8 +390,8 @@ fun SettingsScreen(
                 )
             }
         },
-        SettingsRow(right = true) {
-            if (limitKb > 0) SettingRow(
+        SettingsRow(right = true, visible = limitKb > 0) {
+            SettingRow(
                 title = stringResource(R.string.settings_limit_day_only),
                 hint = stringResource(R.string.settings_limit_day_only_hint, DownloadPolicy.formatMinutes(more.nightStart), DownloadPolicy.formatMinutes(more.nightEnd)),
                 onClick = { extra.setSpeedLimitDayOnly(context, !v2.speedLimitDayOnly) },
@@ -438,8 +438,8 @@ fun SettingsScreen(
                 Stepper(debrid.label, onDecrement = { cycleDebrid(-1) }, onIncrement = { cycleDebrid(1) }, valueWidth = 110.dp)
             }
         },
-        SettingsRow(right = true) {
-            if (debrid != DebridProvider.NONE) SettingRow(
+        SettingsRow(right = true, visible = debrid != DebridProvider.NONE) {
+            SettingRow(
                 title = debridKeyTitle,
                 hint = maskedSecret(debridKey),
                 onClick = { showDebridKeyDialog = true }
@@ -471,14 +471,14 @@ fun SettingsScreen(
                 onAdjust = { extra.setNightOnly(context, it > 0) }
             ) { ThemedSwitch(more.nightOnly) { extra.setNightOnly(context, it) } }
         },
-        SettingsRow(right = true) {
-            if (more.nightOnly) SettingRow(
+        SettingsRow(right = true, visible = more.nightOnly) {
+            SettingRow(
                 title = stringResource(R.string.settings_dl_night_start), hint = null,
                 onClick = { shiftNightStart(1) }, onAdjust = ::shiftNightStart
             ) { Stepper(DownloadPolicy.formatMinutes(more.nightStart), onDecrement = { shiftNightStart(-1) }, onIncrement = { shiftNightStart(1) }, valueWidth = 72.dp) }
         },
-        SettingsRow(right = false) {
-            if (more.nightOnly) SettingRow(
+        SettingsRow(right = false, visible = more.nightOnly) {
+            SettingRow(
                 title = stringResource(R.string.settings_dl_night_end), hint = null,
                 onClick = { shiftNightEnd(1) }, onAdjust = ::shiftNightEnd
             ) { Stepper(DownloadPolicy.formatMinutes(more.nightEnd), onDecrement = { shiftNightEnd(-1) }, onIncrement = { shiftNightEnd(1) }, valueWidth = 72.dp) }
@@ -492,8 +492,8 @@ fun SettingsScreen(
                 onAdjust = { extra.setAutoScan(context, it > 0) }
             ) { ThemedSwitch(v2.autoScan) { extra.setAutoScan(context, it) } }
         },
-        SettingsRow(right = false) {
-            if (v2.autoScan) SettingRow(
+        SettingsRow(right = false, visible = v2.autoScan) {
+            SettingRow(
                 title = stringResource(R.string.settings_autoscan_every), hint = null,
                 onClick = { extra.shiftAutoScanHours(context, 1) }, onAdjust = { extra.shiftAutoScanHours(context, it) }
             ) {
@@ -504,20 +504,20 @@ fun SettingsScreen(
                 )
             }
         },
-        SettingsRow(right = false) {
-            if (v2.autoScan) SettingRow(
+        SettingsRow(right = false, visible = v2.autoScan) {
+            SettingRow(
                 title = stringResource(R.string.settings_autoscan_wifi), hint = null,
                 onClick = { extra.setAutoScanWifi(context, !v2.autoScanWifi) }, onAdjust = { extra.setAutoScanWifi(context, it > 0) }
             ) { ThemedSwitch(v2.autoScanWifi) { extra.setAutoScanWifi(context, it) } }
         },
-        SettingsRow(right = false) {
-            if (v2.autoScan) SettingRow(
+        SettingsRow(right = false, visible = v2.autoScan) {
+            SettingRow(
                 title = stringResource(R.string.settings_autoscan_charging), hint = null,
                 onClick = { extra.setAutoScanCharging(context, !v2.autoScanCharging) }, onAdjust = { extra.setAutoScanCharging(context, it > 0) }
             ) { ThemedSwitch(v2.autoScanCharging) { extra.setAutoScanCharging(context, it) } }
         },
-        SettingsRow(right = false) {
-            if (v2.autoScan) SettingRow(
+        SettingsRow(right = false, visible = v2.autoScan) {
+            SettingRow(
                 title = stringResource(R.string.settings_autoscan_night),
                 hint = stringResource(R.string.settings_autoscan_night_hint, DownloadPolicy.formatMinutes(more.nightStart), DownloadPolicy.formatMinutes(more.nightEnd)),
                 onClick = { extra.setAutoScanNight(context, !v2.autoScanNight) }, onAdjust = { extra.setAutoScanNight(context, it > 0) }
@@ -681,9 +681,11 @@ fun SettingsScreen(
             }
         }
     )
-    val rows: List<@Composable () -> Unit> = if (!isLandscape) ordered.map { it.content } else {
-        val left = ordered.filter { !it.right }.map { it.content }
-        val right = ordered.filter { it.right }.map { it.content }
+    // Rows that do not apply right now are left out, so the two columns have no gaps.
+    val shown = ordered.filter { it.visible }
+    val rows: List<@Composable () -> Unit> = if (!isLandscape) shown.map { it.content } else {
+        val left = shown.filter { !it.right }.map { it.content }
+        val right = shown.filter { it.right }.map { it.content }
         (0 until maxOf(left.size, right.size)).flatMap { i -> listOf(left.getOrNull(i) ?: {}, right.getOrNull(i) ?: {}) }
     }
 
@@ -737,7 +739,7 @@ fun SettingsScreen(
 }
 
 /** One Settings entry; [right] puts it in the right-hand column of the landscape grid. */
-private class SettingsRow(val right: Boolean, val content: @Composable () -> Unit)
+private class SettingsRow(val right: Boolean, val visible: Boolean = true, val content: @Composable () -> Unit)
 
 /**
  * A focusable settings row. Click / A runs [onClick]; while focused, D-pad left/right
