@@ -1,6 +1,9 @@
 package com.cortinadev.dogmatix.data.service
 
+import android.content.Context
+import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
+import dagger.hilt.android.qualifiers.ApplicationContext
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.local.entity.FileTagEntity
 import com.cortinadev.dogmatix.data.model.Manufacturer
@@ -17,6 +20,7 @@ import javax.inject.Singleton
 
 @Singleton
 class DatabaseScrapingService @Inject constructor(
+    @param:ApplicationContext private val context: Context,
     private val downloadableFileDao: DownloadableFileDao,
     private val torrentScrapingService: TorrentScrapingService,
     private val rommScrapingService: RommScrapingService
@@ -111,8 +115,13 @@ class DatabaseScrapingService @Inject constructor(
      *
      * [onScrapeError] is invoked on [Dispatchers.IO]. Implementations must be thread-safe
      * (e.g. updating a [kotlinx.coroutines.flow.MutableStateFlow] is fine; touching UI is not).
+     * [onSourceDone] runs after every enabled source, failed or not (scan progress).
      */
-    suspend fun scrapeManufacturer(manufacturer: Manufacturer, onScrapeError: (String) -> Unit = {}): Pair<Int, Int> =
+    suspend fun scrapeManufacturer(
+        manufacturer: Manufacturer,
+        onScrapeError: (String) -> Unit = {},
+        onSourceDone: () -> Unit = {}
+    ): Pair<Int, Int> =
         withContext(Dispatchers.IO) {
             var totalFiles = 0
             var totalTags = 0
@@ -129,7 +138,9 @@ class DatabaseScrapingService @Inject constructor(
                         totalFiles += files
                         totalTags += tags
                     } catch (e: Exception) {
-                        onScrapeError("Failed to scrape ${console.name}: ${e.message}")
+                        onScrapeError(context.getString(R.string.scrape_failed, console.name, e.message ?: ""))
+                    } finally {
+                        onSourceDone()
                     }
                 }
             }

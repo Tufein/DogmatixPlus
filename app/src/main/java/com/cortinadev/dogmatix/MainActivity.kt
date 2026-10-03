@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -241,10 +242,10 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
     if (rescanErrorMessage != null) {
         AlertDialog(
             onDismissRequest = { sourcesViewModel.clearRescanError() },
-            title = { Text("Scraping Error") },
+            title = { Text(stringResource(R.string.scrape_error_title)) },
             text = { Text(rescanErrorMessage ?: "") },
             confirmButton = {
-                TextButton(onClick = { sourcesViewModel.clearRescanError() }) { Text("OK") }
+                TextButton(onClick = { sourcesViewModel.clearRescanError() }) { Text(stringResource(android.R.string.ok)) }
             }
         )
     }

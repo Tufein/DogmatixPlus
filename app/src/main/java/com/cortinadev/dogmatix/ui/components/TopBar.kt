@@ -32,6 +32,7 @@ fun RescanIndicator(modifier: Modifier = Modifier) {
     val isRescanning by rescanStateHolder.isRescanning.collectAsState()
     val progressMessage by rescanStateHolder.progressMessage.collectAsState()
     val torrentFetchProgress by rescanStateHolder.torrentFetchProgress.collectAsState()
+    val progress by rescanStateHolder.progress.collectAsState()
 
     if (!isRescanning) return
 
@@ -39,14 +40,26 @@ fun RescanIndicator(modifier: Modifier = Modifier) {
         torrentFetchProgress.isNotEmpty() -> torrentFetchProgress
         progressMessage.isNotEmpty() -> progressMessage
         else -> stringResource(R.string.sources_rescanning_sources)
-    }
+    }.let { message -> progress?.let { stringResource(R.string.scan_progress, it.percent, message) } ?: message }
 
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(14.dp),
-            strokeWidth = 2.dp,
-            color = MaterialTheme.colorScheme.primary
-        )
+        // Fills up with the share of sources done; spins until the scan has counted them.
+        val fraction = progress?.fraction
+        if (fraction != null) {
+            CircularProgressIndicator(
+                progress = { fraction },
+                modifier = Modifier.size(14.dp),
+                strokeWidth = 2.dp,
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
+            )
+        } else {
+            CircularProgressIndicator(
+                modifier = Modifier.size(14.dp),
+                strokeWidth = 2.dp,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
         Text(
             text = displayMessage,
             modifier = Modifier.padding(start = 8.dp),

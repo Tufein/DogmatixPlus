@@ -59,8 +59,8 @@ class DownloadForegroundService : Service() {
 
     private fun promoteToForeground() {
         val notification = NotificationCompat.Builder(this, DogmatixApplication.DOWNLOAD_CHANNEL_ID)
-            .setContentTitle("Downloading")
-            .setContentText("Downloads are running in the background")
+            .setContentTitle(getString(R.string.notification_downloading))
+            .setContentText(getString(R.string.notification_downloading_text))
             .setSmallIcon(R.drawable.ic_arrow_down)
             .setOngoing(true)
             .setSilent(true)

@@ -71,10 +71,10 @@ class DogmatixApplication : Application() {
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             DOWNLOAD_CHANNEL_ID,
-            "Downloads",
+            getString(R.string.notification_channel_downloads),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = "Active download progress"
+            description = getString(R.string.notification_channel_downloads_desc)
             setShowBadge(false)
         }
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)

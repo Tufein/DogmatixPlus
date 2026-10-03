@@ -1,6 +1,9 @@
 package com.cortinadev.dogmatix.data.service
 
+import android.content.Context
 import android.util.Log
+import com.cortinadev.dogmatix.R
+import dagger.hilt.android.qualifiers.ApplicationContext
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.local.entity.FileTagEntity
@@ -22,6 +25,7 @@ private const val TAG = "RommScrapingService"
  */
 @Singleton
 class RommScrapingService @Inject constructor(
+    @param:ApplicationContext private val context: Context,
     private val rommClient: RommClient,
     private val downloadableFileDao: DownloadableFileDao,
     private val rescanStateHolder: RescanStateHolder
@@ -29,7 +33,7 @@ class RommScrapingService @Inject constructor(
     suspend fun scrapeAndInsert(urlEntry: UrlEntry, console: Console): Pair<Int, Int> = withContext(Dispatchers.IO) {
         val slug = RommSource.slugOf(urlEntry.url) ?: throw Exception("Invalid RomM source '${urlEntry.url}' (expected romm://<platform>)")
         val base = rommClient.configuredBaseUrl().ifEmpty { throw Exception("RomM server not configured (Settings → RomM)") }
-        rescanStateHolder.setTorrentFetchProgress("Listing $slug on RomM…")
+        rescanStateHolder.setTorrentFetchProgress(context.getString(R.string.scrape_listing_romm, slug))
         try {
             val platform = rommClient.platforms().firstOrNull { it.slug.equals(slug, true) || it.fsSlug.equals(slug, true) || it.id.toString() == slug }
                 ?: throw Exception("RomM has no platform '$slug'")

@@ -89,7 +89,10 @@ import java.util.Date
 enum class AppLanguage(val tag: String, val label: Int) {
     SYSTEM("", R.string.language_system),
     EN("en", R.string.language_en),
-    ES("es", R.string.language_es);
+    ES("es", R.string.language_es),
+    NL("nl", R.string.language_nl),
+    FR("fr", R.string.language_fr),
+    DE("de", R.string.language_de);
 
     companion object {
         fun current(): AppLanguage {

@@ -239,6 +239,7 @@ class SourcesViewModel @Inject constructor(
                 val added = defaultSourcesLoader.syncNewDefaults()
                 if (added.isEmpty()) return@launch
                 withRescanState {
+                    rescanStateHolder.startProgress(added.sumOf { (_, urls) -> scanWeight(urls) })
                     added.forEachIndexed { i, (entity, newUrls) ->
                         rescanStateHolder.setProgressMessage(
                             context.getString(R.string.sources_processing_console, i + 1, added.size, entity.name))
@@ -263,6 +264,7 @@ class SourcesViewModel @Inject constructor(
             val entity = sources.getConsoleEntity(consoleId) ?: return@launch
             withRescanState {
                 rescanStateHolder.setProgressMessage(context.getString(R.string.sources_refreshing_console, entity.name))
+                rescanStateHolder.startProgress(scanWeight(SourcesJson.parseUrlEntries(entity.urls)))
                 databaseScrapingService.clearConsoleData(consoleId)
                 scrapeConsole(Console(entity.id, entity.name, SourcesJson.parseUrlEntries(entity.urls)), entity.manufacturerId)
             }
@@ -274,6 +276,7 @@ class SourcesViewModel @Inject constructor(
         val total = current.sumOf { it.consoles.size }
         var processed = 0
         rescanStateHolder.setProgressMessage(context.getString(startMessage, total))
+        rescanStateHolder.startProgress(current.sumOf { m -> m.consoles.sumOf { scanWeight(it.urls) } })
         current.forEach { manufacturer ->
             manufacturer.consoles.forEach { console ->
                 processed++
@@ -287,11 +290,17 @@ class SourcesViewModel @Inject constructor(
     private suspend fun scrapeConsole(console: Console, manufacturerId: String) {
         databaseScrapingService.scrapeManufacturer(
             Manufacturer(manufacturerId, manufacturerId, listOf(console)),
-            onScrapeError = { rescanStateHolder.setErrorMessage(it) }
+            onScrapeError = { rescanStateHolder.setErrorMessage(it) },
+            onSourceDone = rescanStateHolder::advanceProgress
         )
+        // A console with nothing enabled still counts as one step (see scanWeight).
+        if (console.urls.none { it.enabled }) rescanStateHolder.advanceProgress()
         // Shown per console in the library overview.
         runCatching { settingsRepository.markConsoleScanned(console.id, System.currentTimeMillis()) }
     }
+
+    /** Steps a console adds to the scan progress: one per enabled source, at least one. */
+    private fun scanWeight(urls: List<UrlEntry>): Int = urls.count { it.enabled }.coerceAtLeast(1)
 
     private suspend fun withRescanState(block: suspend () -> Unit) {
         rescanStateHolder.setRescanning(true)

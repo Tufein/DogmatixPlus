@@ -1,0 +1,511 @@
+<resources>
+    <!-- App Info -->
+    <string name="app_name">Dogmatix</string>
+    <string name="credits_title">Mitwirkende</string>
+    <string name="credits_fork_role">Softwareentwickler · Dogmatix (UI/UX-Fork)</string>
+    <string name="credits_fork_name">Rafa Cortina</string>
+    <string name="credits_original_role">Angeblicher Softwareingenieur · ursprünglicher Autor von Milou</string>
+    <string name="credits_original_name">santiifm</string>
+    <string name="credits_original_note">Dogmatix ist ein Fork von Milou. Das gesamte Scraping, Indexieren und Herunterladen stammt von ihm.</string>
+    <string name="credits_link_github">GitHub</string>
+    <string name="credits_link_linkedin">LinkedIn</string>
+    <string name="credits_link_web">Website</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Start</string>
+    <string name="nav_downloads">Downloads</string>
+    <string name="nav_settings">Einstellungen</string>
+    <string name="nav_sources">Quellen</string>
+    <string name="nav_library">Bibliothek</string>
+    <string name="nav_contact">Kontakt</string>
+
+    <!-- Gamepad legend -->
+    <string name="pad_download">Herunterladen</string>
+    <string name="pad_back">Zurück</string>
+    <string name="pad_filters">Filter</string>
+    <string name="pad_search">Suchen</string>
+    <string name="pad_section">Bereich</string>
+    <string name="pad_panels">Feld</string>
+    <string name="pad_select">Auswählen</string>
+    <string name="pad_retry">Wiederholen / Stopp</string>
+    <string name="pad_delete">Löschen</string>
+    <string name="pad_open">Öffnen</string>
+    <string name="pad_change">Ändern</string>
+    <string name="pad_adjust">Anpassen</string>
+    <string name="pad_column">Spalte</string>
+    <string name="pad_none">Kein Gamepad · zum Navigieren tippen</string>
+    <string name="pad_games">Spieleliste</string>
+    <string name="pad_options">Optionen</string>
+    <string name="pad_details">Details</string>
+    <string name="pad_close">Schließen</string>
+    <string name="pad_scroll">Scrollen</string>
+    <string name="details_loading">Spielinfos werden gesucht…</string>
+    <string name="details_not_found">Keine Details zu diesem Spiel gefunden.</string>
+    <string name="details_source">Daten von %1$s</string>
+    <string name="details_close">Schließen</string>
+    <string name="details_download">Herunterladen</string>
+    <string name="pad_keyboard">Tastatur</string>
+    <string name="pad_close_keyboard">Tastatur schließen</string>
+    <string name="owned">In deiner Bibliothek</string>
+    <string name="owned_dialog_message">Dieses Spiel ist bereits in deiner Bibliothek. Erneut herunterladen oder vom Speicher löschen?</string>
+    <string name="owned_download_again">Erneut herunterladen</string>
+    <string name="owned_delete">Löschen</string>
+    <string name="owned_deleted">„%1$s“ wurde gelöscht</string>
+    <string name="owned_delete_failed">„%1$s“ konnte nicht gelöscht werden</string>
+    <string name="downloading_badge">Wird geladen</string>
+    <string name="favourite">Favorit</string>
+    <string name="favourites_only">Nur Favoriten</string>
+    <string name="favourites_only_short">★</string>
+    <string name="filter_favourites">Favoriten</string>
+    <string name="favourite_added">★ „%1$s“ zu Favoriten hinzugefügt</string>
+    <string name="favourite_removed">„%1$s“ aus Favoriten entfernt</string>
+    <string name="details_favourite">☆ Favorit</string>
+    <string name="details_unfavourite">★ Kein Favorit mehr</string>
+    <string name="pad_favourite">Favorit</string>
+    <string name="pad_tick">Markieren</string>
+    <string name="pad_apply">Anwenden</string>
+    <string name="pad_select_all">Alle</string>
+    <string name="pad_cancel">Abbrechen</string>
+    <string name="selection_selected">Ausgewählt</string>
+    <string name="selection_clear">Auswahl aufheben</string>
+    <string name="download_already_active">„%1$s“ wird bereits heruntergeladen</string>
+    <string name="free_space">%1$s frei</string>
+
+    <!-- Library -->
+    <string name="filters">Filter</string>
+    <string name="collapse_filters">Filter ausblenden</string>
+    <string name="expand_filters">Filter einblenden</string>
+    <string name="filter_console">Konsole</string>
+    <string name="filter_region">Region</string>
+    <string name="filter_language">Sprache</string>
+    <string name="filter_tag">Tag</string>
+    <string name="filter_source">Quelle</string>
+    <string name="source_torrent">Torrent</string>
+    <string name="source_romm">RomM</string>
+    <string name="source_direct">Direktlink</string>
+    <string name="filter_sort">Sortieren</string>
+    <string name="filter_any">Beliebig</string>
+    <string name="filter_all">Alle</string>
+    <string name="filter_selected_count">%1$d ausgewählt</string>
+    <string name="filter_show_more">Mehr anzeigen…</string>
+    <string name="filter_show_less">Weniger anzeigen</string>
+    <string name="sort_name_asc">A → Z</string>
+    <string name="sort_name_desc">Z → A</string>
+    <string name="sort_size_desc">Größe: groß → klein</string>
+    <string name="sort_size_desc_short">Größe ↓</string>
+    <string name="sort_size_asc">Größe: klein → groß</string>
+    <string name="sort_size_asc_short">Größe ↑</string>
+    <string name="results_count">%1$d Ergebnisse</string>
+    <string name="results_count_more">%1$d+ Ergebnisse</string>
+    <string name="no_results">Nichts passt zu diesen Filtern.</string>
+    <string name="show_results">Ergebnisse anzeigen</string>
+    <string name="column_name">NAME</string>
+    <string name="column_tags">TAGS</string>
+    <string name="column_size">GRÖSSE</string>
+
+    <!-- Downloads -->
+    <string name="downloads_summary">%1$d aktiv · %2$d fertig</string>
+    <string name="downloads_empty">Noch keine Downloads. Wähle ein Spiel in der Bibliothek.</string>
+    <plurals name="downloads_selected">
+        <item quantity="one">%1$d ausgewählt</item>
+        <item quantity="other">%1$d ausgewählt</item>
+    </plurals>
+    <string name="status_downloading">%1$d%%</string>
+    <string name="status_completed">Fertig</string>
+    <string name="status_failed">Fehlgeschlagen</string>
+    <string name="status_stopped">Gestoppt</string>
+    <string name="status_paused">Pausiert</string>
+    <string name="download_pause">Pausieren</string>
+    <string name="download_resume">Fortsetzen</string>
+    <string name="status_copying">Wird in den Speicher kopiert…</string>
+    <string name="status_queued_debrid">%1$s %2$d%%</string>
+    <string name="settings_debrid">Debrid-Dienst</string>
+    <string name="settings_debrid_hint">Der Dienst holt die Torrents und du lädst sie per HTTP herunter</string>
+    <string name="settings_debrid_key">%1$s-API-Schlüssel</string>
+    <string name="settings_torbox_key_dialog_hint">Unter torbox.app → Settings → API. Wird nur auf diesem Gerät gespeichert.</string>
+    <string name="settings_realdebrid_key_dialog_hint">Unter real-debrid.com/apitoken (Premium-Konto nötig). Wird nur auf diesem Gerät gespeichert.</string>
+    <string name="settings_test">Testen</string>
+    <string name="api_key_label">API-Schlüssel</string>
+    <string name="debrid_key_valid">%1$s: verbunden als %2$s</string>
+    <string name="debrid_key_invalid">%1$s: %2$s</string>
+    <string name="settings_frontend_shortcuts">Frontend-Verknüpfungen</string>
+    <string name="settings_frontend_shortcuts_hint">Legt eine Dogmatix-Verknüpfung (.dgmtx) in jeden Plattformordner, für ES-DE und ähnliche Frontends</string>
+    <string name="settings_frontend_shortcuts_action">Erstellen</string>
+    <string name="frontend_shortcuts_done">%1$d Verknüpfungen erstellt</string>
+    <string name="frontend_shortcuts_partial">%1$d Verknüpfungen erstellt, %2$d fehlgeschlagen</string>
+    <string name="frontend_shortcuts_none">Kein Download-Ordner festgelegt</string>
+    <string name="dgmtx_invalid">Keine Dogmatix-Verknüpfungsdatei</string>
+    <string name="settings_esde">ES-DE einrichten</string>
+    <string name="settings_esde_hint">Wähle deinen ES-DE-Ordner und Dogmatix trägt sich in jede Plattform ein (ES-DE vorher schließen)</string>
+    <string name="settings_esde_action">Einrichten</string>
+    <string name="esde_configured">ES-DE: %1$d Systeme bereit, %2$d Verknüpfungen — ES-DE neu starten</string>
+    <string name="esde_folders_skipped">%1$d Ordner haben kein passendes ES-DE-System</string>
+    <string name="esde_not_installed">ES-DE ist auf diesem Gerät nicht installiert</string>
+    <string name="settings_iisu">iiSU einrichten</string>
+    <string name="settings_iisu_hint">Wähle den iiSULauncher-Ordner von iiSU und Dogmatix trägt sich als Emulator ein (iiSU danach neu starten)</string>
+    <string name="settings_iisu_action">Einrichten</string>
+    <string name="iisu_configured">iiSU: %1$d Konsolen bereit, %2$d Verknüpfungen — iiSU neu starten</string>
+    <string name="iisu_folders_skipped">%1$d Ordner haben keine passende iiSU-Konsole</string>
+    <string name="iisu_not_installed">iiSU ist auf diesem Gerät nicht installiert</string>
+    <string name="iisu_wrong_folder">Das ist nicht der iiSULauncher-Ordner von iiSU (er liegt in Android/media/com.iisulauncher)</string>
+    <string name="frontend_folder_not_writable">In den gewählten Ordner kann nicht geschrieben werden</string>
+    <string name="frontend_no_console_folders">Keine Ordner pro Konsole: schalte zuerst „Unterordner pro Konsole“ ein</string>
+    <string name="frontend_config_unreadable">Die Konfiguration des Frontends konnte nicht gelesen werden — nichts wurde geändert</string>
+    <string name="frontend_config_corrupt">Die Konfigurationsdatei des Frontends scheint beschädigt — nichts wurde geändert</string>
+    <string name="frontend_write_failed">Schreiben in den Ordner des Frontends ist fehlgeschlagen</string>
+    <string name="settings_daijisho">Daijishō einrichten</string>
+    <string name="settings_daijisho_hint">Daijishō hat keine importierbare Emulator-Konfiguration: hol dir die Werte zum manuellen Eintragen</string>
+    <string name="settings_daijisho_action">Anzeigen</string>
+    <string name="daijisho_dialog_title">Dogmatix zu Daijishō hinzufügen</string>
+    <string name="daijisho_dialog_body">%1$d Verknüpfungen sind angelegt. Daijishō speichert seine Player in einer eigenen Datenbank, daher musst du den Eintrag von Hand hinzufügen: Öffne Settings › Library › Add an emulator, trage diese Werte ein (Kill-Processes-Schalter aus lassen) und synchronisiere danach.</string>
+    <string name="daijisho_field_name">Emulatorname</string>
+    <string name="daijisho_field_arguments">Am-start-Argumente des Emulators</string>
+    <string name="daijisho_field_regex">Regex für akzeptierte Dateinamen</string>
+    <string name="dialog_copy">Kopieren</string>
+    <string name="dialog_close">Schließen</string>
+    <string name="onboarding_esde_title">Mit ES-DE verbinden</string>
+    <string name="onboarding_esde_body">ES-DE ist auf diesem Gerät installiert. Wähle seinen Datenordner (der mit gamelists und downloaded_media, meist ES-DE) und Dogmatix erscheint in jeder Plattform als „★ Search for more games…“. Schließe ES-DE vorher — du kannst das auch später in den Einstellungen erledigen.</string>
+    <string name="onboarding_esde_choose">ES-DE-Ordner wählen</string>
+    <string name="onboarding_esde_configuring">ES-DE wird eingerichtet…</string>
+    <string name="nav_romm">RomM</string>
+    <string name="settings_romm">RomM-Server</string>
+    <string name="settings_romm_hint">Fertige Downloads in eine RomM-Bibliothek hochladen</string>
+    <string name="romm_server_url">Server-URL</string>
+    <string name="romm_url_dialog_hint">z. B. https://romm.beispiel.de (ohne Pfad am Ende)</string>
+    <string name="romm_token">API-Token</string>
+    <string name="romm_token_dialog_hint">Ein Client-API-Token (rmm_…) aus Administration → Client API Tokens, oder benutzer:passwort.</string>
+    <string name="romm_test_connection">Verbindung testen</string>
+    <string name="romm_testing">Wird getestet…</string>
+    <string name="romm_connected">RomM: verbunden, %1$d Plattformen</string>
+    <string name="romm_connection_failed">RomM: %1$s</string>
+    <string name="romm_platforms_none">Noch keine Plattformen geladen</string>
+    <string name="romm_platforms_count">%1$d Plattformen auf dem Server</string>
+    <string name="romm_auto_upload">Fertige Downloads hochladen</string>
+    <string name="romm_auto_upload_hint">Nur Konsolen, die unten einer Plattform zugeordnet sind</string>
+    <string name="romm_platforms_header">Konsole → Plattform</string>
+    <string name="romm_platforms_hint">◀ ▶ wählt die RomM-Plattform, in die jede Konsole hochlädt</string>
+    <string name="romm_apply_suggestions">Vorschläge übernehmen</string>
+    <string name="romm_suggestions_applied">%1$d Konsole(n) zugeordnet</string>
+    <string name="romm_not_mapped">Nicht zugeordnet</string>
+    <string name="romm_suggested">%1$s · vorgeschlagen</string>
+    <string name="romm_upload_progress">↑ RomM %1$d%%</string>
+    <string name="romm_uploaded">↑ Zu RomM hochgeladen</string>
+    <string name="romm_upload_failed">↑ RomM-Upload fehlgeschlagen: %1$s</string>
+    <string name="romm_upload_retry">RomM-Upload wiederholen</string>
+    <string name="status_extracting">Wird entpackt…</string>
+
+    <!-- Settings (new) -->
+    <string name="settings_theme">Design</string>
+    <string name="settings_theme_hint">Folgt standardmäßig dem System</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_dark">Dunkel</string>
+    <string name="theme_true_black">Echtes Schwarz</string>
+    <string name="theme_suffix_dark">dunkel</string>
+    <string name="theme_suffix_light">hell</string>
+    <string name="settings_accent">Akzentfarbe</string>
+    <string name="settings_accent_hint">Fokus, aktiver Tab und Downloads</string>
+    <string name="settings_download_directory_hint">Wo fertige Downloads gespeichert werden</string>
+    <string name="settings_concurrent_label">Gleichzeitige Downloads</string>
+    <string name="settings_limit_label">Geschwindigkeitslimit</string>
+    <string name="settings_limit_hint">Unbegrenzt bei 0</string>
+    <string name="settings_max_results">Maximale Suchergebnisse</string>
+    <string name="settings_max_results_hint">Wie viele Spiele eine Suche auf einmal lädt; „Mehr laden“ holt den nächsten Schwung</string>
+    <string name="settings_unlimited">Unbegrenzt</string>
+    <string name="settings_metadata_timeout">Metadaten-Timeout</string>
+    <string name="settings_metadata_timeout_hint">Wie lange ohne Fortschritt auf die Dateiliste eines Magnets gewartet wird (Scan und Torrent-Downloads); die Uhr startet neu, solange Daten ankommen</string>
+    <string name="seconds_short">%1$d s</string>
+    <string name="settings_auto_unzip_hint">ZIP und 7z, sobald der Download fertig ist</string>
+    <string name="settings_separate_hint">Funktioniert mit ES-DE und Daijishō</string>
+    <string name="settings_favorite_languages">Bevorzugte Sprachen</string>
+    <string name="settings_favorite_languages_hint">Werden im Sprachfilter zuerst angezeigt</string>
+    <string name="settings_favorite_languages_empty">Noch keine Sprachen indexiert</string>
+    <string name="settings_reset_default">Zurücksetzen</string>
+    <string name="settings_done">Fertig</string>
+    <string name="settings_about">Über &amp; Kontakt</string>
+    <string name="settings_change">Ändern</string>
+    <string name="settings_not_set">Nicht festgelegt</string>
+    <string name="settings_gamepad_layout">Gamepad-Layout</string>
+    <string name="settings_gamepad_layout_hint">Wie die Tasten in der Legende heißen; ihre Funktion ändert sich nicht</string>
+    <string name="gamepad_layout_xbox">Xbox</string>
+    <string name="gamepad_layout_nintendo">Nintendo</string>
+    <string name="gamepad_layout_playstation">PlayStation</string>
+    <string name="settings_swap_face_buttons">A/B und X/Y tauschen</string>
+    <string name="settings_swap_face_buttons_hint">Für Pads, die die Tasten vertauscht melden; die Legende bleibt unverändert</string>
+    <string name="settings_language">Sprache</string>
+    <string name="settings_language_hint">Folgt standardmäßig der Gerätesprache</string>
+    <string name="language_system">System</string>
+    <string name="language_en">English</string>
+    <string name="language_es">Español</string>
+
+    <!-- Top Bar -->
+    <string name="topbar_title">Dogmatix</string>
+    <string name="topbar_logo_desc">Dogmatix</string>
+
+    <!-- Search & Filter -->
+    <string name="search_library">Bibliothek durchsuchen</string>
+    <string name="search_consoles">Konsolen suchen…</string>
+    <string name="filter_by_console">Nach Konsole filtern</string>
+    <string name="filter_by_tags">Nach Tags filtern</string>
+    <string name="all_consoles">Alle Konsolen</string>
+    <string name="clear">Leeren</string>
+
+    <!-- FAB -->
+    <string name="fab_menu">Menü</string>
+    <string name="fab_navigation_actions">Navigation &amp; Aktionen</string>
+
+    <!-- Downloads -->
+    <string name="download_started">Download von „%1$s“ gestartet</string>
+    <string name="download_speed">%1$.2f MB/s</string>
+    <string name="download_started_at">Gestartet %1$s</string>
+    <string name="download_finished_at">%1$s</string>
+    <string name="download_size">Größe: %1$s</string>
+    <string name="download_cancel">Download abbrechen</string>
+    <string name="extracting_files">Dateien werden entpackt…</string>
+    <string name="download_retry">Download wiederholen</string>
+    <string name="download_delete">Download löschen</string>
+    <string name="download_action">Aktion</string>
+    <string name="load_more">100 weitere laden</string>
+
+    <!-- Delete Confirmation -->
+    <string name="delete_download_title">Download löschen</string>
+    <string name="delete_downloads_title">Downloads löschen</string>
+    <string name="delete_download_message">Dieser Download ist fertig. Möchtest du die Datei vom Speicher löschen oder nur aus der Downloadliste entfernen?</string>
+    <string name="delete_downloads_message">%1$d Downloads ausgewählt, einige davon fertig. Möchtest du ihre Dateien vom Speicher löschen oder nur aus der Downloadliste entfernen?</string>
+    <string name="delete_file">Datei löschen</string>
+    <string name="delete_files">Dateien löschen</string>
+    <string name="keep_file">Datei behalten</string>
+    <string name="keep_files">Dateien behalten</string>
+
+    <!-- File Sizes -->
+    <string name="file_size_bytes">%1$d B</string>
+    <string name="file_size_kb">%1$.1f KB</string>
+    <string name="file_size_mb">%1$.1f MB</string>
+    <string name="file_size_gb">%1$.1f GB</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_download_directory">Download-Ordner</string>
+    <string name="settings_pick_folder">Ordner wählen</string>
+    <string name="settings_separate_by_console">Unterordner pro Konsole</string>
+    <string name="settings_auto_unzip">Automatisch entpacken</string>
+    <string name="settings_limit_speed">Download-Geschwindigkeit begrenzen: %1$s</string>
+    <string name="settings_unrestricted">Unbegrenzt</string>
+    <string name="settings_concurrent_downloads">Gleichzeitige Downloads: %1$d</string>
+
+    <!-- Messages -->
+    <string name="msg_db_rebuild_started">Datenbank wird neu aufgebaut!</string>
+    <string name="msg_db_rebuild_complete">Datenbank neu aufgebaut!</string>
+    <string name="msg_configure_directory">Bitte lege in den Einstellungen einen Download-Ordner fest</string>
+    <string name="msg_operation_failed">Vorgang fehlgeschlagen</string>
+    <string name="msg_unknown_error">Unbekannter Fehler</string>
+    <string name="msg_http_error">HTTP-Fehler: %1$d</string>
+    <string name="msg_failed_create_file">Datei konnte im Speicher nicht erstellt werden</string>
+    <string name="msg_failed_output_stream">Ausgabestrom konnte nicht geöffnet werden</string>
+
+    <!-- Status -->
+    <string name="status_unknown">Unbekannt</string>
+    <string name="status_idle">Bereit</string>
+    <string name="status_building_db">Datenbank wird aufgebaut: %1$d / %2$d Dateien</string>
+
+    <!-- Progress Messages -->
+    <string name="progress_idle">Bereit</string>
+    <string name="progress_building_db">Datenbank wird aufgebaut: %1$d / %2$d Dateien</string>
+    <string name="toast_db_rebuild_complete">Datenbank neu aufgebaut!</string>
+
+    <!-- Error Messages -->
+    <string name="error_operation_failed">Vorgang fehlgeschlagen: %1$s</string>
+    <string name="error_unknown">Unbekannter Fehler</string>
+    <string name="error_configure_directory">Bitte lege in den Einstellungen einen Download-Ordner fest</string>
+
+    <!-- Sources: merge duplicate console folders -->
+    <string name="merge_folders_notice">%1$d Ordner gehören zu dieser Konsole: %2$s</string>
+    <string name="merge_folders_action">Zusammenführen…</string>
+    <string name="merge_folders_title">Konsolenordner zusammenführen</string>
+    <string name="merge_folders_hint">Mehrere Ordner im Download-Ordner gehören zu %1$s. Wähle den, der bleiben soll: Dateien aus den anderen werden dorthin verschoben (identische Kopien entfallen, abweichende mit gleichem Namen bleiben liegen) und geleerte Ordner werden entfernt. Du kannst auch alles so lassen.</string>
+    <string name="merge_folders_confirm">In gewählten Ordner zusammenführen</string>
+    <string name="merge_folders_keep">So lassen</string>
+    <string name="merge_folders_working">Dateien werden verschoben…</string>
+    <string name="merge_folders_result">%1$d Dateien verschoben, %2$d identische Kopien entfernt, %3$d übersprungen, %4$d fehlgeschlagen. %5$d leere Ordner entfernt.</string>
+    <string name="merge_folders_done">Fertig</string>
+
+    <!-- Sources -->
+    <string name="sources_empty_title">Keine Quellen eingerichtet</string>
+    <string name="sources_empty_hint">Füge eine Konsole hinzu, um Spiele zu entdecken</string>
+    <string name="sources_add_console">Konsole hinzufügen</string>
+    <string name="sources_edit_console">Konsole bearbeiten</string>
+    <string name="sources_rescan_all">Alles neu scannen</string>
+    <string name="sources_rescanning">Wird neu gescannt…</string>
+    <string name="sources_rescanning_sources">Quellen werden neu gescannt…</string>
+    <string name="sources_directory_unset">Nicht festgelegt — zum Wählen tippen</string>
+    <string name="sources_choose">Wählen</string>
+    <string name="sources_add_url">URL hinzufügen</string>
+    <string name="sources_set_custom_path">Eigenen Download-Pfad festlegen</string>
+    <string name="sources_refresh_console">Konsole aktualisieren</string>
+    <string name="sources_delete_console">Konsole löschen</string>
+    <string name="sources_delete_url">URL löschen</string>
+    <string name="sources_edit_url">URL bearbeiten</string>
+    <string name="sources_export">Quellen exportieren</string>
+    <string name="sources_import">Quellen importieren</string>
+    <string name="sources_export_share_title">Quellen-JSON teilen</string>
+    <string name="sources_export_failed">Quellen konnten nicht exportiert werden: %1$s</string>
+    <string name="sources_import_confirm_title">Quellen importieren?</string>
+    <string name="sources_import_confirm_message">Die aktuellen Quellen und die indexierte Spieleliste werden durch die gewählte JSON-Datei ersetzt, danach wird jede Quelle neu gescannt.</string>
+    <string name="sources_import_pick">Datei wählen</string>
+    <string name="sources_import_done">%1$d Konsolen importiert. Alle Quellen werden neu gescannt…</string>
+    <string name="sources_import_failed">Quellen konnten nicht importiert werden: %1$s</string>
+    <string name="sources_import_result_title">Import</string>
+    <string name="sources_url_not_added">Die Quelle konnte nicht gespeichert werden. Prüfe die URL oder die Datei.</string>
+    <string name="sources_delete_console_title">%1$s löschen?</string>
+    <string name="sources_delete_console_message">Die Konsole, ihre Quellen und ihre indexierten Spiele werden entfernt. Heruntergeladene Dateien bleiben erhalten.</string>
+    <string name="sources_delete_url_title">Quelle löschen?</string>
+    <string name="sources_delete_url_message">%1$s wird von dieser Konsole entfernt. Scanne neu, um ihre Spiele aus der Bibliothek zu entfernen.</string>
+    <string name="dialog_delete">Löschen</string>
+    <string name="dialog_save">Speichern</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_edit_source">Quelle bearbeiten</string>
+    <string name="dialog_short_name">Kurzname (Label)</string>
+    <string name="dialog_folder_aliases">Aliasse für den Download-Ordner, durch Kommas getrennt</string>
+    <string name="dialog_aliases_hint">Ordnernamen, die als Download-Ordner dieser Konsole gelten (z. B. gba, Game Boy Advance). Leer lassen für die eingebauten.</string>
+    <string name="sources_expand">Ausklappen</string>
+    <string name="sources_collapse">Einklappen</string>
+    <string name="sources_path">Download-Pfad: %1$s</string>
+    <string name="sources_path_custom">Download-Pfad: %1$s (eigener)</string>
+    <string name="sources_path_will_create">Download-Pfad: %1$s (wird erstellt)</string>
+    <string name="sources_path_unset">Download-Pfad: nicht festgelegt (in den Einstellungen wählen)</string>
+    <string name="sources_url_type">Typ: %1$s</string>
+    <string name="sources_url_disabled">Deaktiviert — wird beim Scannen übersprungen</string>
+    <string name="sources_scrape_start">Erster Scan von %1$d Konsolen startet…</string>
+    <string name="sources_rescan_start">Neuer Scan von %1$d Konsolen startet…</string>
+    <string name="sources_processing_console">Konsole %1$d/%2$d: %3$s</string>
+    <string name="sources_refreshing_console">%1$s wird aktualisiert…</string>
+
+    <!-- Sources: dialogs -->
+    <string name="dialog_add_source">Quelle hinzufügen</string>
+    <string name="dialog_add_source_hint">Gib eine URL oder einen Magnet-Link ein, lade eine .torrent-Datei hoch oder wähle eine RomM-Plattform:</string>
+    <string name="dialog_from_romm">Von deinem RomM-Server:</string>
+    <string name="dialog_url_label">URL / Magnet</string>
+    <string name="dialog_url_placeholder">https://…, magnet:? oder romm://psp</string>
+    <string name="dialog_upload_torrent">.torrent hochladen</string>
+    <string name="dialog_content_type">Inhaltstyp:</string>
+    <string name="dialog_add">Hinzufügen</string>
+    <string name="dialog_cancel">Abbrechen</string>
+    <string name="dialog_confirm">Bestätigen</string>
+    <string name="dialog_console_name_hint">Name der Konsole:</string>
+    <string name="dialog_name">Name</string>
+    <string name="dialog_manufacturer">Hersteller:</string>
+    <string name="dialog_new_manufacturer">Oder ein neuer Hersteller</string>
+
+    <!-- Library errors -->
+    <string name="error_download_dir_missing">Kein Download-Ordner festgelegt. Bitte wähle einen in den Einstellungen.</string>
+    <string name="error_download_dir_inaccessible">Der Download-Ordner ist nicht zugänglich. Prüfe die Ordnerberechtigungen in den Einstellungen.</string>
+
+    <!-- MIME Types -->
+    <string name="mime_octet_stream">application/octet-stream</string>
+
+    <!-- HTTP -->
+    <string name="http_user_agent">Dogmatix Downloader/1.0</string>
+    <string name="http_accept">*/*</string>
+    <string name="http_method_get">GET</string>
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Willkommen bei Dogmatix</string>
+    <string name="onboarding_welcome_body">Dogmatix indexiert den Inhalt von ROM-Quellen — Torrents, Magnets und Webverzeichnisse —, versieht jede Datei mit Konsole, Region und Sprache und lässt dich stöbern, filtern und direkt in deinen ROM-Ordner herunterladen. Archive werden automatisch entpackt.</string>
+    <string name="onboarding_welcome_point_1">Quellen werden indexiert, nicht heruntergeladen: Stöbere durch Tausende Titel, ohne deinen Speicher zu füllen.</string>
+    <string name="onboarding_welcome_point_2">Filtere nach Konsole, Region, Sprache, Tag und Quelle; ✓ markiert, was du schon hast.</string>
+    <string name="onboarding_welcome_point_3">Downloads landen in einem Ordner pro Konsole, bereit für Frontends wie ES-DE.</string>
+    <string name="onboarding_folder_title">Wo sind deine ROMs?</string>
+    <string name="onboarding_folder_body">Wähle den Hauptordner deiner ROM-Bibliothek. Jede Konsole bekommt darin einen eigenen Unterordner (vorhandene wie „gba“ oder „psx“ werden weiterverwendet). Du kannst das später in den Einstellungen ändern.</string>
+    <string name="onboarding_folder_current">Ordner: %1$s</string>
+    <string name="onboarding_folder_choose">Ordner wählen</string>
+    <string name="onboarding_folder_change">Ordner ändern</string>
+    <string name="onboarding_sources_title">Füge deine Quellen hinzu</string>
+    <string name="onboarding_sources_body">Dogmatix kommt ohne Quellen. Importiere ein Quellen-JSON (zum Beispiel eines, das von einem anderen Gerät geteilt wurde), und jede enthaltene Konsole wird sofort indexiert. Konsolen und URLs kannst du später auch von Hand im Tab Quellen hinzufügen.</string>
+    <string name="onboarding_sources_import">JSON importieren</string>
+    <string name="onboarding_skip">Jetzt überspringen</string>
+    <string name="onboarding_continue">Weiter</string>
+    <string name="onboarding_start">Los geht’s</string>
+    <string name="onboarding_finish">Fertig</string>
+    <string name="onboarding_step">Schritt %1$d von %2$d</string>
+    <string name="onboarding_select">Auswählen</string>
+    <string name="onboarding_back">Zurück</string>
+
+    <!-- Library tools: overview, duplicates, backup -->
+    <string name="nav_overview">Bibliotheksübersicht</string>
+    <string name="nav_duplicates">Doppelte Spiele</string>
+    <string name="pad_rescan">Scannen</string>
+    <string name="settings_overview">Bibliotheksübersicht</string>
+    <string name="settings_overview_hint">Pro Konsole: was der Scan fand, was auf der Festplatte ist und was fehlt</string>
+    <string name="settings_duplicates">Doppelte Spiele</string>
+    <string name="settings_duplicates_hint">Finde Spiele, die mehrfach auf der Festplatte liegen, und gib Speicher frei</string>
+    <string name="settings_backup_export">Sichern</string>
+    <string name="settings_backup_export_hint">Einstellungen, Quellen, Favoriten und Downloads in einer Datei (inklusive deiner API-Schlüssel)</string>
+    <string name="settings_backup_export_action">Exportieren</string>
+    <string name="settings_backup_import">Sicherung wiederherstellen</string>
+    <string name="settings_backup_import_hint">Ersetzt Einstellungen, Quellen und Favoriten durch die einer Sicherung</string>
+    <string name="settings_backup_import_action">Importieren</string>
+    <string name="backup_export_done">Sicherung gespeichert: %1$d Einstellungen, %2$d Konsolen, %3$d Favoriten, %4$d Downloads</string>
+    <string name="backup_export_failed">Sicherung fehlgeschlagen: %1$s</string>
+    <string name="backup_invalid">Diese Datei ist keine Dogmatix-Sicherung</string>
+    <string name="backup_import_title">Sicherung wiederherstellen?</string>
+    <string name="backup_import_message">Sicherung vom %1$s (Dogmatix %2$s).\n\nDeine aktuellen Einstellungen, Quellen und Favoriten werden ersetzt, danach wird jede Quelle neu gescannt.</string>
+    <string name="backup_import_action">Wiederherstellen</string>
+    <string name="backup_import_done">Wiederhergestellt: %1$d Einstellungen, %2$d Konsolen, %3$d Favoriten, %4$d Downloads</string>
+    <string name="backup_import_repick">%1$d Ordner sind in dieser Installation nicht zugänglich: wähle sie in Einstellungen oder Quellen neu</string>
+    <string name="backup_import_restart">Starte Dogmatix neu, um die wiederhergestellte Downloadliste zu sehen</string>
+    <string name="backup_import_failed">Wiederherstellen fehlgeschlagen: %1$s</string>
+    <string name="tools_scanning">Deine Download-Ordner werden gelesen…</string>
+    <string name="tools_no_folder">Wähle zuerst einen Download-Ordner in den Einstellungen</string>
+    <string name="tools_refresh">Aktualisieren</string>
+    <string name="tools_root_folder">Download-Ordner (keine Konsole)</string>
+    <string name="tools_unknown_folder">Ordner %1$s</string>
+    <plurals name="tools_files">
+        <item quantity="one">%d Datei</item>
+        <item quantity="other">%d Dateien</item>
+    </plurals>
+    <plurals name="duplicates_summary">
+        <item quantity="one">%1$d Gruppe · %2$s freizugeben · %3$d Dateien geprüft</item>
+        <item quantity="other">%1$d Gruppen · %2$s freizugeben · %3$d Dateien geprüft</item>
+    </plurals>
+    <string name="duplicates_none">Keine Duplikate unter %1$d Dateien</string>
+    <string name="duplicates_kind_identical">Gleiche Datei in mehreren Ordnern</string>
+    <string name="duplicates_kind_variant">Verschiedene Versionen (Region, Revision, Übersetzung)</string>
+    <string name="duplicates_largest">größte</string>
+    <string name="duplicates_delete">Löschen</string>
+    <string name="duplicates_delete_title">Von der Festplatte löschen?</string>
+    <string name="duplicates_delete_message">%1$s\n%2$s\n\n%3$s (%4$s) werden endgültig gelöscht.</string>
+    <string name="duplicates_deleted">%1$s gelöscht</string>
+    <string name="duplicates_delete_failed">%1$s konnte nicht gelöscht werden</string>
+    <string name="overview_totals">%1$d Konsolen · %2$d Spiele indexiert · %3$d im Besitz (%4$d%%)</string>
+    <string name="overview_disk">Auf der Festplatte: %1$d Spiele, %2$s · %3$s frei</string>
+    <string name="overview_disk_no_free">Auf der Festplatte: %1$d Spiele, %2$s</string>
+    <string name="overview_rescan_all">Alle Quellen neu scannen</string>
+    <string name="overview_rescan_all_title">Alle Quellen neu scannen?</string>
+    <string name="overview_rescan_all_message">Jede Quelle wird erneut abgerufen und indexiert. Mit vielen Torrents kann das eine Weile dauern.</string>
+    <string name="overview_scan_running">Scan läuft: %1$s</string>
+    <string name="overview_console_stats">%1$d indexiert · %2$d im Besitz · %3$d auf der Festplatte (%4$s)</string>
+    <string name="overview_scanned">gescannt %1$s</string>
+    <string name="overview_never_scanned">Scanzeit unbekannt</string>
+    <string name="overview_status_ok">OK</string>
+    <string name="overview_status_no_sources">Keine Quellen</string>
+    <string name="overview_status_nothing_found">Nichts gefunden</string>
+    <string name="overview_status_not_scanned">Nicht gescannt</string>
+    <string name="overview_unassigned">%1$d Spiel(e) auf der Festplatte außerhalb der Konsolenordner</string>
+    <string name="overview_unmatched">Ordner ohne Konsole: %1$s</string>
+    <string name="scrape_error_title">Scanfehler</string>
+    <string name="scrape_failed">Scan von %1$s fehlgeschlagen: %2$s</string>
+    <string name="scrape_fetching_torrent">Torrent-Metadaten für %1$s werden abgerufen…</string>
+    <string name="scrape_indexing_torrent">Dateien für %1$s werden indexiert…</string>
+    <string name="scrape_listing_romm">%1$s wird von RomM abgerufen…</string>
+    <string name="notification_channel_downloads">Downloads</string>
+    <string name="notification_channel_downloads_desc">Fortschritt aktiver Downloads</string>
+    <string name="notification_downloading">Wird heruntergeladen</string>
+    <string name="notification_downloading_text">Downloads laufen im Hintergrund</string>
+    <string name="update_available">Update verfügbar! Neueste Version: %1$s</string>
+    <string name="scan_progress">%1$d %% · %2$s</string>
+    <string name="overview_scan_percent">Quellen werden gescannt: %1$d %%</string>
+    <string name="overview_scan_sources">%1$d von %2$d Quellen fertig</string>
+    <string name="overview_scan_sources_eta">%1$d von %2$d Quellen fertig · noch etwa %3$s</string>
+    <string name="language_nl">Nederlands</string>
+    <string name="language_fr">Français</string>
+    <string name="language_de">Deutsch</string>
+</resources>

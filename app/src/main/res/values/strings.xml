@@ -491,4 +491,21 @@
     <string name="overview_status_not_scanned">Not scanned</string>
     <string name="overview_unassigned">%1$d game(s) on disk outside the console folders</string>
     <string name="overview_unmatched">Folders without a console: %1$s</string>
+    <string name="scrape_error_title">Scan error</string>
+    <string name="scrape_failed">Failed to scan %1$s: %2$s</string>
+    <string name="scrape_fetching_torrent">Fetching torrent metadata for %1$s…</string>
+    <string name="scrape_indexing_torrent">Indexing files for %1$s…</string>
+    <string name="scrape_listing_romm">Listing %1$s on RomM…</string>
+    <string name="notification_channel_downloads">Downloads</string>
+    <string name="notification_channel_downloads_desc">Active download progress</string>
+    <string name="notification_downloading">Downloading</string>
+    <string name="notification_downloading_text">Downloads are running in the background</string>
+    <string name="update_available">Update available! Latest version: %1$s</string>
+    <string name="scan_progress">%1$d%% · %2$s</string>
+    <string name="overview_scan_percent">Scanning sources: %1$d%%</string>
+    <string name="overview_scan_sources">%1$d of %2$d sources done</string>
+    <string name="overview_scan_sources_eta">%1$d of %2$d sources done · about %3$s left</string>
+    <string name="language_nl">Nederlands</string>
+    <string name="language_fr">Français</string>
+    <string name="language_de">Deutsch</string>
 </resources>

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.data.service.LibraryOverview
 import com.cortinadev.dogmatix.data.service.LibraryScanService
 import com.cortinadev.dogmatix.data.state.RescanStateHolder
+import com.cortinadev.dogmatix.data.state.ScanProgress
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +33,7 @@ class LibraryOverviewViewModel @Inject constructor(
 
     val isRescanning: StateFlow<Boolean> = rescanStateHolder.isRescanning
     val progressMessage: StateFlow<String> = rescanStateHolder.progressMessage
+    val progress: StateFlow<ScanProgress?> = rescanStateHolder.progress
 
     private var loadJob: Job? = null
 

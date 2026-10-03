@@ -7,6 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.LinearProgressIndicator
+import com.cortinadev.dogmatix.data.state.ScanProgress
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,7 +46,8 @@ import com.cortinadev.dogmatix.ui.screens.sources.components.ConfirmDialog
 fun LibraryOverviewScreen(viewModel: LibraryOverviewViewModel = hiltViewModel()) {
     val ui by viewModel.uiState.collectAsState()
     val isRescanning by viewModel.isRescanning.collectAsState()
-    val progress by viewModel.progressMessage.collectAsState()
+    val progressMessage by viewModel.progressMessage.collectAsState()
+    val progress by viewModel.progress.collectAsState()
     // The shell's instance: a scan started here keeps running after leaving the screen.
     val activity = LocalActivity.current as ComponentActivity
     val sourcesViewModel: SourcesViewModel = hiltViewModel(activity)
@@ -81,9 +87,7 @@ fun LibraryOverviewScreen(viewModel: LibraryOverviewViewModel = hiltViewModel())
                 else TotalsCard(overview)
             }
             if (isRescanning) {
-                item(key = "progress") {
-                    InfoCard(listOf(stringResource(R.string.overview_scan_running, progress.ifBlank { "…" })), accent = true)
-                }
+                item(key = "progress") { ScanProgressCard(progress, progressMessage) }
             }
             item(key = "refresh") {
                 ToolRow(
@@ -111,6 +115,44 @@ fun LibraryOverviewScreen(viewModel: LibraryOverviewViewModel = hiltViewModel())
                 if (notes.isNotEmpty()) item(key = "notes") { InfoCard(notes) }
             }
         }
+    }
+}
+
+/** Percentage, sources done, time left and a bar for the running source scan. */
+@Composable
+private fun ScanProgressCard(progress: ScanProgress?, message: String) {
+    // Re-evaluated every few seconds so the time estimate keeps moving between steps.
+    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(2_000)
+            now = System.currentTimeMillis()
+        }
+    }
+    val lines = buildList {
+        add(
+            if (progress == null) stringResource(R.string.overview_scan_running, message.ifBlank { "…" })
+            else stringResource(R.string.overview_scan_percent, progress.percent)
+        )
+        if (progress != null) {
+            val remaining = progress.remainingMillis(now)
+            add(
+                if (remaining == null) stringResource(R.string.overview_scan_sources, progress.done, progress.total)
+                else stringResource(
+                    R.string.overview_scan_sources_eta,
+                    progress.done, progress.total,
+                    DateUtils.formatElapsedTime((remaining / 1000).coerceAtLeast(1))
+                )
+            )
+            if (message.isNotBlank()) add(message)
+        }
+    }
+    Column(modifier = Modifier.fillMaxWidth()) {
+        InfoCard(lines, accent = true)
+        LinearProgressIndicator(
+            progress = { progress?.fraction ?: 0f },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 2.dp)
+        )
     }
 }
 

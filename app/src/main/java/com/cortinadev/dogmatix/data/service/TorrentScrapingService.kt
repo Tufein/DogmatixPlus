@@ -1,6 +1,9 @@
 package com.cortinadev.dogmatix.data.service
 
+import android.content.Context
 import android.util.Log
+import com.cortinadev.dogmatix.R
+import dagger.hilt.android.qualifiers.ApplicationContext
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.local.entity.FileTagEntity
@@ -25,6 +28,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class TorrentScrapingService @Inject constructor(
+    @param:ApplicationContext private val context: Context,
     private val metadataFetcher: TorrentMetadataFetcher,
     private val fileIndexer: TorrentFileIndexer,
     private val downloadableFileDao: DownloadableFileDao,
@@ -36,7 +40,7 @@ class TorrentScrapingService @Inject constructor(
         withContext(Dispatchers.IO) {
             val magnet = urlEntry.url
 
-            rescanStateHolder.setTorrentFetchProgress("Fetching torrent metadata for ${console.name}…")
+            rescanStateHolder.setTorrentFetchProgress(context.getString(R.string.scrape_fetching_torrent, console.name))
 
             val info = try {
                 metadataFetcher.fetch(magnet)
@@ -45,7 +49,7 @@ class TorrentScrapingService @Inject constructor(
                 throw e
             }
 
-            rescanStateHolder.setTorrentFetchProgress("Indexing files for ${console.name}…")
+            rescanStateHolder.setTorrentFetchProgress(context.getString(R.string.scrape_indexing_torrent, console.name))
 
             val entries = fileIndexer.index(info, magnet, urlEntry.folders)
             if (entries.isEmpty()) {

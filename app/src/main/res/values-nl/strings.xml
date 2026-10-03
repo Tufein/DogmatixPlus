@@ -1,0 +1,511 @@
+<resources>
+    <!-- App Info -->
+    <string name="app_name">Dogmatix</string>
+    <string name="credits_title">Credits</string>
+    <string name="credits_fork_role">Softwareontwikkelaar · Dogmatix (UI/UX-fork)</string>
+    <string name="credits_fork_name">Rafa Cortina</string>
+    <string name="credits_original_role">Zogenaamd software-engineer · oorspronkelijke maker van Milou</string>
+    <string name="credits_original_name">santiifm</string>
+    <string name="credits_original_note">Dogmatix is een fork van Milou. Al het scrapen, indexeren en downloaden is zijn werk.</string>
+    <string name="credits_link_github">GitHub</string>
+    <string name="credits_link_linkedin">LinkedIn</string>
+    <string name="credits_link_web">Website</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Start</string>
+    <string name="nav_downloads">Downloads</string>
+    <string name="nav_settings">Instellingen</string>
+    <string name="nav_sources">Bronnen</string>
+    <string name="nav_library">Bibliotheek</string>
+    <string name="nav_contact">Contact</string>
+
+    <!-- Gamepad legend -->
+    <string name="pad_download">Downloaden</string>
+    <string name="pad_back">Terug</string>
+    <string name="pad_filters">Filters</string>
+    <string name="pad_search">Zoeken</string>
+    <string name="pad_section">Sectie</string>
+    <string name="pad_panels">Paneel</string>
+    <string name="pad_select">Kiezen</string>
+    <string name="pad_retry">Opnieuw / Stop</string>
+    <string name="pad_delete">Verwijderen</string>
+    <string name="pad_open">Openen</string>
+    <string name="pad_change">Wijzigen</string>
+    <string name="pad_adjust">Aanpassen</string>
+    <string name="pad_column">Kolom</string>
+    <string name="pad_none">Geen gamepad · tik om te navigeren</string>
+    <string name="pad_games">Gamelijst</string>
+    <string name="pad_options">Opties</string>
+    <string name="pad_details">Details</string>
+    <string name="pad_close">Sluiten</string>
+    <string name="pad_scroll">Scrollen</string>
+    <string name="details_loading">Game-info opzoeken…</string>
+    <string name="details_not_found">Geen details gevonden voor deze game.</string>
+    <string name="details_source">Gegevens van %1$s</string>
+    <string name="details_close">Sluiten</string>
+    <string name="details_download">Downloaden</string>
+    <string name="pad_keyboard">Toetsenbord</string>
+    <string name="pad_close_keyboard">Toetsenbord sluiten</string>
+    <string name="owned">In je bibliotheek</string>
+    <string name="owned_dialog_message">Deze game staat al in je bibliotheek. Opnieuw downloaden of van de opslag verwijderen?</string>
+    <string name="owned_download_again">Opnieuw downloaden</string>
+    <string name="owned_delete">Verwijderen</string>
+    <string name="owned_deleted">"%1$s" is verwijderd</string>
+    <string name="owned_delete_failed">Kon "%1$s" niet verwijderen</string>
+    <string name="downloading_badge">Bezig met downloaden</string>
+    <string name="favourite">Favoriet</string>
+    <string name="favourites_only">Alleen favorieten</string>
+    <string name="favourites_only_short">★</string>
+    <string name="filter_favourites">Favorieten</string>
+    <string name="favourite_added">★ "%1$s" toegevoegd aan favorieten</string>
+    <string name="favourite_removed">"%1$s" verwijderd uit favorieten</string>
+    <string name="details_favourite">☆ Favoriet</string>
+    <string name="details_unfavourite">★ Geen favoriet meer</string>
+    <string name="pad_favourite">Favoriet</string>
+    <string name="pad_tick">Aanvinken</string>
+    <string name="pad_apply">Toepassen</string>
+    <string name="pad_select_all">Alles</string>
+    <string name="pad_cancel">Annuleren</string>
+    <string name="selection_selected">Geselecteerd</string>
+    <string name="selection_clear">Selectie wissen</string>
+    <string name="download_already_active">"%1$s" wordt al gedownload</string>
+    <string name="free_space">%1$s vrij</string>
+
+    <!-- Library -->
+    <string name="filters">Filters</string>
+    <string name="collapse_filters">Filters verbergen</string>
+    <string name="expand_filters">Filters tonen</string>
+    <string name="filter_console">Console</string>
+    <string name="filter_region">Regio</string>
+    <string name="filter_language">Taal</string>
+    <string name="filter_tag">Tag</string>
+    <string name="filter_source">Bron</string>
+    <string name="source_torrent">Torrent</string>
+    <string name="source_romm">RomM</string>
+    <string name="source_direct">Directe link</string>
+    <string name="filter_sort">Sorteren</string>
+    <string name="filter_any">Alle</string>
+    <string name="filter_all">Alles</string>
+    <string name="filter_selected_count">%1$d geselecteerd</string>
+    <string name="filter_show_more">Meer tonen…</string>
+    <string name="filter_show_less">Minder tonen</string>
+    <string name="sort_name_asc">A → Z</string>
+    <string name="sort_name_desc">Z → A</string>
+    <string name="sort_size_desc">Grootte: groot → klein</string>
+    <string name="sort_size_desc_short">Grootte ↓</string>
+    <string name="sort_size_asc">Grootte: klein → groot</string>
+    <string name="sort_size_asc_short">Grootte ↑</string>
+    <string name="results_count">%1$d resultaten</string>
+    <string name="results_count_more">%1$d+ resultaten</string>
+    <string name="no_results">Niets komt overeen met deze filters.</string>
+    <string name="show_results">Resultaten tonen</string>
+    <string name="column_name">NAAM</string>
+    <string name="column_tags">TAGS</string>
+    <string name="column_size">GROOTTE</string>
+
+    <!-- Downloads -->
+    <string name="downloads_summary">%1$d actief · %2$d voltooid</string>
+    <string name="downloads_empty">Nog geen downloads. Kies een game in de bibliotheek.</string>
+    <plurals name="downloads_selected">
+        <item quantity="one">%1$d geselecteerd</item>
+        <item quantity="other">%1$d geselecteerd</item>
+    </plurals>
+    <string name="status_downloading">%1$d%%</string>
+    <string name="status_completed">Voltooid</string>
+    <string name="status_failed">Mislukt</string>
+    <string name="status_stopped">Gestopt</string>
+    <string name="status_paused">Gepauzeerd</string>
+    <string name="download_pause">Pauzeren</string>
+    <string name="download_resume">Hervatten</string>
+    <string name="status_copying">Kopiëren naar opslag…</string>
+    <string name="status_queued_debrid">%1$s %2$d%%</string>
+    <string name="settings_debrid">Debrid-dienst</string>
+    <string name="settings_debrid_hint">De dienst haalt torrents op en je downloadt ze via HTTP</string>
+    <string name="settings_debrid_key">%1$s API-sleutel</string>
+    <string name="settings_torbox_key_dialog_hint">Via torbox.app → Settings → API. Alleen op dit toestel opgeslagen.</string>
+    <string name="settings_realdebrid_key_dialog_hint">Via real-debrid.com/apitoken (premium-account nodig). Alleen op dit toestel opgeslagen.</string>
+    <string name="settings_test">Testen</string>
+    <string name="api_key_label">API-sleutel</string>
+    <string name="debrid_key_valid">%1$s: verbonden als %2$s</string>
+    <string name="debrid_key_invalid">%1$s: %2$s</string>
+    <string name="settings_frontend_shortcuts">Frontend-snelkoppelingen</string>
+    <string name="settings_frontend_shortcuts_hint">Zet een Dogmatix-snelkoppeling (.dgmtx) in elke platformmap, voor ES-DE en vergelijkbare frontends</string>
+    <string name="settings_frontend_shortcuts_action">Maken</string>
+    <string name="frontend_shortcuts_done">%1$d snelkoppelingen gemaakt</string>
+    <string name="frontend_shortcuts_partial">%1$d snelkoppelingen gemaakt, %2$d mislukt</string>
+    <string name="frontend_shortcuts_none">Geen downloadmap ingesteld</string>
+    <string name="dgmtx_invalid">Geen Dogmatix-snelkoppelingsbestand</string>
+    <string name="settings_esde">ES-DE instellen</string>
+    <string name="settings_esde_hint">Kies je ES-DE-map en Dogmatix voegt zich toe aan elk platform (sluit ES-DE eerst)</string>
+    <string name="settings_esde_action">Instellen</string>
+    <string name="esde_configured">ES-DE: %1$d systemen klaar, %2$d snelkoppelingen — start ES-DE opnieuw</string>
+    <string name="esde_folders_skipped">%1$d mappen hebben geen passend ES-DE-systeem</string>
+    <string name="esde_not_installed">ES-DE is niet geïnstalleerd op dit toestel</string>
+    <string name="settings_iisu">iiSU instellen</string>
+    <string name="settings_iisu_hint">Kies de iiSULauncher-map van iiSU en Dogmatix voegt zich toe als emulator (start iiSU daarna opnieuw)</string>
+    <string name="settings_iisu_action">Instellen</string>
+    <string name="iisu_configured">iiSU: %1$d consoles klaar, %2$d snelkoppelingen — start iiSU opnieuw</string>
+    <string name="iisu_folders_skipped">%1$d mappen hebben geen passende iiSU-console</string>
+    <string name="iisu_not_installed">iiSU is niet geïnstalleerd op dit toestel</string>
+    <string name="iisu_wrong_folder">Dat is niet de iiSULauncher-map van iiSU (die staat in Android/media/com.iisulauncher)</string>
+    <string name="frontend_folder_not_writable">Er kan niet in de gekozen map worden geschreven</string>
+    <string name="frontend_no_console_folders">Geen mappen per console: zet eerst \"Submappen per console\" aan</string>
+    <string name="frontend_config_unreadable">De configuratie van de frontend kon niet worden gelezen — er is niets gewijzigd</string>
+    <string name="frontend_config_corrupt">Het configuratiebestand van de frontend lijkt beschadigd — er is niets gewijzigd</string>
+    <string name="frontend_write_failed">Schrijven in de map van de frontend is mislukt</string>
+    <string name="settings_daijisho">Daijishō instellen</string>
+    <string name="settings_daijisho_hint">Daijishō heeft geen importeerbare emulatorconfig: vraag de waarden op om ze met de hand toe te voegen</string>
+    <string name="settings_daijisho_action">Tonen</string>
+    <string name="daijisho_dialog_title">Dogmatix toevoegen aan Daijishō</string>
+    <string name="daijisho_dialog_body">%1$d snelkoppelingen staan klaar. Daijishō bewaart zijn spelers in een eigen database, dus de regel moet je met de hand toevoegen: open Settings › Library › Add an emulator en vul deze waarden in (laat de kill-processes-schakelaar uit), en synchroniseer daarna.</string>
+    <string name="daijisho_field_name">Emulatornaam</string>
+    <string name="daijisho_field_arguments">Am-start-argumenten van de emulator</string>
+    <string name="daijisho_field_regex">Geaccepteerde bestandsnaam-regex</string>
+    <string name="dialog_copy">Kopiëren</string>
+    <string name="dialog_close">Sluiten</string>
+    <string name="onboarding_esde_title">Koppelen met ES-DE</string>
+    <string name="onboarding_esde_body">ES-DE is op dit toestel geïnstalleerd. Kies de gegevensmap (die met gamelists en downloaded_media, meestal ES-DE) en Dogmatix verschijnt in elk platform als "★ Search for more games…". Sluit ES-DE eerst — je kunt dit ook later doen via Instellingen.</string>
+    <string name="onboarding_esde_choose">ES-DE-map kiezen</string>
+    <string name="onboarding_esde_configuring">ES-DE instellen…</string>
+    <string name="nav_romm">RomM</string>
+    <string name="settings_romm">RomM-server</string>
+    <string name="settings_romm_hint">Voltooide downloads uploaden naar een RomM-bibliotheek</string>
+    <string name="romm_server_url">Server-URL</string>
+    <string name="romm_url_dialog_hint">bijv. https://romm.voorbeeld.nl (zonder pad erachter)</string>
+    <string name="romm_token">API-token</string>
+    <string name="romm_token_dialog_hint">Een client-API-token (rmm_…) uit Administration → Client API Tokens, of gebruiker:wachtwoord.</string>
+    <string name="romm_test_connection">Verbinding testen</string>
+    <string name="romm_testing">Testen…</string>
+    <string name="romm_connected">RomM: verbonden, %1$d platforms</string>
+    <string name="romm_connection_failed">RomM: %1$s</string>
+    <string name="romm_platforms_none">Nog geen platforms geladen</string>
+    <string name="romm_platforms_count">%1$d platforms op de server</string>
+    <string name="romm_auto_upload">Voltooide downloads uploaden</string>
+    <string name="romm_auto_upload_hint">Alleen consoles die hieronder aan een platform gekoppeld zijn</string>
+    <string name="romm_platforms_header">Console → platform</string>
+    <string name="romm_platforms_hint">◀ ▶ kiest naar welk RomM-platform elke console uploadt</string>
+    <string name="romm_apply_suggestions">Suggesties toepassen</string>
+    <string name="romm_suggestions_applied">%1$d console(s) gekoppeld</string>
+    <string name="romm_not_mapped">Niet gekoppeld</string>
+    <string name="romm_suggested">%1$s · voorgesteld</string>
+    <string name="romm_upload_progress">↑ RomM %1$d%%</string>
+    <string name="romm_uploaded">↑ Geüpload naar RomM</string>
+    <string name="romm_upload_failed">↑ Upload naar RomM mislukt: %1$s</string>
+    <string name="romm_upload_retry">RomM-upload opnieuw proberen</string>
+    <string name="status_extracting">Uitpakken…</string>
+
+    <!-- Settings (new) -->
+    <string name="settings_theme">Thema</string>
+    <string name="settings_theme_hint">Volgt standaard het systeem</string>
+    <string name="theme_system">Systeem</string>
+    <string name="theme_light">Licht</string>
+    <string name="theme_dark">Donker</string>
+    <string name="theme_true_black">Echt zwart</string>
+    <string name="theme_suffix_dark">donker</string>
+    <string name="theme_suffix_light">licht</string>
+    <string name="settings_accent">Accentkleur</string>
+    <string name="settings_accent_hint">Focus, actief tabblad en downloads</string>
+    <string name="settings_download_directory_hint">Waar voltooide downloads worden opgeslagen</string>
+    <string name="settings_concurrent_label">Gelijktijdige downloads</string>
+    <string name="settings_limit_label">Snelheidslimiet</string>
+    <string name="settings_limit_hint">Onbeperkt bij 0</string>
+    <string name="settings_max_results">Maximaal aantal zoekresultaten</string>
+    <string name="settings_max_results_hint">Hoeveel games een zoekopdracht in één keer laadt; “Meer laden” haalt de volgende reeks op</string>
+    <string name="settings_unlimited">Onbeperkt</string>
+    <string name="settings_metadata_timeout">Time-out metadata</string>
+    <string name="settings_metadata_timeout_hint">Hoe lang op de bestandslijst van een magnet wordt gewacht zonder voortgang (scannen en torrent-downloads); de klok begint opnieuw zolang er gegevens binnenkomen</string>
+    <string name="seconds_short">%1$d s</string>
+    <string name="settings_auto_unzip_hint">ZIP en 7z zodra de download klaar is</string>
+    <string name="settings_separate_hint">Werkt met ES-DE en Daijishō</string>
+    <string name="settings_favorite_languages">Favoriete talen</string>
+    <string name="settings_favorite_languages_hint">Bovenaan in het taalfilter</string>
+    <string name="settings_favorite_languages_empty">Nog geen talen geïndexeerd</string>
+    <string name="settings_reset_default">Herstellen</string>
+    <string name="settings_done">Klaar</string>
+    <string name="settings_about">Over &amp; contact</string>
+    <string name="settings_change">Wijzigen</string>
+    <string name="settings_not_set">Niet ingesteld</string>
+    <string name="settings_gamepad_layout">Gamepad-indeling</string>
+    <string name="settings_gamepad_layout_hint">Hoe de knoppen in de legenda heten; wat ze doen verandert niet</string>
+    <string name="gamepad_layout_xbox">Xbox</string>
+    <string name="gamepad_layout_nintendo">Nintendo</string>
+    <string name="gamepad_layout_playstation">PlayStation</string>
+    <string name="settings_swap_face_buttons">A/B en X/Y omwisselen</string>
+    <string name="settings_swap_face_buttons_hint">Voor pads die de knoppen andersom doorgeven; de legenda blijft zoals hij is</string>
+    <string name="settings_language">Taal</string>
+    <string name="settings_language_hint">Volgt standaard de taal van het toestel</string>
+    <string name="language_system">Systeem</string>
+    <string name="language_en">English</string>
+    <string name="language_es">Español</string>
+
+    <!-- Top Bar -->
+    <string name="topbar_title">Dogmatix</string>
+    <string name="topbar_logo_desc">Dogmatix</string>
+
+    <!-- Search & Filter -->
+    <string name="search_library">Bibliotheek doorzoeken</string>
+    <string name="search_consoles">Consoles zoeken…</string>
+    <string name="filter_by_console">Filteren op console</string>
+    <string name="filter_by_tags">Filteren op tags</string>
+    <string name="all_consoles">Alle consoles</string>
+    <string name="clear">Wissen</string>
+
+    <!-- FAB -->
+    <string name="fab_menu">Menu</string>
+    <string name="fab_navigation_actions">Navigatie &amp; acties</string>
+
+    <!-- Downloads -->
+    <string name="download_started">Download van "%1$s" is gestart</string>
+    <string name="download_speed">%1$.2f MB/s</string>
+    <string name="download_started_at">Gestart %1$s</string>
+    <string name="download_finished_at">%1$s</string>
+    <string name="download_size">Grootte: %1$s</string>
+    <string name="download_cancel">Download annuleren</string>
+    <string name="extracting_files">Bestanden uitpakken…</string>
+    <string name="download_retry">Download opnieuw proberen</string>
+    <string name="download_delete">Download verwijderen</string>
+    <string name="download_action">Actie</string>
+    <string name="load_more">100 meer laden</string>
+
+    <!-- Delete Confirmation -->
+    <string name="delete_download_title">Download verwijderen</string>
+    <string name="delete_downloads_title">Downloads verwijderen</string>
+    <string name="delete_download_message">Deze download is voltooid. Wil je het bestand van de opslag verwijderen of alleen uit de downloadlijst halen?</string>
+    <string name="delete_downloads_message">%1$d downloads geselecteerd, waarvan sommige voltooid. Wil je de bestanden van de opslag verwijderen of alleen uit de downloadlijst halen?</string>
+    <string name="delete_file">Bestand verwijderen</string>
+    <string name="delete_files">Bestanden verwijderen</string>
+    <string name="keep_file">Bestand houden</string>
+    <string name="keep_files">Bestanden houden</string>
+
+    <!-- File Sizes -->
+    <string name="file_size_bytes">%1$d B</string>
+    <string name="file_size_kb">%1$.1f KB</string>
+    <string name="file_size_mb">%1$.1f MB</string>
+    <string name="file_size_gb">%1$.1f GB</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Instellingen</string>
+    <string name="settings_download_directory">Downloadmap</string>
+    <string name="settings_pick_folder">Map kiezen</string>
+    <string name="settings_separate_by_console">Submappen per console</string>
+    <string name="settings_auto_unzip">Automatisch uitpakken</string>
+    <string name="settings_limit_speed">Downloadsnelheid beperken: %1$s</string>
+    <string name="settings_unrestricted">Onbeperkt</string>
+    <string name="settings_concurrent_downloads">Gelijktijdige downloads: %1$d</string>
+
+    <!-- Messages -->
+    <string name="msg_db_rebuild_started">Database wordt opnieuw opgebouwd!</string>
+    <string name="msg_db_rebuild_complete">Database opnieuw opgebouwd!</string>
+    <string name="msg_configure_directory">Stel een downloadmap in bij Instellingen</string>
+    <string name="msg_operation_failed">Bewerking mislukt</string>
+    <string name="msg_unknown_error">Onbekende fout</string>
+    <string name="msg_http_error">HTTP-fout: %1$d</string>
+    <string name="msg_failed_create_file">Kon geen bestand maken in de opslag</string>
+    <string name="msg_failed_output_stream">Kon geen uitvoerstroom openen</string>
+
+    <!-- Status -->
+    <string name="status_unknown">Onbekend</string>
+    <string name="status_idle">Inactief</string>
+    <string name="status_building_db">Database opbouwen: %1$d / %2$d bestanden</string>
+
+    <!-- Progress Messages -->
+    <string name="progress_idle">Inactief</string>
+    <string name="progress_building_db">Database opbouwen: %1$d / %2$d bestanden</string>
+    <string name="toast_db_rebuild_complete">Database opnieuw opgebouwd!</string>
+
+    <!-- Error Messages -->
+    <string name="error_operation_failed">Bewerking mislukt: %1$s</string>
+    <string name="error_unknown">Onbekende fout</string>
+    <string name="error_configure_directory">Stel een downloadmap in bij Instellingen</string>
+
+    <!-- Sources: merge duplicate console folders -->
+    <string name="merge_folders_notice">%1$d mappen horen bij deze console: %2$s</string>
+    <string name="merge_folders_action">Samenvoegen…</string>
+    <string name="merge_folders_title">Consolemappen samenvoegen</string>
+    <string name="merge_folders_hint">Meerdere mappen in de downloadmap horen bij %1$s. Kies welke je wilt houden: bestanden uit de andere worden erheen verplaatst (identieke kopieën vervallen, afwijkende met dezelfde naam blijven staan) en lege mappen worden verwijderd. Je kunt ook alles laten zoals het is.</string>
+    <string name="merge_folders_confirm">Samenvoegen in gekozen map</string>
+    <string name="merge_folders_keep">Zo laten</string>
+    <string name="merge_folders_working">Bestanden verplaatsen…</string>
+    <string name="merge_folders_result">%1$d bestanden verplaatst, %2$d identieke kopieën verwijderd, %3$d overgeslagen, %4$d mislukt. %5$d lege mappen verwijderd.</string>
+    <string name="merge_folders_done">Klaar</string>
+
+    <!-- Sources -->
+    <string name="sources_empty_title">Geen bronnen ingesteld</string>
+    <string name="sources_empty_hint">Voeg een console toe om games te ontdekken</string>
+    <string name="sources_add_console">Console toevoegen</string>
+    <string name="sources_edit_console">Console bewerken</string>
+    <string name="sources_rescan_all">Alles opnieuw scannen</string>
+    <string name="sources_rescanning">Opnieuw scannen…</string>
+    <string name="sources_rescanning_sources">Bronnen opnieuw scannen…</string>
+    <string name="sources_directory_unset">Niet ingesteld — tik om te kiezen</string>
+    <string name="sources_choose">Kiezen</string>
+    <string name="sources_add_url">URL toevoegen</string>
+    <string name="sources_set_custom_path">Eigen downloadpad instellen</string>
+    <string name="sources_refresh_console">Console vernieuwen</string>
+    <string name="sources_delete_console">Console verwijderen</string>
+    <string name="sources_delete_url">URL verwijderen</string>
+    <string name="sources_edit_url">URL bewerken</string>
+    <string name="sources_export">Bronnen exporteren</string>
+    <string name="sources_import">Bronnen importeren</string>
+    <string name="sources_export_share_title">Bronnen-JSON delen</string>
+    <string name="sources_export_failed">Kon bronnen niet exporteren: %1$s</string>
+    <string name="sources_import_confirm_title">Bronnen importeren?</string>
+    <string name="sources_import_confirm_message">De huidige bronnen en de geïndexeerde gamelijst worden vervangen door het JSON-bestand dat je kiest, daarna wordt elke bron opnieuw gescand.</string>
+    <string name="sources_import_pick">Bestand kiezen</string>
+    <string name="sources_import_done">%1$d consoles geïmporteerd. Alle bronnen worden opnieuw gescand…</string>
+    <string name="sources_import_failed">Kon bronnen niet importeren: %1$s</string>
+    <string name="sources_import_result_title">Importeren</string>
+    <string name="sources_url_not_added">De bron kon niet worden opgeslagen. Controleer de URL of het bestand.</string>
+    <string name="sources_delete_console_title">%1$s verwijderen?</string>
+    <string name="sources_delete_console_message">De console, zijn bronnen en zijn geïndexeerde games worden verwijderd. Gedownloade bestanden blijven staan.</string>
+    <string name="sources_delete_url_title">Bron verwijderen?</string>
+    <string name="sources_delete_url_message">%1$s wordt uit deze console verwijderd. Scan opnieuw om de games ervan uit de bibliotheek te halen.</string>
+    <string name="dialog_delete">Verwijderen</string>
+    <string name="dialog_save">Opslaan</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_edit_source">Bron bewerken</string>
+    <string name="dialog_short_name">Korte naam (label)</string>
+    <string name="dialog_folder_aliases">Aliassen voor de downloadmap, gescheiden door komma\'s</string>
+    <string name="dialog_aliases_hint">Mapnamen die gelden als downloadmap van deze console (bijv. gba, Game Boy Advance). Laat leeg voor de ingebouwde namen.</string>
+    <string name="sources_expand">Uitklappen</string>
+    <string name="sources_collapse">Inklappen</string>
+    <string name="sources_path">Downloadpad: %1$s</string>
+    <string name="sources_path_custom">Downloadpad: %1$s (eigen)</string>
+    <string name="sources_path_will_create">Downloadpad: %1$s (wordt aangemaakt)</string>
+    <string name="sources_path_unset">Downloadpad: niet ingesteld (kies er een in Instellingen)</string>
+    <string name="sources_url_type">Type: %1$s</string>
+    <string name="sources_url_disabled">Uitgeschakeld — wordt overgeslagen bij scannen</string>
+    <string name="sources_scrape_start">Eerste scan van %1$d consoles starten…</string>
+    <string name="sources_rescan_start">Nieuwe scan van %1$d consoles starten…</string>
+    <string name="sources_processing_console">Console %1$d/%2$d verwerken: %3$s</string>
+    <string name="sources_refreshing_console">%1$s vernieuwen…</string>
+
+    <!-- Sources: dialogs -->
+    <string name="dialog_add_source">Bron toevoegen</string>
+    <string name="dialog_add_source_hint">Voer een URL of magnetlink in, upload een .torrent-bestand of kies een RomM-platform:</string>
+    <string name="dialog_from_romm">Van je RomM-server:</string>
+    <string name="dialog_url_label">URL / magnet</string>
+    <string name="dialog_url_placeholder">https://…, magnet:? of romm://psp</string>
+    <string name="dialog_upload_torrent">.torrent uploaden</string>
+    <string name="dialog_content_type">Soort inhoud:</string>
+    <string name="dialog_add">Toevoegen</string>
+    <string name="dialog_cancel">Annuleren</string>
+    <string name="dialog_confirm">Bevestigen</string>
+    <string name="dialog_console_name_hint">Naam van de console:</string>
+    <string name="dialog_name">Naam</string>
+    <string name="dialog_manufacturer">Fabrikant:</string>
+    <string name="dialog_new_manufacturer">Of een nieuwe fabrikant</string>
+
+    <!-- Library errors -->
+    <string name="error_download_dir_missing">Geen downloadmap ingesteld. Kies een downloadmap bij Instellingen.</string>
+    <string name="error_download_dir_inaccessible">De downloadmap is niet toegankelijk. Controleer de maprechten bij Instellingen.</string>
+
+    <!-- MIME Types -->
+    <string name="mime_octet_stream">application/octet-stream</string>
+
+    <!-- HTTP -->
+    <string name="http_user_agent">Dogmatix Downloader/1.0</string>
+    <string name="http_accept">*/*</string>
+    <string name="http_method_get">GET</string>
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Welkom bij Dogmatix</string>
+    <string name="onboarding_welcome_body">Dogmatix indexeert de inhoud van ROM-bronnen — torrents, magnets en webmappen —, tagt elk bestand op console, regio en taal, en laat je bladeren, filteren en direct naar je ROM-map downloaden. Archieven worden automatisch uitgepakt.</string>
+    <string name="onboarding_welcome_point_1">Bronnen worden geïndexeerd, niet gedownload: blader door duizenden titels zonder je opslag te vullen.</string>
+    <string name="onboarding_welcome_point_2">Filter op console, regio, taal, tag en bron; ✓ markeert wat je al hebt.</string>
+    <string name="onboarding_welcome_point_3">Downloads komen in een map per console, klaar voor frontends zoals ES-DE.</string>
+    <string name="onboarding_folder_title">Waar staan je ROMs?</string>
+    <string name="onboarding_folder_body">Kies de hoofdmap van je ROM-bibliotheek. Elke console krijgt daarin een eigen submap (bestaande zoals \"gba\" of \"psx\" worden hergebruikt). Je kunt dit later wijzigen in Instellingen.</string>
+    <string name="onboarding_folder_current">Map: %1$s</string>
+    <string name="onboarding_folder_choose">Map kiezen</string>
+    <string name="onboarding_folder_change">Andere map</string>
+    <string name="onboarding_sources_title">Voeg je bronnen toe</string>
+    <string name="onboarding_sources_body">Dogmatix wordt zonder bronnen geleverd. Importeer een bronnen-JSON (bijvoorbeeld een die je vanaf een ander toestel deelde) en elke console erin wordt meteen geïndexeerd. Je kunt later ook met de hand consoles en URL\'s toevoegen in het tabblad Bronnen.</string>
+    <string name="onboarding_sources_import">JSON importeren</string>
+    <string name="onboarding_skip">Nu overslaan</string>
+    <string name="onboarding_continue">Doorgaan</string>
+    <string name="onboarding_start">Aan de slag</string>
+    <string name="onboarding_finish">Afronden</string>
+    <string name="onboarding_step">Stap %1$d van %2$d</string>
+    <string name="onboarding_select">Kiezen</string>
+    <string name="onboarding_back">Terug</string>
+
+    <!-- Library tools: overview, duplicates, backup -->
+    <string name="nav_overview">Bibliotheekoverzicht</string>
+    <string name="nav_duplicates">Dubbele games</string>
+    <string name="pad_rescan">Scannen</string>
+    <string name="settings_overview">Bibliotheekoverzicht</string>
+    <string name="settings_overview_hint">Per console: wat de scan vond, wat op schijf staat en wat ontbreekt</string>
+    <string name="settings_duplicates">Dubbele games</string>
+    <string name="settings_duplicates_hint">Vind games die meer dan eens op schijf staan en maak ruimte vrij</string>
+    <string name="settings_backup_export">Back-up maken</string>
+    <string name="settings_backup_export_hint">Instellingen, bronnen, favorieten en downloads in één bestand (inclusief je API-sleutels)</string>
+    <string name="settings_backup_export_action">Exporteren</string>
+    <string name="settings_backup_import">Back-up terugzetten</string>
+    <string name="settings_backup_import_hint">Vervangt instellingen, bronnen en favorieten door die uit een back-up</string>
+    <string name="settings_backup_import_action">Importeren</string>
+    <string name="backup_export_done">Back-up opgeslagen: %1$d instellingen, %2$d consoles, %3$d favorieten, %4$d downloads</string>
+    <string name="backup_export_failed">Back-up mislukt: %1$s</string>
+    <string name="backup_invalid">Dit bestand is geen Dogmatix-back-up</string>
+    <string name="backup_import_title">Back-up terugzetten?</string>
+    <string name="backup_import_message">Back-up van %1$s (Dogmatix %2$s).\n\nJe huidige instellingen, bronnen en favorieten worden vervangen, daarna wordt elke bron opnieuw gescand.</string>
+    <string name="backup_import_action">Terugzetten</string>
+    <string name="backup_import_done">Teruggezet: %1$d instellingen, %2$d consoles, %3$d favorieten, %4$d downloads</string>
+    <string name="backup_import_repick">%1$d map(pen) zijn niet toegankelijk op deze installatie: kies ze opnieuw in Instellingen of Bronnen</string>
+    <string name="backup_import_restart">Start Dogmatix opnieuw om de teruggezette downloadlijst te zien</string>
+    <string name="backup_import_failed">Terugzetten mislukt: %1$s</string>
+    <string name="tools_scanning">Je downloadmappen worden gelezen…</string>
+    <string name="tools_no_folder">Kies eerst een downloadmap in Instellingen</string>
+    <string name="tools_refresh">Vernieuwen</string>
+    <string name="tools_root_folder">Downloadmap (geen console)</string>
+    <string name="tools_unknown_folder">Map %1$s</string>
+    <plurals name="tools_files">
+        <item quantity="one">%d bestand</item>
+        <item quantity="other">%d bestanden</item>
+    </plurals>
+    <plurals name="duplicates_summary">
+        <item quantity="one">%1$d groep · %2$s vrij te maken · %3$d bestanden gecontroleerd</item>
+        <item quantity="other">%1$d groepen · %2$s vrij te maken · %3$d bestanden gecontroleerd</item>
+    </plurals>
+    <string name="duplicates_none">Geen dubbele games in %1$d bestanden</string>
+    <string name="duplicates_kind_identical">Hetzelfde bestand in meerdere mappen</string>
+    <string name="duplicates_kind_variant">Verschillende versies (regio, revisie, vertaling)</string>
+    <string name="duplicates_largest">grootste</string>
+    <string name="duplicates_delete">Verwijderen</string>
+    <string name="duplicates_delete_title">Van schijf verwijderen?</string>
+    <string name="duplicates_delete_message">%1$s\n%2$s\n\n%3$s (%4$s) wordt definitief verwijderd.</string>
+    <string name="duplicates_deleted">%1$s verwijderd</string>
+    <string name="duplicates_delete_failed">Kon %1$s niet verwijderen</string>
+    <string name="overview_totals">%1$d consoles · %2$d games geïndexeerd · %3$d in bezit (%4$d%%)</string>
+    <string name="overview_disk">Op schijf: %1$d games, %2$s · %3$s vrij</string>
+    <string name="overview_disk_no_free">Op schijf: %1$d games, %2$s</string>
+    <string name="overview_rescan_all">Alle bronnen opnieuw scannen</string>
+    <string name="overview_rescan_all_title">Alle bronnen opnieuw scannen?</string>
+    <string name="overview_rescan_all_message">Elke bron wordt opnieuw opgehaald en geïndexeerd. Met veel torrents kan dat even duren.</string>
+    <string name="overview_scan_running">Scan bezig: %1$s</string>
+    <string name="overview_console_stats">%1$d geïndexeerd · %2$d in bezit · %3$d op schijf (%4$s)</string>
+    <string name="overview_scanned">gescand %1$s</string>
+    <string name="overview_never_scanned">scantijd onbekend</string>
+    <string name="overview_status_ok">OK</string>
+    <string name="overview_status_no_sources">Geen bronnen</string>
+    <string name="overview_status_nothing_found">Niets gevonden</string>
+    <string name="overview_status_not_scanned">Niet gescand</string>
+    <string name="overview_unassigned">%1$d game(s) op schijf buiten de consolemappen</string>
+    <string name="overview_unmatched">Mappen zonder console: %1$s</string>
+    <string name="scrape_error_title">Scanfout</string>
+    <string name="scrape_failed">Scannen van %1$s mislukt: %2$s</string>
+    <string name="scrape_fetching_torrent">Torrent-metadata ophalen voor %1$s…</string>
+    <string name="scrape_indexing_torrent">Bestanden indexeren voor %1$s…</string>
+    <string name="scrape_listing_romm">%1$s ophalen van RomM…</string>
+    <string name="notification_channel_downloads">Downloads</string>
+    <string name="notification_channel_downloads_desc">Voortgang van actieve downloads</string>
+    <string name="notification_downloading">Bezig met downloaden</string>
+    <string name="notification_downloading_text">Downloads lopen op de achtergrond</string>
+    <string name="update_available">Update beschikbaar! Nieuwste versie: %1$s</string>
+    <string name="scan_progress">%1$d%% · %2$s</string>
+    <string name="overview_scan_percent">Bronnen scannen: %1$d%%</string>
+    <string name="overview_scan_sources">%1$d van %2$d bronnen klaar</string>
+    <string name="overview_scan_sources_eta">%1$d van %2$d bronnen klaar · nog ongeveer %3$s</string>
+    <string name="language_nl">Nederlands</string>
+    <string name="language_fr">Français</string>
+    <string name="language_de">Deutsch</string>
+</resources>

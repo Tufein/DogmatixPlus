@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.data.service
 
+import com.cortinadev.dogmatix.R
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
@@ -34,7 +35,7 @@ class VersionCheckerService @Inject constructor(
                 withContext(Dispatchers.Main) {
                     ToastUtil.showInfo(
                         context, 
-                        "Update available! Latest version: ${latestRelease.tagName}"
+                        context.getString(R.string.update_available, latestRelease.tagName)
                     )
                 }
             }
