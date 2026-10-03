@@ -71,6 +71,10 @@ sealed interface SaveSyncAction {
     data class Ambiguous(val local: LocalSaveFile) : SaveSyncAction
     /** A server file whose place on the device is taken by a file that belongs elsewhere. */
     data class Blocked(val remote: RemoteSaveFile, val path: String) : SaveSyncAction
+    /** Deleted on the device since the last sync, untouched on the server: remove it there too (opt-in). */
+    data class DeleteRemote(val remote: RemoteSaveFile, val record: SaveSyncRecord) : SaveSyncAction
+    /** Deleted on the server since the last sync, untouched on the device: remove it here too (opt-in; backed up first). */
+    data class DeleteLocal(val local: LocalSaveFile, val record: SaveSyncRecord) : SaveSyncAction
 }
 
 /**
@@ -80,7 +84,10 @@ sealed interface SaveSyncAction {
  * Pairing a device file with a server file: the record of an earlier sync wins (RomM may
  * have cleaned the name up on upload); otherwise the same file name, and when several games
  * have a save of that name, the one whose emulator is the folder the file sits in.
- * Deletions are not synced: a file missing on one side is copied back from the other.
+ * Deletions are not synced unless [plan] is told to: a file missing on one side is copied back
+ * from the other. With deletion sync on, a file that vanished from one side while the other side
+ * still holds exactly what the last sync recorded is removed there too; a side that changed since
+ * is never deleted (the change wins, so no progress is lost).
  */
 object SaveSyncPlanner {
 
@@ -136,7 +143,9 @@ object SaveSyncPlanner {
         remotes: List<RemoteSaveFile>,
         records: List<SaveSyncRecord>,
         /** Folders directly inside the picked folder, per kind (emulator / core folders). */
-        topFolders: Map<SaveKind, Set<String>> = emptyMap()
+        topFolders: Map<SaveKind, Set<String>> = emptyMap(),
+        /** Mirror deletions between the device and the server (Settings → Save sync). */
+        syncDeletions: Boolean = false
     ): List<SaveSyncAction> {
         val actions = mutableListOf<SaveSyncAction>()
         val recordByPath = records.associateBy { key(it.kind, it.path) }
@@ -177,10 +186,8 @@ object SaveSyncPlanner {
         pairs.forEach { (local, remote) ->
             val record = recordByPath[key(local.kind, local.path)]?.takeIf { it.remoteId == remote.id }
             actions += if (record == null) SaveSyncAction.Compare(local, remote) else {
-                val localChanged = local.size != record.localSize || local.modified != record.localModified
-                val remoteChanged = !sameTime(remote.updatedAt, record.remoteUpdatedAt) ||
-                    (record.remoteSize >= 0 && remote.size != record.remoteSize) ||
-                    (record.remoteHash != null && remote.contentHash != null && !remote.contentHash.equals(record.remoteHash, ignoreCase = true))
+                val localChanged = localChanged(local, record)
+                val remoteChanged = remoteChanged(remote, record)
                 when {
                     localChanged && remoteChanged -> SaveSyncAction.Conflict(local, remote)
                     localChanged -> SaveSyncAction.Upload(local, remote.romId, remote)
@@ -190,14 +197,25 @@ object SaveSyncPlanner {
             }
         }
         unpaired.forEach { local ->
-            actions += SaveSyncAction.Upload(local, recordByPath[key(local.kind, local.path)]?.romId, null)
+            val record = recordByPath[key(local.kind, local.path)]
+            // Gone from the server while the device copy is as it was left: the deletion travels here.
+            actions += if (syncDeletions && record != null && local.kind in topFolders.keys &&
+                remoteById[local.kind to record.remoteId] == null && !localChanged(local, record)
+            ) SaveSyncAction.DeleteLocal(local, record)
+            else SaveSyncAction.Upload(local, record?.romId, null)
         }
         ambiguous.forEach { actions += SaveSyncAction.Ambiguous(it) }
 
         // 3. Server files the device does not have yet go into their emulator folder when the
         // device has one of that name, else straight into the picked folder.
         val localPaths = locals.map { key(it.kind, it.path) }.toSet()
-        val downloads = remotes.filter { (it.kind to it.id) !in claimed }.map { remote ->
+        // Gone from the device while the server copy is as it was left: the deletion travels there.
+        val deletedOnDevice = if (!syncDeletions) emptyList() else records.filter { r ->
+            r.kind in topFolders.keys && key(r.kind, r.path) !in localPaths
+        }.mapNotNull { r -> remoteById[r.kind to r.remoteId]?.takeIf { (it.kind to it.id) !in claimed && !remoteChanged(it, r) }?.let { it to r } }
+        deletedOnDevice.forEach { (remote, record) -> actions += SaveSyncAction.DeleteRemote(remote, record) }
+        val deletedIds = deletedOnDevice.map { (remote, _) -> remote.kind to remote.id }.toSet()
+        val downloads = remotes.filter { (it.kind to it.id) !in claimed && (it.kind to it.id) !in deletedIds }.map { remote ->
             val folder = remote.emulator?.let { emulator ->
                 topFolders[remote.kind].orEmpty().firstOrNull { it.equals(emulator, ignoreCase = true) }
             }
@@ -211,6 +229,14 @@ object SaveSyncPlanner {
         }
         return actions
     }
+
+    private fun localChanged(local: LocalSaveFile, record: SaveSyncRecord) =
+        local.size != record.localSize || local.modified != record.localModified
+
+    private fun remoteChanged(remote: RemoteSaveFile, record: SaveSyncRecord) =
+        !sameTime(remote.updatedAt, record.remoteUpdatedAt) ||
+            (record.remoteSize >= 0 && remote.size != record.remoteSize) ||
+            (record.remoteHash != null && remote.contentHash != null && !remote.contentHash.equals(record.remoteHash, ignoreCase = true))
 
     /** A ROM as RomM's search returns it, enough to tie a save file to it. */
     data class RomCandidate(val id: Int, val fsName: String, val platformSlug: String = "", val platformFsSlug: String = "")

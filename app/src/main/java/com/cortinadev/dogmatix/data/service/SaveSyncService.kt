@@ -93,16 +93,17 @@ class SaveSyncService @Inject constructor(
     private val engine = SaveSyncEngine(
         server = RommSaveServer(rommClient),
         store = SafSaveStore(),
-        onProgress = { done, total -> _state.update { it.copy(progress = "$done / $total") } }
+        onProgress = { done, total -> _state.update { it.copy(progress = "$done / $total") } },
+        syncDeletions = { settingsRepository.saveSyncDeletions.first() }
     )
 
     suspend fun isConfigured(): Boolean =
         rommClient.configuredBaseUrl().isNotEmpty() && settingsRepository.rommToken.first().isNotBlank() &&
             (settingsRepository.saveSyncSavesDir.first().isNotBlank() || settingsRepository.saveSyncStatesDir.first().isNotBlank())
 
-    /** Sync now (Save sync screen); ignored while one runs. */
-    fun syncNow() {
-        scope.launch { sync() }
+    /** Sync now (Save sync screen); ignored while one runs. [confirmDeletions] lets held-back deletions through. */
+    fun syncNow(confirmDeletions: Boolean = false) {
+        scope.launch { sync(confirmDeletions) }
     }
 
     /** App opened or back in front: sync when switched on, set up and not done a moment ago. */
@@ -142,7 +143,7 @@ class SaveSyncService @Inject constructor(
     }
 
     /** One full sync; null when one was already running, nothing is set up or it failed as a whole. */
-    suspend fun sync(): SaveSyncResult? {
+    suspend fun sync(confirmDeletions: Boolean = false): SaveSyncResult? {
         if (!lock.tryLock()) return null
         try {
             if (!isConfigured()) return null
@@ -151,7 +152,7 @@ class SaveSyncService @Inject constructor(
                 runCatching {
                     pruneBackups()
                     val records = loadRecords().toMutableMap()
-                    val (result, conflicts) = engine.sync(records)
+                    val (result, conflicts) = engine.sync(records, confirmDeletions)
                     saveRecords(records)
                     _state.update { it.copy(last = result, conflicts = conflicts) }
                     result
@@ -179,6 +180,7 @@ class SaveSyncService @Inject constructor(
         override suspend fun upload(kind: SaveKind, romId: Int, fileName: String, emulator: String?, bytes: ByteArray) =
             client.uploadSave(kind, romId, fileName, emulator, bytes)
         override suspend fun searchRoms(term: String) = client.searchRoms(term)
+        override suspend fun delete(save: RemoteSaveFile) = client.deleteSave(save)
     }
 
     // ---- Device folders -----------------------------------------------------------------------
@@ -241,6 +243,12 @@ class SaveSyncService @Inject constructor(
             val file = LocalSaveFile(kind, path, written.length(), written.lastModified())
             documents = documents + (SaveSyncEngine.key(file) to written.uri)
             file
+        }
+
+        override suspend fun delete(file: LocalSaveFile) = withContext(Dispatchers.IO) {
+            val uri = documents[SaveSyncEngine.key(file)] ?: throw IOException("${file.name} is no longer on the device")
+            if (!DocumentsContract.deleteDocument(context.contentResolver, uri)) throw IOException("Could not delete ${file.name}")
+            documents = documents - SaveSyncEngine.key(file)
         }
 
         override suspend fun backup(file: LocalSaveFile) {

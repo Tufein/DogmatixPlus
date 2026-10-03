@@ -33,6 +33,7 @@ object JsonHttp {
         readTimeoutMs: Int = 30_000
     ): Response {
         val connection = URL(url).openConnection() as HttpURLConnection
+        TlsTrust.apply(connection)
         try {
             connection.requestMethod = method
             connection.connectTimeout = connectTimeoutMs
@@ -62,6 +63,7 @@ object JsonHttp {
      */
     fun download(url: String, headers: Map<String, String> = emptyMap(), maxBytes: Long, readTimeoutMs: Int = 60_000): ByteArray {
         val connection = URL(url).openConnection() as HttpURLConnection
+        TlsTrust.apply(connection)
         try {
             connection.connectTimeout = 15_000
             connection.readTimeout = readTimeoutMs

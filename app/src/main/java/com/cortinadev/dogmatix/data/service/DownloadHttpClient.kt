@@ -12,7 +12,8 @@ class DownloadHttpClient @Inject constructor() {
     fun createConnection(downloadUrl: String, rangeStart: Long = 0L, headers: Map<String, String> = emptyMap()): HttpURLConnection {
         val url = URL(downloadUrl)
         val connection = url.openConnection() as HttpURLConnection
-        
+        TlsTrust.apply(connection)
+
         connection.requestMethod = "GET"
         connection.setRequestProperty("User-Agent", "Wget/1.25.0")
         connection.setRequestProperty("Accept-Encoding", "identity")

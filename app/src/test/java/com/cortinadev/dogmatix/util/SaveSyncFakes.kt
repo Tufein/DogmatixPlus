@@ -32,6 +32,9 @@ class FakeSaveStore(private val clock: TestClock, private val kinds: Set<SaveKin
         return LocalSaveFile(kind, path, bytes.size.toLong(), f.modified)
     }
     override suspend fun backup(file: LocalSaveFile) { backups += file.path }
+    override suspend fun delete(file: LocalSaveFile) { files.remove(file.kind to file.path) }
+    /** The user deletes a save on this device (no clock tick: nothing was written). */
+    fun remove(kind: SaveKind, path: String) { files.remove(kind to path) }
 }
 
 /** A RomM server in memory: upserts by game + name, lists times to the second like RomM does. */
@@ -63,6 +66,9 @@ class FakeSaveServer(private val clock: TestClock, private val roms: List<SaveSy
         put(kind, romId, fileName, bytes.toString(Charsets.UTF_8), emulator)
         return stored.first { it.kind == kind && it.romId == romId && it.name == fileName }.also { it.emulator = emulator }.remote(precise = true)
     }
+    override suspend fun delete(save: RemoteSaveFile) { stored.removeAll { it.id == save.id && it.kind == save.kind } }
+    /** Deleted in RomM's web interface. */
+    fun remove(kind: SaveKind, name: String) { stored.removeAll { it.kind == kind && it.name == name } }
     override suspend fun searchRoms(term: String): List<SaveSyncPlanner.RomCandidate> {
         searches++
         val words = term.lowercase().split(' ').filter { it.isNotBlank() }

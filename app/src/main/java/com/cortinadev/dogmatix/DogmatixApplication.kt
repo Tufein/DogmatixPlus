@@ -29,6 +29,10 @@ class DogmatixApplication : Application() {
     @Inject
     lateinit var rommUploadService: com.cortinadev.dogmatix.data.service.RommUploadService
 
+    /** Injected so the pinned RomM certificate is active from the first request. */
+    @Inject
+    lateinit var rommTrustService: com.cortinadev.dogmatix.data.service.RommTrustService
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
     override fun onCreate() {

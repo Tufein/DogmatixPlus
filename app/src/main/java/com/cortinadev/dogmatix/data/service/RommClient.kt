@@ -1,6 +1,7 @@
 package com.cortinadev.dogmatix.data.service
 
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.util.Checksums
 import com.cortinadev.dogmatix.util.RemoteSaveFile
 import com.cortinadev.dogmatix.util.SaveKind
 import com.cortinadev.dogmatix.util.SaveSyncPlanner.RomCandidate
@@ -15,7 +16,16 @@ import javax.inject.Singleton
 
 class RommException(message: String) : IOException(message)
 
-data class RommRom(val id: Int, val fsName: String, val fsSizeBytes: Long, val name: String)
+data class RommRom(
+    val id: Int,
+    val fsName: String,
+    val fsSizeBytes: Long,
+    val name: String,
+    /** Path of the cover below the server's resources (`roms/3/15/cover/big.png`), or "". */
+    val coverPath: String = "",
+    /** The strongest hash the server lists for the file, as `algorithm:hex` (see Checksums); null when none. */
+    val hash: String? = null
+)
 
 data class RommPlatform(val id: Int, val slug: String, val fsSlug: String, val name: String, val displayName: String) {
     val label: String get() = displayName.ifBlank { name.ifBlank { slug } }
@@ -61,7 +71,10 @@ class RommClient @Inject constructor(
                     id = r.get("id").asInt,
                     fsName = fsName,
                     fsSizeBytes = r.get("fs_size_bytes")?.takeUnless { it.isJsonNull }?.asLong ?: 0L,
-                    name = r.str("name")
+                    name = r.str("name"),
+                    coverPath = listOf("path_cover_large", "path_cover_l", "path_cover_small", "path_cover_s")
+                        .firstNotNullOfOrNull { r.str(it).takeIf { v -> v.isNotBlank() } }.orEmpty(),
+                    hash = Checksums.best(r.str("sha1_hash"), r.str("md5_hash"), r.str("crc_hash"))
                 )
             }
             if (items.size() < limit) break
@@ -201,6 +214,23 @@ class RommClient @Inject constructor(
         remoteSave(kind, obj)
             ?: obj.getAsJsonArray(kind.apiPath)?.mapNotNull { (it as? JsonObject)?.let { o -> remoteSave(kind, o) } }
                 ?.lastOrNull { it.fileName.equals(fileName, ignoreCase = true) }
+    }
+
+    /**
+     * Deletes [save] on the server. RomM's bulk route (`POST /api/saves/delete` with the ids) is
+     * tried first; servers without it answer 404 / 405 and get a plain `DELETE /api/saves/{id}`.
+     */
+    suspend fun deleteSave(save: RemoteSaveFile) = withContext(Dispatchers.IO) {
+        val base = baseUrl()
+        val auth = headers()
+        val body = com.google.gson.JsonObject().apply {
+            add(save.kind.apiPath, com.google.gson.JsonArray().apply { add(save.id) })
+        }.toString().toByteArray(Charsets.UTF_8)
+        val bulk = JsonHttp.request("POST", "$base/api/${save.kind.apiPath}/delete", auth, body = body, contentType = JsonHttp.JSON)
+        if (bulk.code == 404 || bulk.code == 405) {
+            JsonHttp.requireOk(JsonHttp.request("DELETE", "$base/api/${save.kind.apiPath}/${save.id}", auth))
+        } else JsonHttp.requireOk(bulk)
+        Unit
     }
 
     /** ROMs whose name or file name holds every word of [term] (RomM's library search). */

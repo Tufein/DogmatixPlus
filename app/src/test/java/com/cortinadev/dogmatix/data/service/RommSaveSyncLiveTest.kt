@@ -45,6 +45,7 @@ class RommSaveSyncLiveTest {
         override suspend fun upload(kind: SaveKind, romId: Int, fileName: String, emulator: String?, bytes: ByteArray) =
             client.uploadSave(kind, romId, fileName, emulator, bytes)
         override suspend fun searchRoms(term: String) = client.searchRoms(term)
+        override suspend fun delete(save: RemoteSaveFile) = client.deleteSave(save)
     }
 
     @Test

@@ -15,7 +15,12 @@ data class SaveSyncResult(
     val notMatched: Int = 0,
     val failed: Int = 0,
     /** The first few failures, as "file: reason". */
-    val errors: List<String> = emptyList()
+    val errors: List<String> = emptyList(),
+    /** Saves removed on the device / on the server because they were deleted on the other side. */
+    val deletedOnDevice: Int = 0,
+    val deletedOnServer: Int = 0,
+    /** Deletions that were not carried out: there were more than expected, the user has to confirm. */
+    val deletionsHeld: Int = 0
 )
 
 /** The RomM side of a save sync (implemented over [com.cortinadev.dogmatix.data.service.RommClient]). */
@@ -25,6 +30,8 @@ interface SaveServer {
     /** Stores [bytes] as [fileName] for ROM [romId], replacing a save of that name; returns the stored save. */
     suspend fun upload(kind: SaveKind, romId: Int, fileName: String, emulator: String?, bytes: ByteArray): RemoteSaveFile?
     suspend fun searchRoms(term: String): List<SaveSyncPlanner.RomCandidate>
+    /** Removes [save] from the server. */
+    suspend fun delete(save: RemoteSaveFile)
 }
 
 /** The device side: the picked saves / states folders. */
@@ -44,6 +51,8 @@ interface SaveStore {
     suspend fun write(kind: SaveKind, path: String, bytes: ByteArray): LocalSaveFile
     /** Keeps a copy of [file] before a download replaces it. */
     suspend fun backup(file: LocalSaveFile)
+    /** Removes [file] from the device (the caller has made a backup). */
+    suspend fun delete(file: LocalSaveFile)
 }
 
 /**
@@ -55,17 +64,25 @@ class SaveSyncEngine(
     private val server: SaveServer,
     private val store: SaveStore,
     private val clock: () -> Long = System::currentTimeMillis,
-    private val onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }
+    private val onProgress: (done: Int, total: Int) -> Unit = { _, _ -> },
+    /** Whether deletions are mirrored (Settings → Save sync); read at the start of every sync. */
+    private val syncDeletions: suspend () -> Boolean = { false }
 ) {
     /** Save files RomM had no (single) game for, with when it was asked: not asked again for a day. */
     private val notFoundCache = mutableMapOf<String, Long>()
 
-    suspend fun sync(records: MutableMap<String, SaveSyncRecord>): Pair<SaveSyncResult, List<SaveConflict>> {
+    suspend fun sync(records: MutableMap<String, SaveSyncRecord>, confirmDeletions: Boolean = false): Pair<SaveSyncResult, List<SaveConflict>> {
         val listing = store.list()
         val remotes = SaveSyncPlanner.latestPerName(listing.topFolders.keys.flatMap { server.list(it) })
-        val actions = SaveSyncPlanner.plan(listing.files, remotes, records.values.toList(), listing.topFolders)
+        val planned = SaveSyncPlanner.plan(listing.files, remotes, records.values.toList(), listing.topFolders, syncDeletions())
+        // A lot of deletions at once usually means something is wrong (a folder emptied, a wrong
+        // server), not that the user cleaned up: hold them back until the user says yes.
+        val deletions = planned.count { it is SaveSyncAction.DeleteRemote || it is SaveSyncAction.DeleteLocal }
+        val held = !confirmDeletions && deletions > maxOf(MIN_DELETIONS_WITHOUT_ASKING, records.size / 4)
+        val actions = if (held) planned.filterNot { it is SaveSyncAction.DeleteRemote || it is SaveSyncAction.DeleteLocal } else planned
 
         var uploaded = 0; var downloaded = 0; var unchanged = 0; var notMatched = listing.tooLarge; var failed = 0
+        var deletedOnDevice = 0; var deletedOnServer = 0
         val conflicts = mutableListOf<SaveConflict>()
         val errors = mutableListOf<String>()
         val transfers = actions.count { it.isTransfer() }
@@ -78,6 +95,17 @@ class SaveSyncEngine(
                     is SaveSyncAction.InSync -> unchanged++
                     is SaveSyncAction.Conflict -> conflicts += SaveConflict(action.local, action.remote)
                     is SaveSyncAction.Ambiguous, is SaveSyncAction.Blocked -> notMatched++
+                    is SaveSyncAction.DeleteRemote -> {
+                        server.delete(action.remote)
+                        records.remove(SaveSyncPlanner.key(action.record.kind, action.record.path))
+                        deletedOnServer++
+                    }
+                    is SaveSyncAction.DeleteLocal -> {
+                        store.backup(action.local)
+                        store.delete(action.local)
+                        records.remove(SaveSyncPlanner.key(action.record.kind, action.record.path))
+                        deletedOnDevice++
+                    }
                     is SaveSyncAction.Download -> { download(action.remote, action.path, action.replacing, records); downloaded++ }
                     is SaveSyncAction.Upload -> {
                         val romId = action.romId ?: findRom(action.local)
@@ -104,7 +132,10 @@ class SaveSyncEngine(
         val liveRemotes = remotes.map { it.kind to it.id }.toSet()
         records.entries.retainAll { (k, r) -> k in livePaths || (r.kind to r.remoteId) in liveRemotes }
 
-        val result = SaveSyncResult(clock(), uploaded, downloaded, unchanged, conflicts.size, notMatched, failed, errors)
+        val result = SaveSyncResult(
+            clock(), uploaded, downloaded, unchanged, conflicts.size, notMatched, failed, errors,
+            deletedOnDevice, deletedOnServer, if (held) deletions else 0
+        )
         return result to conflicts
     }
 
@@ -158,10 +189,14 @@ class SaveSyncEngine(
         is SaveSyncAction.InSync -> local.name
         is SaveSyncAction.Ambiguous -> local.name
         is SaveSyncAction.Blocked -> remote.fileName
+        is SaveSyncAction.DeleteRemote -> remote.fileName
+        is SaveSyncAction.DeleteLocal -> local.name
     }
 
     companion object {
         private const val NOT_FOUND_RETRY_MS = 24 * 60 * 60 * 1000L
+        /** Up to this many deletions (or a quarter of all synced files, if more) go through without asking. */
+        private const val MIN_DELETIONS_WITHOUT_ASKING = 3
 
         fun key(local: LocalSaveFile) = SaveSyncPlanner.key(local.kind, local.path)
 
