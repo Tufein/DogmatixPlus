@@ -1,6 +1,9 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
 import android.content.Context
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.Alignment
+import android.provider.DocumentsContract
 import android.content.Intent
 import android.webkit.MimeTypeMap
 import androidx.activity.compose.BackHandler
@@ -75,7 +78,11 @@ data class ExplorerState(
     /** Result of "Size of this folder": bytes and files, for the folder it was asked for. */
     val folderSize: Pair<Long, Int>? = null,
     val sizing: Boolean = false,
-    val problems: List<SetProblem>? = null
+    val problems: List<SetProblem>? = null,
+    /** A file or folder picked up with "Move": it goes into the folder that is open when "Move here" is pressed. */
+    val moving: Pair<DiskEntry, DiskDir>? = null,
+    /** Something slow is running (moving, extracting); its description. */
+    val busy: String? = null
 ) {
     val atRoots: Boolean get() = path.isEmpty()
     val sorted: List<DiskEntry> get() = entries.sortedWith(
@@ -93,7 +100,8 @@ data class ExplorerState(
 @HiltViewModel
 class FileExplorerViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val settings: SettingsRepository
+    private val settings: SettingsRepository,
+    private val extractor: com.cortinadev.dogmatix.data.service.ArchiveExtractorService
 ) : ViewModel() {
     private val _state = MutableStateFlow(ExplorerState())
     val state: StateFlow<ExplorerState> = _state.asStateFlow()
@@ -188,6 +196,68 @@ class FileExplorerViewModel @Inject constructor(
         }
     }
 
+    /** Gives [entry] a new name in the same folder. */
+    fun rename(context: Context, entry: DiskEntry, newName: String) {
+        val name = com.cortinadev.dogmatix.util.DatMatcher.safeFileName(newName)
+        if (name.isEmpty() || name == entry.name) return
+        val app = context.applicationContext
+        viewModelScope.launch {
+            val ok = withContext(Dispatchers.IO) { runCatching { DocumentsContract.renameDocument(app.contentResolver, entry.uri, name) }.getOrNull() != null }
+            if (!ok) ToastUtil.showError(app, app.getString(R.string.files_rename_failed, entry.name))
+            refresh()
+        }
+    }
+
+    /** Picks [entry] up; "Move here" in another folder puts it there. */
+    fun startMove(entry: DiskEntry) {
+        val from = _state.value.path.lastOrNull()?.second ?: return
+        _state.update { it.copy(moving = entry to from) }
+    }
+
+    fun cancelMove() = _state.update { it.copy(moving = null) }
+
+    /**
+     * Moves the picked-up entry into the open folder: the storage provider's own move when it can
+     * (instant on the same storage), else a copy followed by deleting the original (files only).
+     */
+    fun moveHere(context: Context) {
+        val (entry, from) = _state.value.moving ?: return
+        val to = _state.value.path.lastOrNull()?.second ?: return
+        val app = context.applicationContext
+        if (DiskScanner.canonicalKey(from) == DiskScanner.canonicalKey(to)) { cancelMove(); return }
+        _state.update { it.copy(moving = null, busy = app.getString(R.string.files_moving, entry.name)) }
+        viewModelScope.launch {
+            val ok = withContext(Dispatchers.IO) {
+                val resolver = app.contentResolver
+                val target = DiskScanner.uriOf(to)
+                val moved = runCatching { DocumentsContract.moveDocument(resolver, entry.uri, DiskScanner.uriOf(from), target) }.getOrNull() != null
+                moved || (!entry.isDirectory && runCatching {
+                    val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entry.name.substringAfterLast('.', "").lowercase()) ?: "application/octet-stream"
+                    val copy = DocumentsContract.createDocument(resolver, target, mime, entry.name) ?: error("cannot create")
+                    resolver.openInputStream(entry.uri)!!.use { input -> resolver.openOutputStream(copy)!!.use { input.copyTo(it, 256 * 1024) } }
+                    DocumentsContract.deleteDocument(resolver, entry.uri)
+                }.getOrDefault(false))
+            }
+            _state.update { it.copy(busy = null) }
+            if (ok) ToastUtil.showSuccess(app, app.getString(R.string.files_moved, entry.name)) else ToastUtil.showError(app, app.getString(R.string.files_move_failed, entry.name))
+            refresh()
+        }
+    }
+
+    /** Unpacks an archive into the folder it is in (the archive stays). */
+    fun extract(context: Context, entry: DiskEntry) {
+        val dir = _state.value.path.lastOrNull()?.second ?: return
+        val app = context.applicationContext
+        _state.update { it.copy(busy = app.getString(R.string.files_extracting, entry.name)) }
+        viewModelScope.launch {
+            val files = extractor.extractArchive(app, entry.uri, DiskScanner.uriOf(dir))
+            _state.update { it.copy(busy = null) }
+            if (files.isNotEmpty()) ToastUtil.showSuccess(app, app.getString(R.string.files_extracted, files.size))
+            else ToastUtil.showError(app, app.getString(R.string.files_extract_failed, entry.name))
+            refresh()
+        }
+    }
+
     fun delete(context: Context, entry: DiskEntry) {
         val app = context.applicationContext
         viewModelScope.launch {
@@ -207,13 +277,20 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
     var confirmDelete by remember { mutableStateOf<DiskEntry?>(null) }
     BackHandler(enabled = !ui.atRoots) { viewModel.up() }
 
+    var renaming by remember { mutableStateOf<DiskEntry?>(null) }
     selected?.let { entry ->
         FileDetailsDialog(
             entry = entry,
             onOpen = { selected = null; viewModel.openFile(context, entry) },
             onDelete = { selected = null; confirmDelete = entry },
+            onRename = { selected = null; renaming = entry },
+            onMove = { selected = null; viewModel.startMove(entry) },
+            onExtract = if (com.cortinadev.dogmatix.util.ArchiveUtils.isExtractable(entry.name.substringAfterLast('.', ""))) ({ selected = null; viewModel.extract(context, entry) }) else null,
             onDismiss = { selected = null }
         )
+    }
+    renaming?.let { entry ->
+        RenameDialog(entry.name, onSave = { viewModel.rename(context, entry, it); renaming = null }, onDismiss = { renaming = null })
     }
     confirmDelete?.let { entry ->
         ConfirmDialog(
@@ -245,6 +322,17 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
                     }
                 }
             } else {
+                ui.moving?.let { (entry, _) ->
+                    item(key = "moving") {
+                        ToolRow(stringResource(R.string.files_move_pending, entry.name), listOf(stringResource(R.string.files_move_hint)), { viewModel.moveHere(context) }) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                PillButton(stringResource(R.string.files_move_here)) { viewModel.moveHere(context) }
+                                PillButton(stringResource(R.string.dialog_cancel)) { viewModel.cancelMove() }
+                            }
+                        }
+                    }
+                }
+                ui.busy?.let { item(key = "busy") { InfoCard(listOf(it), accent = true) } }
                 item(key = "tools") {
                     val folders = ui.entries.count { it.isDirectory }
                     val files = ui.entries.size - folders
@@ -281,7 +369,11 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
                 items(ui.sorted, key = { it.documentId }) { entry ->
                     if (entry.isDirectory) {
                         ToolRow("📁 " + entry.name, emptyList(), { viewModel.openFolder(entry) }) {
-                            Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                                PillButton(stringResource(R.string.files_rename)) { renaming = entry }
+                                PillButton(stringResource(R.string.files_move)) { viewModel.startMove(entry) }
+                                Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                         }
                     } else {
                         val game = DuplicateFinder.isGameFile(entry.name)
@@ -299,7 +391,29 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
 }
 
 @Composable
-private fun FileDetailsDialog(entry: DiskEntry, onOpen: () -> Unit, onDelete: () -> Unit, onDismiss: () -> Unit) {
+private fun RenameDialog(current: String, onSave: (String) -> Unit, onDismiss: () -> Unit) {
+    var name by remember { mutableStateOf(current) }
+    val cancelFocus = rememberInitialFocus()
+    AlertDialog(
+        modifier = Modifier.closeOnGamepadB(onDismiss),
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.files_rename)) },
+        text = { androidx.compose.material3.OutlinedTextField(value = name, onValueChange = { name = it.take(250) }, singleLine = true, modifier = Modifier.fillMaxWidth()) },
+        confirmButton = { DialogButton(text = stringResource(R.string.dialog_save), onClick = { onSave(name) }, enabled = name.isNotBlank() && name != current) },
+        dismissButton = { DialogButton(text = stringResource(R.string.dialog_cancel), onClick = onDismiss, initialFocus = cancelFocus) }
+    )
+}
+
+@Composable
+private fun FileDetailsDialog(
+    entry: DiskEntry,
+    onOpen: () -> Unit,
+    onDelete: () -> Unit,
+    onRename: () -> Unit,
+    onMove: () -> Unit,
+    onExtract: (() -> Unit)?,
+    onDismiss: () -> Unit
+) {
     val openFocus = rememberInitialFocus()
     val ext = entry.name.substringAfterLast('.', "").lowercase()
     AlertDialog(
@@ -312,6 +426,11 @@ private fun FileDetailsDialog(entry: DiskEntry, onOpen: () -> Unit, onDelete: ()
                 Text(stringResource(R.string.files_info_type, ext.ifEmpty { "—" }))
                 Text(stringResource(if (DuplicateFinder.isGameFile(entry.name)) R.string.files_info_game else R.string.files_info_not_game),
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 8.dp)) {
+                    PillButton(stringResource(R.string.files_rename), onRename)
+                    PillButton(stringResource(R.string.files_move), onMove)
+                    onExtract?.let { PillButton(stringResource(R.string.files_extract), it) }
+                }
             }
         },
         confirmButton = { DialogButton(text = stringResource(R.string.download_open), onClick = onOpen, initialFocus = openFocus) },
