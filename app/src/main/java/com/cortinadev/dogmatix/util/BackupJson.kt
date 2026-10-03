@@ -3,6 +3,7 @@ package com.cortinadev.dogmatix.util
 import com.cortinadev.dogmatix.data.local.SettingsKeys
 import com.cortinadev.dogmatix.data.local.entity.DownloadHistoryEntity
 import com.cortinadev.dogmatix.data.local.entity.FavouriteEntity
+import com.cortinadev.dogmatix.data.local.entity.WishlistEntity
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
@@ -129,6 +130,30 @@ object BackupJson {
                 consoleId = o.string("consoleId") ?: return@mapNotNull null,
                 fileName = o.string("fileName") ?: return@mapNotNull null,
                 addedAt = o.long("addedAt") ?: System.currentTimeMillis()
+            )
+        }
+
+    // ---- Wishlist -----------------------------------------------------------------------------
+
+    fun wishlistToJson(rows: List<WishlistEntity>): JsonArray = JsonArray().apply {
+        rows.forEach { w ->
+            add(JsonObject().apply {
+                addProperty("title", w.title)
+                w.consoleId?.let { addProperty("consoleId", it) }
+                addProperty("addedAt", w.addedAt)
+                w.notifiedAt?.let { addProperty("notifiedAt", it) }
+            })
+        }
+    }
+
+    fun wishlistFromJson(array: JsonElement?): List<WishlistEntity> =
+        (array as? JsonArray).orEmpty().mapNotNull { el ->
+            val o = el as? JsonObject ?: return@mapNotNull null
+            WishlistEntity(
+                title = o.string("title")?.trim()?.takeIf { it.length >= 2 } ?: return@mapNotNull null,
+                consoleId = o.string("consoleId")?.takeIf { it.isNotBlank() },
+                addedAt = o.long("addedAt") ?: System.currentTimeMillis(),
+                notifiedAt = o.long("notifiedAt")
             )
         }
 

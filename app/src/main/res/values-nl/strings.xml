@@ -560,6 +560,65 @@
     <string name="notification_channel_wishlist">Verlanglijst</string>
     <string name="notification_channel_wishlist_desc">Meldt wanneer een gewenste game opduikt</string>
     <string name="save_sync_bg_title">Save-sync</string>
+    <string name="settings_tools">Bibliotheekhulpmiddelen</string>
+    <string name="settings_tools_hint">Dubbele games, sets, opslag, verlanglijst, export</string>
+    <string name="nav_sets">Game-sets</string>
+    <string name="nav_storage">Opslag</string>
+    <string name="nav_wishlist">Verlanglijst</string>
+    <string name="tools_sets_hint">Vind schijfkopieën die niet kunnen draaien en maak afspeellijsten voor games met meerdere schijven</string>
+    <string name="tools_storage_hint">Ruimte per console, de grootste games en of de wachtrij past</string>
+    <string name="tools_wishlist_hint">Games die je wilt hebben; je hoort het zodra er een opduikt</string>
+    <string name="tools_export_csv">Collectie exporteren (CSV)</string>
+    <string name="tools_export_csv_hint">Een spreadsheet van elke game op dit toestel</string>
+    <string name="tools_export_html">Collectie exporteren (webpagina)</string>
+    <string name="tools_export_html_hint">Een pagina die je in elke browser kunt openen of delen</string>
+    <string name="tools_export_action">Exporteer</string>
+    <string name="export_title">Mijn games</string>
+    <string name="export_console">Console</string>
+    <string name="export_game">Game</string>
+    <string name="export_files">Bestanden</string>
+    <string name="export_size">Grootte</string>
+    <string name="export_folder">Map</string>
+    <string name="export_total">Totaal</string>
+    <string name="export_generated">gemaakt op</string>
+    <string name="export_working">Je collectie wordt gelezen…</string>
+    <string name="export_done">%1$d games geëxporteerd</string>
+    <string name="export_failed">Het bestand kon niet worden geschreven</string>
+    <string name="sets_failed">De controle kon niet draaien</string>
+    <string name="sets_none">Alle schijfsets zijn compleet (%1$d bestanden gecontroleerd)</string>
+    <string name="sets_missing_tracks">Ontbreekt: %1$s</string>
+    <string name="sets_missing_discs">De afspeellijst noemt schijven die weg zijn: %1$s</string>
+    <string name="sets_empty_sheet">Noemt geen bestanden of is onleesbaar</string>
+    <string name="sets_badge_broken">Kapot</string>
+    <string name="sets_playlists_header">Games met meerdere schijven zonder afspeellijst (%1$d)</string>
+    <string name="sets_playlists_hint">Met een .m3u wisselt de emulator zelf van schijf</string>
+    <string name="sets_playlist_create">Maak aan</string>
+    <string name="sets_playlist_create_all">Alle %1$d afspeellijsten aanmaken</string>
+    <string name="sets_playlist_created">%1$s aangemaakt</string>
+    <string name="sets_playlist_failed">%1$s kon niet worden aangemaakt</string>
+    <string name="sets_playlists_created">%1$d afspeellijsten aangemaakt</string>
+    <string name="storage_free">%1$s vrij</string>
+    <string name="storage_queue">De downloads die nog komen hebben ongeveer %1$s nodig</string>
+    <string name="storage_queue_short">%1$s tekort — maak eerst ruimte vrij</string>
+    <string name="storage_queue_fits">Er is ruimte voor</string>
+    <string name="storage_by_console">Ruimte per console</string>
+    <string name="storage_biggest">Grootste games</string>
+    <string name="storage_biggest_hint">A verwijdert er één, na een bevestiging met de bestandenlijst</string>
+    <string name="wishlist_add">Game toevoegen</string>
+    <string name="wishlist_empty">Nog niets gewenst</string>
+    <string name="wishlist_hint">Na elke scan zoekt de bibliotheek naar deze titels</string>
+    <string name="wishlist_add_action">Voeg toe</string>
+    <string name="wishlist_add_title">Aan de verlanglijst toevoegen</string>
+    <string name="wishlist_add_hint">Je hoort het zodra een bron deze game noemt.</string>
+    <string name="wishlist_title_label">Titel</string>
+    <string name="wishlist_any_console">Elke console</string>
+    <string name="wishlist_not_yet">Nog niet in de bibliotheek</string>
+    <string name="wishlist_badge_found">Gevonden</string>
+    <string name="wishlist_show">Toon</string>
+    <string name="wishlist_remove">Verwijder</string>
+    <string name="wishlist_added">%1$s toegevoegd aan de verlanglijst</string>
+    <string name="wishlist_exists">Die game staat al op de verlanglijst</string>
+    <string name="wishlist_add_query">\"%1$s\" op de verlanglijst zetten</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save is op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
         <item quantity="other">%d saves zijn op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
@@ -567,6 +626,30 @@
     <plurals name="save_sync_bg_failed">
         <item quantity="one">%d save kon niet worden gesynchroniseerd</item>
         <item quantity="other">%d saves konden niet worden gesynchroniseerd</item>
+    </plurals>
+    <plurals name="wishlist_found_title">
+        <item quantity="one">%d gewenste game staat in de bibliotheek</item>
+        <item quantity="other">%d gewenste games staan in de bibliotheek</item>
+    </plurals>
+    <plurals name="sets_problems">
+        <item quantity="one">%1$d probleem in %2$d gecontroleerde bestanden</item>
+        <item quantity="other">%1$d problemen in %2$d gecontroleerde bestanden</item>
+    </plurals>
+    <plurals name="sets_discs">
+        <item quantity="one">%1$d schijf</item>
+        <item quantity="other">%1$d schijven</item>
+    </plurals>
+    <plurals name="storage_summary">
+        <item quantity="one">%1$d game · %2$s</item>
+        <item quantity="other">%1$d games · %2$s</item>
+    </plurals>
+    <plurals name="storage_games">
+        <item quantity="one">%1$d game</item>
+        <item quantity="other">%1$d games</item>
+    </plurals>
+    <plurals name="wishlist_found">
+        <item quantity="one">%1$d treffer in de bibliotheek</item>
+        <item quantity="other">%1$d treffers in de bibliotheek</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

@@ -7,6 +7,8 @@ import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.cortinadev.dogmatix.data.model.GitHubRelease
+import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import kotlinx.coroutines.flow.first
 import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.VersionUtils
 import kotlinx.coroutines.Dispatchers
@@ -18,8 +20,16 @@ import javax.inject.Singleton
 
 @Singleton
 class VersionCheckerService @Inject constructor(
-    private val gson: Gson
+    private val gson: Gson,
+    private val settingsRepository: SettingsRepository
 ) {
+
+    /** What a check found. [latest] is the newest tag the update channel offers. */
+    sealed interface Result {
+        data class Available(val tag: String, val preRelease: Boolean) : Result
+        data class UpToDate(val tag: String) : Result
+        data object Failed : Result
+    }
     
     companion object {
         private const val GITHUB_API_URL = "https://api.github.com/repos/Tufein/DogmatixPlus/releases"
@@ -27,19 +37,27 @@ class VersionCheckerService @Inject constructor(
     }
     
     suspend fun checkForUpdates(context: Context) {
-        try {
-            val currentVersion = getCurrentVersion(context)
-            val latestRelease = fetchLatestRelease()
-            
-            if (latestRelease != null && isNewerVersion(latestRelease.tagName, currentVersion)) {
-                withContext(Dispatchers.Main) {
-                    ToastUtil.showInfo(
-                        context, 
-                        context.getString(R.string.update_available, latestRelease.tagName)
-                    )
-                }
+        val result = check(context)
+        if (result is Result.Available) {
+            withContext(Dispatchers.Main) {
+                ToastUtil.showInfo(context, context.getString(R.string.update_available, result.tag))
             }
+        }
+    }
+
+    /**
+     * Looks at the releases of this repository: the newest full release, or the newest of any kind
+     * when Settings → Updates includes pre-releases. A pre-release of a version counts as older than
+     * the version itself, so someone on 1.2.0-alpha.1 is told when 1.2.0 comes out.
+     */
+    suspend fun check(context: Context): Result {
+        return try {
+            val currentVersion = getCurrentVersion(context)
+            val release = fetchLatestRelease(settingsRepository.updatePreReleases.first()) ?: return Result.Failed
+            if (isNewerVersion(release.tagName, currentVersion)) Result.Available(release.tagName, release.prerelease)
+            else Result.UpToDate(release.tagName)
         } catch (_: Exception) {
+            Result.Failed
         }
     }
     
@@ -52,7 +70,7 @@ class VersionCheckerService @Inject constructor(
         }
     }
     
-    private suspend fun fetchLatestRelease(): GitHubRelease? {
+    private suspend fun fetchLatestRelease(includePreReleases: Boolean): GitHubRelease? {
         return withContext(Dispatchers.IO) {
             try {
                 val url = URL(GITHUB_API_URL)
@@ -70,8 +88,8 @@ class VersionCheckerService @Inject constructor(
                         object : TypeToken<List<GitHubRelease>>() {}.type
                     )
                     
-                    // Return the first non-prerelease, non-draft release
-                    releases.firstOrNull { !it.prerelease && !it.draft }
+                    // The first release of the chosen channel: GitHub lists the newest first.
+                    releases.firstOrNull { (includePreReleases || !it.prerelease) && !it.draft }
                 } else {
                     null
                 }

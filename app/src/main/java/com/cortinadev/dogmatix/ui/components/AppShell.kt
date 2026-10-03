@@ -202,6 +202,10 @@ fun legendFor(route: String): List<LegendEntry> {
         NavRoutes.Sources.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
         NavRoutes.Duplicates.route -> listOf(LegendEntry("A", stringResource(R.string.pad_delete)), back, section)
         NavRoutes.Overview.route -> listOf(LegendEntry("A", stringResource(R.string.pad_rescan)), back, section)
+        NavRoutes.Tools.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
+        NavRoutes.Sets.route -> listOf(LegendEntry("A", stringResource(R.string.pad_apply)), back, section)
+        NavRoutes.Storage.route -> listOf(LegendEntry("A", stringResource(R.string.pad_delete)), back, section)
+        NavRoutes.Wishlist.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
         NavRoutes.Settings.route, NavRoutes.Romm.route, NavRoutes.SaveSync.route -> listOf(
             LegendEntry("A", stringResource(R.string.pad_change)),
             LegendEntry("◀ ▶", stringResource(R.string.pad_adjust)), back, section

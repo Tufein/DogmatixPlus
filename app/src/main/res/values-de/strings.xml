@@ -560,6 +560,65 @@
     <string name="notification_channel_wishlist">Wunschliste</string>
     <string name="notification_channel_wishlist_desc">Meldet, wenn ein gewünschtes Spiel auftaucht</string>
     <string name="save_sync_bg_title">Spielstand-Sync</string>
+    <string name="settings_tools">Bibliothekswerkzeuge</string>
+    <string name="settings_tools_hint">Duplikate, Spielsets, Speicher, Wunschliste, Export</string>
+    <string name="nav_sets">Spielsets</string>
+    <string name="nav_storage">Speicher</string>
+    <string name="nav_wishlist">Wunschliste</string>
+    <string name="tools_sets_hint">Findet Disc-Images, die nicht laufen, und legt Playlists für Mehr-Disc-Spiele an</string>
+    <string name="tools_storage_hint">Platz pro Konsole, die größten Spiele und ob die Warteschlange passt</string>
+    <string name="tools_wishlist_hint">Spiele, die du haben willst; du erfährst, wenn eines auftaucht</string>
+    <string name="tools_export_csv">Sammlung exportieren (CSV)</string>
+    <string name="tools_export_csv_hint">Eine Tabelle aller Spiele auf diesem Gerät</string>
+    <string name="tools_export_html">Sammlung exportieren (Webseite)</string>
+    <string name="tools_export_html_hint">Eine Seite, die du in jedem Browser öffnen oder teilen kannst</string>
+    <string name="tools_export_action">Exportieren</string>
+    <string name="export_title">Meine Spiele</string>
+    <string name="export_console">Konsole</string>
+    <string name="export_game">Spiel</string>
+    <string name="export_files">Dateien</string>
+    <string name="export_size">Größe</string>
+    <string name="export_folder">Ordner</string>
+    <string name="export_total">Gesamt</string>
+    <string name="export_generated">erstellt am</string>
+    <string name="export_working">Deine Sammlung wird gelesen…</string>
+    <string name="export_done">%1$d Spiele exportiert</string>
+    <string name="export_failed">Die Datei konnte nicht geschrieben werden</string>
+    <string name="sets_failed">Die Prüfung konnte nicht laufen</string>
+    <string name="sets_none">Alle Disc-Sets sind vollständig (%1$d Dateien geprüft)</string>
+    <string name="sets_missing_tracks">Fehlt: %1$s</string>
+    <string name="sets_missing_discs">Die Playlist nennt Discs, die fehlen: %1$s</string>
+    <string name="sets_empty_sheet">Nennt keine Dateien oder ist unlesbar</string>
+    <string name="sets_badge_broken">Defekt</string>
+    <string name="sets_playlists_header">Mehr-Disc-Spiele ohne Playlist (%1$d)</string>
+    <string name="sets_playlists_hint">Mit einer .m3u wechselt der Emulator die Disc selbst</string>
+    <string name="sets_playlist_create">Erstellen</string>
+    <string name="sets_playlist_create_all">Alle %1$d Playlists erstellen</string>
+    <string name="sets_playlist_created">%1$s erstellt</string>
+    <string name="sets_playlist_failed">%1$s konnte nicht erstellt werden</string>
+    <string name="sets_playlists_created">%1$d Playlists erstellt</string>
+    <string name="storage_free">%1$s frei</string>
+    <string name="storage_queue">Die noch ausstehenden Downloads brauchen etwa %1$s</string>
+    <string name="storage_queue_short">%1$s zu wenig — schaffe zuerst Platz</string>
+    <string name="storage_queue_fits">Es ist Platz dafür</string>
+    <string name="storage_by_console">Platz pro Konsole</string>
+    <string name="storage_biggest">Größte Spiele</string>
+    <string name="storage_biggest_hint">A löscht eines, nach einer Bestätigung mit der Dateiliste</string>
+    <string name="wishlist_add">Spiel hinzufügen</string>
+    <string name="wishlist_empty">Noch nichts gewünscht</string>
+    <string name="wishlist_hint">Nach jedem Scan wird die Bibliothek nach diesen Titeln durchsucht</string>
+    <string name="wishlist_add_action">Hinzufügen</string>
+    <string name="wishlist_add_title">Zur Wunschliste hinzufügen</string>
+    <string name="wishlist_add_hint">Du erfährst es, sobald eine Quelle dieses Spiel führt.</string>
+    <string name="wishlist_title_label">Titel</string>
+    <string name="wishlist_any_console">Jede Konsole</string>
+    <string name="wishlist_not_yet">Noch nicht in der Bibliothek</string>
+    <string name="wishlist_badge_found">Gefunden</string>
+    <string name="wishlist_show">Anzeigen</string>
+    <string name="wishlist_remove">Entfernen</string>
+    <string name="wishlist_added">%1$s zur Wunschliste hinzugefügt</string>
+    <string name="wishlist_exists">Dieses Spiel steht schon auf der Wunschliste</string>
+    <string name="wishlist_add_query">„%1$s“ auf die Wunschliste setzen</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d Spielstand wurde auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
         <item quantity="other">%d Spielstände wurden auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
@@ -567,6 +626,30 @@
     <plurals name="save_sync_bg_failed">
         <item quantity="one">%d Spielstand konnte nicht synchronisiert werden</item>
         <item quantity="other">%d Spielstände konnten nicht synchronisiert werden</item>
+    </plurals>
+    <plurals name="wishlist_found_title">
+        <item quantity="one">%d gewünschtes Spiel ist in der Bibliothek</item>
+        <item quantity="other">%d gewünschte Spiele sind in der Bibliothek</item>
+    </plurals>
+    <plurals name="sets_problems">
+        <item quantity="one">%1$d Problem in %2$d geprüften Dateien</item>
+        <item quantity="other">%1$d Probleme in %2$d geprüften Dateien</item>
+    </plurals>
+    <plurals name="sets_discs">
+        <item quantity="one">%1$d Disc</item>
+        <item quantity="other">%1$d Discs</item>
+    </plurals>
+    <plurals name="storage_summary">
+        <item quantity="one">%1$d Spiel · %2$s</item>
+        <item quantity="other">%1$d Spiele · %2$s</item>
+    </plurals>
+    <plurals name="storage_games">
+        <item quantity="one">%1$d Spiel</item>
+        <item quantity="other">%1$d Spiele</item>
+    </plurals>
+    <plurals name="wishlist_found">
+        <item quantity="one">%1$d Treffer in der Bibliothek</item>
+        <item quantity="other">%1$d Treffer in der Bibliothek</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

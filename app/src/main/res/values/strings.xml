@@ -561,6 +561,65 @@
     <string name="notification_channel_wishlist">Wishlist</string>
     <string name="notification_channel_wishlist_desc">Tells you when a game you want shows up</string>
     <string name="save_sync_bg_title">Save sync</string>
+    <string name="settings_tools">Library tools</string>
+    <string name="settings_tools_hint">Duplicates, game sets, storage, wishlist, export</string>
+    <string name="nav_sets">Game sets</string>
+    <string name="nav_storage">Storage</string>
+    <string name="nav_wishlist">Wishlist</string>
+    <string name="tools_sets_hint">Find disc images that cannot run and add playlists for multi-disc games</string>
+    <string name="tools_storage_hint">Space per console, the biggest games, and whether the queue fits</string>
+    <string name="tools_wishlist_hint">Games you want; you are told when one turns up</string>
+    <string name="tools_export_csv">Export collection (CSV)</string>
+    <string name="tools_export_csv_hint">A spreadsheet of every game on this device</string>
+    <string name="tools_export_html">Export collection (web page)</string>
+    <string name="tools_export_html_hint">A page you can open in any browser or share</string>
+    <string name="tools_export_action">Export</string>
+    <string name="export_title">My games</string>
+    <string name="export_console">Console</string>
+    <string name="export_game">Game</string>
+    <string name="export_files">Files</string>
+    <string name="export_size">Size</string>
+    <string name="export_folder">Folder</string>
+    <string name="export_total">Total</string>
+    <string name="export_generated">made on</string>
+    <string name="export_working">Reading your collection…</string>
+    <string name="export_done">Exported %1$d games</string>
+    <string name="export_failed">Could not write the file</string>
+    <string name="sets_failed">The check could not run</string>
+    <string name="sets_none">All disc sets are complete (%1$d files checked)</string>
+    <string name="sets_missing_tracks">Missing: %1$s</string>
+    <string name="sets_missing_discs">Playlist names discs that are gone: %1$s</string>
+    <string name="sets_empty_sheet">Lists no files, or cannot be read</string>
+    <string name="sets_badge_broken">Broken</string>
+    <string name="sets_playlists_header">Multi-disc games without a playlist (%1$d)</string>
+    <string name="sets_playlists_hint">An .m3u lets the emulator switch discs by itself</string>
+    <string name="sets_playlist_create">Create</string>
+    <string name="sets_playlist_create_all">Create all %1$d playlists</string>
+    <string name="sets_playlist_created">Created %1$s</string>
+    <string name="sets_playlist_failed">Could not create %1$s</string>
+    <string name="sets_playlists_created">%1$d playlists created</string>
+    <string name="storage_free">%1$s free</string>
+    <string name="storage_queue">The downloads still to come need about %1$s</string>
+    <string name="storage_queue_short">%1$s short — free up space first</string>
+    <string name="storage_queue_fits">There is room for them</string>
+    <string name="storage_by_console">Space per console</string>
+    <string name="storage_biggest">Biggest games</string>
+    <string name="storage_biggest_hint">A deletes one, after a confirmation that lists its files</string>
+    <string name="wishlist_add">Add a game</string>
+    <string name="wishlist_empty">Nothing wanted yet</string>
+    <string name="wishlist_hint">After every scan the library is searched for these titles</string>
+    <string name="wishlist_add_action">Add</string>
+    <string name="wishlist_add_title">Add to the wishlist</string>
+    <string name="wishlist_add_hint">You are told when a source lists this game.</string>
+    <string name="wishlist_title_label">Title</string>
+    <string name="wishlist_any_console">Any console</string>
+    <string name="wishlist_not_yet">Not in the library yet</string>
+    <string name="wishlist_badge_found">Found</string>
+    <string name="wishlist_show">Show</string>
+    <string name="wishlist_remove">Remove</string>
+    <string name="wishlist_added">%1$s added to the wishlist</string>
+    <string name="wishlist_exists">That game is already on the wishlist</string>
+    <string name="wishlist_add_query">Add \"%1$s\" to the wishlist</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save changed on both sides — open Dogmatix to choose</item>
         <item quantity="other">%d saves changed on both sides — open Dogmatix to choose</item>
@@ -568,6 +627,30 @@
     <plurals name="save_sync_bg_failed">
         <item quantity="one">%d save could not be synced</item>
         <item quantity="other">%d saves could not be synced</item>
+    </plurals>
+    <plurals name="wishlist_found_title">
+        <item quantity="one">%d wanted game is in the library</item>
+        <item quantity="other">%d wanted games are in the library</item>
+    </plurals>
+    <plurals name="sets_problems">
+        <item quantity="one">%1$d problem in %2$d files checked</item>
+        <item quantity="other">%1$d problems in %2$d files checked</item>
+    </plurals>
+    <plurals name="sets_discs">
+        <item quantity="one">%1$d disc</item>
+        <item quantity="other">%1$d discs</item>
+    </plurals>
+    <plurals name="storage_summary">
+        <item quantity="one">%1$d game · %2$s</item>
+        <item quantity="other">%1$d games · %2$s</item>
+    </plurals>
+    <plurals name="storage_games">
+        <item quantity="one">%1$d game</item>
+        <item quantity="other">%1$d games</item>
+    </plurals>
+    <plurals name="wishlist_found">
+        <item quantity="one">%1$d match in the library</item>
+        <item quantity="other">%1$d matches in the library</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

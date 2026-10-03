@@ -15,6 +15,7 @@ import com.cortinadev.dogmatix.BuildConfig
 import com.cortinadev.dogmatix.data.local.SettingsKeys
 import com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao
 import com.cortinadev.dogmatix.data.local.dao.FavouriteDao
+import com.cortinadev.dogmatix.data.local.dao.WishlistDao
 import com.cortinadev.dogmatix.data.local.dataStore
 import com.cortinadev.dogmatix.data.repository.SourcesRepository
 import com.cortinadev.dogmatix.util.BackupJson
@@ -49,7 +50,8 @@ class BackupService @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val sourcesRepository: SourcesRepository,
     private val favouriteDao: FavouriteDao,
-    private val downloadHistoryDao: DownloadHistoryDao
+    private val downloadHistoryDao: DownloadHistoryDao,
+    private val wishlistDao: WishlistDao
 ) {
     data class Summary(
         val settings: Int,
@@ -84,6 +86,7 @@ class BackupService @Inject constructor(
             add("settings", settings)
             add("sources", sources)
             add("favourites", BackupJson.favouritesToJson(favourites))
+            add("wishlist", BackupJson.wishlistToJson(wishlistDao.getAll()))
             add("downloadHistory", BackupJson.historyToJson(history))
         }
         gson.toJson(root) to Summary(settings.size(), consoleCount(sources), favourites.size, history.size)
@@ -131,6 +134,7 @@ class BackupService @Inject constructor(
             ?.also { require(SourcesJson.parseDocument(it).isNotEmpty()) { "No sources found in file" } }
         val favourites = BackupJson.favouritesFromJson(backup.get("favourites"))
         val downloads = BackupJson.historyFromJson(backup.get("downloadHistory"))
+        val wishlist = BackupJson.wishlistFromJson(backup.get("wishlist"))
 
         withContext(NonCancellable) {
             val (restored, repick) = settings?.let { restoreSettings(it) } ?: (0 to 0)
@@ -139,6 +143,11 @@ class BackupService @Inject constructor(
             // not hide that, or the restored sources would never be scanned.
             val favouritesDone = runCatching { favouriteDao.upsertAll(favourites) }.isSuccess
             val downloadsDone = runCatching { downloadHistoryDao.insertMissing(downloads) }.isSuccess
+            // Only wanted games this install does not list yet (same title and console) are added.
+            runCatching {
+                val have = wishlistDao.getAll().map { it.key to it.consoleId }.toSet()
+                wishlistDao.upsertAll(wishlist.filter { (it.key to it.consoleId) !in have })
+            }
             Summary(restored, consoles, if (favouritesDone) favourites.size else 0, if (downloadsDone) downloads.size else 0, repick)
         }
     }

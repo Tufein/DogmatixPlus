@@ -85,6 +85,10 @@ import com.cortinadev.dogmatix.ui.screens.sources.SourcesScreen
 import com.cortinadev.dogmatix.ui.screens.sources.SourcesViewModel
 import com.cortinadev.dogmatix.ui.screens.tools.DuplicatesScreen
 import com.cortinadev.dogmatix.ui.screens.tools.LibraryOverviewScreen
+import com.cortinadev.dogmatix.ui.screens.tools.SetsScreen
+import com.cortinadev.dogmatix.ui.screens.tools.StorageScreen
+import com.cortinadev.dogmatix.ui.screens.tools.ToolsHubScreen
+import com.cortinadev.dogmatix.ui.screens.tools.WishlistScreen
 import com.cortinadev.dogmatix.ui.theme.DogmatixTheme
 import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
 import com.cortinadev.dogmatix.data.service.SaveSyncService
@@ -346,6 +350,10 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.SaveSync.route) { SaveSyncScreen() }
                     composable(NavRoutes.Overview.route) { LibraryOverviewScreen() }
                     composable(NavRoutes.Duplicates.route) { DuplicatesScreen() }
+                    composable(NavRoutes.Tools.route) { ToolsHubScreen(navController) }
+                    composable(NavRoutes.Sets.route) { SetsScreen() }
+                    composable(NavRoutes.Storage.route) { StorageScreen() }
+                    composable(NavRoutes.Wishlist.route) { WishlistScreen(navController) }
                 }
             }
 
