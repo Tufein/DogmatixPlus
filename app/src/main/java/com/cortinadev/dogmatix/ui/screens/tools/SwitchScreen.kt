@@ -11,6 +11,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -94,6 +98,8 @@ class SwitchViewModel @Inject constructor(
 fun SwitchScreen(viewModel: SwitchViewModel = hiltViewModel()) {
     val ui by viewModel.ui.collectAsState()
     val context = LocalContext.current
+    val firstFocus = androidx.compose.runtime.remember { FocusRequester() }
+    LaunchedEffect(ui.loading) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         Row(modifier = Modifier.fillMaxWidth().padding(end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) { ToolsTitle(stringResource(R.string.nav_switch)) }
@@ -117,7 +123,7 @@ fun SwitchScreen(viewModel: SwitchViewModel = hiltViewModel()) {
                         if (s.missingDlc.isNotEmpty()) add(pluralStringResource(R.plurals.switch_dlc_missing, s.missingDlc.size, s.missingDlc.size))
                         add(ConsoleFormatter.getConsoleShortName(row.consoleId) + " · " + s.baseId)
                     }
-                    ToolRow(row.title, lines, onClick = { viewModel.fetch(context, row.toFetch) }) {
+                    ToolRow(row.title, lines, onClick = { viewModel.fetch(context, row.toFetch) }, modifier = if (row == ui.rows.first()) Modifier.focusRequester(firstFocus) else Modifier) {
                         PillButton(stringResource(R.string.switch_fetch, row.toFetch.size)) { viewModel.fetch(context, row.toFetch) }
                     }
                 }

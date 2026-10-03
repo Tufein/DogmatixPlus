@@ -18,6 +18,10 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -128,6 +132,8 @@ fun DatScreen(viewModel: DatViewModel = hiltViewModel()) {
         if (uri != null && id != null) viewModel.import(context, id, uri)
     }
     BackHandler(enabled = selected != null) { viewModel.cancel(); selected = null }
+    val firstFocus = androidx.compose.runtime.remember { FocusRequester() }
+    LaunchedEffect(selected, consoles.size) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         val consoleId = selected
@@ -142,7 +148,8 @@ fun DatScreen(viewModel: DatViewModel = hiltViewModel()) {
                         add(set?.let { stringResource(R.string.dat_set_line, it.name, it.version, it.games) } ?: stringResource(R.string.dat_none))
                         report?.let { add(summary(it)) }
                     }
-                    ToolRow(ConsoleFormatter.getConsoleDisplayName(console.id), lines, onClick = { selected = console.id }) {
+                    ToolRow(ConsoleFormatter.getConsoleDisplayName(console.id), lines, onClick = { selected = console.id },
+                        modifier = if (console == consoles.first()) Modifier.focusRequester(firstFocus) else Modifier) {
                         Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }

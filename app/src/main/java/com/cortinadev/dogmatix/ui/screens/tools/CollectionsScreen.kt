@@ -14,6 +14,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,6 +72,8 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
     var naming by remember { mutableStateOf<CollectionWithCount?>(null) }
     var creating by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<CollectionWithCount?>(null) }
+    val firstFocus = remember { FocusRequester() }
+    LaunchedEffect(collections?.size) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
 
     if (creating || naming != null) {
         NameDialog(
@@ -101,7 +107,8 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
                     ToolRow(
                         title = c.name,
                         lines = listOf(pluralStringResource(R.plurals.collections_games, c.count, c.count)),
-                        onClick = { viewModel.open(c.id) }
+                        onClick = { viewModel.open(c.id) },
+                        modifier = if (c == list.first()) Modifier.focusRequester(firstFocus) else Modifier
                     ) {
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             PillButton(stringResource(R.string.collections_rename)) { naming = c }
