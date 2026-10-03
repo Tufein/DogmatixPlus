@@ -62,9 +62,10 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ### Works with RomM
 - Send finished downloads to your **RomM** server, or use RomM as a source of games.
+- **Save sync** *(new, beta)*: your RomM server keeps your **game saves and save states**. Pick the folders your emulator saves into (for RetroArch: `saves` and `states`) and DogmatixPlus sends new progress up and brings newer progress — from another handheld or from RomM's web player — down. If a save changed on both sides, you choose which one to keep; a copy that gets replaced is kept for 30 days. It can run by itself when you open the app or come back to it from a game (*Settings → Save sync*).
 
 ### Your sources, your way
-- Add sources by hand, or **import and export** them as a file to share between devices.
+- Add sources by hand, or **import and export** them as a file to share between devices. The export now also carries your **★ favourites**, and importing it adds them on the other device.
 - A short **first-start guide** helps you pick your ROMs folder and import your sources.
 
 ### Languages
@@ -122,7 +123,7 @@ DogmatixPlus is a small layer on top of two other projects. Most of what you use
 |---|---|---|
 | **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | The original app and its whole engine: reading sources, sorting games by console / region / language, searching, downloading and unpacking. |
 | **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) | The handheld version: gamepad control, landscape layout, themes, favourites, pause and resume, the first-start guide, ES-DE / iiSU / Daijishō, TorBox and Real-Debrid, RomM. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Duplicate finder, library overview, back up and restore, scan progress, the Dutch, French and German translations, and these releases. |
+| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Duplicate finder, library overview, back up and restore, scan progress, save sync with RomM, the Dutch, French and German translations, and these releases. |
 
 DogmatixPlus was **made with the help of A.I.**: the code, the tests and the documentation were written together with an AI assistant and checked in several review rounds. Decisions, direction and publishing are the maintainer's.
 

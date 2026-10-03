@@ -62,9 +62,10 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ### Werkt met RomM
 - Stuur voltooide downloads naar je **RomM**-server, of gebruik RomM als bron van games.
+- **Saves synchroniseren** *(nieuw, bèta)*: je RomM-server bewaart je **opgeslagen spellen en save states**. Kies de mappen waarin je emulator opslaat (voor RetroArch: `saves` en `states`) en DogmatixPlus stuurt nieuwe voortgang naar de server en haalt nieuwere voortgang — van een andere handheld of van de webspeler van RomM — op. Is een save aan beide kanten gewijzigd, dan kies jij welke je houdt; een kopie die vervangen wordt, blijft 30 dagen bewaard. Het kan vanzelf gebeuren als je de app opent of vanuit een spel terugkomt (*Instellingen → Saves synchroniseren*).
 
 ### Jouw bronnen, op jouw manier
-- Voeg bronnen met de hand toe, of **importeer en exporteer** ze als bestand om ze tussen toestellen te delen.
+- Voeg bronnen met de hand toe, of **importeer en exporteer** ze als bestand om ze tussen toestellen te delen. De export neemt nu ook je **★ favorieten** mee; importeren voegt ze op het andere toestel toe.
 - Een korte **startgids** helpt je om je ROM-map te kiezen en je bronnen te importeren.
 
 ### Talen
@@ -122,7 +123,7 @@ DogmatixPlus is een kleine laag bovenop twee andere projecten. Het meeste van wa
 |---|---|---|
 | **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | De oorspronkelijke app en de hele motor ervan: bronnen lezen, games sorteren op console / regio / taal, zoeken, downloaden en uitpakken. |
 | **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) | De handheldversie: bediening met een gamepad, liggende indeling, thema's, favorieten, pauzeren en hervatten, de startgids, ES-DE / iiSU / Daijishō, TorBox en Real-Debrid, RomM. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Zoeken naar dubbele games, bibliotheekoverzicht, back-up maken en terugzetten, scanvoortgang, de Nederlandse, Franse en Duitse vertalingen, en deze releases. |
+| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Zoeken naar dubbele games, bibliotheekoverzicht, back-up maken en terugzetten, scanvoortgang, saves synchroniseren met RomM, de Nederlandse, Franse en Duitse vertalingen, en deze releases. |
 
 DogmatixPlus is **gemaakt met hulp van AI**: de code, de tests en de documentatie zijn samen met een AI-assistent geschreven en in meerdere controlerondes nagekeken. De beslissingen, de richting en het publiceren liggen bij de beheerder.
 

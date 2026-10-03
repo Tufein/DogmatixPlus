@@ -1,12 +1,15 @@
 package com.cortinadev.dogmatix.data.service
 
-import android.util.Base64
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.util.RemoteSaveFile
+import com.cortinadev.dogmatix.util.SaveKind
+import com.cortinadev.dogmatix.util.SaveSyncPlanner.RomCandidate
 import com.google.gson.JsonObject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import java.net.URLEncoder
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -132,6 +135,97 @@ class RommClient @Inject constructor(
         runCatching { JsonHttp.request("POST", "${baseUrl()}/api/roms/upload/$uploadId/cancel", headers(), body = ByteArray(0)) }
     }
 
+    // ---- Saves and states ---------------------------------------------------------------------
+
+    /**
+     * Every save (or state) of the account, newest server version per name is picked by the
+     * caller. Slot saves (a dated history other clients keep) are left out.
+     */
+    suspend fun saves(kind: SaveKind): List<RemoteSaveFile> = withContext(Dispatchers.IO) {
+        val response = JsonHttp.requireOk(JsonHttp.request("GET", "${baseUrl()}/api/${kind.apiPath}", headers(), readTimeoutMs = 60_000))
+        val items = when {
+            response.json?.isJsonArray == true -> response.json.asJsonArray
+            response.json?.isJsonObject == true -> response.json.asJsonObject.getAsJsonArray("items") ?: throw RommException("Unexpected /api/${kind.apiPath} payload")
+            else -> throw RommException("RomM returned no JSON")
+        }
+        items.mapNotNull { (it as? JsonObject)?.let { obj -> remoteSave(kind, obj) } }
+    }
+
+    private fun remoteSave(kind: SaveKind, obj: JsonObject): RemoteSaveFile? {
+        if (obj.str("slot").isNotEmpty() || obj.get("missing_from_fs")?.takeUnless { it.isJsonNull }?.asBoolean == true) return null
+        val id = obj.get("id")?.takeUnless { it.isJsonNull }?.asInt ?: return null
+        val romId = obj.get("rom_id")?.takeUnless { it.isJsonNull }?.asInt ?: return null
+        val name = obj.str("file_name").ifEmpty { return null }
+        return RemoteSaveFile(
+            kind = kind, id = id, romId = romId, fileName = name,
+            emulator = obj.str("emulator").ifEmpty { null },
+            updatedAt = obj.str("updated_at"),
+            size = obj.get("file_size_bytes")?.takeUnless { it.isJsonNull }?.asLong ?: 0L,
+            downloadPath = obj.str("download_path"),
+            contentHash = obj.str("content_hash").ifEmpty { null }
+        )
+    }
+
+    /** The bytes of [save]: its `download_path`, or the `/content` route of newer servers. */
+    suspend fun downloadSave(save: RemoteSaveFile, maxBytes: Long): ByteArray = withContext(Dispatchers.IO) {
+        val base = baseUrl()
+        val primary = save.downloadPath.takeIf { it.startsWith("/") }?.let { base + it.replace(" ", "%20") }
+        val fallback = "$base/api/${save.kind.apiPath}/${save.id}/content"
+        try {
+            JsonHttp.download(primary ?: fallback, headers(), maxBytes)
+        } catch (e: JsonHttp.HttpException) {
+            if (primary == null || e.code == 401 || e.code == 403) throw e
+            JsonHttp.download(fallback, headers(), maxBytes)
+        }
+    }
+
+    /**
+     * Uploads [bytes] as [fileName] for ROM [romId]; RomM replaces its save of the same name.
+     * Newer servers take one `saveFile` / `stateFile` part, older ones a `saves` / `states`
+     * list, so a refused first form is retried in the other. Returns the stored save.
+     */
+    suspend fun uploadSave(kind: SaveKind, romId: Int, fileName: String, emulator: String?, bytes: ByteArray): RemoteSaveFile? = withContext(Dispatchers.IO) {
+        val query = buildString {
+            append("rom_id=").append(romId)
+            emulator?.let { append("&emulator=").append(URLEncoder.encode(it, "UTF-8")) }
+        }
+        val url = "${baseUrl()}/api/${kind.apiPath}?$query"
+        val auth = headers()
+        fun post(field: String): JsonHttp.Response {
+            val (body, contentType) = JsonHttp.multipartFileBody(field, fileName, bytes)
+            return JsonHttp.request("POST", url, auth, body = body, contentType = contentType, readTimeoutMs = 120_000)
+        }
+        var response = post(kind.fileField)
+        if (response.code == 400 || response.code == 422) response = post(kind.legacyFileField)
+        val obj = JsonHttp.requireOk(response).json?.takeIf { it.isJsonObject }?.asJsonObject ?: return@withContext null
+        remoteSave(kind, obj)
+            ?: obj.getAsJsonArray(kind.apiPath)?.mapNotNull { (it as? JsonObject)?.let { o -> remoteSave(kind, o) } }
+                ?.lastOrNull { it.fileName.equals(fileName, ignoreCase = true) }
+    }
+
+    /** ROMs whose name or file name holds every word of [term] (RomM's library search). */
+    suspend fun searchRoms(term: String, limit: Int = 100): List<RomCandidate> = withContext(Dispatchers.IO) {
+        val q = URLEncoder.encode(term, "UTF-8")
+        val url = "${baseUrl()}/api/roms?search_term=$q&limit=$limit&offset=0" +
+            "&with_char_index=false&with_filter_values=false&with_rom_id_index=false&with_total=false"
+        val json = JsonHttp.requireOk(JsonHttp.request("GET", url, headers(), readTimeoutMs = 60_000)).json
+        val items = when {
+            json?.isJsonArray == true -> json.asJsonArray
+            json?.isJsonObject == true -> json.asJsonObject.getAsJsonArray("items") ?: return@withContext emptyList()
+            else -> return@withContext emptyList()
+        }
+        items.mapNotNull { el ->
+            val r = el as? JsonObject ?: return@mapNotNull null
+            val fsName = r.str("fs_name").ifEmpty { r.str("file_name") }.ifEmpty { return@mapNotNull null }
+            RomCandidate(
+                id = r.get("id")?.takeUnless { it.isJsonNull }?.asInt ?: return@mapNotNull null,
+                fsName = fsName,
+                platformSlug = r.str("platform_slug"),
+                platformFsSlug = r.str("platform_fs_slug")
+            )
+        }
+    }
+
     private fun JsonObject.str(name: String): String = get(name)?.takeUnless { it.isJsonNull }?.asString.orEmpty()
 
     companion object {
@@ -139,7 +233,7 @@ class RommClient @Inject constructor(
         fun authHeader(token: String): String {
             val t = token.trim()
             return if (t.contains(':') && !t.startsWith("rmm_")) {
-                "Basic " + Base64.encodeToString(t.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+                "Basic " + java.util.Base64.getEncoder().encodeToString(t.toByteArray(Charsets.UTF_8))
             } else "Bearer $t"
         }
     }

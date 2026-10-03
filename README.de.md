@@ -62,9 +62,10 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ### Funktioniert mit RomM
 - Schicke fertige Downloads an deinen **RomM**-Server oder nutze RomM als Quelle für Spiele.
+- **Spielstände synchronisieren** *(neu, Beta)*: Dein RomM-Server bewahrt deine **Spielstände und Savestates** auf. Wähle die Ordner, in die dein Emulator speichert (bei RetroArch: `saves` und `states`), und DogmatixPlus lädt neuen Fortschritt hoch und holt neueren Fortschritt — von einem anderen Handheld oder aus RomMs Web-Player — herunter. Hat sich ein Spielstand auf beiden Seiten geändert, entscheidest du, welcher bleibt; eine ersetzte Kopie wird 30 Tage aufbewahrt. Das kann automatisch passieren, wenn du die App öffnest oder aus einem Spiel zurückkommst (*Einstellungen → Spielstände synchronisieren*).
 
 ### Deine Quellen, auf deine Art
-- Füge Quellen von Hand hinzu oder **importiere und exportiere** sie als Datei, um sie zwischen Geräten zu teilen.
+- Füge Quellen von Hand hinzu oder **importiere und exportiere** sie als Datei, um sie zwischen Geräten zu teilen. Der Export nimmt jetzt auch deine **★ Favoriten** mit, und der Import fügt sie auf dem anderen Gerät hinzu.
 - Eine kurze **Einführung beim ersten Start** hilft dir, deinen ROM-Ordner zu wählen und deine Quellen zu importieren.
 
 ### Sprachen
@@ -122,7 +123,7 @@ DogmatixPlus ist eine kleine Ergänzung auf Basis von zwei anderen Projekten. Da
 |---|---|---|
 | **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | Die ursprüngliche App und ihr ganzer Kern: Quellen lesen, Spiele nach Konsole / Region / Sprache sortieren, suchen, herunterladen und entpacken. |
 | **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) | Die Handheld-Version: Gamepad-Steuerung, Querformat-Layout, Designs, Favoriten, Pausieren und Fortsetzen, die Einführung beim ersten Start, ES-DE / iiSU / Daijishō, TorBox und Real-Debrid, RomM. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Suche nach doppelten Spielen, Bibliotheksübersicht, Sichern und Sicherung wiederherstellen, Scan-Fortschritt, die niederländische, französische und deutsche Übersetzung und diese Veröffentlichungen. |
+| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Suche nach doppelten Spielen, Bibliotheksübersicht, Sichern und Sicherung wiederherstellen, Scan-Fortschritt, Spielstände mit RomM synchronisieren, die niederländische, französische und deutsche Übersetzung und diese Veröffentlichungen. |
 
 DogmatixPlus wurde **mit Hilfe von KI entwickelt**: Der Code, die Tests und die Dokumentation wurden zusammen mit einem KI-Assistenten geschrieben und in mehreren Prüfrunden kontrolliert. Entscheidungen, Ausrichtung und Veröffentlichung liegen beim Betreuer des Projekts.
 

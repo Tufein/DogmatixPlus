@@ -53,6 +53,12 @@ object SettingsKeys {
     val ROMM_AUTO_UPLOAD = booleanPreferencesKey("romm_auto_upload")
     /** `consoleId:platformId` entries, like [CONSOLE_DOWNLOAD_DIRECTORIES]. */
     val ROMM_PLATFORM_MAP = stringSetPreferencesKey("romm_platform_map")
+    /** SAF tree URI of the emulator saves folder synced with RomM (RetroArch: `saves`). */
+    val SAVE_SYNC_SAVES_DIR = stringPreferencesKey("save_sync_saves_dir")
+    /** SAF tree URI of the emulator save-states folder synced with RomM (RetroArch: `states`). */
+    val SAVE_SYNC_STATES_DIR = stringPreferencesKey("save_sync_states_dir")
+    /** Sync saves and states when the app opens or comes back to the front. */
+    val SAVE_SYNC_AUTO = booleanPreferencesKey("save_sync_auto")
     /** `consoleId:epochMillis` of the last finished source scan per console (library overview). */
     val CONSOLE_SCANNED_AT = stringSetPreferencesKey("console_scanned_at")
 }
@@ -110,6 +116,9 @@ class SettingsDataStore @Inject constructor(
     val rommUrl: Flow<String> = context.dataStore.data.map { it[SettingsKeys.ROMM_URL] ?: "" }
     val rommToken: Flow<String> = context.dataStore.data.map { it[SettingsKeys.ROMM_TOKEN] ?: "" }
     val rommAutoUpload: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.ROMM_AUTO_UPLOAD] ?: false }
+    val saveSyncSavesDir: Flow<String> = context.dataStore.data.map { it[SettingsKeys.SAVE_SYNC_SAVES_DIR] ?: "" }
+    val saveSyncStatesDir: Flow<String> = context.dataStore.data.map { it[SettingsKeys.SAVE_SYNC_STATES_DIR] ?: "" }
+    val saveSyncAuto: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.SAVE_SYNC_AUTO] ?: false }
     /** consoleId → RomM platform id. */
     val rommPlatformMap: Flow<Map<String, Int>> = context.dataStore.data.map { preferences ->
         (preferences[SettingsKeys.ROMM_PLATFORM_MAP] ?: emptySet()).mapNotNull {
@@ -152,6 +161,9 @@ class SettingsDataStore @Inject constructor(
     suspend fun setRommUrl(url: String) = context.dataStore.edit { it[SettingsKeys.ROMM_URL] = url.trim().trimEnd('/') }
     suspend fun setRommToken(token: String) = context.dataStore.edit { it[SettingsKeys.ROMM_TOKEN] = token.trim() }
     suspend fun setRommAutoUpload(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.ROMM_AUTO_UPLOAD] = enabled }
+    suspend fun setSaveSyncSavesDir(uri: String) = context.dataStore.edit { it[SettingsKeys.SAVE_SYNC_SAVES_DIR] = uri }
+    suspend fun setSaveSyncStatesDir(uri: String) = context.dataStore.edit { it[SettingsKeys.SAVE_SYNC_STATES_DIR] = uri }
+    suspend fun setSaveSyncAuto(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.SAVE_SYNC_AUTO] = enabled }
     /** [platformId] null removes the mapping. */
     suspend fun updateRommPlatform(consoleId: String, platformId: Int?) {
         context.dataStore.edit { settings ->

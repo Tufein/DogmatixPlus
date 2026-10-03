@@ -514,6 +514,15 @@ fun SettingsScreen(
         },
         SettingsRow(right = false) {
             SettingRow(
+                title = stringResource(R.string.settings_save_sync),
+                hint = stringResource(R.string.settings_save_sync_hint),
+                onClick = { navController.navigate(NavRoutes.SaveSync.route) }
+            ) {
+                Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        },
+        SettingsRow(right = false) {
+            SettingRow(
                 title = stringResource(R.string.settings_about),
                 hint = stringResource(R.string.credits_fork_name) + " · " + stringResource(R.string.credits_original_name),
                 onClick = { navController.navigate(NavRoutes.Contact.route) }

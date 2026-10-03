@@ -87,6 +87,8 @@ import com.cortinadev.dogmatix.ui.screens.tools.DuplicatesScreen
 import com.cortinadev.dogmatix.ui.screens.tools.LibraryOverviewScreen
 import com.cortinadev.dogmatix.ui.theme.DogmatixTheme
 import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
+import com.cortinadev.dogmatix.data.service.SaveSyncService
+import com.cortinadev.dogmatix.ui.screens.settings.savesync.SaveSyncScreen
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -94,6 +96,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var pendingFilters: PendingLibraryFilters
+    @Inject lateinit var saveSyncService: SaveSyncService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -118,6 +121,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    /** Opened, or back from a game: bring the saves up to date with RomM (when switched on). */
+    override fun onStart() {
+        super.onStart()
+        saveSyncService.autoSync()
     }
 
     /** singleTask: a deep link while the app is running arrives here instead of a new instance. */
@@ -334,6 +343,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.Settings.route) { SettingsScreen(navController) }
                     composable(NavRoutes.Contact.route) { ContactScreen(navController) }
                     composable(NavRoutes.Romm.route) { RommScreen() }
+                    composable(NavRoutes.SaveSync.route) { SaveSyncScreen() }
                     composable(NavRoutes.Overview.route) { LibraryOverviewScreen() }
                     composable(NavRoutes.Duplicates.route) { DuplicatesScreen() }
                 }

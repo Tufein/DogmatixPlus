@@ -26,6 +26,9 @@ data class SourceConsole(
     val folderAliases: List<String> = emptyList()
 )
 
+/** A starred game carried by a sources export, so favourites travel to another device. */
+data class SourceFavourite(val consoleId: String, val fileName: String, val addedAt: Long)
+
 /**
  * Reads and writes the sources document shared by `assets/consoles.json`, the export/import
  * feature and the per-console `urls` column in Room.
@@ -39,7 +42,12 @@ data class SourceConsole(
  * ```
  * `short` is the chip label in the library / downloads; `aliases` are the folder names the
  * download-path resolver accepts for the console (besides its own name and `short`).
- * Keys starting with `_` inside a manufacturer are metadata, never consoles.
+ * Keys starting with `_` inside a manufacturer are metadata, never consoles; at the top level
+ * they are not manufacturers. An export adds the favourites at the top level, as an array that
+ * older versions skip:
+ * ```
+ * "_favourites": [ { "console": "nintendo_gameboy_advance", "file": "…zip", "added": 1759…000 } ]
+ * ```
  */
 object SourcesJson {
 
@@ -49,6 +57,7 @@ object SourcesJson {
     fun parseDocument(json: String): List<SourceManufacturer> {
         val root = JsonParser.parseString(json).asJsonObject
         return root.entrySet().mapNotNull { (manufacturerKey, manufacturerEl) ->
+            if (manufacturerKey.startsWith("_")) return@mapNotNull null
             val manufacturerObj = manufacturerEl as? JsonObject ?: return@mapNotNull null
             val manufacturerId = slug(manufacturerKey)
             val manufacturerName = manufacturerObj.stringOrNull("_name") ?: formatManufacturerName(manufacturerKey)
@@ -69,7 +78,7 @@ object SourcesJson {
     }
 
     /** Serialises manufacturers (with display names) into the document format. */
-    fun serializeDocument(manufacturers: List<SourceManufacturer>): String {
+    fun serializeDocument(manufacturers: List<SourceManufacturer>, favourites: List<SourceFavourite> = emptyList()): String {
         val root = JsonObject()
         manufacturers.forEach { manufacturer ->
             val manufacturerObj = JsonObject()
@@ -84,8 +93,48 @@ object SourcesJson {
             }
             root.add(manufacturer.id, manufacturerObj)
         }
+        if (favourites.isNotEmpty()) {
+            root.add(FAVOURITES_KEY, JsonArray().apply {
+                favourites.sortedWith(compareBy({ it.consoleId }, { it.fileName })).forEach { f ->
+                    add(JsonObject().apply {
+                        addProperty("console", f.consoleId)
+                        addProperty("file", f.fileName)
+                        addProperty("added", f.addedAt)
+                    })
+                }
+            })
+        }
         return gson.toJson(root)
     }
+
+    /** The favourites of a document ([serializeDocument]); none when it has no (valid) list. Never throws. */
+    fun parseFavourites(json: String): List<SourceFavourite> = runCatching {
+        val array = JsonParser.parseString(json).asJsonObject.get(FAVOURITES_KEY) as? JsonArray ?: return emptyList()
+        array.mapNotNull { item ->
+            val obj = item as? JsonObject ?: return@mapNotNull null
+            val console = obj.stringOrNull("console")?.trim() ?: return@mapNotNull null
+            val file = obj.stringOrNull("file") ?: return@mapNotNull null
+            val added = obj.get("added")?.takeIf { it.isJsonPrimitive }?.let { runCatching { it.asLong }.getOrNull() } ?: 0L
+            SourceFavourite(console, file, added)
+        }.distinctBy { it.consoleId to it.fileName }
+    }.getOrDefault(emptyList())
+
+    /**
+     * [incoming] favourites added to [current]: the union, where a game starred on both sides
+     * keeps the earliest date. Un-starring is not carried over (an export only lists stars).
+     */
+    fun mergeFavourites(current: List<SourceFavourite>, incoming: List<SourceFavourite>): List<SourceFavourite> {
+        val byKey = current.associateBy { it.consoleId to it.fileName }.toMutableMap()
+        incoming.forEach { f ->
+            val key = f.consoleId to f.fileName
+            val existing = byKey[key]
+            if (existing == null) byKey[key] = f
+            else if (f.addedAt in 1 until existing.addedAt) byKey[key] = existing.copy(addedAt = f.addedAt)
+        }
+        return byKey.values.toList()
+    }
+
+    private const val FAVOURITES_KEY = "_favourites"
 
     /** Parses the `urls` column of a console row. Never throws: a bad column reads as empty. */
     fun parseUrlEntries(json: String): List<UrlEntry> = try {

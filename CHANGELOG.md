@@ -3,6 +3,43 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [1.1.0-beta.1] – 2026-10-03 · DogmatixPlus (pre-release)
+
+### Added
+- **Save sync with RomM** (Settings → Save sync): the emulator saves and save states on the
+  device and on the RomM server are kept the same, in both directions, so a game can be
+  continued on another device or in RomM's web player.
+  - Pick the saves folder and the save-states folder (RetroArch: `saves`, `states`; one folder
+    for both works too). Files up to three folder levels deep are synced; thumbnails, configs,
+    temporary files and files over 64 MB are skipped.
+  - A file belongs to the ROM with the same name without extension, found with RomM's search
+    and checked exactly; a platform-named folder (`saves/gb/…`) settles names that exist on
+    several platforms, otherwise the file is left alone. The first folder level (the
+    RetroArch core) is sent as RomM's *emulator* and used again when downloading.
+  - Three-way: only the side that changed since the last sync is copied; when both changed,
+    nothing is overwritten and the screen lists the file to keep *◀ Device* or *RomM ▶*. On
+    first meeting, equal files are recorded and different ones listed. Changes are detected
+    from size, time and RomM's content hash, so device clocks do not matter.
+  - A device file replaced by a download is copied to the app's private storage first (kept
+    30 days); downloads replace the old file only once fully written. Deletions are not synced.
+  - *Sync now*, and optionally automatically when the app opens or comes back to the front
+    (at most every two minutes), with a short message when something moved.
+  - Works with RomM 3.10, 4 and 5 (tested against 3.10.3, 4.0.0 and 5.3.1; newer servers take
+    `saveFile` / `stateFile`, older ones `saves` / `states`; RomM 3's phrase search is
+    handled), with an `rmm_…` client token or `user:password`.
+  - The two folders and the switch are part of backups.
+- **Favourites sync** (roadmap): a sources export now carries the ★ favourites, and importing it
+  on another device adds them there (union; the earliest date wins; older versions ignore it).
+
+### Fixed
+- The update check compared `1.1.0-beta.1` as `1.1.0.1`, which would have hidden the final
+  1.1.0 from beta users; a pre-release now counts as older than its release.
+
+### Changed
+- The RomM `user:password` login is encoded with `java.util.Base64` (same result).
+- 167 unit tests (31 more), among them a two-device save sync against a real RomM server that
+  runs when `ROMM_TEST_URL` / `ROMM_TEST_TOKEN` are set.
+
 ## [1.0.0] – 2026-10-03 · DogmatixPlus
 
 DogmatixPlus is an unofficial modification of Dogmatix 1.2 by Rafa Cortina (itself a fork of Milou

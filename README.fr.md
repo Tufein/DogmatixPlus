@@ -62,9 +62,10 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ### Compatible avec RomM
 - Envoyez les téléchargements terminés vers votre serveur **RomM**, ou utilisez RomM comme source de jeux.
+- **Synchro des sauvegardes** *(nouveau, bêta)* : votre serveur RomM garde vos **sauvegardes et états de jeu**. Choisissez les dossiers où votre émulateur enregistre (pour RetroArch : `saves` et `states`) et DogmatixPlus envoie la nouvelle progression et récupère une progression plus récente — d’une autre console portable ou du lecteur web de RomM. Si une sauvegarde a changé des deux côtés, vous choisissez laquelle garder ; une copie remplacée est conservée 30 jours. Cela peut se faire tout seul à l’ouverture de l’application ou au retour d’un jeu (*Paramètres → Synchro des sauvegardes*).
 
 ### Vos sources, à votre façon
-- Ajoutez des sources à la main, ou **importez et exportez**-les sous forme de fichier pour les partager entre appareils.
+- Ajoutez des sources à la main, ou **importez et exportez**-les sous forme de fichier pour les partager entre appareils. L’export emporte maintenant aussi vos **★ favoris**, et l’import les ajoute sur l’autre appareil.
 - Un court **guide de premier démarrage** vous aide à choisir votre dossier de ROM et à importer vos sources.
 
 ### Langues
@@ -122,7 +123,7 @@ DogmatixPlus est une petite couche ajoutée par-dessus deux autres projets. La p
 |---|---|---|
 | **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | L’application d’origine et tout son moteur : lecture des sources, classement des jeux par console / région / langue, recherche, téléchargement et décompression. |
 | **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) | La version pour consoles portables : contrôle à la manette, affichage paysage, thèmes, favoris, pause et reprise, le guide de premier démarrage, ES-DE / iiSU / Daijishō, TorBox et Real-Debrid, RomM. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Recherche de doublons, aperçu de la bibliothèque, sauvegarde et restauration, progression du scan, traductions en néerlandais, en français et en allemand, et ces versions. |
+| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Recherche de doublons, aperçu de la bibliothèque, sauvegarde et restauration, progression du scan, synchro des sauvegardes avec RomM, traductions en néerlandais, en français et en allemand, et ces versions. |
 
 DogmatixPlus a été **réalisé avec l’aide de l’IA** : le code, les tests et la documentation ont été écrits avec un assistant IA et vérifiés lors de plusieurs tours de relecture. Les décisions, l’orientation et la publication reviennent à la personne qui s’occupe du projet.
 

@@ -5,7 +5,9 @@ import androidx.core.net.toUri
 import androidx.room.withTransaction
 import com.cortinadev.dogmatix.data.local.DogmatixDatabase
 import com.cortinadev.dogmatix.data.local.dao.ConsoleDao
+import com.cortinadev.dogmatix.data.local.dao.FavouriteDao
 import com.cortinadev.dogmatix.data.local.dao.ManufacturerDao
+import com.cortinadev.dogmatix.data.local.entity.FavouriteEntity
 import com.cortinadev.dogmatix.data.local.entity.ConsoleEntity
 import com.cortinadev.dogmatix.data.local.entity.ManufacturerEntity
 import com.cortinadev.dogmatix.data.model.Console
@@ -20,6 +22,7 @@ import com.cortinadev.dogmatix.util.ConsoleFolderAliases
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.SourceConsole
+import com.cortinadev.dogmatix.util.SourceFavourite
 import com.cortinadev.dogmatix.util.SourceManufacturer
 import com.cortinadev.dogmatix.util.SourcesJson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -44,6 +47,7 @@ class SourcesRepository @Inject constructor(
     private val database: DogmatixDatabase,
     private val manufacturerDao: ManufacturerDao,
     private val consoleDao: ConsoleDao,
+    private val favouriteDao: FavouriteDao,
     private val torrentHandleRegistry: TorrentHandleRegistry,
     private val databaseScrapingService: DatabaseScrapingService
 ) {
@@ -170,16 +174,19 @@ class SourcesRepository @Inject constructor(
     // ---- Export / import ----------------------------------------------------------------------
 
     /**
-     * Writes the current sources as a JSON document to the app cache and returns the file.
-     * Local `.torrent` copies are not portable and are left out.
+     * Writes the current sources, with the favourites, as a JSON document to the app cache and
+     * returns the file. Local `.torrent` copies are not portable and are left out.
      */
     suspend fun exportToFile(): File = withContext(Dispatchers.IO) {
         val dir = File(context.cacheDir, "exports").apply { mkdirs() }
-        File(dir, "dogmatix-sources.json").apply { writeText(exportDocument()) }
+        File(dir, "dogmatix-sources.json").apply { writeText(exportDocument(includeFavourites = true)) }
     }
 
-    /** The current sources as a JSON document (the export format); also embedded in backups. */
-    suspend fun exportDocument(): String {
+    /**
+     * The current sources as a JSON document (the export format); also embedded in backups,
+     * which carry the favourites on their own (so there without [includeFavourites]).
+     */
+    suspend fun exportDocument(includeFavourites: Boolean = false): String {
         val doc = manufacturers.first().map { m ->
             SourceManufacturer(
                 id = m.id, name = m.name,
@@ -194,18 +201,38 @@ class SourcesRepository @Inject constructor(
                 }
             )
         }
-        return SourcesJson.serializeDocument(doc)
+        val favourites = if (!includeFavourites) emptyList() else
+            favouriteDao.getAll().map { SourceFavourite(it.consoleId, it.fileName, it.addedAt) }
+        return SourcesJson.serializeDocument(doc, favourites)
     }
 
     /**
      * Replaces every source with the contents of the document at [uri] (either the bundled
      * `consoles.json` layout or an export). Indexed files are cleared: the caller rescans.
-     * Returns the number of consoles imported.
+     * The favourites an export carries are added to this device's ([importFavourites]).
      */
-    suspend fun importFromUri(uri: String): Int = withContext(Dispatchers.IO) {
+    suspend fun importFromUri(uri: String): ImportResult = withContext(Dispatchers.IO) {
         val text = context.contentResolver.openInputStream(uri.toUri())?.bufferedReader()?.use { it.readText() }
             ?: throw IllegalStateException("Cannot open $uri")
-        importFromText(text)
+        val consoles = importFromText(text)
+        ImportResult(consoles, importFavourites(text))
+    }
+
+    data class ImportResult(val consoles: Int, val newFavourites: Int)
+
+    /**
+     * Adds the favourites of an exported document to this device's (favourites sync between
+     * devices). Favourites are keyed by console + file name, so they survive the rescan and
+     * light up as soon as the game is indexed. Returns how many were new here.
+     */
+    suspend fun importFavourites(text: String): Int = withContext(Dispatchers.IO) {
+        val incoming = SourcesJson.parseFavourites(text)
+        if (incoming.isEmpty()) return@withContext 0
+        val current = favouriteDao.getAll().map { SourceFavourite(it.consoleId, it.fileName, it.addedAt) }
+        val merged = SourcesJson.mergeFavourites(current, incoming)
+        val changed = merged - current.toSet()
+        if (changed.isNotEmpty()) favouriteDao.upsertAll(changed.map { FavouriteEntity(it.consoleId, it.fileName, it.addedAt.takeIf { t -> t > 0 } ?: System.currentTimeMillis()) })
+        merged.size - current.size
     }
 
     /**

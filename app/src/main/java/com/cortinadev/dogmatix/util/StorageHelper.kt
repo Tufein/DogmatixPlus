@@ -122,7 +122,11 @@ object StorageHelper {
      * replaced; if the provider refuses the rename, the content (still in memory) is written
      * into a fresh target. Throws [IOException] on failure.
      */
-    fun writeTextSafely(context: Context, dir: DocumentFile, subPath: String, fileName: String, content: String) {
+    fun writeTextSafely(context: Context, dir: DocumentFile, subPath: String, fileName: String, content: String) =
+        writeBytesSafely(context, dir, subPath, fileName, content.toByteArray(Charsets.UTF_8))
+
+    /** [writeTextSafely] for binary content (save files). Returns the written document. */
+    fun writeBytesSafely(context: Context, dir: DocumentFile, subPath: String, fileName: String, bytes: ByteArray): DocumentFile {
         val directory = if (subPath.isEmpty()) dir else createDirectory(dir, subPath)
             ?: throw IOException("Could not create directory $subPath")
         val tmpName = "$fileName.tmp"
@@ -130,7 +134,6 @@ object StorageHelper {
         // application/octet-stream keeps the display name untouched (text mimes gain ".txt").
         val tmp = directory.createFile("application/octet-stream", tmpName)
             ?: throw IOException("Could not create $tmpName")
-        val bytes = content.toByteArray(Charsets.UTF_8)
         try {
             context.contentResolver.openOutputStream(tmp.uri)?.use { it.write(bytes) }
                 ?: throw IOException("Could not write $tmpName")
@@ -145,12 +148,13 @@ object StorageHelper {
             runCatching { tmp.delete() }
             throw IOException("Could not replace $fileName")
         }
-        if (runCatching { tmp.renameTo(fileName) }.getOrDefault(false)) return
+        if (runCatching { tmp.renameTo(fileName) }.getOrDefault(false)) return tmp
         val target = directory.createFile("application/octet-stream", fileName)
             ?: throw IOException("Could not create $fileName")
         context.contentResolver.openOutputStream(target.uri)?.use { it.write(bytes) }
             ?: throw IOException("Could not write $fileName")
         runCatching { tmp.delete() }
+        return target
     }
 
     fun createFile(

@@ -28,7 +28,8 @@ object BackupJson {
     private val expectedTypes: Map<String, String> = buildMap {
         listOf(
             SettingsKeys.SEPARATE_BY_CONSOLE, SettingsKeys.AUTO_UNZIP, SettingsKeys.SWAP_FACE_BUTTONS,
-            SettingsKeys.ONBOARDING_DONE, SettingsKeys.TORBOX_ENABLED, SettingsKeys.ROMM_AUTO_UPLOAD
+            SettingsKeys.ONBOARDING_DONE, SettingsKeys.TORBOX_ENABLED, SettingsKeys.ROMM_AUTO_UPLOAD,
+            SettingsKeys.SAVE_SYNC_AUTO
         ).forEach { put(it.name, "b") }
         listOf(SettingsKeys.CONCURRENT_DOWNLOADS, SettingsKeys.METADATA_TIMEOUT_S, SettingsKeys.MAX_SEARCH_RESULTS)
             .forEach { put(it.name, "i") }
@@ -36,7 +37,8 @@ object BackupJson {
         listOf(
             SettingsKeys.DOWNLOAD_DIRECTORY, SettingsKeys.THEME_MODE, SettingsKeys.GAMEPAD_LAYOUT, SettingsKeys.ACCENT_COLOR,
             SettingsKeys.DEBRID_PROVIDER, SettingsKeys.TORBOX_API_KEY, SettingsKeys.REAL_DEBRID_API_KEY,
-            SettingsKeys.ESDE_DIRECTORY, SettingsKeys.IISU_DIRECTORY, SettingsKeys.ROMM_URL, SettingsKeys.ROMM_TOKEN
+            SettingsKeys.ESDE_DIRECTORY, SettingsKeys.IISU_DIRECTORY, SettingsKeys.ROMM_URL, SettingsKeys.ROMM_TOKEN,
+            SettingsKeys.SAVE_SYNC_SAVES_DIR, SettingsKeys.SAVE_SYNC_STATES_DIR
         ).forEach { put(it.name, "s") }
         listOf(
             SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES, SettingsKeys.FAVORITE_LANGUAGES,

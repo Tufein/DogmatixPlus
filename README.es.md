@@ -62,9 +62,10 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ### Funciona con RomM
 - Envía las descargas terminadas a tu servidor **RomM**, o usa RomM como fuente de juegos.
+- **Sincronizar partidas** *(nuevo, beta)*: tu servidor RomM guarda tus **partidas y estados guardados**. Elige las carpetas donde guarda tu emulador (en RetroArch: `saves` y `states`) y DogmatixPlus sube el progreso nuevo y baja el progreso más reciente — de otra portátil o del reproductor web de RomM. Si una partida cambió en ambos lados, tú eliges cuál conservar; una copia sustituida se guarda 30 días. Puede hacerse solo al abrir la app o al volver de un juego (*Ajustes → Sincronizar partidas*).
 
 ### Tus fuentes, a tu manera
-- Añade fuentes a mano, o **impórtalas y expórtalas** como un archivo para compartirlas entre dispositivos.
+- Añade fuentes a mano, o **impórtalas y expórtalas** como un archivo para compartirlas entre dispositivos. La exportación ahora también lleva tus **★ favoritos**, y al importarla se añaden en el otro dispositivo.
 - Una breve **guía de primer inicio** te ayuda a elegir tu carpeta de ROMs e importar tus fuentes.
 
 ### Idiomas
@@ -122,7 +123,7 @@ DogmatixPlus es una pequeña capa sobre otros dos proyectos. La mayor parte de l
 |---|---|---|
 | **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | La app original y todo su motor: leer las fuentes, ordenar los juegos por consola / región / idioma, buscar, descargar y descomprimir. |
 | **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) | La versión para consolas portátiles: control con mando, diseño horizontal, temas, favoritos, pausar y reanudar, la guía de primer inicio, ES-DE / iiSU / Daijishō, TorBox y Real-Debrid, RomM. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Buscador de juegos duplicados, resumen de la biblioteca, copia de seguridad y restaurar copia, progreso del escaneo, las traducciones al neerlandés, francés y alemán, y estas versiones. |
+| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Buscador de juegos duplicados, resumen de la biblioteca, copia de seguridad y restaurar copia, progreso del escaneo, sincronizar partidas con RomM, las traducciones al neerlandés, francés y alemán, y estas versiones. |
 
 DogmatixPlus se **hizo con la ayuda de la IA**: el código, las pruebas y la documentación se escribieron junto con un asistente de IA y se comprobaron en varias rondas de revisión. Las decisiones, la dirección y la publicación son de quien mantiene el proyecto.
 

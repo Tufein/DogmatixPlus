@@ -355,6 +355,7 @@
     <string name="sources_import_confirm_message">Die aktuellen Quellen und die indexierte Spieleliste werden durch die gewählte JSON-Datei ersetzt, danach wird jede Quelle neu gescannt.</string>
     <string name="sources_import_pick">Datei wählen</string>
     <string name="sources_import_done">%1$d Konsolen importiert. Alle Quellen werden neu gescannt…</string>
+    <string name="sources_import_favourites">%1$d Favorit(en) aus der Datei hinzugefügt.</string>
     <string name="sources_import_failed">Quellen konnten nicht importiert werden: %1$s</string>
     <string name="sources_import_result_title">Import</string>
     <string name="sources_url_not_added">Die Quelle konnte nicht gespeichert werden. Prüfe die URL oder die Datei.</string>
@@ -518,4 +519,38 @@
     <string name="language_de">Deutsch</string>
     <string name="backup_import_busy">Warte, bis der Quellen-Scan fertig ist, und stelle die Sicherung dann wieder her</string>
     <string name="backup_newer_version">Diese Sicherung stammt von einer neueren Dogmatix-Version: aktualisiere die App, um sie wiederherzustellen</string>
+
+    <!-- Save sync (RomM) -->
+    <string name="nav_save_sync">Spielstände synchronisieren</string>
+    <string name="settings_save_sync">Spielstände synchronisieren</string>
+    <string name="settings_save_sync_hint">Spielstände und Savestates des Emulators auf deinem RomM-Server</string>
+    <string name="save_sync_intro">Dein RomM-Server bewahrt deine Spielstände und Savestates auf. Wähle die Ordner, in die dein Emulator speichert (RetroArch: saves und states); neuer Fortschritt geht auf den Server, neuerer Fortschritt von einem anderen Gerät oder aus RomMs Web-Player kommt hierher.</string>
+    <string name="save_sync_saves_folder">Ordner für Spielstände</string>
+    <string name="save_sync_saves_folder_hint">Nicht gesetzt · z. B. RetroArch/saves</string>
+    <string name="save_sync_states_folder">Ordner für Savestates</string>
+    <string name="save_sync_states_folder_hint">Nicht gesetzt · z. B. RetroArch/states</string>
+    <string name="save_sync_auto">Automatisch synchronisieren</string>
+    <string name="save_sync_auto_hint">Beim Öffnen von Dogmatix und wenn du aus einem Spiel zurückkommst</string>
+    <string name="save_sync_now">Jetzt synchronisieren</string>
+    <string name="save_sync_action">Synchronisieren</string>
+    <string name="save_sync_busy">Läuft…</string>
+    <string name="save_sync_running">Synchronisiere… %1$s</string>
+    <string name="save_sync_failed">Synchronisieren fehlgeschlagen: %1$s</string>
+    <string name="save_sync_never">Noch nicht synchronisiert</string>
+    <string name="save_sync_needs_romm">Richte zuerst den RomM-Server ein (Einstellungen → RomM-Server)</string>
+    <string name="save_sync_needs_folder">Wähle zuerst einen Ordner für Spielstände oder Savestates</string>
+    <string name="save_sync_error_title">Nicht synchronisiert</string>
+    <string name="save_sync_conflicts_header">Auf beiden Seiten geändert (%1$d) — welche Kopie behalten?</string>
+    <string name="save_sync_side">%1$s, %2$s</string>
+    <string name="save_sync_conflict_hint">Gerät: %1$s · RomM: %2$s</string>
+    <string name="save_sync_kind_save">Spielstand</string>
+    <string name="save_sync_kind_state">Savestate</string>
+    <string name="save_sync_keep_device">◀ Gerät</string>
+    <string name="save_sync_keep_server">RomM ▶</string>
+    <string name="save_sync_summary">↑ %1$d · ↓ %2$d · %3$d aktuell</string>
+    <string name="save_sync_summary_conflicts">%1$d zu entscheiden</string>
+    <string name="save_sync_summary_not_matched">%1$d ohne Spiel in RomM</string>
+    <string name="save_sync_summary_failed">%1$d fehlgeschlagen</string>
+    <string name="save_sync_toast">Spielstände mit RomM synchronisiert: ↑ %1$d · ↓ %2$d</string>
+    <string name="save_sync_toast_conflicts">Synchronisieren: %1$d Spielstand/-stände auf beiden Seiten geändert — siehe Einstellungen → Spielstände synchronisieren</string>
 </resources>

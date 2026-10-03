@@ -29,6 +29,9 @@ interface SettingsRepository {
     val rommAutoUpload: Flow<Boolean>
     val rommPlatformMap: Flow<Map<String, Int>>
     val consoleScannedAt: Flow<Map<String, Long>>
+    val saveSyncSavesDir: Flow<String>
+    val saveSyncStatesDir: Flow<String>
+    val saveSyncAuto: Flow<Boolean>
 
     suspend fun updateDownloadDirectory(path: String): Preferences
     suspend fun setSeparateByConsole(enabled: Boolean): Preferences
@@ -54,4 +57,7 @@ interface SettingsRepository {
     suspend fun setRommAutoUpload(enabled: Boolean): Preferences
     suspend fun updateRommPlatform(consoleId: String, platformId: Int?)
     suspend fun markConsoleScanned(consoleId: String, at: Long)
+    suspend fun setSaveSyncSavesDir(uri: String): Preferences
+    suspend fun setSaveSyncStatesDir(uri: String): Preferences
+    suspend fun setSaveSyncAuto(enabled: Boolean): Preferences
 }

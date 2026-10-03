@@ -335,6 +335,7 @@
     <string name="sources_import_confirm_message">Las fuentes actuales y la lista de juegos indexados se sustituirán por el archivo JSON que elijas y después se reescanearán todas las fuentes.</string>
     <string name="sources_import_pick">Elegir archivo</string>
     <string name="sources_import_done">Se han importado %1$d consolas. Reescaneando todas las fuentes…</string>
+    <string name="sources_import_favourites">%1$d favorito(s) añadido(s) desde el archivo.</string>
     <string name="sources_import_failed">No se pudieron importar las fuentes: %1$s</string>
     <string name="sources_import_result_title">Importación</string>
     <string name="sources_url_not_added">No se pudo guardar la fuente. Revisa la URL o el archivo.</string>
@@ -492,4 +493,38 @@
     <string name="language_de">Deutsch</string>
     <string name="backup_import_busy">Espera a que termine el escaneo de fuentes y restaura la copia después</string>
     <string name="backup_newer_version">Esta copia se hizo con una versión más reciente de Dogmatix: actualiza la app para restaurarla</string>
+
+    <!-- Save sync (RomM) -->
+    <string name="nav_save_sync">Sincronizar partidas</string>
+    <string name="settings_save_sync">Sincronizar partidas</string>
+    <string name="settings_save_sync_hint">Guarda las partidas y estados del emulador en tu servidor RomM</string>
+    <string name="save_sync_intro">Tu servidor RomM guarda tus partidas y estados guardados. Elige las carpetas donde guarda tu emulador (RetroArch: saves y states); el progreso nuevo sube al servidor y el progreso más reciente de otro dispositivo o del reproductor web de RomM baja aquí.</string>
+    <string name="save_sync_saves_folder">Carpeta de partidas</string>
+    <string name="save_sync_saves_folder_hint">Sin definir · p. ej. RetroArch/saves</string>
+    <string name="save_sync_states_folder">Carpeta de estados</string>
+    <string name="save_sync_states_folder_hint">Sin definir · p. ej. RetroArch/states</string>
+    <string name="save_sync_auto">Sincronizar automáticamente</string>
+    <string name="save_sync_auto_hint">Al abrir Dogmatix y al volver de un juego</string>
+    <string name="save_sync_now">Sincronizar ahora</string>
+    <string name="save_sync_action">Sincronizar</string>
+    <string name="save_sync_busy">En curso…</string>
+    <string name="save_sync_running">Sincronizando… %1$s</string>
+    <string name="save_sync_failed">Error al sincronizar: %1$s</string>
+    <string name="save_sync_never">Aún sin sincronizar</string>
+    <string name="save_sync_needs_romm">Configura primero el servidor RomM (Ajustes → Servidor RomM)</string>
+    <string name="save_sync_needs_folder">Elige primero una carpeta de partidas o de estados</string>
+    <string name="save_sync_error_title">Sin sincronizar</string>
+    <string name="save_sync_conflicts_header">Cambiado en ambos lados (%1$d): ¿qué copia conservar?</string>
+    <string name="save_sync_side">%1$s, %2$s</string>
+    <string name="save_sync_conflict_hint">Dispositivo: %1$s · RomM: %2$s</string>
+    <string name="save_sync_kind_save">Partida</string>
+    <string name="save_sync_kind_state">Estado</string>
+    <string name="save_sync_keep_device">◀ Dispositivo</string>
+    <string name="save_sync_keep_server">RomM ▶</string>
+    <string name="save_sync_summary">↑ %1$d · ↓ %2$d · %3$d al día</string>
+    <string name="save_sync_summary_conflicts">%1$d por elegir</string>
+    <string name="save_sync_summary_not_matched">%1$d sin juego en RomM</string>
+    <string name="save_sync_summary_failed">%1$d con error</string>
+    <string name="save_sync_toast">Partidas sincronizadas con RomM: ↑ %1$d · ↓ %2$d</string>
+    <string name="save_sync_toast_conflicts">Sincronización: %1$d partida(s) cambiadas en ambos lados — ver Ajustes → Sincronizar partidas</string>
 </resources>

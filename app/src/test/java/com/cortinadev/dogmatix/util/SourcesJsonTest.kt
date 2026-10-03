@@ -132,4 +132,36 @@ class SourcesJsonTest {
         assertEquals("gameboy_advance", SourcesJson.consoleKey("nintendo", "nintendo_gameboy_advance"))
         assertEquals("orphan", SourcesJson.consoleKey("sony", "orphan"))
     }
+
+    @Test
+    fun favouritesRoundTripAndOlderReadersSkipThem() {
+        val doc = SourcesJson.serializeDocument(
+            listOf(SourceManufacturer("nintendo", "Nintendo", listOf(SourceConsole("nintendo_gba", "GBA", emptyList())))),
+            listOf(SourceFavourite("nintendo_gba", "Zelda (USA).zip", 5L), SourceFavourite("nintendo_gba", "Metroid (USA).zip", 7L))
+        )
+        // The favourites list is no manufacturer.
+        assertEquals(listOf("nintendo"), SourcesJson.parseDocument(doc).map { it.id })
+        assertEquals(
+            setOf(SourceFavourite("nintendo_gba", "Zelda (USA).zip", 5L), SourceFavourite("nintendo_gba", "Metroid (USA).zip", 7L)),
+            SourcesJson.parseFavourites(doc).toSet()
+        )
+        // Without favourites nothing is written, and documents without them read as none.
+        assertEquals(false, SourcesJson.serializeDocument(emptyList()).contains("_favourites"))
+        assertEquals(emptyList<SourceFavourite>(), SourcesJson.parseFavourites("""{"nintendo": {}}"""))
+        assertEquals(emptyList<SourceFavourite>(), SourcesJson.parseFavourites("not json"))
+        assertEquals(
+            listOf(SourceFavourite("a", "b", 0L)),
+            SourcesJson.parseFavourites("""{"_favourites": [{"console": "a", "file": "b"}, {"file": "no console"}, 3]}""")
+        )
+    }
+
+    @Test
+    fun mergingFavouritesKeepsTheUnionAndTheEarliestDate() {
+        val current = listOf(SourceFavourite("a", "1", 100L), SourceFavourite("a", "2", 50L))
+        val incoming = listOf(SourceFavourite("a", "1", 80L), SourceFavourite("a", "2", 70L), SourceFavourite("b", "3", 10L))
+        assertEquals(
+            setOf(SourceFavourite("a", "1", 80L), SourceFavourite("a", "2", 50L), SourceFavourite("b", "3", 10L)),
+            SourcesJson.mergeFavourites(current, incoming).toSet()
+        )
+    }
 }

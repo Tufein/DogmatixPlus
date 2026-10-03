@@ -339,13 +339,14 @@ class SourcesViewModel @Inject constructor(
     fun importSources(uri: String) {
         if (rescanStateHolder.isRescanning.value) return
         viewModelScope.launch {
-            val count = try {
+            val result = try {
                 sources.importFromUri(uri)
             } catch (e: Exception) {
                 _importMessage.value = context.getString(R.string.sources_import_failed, e.message ?: "")
                 return@launch
             }
-            _importMessage.value = context.getString(R.string.sources_import_done, count)
+            _importMessage.value = context.getString(R.string.sources_import_done, result.consoles) +
+                if (result.newFavourites > 0) "\n" + context.getString(R.string.sources_import_favourites, result.newFavourites) else ""
             scrapeAll(R.string.sources_rescan_start)
             libraryIndexService.refresh()
         }

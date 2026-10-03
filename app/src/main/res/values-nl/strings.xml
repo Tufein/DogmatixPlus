@@ -355,6 +355,7 @@
     <string name="sources_import_confirm_message">De huidige bronnen en de geïndexeerde gamelijst worden vervangen door het JSON-bestand dat je kiest, daarna wordt elke bron opnieuw gescand.</string>
     <string name="sources_import_pick">Bestand kiezen</string>
     <string name="sources_import_done">%1$d consoles geïmporteerd. Alle bronnen worden opnieuw gescand…</string>
+    <string name="sources_import_favourites">%1$d favoriet(en) uit het bestand toegevoegd.</string>
     <string name="sources_import_failed">Kon bronnen niet importeren: %1$s</string>
     <string name="sources_import_result_title">Importeren</string>
     <string name="sources_url_not_added">De bron kon niet worden opgeslagen. Controleer de URL of het bestand.</string>
@@ -518,4 +519,38 @@
     <string name="language_de">Deutsch</string>
     <string name="backup_import_busy">Wacht tot de bronnenscan klaar is en zet de back-up daarna terug</string>
     <string name="backup_newer_version">Deze back-up is gemaakt met een nieuwere versie van Dogmatix: werk de app bij om hem terug te zetten</string>
+
+    <!-- Save sync (RomM) -->
+    <string name="nav_save_sync">Saves synchroniseren</string>
+    <string name="settings_save_sync">Saves synchroniseren</string>
+    <string name="settings_save_sync_hint">Bewaar saves en save states van je emulator op je RomM-server</string>
+    <string name="save_sync_intro">Je RomM-server bewaart je opgeslagen spellen en save states. Kies de mappen waarin je emulator opslaat (RetroArch: saves en states); nieuwe voortgang gaat naar de server, nieuwere voortgang van een ander apparaat of van de webspeler van RomM komt hierheen.</string>
+    <string name="save_sync_saves_folder">Map met saves</string>
+    <string name="save_sync_saves_folder_hint">Niet ingesteld · bv. RetroArch/saves</string>
+    <string name="save_sync_states_folder">Map met save states</string>
+    <string name="save_sync_states_folder_hint">Niet ingesteld · bv. RetroArch/states</string>
+    <string name="save_sync_auto">Automatisch synchroniseren</string>
+    <string name="save_sync_auto_hint">Als Dogmatix opent en als je vanuit een spel terugkomt</string>
+    <string name="save_sync_now">Nu synchroniseren</string>
+    <string name="save_sync_action">Synchroniseer</string>
+    <string name="save_sync_busy">Bezig…</string>
+    <string name="save_sync_running">Bezig met synchroniseren… %1$s</string>
+    <string name="save_sync_failed">Synchroniseren mislukt: %1$s</string>
+    <string name="save_sync_never">Nog niet gesynchroniseerd</string>
+    <string name="save_sync_needs_romm">Stel eerst de RomM-server in (Instellingen → RomM-server)</string>
+    <string name="save_sync_needs_folder">Kies eerst een map met saves of save states</string>
+    <string name="save_sync_error_title">Niet gesynchroniseerd</string>
+    <string name="save_sync_conflicts_header">Aan beide kanten gewijzigd (%1$d) — welke kopie houden?</string>
+    <string name="save_sync_side">%1$s, %2$s</string>
+    <string name="save_sync_conflict_hint">Apparaat: %1$s · RomM: %2$s</string>
+    <string name="save_sync_kind_save">Save</string>
+    <string name="save_sync_kind_state">State</string>
+    <string name="save_sync_keep_device">◀ Apparaat</string>
+    <string name="save_sync_keep_server">RomM ▶</string>
+    <string name="save_sync_summary">↑ %1$d · ↓ %2$d · %3$d actueel</string>
+    <string name="save_sync_summary_conflicts">%1$d te kiezen</string>
+    <string name="save_sync_summary_not_matched">%1$d zonder spel in RomM</string>
+    <string name="save_sync_summary_failed">%1$d mislukt</string>
+    <string name="save_sync_toast">Saves gesynchroniseerd met RomM: ↑ %1$d · ↓ %2$d</string>
+    <string name="save_sync_toast_conflicts">Saves synchroniseren: %1$d save(s) aan beide kanten gewijzigd — zie Instellingen → Saves synchroniseren</string>
 </resources>

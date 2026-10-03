@@ -50,6 +50,12 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun updateRommPlatform(consoleId: String, platformId: Int?) = settingsDataStore.updateRommPlatform(consoleId, platformId)
     override val consoleScannedAt: Flow<Map<String, Long>> = settingsDataStore.consoleScannedAt
     override suspend fun markConsoleScanned(consoleId: String, at: Long) = settingsDataStore.markConsoleScanned(consoleId, at)
+    override val saveSyncSavesDir: Flow<String> = settingsDataStore.saveSyncSavesDir
+    override val saveSyncStatesDir: Flow<String> = settingsDataStore.saveSyncStatesDir
+    override val saveSyncAuto: Flow<Boolean> = settingsDataStore.saveSyncAuto
+    override suspend fun setSaveSyncSavesDir(uri: String): Preferences = settingsDataStore.setSaveSyncSavesDir(uri)
+    override suspend fun setSaveSyncStatesDir(uri: String): Preferences = settingsDataStore.setSaveSyncStatesDir(uri)
+    override suspend fun setSaveSyncAuto(enabled: Boolean): Preferences = settingsDataStore.setSaveSyncAuto(enabled)
 
     override suspend fun setOnboardingDone(done: Boolean): Preferences = settingsDataStore.setOnboardingDone(done)
 

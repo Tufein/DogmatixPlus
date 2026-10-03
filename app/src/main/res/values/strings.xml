@@ -356,6 +356,7 @@
     <string name="sources_import_confirm_message">The current sources and the indexed game list will be replaced by the JSON file you pick, then every source will be rescanned.</string>
     <string name="sources_import_pick">Choose file</string>
     <string name="sources_import_done">Imported %1$d consoles. Rescanning all sources…</string>
+    <string name="sources_import_favourites">%1$d favourite(s) added from the file.</string>
     <string name="sources_import_failed">Could not import sources: %1$s</string>
     <string name="sources_import_result_title">Import</string>
     <string name="sources_url_not_added">The source could not be saved. Check the URL or file.</string>
@@ -519,4 +520,38 @@
     <string name="language_de">Deutsch</string>
     <string name="backup_import_busy">Wait until the source scan has finished, then restore the backup</string>
     <string name="backup_newer_version">This backup was made by a newer version of Dogmatix: update the app to restore it</string>
+
+    <!-- Save sync (RomM) -->
+    <string name="nav_save_sync">Save sync</string>
+    <string name="settings_save_sync">Save sync</string>
+    <string name="settings_save_sync_hint">Keep emulator saves and states on your RomM server</string>
+    <string name="save_sync_intro">Your RomM server keeps your game saves and save states. Pick the folders your emulator saves into (RetroArch: saves and states); new progress goes up, newer progress from another device or RomM\'s web player comes down.</string>
+    <string name="save_sync_saves_folder">Saves folder</string>
+    <string name="save_sync_saves_folder_hint">Not set · e.g. RetroArch/saves</string>
+    <string name="save_sync_states_folder">Save states folder</string>
+    <string name="save_sync_states_folder_hint">Not set · e.g. RetroArch/states</string>
+    <string name="save_sync_auto">Sync automatically</string>
+    <string name="save_sync_auto_hint">When Dogmatix opens and when you come back to it from a game</string>
+    <string name="save_sync_now">Sync now</string>
+    <string name="save_sync_action">Sync</string>
+    <string name="save_sync_busy">Syncing…</string>
+    <string name="save_sync_running">Syncing… %1$s</string>
+    <string name="save_sync_failed">Sync failed: %1$s</string>
+    <string name="save_sync_never">Not synced yet</string>
+    <string name="save_sync_needs_romm">Set up the RomM server first (Settings → RomM server)</string>
+    <string name="save_sync_needs_folder">Pick a saves or save states folder first</string>
+    <string name="save_sync_error_title">Not synced</string>
+    <string name="save_sync_conflicts_header">Changed on both sides (%1$d) — keep which copy?</string>
+    <string name="save_sync_side">%1$s, %2$s</string>
+    <string name="save_sync_conflict_hint">Device: %1$s · RomM: %2$s</string>
+    <string name="save_sync_kind_save">Save</string>
+    <string name="save_sync_kind_state">State</string>
+    <string name="save_sync_keep_device">◀ Device</string>
+    <string name="save_sync_keep_server">RomM ▶</string>
+    <string name="save_sync_summary">↑ %1$d · ↓ %2$d · %3$d up to date</string>
+    <string name="save_sync_summary_conflicts">%1$d to choose</string>
+    <string name="save_sync_summary_not_matched">%1$d without a game in RomM</string>
+    <string name="save_sync_summary_failed">%1$d failed</string>
+    <string name="save_sync_toast">Saves synced with RomM: ↑ %1$d · ↓ %2$d</string>
+    <string name="save_sync_toast_conflicts">Save sync: %1$d save(s) changed on both sides — see Settings → Save sync</string>
 </resources>

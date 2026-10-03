@@ -56,6 +56,38 @@ object JsonHttp {
         }
     }
 
+    /**
+     * A binary GET (save files, states): the whole body, or [HttpException] on a non-2xx status.
+     * Refuses bodies above [maxBytes] so a wrong URL cannot fill the memory.
+     */
+    fun download(url: String, headers: Map<String, String> = emptyMap(), maxBytes: Long, readTimeoutMs: Int = 60_000): ByteArray {
+        val connection = URL(url).openConnection() as HttpURLConnection
+        try {
+            connection.connectTimeout = 15_000
+            connection.readTimeout = readTimeoutMs
+            connection.setRequestProperty("User-Agent", userAgent)
+            headers.forEach { (k, v) -> connection.setRequestProperty(k, v) }
+            val code = connection.responseCode
+            if (code !in 200..299) {
+                throw HttpException(code, connection.errorStream?.bufferedReader()?.use { it.readText() })
+            }
+            if (connection.contentLengthLong > maxBytes) throw IOException("File too large (${connection.contentLengthLong} bytes)")
+            connection.inputStream.use { input ->
+                val out = java.io.ByteArrayOutputStream()
+                val buffer = ByteArray(64 * 1024)
+                while (true) {
+                    val n = input.read(buffer)
+                    if (n < 0) break
+                    out.write(buffer, 0, n)
+                    if (out.size() > maxBytes) throw IOException("File too large")
+                }
+                return out.toByteArray()
+            }
+        } finally {
+            connection.disconnect()
+        }
+    }
+
     /** Like [request] but throws [HttpException] on a non-2xx status. */
     fun requireOk(response: Response): Response =
         if (response.ok) response else throw HttpException(response.code, response.body)
@@ -75,6 +107,22 @@ object JsonHttp {
         }
         sb.append("--").append(boundary).append("--\r\n")
         return sb.toString().toByteArray(Charsets.UTF_8) to "multipart/form-data; boundary=$boundary"
+    }
+
+    /** `multipart/form-data` body carrying one file under [fieldName], + its Content-Type. */
+    fun multipartFileBody(fieldName: String, fileName: String, bytes: ByteArray): Pair<ByteArray, String> {
+        val boundary = "----Dogmatix" + System.nanoTime()
+        // RFC 7578: the file name goes as a quoted string; quotes and line breaks cannot appear in it.
+        val safeName = fileName.replace("\"", "%22").replace("\r", "").replace("\n", "")
+        val head = "--$boundary\r\n" +
+            "Content-Disposition: form-data; name=\"$fieldName\"; filename=\"$safeName\"\r\n" +
+            "Content-Type: application/octet-stream\r\n\r\n"
+        val tail = "\r\n--$boundary--\r\n"
+        val out = java.io.ByteArrayOutputStream(bytes.size + 512)
+        out.write(head.toByteArray(Charsets.UTF_8))
+        out.write(bytes)
+        out.write(tail.toByteArray(Charsets.UTF_8))
+        return out.toByteArray() to "multipart/form-data; boundary=$boundary"
     }
 
     const val FORM_URLENCODED = "application/x-www-form-urlencoded"

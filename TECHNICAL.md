@@ -41,6 +41,19 @@ Everything is under **Settings**, works with a gamepad and with touch, and is av
 - It keeps what a backup cannot carry: uploaded `.torrent` sources stay, and folders this install has no access to are kept as they are (you are asked to pick them again). Settings with the wrong type are dropped instead of crashing the app, numbers are kept within what Settings offers, backup files with a newer format version are refused, and a restore is refused while a source scan runs.
 - The format uses fixed field names, so a backup made by one build restores in another, including the minified release build.
 
+### Save sync with RomM *(1.1.0 beta)*
+*Settings → Save sync* makes your RomM server the place your games save to and load from: the emulator saves and save states on the handheld and on the server are kept the same, in both directions, so a game can be continued on another device or in RomM's web player (EmulatorJS uses the same `.srm` / `.state` names as RetroArch).
+
+- **Folders**: pick the emulator's saves folder and its save-states folder (RetroArch: `RetroArch/saves`, `RetroArch/states`; one folder for both works too — `.state`, `.state1`…, `.state.auto` are states, everything else a save). Files up to three folder levels deep are synced (RetroArch's *sort by core / by content folder*); thumbnails, configs and temporary files are skipped, and files over 64 MB are not sent.
+- **Which game a file belongs to**: the file name without extension must equal the ROM's file name without extension (`Pokemon Emerald (USA).srm` ↔ `Pokemon Emerald (USA).gba`). Dogmatix asks RomM's search and checks the names exactly; when the same name exists on several platforms, a folder in the save's path named like the platform (`saves/gb/…`) decides, otherwise the file is left alone. A first-level folder (`saves/mGBA/…`, the RetroArch core) is sent as RomM's *emulator*, and a device that has a folder of that name gets the file in it.
+- **What moves**: after each sync Dogmatix remembers what both sides looked like (size and time of the device file; time, size and hash of the server file). Next time, only the side that changed is copied; when **both** changed, nothing is overwritten and the file is listed with *◀ Device* / *RomM ▶* to keep one. The first time a file exists on both sides, equal contents are simply recorded and different contents are listed the same way. Device clocks never have to agree with the server's.
+- **Safety**: a device file replaced by a download is first copied to the app's private storage (`files/save-backups/`, kept 30 days); downloads are written to a temporary file and only then replace the old one. Deletions are not synced: a file missing on one side is copied back from the other. Slot saves (RomM 5's dated history) are left alone.
+- **When**: *Sync now*, and — when switched on — automatically when Dogmatix opens or comes back to the front (at most every two minutes), with a short message when something moved or needs a choice. Close the game before syncing: an emulator that is still running can write its older in-memory save over a freshly downloaded one.
+- Works with RomM 3.10, 4 and 5 (tested against 3.10.3, 4.0.0 and 5.3.1), with an `rmm_…` client token (scopes *assets* read/write and *roms* read) or `user:password`.
+
+### Favourites sync
+A sources export (*Sources → Export*) now carries your ★ favourites as a `_favourites` list next to the consoles; importing such a file on another device **adds** them to the favourites there (a game starred on both keeps the earliest date; un-starring is not carried over). Favourites are keyed by console and file name, so they light up as soon as the rescan has indexed the games. Older versions ignore the list. Backups keep carrying favourites on their own.
+
 ### Scan progress
 While sources are scanned the indicator in the top bar fills up and shows a **percentage**, counted per source. The overview adds *x of y sources done*, an estimate of the **time left** and a progress bar (the estimate is rough while torrents are involved).
 
@@ -48,9 +61,9 @@ While sources are scanned the indicator in the top bar fills up and shows a **pe
 The whole app — including scan messages, errors, the download notification and the update notice that used to be fixed English — is available in **Dutch, French and German** next to English and Spanish. Pick it in *Settings → Language*, or let it follow the system; Android's per-app language setting lists them too.
 
 ### Smaller changes
-- The app version is **1.0.0** (DogmatixPlus numbers its own releases); the Credits screen shows the whole lineage, and the update check now reads this repository's releases instead of the original project's.
+- The app version is **1.1.0-beta.1** (DogmatixPlus numbers its own releases; 1.0.0 was the first); the Credits screen shows the whole lineage, and the update check reads this repository's releases instead of the original project's. It skips pre-releases, and a beta counts as older than its final release.
 - The `.md` extension counts as a Mega Drive ROM inside console folders (but not `README.md`).
-- 136 unit tests (58 more than Dogmatix 1.2) cover the new logic; the new screens were also tried on an emulator, in portrait and landscape, in the debug and in the minified release build.
+- 167 unit tests (89 more than Dogmatix 1.2) cover the new logic. One of them runs the save sync of two devices against a real RomM server when `ROMM_TEST_URL` and `ROMM_TEST_TOKEN` are set (it is skipped otherwise); it passed against RomM 3.10.3, 4.0.0 and 5.3.1. The 1.0.0 screens were tried on an emulator, in portrait and landscape, in the debug and in the minified release build; the 1.1.0 beta screens were not (see the release notes).
 
 The full list is in [CHANGELOG.md](CHANGELOG.md).
 
@@ -117,6 +130,7 @@ Milou was designed for phones and touch. On a handheld with a small landscape sc
 - **Limitation**: TorBox zips torrents with 100+ files and its cache is shared, so for the big Myrient/No-Intro sets it can only hand back one huge `.zip`, not single ROMs (`allow_zip=false` only affects torrents nobody has cached yet). When that happens Dogmatix removes the torrent from the account and silently falls back to the direct torrent download for that file, so the toggle is safe to leave on.
 
 ### RomM
+- Settings → *Save sync* keeps emulator saves and save states in sync with the server (see [Save sync with RomM](#save-sync-with-romm-110-beta)).
 - Settings → *RomM server*: URL, API token (`rmm_…` client token or `user:password`), *Test connection*, *Upload finished downloads*, and one stepper per console to pick the RomM platform it uploads to. Suggestions come from the same folder-alias table used for frontend folders (`gba`, `psx`, `snes`…); *Apply suggestions* maps every unmapped console at once.
 - Every download that finishes while the switch is on (and whose console is mapped) is uploaded with RomM's chunked API (`/api/roms/upload/start` → chunks → `complete`); extracted archives upload each extracted file. The Downloads row shows *↑ RomM n%*, *Uploaded* or *failed* with a retry button. Uploads are not resumed after the process dies — use the retry button. Plain `http://` servers are allowed (cleartext traffic is enabled for the app); self-signed HTTPS is not supported.
 - **RomM as a source**: in Sources → *Add URL*, pick one of the server's platforms (or type `romm://<slug>`) and the console indexes every ROM RomM has for it; downloads go through RomM's `/api/roms/{id}/content/…` with the account credentials, and files that came from RomM are never uploaded back.
@@ -142,7 +156,7 @@ Milou was designed for phones and touch. On a handheld with a small landscape sc
 - Downloads are routed in `DownloadService.perform()`: debrid service (when selected; `DebridClient` implemented by `TorBoxClient` and `RealDebridClient`) → HTTP with resume; torrent → libtorrent; HTTP otherwise (with the RomM credentials when the file comes from the RomM server). Integrations talk to their APIs with a tiny `JsonHttp` helper over `HttpURLConnection` + Gson — no OkHttp.
 - Secrets (TorBox / Real-Debrid keys, RomM token) live only in the app's DataStore; nothing is baked into the APK or the repository.
 - DogmatixPlus adds `DuplicateFinder`, `DiskScanner`, `LibraryScanService`, `BackupJson` and `BackupService` (see [What DogmatixPlus adds](#what-dogmatixplus-adds)); the unit tests grew from 78 to 136.
-- Unit tests for the pure logic: search/parsing (`SearchNormalizer`, `ConsoleFolderAliases`, `GameTitleCleaner`, `LibraryKeys`), sources (`SourcesJson`), deep links and shortcuts (`DeepLinkParser`, `DeepLinkResolver`, `DgmtxFile`), frontends (`EsdeXml`, `IisuJson`, `DaijishoSetup`), debrid and RomM (`DebridMatcher`, `RommPlatformMapper`, `RommSource`), and the gamepad legend (`GamepadLayout`).
+- Unit tests for the pure logic: search/parsing (`SearchNormalizer`, `ConsoleFolderAliases`, `GameTitleCleaner`, `LibraryKeys`), sources (`SourcesJson`), deep links and shortcuts (`DeepLinkParser`, `DeepLinkResolver`, `DgmtxFile`), frontends (`EsdeXml`, `IisuJson`, `DaijishoSetup`), debrid and RomM (`DebridMatcher`, `RommPlatformMapper`, `RommSource`), save sync (`SaveSyncPlanner`, `SaveSyncEngine` with an in-memory device and server, plus `RommSaveSyncLiveTest` against a real server), versions (`VersionUtils`), and the gamepad legend (`GamepadLayout`).
 - Removed: FAB, `SearchSection`, old filter overlays/dropdowns, `RomList`, `SmallButtons`, `CommonButton`, `Spacing`/`Layout`.
 
 ## How it works (inherited from Milou)
@@ -254,7 +268,9 @@ Everything is also reachable by touch; the legend only appears while a controlle
 Planned features, in no particular order:
 
 - **RomM: mark games already in RomM** as owned in the library (today only uploads are supported).
-- **Favourites sync** across devices via the sources export.
+- **Save sync in the background** (on a schedule, without opening the app), and per-console save folders for standalone emulators.
+- ~~Favourites sync across devices via the sources export~~ — done in 1.1.0.
+- ~~Saves and states on the RomM server~~ — done in 1.1.0 (beta).
 
 Ideas and requests for DogmatixPlus are welcome as [issues](https://github.com/Tufein/DogmatixPlus/issues); for the original Dogmatix, see [cortinadev/dogmatix](https://github.com/cortinadev/dogmatix/issues).
 
@@ -272,7 +288,7 @@ DogmatixPlus is a small layer on top of two projects. Most of what you use every
 |---|---|---|
 | **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | The original app and its whole engine: indexing of torrents, magnets and web directories, tagging by console / region / language, searching, direct and torrent downloads, archive extraction. |
 | **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) ([cortina.dev](https://cortina.dev)) | The handheld rebuild: gamepad-first navigation and legend, landscape layout, themes, favourites, multi-selection and pause / resume in Downloads, onboarding, ES-DE / iiSU / Daijishō integration, TorBox and Real-Debrid, RomM, the `dogmatix://` deep links. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | The duplicate finder, the library overview, backup & restore, scan progress with percentage and time left, the Dutch, French and German translations (and moving the last hard-coded English texts into them), the update check pointing at this repository, version 1.0.0, this documentation and the releases. |
+| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | The duplicate finder, the library overview, backup & restore, scan progress with percentage and time left, save sync with RomM, favourites in the sources export, the Dutch, French and German translations (and moving the last hard-coded English texts into them), the update check pointing at this repository, version 1.0.0, this documentation and the releases. |
 
 DogmatixPlus was **made with the help of A.I.**: the code, the tests and this documentation were written together with an AI assistant, then checked in several independent review rounds and tried on an emulator. Decisions, direction and publishing are the maintainer's.
 

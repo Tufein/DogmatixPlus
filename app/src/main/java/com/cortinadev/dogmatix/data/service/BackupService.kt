@@ -216,7 +216,9 @@ class BackupService @Inject constructor(
         private val FOLDER_KEYS = setOf(
             SettingsKeys.DOWNLOAD_DIRECTORY.name,
             SettingsKeys.ESDE_DIRECTORY.name,
-            SettingsKeys.IISU_DIRECTORY.name
+            SettingsKeys.IISU_DIRECTORY.name,
+            SettingsKeys.SAVE_SYNC_SAVES_DIR.name,
+            SettingsKeys.SAVE_SYNC_STATES_DIR.name
         )
     }
 }
