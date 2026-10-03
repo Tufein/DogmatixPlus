@@ -3,6 +3,7 @@ package com.cortinadev.dogmatix.util
 import com.cortinadev.dogmatix.data.local.SettingsKeys
 import com.cortinadev.dogmatix.data.local.entity.DownloadHistoryEntity
 import com.cortinadev.dogmatix.data.local.entity.FavouriteEntity
+import com.cortinadev.dogmatix.data.local.entity.WishlistEntity
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -95,5 +96,30 @@ class BackupJsonTest {
         assertEquals(0L, restored.single().startedAt)
         assertEquals(emptyList<FavouriteEntity>(), BackupJson.favouritesFromJson(JsonParser.parseString("""[{"consoleId":1}]""")))
         assertEquals(emptyList<FavouriteEntity>(), BackupJson.favouritesFromJson(null))
+    }
+
+    @Test
+    fun theWishlistRoundTripsAndBrokenRowsAreSkipped() {
+        val rows = listOf(
+            WishlistEntity(id = 7, title = "Chrono Trigger", consoleId = "snes", addedAt = 100, notifiedAt = 200),
+            WishlistEntity(id = 8, title = "Any Console Game", consoleId = null, addedAt = 300)
+        )
+        val back = BackupJson.wishlistFromJson(JsonParser.parseString(BackupJson.wishlistToJson(rows).toString()))
+        // Ids are not carried (a restore adds rows); everything else is.
+        assertEquals(listOf("Chrono Trigger", "Any Console Game"), back.map { it.title })
+        assertEquals(listOf("snes", null), back.map { it.consoleId })
+        assertEquals(200L, back[0].notifiedAt)
+        assertNull(back[1].notifiedAt)
+        val damaged = JsonParser.parseString("""[null, 5, {"title":"x"}, {"title":"  "}, {"title":"Good Game","consoleId":""}]""")
+        assertEquals(listOf("Good Game"), BackupJson.wishlistFromJson(damaged).map { it.title })
+        assertNull(BackupJson.wishlistFromJson(JsonParser.parseString("{}")).firstOrNull())
+    }
+
+    @Test
+    fun theNewSettingsAreTypeChecked() {
+        assertNull(BackupJson.decodeSetting(SettingsKeys.DOWNLOAD_NIGHT_START.name, setting("s", "\"23:00\"")))
+        assertEquals(1439, BackupJson.decodeSetting(SettingsKeys.DOWNLOAD_NIGHT_END.name, setting("i", "99999")))
+        assertEquals(24, BackupJson.decodeSetting(SettingsKeys.SAVE_SYNC_BG_INTERVAL_H.name, setting("i", "500")))
+        assertNull(BackupJson.decodeSetting(SettingsKeys.SAVE_SYNC_BACKGROUND.name, setting("i", "1")))
     }
 }

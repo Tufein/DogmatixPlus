@@ -720,6 +720,7 @@ private fun ResultList(
     val jumpFocus = remember { FocusRequester() }
     var jumpTarget by remember { mutableStateOf<Int?>(null) }
     var currentIndex by remember { mutableStateOf(0) }
+    var jumpJob by remember { mutableStateOf<Job?>(null) }
     // After "Load more" the button is replaced by a spinner and focus is lost:
     // remember where the new page starts and land on its first row once it arrives.
     var pendingFocusIndex by remember { mutableStateOf<Int?>(null) }
@@ -742,13 +743,22 @@ private fun ResultList(
             val forward = event.key == Key.DirectionRight
             val target = if (byName) LetterJump.target(results.map { stripExtension(it.file.name) }, currentIndex, forward)
             else LetterJump.step(results.size, currentIndex, forward)
-            if (target != currentIndex) jumpScope.launch {
-                jumpTarget = target
-                listState.scrollToItem(target)
-                withFrameNanos { }
-                withFrameNanos { }
-                runCatching { jumpFocus.requestFocus() }
-                jumpTarget = null
+            if (target != currentIndex) {
+                // Quick presses chain: the next one starts from where this one is going, and
+                // only the last jump is carried out.
+                currentIndex = target
+                jumpJob?.cancel()
+                jumpJob = jumpScope.launch {
+                    jumpTarget = target
+                    try {
+                        listState.scrollToItem(target)
+                        withFrameNanos { }
+                        withFrameNanos { }
+                        runCatching { jumpFocus.requestFocus() }
+                    } finally {
+                        if (jumpTarget == target) jumpTarget = null
+                    }
+                }
             }
             true
         },

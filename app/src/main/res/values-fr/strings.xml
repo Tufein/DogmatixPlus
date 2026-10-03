@@ -598,7 +598,7 @@
     <string name="sets_playlists_header">Jeux à plusieurs disques sans playlist (%1$d)</string>
     <string name="sets_playlists_hint">Un .m3u permet à l\'émulateur de changer de disque seul</string>
     <string name="sets_playlist_create">Créer</string>
-    <string name="sets_playlist_create_all">Créer les %1$d playlists</string>
+    <string name="sets_playlist_create_all">Créer toutes les playlists (%1$d)</string>
     <string name="sets_playlist_created">%1$s créé</string>
     <string name="sets_playlist_failed">Impossible de créer %1$s</string>
     <string name="sets_playlists_created">%1$d playlists créées</string>
@@ -711,6 +711,8 @@
     <string name="settings_diagnostics_action">Partager</string>
     <string name="diagnostics_share_title">Partager le diagnostic</string>
     <string name="diagnostics_failed">Impossible de créer le rapport</string>
+    <string name="language_it">Italiano</string>
+    <string name="language_pt">Português</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d sauvegarde modifiée des deux côtés — ouvrez Dogmatix pour choisir</item>
         <item quantity="other">%d sauvegardes modifiées des deux côtés — ouvrez Dogmatix pour choisir</item>

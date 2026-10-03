@@ -594,7 +594,7 @@
     <string name="sets_playlists_header">Multi-disc games without a playlist (%1$d)</string>
     <string name="sets_playlists_hint">An .m3u lets the emulator switch discs by itself</string>
     <string name="sets_playlist_create">Create</string>
-    <string name="sets_playlist_create_all">Create all %1$d playlists</string>
+    <string name="sets_playlist_create_all">Create all playlists (%1$d)</string>
     <string name="sets_playlist_created">Created %1$s</string>
     <string name="sets_playlist_failed">Could not create %1$s</string>
     <string name="sets_playlists_created">%1$d playlists created</string>
@@ -707,6 +707,8 @@
     <string name="settings_diagnostics_action">Share</string>
     <string name="diagnostics_share_title">Share diagnostics</string>
     <string name="diagnostics_failed">Could not create the report</string>
+    <string name="language_it">Italiano</string>
+    <string name="language_pt">Português</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save changed on both sides — open Dogmatix to choose</item>
         <item quantity="other">%d saves changed on both sides — open Dogmatix to choose</item>

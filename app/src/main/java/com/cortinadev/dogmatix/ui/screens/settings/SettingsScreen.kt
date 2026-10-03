@@ -94,7 +94,9 @@ enum class AppLanguage(val tag: String, val label: Int) {
     ES("es", R.string.language_es),
     NL("nl", R.string.language_nl),
     FR("fr", R.string.language_fr),
-    DE("de", R.string.language_de);
+    DE("de", R.string.language_de),
+    IT("it", R.string.language_it),
+    PT("pt", R.string.language_pt);
 
     companion object {
         fun current(): AppLanguage {

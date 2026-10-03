@@ -567,7 +567,7 @@
     <string name="sets_playlists_header">Juegos de varios discos sin lista (%1$d)</string>
     <string name="sets_playlists_hint">Con un .m3u el emulador cambia de disco solo</string>
     <string name="sets_playlist_create">Crear</string>
-    <string name="sets_playlist_create_all">Crear las %1$d listas</string>
+    <string name="sets_playlist_create_all">Crear todas las listas (%1$d)</string>
     <string name="sets_playlist_created">%1$s creado</string>
     <string name="sets_playlist_failed">No se pudo crear %1$s</string>
     <string name="sets_playlists_created">%1$d listas creadas</string>
@@ -680,6 +680,8 @@
     <string name="settings_diagnostics_action">Compartir</string>
     <string name="diagnostics_share_title">Compartir diagnóstico</string>
     <string name="diagnostics_failed">No se pudo crear el informe</string>
+    <string name="language_it">Italiano</string>
+    <string name="language_pt">Português</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d partida cambió en ambos lados — abre Dogmatix para elegir</item>
         <item quantity="other">%d partidas cambiaron en ambos lados — abre Dogmatix para elegir</item>
