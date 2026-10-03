@@ -51,7 +51,7 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 - **Jeux en double** : trouve les jeux présents plusieurs fois sur votre appareil, montre combien de place vous gagnez et vous laisse supprimer la copie en trop. Rien n’est supprimé avant que vous ayez vu exactement quels fichiers vont disparaître.
 - **Aperçu de la bibliothèque** : pour chaque console, combien de jeux sont indexés, combien vous en possédez, combien sont sur votre appareil et quelle place ils prennent, et la date du dernier scan.
 - **Sauvegarder** et **Restaurer une sauvegarde** : enregistrez vos paramètres, vos sources, vos favoris et vos téléchargements dans un seul fichier et restaurez-les plus tard — pratique pour un nouvel appareil.
-- **Progression du scan** : un pourcentage et le temps restant pendant que vos sources sont lues.
+- **Progression du scan** : un pourcentage et le temps restant pendant que vos sources sont lues. Depuis la 1.2.0, les sources sont **analysées en parallèle**, bien plus vite.
 - **Jeux multi-fichiers** *(nouveau, alpha)* : trouve les images de disque inutilisables (un `.cue` dont la piste a disparu, une playlist qui cite un disque supprimé) et crée des playlists `.m3u` pour les jeux à plusieurs disques.
 - **Stockage** : l’espace par console, vos plus gros jeux, et si les téléchargements en attente tiennent encore.
 - **Liste de souhaits** : notez les jeux que vous voulez ; un message vous prévient quand l’un apparaît dans vos sources.
@@ -60,7 +60,7 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 ### Pensé pour les consoles portables
 - **Tout contrôler avec une manette** : D-pad, A/B/X/Y et les boutons d’épaule. Les indications à l’écran, en bas, correspondent à votre manette (Xbox, Nintendo ou PlayStation), et vous pouvez inverser les boutons si votre manette les signale à l’envers.
 - Affichage **paysage et portrait**, avec un panneau de filtres à côté de la liste sur les grands écrans.
-- Thème **clair, sombre ou noir pur** (agréable sur les écrans OLED) et cinq couleurs d’accent.
+- Thème **clair, sombre ou noir pur** (agréable sur les écrans OLED), **douze couleurs d’accent** et **Material You** (Android 12+ : les couleurs suivent votre fond d’écran).
 - **◀ ▶ saute dans la bibliothèque par première lettre**, pratique avec une longue liste et sans écran tactile.
 
 ### Compatible avec votre lanceur de jeux
@@ -85,8 +85,9 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 1. Ouvrez la **[page Releases](https://github.com/Tufein/DogmatixPlus/releases)** sur votre téléphone ou votre console portable, ou téléchargez-y le fichier et copiez-le sur l’appareil.
 2. Téléchargez l’un des deux fichiers :
-   - **`DogmatixPlus-debug.apk`** — *le choix facile.* Il s’installe **à côté** du Dogmatix officiel, donc rien de ce qui vous appartient n’est touché.
-   - **`DogmatixPlus-release.apk`** — une version plus légère. Elle ne peut pas être installée par-dessus le Dogmatix officiel ; vous devrez d’abord le désinstaller (faites une sauvegarde avant).
+   - **`DogmatixPlus-release.apk`** — *le choix normal.* Depuis la 1.2.0, l’application s’appelle **Dogmatix+** et a son propre nom de paquet : elle s’installe **à côté** du Dogmatix officiel et des anciennes versions de DogmatixPlus, sans rien toucher.
+   - **`DogmatixPlus-debug.apk`** — une version de débogage qui s’installe elle aussi à côté de tout le reste.
+   - **Vous venez d’un ancien DogmatixPlus ?** Dans l’ancienne application, *Paramètres → Sauvegarder*, puis *Paramètres → Restaurer une sauvegarde* dans Dogmatix+, et relancez une fois la configuration d’ES-DE / iiSU / Daijishō.
 3. Ouvrez le fichier et autorisez **« Installer des applications inconnues »** si Android vous le demande.
 
 Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Google Play.

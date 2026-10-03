@@ -3,6 +3,33 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [1.2.0] – 2026-10-03 · Dogmatix+
+
+The first full release since 1.0.0: everything from 1.1.0-beta.1 and 1.2.0-alpha.1, plus the changes below.
+
+### Changed
+- **Scanning is much faster.** Sources are scanned side by side (up to 4 web directories, 3 torrents
+  and 2 RomM platforms at a time, at most 2 listings per server) instead of one after the other; the
+  fixed 1-second pause before every request — and after every sub-folder row, which was never even
+  read — is gone (a 0.2 s pause per request stays, out of politeness); each source is written in
+  one database transaction; rows are parsed without a CSS query each and the name / size patterns
+  are compiled once. In a test with 6 web directories of 4,000 games each (emulator, debug build) a
+  full rescan went from **83 s to about 21 s**.
+- **Torrent metadata is kept** after the first fetch (`files/torrent_meta`), so a rescan indexes a
+  magnet at once instead of asking the swarm again.
+- The check which games are already on the device lists each folder with one query instead of one
+  per file, and reads the console folders a few at a time.
+- **The app is called Dogmatix+** (header, launcher and welcome screen) and has its **own package
+  name, `com.tufein.dogmatixplus`** (debug build: `com.tufein.dogmatixplus.debug`). It installs as
+  a new app next to the official Dogmatix and next to older DogmatixPlus builds; move your setup
+  over with *Settings → Back up* in the old app and *Restore backup* in the new one. Frontend setups
+  (ES-DE, iiSU, Daijishō) have to be run once more, because they point at the app by package name.
+- **Accent colours**: 12 instead of 5, picked from a dialog, plus **Material You** (Android 12 and
+  later): the whole colour scheme then follows the wallpaper, in light, dark and pure black.
+
+### Fixed
+- Two files with the same name in different folders of one torrent no longer share their tags.
+
 ## [1.2.0-alpha.1] – 2026-10-03 · DogmatixPlus (pre-release)
 
 ### Added

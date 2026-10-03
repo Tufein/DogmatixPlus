@@ -51,7 +51,7 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 - **Juegos duplicados**: encuentra los juegos que están más de una vez en tu dispositivo, te muestra cuánto espacio ganas y te deja borrar la copia sobrante. No se borra nada antes de que hayas visto exactamente qué archivos se van a borrar.
 - **Resumen de la biblioteca**: para cada consola, cuántos juegos hay en la lista, cuántos tienes, cuántos están en tu dispositivo y cuánto ocupan, y cuándo se escaneó por última vez.
 - **Copia de seguridad** y **Restaurar copia**: guarda tus ajustes, fuentes, favoritos y descargas en un solo archivo y recupéralos más tarde — muy útil para un dispositivo nuevo.
-- **Progreso del escaneo**: un porcentaje y el tiempo que queda mientras se leen tus fuentes.
+- **Progreso del escaneo**: un porcentaje y el tiempo que queda mientras se leen tus fuentes. Desde la 1.2.0 las fuentes se escanean **en paralelo**, mucho más rápido.
 - **Juegos de varios archivos** *(novedad, alfa)*: encuentra imágenes de disco que no funcionan (un `.cue` cuya pista ya no está, una lista que nombra un disco borrado) y crea listas `.m3u` para juegos de varios discos.
 - **Almacenamiento**: espacio por consola, tus juegos más grandes y si las descargas en cola todavía caben.
 - **Lista de deseos**: apunta los juegos que quieres; te avisamos cuando uno aparece en tus fuentes.
@@ -60,7 +60,7 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 ### Pensada para consolas portátiles
 - **Controla todo con un mando**: D-pad, A/B/X/Y y los botones superiores. Las ayudas en pantalla de la parte inferior se adaptan a tu mando (Xbox, Nintendo o PlayStation), y puedes intercambiar los botones si tu mando los envía al revés.
 - Diseños **horizontal y vertical**, con un panel de filtros junto a la lista en pantallas anchas.
-- Tema **claro, oscuro o negro puro** (ideal para pantallas OLED) y cinco colores de acento.
+- Tema **claro, oscuro o negro puro** (ideal para pantallas OLED), **doce colores de acento** y **Material You** (Android 12+: los colores siguen tu fondo de pantalla).
 - **◀ ▶ salta por la biblioteca según la primera letra**, útil con una lista larga y sin pantalla táctil.
 
 ### Funciona con tu lanzador de juegos
@@ -85,8 +85,9 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 1. Abre la **[página de Releases](https://github.com/Tufein/DogmatixPlus/releases)** en tu móvil o en tu consola portátil, o descarga el archivo allí y cópialo al dispositivo.
 2. Descarga uno de los dos archivos:
-   - **`DogmatixPlus-debug.apk`** — *la opción fácil.* Se instala **junto al** Dogmatix oficial, así que no se toca nada tuyo.
-   - **`DogmatixPlus-release.apk`** — una versión más pequeña. No se puede instalar encima del Dogmatix oficial; tendrías que desinstalar ese primero (haz antes una copia de seguridad).
+   - **`DogmatixPlus-release.apk`** — *la opción normal.* Desde la 1.2.0 la app se llama **Dogmatix+** y tiene su propio nombre de paquete, así que se instala **junto al** Dogmatix oficial y a versiones anteriores de DogmatixPlus, sin tocar nada tuyo.
+   - **`DogmatixPlus-debug.apk`** — una versión de depuración que también se instala junto a todo lo demás.
+   - **¿Vienes de un DogmatixPlus anterior?** En la app antigua usa *Ajustes → Copia de seguridad*, luego *Ajustes → Restaurar copia* en Dogmatix+, y vuelve a configurar ES-DE / iiSU / Daijishō una vez.
 3. Abre el archivo y permite **«Instalar aplicaciones desconocidas»** si Android te lo pide.
 
 Necesitas **Android 10 o más reciente**. La app no está en Google Play.

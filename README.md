@@ -2,7 +2,7 @@
 
 **English** · [Nederlands](README.nl.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [Español](README.es.md)
 
-**Find, download and organise retro games on your Android phone or handheld.**
+**Find, download and organise retro games on your Android phone or handheld.** On your device the app is called **Dogmatix+**.
 
 DogmatixPlus keeps one big, searchable list of the games from the sources *you* add, downloads them into the right folders, and helps you keep your collection tidy. It works with touch *and* with a game controller, so it feels at home on handhelds such as the Retroid, Anbernic or Kinhank.
 
@@ -51,7 +51,7 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 - **Duplicate games**: finds games that are on your device more than once, shows how much space you win, and lets you delete the extra copy. Nothing is deleted before you have seen exactly which files will go.
 - **Library overview**: for every console, how many games are listed, how many you own, how many are on your device and how big that is, and when it was last scanned.
 - **Back up and restore**: save your settings, sources, favourites and downloads in one file and put them back later — handy for a new device.
-- **Scan progress**: a percentage and the time left while your sources are being read.
+- **Scan progress**: a percentage and the time left while your sources are being read. Since 1.2.0 sources are **scanned side by side** and much faster.
 - **Game sets** *(new, alpha)*: finds disc images that cannot run (a `.cue` whose track is gone, a playlist that names a deleted disc) and makes `.m3u` playlists for games with several discs.
 - **Storage**: space per console, your biggest games, and whether the downloads in the queue still fit.
 - **Wishlist**: write down games you want; you get a message when one turns up in your sources.
@@ -60,7 +60,7 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 ### Made for handhelds
 - **Control everything with a gamepad**: D-pad, A/B/X/Y and the shoulder buttons. On-screen hints at the bottom match your pad (Xbox, Nintendo or PlayStation), and you can swap the buttons if your pad reports them the other way round.
 - **Landscape and portrait** layouts, with a filter panel next to the list on wide screens.
-- **Light, dark or pure black** theme (nice on OLED screens) and five accent colours.
+- **Light, dark or pure black** theme (nice on OLED screens), **twelve accent colours** and **Material You** (Android 12+: the colours follow your wallpaper).
 - **◀ ▶ jumps through the library by first letter**, handy with a long list and no touch screen.
 
 ### Works with your game launcher
@@ -85,8 +85,9 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 1. Open the **[Releases page](https://github.com/Tufein/DogmatixPlus/releases)** on your phone or handheld, or download there and copy the file over.
 2. Download one of the two files:
-   - **`DogmatixPlus-debug.apk`** — *the easy choice.* It installs **next to** the official Dogmatix, so nothing of yours is touched.
-   - **`DogmatixPlus-release.apk`** — a smaller version. It can't be installed over the official Dogmatix; you would have to remove that first (make a backup first).
+   - **`DogmatixPlus-release.apk`** — *the normal choice.* Since 1.2.0 the app is called **Dogmatix+** and has its own package name, so it installs **next to** the official Dogmatix and next to older DogmatixPlus versions; nothing of yours is touched.
+   - **`DogmatixPlus-debug.apk`** — a debug build that also installs next to everything else.
+   - **Coming from an older DogmatixPlus?** In the old app use *Settings → Back up*, then *Settings → Restore backup* in Dogmatix+, and run the ES-DE / iiSU / Daijishō setup once more.
 3. Open the file and allow **"install unknown apps"** if Android asks.
 
 You need **Android 10 or newer**. The app is not on Google Play.

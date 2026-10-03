@@ -51,7 +51,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 - **Doppelte Spiele**: findet Spiele, die mehr als einmal auf deinem Gerät sind, zeigt, wie viel Speicherplatz du gewinnst, und lässt dich die überzählige Kopie löschen. Nichts wird gelöscht, bevor du genau gesehen hast, welche Dateien verschwinden.
 - **Bibliotheksübersicht**: für jede Konsole, wie viele Spiele aufgelistet sind, wie viele du besitzt, wie viele auf deinem Gerät sind und wie groß das ist, und wann zuletzt gescannt wurde.
 - **Sichern und Sicherung wiederherstellen**: Speichere deine Einstellungen, Quellen, Favoriten und Downloads in einer Datei und spiele sie später wieder ein — praktisch für ein neues Gerät.
-- **Scan-Fortschritt**: eine Prozentzahl und die verbleibende Zeit, während deine Quellen gelesen werden.
+- **Scan-Fortschritt**: eine Prozentzahl und die verbleibende Zeit, während deine Quellen gelesen werden. Seit 1.2.0 werden Quellen **parallel** und viel schneller gescannt.
 - **Spielsets** *(neu, Alpha)*: findet Disc-Images, die nicht laufen (eine `.cue`, deren Track fehlt, eine Playlist mit einer gelöschten Disc), und erstellt `.m3u`-Playlists für Spiele mit mehreren Discs.
 - **Speicher**: Platz pro Konsole, deine größten Spiele und ob die Downloads in der Warteschlange noch passen.
 - **Wunschliste**: notiere Spiele, die du haben willst; du bekommst eine Meldung, sobald eines in deinen Quellen auftaucht.
@@ -60,7 +60,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 ### Gemacht für Handhelds
 - **Alles mit dem Gamepad steuern**: D-Pad, A/B/X/Y und die Schultertasten. Hinweise am unteren Bildschirmrand passen zu deinem Pad (Xbox, Nintendo oder PlayStation), und du kannst die Tasten tauschen, wenn dein Pad sie andersherum meldet.
 - Layouts für **Quer- und Hochformat**, mit einem Filterfeld neben der Liste auf breiten Bildschirmen.
-- **Hell, Dunkel oder Echtes Schwarz** als Design (schön auf OLED-Bildschirmen) und fünf Akzentfarben.
+- **Hell, Dunkel oder Echtes Schwarz** als Design (schön auf OLED-Bildschirmen), **zwölf Akzentfarben** und **Material You** (Android 12+: die Farben folgen deinem Hintergrundbild).
 - **◀ ▶ springt in der Bibliothek nach Anfangsbuchstaben**, praktisch bei langen Listen ohne Touchscreen.
 
 ### Funktioniert mit deinem Spiele-Launcher
@@ -85,8 +85,9 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 1. Öffne die **[Releases-Seite](https://github.com/Tufein/DogmatixPlus/releases)** auf deinem Handy oder Handheld, oder lade die Datei dort herunter und kopiere sie auf dein Gerät.
 2. Lade eine der beiden Dateien herunter:
-   - **`DogmatixPlus-debug.apk`** — *die einfache Wahl.* Sie wird **neben** dem offiziellen Dogmatix installiert, sodass nichts von deinen Sachen angefasst wird.
-   - **`DogmatixPlus-release.apk`** — eine kleinere Version. Sie lässt sich nicht über das offizielle Dogmatix installieren; du müsstest dieses zuerst entfernen (mach vorher eine Sicherung).
+   - **`DogmatixPlus-release.apk`** — *die normale Wahl.* Seit 1.2.0 heißt die App **Dogmatix+** und hat einen eigenen Paketnamen: Sie wird **neben** dem offiziellen Dogmatix und älteren DogmatixPlus-Versionen installiert, nichts von deinen Sachen wird angefasst.
+   - **`DogmatixPlus-debug.apk`** — eine Debug-Version, die ebenfalls neben allem anderen installiert wird.
+   - **Du kommst von einem älteren DogmatixPlus?** In der alten App *Einstellungen → Sichern*, dann in Dogmatix+ *Einstellungen → Sicherung wiederherstellen*, und richte ES-DE / iiSU / Daijishō noch einmal ein.
 3. Öffne die Datei und erlaube **„Unbekannte Apps installieren“**, wenn Android danach fragt.
 
 Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhältlich.

@@ -51,7 +51,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 - **Dubbele games**: vindt games die meer dan eens op je toestel staan, laat zien hoeveel ruimte je wint en laat je de extra kopie verwijderen. Er wordt niets verwijderd voordat je precies hebt gezien welke bestanden verdwijnen.
 - **Bibliotheekoverzicht**: voor elke console hoeveel games er in de lijst staan, hoeveel je er in bezit hebt, hoeveel er op je toestel staan en hoe groot dat is, en wanneer er voor het laatst is gescand.
 - **Back-up maken en terugzetten**: sla je instellingen, bronnen, favorieten en downloads op in één bestand en zet ze later terug — handig voor een nieuw toestel.
-- **Scanvoortgang**: een percentage en de resterende tijd terwijl je bronnen worden gelezen.
+- **Scanvoortgang**: een percentage en de resterende tijd terwijl je bronnen worden gelezen. Sinds 1.2.0 worden bronnen **naast elkaar** en veel sneller gescand.
 - **Game-sets** *(nieuw, alfa)*: vindt schijfkopieën die niet kunnen draaien (een `.cue` waarvan de track weg is, een afspeellijst die een verwijderde schijf noemt) en maakt `.m3u`-afspeellijsten voor games met meerdere schijven.
 - **Opslag**: ruimte per console, je grootste games, en of de downloads in de wachtrij nog passen.
 - **Verlanglijst**: noteer games die je wilt hebben; je krijgt een melding zodra er een in je bronnen opduikt.
@@ -60,7 +60,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 ### Gemaakt voor handhelds
 - **Bedien alles met een gamepad**: D-pad, A/B/X/Y en de schouderknoppen. De hints onderaan het scherm passen bij jouw pad (Xbox, Nintendo of PlayStation), en je kunt de knoppen omwisselen als je pad ze andersom doorgeeft.
 - **Liggende en staande** indeling, met een filterpaneel naast de lijst op brede schermen.
-- **Licht, donker of echt zwart** thema (mooi op OLED-schermen) en vijf accentkleuren.
+- **Licht, donker of echt zwart** thema (mooi op OLED-schermen), **twaalf accentkleuren** en **Material You** (Android 12+: de kleuren volgen je achtergrond).
 - **◀ ▶ springt door de bibliotheek op beginletter**, handig bij een lange lijst zonder aanraakscherm.
 
 ### Werkt met je gamelauncher
@@ -85,8 +85,9 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 1. Open de **[Releases-pagina](https://github.com/Tufein/DogmatixPlus/releases)** op je telefoon of handheld, of download het bestand daar en kopieer het naar je toestel.
 2. Download een van de twee bestanden:
-   - **`DogmatixPlus-debug.apk`** — *de makkelijke keuze.* Het wordt **naast** de officiële Dogmatix geïnstalleerd, dus er wordt niets aangeraakt van wat je al hebt.
-   - **`DogmatixPlus-release.apk`** — een kleinere versie. Het kan niet over de officiële Dogmatix heen worden geïnstalleerd; je moet die eerst verwijderen (maak eerst een back-up).
+   - **`DogmatixPlus-release.apk`** — *de gewone keuze.* Sinds 1.2.0 heet de app **Dogmatix+** en heeft hij een eigen pakketnaam, dus hij wordt **naast** de officiële Dogmatix en oudere DogmatixPlus-versies geïnstalleerd; er wordt niets aangeraakt van wat je al hebt.
+   - **`DogmatixPlus-debug.apk`** — een debugversie die ook naast al het andere komt.
+   - **Kom je van een oudere DogmatixPlus?** Gebruik in de oude app *Instellingen → Back-up maken* en daarna *Instellingen → Back-up terugzetten* in Dogmatix+, en voer de instelling voor ES-DE / iiSU / Daijishō nog één keer uit.
 3. Open het bestand en sta **"Onbekende apps installeren"** toe als Android erom vraagt.
 
 Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.

@@ -61,7 +61,7 @@ While sources are scanned the indicator in the top bar fills up and shows a **pe
 The whole app — including scan messages, errors, the download notification and the update notice that used to be fixed English — is available in **Dutch, French and German** (1.0.0) and **Italian and Portuguese** (1.2.0-alpha.1) next to English and Spanish. Pick it in *Settings → Language*, or let it follow the system; Android's per-app language setting lists them too.
 
 ### What 1.2.0-alpha.1 adds
-Everything below is new in the alpha; none of it has been tried against a real RomM server yet (see the release notes for what was and was not tested).
+Everything below came with the alpha and is part of 1.2.0; the RomM parts have not been tried against a real RomM server yet (see the release notes for what was and was not tested).
 
 **RomM**
 - **Games on RomM are marked.** `RommLibraryService` reads the game list of every mapped platform (`/api/roms?platform_ids=…`), turns it into `consoleId|name-without-extension` keys (`RommMarks`, so `Game.zip` on the server matches `Game.gba` in the library), keeps them in `files/romm_library.json` and refreshes them after six hours, when the URL, token or platform map changes, or by hand. Rows that come from the server itself always count. A finished upload adds its key at once.
@@ -93,10 +93,17 @@ Everything below is new in the alpha; none of it has been tried against a real R
 - **Diagnostics**: `DiagnosticsService` builds the report; `DiagnosticsRedactor` removes tokens, URLs, magnet links, IP addresses, e-mail addresses and the saved secrets before it is shared.
 - **Italian and Portuguese** (European) join the other languages.
 
+### What 1.2.0 adds
+- **Faster scanning.** `DatabaseScrapingService` runs every enabled source of every console as its own coroutine, capped per kind (`ScrapingConstants.PARALLEL_HTTP` = 4, `PARALLEL_TORRENTS` = 3, `PARALLEL_ROMM` = 2) and per host (`PARALLEL_PER_HOST` = 2, held only while the listing downloads; parsing happens outside it). The fixed 1 s pause before each request and the 1 s pause per sub-folder row are gone; a 0.2 s pause per request stays. Rows are found by walking the row (`FileParsingUtils.linkOf`) instead of two CSS queries each, the name, tag and size patterns are compiled once, and each source is stored with `DownloadableFileDao.insertSource` in one transaction (tags follow their file by position). Benchmark (emulator, debug build, 6 local web directories × 4,000 files with 8 sub-folders each): 83 s before, about 21 s after; parsing on the device is now the largest share.
+- **Torrent metadata cache.** After a magnet's metadata is fetched, its info dictionary is written to `files/torrent_meta/<sha1 of the magnet>.torrent`; the next fetch adds the torrent with that metadata (the magnet's trackers are kept), so a rescan indexes it at once.
+- **Owned-games index.** `LibraryIndexService.refresh` lists folders through `DiskScanner` (one provider query per folder) and reads up to four console folders at the same time.
+- **Dogmatix+ and its own package.** The application id is `com.tufein.dogmatixplus` (`.debug` for the debug build); the Kotlin namespace stays `com.cortinadev.dogmatix`, so the launch component frontends use is `com.tufein.dogmatixplus/com.cortinadev.dogmatix.MainActivity`. App name, header and welcome screen say *Dogmatix+*.
+- **Colours.** Twelve accent presets and Material You (`AccentPresets.dynamic`, stored as `dynamic`): on Android 12+ the theme uses `dynamicLight/DarkColorScheme` (pure black keeps a black background) and derives the Dogmatix tokens from it; the theme is built at one call site so switching never resets the screen.
+
 ### Smaller changes
-- The app version is **1.2.0-alpha.1** (1.1.0-beta.1 before it) (DogmatixPlus numbers its own releases; 1.0.0 was the first); the Credits screen shows the whole lineage, and the update check reads this repository's releases instead of the original project's. It skips pre-releases, and a beta counts as older than its final release.
+- The app version is **1.2.0** (1.2.0-alpha.1 and 1.1.0-beta.1 before it) (DogmatixPlus numbers its own releases; 1.0.0 was the first); the Credits screen shows the whole lineage, and the update check reads this repository's releases instead of the original project's. It skips pre-releases, and a beta counts as older than its final release.
 - The `.md` extension counts as a Mega Drive ROM inside console folders (but not `README.md`).
-- 260 unit tests (182 more than Dogmatix 1.2) cover the new logic. One of them runs the save sync of two devices against a real RomM server when `ROMM_TEST_URL` and `ROMM_TEST_TOKEN` are set (it is skipped otherwise); it passed against RomM 3.10.3, 4.0.0 and 5.3.1. The 1.0.0 screens were tried on an emulator, in portrait and landscape, in the debug and in the minified release build; the 1.1.0 beta screens were not (see the release notes).
+- 264 unit tests (186 more than Dogmatix 1.2) cover the new logic. One of them runs the save sync of two devices against a real RomM server when `ROMM_TEST_URL` and `ROMM_TEST_TOKEN` are set (it is skipped otherwise); it passed against RomM 3.10.3, 4.0.0 and 5.3.1. The 1.0.0 screens were tried on an emulator, in portrait and landscape, in the debug and in the minified release build; the 1.1.0 beta screens were not (see the release notes).
 
 The full list is in [CHANGELOG.md](CHANGELOG.md).
 
