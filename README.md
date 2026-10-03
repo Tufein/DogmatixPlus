@@ -15,6 +15,28 @@ Get the APK from the **[Releases page](https://github.com/Tufein/DogmatixPlus/re
 
 Both need Android 10 (API 29) or newer. The release notes carry SHA-256 checksums so you can check what you downloaded. On a handheld, copy the APK over (cable, cloud or SD card) and open it with a file manager.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center" valign="top"><img src="docs/screenshots/library.png" width="210" alt="The library"><br><sub>Library — a green ✓ marks games you already have</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/duplicates.png" width="210" alt="Duplicate games"><br><sub>Duplicate games, grouped per console</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/delete-dialog.png" width="210" alt="Delete confirmation"><br><sub>Nothing is deleted before you see every file</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/overview.png" width="210" alt="Library overview"><br><sub>Library overview, per console</sub></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top"><img src="docs/screenshots/scan-progress.png" width="210" alt="Scan progress"><br><sub>Scan progress with percentage and time left</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/settings.png" width="210" alt="Settings"><br><sub>Settings: overview, duplicates, back up, restore</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/credits.png" width="210" alt="Credits"><br><sub>Credits: the whole lineage</sub></td>
+  </tr>
+</table>
+
+On a handheld, in landscape, the library keeps Dogmatix's filter panel next to the list:
+
+<p align="center"><img src="docs/screenshots/library-landscape.png" width="720" alt="The library in landscape on a handheld-sized screen"></p>
+
+*The screenshots use made-up game titles and empty placeholder files (they show the app, not any real games).*
+
 ## What DogmatixPlus adds
 
 Everything is under **Settings**, works with a gamepad and with touch, and is available in English, Spanish, Dutch, French and German.
@@ -267,6 +289,6 @@ DogmatixPlus is a small layer on top of two projects. Most of what you use every
 | **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) ([cortina.dev](https://cortina.dev)) | The handheld rebuild: gamepad-first navigation and legend, landscape layout, themes, favourites, multi-selection and pause / resume in Downloads, onboarding, ES-DE / iiSU / Daijishō integration, TorBox and Real-Debrid, RomM, the `dogmatix://` deep links. |
 | **DogmatixPlus** | [Tufein](https://github.com/Tufein) | The duplicate finder, the library overview, backup & restore, scan progress with percentage and time left, the Dutch, French and German translations (and moving the last hard-coded English texts into them), the update check pointing at this repository, version 1.0.0, this documentation and the releases. |
 
-DogmatixPlus was developed with the help of [Claude](https://www.anthropic.com/claude) (Anthropic): the code, tests and documentation were written together and checked in several independent review rounds, with the commits carrying a `Co-Authored-By` line.
+DogmatixPlus was **made with the help of A.I.**: the code, the tests and this documentation were written together with an AI assistant, then checked in several independent review rounds and tried on an emulator. Decisions, direction and publishing are the maintainer's.
 
 Libraries the apps rely on are listed under [Tech stack](#tech-stack): Jetpack Compose, Hilt, Room, libtorrent4j, 7-Zip-JBinding, Jsoup and Kotlin Coroutines.
