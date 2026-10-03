@@ -72,6 +72,7 @@ import com.cortinadev.dogmatix.data.model.DebridProvider
 import com.cortinadev.dogmatix.ui.common.GamepadLayout
 import com.cortinadev.dogmatix.ui.theme.AccentPresets
 import com.cortinadev.dogmatix.util.Constants
+import com.cortinadev.dogmatix.util.DownloadPolicy
 import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.TorrentConstants
 import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
@@ -109,9 +110,11 @@ private const val SPEED_MAX = 5000
 @Composable
 fun SettingsScreen(
     navController: NavController,
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
+    extra: ExtraSettingsViewModel = hiltViewModel()
 ) {
     val ui by viewModel.uiState.collectAsState()
+    val more by extra.state.collectAsState()
     val context = LocalContext.current
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -203,6 +206,8 @@ fun SettingsScreen(
     fun adjustMetadataTimeout(delta: Int) = viewModel.onMetadataTimeoutChanged(
         context, (ui.metadataTimeoutSeconds + delta * 10).coerceIn(TorrentConstants.MIN_METADATA_TIMEOUT_S, TorrentConstants.MAX_METADATA_TIMEOUT_S)
     )
+    fun shiftNightStart(delta: Int) = extra.setNightWindow(context, DownloadPolicy.shift(more.nightStart, delta), more.nightEnd)
+    fun shiftNightEnd(delta: Int) = extra.setNightWindow(context, more.nightStart, DownloadPolicy.shift(more.nightEnd, delta))
     val limitKb = if (ui.limitSpeed == Float.POSITIVE_INFINITY) 0 else ui.limitSpeed.toInt()
     fun adjustLimit(delta: Int) {
         val next = (limitKb + delta * SPEED_STEP).coerceIn(0, SPEED_MAX)
@@ -404,6 +409,51 @@ fun SettingsScreen(
                 PillButton(stringResource(R.string.settings_change)) { showDebridKeyDialog = true }
             }
         },
+        SettingsRow(right = false) {
+            SettingRow(
+                title = stringResource(R.string.settings_dl_wifi),
+                hint = stringResource(R.string.settings_dl_wifi_hint),
+                onClick = { extra.setWifiOnly(context, !more.wifiOnly) },
+                onAdjust = { extra.setWifiOnly(context, it > 0) }
+            ) { ThemedSwitch(more.wifiOnly) { extra.setWifiOnly(context, it) } }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
+                title = stringResource(R.string.settings_dl_charging),
+                hint = stringResource(R.string.settings_dl_charging_hint),
+                onClick = { extra.setChargingOnly(context, !more.chargingOnly) },
+                onAdjust = { extra.setChargingOnly(context, it > 0) }
+            ) { ThemedSwitch(more.chargingOnly) { extra.setChargingOnly(context, it) } }
+        },
+        SettingsRow(right = false) {
+            SettingRow(
+                title = stringResource(R.string.settings_dl_night),
+                hint = stringResource(R.string.settings_dl_night_hint, DownloadPolicy.formatMinutes(more.nightStart), DownloadPolicy.formatMinutes(more.nightEnd)),
+                onClick = { extra.setNightOnly(context, !more.nightOnly) },
+                onAdjust = { extra.setNightOnly(context, it > 0) }
+            ) { ThemedSwitch(more.nightOnly) { extra.setNightOnly(context, it) } }
+        },
+        SettingsRow(right = true) {
+            if (more.nightOnly) SettingRow(
+                title = stringResource(R.string.settings_dl_night_start), hint = null,
+                onClick = { shiftNightStart(1) }, onAdjust = ::shiftNightStart
+            ) { Stepper(DownloadPolicy.formatMinutes(more.nightStart), onDecrement = { shiftNightStart(-1) }, onIncrement = { shiftNightStart(1) }, valueWidth = 72.dp) }
+        },
+        SettingsRow(right = false) {
+            if (more.nightOnly) SettingRow(
+                title = stringResource(R.string.settings_dl_night_end), hint = null,
+                onClick = { shiftNightEnd(1) }, onAdjust = ::shiftNightEnd
+            ) { Stepper(DownloadPolicy.formatMinutes(more.nightEnd), onDecrement = { shiftNightEnd(-1) }, onIncrement = { shiftNightEnd(1) }, valueWidth = 72.dp) }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
+                title = stringResource(R.string.settings_tools),
+                hint = stringResource(R.string.settings_tools_hint),
+                onClick = { navController.navigate(NavRoutes.Tools.route) }
+            ) {
+                Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        },
         SettingsRow(right = true) {
             SettingRow(
                 title = stringResource(R.string.settings_overview),
@@ -520,6 +570,28 @@ fun SettingsScreen(
             ) {
                 Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+        },
+        SettingsRow(right = false) {
+            SettingRow(
+                title = stringResource(R.string.settings_prereleases),
+                hint = stringResource(R.string.settings_prereleases_hint),
+                onClick = { extra.setPreReleases(context, !more.preReleases) },
+                onAdjust = { extra.setPreReleases(context, it > 0) }
+            ) { ThemedSwitch(more.preReleases) { extra.setPreReleases(context, it) } }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
+                title = stringResource(R.string.settings_update_check),
+                hint = stringResource(R.string.settings_update_check_hint),
+                onClick = { extra.checkForUpdates(context) }
+            ) { PillButton(stringResource(R.string.settings_update_check_action)) { extra.checkForUpdates(context) } }
+        },
+        SettingsRow(right = false) {
+            SettingRow(
+                title = stringResource(R.string.settings_diagnostics),
+                hint = stringResource(R.string.settings_diagnostics_hint),
+                onClick = { extra.shareDiagnostics(context) }
+            ) { PillButton(stringResource(R.string.settings_diagnostics_action)) { extra.shareDiagnostics(context) } }
         },
         SettingsRow(right = false) {
             SettingRow(
