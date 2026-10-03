@@ -22,6 +22,11 @@ object RommSource {
     fun downloadUrl(baseUrl: String, romId: Int, fileName: String): String =
         "${baseUrl.trimEnd('/')}/api/roms/$romId/content/${URLEncoder.encode(fileName, "UTF-8").replace("+", "%20")}"
 
+    private val romIdPattern = Regex("""/api/roms/(\d+)/content/""")
+
+    /** The RomM rom id in a download URL made by [downloadUrl], or null. */
+    fun romIdOf(downloadUrl: String): Int? = romIdPattern.find(downloadUrl)?.groupValues?.get(1)?.toIntOrNull()
+
     /** True when [downloadUrl] points at the configured RomM server (so auth headers apply). */
     fun isDownloadFrom(baseUrl: String, downloadUrl: String): Boolean {
         val base = baseUrl.trim().trimEnd('/')
