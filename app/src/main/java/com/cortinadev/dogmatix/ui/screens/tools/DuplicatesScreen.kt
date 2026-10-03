@@ -67,7 +67,7 @@ fun DuplicatesScreen(viewModel: DuplicatesViewModel = hiltViewModel()) {
         ui.scanning -> stringResource(R.string.tools_scanning)
         !ui.folderSet -> stringResource(R.string.tools_no_folder)
         ui.groups.isEmpty() -> stringResource(R.string.duplicates_none, ui.filesChecked)
-        else -> stringResource(R.string.duplicates_summary, ui.groups.size, formatBytes(ui.reclaimable), ui.filesChecked)
+        else -> pluralStringResource(R.plurals.duplicates_summary, ui.groups.size, ui.groups.size, formatBytes(ui.reclaimable), ui.filesChecked)
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {

@@ -416,9 +416,7 @@
     <string name="backup_export_failed">Fallo en la copia: %1$s</string>
     <string name="backup_invalid">Este archivo no es una copia de Dogmatix</string>
     <string name="backup_import_title">¿Restaurar copia?</string>
-    <string name="backup_import_message">Copia del %1$s (Dogmatix %2$s).
-
-Tus ajustes, fuentes y favoritos actuales se sustituyen y después se vuelven a escanear todas las fuentes.</string>
+    <string name="backup_import_message">Copia del %1$s (Dogmatix %2$s).\n\nTus ajustes, fuentes y favoritos actuales se sustituyen y después se vuelven a escanear todas las fuentes.</string>
     <string name="backup_import_action">Restaurar</string>
     <string name="backup_import_done">Restaurados %1$d ajustes, %2$d consolas, %3$d favoritos, %4$d descargas</string>
     <string name="backup_import_repick">%1$d carpeta(s) no son accesibles en esta instalación: vuelve a elegirlas en Ajustes o Fuentes</string>
@@ -433,17 +431,17 @@ Tus ajustes, fuentes y favoritos actuales se sustituyen y después se vuelven a 
         <item quantity="one">%d archivo</item>
         <item quantity="other">%d archivos</item>
     </plurals>
-    <string name="duplicates_summary">%1$d grupos · %2$s recuperables · %3$d archivos revisados</string>
+    <plurals name="duplicates_summary">
+        <item quantity="one">%1$d grupo · %2$s recuperables · %3$d archivos revisados</item>
+        <item quantity="other">%1$d grupos · %2$s recuperables · %3$d archivos revisados</item>
+    </plurals>
     <string name="duplicates_none">Ningún duplicado entre %1$d archivos</string>
     <string name="duplicates_kind_identical">El mismo archivo en varias carpetas</string>
     <string name="duplicates_kind_variant">Versiones distintas (región, revisión, traducción)</string>
     <string name="duplicates_largest">el más grande</string>
     <string name="duplicates_delete">Borrar</string>
     <string name="duplicates_delete_title">¿Borrar del disco?</string>
-    <string name="duplicates_delete_message">%1$s
-%2$s
-
-%3$s (%4$s) se borrarán definitivamente.</string>
+    <string name="duplicates_delete_message">%1$s\n%2$s\n\n%3$s (%4$s) se borrarán definitivamente.</string>
     <string name="duplicates_deleted">Borrado %1$s</string>
     <string name="duplicates_delete_failed">No se pudo borrar %1$s</string>
     <string name="overview_totals">%1$d consolas · %2$d juegos indexados · %3$d en tu colección (%4$d%%)</string>

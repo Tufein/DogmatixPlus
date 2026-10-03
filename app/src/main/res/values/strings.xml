@@ -447,9 +447,7 @@
     <string name="backup_export_failed">Backup failed: %1$s</string>
     <string name="backup_invalid">This file is not a Dogmatix backup</string>
     <string name="backup_import_title">Restore backup?</string>
-    <string name="backup_import_message">Backup from %1$s (Dogmatix %2$s).
-
-Your current settings, sources and favourites are replaced, then every source is scanned again.</string>
+    <string name="backup_import_message">Backup from %1$s (Dogmatix %2$s).\n\nYour current settings, sources and favourites are replaced, then every source is scanned again.</string>
     <string name="backup_import_action">Restore</string>
     <string name="backup_import_done">Restored %1$d settings, %2$d consoles, %3$d favourites, %4$d downloads</string>
     <string name="backup_import_repick">%1$d folder(s) are not accessible on this install: pick them again in Settings or Sources</string>
@@ -464,17 +462,17 @@ Your current settings, sources and favourites are replaced, then every source is
         <item quantity="one">%d file</item>
         <item quantity="other">%d files</item>
     </plurals>
-    <string name="duplicates_summary">%1$d groups · %2$s can be freed · %3$d files checked</string>
+    <plurals name="duplicates_summary">
+        <item quantity="one">%1$d group · %2$s can be freed · %3$d files checked</item>
+        <item quantity="other">%1$d groups · %2$s can be freed · %3$d files checked</item>
+    </plurals>
     <string name="duplicates_none">No duplicates among %1$d files</string>
     <string name="duplicates_kind_identical">Same file in several folders</string>
     <string name="duplicates_kind_variant">Different versions (region, revision, translation)</string>
     <string name="duplicates_largest">largest</string>
     <string name="duplicates_delete">Delete</string>
     <string name="duplicates_delete_title">Delete from disk?</string>
-    <string name="duplicates_delete_message">%1$s
-%2$s
-
-%3$s (%4$s) will be deleted permanently.</string>
+    <string name="duplicates_delete_message">%1$s\n%2$s\n\n%3$s (%4$s) will be deleted permanently.</string>
     <string name="duplicates_deleted">Deleted %1$s</string>
     <string name="duplicates_delete_failed">Could not delete %1$s</string>
     <string name="overview_totals">%1$d consoles · %2$d games indexed · %3$d owned (%4$d%%)</string>
