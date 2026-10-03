@@ -58,6 +58,20 @@ fun DuplicatesScreen(viewModel: DuplicatesViewModel = hiltViewModel()) {
         )
     }
 
+    var confirmSuggested by remember { mutableStateOf(false) }
+    if (confirmSuggested && ui.suggestions.isNotEmpty()) {
+        val removing = ui.suggestions.flatMap { it.remove }
+        val shown = removing.take(12).joinToString("\n") { "• " + it.baseName + "  (" + formatBytes(it.size) + ")" }
+        ConfirmDialog(
+            title = stringResource(R.string.duplicates_suggest_confirm_title),
+            message = pluralStringResource(R.plurals.duplicates_suggest_confirm, removing.size, removing.size, formatBytes(ui.suggestedBytes)) +
+                "\n\n" + shown + if (removing.size > 12) "\n• … (+${removing.size - 12})" else "",
+            confirmText = stringResource(R.string.duplicates_delete),
+            onConfirm = { viewModel.removeSuggested(context) },
+            onDismiss = { confirmSuggested = false }
+        )
+    }
+
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         withFrameNanos { }
@@ -88,6 +102,15 @@ fun DuplicatesScreen(viewModel: DuplicatesViewModel = hiltViewModel()) {
                     PillButton(stringResource(R.string.tools_refresh), viewModel::rescan)
                 }
             }
+            if (!ui.scanning && ui.suggestions.isNotEmpty()) {
+                item(key = "suggest") {
+                    ToolRow(
+                        title = pluralStringResource(R.plurals.duplicates_suggest, ui.suggestedCopies, ui.suggestedCopies, formatBytes(ui.suggestedBytes)),
+                        lines = listOf(stringResource(R.string.duplicates_suggest_hint)),
+                        onClick = { confirmSuggested = true }
+                    ) { PillButton(stringResource(R.string.duplicates_suggest_action)) { confirmSuggested = true } }
+                }
+            }
             if (!ui.scanning) {
                 ui.groups.forEachIndexed { index, group ->
                     item(key = "group:$index:${group.scope}|${group.title}") { GroupHeader(group) }
@@ -98,10 +121,12 @@ fun DuplicatesScreen(viewModel: DuplicatesViewModel = hiltViewModel()) {
                         val details = formatBytes(entry.size) + " · " +
                             pluralStringResource(R.plurals.tools_files, entry.files.size, entry.files.size) +
                             if (largest) " · " + stringResource(R.string.duplicates_largest) else ""
+                        val keeper = ui.suggestions.any { it.group.entries.firstOrNull { e -> e.id == it.keep.id } != null && it.keep.id == entry.id }
                         ToolRow(
                             title = entry.baseName,
                             lines = listOf(entry.folder, details),
-                            onClick = { pendingDelete = entry }
+                            onClick = { pendingDelete = entry },
+                            badge = if (keeper) ({ Badge(stringResource(R.string.duplicates_keep), warning = false) }) else null
                         ) {
                             PillButton(stringResource(R.string.duplicates_delete)) { pendingDelete = entry }
                         }

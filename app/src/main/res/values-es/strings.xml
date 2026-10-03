@@ -607,6 +607,59 @@
     <string name="verify_ok">✓ suma de verificación correcta</string>
     <string name="verify_mismatch">⚠ la suma de verificación no coincide — repite la descarga</string>
     <string name="verify_checking">comprobando…</string>
+    <string name="duplicates_suggest_hint">Conserva la mejor copia de cada juego (tu región e idioma, sin demos); ves cada archivo antes</string>
+    <string name="duplicates_suggest_action">Revisar</string>
+    <string name="duplicates_suggest_confirm_title">¿Quitar las copias sugeridas?</string>
+    <string name="duplicates_keep">Conservar</string>
+    <string name="romm_cert">Certificado del servidor</string>
+    <string name="romm_cert_hint">Para un servidor casero con certificado autofirmado: revísalo una vez y confía en él</string>
+    <string name="romm_cert_trusted_hint">De confianza: %1$s</string>
+    <string name="romm_cert_check">Revisar</string>
+    <string name="romm_cert_forget">Olvidar</string>
+    <string name="romm_cert_trust">Confiar</string>
+    <string name="romm_cert_trusted">Certificado de confianza para este servidor</string>
+    <string name="romm_cert_forgotten">Certificado olvidado; vuelven a aplicarse las reglas del sistema</string>
+    <string name="romm_cert_not_https">Esta dirección no usa HTTPS</string>
+    <string name="romm_cert_unreachable">No se pudo leer un certificado del servidor</string>
+    <string name="romm_cert_system_trusted">Android ya confía en este certificado</string>
+    <string name="romm_cert_dialog_title">¿Confiar en este servidor?</string>
+    <string name="romm_cert_dialog_message">Android no confía en el certificado de %1$s (autofirmado o de tu propia autoridad). Continúa solo si esta huella es la de TU servidor:</string>
+    <string name="romm_cert_dialog_details">%1$s · válido hasta %2$s</string>
+    <string name="romm_mark_games">Marcar juegos en RomM</string>
+    <string name="romm_mark_games_hint">Una etiqueta RomM en la biblioteca para los juegos que el servidor ya tiene</string>
+    <string name="romm_marks">Juegos en RomM</string>
+    <string name="romm_marks_refresh">Actualizar</string>
+    <string name="romm_marks_refreshing">Leyendo el servidor…</string>
+    <string name="romm_marks_known">%1$d juegos conocidos · leído %2$s</string>
+    <string name="romm_marks_never">Aún no leído — asocia primero las consolas de abajo</string>
+    <string name="romm_marks_error">No se pudo leer el servidor: %1$s</string>
+    <string name="romm_covers">Carátulas para ES-DE</string>
+    <string name="romm_covers_hint">Descarga las carátulas de RomM para los juegos de este dispositivo que ES-DE muestra sin ella</string>
+    <string name="romm_covers_action">Descargar</string>
+    <string name="romm_covers_busy">Trabajando…</string>
+    <string name="romm_covers_running">%1$d de %2$d carátulas</string>
+    <string name="romm_covers_needs_esde">Configura primero ES-DE (Ajustes → ES-DE)</string>
+    <string name="romm_covers_needs_platforms">Asocia primero las consolas a plataformas de RomM</string>
+    <string name="romm_covers_not_writable">La carpeta de ES-DE no se puede escribir; elígela de nuevo</string>
+    <string name="romm_covers_failed">Falló la descarga de carátulas</string>
+    <string name="romm_covers_some_failed">%1$d fallaron</string>
+    <string name="save_sync_deletions">Sincronizar eliminaciones</string>
+    <string name="save_sync_deletions_hint">Una partida borrada en un lado se borra también en el otro; una partida cambiada nunca se borra</string>
+    <string name="save_sync_bg">Sincronizar en segundo plano</string>
+    <string name="save_sync_bg_hint">Cada pocas horas sin abrir la app; recibes un aviso cuando una partida necesita tu decisión</string>
+    <string name="save_sync_bg_interval">Intervalo en segundo plano</string>
+    <string name="save_sync_hours_short">%1$d h</string>
+    <string name="save_sync_bg_wifi">Solo con Wi-Fi</string>
+    <string name="save_sync_bg_charging">Solo mientras carga</string>
+    <string name="save_sync_held_hint">Es más de lo habitual — revisa tus carpetas y luego aplícalo</string>
+    <string name="save_sync_held_apply">Aplicar</string>
+    <string name="save_sync_summary_deleted">eliminadas: %1$d aquí, %2$d en RomM</string>
+    <string name="save_sync_newer_device">La copia del dispositivo parece más reciente</string>
+    <string name="save_sync_newer_server">La copia de RomM parece más reciente</string>
+    <string name="save_sync_newer_same">Ambas cambiaron casi a la vez</string>
+    <string name="save_sync_size_same">mismo tamaño</string>
+    <string name="save_sync_size_smaller">la copia de RomM es %1$s más pequeña</string>
+    <string name="save_sync_size_bigger">la copia de RomM es %1$s más grande</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d partida cambió en ambos lados — abre Dogmatix para elegir</item>
         <item quantity="other">%d partidas cambiaron en ambos lados — abre Dogmatix para elegir</item>
@@ -650,6 +703,26 @@
     <plurals name="downloads_waiting">
         <item quantity="one">%1$d descarga en espera · %2$s</item>
         <item quantity="other">%1$d descargas en espera · %2$s</item>
+    </plurals>
+    <plurals name="duplicates_suggest">
+        <item quantity="one">Limpieza sugerida: quitar %1$d copia, liberando %2$s</item>
+        <item quantity="other">Limpieza sugerida: quitar %1$d copias, liberando %2$s</item>
+    </plurals>
+    <plurals name="duplicates_suggest_confirm">
+        <item quantity="one">Se borrará %1$d copia (%2$s); la mejor copia de cada juego se queda:</item>
+        <item quantity="other">Se borrarán %1$d copias (%2$s); la mejor copia de cada juego se queda:</item>
+    </plurals>
+    <plurals name="duplicates_suggest_done">
+        <item quantity="one">%1$d copia quitada</item>
+        <item quantity="other">%1$d copias quitadas</item>
+    </plurals>
+    <plurals name="romm_covers_done">
+        <item quantity="one">%1$d carátula añadida</item>
+        <item quantity="other">%1$d carátulas añadidas</item>
+    </plurals>
+    <plurals name="save_sync_held_title">
+        <item quantity="one">%1$d eliminación retenida</item>
+        <item quantity="other">%1$d eliminaciones retenidas</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

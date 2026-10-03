@@ -43,6 +43,9 @@ import com.cortinadev.dogmatix.ui.screens.settings.ThemedSwitch
 import com.cortinadev.dogmatix.ui.screens.settings.components.ApiKeyDialog
 import com.cortinadev.dogmatix.ui.screens.settings.components.maskedSecret
 import com.cortinadev.dogmatix.util.ConsoleFormatter
+import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
+import com.cortinadev.dogmatix.util.CertTrust
+import com.cortinadev.dogmatix.data.service.CoverRunState
 
 /**
  * RomM server settings: URL, token, auto-upload and one stepper per console to pick the RomM
@@ -83,7 +86,15 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
         )
     }
 
+    val libraryState by viewModel.libraryState.collectAsState()
+    val coverState by viewModel.coverState.collectAsState()
+    val trustPrompt by viewModel.trustPrompt.collectAsState()
+    trustPrompt?.let { prompt ->
+        TrustCertificateDialog(prompt, onTrust = { viewModel.confirmTrust(context) }, onDismiss = viewModel::dismissTrustPrompt)
+    }
+
     val notMapped = stringResource(R.string.romm_not_mapped)
+    var headerIndex = 0
     val rows: List<@Composable () -> Unit> = buildList {
         add {
             SettingRow(title = stringResource(R.string.romm_server_url), hint = ui.url.ifBlank { stringResource(R.string.settings_not_set) }, onClick = { showUrlDialog = true }) {
@@ -114,6 +125,52 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                 ThemedSwitch(ui.autoUpload) { viewModel.setAutoUpload(context, it) }
             }
         }
+        if (ui.url.startsWith("https://", ignoreCase = true)) add {
+            val pinned = ui.trustFingerprint.isNotBlank()
+            SettingRow(
+                title = stringResource(R.string.romm_cert),
+                hint = if (pinned) stringResource(R.string.romm_cert_trusted_hint, CertTrust.format(ui.trustFingerprint).take(23) + "…") else stringResource(R.string.romm_cert_hint),
+                onClick = { if (pinned) viewModel.forgetTrust(context) else viewModel.checkCertificate(context, ui.url) }
+            ) {
+                PillButton(stringResource(if (pinned) R.string.romm_cert_forget else R.string.romm_cert_check)) {
+                    if (pinned) viewModel.forgetTrust(context) else viewModel.checkCertificate(context, ui.url)
+                }
+            }
+        }
+        add {
+            SettingRow(
+                title = stringResource(R.string.romm_mark_games),
+                hint = stringResource(R.string.romm_mark_games_hint),
+                onClick = { viewModel.setMarkGames(context, !ui.markGames) },
+                onAdjust = { viewModel.setMarkGames(context, it > 0) }
+            ) { ThemedSwitch(ui.markGames) { viewModel.setMarkGames(context, it) } }
+        }
+        if (ui.markGames) add {
+            val hint = when {
+                libraryState.refreshing -> stringResource(R.string.romm_marks_refreshing)
+                libraryState.error != null -> stringResource(R.string.romm_marks_error, libraryState.error ?: "")
+                libraryState.updatedAt > 0 -> stringResource(R.string.romm_marks_known, libraryState.games, android.text.format.DateUtils.getRelativeTimeSpanString(libraryState.updatedAt).toString())
+                else -> stringResource(R.string.romm_marks_never)
+            }
+            SettingRow(title = stringResource(R.string.romm_marks), hint = hint, onClick = viewModel::refreshMarks) {
+                PillButton(stringResource(R.string.romm_marks_refresh), viewModel::refreshMarks)
+            }
+        }
+        add {
+            val hint = when {
+                coverState.running -> stringResource(R.string.romm_covers_running, coverState.done, coverState.total)
+                coverState.problem == CoverRunState.Problem.NO_ESDE_FOLDER || (coverState.problem == null && coverState.fetched == null && ui.esdeDirectory.isBlank()) -> stringResource(R.string.romm_covers_needs_esde)
+                coverState.problem == CoverRunState.Problem.NO_PLATFORMS -> stringResource(R.string.romm_covers_needs_platforms)
+                coverState.problem == CoverRunState.Problem.ESDE_NOT_WRITABLE -> stringResource(R.string.romm_covers_not_writable)
+                coverState.problem == CoverRunState.Problem.FAILED -> stringResource(R.string.romm_covers_failed)
+                coverState.fetched != null -> androidx.compose.ui.res.pluralStringResource(R.plurals.romm_covers_done, coverState.fetched ?: 0, coverState.fetched ?: 0) + if (coverState.failed > 0) " · " + stringResource(R.string.romm_covers_some_failed, coverState.failed) else ""
+                else -> stringResource(R.string.romm_covers_hint)
+            }
+            SettingRow(title = stringResource(R.string.romm_covers), hint = hint, onClick = viewModel::startCovers) {
+                PillButton(stringResource(if (coverState.running) R.string.romm_covers_busy else R.string.romm_covers_action), viewModel::startCovers)
+            }
+        }
+        headerIndex = size
         add {
             SettingRow(
                 title = stringResource(R.string.romm_platforms_header),
@@ -159,9 +216,9 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
     val rowFocus = remember(rows.size) { List(rows.size) { FocusRequester() } }
     var focusedIndex by remember { mutableStateOf(-1) }
     fun columnOf(index: Int) = when {
-        index < HEADER_INDEX -> index % 2
-        index == HEADER_INDEX -> -1
-        else -> (index - HEADER_INDEX - 1) % 2
+        index < headerIndex -> index % 2
+        index == headerIndex -> -1
+        else -> (index - headerIndex - 1) % 2
     }
     LaunchedEffect(isLandscape, rows.size) {
         if (!isLandscape) return@LaunchedEffect
@@ -201,7 +258,7 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
             contentPadding = PaddingValues(bottom = 12.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            items(rows.size, span = { index -> GridItemSpan(if (index == HEADER_INDEX) columns else 1) }) { index ->
+            items(rows.size, span = { index -> GridItemSpan(if (index == headerIndex) columns else 1) }) { index ->
                 Box(
                     modifier = Modifier
                         .focusRequester(rowFocus[index])
@@ -212,5 +269,23 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
     }
 }
 
-/** Grid index of the full-width "Console → platform" header (after URL, token, test, upload). */
-private const val HEADER_INDEX = 4
+@androidx.compose.runtime.Composable
+private fun TrustCertificateDialog(prompt: TrustPrompt, onTrust: () -> Unit, onDismiss: () -> Unit) {
+    val cert = prompt.certificate
+    val until = java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(java.util.Date(cert.validUntil))
+    val cancelFocus = com.cortinadev.dogmatix.ui.components.rememberInitialFocus()
+    androidx.compose.material3.AlertDialog(
+        modifier = Modifier.closeOnGamepadB(onDismiss),
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.romm_cert_dialog_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.romm_cert_dialog_message, prompt.url))
+                Text(CertTrust.format(cert.fingerprint), style = MaterialTheme.typography.bodySmall, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
+                Text(stringResource(R.string.romm_cert_dialog_details, cert.subject, until), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        },
+        confirmButton = { com.cortinadev.dogmatix.ui.components.DialogButton(text = stringResource(R.string.romm_cert_trust), onClick = onTrust) },
+        dismissButton = { com.cortinadev.dogmatix.ui.components.DialogButton(text = stringResource(R.string.dialog_cancel), onClick = onDismiss, initialFocus = cancelFocus) }
+    )
+}

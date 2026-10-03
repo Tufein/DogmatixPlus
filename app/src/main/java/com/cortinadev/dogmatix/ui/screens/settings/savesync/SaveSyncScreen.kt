@@ -39,6 +39,20 @@ import com.cortinadev.dogmatix.ui.components.formatBytes
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.ui.screens.settings.SettingRow
 import com.cortinadev.dogmatix.ui.screens.settings.ThemedSwitch
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.core.content.ContextCompat
+import com.cortinadev.dogmatix.ui.components.Stepper
+import com.cortinadev.dogmatix.ui.screens.tools.ToolRow
+import com.cortinadev.dogmatix.util.BackgroundSyncPolicy
+import com.cortinadev.dogmatix.util.NewerSide
+import com.cortinadev.dogmatix.util.SaveConflictInfo
 import com.cortinadev.dogmatix.util.SaveKind
 import com.cortinadev.dogmatix.util.SaveSyncPlanner
 
@@ -62,6 +76,16 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
     val statesPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let { persist(it); viewModel.setStatesDir(context, it.toString()) }
     }
+
+    // Android 13+ asks before an app may show notifications; the background sync needs them for conflicts.
+    val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    fun setBackground(on: Boolean) {
+        viewModel.setBackground(context, on)
+        if (on && Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
+    fun adjustInterval(delta: Int) = viewModel.setInterval(context, BackgroundSyncPolicy.cycle(ui.intervalHours, delta))
 
     val notSet = stringResource(R.string.settings_not_set)
     val ready = ui.rommUrl.isNotBlank() && (ui.savesDir.isNotBlank() || ui.statesDir.isNotBlank())
@@ -89,6 +113,46 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
             ) { ThemedSwitch(ui.auto) { viewModel.setAuto(context, it) } }
         }
         add {
+            SettingRow(
+                title = stringResource(R.string.save_sync_deletions),
+                hint = stringResource(R.string.save_sync_deletions_hint),
+                onClick = { viewModel.setDeletions(context, !ui.deletions) },
+                onAdjust = { viewModel.setDeletions(context, it > 0) }
+            ) { ThemedSwitch(ui.deletions) { viewModel.setDeletions(context, it) } }
+        }
+        add {
+            SettingRow(
+                title = stringResource(R.string.save_sync_bg),
+                hint = stringResource(R.string.save_sync_bg_hint),
+                onClick = { setBackground(!ui.background) },
+                onAdjust = { setBackground(it > 0) }
+            ) { ThemedSwitch(ui.background) { setBackground(it) } }
+        }
+        if (ui.background) {
+            add {
+                SettingRow(
+                    title = stringResource(R.string.save_sync_bg_interval),
+                    hint = null,
+                    onClick = { adjustInterval(1) },
+                    onAdjust = ::adjustInterval
+                ) {
+                    Stepper(stringResource(R.string.save_sync_hours_short, ui.intervalHours), onDecrement = { adjustInterval(-1) }, onIncrement = { adjustInterval(1) }, valueWidth = 64.dp)
+                }
+            }
+            add {
+                SettingRow(
+                    title = stringResource(R.string.save_sync_bg_wifi), hint = null,
+                    onClick = { viewModel.setWifiOnly(context, !ui.wifiOnly) }, onAdjust = { viewModel.setWifiOnly(context, it > 0) }
+                ) { ThemedSwitch(ui.wifiOnly) { viewModel.setWifiOnly(context, it) } }
+            }
+            add {
+                SettingRow(
+                    title = stringResource(R.string.save_sync_bg_charging), hint = null,
+                    onClick = { viewModel.setCharging(context, !ui.charging) }, onAdjust = { viewModel.setCharging(context, it > 0) }
+                ) { ThemedSwitch(ui.charging) { viewModel.setCharging(context, it) } }
+            }
+        }
+        add {
             val hint = when {
                 ui.rommUrl.isBlank() -> stringResource(R.string.save_sync_needs_romm)
                 !ready -> stringResource(R.string.save_sync_needs_folder)
@@ -105,6 +169,15 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
                 PillButton(stringResource(if (sync.running) R.string.save_sync_busy else R.string.save_sync_action)) {
                     if (ready) viewModel.syncNow()
                 }
+            }
+        }
+        sync.last?.takeIf { it.deletionsHeld > 0 }?.let { held ->
+            add {
+                SettingRow(
+                    title = androidx.compose.ui.res.pluralStringResource(R.plurals.save_sync_held_title, held.deletionsHeld, held.deletionsHeld),
+                    hint = stringResource(R.string.save_sync_held_hint),
+                    onClick = viewModel::applyHeldDeletions
+                ) { PillButton(stringResource(R.string.save_sync_held_apply), viewModel::applyHeldDeletions) }
             }
         }
         sync.last?.errors?.forEach { error ->
@@ -158,22 +231,33 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
 
 @Composable
 private fun ConflictRow(conflict: SaveConflict, notSet: String, viewModel: SaveSyncViewModel) {
-    val device = stringResource(
-        R.string.save_sync_side,
-        formatBytes(conflict.local.size),
-        relative(conflict.local.modified) ?: notSet
-    )
-    val server = stringResource(
-        R.string.save_sync_side,
-        formatBytes(conflict.remote.size),
-        relative(SaveSyncPlanner.epochMillis(conflict.remote.updatedAt)) ?: notSet
-    )
+    val info = SaveConflictInfo.of(conflict)
+    val device = stringResource(R.string.save_sync_side, formatBytes(info.deviceSize), relative(info.deviceModified) ?: notSet)
+    val server = stringResource(R.string.save_sync_side, formatBytes(info.serverSize), relative(info.serverModified) ?: notSet)
     val kind = stringResource(if (conflict.local.kind == SaveKind.STATE) R.string.save_sync_kind_state else R.string.save_sync_kind_save)
-    SettingRow(
+    val newer = when (info.newer) {
+        NewerSide.DEVICE -> stringResource(R.string.save_sync_newer_device)
+        NewerSide.SERVER -> stringResource(R.string.save_sync_newer_server)
+        NewerSide.SAME -> stringResource(R.string.save_sync_newer_same)
+        NewerSide.UNKNOWN -> null
+    }
+    val size = when {
+        info.sameSize -> stringResource(R.string.save_sync_size_same)
+        info.sizeDelta < 0 -> stringResource(R.string.save_sync_size_smaller, formatBytes(-info.sizeDelta))
+        else -> stringResource(R.string.save_sync_size_bigger, formatBytes(info.sizeDelta))
+    }
+    ToolRow(
         title = "$kind · ${conflict.local.path}",
-        hint = stringResource(R.string.save_sync_conflict_hint, device, server),
+        lines = listOf(stringResource(R.string.save_sync_conflict_hint, device, server), listOfNotNull(newer, size).joinToString(" · ")),
         onClick = {},
-        onAdjust = { viewModel.resolve(conflict, keepDevice = it < 0) }
+        modifier = Modifier.onPreviewKeyEvent { event ->
+            if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+            when (event.key) {
+                Key.DirectionLeft -> { viewModel.resolve(conflict, keepDevice = true); true }
+                Key.DirectionRight -> { viewModel.resolve(conflict, keepDevice = false); true }
+                else -> false
+            }
+        }
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             PillButton(stringResource(R.string.save_sync_keep_device)) { viewModel.resolve(conflict, keepDevice = true) }
@@ -189,12 +273,13 @@ private fun summary(result: SaveSyncResult): String {
         if (result.conflicts > 0) add(stringResource(R.string.save_sync_summary_conflicts, result.conflicts))
         if (result.notMatched > 0) add(stringResource(R.string.save_sync_summary_not_matched, result.notMatched))
         if (result.failed > 0) add(stringResource(R.string.save_sync_summary_failed, result.failed))
+        if (result.deletedOnDevice + result.deletedOnServer > 0) add(stringResource(R.string.save_sync_summary_deleted, result.deletedOnDevice, result.deletedOnServer))
         relative(result.finishedAt)?.let { add(it) }
     }
     return parts.joinToString(" · ")
 }
 
-private fun relative(millis: Long?): String? =
+internal fun relative(millis: Long?): String? =
     millis?.takeIf { it > 0 }?.let { DateUtils.getRelativeTimeSpanString(it, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString() }
 
 /** `content://…/tree/primary%3ARetroArch%2Fsaves` → `RetroArch/saves`; null when nothing is picked. */

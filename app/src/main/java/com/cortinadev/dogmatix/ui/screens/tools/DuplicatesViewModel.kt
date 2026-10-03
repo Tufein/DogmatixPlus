@@ -9,6 +9,9 @@ import com.cortinadev.dogmatix.data.service.LibraryScanService
 import com.cortinadev.dogmatix.util.DuplicateFinder
 import com.cortinadev.dogmatix.util.DuplicateGroup
 import com.cortinadev.dogmatix.util.GameEntry
+import com.cortinadev.dogmatix.util.KeepSuggester
+import com.cortinadev.dogmatix.util.KeepSuggestion
+import com.cortinadev.dogmatix.util.VersionPicker
 import com.cortinadev.dogmatix.util.ToastUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -25,9 +28,13 @@ data class DuplicatesUiState(
     val scanning: Boolean = true,
     val folderSet: Boolean = true,
     val filesChecked: Int = 0,
-    val groups: List<DuplicateGroup> = emptyList()
+    val groups: List<DuplicateGroup> = emptyList(),
+    /** Which copy of each group to keep, by the user's regions and languages; groups without a clear winner are left out. */
+    val suggestions: List<KeepSuggestion> = emptyList()
 ) {
     val reclaimable: Long get() = groups.sumOf { it.reclaimable }
+    val suggestedCopies: Int get() = suggestions.sumOf { it.remove.size }
+    val suggestedBytes: Long get() = suggestions.sumOf { it.reclaimable }
 }
 
 @HiltViewModel
@@ -58,11 +65,13 @@ class DuplicatesViewModel @Inject constructor(
                 null
             }
             val files = snapshot?.files.orEmpty()
+            val groups = DuplicateFinder.find(files)
             _uiState.value = DuplicatesUiState(
                 scanning = false,
                 folderSet = folderSet,
                 filesChecked = files.count { DuplicateFinder.isGameFile(it) },
-                groups = DuplicateFinder.find(files)
+                groups = groups,
+                suggestions = suggest(groups)
             )
         }
     }
@@ -78,7 +87,7 @@ class DuplicatesViewModel @Inject constructor(
         val appContext = context.applicationContext
         val failed = context.getString(R.string.duplicates_delete_failed, entry.baseName)
         val deleted = context.getString(R.string.duplicates_deleted, entry.baseName)
-        _uiState.update { state -> state.copy(groups = state.groups.without(entry)) }
+        _uiState.update { state -> state.without(entry) }
         viewModelScope.launch {
             val removed = try {
                 scanService.delete(entry)
@@ -94,6 +103,38 @@ class DuplicatesViewModel @Inject constructor(
             }
             ToastUtil.showSuccess(appContext, deleted)
             _uiState.update { it.copy(filesChecked = (it.filesChecked - removed).coerceAtLeast(0)) }
+        }
+    }
+
+    private suspend fun suggest(groups: List<DuplicateGroup>): List<KeepSuggestion> {
+        val languages = settingsRepository.favoriteLanguages.first()
+        return KeepSuggester.suggest(groups, VersionPicker.regionPreference(languages), languages)
+    }
+
+    private fun DuplicatesUiState.without(entry: GameEntry): DuplicatesUiState {
+        val left = groups.without(entry)
+        val keptIds = left.flatMap { g -> g.entries.map { it.id } }.toSet()
+        // A suggestion stays valid while its keeper and the copies still listed are there.
+        val suggestions = suggestions.mapNotNull { s ->
+            val remove = s.remove.filter { it.id in keptIds }
+            if (s.keep.id in keptIds && remove.isNotEmpty()) s.copy(remove = remove) else null
+        }
+        return copy(groups = left, suggestions = suggestions)
+    }
+
+    /** Deletes every copy the suggestions mark for removal; one toast with the result, then the list is read again. */
+    fun removeSuggested(context: Context) {
+        val app = context.applicationContext
+        val targets = _uiState.value.suggestions.flatMap { it.remove }
+        if (targets.isEmpty()) return
+        _uiState.update { state -> targets.fold(state) { acc, entry -> acc.without(entry) } }
+        viewModelScope.launch {
+            var removed = 0
+            targets.forEach { entry ->
+                try { if (scanService.delete(entry) > 0) removed++ } catch (e: CancellationException) { throw e } catch (_: Exception) { }
+            }
+            ToastUtil.showSuccess(app, app.resources.getQuantityString(R.plurals.duplicates_suggest_done, removed, removed))
+            rescan()
         }
     }
 

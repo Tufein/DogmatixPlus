@@ -633,6 +633,59 @@
     <string name="verify_ok">✓ controlegetal klopt</string>
     <string name="verify_mismatch">⚠ controlegetal wijkt af — probeer de download opnieuw</string>
     <string name="verify_checking">wordt gecontroleerd…</string>
+    <string name="duplicates_suggest_hint">Houdt van elke game de beste kopie (jouw regio en taal, geen demo\'s); je ziet eerst elk bestand</string>
+    <string name="duplicates_suggest_action">Bekijk</string>
+    <string name="duplicates_suggest_confirm_title">De voorgestelde kopieën verwijderen?</string>
+    <string name="duplicates_keep">Houden</string>
+    <string name="romm_cert">Servercertificaat</string>
+    <string name="romm_cert_hint">Voor een thuisserver met een zelfgemaakt certificaat: controleer het één keer en vertrouw het</string>
+    <string name="romm_cert_trusted_hint">Vertrouwd: %1$s</string>
+    <string name="romm_cert_check">Controleer</string>
+    <string name="romm_cert_forget">Vergeet</string>
+    <string name="romm_cert_trust">Vertrouw</string>
+    <string name="romm_cert_trusted">Certificaat vertrouwd voor deze server</string>
+    <string name="romm_cert_forgotten">Certificaat vergeten; de systeemregels gelden weer</string>
+    <string name="romm_cert_not_https">Dit adres gebruikt geen HTTPS</string>
+    <string name="romm_cert_unreachable">Kon geen certificaat van de server lezen</string>
+    <string name="romm_cert_system_trusted">Dit certificaat wordt al door Android vertrouwd</string>
+    <string name="romm_cert_dialog_title">Deze server vertrouwen?</string>
+    <string name="romm_cert_dialog_message">Android vertrouwt het certificaat van %1$s niet (zelfgemaakt of van je eigen instantie). Ga alleen verder als deze vingerafdruk die van JOUW server is:</string>
+    <string name="romm_cert_dialog_details">%1$s · geldig tot %2$s</string>
+    <string name="romm_mark_games">Games op RomM markeren</string>
+    <string name="romm_mark_games_hint">Een RomM-label in de bibliotheek bij games die de server al heeft</string>
+    <string name="romm_marks">Games op RomM</string>
+    <string name="romm_marks_refresh">Ververs</string>
+    <string name="romm_marks_refreshing">De server wordt gelezen…</string>
+    <string name="romm_marks_known">%1$d games bekend · gelezen %2$s</string>
+    <string name="romm_marks_never">Nog niet gelezen — koppel eerst de consoles hieronder</string>
+    <string name="romm_marks_error">De server kon niet worden gelezen: %1$s</string>
+    <string name="romm_covers">Covers voor ES-DE</string>
+    <string name="romm_covers_hint">Haalt de covers van RomM op voor games op dit toestel die ES-DE zonder toont</string>
+    <string name="romm_covers_action">Ophalen</string>
+    <string name="romm_covers_busy">Bezig…</string>
+    <string name="romm_covers_running">%1$d van %2$d covers</string>
+    <string name="romm_covers_needs_esde">Stel eerst ES-DE in (Instellingen → ES-DE)</string>
+    <string name="romm_covers_needs_platforms">Koppel eerst de consoles aan RomM-platforms</string>
+    <string name="romm_covers_not_writable">De ES-DE-map is niet beschrijfbaar; kies hem opnieuw</string>
+    <string name="romm_covers_failed">Covers ophalen is mislukt</string>
+    <string name="romm_covers_some_failed">%1$d mislukt</string>
+    <string name="save_sync_deletions">Verwijderingen synchroniseren</string>
+    <string name="save_sync_deletions_hint">Een save die je aan één kant verwijdert, gaat ook aan de andere kant weg; een gewijzigde save nooit</string>
+    <string name="save_sync_bg">Op de achtergrond synchroniseren</string>
+    <string name="save_sync_bg_hint">Elke paar uur zonder de app te openen; je krijgt een melding als je moet kiezen bij een save</string>
+    <string name="save_sync_bg_interval">Interval op de achtergrond</string>
+    <string name="save_sync_hours_short">%1$d u</string>
+    <string name="save_sync_bg_wifi">Alleen op wifi</string>
+    <string name="save_sync_bg_charging">Alleen tijdens het opladen</string>
+    <string name="save_sync_held_hint">Dat is meer dan gebruikelijk — controleer je mappen en pas het dan toe</string>
+    <string name="save_sync_held_apply">Toepassen</string>
+    <string name="save_sync_summary_deleted">verwijderd: %1$d hier, %2$d op RomM</string>
+    <string name="save_sync_newer_device">De kopie op het toestel lijkt nieuwer</string>
+    <string name="save_sync_newer_server">De kopie op RomM lijkt nieuwer</string>
+    <string name="save_sync_newer_same">Beide zijn rond hetzelfde moment gewijzigd</string>
+    <string name="save_sync_size_same">zelfde grootte</string>
+    <string name="save_sync_size_smaller">de kopie op RomM is %1$s kleiner</string>
+    <string name="save_sync_size_bigger">de kopie op RomM is %1$s groter</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save is op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
         <item quantity="other">%d saves zijn op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
@@ -676,6 +729,26 @@
     <plurals name="downloads_waiting">
         <item quantity="one">%1$d download wacht · %2$s</item>
         <item quantity="other">%1$d downloads wachten · %2$s</item>
+    </plurals>
+    <plurals name="duplicates_suggest">
+        <item quantity="one">Voorgestelde opruiming: %1$d kopie verwijderen, %2$s vrij</item>
+        <item quantity="other">Voorgestelde opruiming: %1$d kopieën verwijderen, %2$s vrij</item>
+    </plurals>
+    <plurals name="duplicates_suggest_confirm">
+        <item quantity="one">%1$d kopie (%2$s) wordt verwijderd; de beste kopie van elke game blijft:</item>
+        <item quantity="other">%1$d kopieën (%2$s) worden verwijderd; de beste kopie van elke game blijft:</item>
+    </plurals>
+    <plurals name="duplicates_suggest_done">
+        <item quantity="one">%1$d kopie verwijderd</item>
+        <item quantity="other">%1$d kopieën verwijderd</item>
+    </plurals>
+    <plurals name="romm_covers_done">
+        <item quantity="one">%1$d cover toegevoegd</item>
+        <item quantity="other">%1$d covers toegevoegd</item>
+    </plurals>
+    <plurals name="save_sync_held_title">
+        <item quantity="one">%1$d verwijdering tegengehouden</item>
+        <item quantity="other">%1$d verwijderingen tegengehouden</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

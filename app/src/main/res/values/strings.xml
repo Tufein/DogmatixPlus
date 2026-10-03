@@ -634,6 +634,59 @@
     <string name="verify_ok">✓ checksum verified</string>
     <string name="verify_mismatch">⚠ checksum differs — retry the download</string>
     <string name="verify_checking">checking…</string>
+    <string name="duplicates_suggest_hint">Keeps the best copy of each game (your region and language, no demos); you see every file first</string>
+    <string name="duplicates_suggest_action">Review</string>
+    <string name="duplicates_suggest_confirm_title">Remove the suggested copies?</string>
+    <string name="duplicates_keep">Keep</string>
+    <string name="romm_cert">Server certificate</string>
+    <string name="romm_cert_hint">For a home server with a self-signed certificate: check it once and trust it</string>
+    <string name="romm_cert_trusted_hint">Trusted: %1$s</string>
+    <string name="romm_cert_check">Check</string>
+    <string name="romm_cert_forget">Forget</string>
+    <string name="romm_cert_trust">Trust</string>
+    <string name="romm_cert_trusted">Certificate trusted for this server</string>
+    <string name="romm_cert_forgotten">Certificate forgotten; the system rules apply again</string>
+    <string name="romm_cert_not_https">This address does not use HTTPS</string>
+    <string name="romm_cert_unreachable">Could not read a certificate from the server</string>
+    <string name="romm_cert_system_trusted">This certificate is trusted by Android already</string>
+    <string name="romm_cert_dialog_title">Trust this server?</string>
+    <string name="romm_cert_dialog_message">Android does not trust the certificate of %1$s (self-signed, or from your own authority). Only continue when this fingerprint is the one of YOUR server:</string>
+    <string name="romm_cert_dialog_details">%1$s · valid until %2$s</string>
+    <string name="romm_mark_games">Mark games on RomM</string>
+    <string name="romm_mark_games_hint">A RomM tag in the library for games the server already has</string>
+    <string name="romm_marks">Games on RomM</string>
+    <string name="romm_marks_refresh">Refresh</string>
+    <string name="romm_marks_refreshing">Reading the server…</string>
+    <string name="romm_marks_known">%1$d games known · read %2$s</string>
+    <string name="romm_marks_never">Not read yet — map the consoles below first</string>
+    <string name="romm_marks_error">Could not read the server: %1$s</string>
+    <string name="romm_covers">Covers for ES-DE</string>
+    <string name="romm_covers_hint">Fetches RomM\'s cover art for games on this device that ES-DE shows without one</string>
+    <string name="romm_covers_action">Fetch</string>
+    <string name="romm_covers_busy">Working…</string>
+    <string name="romm_covers_running">%1$d of %2$d covers</string>
+    <string name="romm_covers_needs_esde">Set up ES-DE first (Settings → ES-DE)</string>
+    <string name="romm_covers_needs_platforms">Map the consoles to RomM platforms first</string>
+    <string name="romm_covers_not_writable">The ES-DE folder cannot be written; pick it again</string>
+    <string name="romm_covers_failed">Fetching covers failed</string>
+    <string name="romm_covers_some_failed">%1$d failed</string>
+    <string name="save_sync_deletions">Sync deletions</string>
+    <string name="save_sync_deletions_hint">A save you delete on one side is deleted on the other too; a changed save is never deleted</string>
+    <string name="save_sync_bg">Sync in the background</string>
+    <string name="save_sync_bg_hint">Every few hours without opening the app; you get a notification when a save needs your choice</string>
+    <string name="save_sync_bg_interval">Background interval</string>
+    <string name="save_sync_hours_short">%1$d h</string>
+    <string name="save_sync_bg_wifi">Only on Wi-Fi</string>
+    <string name="save_sync_bg_charging">Only while charging</string>
+    <string name="save_sync_held_hint">That is more than usual — check your folders, then apply</string>
+    <string name="save_sync_held_apply">Apply</string>
+    <string name="save_sync_summary_deleted">removed: %1$d here, %2$d on RomM</string>
+    <string name="save_sync_newer_device">The device copy looks newer</string>
+    <string name="save_sync_newer_server">The RomM copy looks newer</string>
+    <string name="save_sync_newer_same">Both changed at about the same time</string>
+    <string name="save_sync_size_same">same size</string>
+    <string name="save_sync_size_smaller">the RomM copy is %1$s smaller</string>
+    <string name="save_sync_size_bigger">the RomM copy is %1$s bigger</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save changed on both sides — open Dogmatix to choose</item>
         <item quantity="other">%d saves changed on both sides — open Dogmatix to choose</item>
@@ -677,6 +730,26 @@
     <plurals name="downloads_waiting">
         <item quantity="one">%1$d download is waiting · %2$s</item>
         <item quantity="other">%1$d downloads are waiting · %2$s</item>
+    </plurals>
+    <plurals name="duplicates_suggest">
+        <item quantity="one">Suggested clean-up: remove %1$d copy, freeing %2$s</item>
+        <item quantity="other">Suggested clean-up: remove %1$d copies, freeing %2$s</item>
+    </plurals>
+    <plurals name="duplicates_suggest_confirm">
+        <item quantity="one">%1$d copy (%2$s) will be deleted; the best copy of each game stays:</item>
+        <item quantity="other">%1$d copies (%2$s) will be deleted; the best copy of each game stays:</item>
+    </plurals>
+    <plurals name="duplicates_suggest_done">
+        <item quantity="one">%1$d copy removed</item>
+        <item quantity="other">%1$d copies removed</item>
+    </plurals>
+    <plurals name="romm_covers_done">
+        <item quantity="one">%1$d cover added</item>
+        <item quantity="other">%1$d covers added</item>
+    </plurals>
+    <plurals name="save_sync_held_title">
+        <item quantity="one">%1$d deletion held back</item>
+        <item quantity="other">%1$d deletions held back</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>
