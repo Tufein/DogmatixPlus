@@ -41,6 +41,10 @@ class DogmatixApplication : Application() {
     @Inject
     lateinit var saveSyncScheduler: com.cortinadev.dogmatix.data.service.SaveSyncScheduler
 
+    /** Injected so finished scans are checked against the wishlist from the start. */
+    @Inject
+    lateinit var wishlistRepository: com.cortinadev.dogmatix.data.repository.WishlistRepository
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
     override fun onCreate() {

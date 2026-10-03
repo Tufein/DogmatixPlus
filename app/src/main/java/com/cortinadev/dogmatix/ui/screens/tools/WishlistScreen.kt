@@ -93,8 +93,17 @@ fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = 
     val ui by viewModel.ui.collectAsState()
     val context = LocalContext.current
     var showAdd by remember { mutableStateOf(false) }
+    // Android 13+ asks before the "a wanted game turned up" notification may be shown.
+    val notificationPermission = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { }
     if (showAdd) {
-        AddWishDialog(ui.consoles, onAdd = { title, console -> viewModel.viewModelScopeAdd(context, title, console) }, onDismiss = { showAdd = false })
+        AddWishDialog(ui.consoles, onAdd = { title, console ->
+            viewModel.viewModelScopeAdd(context, title, console)
+            if (android.os.Build.VERSION.SDK_INT >= 33 &&
+                androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }, onDismiss = { showAdd = false })
     }
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) {

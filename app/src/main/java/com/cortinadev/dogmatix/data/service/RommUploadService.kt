@@ -220,7 +220,12 @@ class RommUploadService @Inject constructor(
     }
 
     private fun loadSessions() {
-        runCatching { if (sessionFile.exists()) UploadSessions.decode(sessionFile.readText()).forEach { sessions[it.key] = it } }
+        runCatching {
+            if (!sessionFile.exists()) return@runCatching
+            // A server drops half-finished uploads after a while: older sessions are of no use.
+            val now = System.currentTimeMillis()
+            UploadSessions.decode(sessionFile.readText()).filter { now - it.updatedAt <= UploadSessions.MAX_AGE_MS }.forEach { sessions[it.key] = it }
+        }
     }
 
     private fun saveSessions() {
