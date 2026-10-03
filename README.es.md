@@ -56,6 +56,8 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 - **Almacenamiento**: espacio por consola, tus juegos más grandes y si las descargas en cola todavía caben.
 - **Lista de deseos**: apunta los juegos que quieres; te avisamos cuando uno aparece en tus fuentes.
 - **Exporta** tu colección como hoja de cálculo (CSV) o página web. El buscador de duplicados también puede **sugerir qué copia conservar**.
+- **Explorador de archivos** *(1.3)*: mira dentro de tus carpetas, tamaños y qué archivos cuentan como juegos, comprueba discos, abre o borra archivos.
+- **Informe de escaneo** *(1.3)*: tras un escaneo, un resumen de las fuentes que fallaron y por qué, con *Escanear estas otra vez*; cada fuente muestra su último resultado.
 
 ### Pensada para consolas portátiles
 - **Controla todo con un mando**: D-pad, A/B/X/Y y los botones superiores. Las ayudas en pantalla de la parte inferior se adaptan a tu mando (Xbox, Nintendo o PlayStation), y puedes intercambiar los botones si tu mando los envía al revés.

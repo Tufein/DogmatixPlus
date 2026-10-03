@@ -56,6 +56,8 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 - **Speicher**: Platz pro Konsole, deine größten Spiele und ob die Downloads in der Warteschlange noch passen.
 - **Wunschliste**: notiere Spiele, die du haben willst; du bekommst eine Meldung, sobald eines in deinen Quellen auftaucht.
 - **Exportiere** deine Sammlung als Tabelle (CSV) oder Webseite. Die Duplikatsuche kann auch **vorschlagen, welche Kopie bleibt**.
+- **Dateimanager** *(1.3)*: schau in deine Ordner, sieh Größen und welche Dateien als Spiele zählen, prüfe Disc-Sets, öffne oder lösche Dateien.
+- **Scan-Bericht** *(1.3)*: nach einem Scan eine Übersicht der fehlgeschlagenen Quellen mit Grund und *Diese erneut scannen*; jede Quelle zeigt ihr letztes Ergebnis.
 
 ### Gemacht für Handhelds
 - **Alles mit dem Gamepad steuern**: D-Pad, A/B/X/Y und die Schultertasten. Hinweise am unteren Bildschirmrand passen zu deinem Pad (Xbox, Nintendo oder PlayStation), und du kannst die Tasten tauschen, wenn dein Pad sie andersherum meldet.

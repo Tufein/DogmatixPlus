@@ -56,6 +56,8 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 - **Opslag**: ruimte per console, je grootste games, en of de downloads in de wachtrij nog passen.
 - **Verlanglijst**: noteer games die je wilt hebben; je krijgt een melding zodra er een in je bronnen opduikt.
 - **Exporteer** je collectie als spreadsheet (CSV) of webpagina. De zoeker naar dubbele games kan ook **voorstellen welke kopie je houdt**.
+- **Bestandsverkenner** *(1.3)*: kijk in je mappen, zie groottes en welke bestanden als game tellen, controleer schijfsets, open of verwijder bestanden.
+- **Scanrapport** *(1.3)*: na een scan één overzicht van de bronnen die mislukten en waarom, met *Deze opnieuw scannen*; elke bron toont zijn laatste resultaat.
 
 ### Gemaakt voor handhelds
 - **Bedien alles met een gamepad**: D-pad, A/B/X/Y en de schouderknoppen. De hints onderaan het scherm passen bij jouw pad (Xbox, Nintendo of PlayStation), en je kunt de knoppen omwisselen als je pad ze andersom doorgeeft.

@@ -3,6 +3,33 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [1.3.0] – 2026-10-03 · Dogmatix+
+
+### Fixed
+- **Far fewer scan errors with busy servers** (seen with large Nintendo Switch sets). 1.2.0 scanned
+  sources side by side; servers that limit how often they may be asked answered with *429 Too Many
+  Requests* or *503*, and those sources failed after a few quick retries. Now:
+  - a listing is tried up to five times, waiting what the server asks (`Retry-After`, up to two
+    minutes) or 3, 6, 12, 24 s;
+  - a server that pushes back is asked one request at a time, 1.5 s apart, for the rest of the scan;
+  - a missing page (404) or refused access (403) is not retried pointlessly;
+  - a torrent whose file list does not arrive in time gets a second try;
+  - two torrent sources are fetched at a time instead of three.
+
+### Added
+- **Scan report**: failures no longer pop up one by one; at the end one dialog lists every source
+  that failed with the reason (rate limit, server error, not found, bot check, timeout, no connection,
+  no file list, torrent metadata) and **Scan these again** retries only those — nothing else is cleared.
+- **Status per source** in Sources: under every URL, how many games its last scan gave and when, or
+  why it failed.
+- **File explorer** (*Settings → Library tools → File explorer*): browse the download folder, the
+  per-console folders, the save folders and the ES-DE folder; sort by name or size; add up a folder's
+  size; check a folder's disc sets; see whether a file counts as a game; open a file in another app
+  or delete it (after a confirmation; there is no recycle bin).
+
+### Changed
+- 271 unit tests.
+
 ## [1.2.0] – 2026-10-03 · Dogmatix+
 
 The first full release since 1.0.0: everything from 1.1.0-beta.1 and 1.2.0-alpha.1, plus the changes below.

@@ -56,6 +56,8 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 - **Storage**: space per console, your biggest games, and whether the downloads in the queue still fit.
 - **Wishlist**: write down games you want; you get a message when one turns up in your sources.
 - **Export** your collection as a spreadsheet (CSV) or a web page. The duplicate finder can also **suggest which copy to keep**.
+- **File explorer** *(1.3)*: look inside your folders, see sizes and which files count as games, check disc sets, open or delete files.
+- **Scan report** *(1.3)*: after a scan, one overview of the sources that failed and why, with *Scan these again*; every source shows its last result.
 
 ### Made for handhelds
 - **Control everything with a gamepad**: D-pad, A/B/X/Y and the shoulder buttons. On-screen hints at the bottom match your pad (Xbox, Nintendo or PlayStation), and you can swap the buttons if your pad reports them the other way round.

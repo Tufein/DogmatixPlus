@@ -56,6 +56,8 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 - **Stockage** : l’espace par console, vos plus gros jeux, et si les téléchargements en attente tiennent encore.
 - **Liste de souhaits** : notez les jeux que vous voulez ; un message vous prévient quand l’un apparaît dans vos sources.
 - **Exportez** votre collection en tableur (CSV) ou en page web. La recherche de doublons peut aussi **proposer quelle copie garder**.
+- **Explorateur de fichiers** *(1.3)* : regardez dans vos dossiers, tailles et fichiers de jeu, vérifiez les jeux à plusieurs fichiers, ouvrez ou supprimez des fichiers.
+- **Rapport d’analyse** *(1.3)* : après une analyse, un seul aperçu des sources en échec et de la raison, avec *Rescanner celles-ci* ; chaque source affiche son dernier résultat.
 
 ### Pensé pour les consoles portables
 - **Tout contrôler avec une manette** : D-pad, A/B/X/Y et les boutons d’épaule. Les indications à l’écran, en bas, correspondent à votre manette (Xbox, Nintendo ou PlayStation), et vous pouvez inverser les boutons si votre manette les signale à l’envers.
