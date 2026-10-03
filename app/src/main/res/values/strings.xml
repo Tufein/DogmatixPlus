@@ -620,6 +620,20 @@
     <string name="wishlist_added">%1$s added to the wishlist</string>
     <string name="wishlist_exists">That game is already on the wishlist</string>
     <string name="wishlist_add_query">Add \"%1$s\" to the wishlist</string>
+    <string name="romm_badge">RomM</string>
+    <string name="details_on_romm">✓ This game is on your RomM server</string>
+    <string name="details_download_best">Best version</string>
+    <string name="pad_letters">A–Z</string>
+    <string name="wait_wifi">Waiting for Wi-Fi</string>
+    <string name="wait_charger">Waiting for the charger</string>
+    <string name="wait_night">Waiting for the night window</string>
+    <string name="downloads_start_now">Start now</string>
+    <string name="downloads_low_space">Not enough free space for the queue: %1$s short</string>
+    <string name="download_open">Open</string>
+    <string name="download_open_none">No app can open this file</string>
+    <string name="verify_ok">✓ checksum verified</string>
+    <string name="verify_mismatch">⚠ checksum differs — retry the download</string>
+    <string name="verify_checking">checking…</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save changed on both sides — open Dogmatix to choose</item>
         <item quantity="other">%d saves changed on both sides — open Dogmatix to choose</item>
@@ -651,6 +665,18 @@
     <plurals name="wishlist_found">
         <item quantity="one">%1$d match in the library</item>
         <item quantity="other">%1$d matches in the library</item>
+    </plurals>
+    <plurals name="details_versions">
+        <item quantity="one">%1$d version of this game · best for you: %2$s</item>
+        <item quantity="other">%1$d versions of this game · best for you: %2$s</item>
+    </plurals>
+    <plurals name="details_versions_this_best">
+        <item quantity="one">%1$d version of this game</item>
+        <item quantity="other">%1$d versions of this game — this one suits you best</item>
+    </plurals>
+    <plurals name="downloads_waiting">
+        <item quantity="one">%1$d download is waiting · %2$s</item>
+        <item quantity="other">%1$d downloads are waiting · %2$s</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

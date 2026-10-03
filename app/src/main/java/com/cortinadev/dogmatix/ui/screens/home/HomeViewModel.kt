@@ -15,6 +15,12 @@ import com.cortinadev.dogmatix.data.repository.DownloadableFileRepository
 import com.cortinadev.dogmatix.data.repository.FavouritesRepository
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.service.LibraryIndexService
+import com.cortinadev.dogmatix.data.service.RommLibraryService
+import com.cortinadev.dogmatix.data.repository.WishlistRepository
+import com.cortinadev.dogmatix.util.FileParsingUtils
+import com.cortinadev.dogmatix.util.RommMarks
+import com.cortinadev.dogmatix.util.RommSource
+import com.cortinadev.dogmatix.util.VersionPicker
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.service.DownloadService
 import com.cortinadev.dogmatix.data.service.GameMetadataService
@@ -55,8 +61,23 @@ class HomeViewModel @Inject constructor(
     private val libraryIndex: LibraryIndexService,
     private val metadataService: GameMetadataService,
     private val favourites: FavouritesRepository,
-    private val pendingFilters: PendingLibraryFilters
+    private val pendingFilters: PendingLibraryFilters,
+    private val rommLibrary: RommLibraryService,
+    private val wishlist: WishlistRepository
 ) : ViewModel() {
+
+    /** `consoleId|name` keys of the games the RomM server has (empty when marking is off). */
+    val rommKeys: StateFlow<Set<String>> = rommLibrary.keys
+    /** The RomM server address, so rows that come from it count as "on RomM" too. */
+    val rommBase: StateFlow<String> = settingsRepository.rommUrl.map { it.trim().trimEnd('/') }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "")
+
+    fun isOnRomm(file: DownloadableFileEntity, keys: Set<String>, base: String): Boolean =
+        (keys.isNotEmpty() || base.isNotEmpty()) && RommMarks.isOnServer(keys, file.consoleId, file.fileName, file.downloadUrl, base)
+
+    /** Puts [title] on the wishlist; false for a duplicate or a too short title. */
+    suspend fun addToWishlist(title: String): Boolean =
+        wishlist.add(title, _selectedConsoles.value.singleOrNull())
 
     /** `consoleId|fileName` keys of starred games; see [isFavourite]. */
     val favouriteKeys: StateFlow<Set<String>> = favourites.keys
@@ -89,8 +110,17 @@ class HomeViewModel @Inject constructor(
         detailsJob?.cancel()
         _details.value = DetailsState(item, loading = true)
         detailsJob = viewModelScope.launch {
+            // Which version of this game suits the user best (region, language, no demos).
+            val versions = runCatching { repository.versionsOf(item.file) }.getOrDefault(emptyList())
+            val languages = settingsRepository.favoriteLanguages.first()
+            val bestId = if (versions.size > 1) VersionPicker.best(
+                versions.map { VersionPicker.Candidate(it.file.fileName, FileParsingUtils.decodeUrlEncodedFileName(it.file.fileName), it.tags, it.file.fileSize) },
+                VersionPicker.regionPreference(languages), languages
+            )?.id else null
+            val best = versions.firstOrNull { it.file.fileName == bestId }
+            if (_details.value?.item == item) _details.value = _details.value!!.copy(versionCount = versions.size, best = best)
             val found = metadataService.lookup(item.file.name, item.file.consoleId)
-            if (_details.value?.item == item) _details.value = DetailsState(item, loading = false, details = found)
+            if (_details.value?.item == item) _details.value = _details.value!!.copy(loading = false, details = found)
         }
     }
 
@@ -352,5 +382,9 @@ data class FilterParams(
 data class DetailsState(
     val item: DownloadableFileWithTags,
     val loading: Boolean,
-    val details: GameDetails? = null
+    val details: GameDetails? = null,
+    /** How many versions of this game the library lists (this one included). */
+    val versionCount: Int = 1,
+    /** The version that suits the user best when it is not simply this one; null otherwise. */
+    val best: DownloadableFileWithTags? = null
 )

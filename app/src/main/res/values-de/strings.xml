@@ -619,6 +619,20 @@
     <string name="wishlist_added">%1$s zur Wunschliste hinzugefügt</string>
     <string name="wishlist_exists">Dieses Spiel steht schon auf der Wunschliste</string>
     <string name="wishlist_add_query">„%1$s“ auf die Wunschliste setzen</string>
+    <string name="romm_badge">RomM</string>
+    <string name="details_on_romm">✓ Dieses Spiel liegt auf deinem RomM-Server</string>
+    <string name="details_download_best">Beste Version</string>
+    <string name="pad_letters">A–Z</string>
+    <string name="wait_wifi">Wartet auf WLAN</string>
+    <string name="wait_charger">Wartet auf das Ladegerät</string>
+    <string name="wait_night">Wartet auf das Nachtfenster</string>
+    <string name="downloads_start_now">Jetzt starten</string>
+    <string name="downloads_low_space">Zu wenig freier Platz für die Warteschlange: %1$s fehlen</string>
+    <string name="download_open">Öffnen</string>
+    <string name="download_open_none">Keine App kann diese Datei öffnen</string>
+    <string name="verify_ok">✓ Prüfsumme stimmt</string>
+    <string name="verify_mismatch">⚠ Prüfsumme weicht ab — Download wiederholen</string>
+    <string name="verify_checking">wird geprüft…</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d Spielstand wurde auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
         <item quantity="other">%d Spielstände wurden auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
@@ -650,6 +664,18 @@
     <plurals name="wishlist_found">
         <item quantity="one">%1$d Treffer in der Bibliothek</item>
         <item quantity="other">%1$d Treffer in der Bibliothek</item>
+    </plurals>
+    <plurals name="details_versions">
+        <item quantity="one">%1$d Version dieses Spiels · beste für dich: %2$s</item>
+        <item quantity="other">%1$d Versionen dieses Spiels · beste für dich: %2$s</item>
+    </plurals>
+    <plurals name="details_versions_this_best">
+        <item quantity="one">%1$d Version dieses Spiels</item>
+        <item quantity="other">%1$d Versionen dieses Spiels — diese passt am besten zu dir</item>
+    </plurals>
+    <plurals name="downloads_waiting">
+        <item quantity="one">%1$d Download wartet · %2$s</item>
+        <item quantity="other">%1$d Downloads warten · %2$s</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

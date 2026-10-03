@@ -619,6 +619,20 @@
     <string name="wishlist_added">%1$s toegevoegd aan de verlanglijst</string>
     <string name="wishlist_exists">Die game staat al op de verlanglijst</string>
     <string name="wishlist_add_query">\"%1$s\" op de verlanglijst zetten</string>
+    <string name="romm_badge">RomM</string>
+    <string name="details_on_romm">✓ Deze game staat op je RomM-server</string>
+    <string name="details_download_best">Beste versie</string>
+    <string name="pad_letters">A–Z</string>
+    <string name="wait_wifi">Wacht op wifi</string>
+    <string name="wait_charger">Wacht op de oplader</string>
+    <string name="wait_night">Wacht op het nachtvenster</string>
+    <string name="downloads_start_now">Nu starten</string>
+    <string name="downloads_low_space">Te weinig vrije ruimte voor de wachtrij: %1$s tekort</string>
+    <string name="download_open">Openen</string>
+    <string name="download_open_none">Geen app kan dit bestand openen</string>
+    <string name="verify_ok">✓ controlegetal klopt</string>
+    <string name="verify_mismatch">⚠ controlegetal wijkt af — probeer de download opnieuw</string>
+    <string name="verify_checking">wordt gecontroleerd…</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save is op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
         <item quantity="other">%d saves zijn op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
@@ -650,6 +664,18 @@
     <plurals name="wishlist_found">
         <item quantity="one">%1$d treffer in de bibliotheek</item>
         <item quantity="other">%1$d treffers in de bibliotheek</item>
+    </plurals>
+    <plurals name="details_versions">
+        <item quantity="one">%1$d versie van deze game · beste voor jou: %2$s</item>
+        <item quantity="other">%1$d versies van deze game · beste voor jou: %2$s</item>
+    </plurals>
+    <plurals name="details_versions_this_best">
+        <item quantity="one">%1$d versie van deze game</item>
+        <item quantity="other">%1$d versies van deze game — deze past het best bij jou</item>
+    </plurals>
+    <plurals name="downloads_waiting">
+        <item quantity="one">%1$d download wacht · %2$s</item>
+        <item quantity="other">%1$d downloads wachten · %2$s</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

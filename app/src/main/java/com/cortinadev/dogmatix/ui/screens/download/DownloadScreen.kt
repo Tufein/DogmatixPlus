@@ -43,6 +43,9 @@ import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.model.DownloadItemModel
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.model.DownloadableFileWithTags
+import com.cortinadev.dogmatix.ui.screens.settings.PillButton
+import com.cortinadev.dogmatix.ui.components.formatBytes
+import com.cortinadev.dogmatix.util.WaitReason
 import com.cortinadev.dogmatix.ui.common.Gamepad
 import com.cortinadev.dogmatix.ui.common.GamepadButton
 import com.cortinadev.dogmatix.ui.common.Legend
@@ -59,6 +62,20 @@ fun DownloadScreen(
     val downloads by viewModel.downloads.collectAsState()
     val details by viewModel.downloadDetails.collectAsState()
     val uploads by viewModel.uploads.collectAsState()
+    val waitingFiles by viewModel.waitingFiles.collectAsState()
+    val waitingReasons by viewModel.waitingReasons.collectAsState()
+    val verification by viewModel.verification.collectAsState()
+    val shortfall by viewModel.queueShortfall.collectAsState()
+    val waitWifi = stringResource(R.string.wait_wifi)
+    val waitCharger = stringResource(R.string.wait_charger)
+    val waitNight = stringResource(R.string.wait_night)
+    val waitingText = waitingReasons.joinToString(" · ") {
+        when (it) {
+            WaitReason.WIFI -> waitWifi
+            WaitReason.CHARGER -> waitCharger
+            WaitReason.NIGHT -> waitNight
+        }
+    }
     val selection by viewModel.selection.collectAsState()
     val showDeleteConfirmation by viewModel.showDeleteConfirmation.collectAsState()
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -156,6 +173,15 @@ fun DownloadScreen(
                 )
             }
         }
+        if (waitingFiles.isNotEmpty() && waitingText.isNotEmpty()) {
+            NoticeRow(
+                text = pluralStringResource(R.plurals.downloads_waiting, waitingFiles.size, waitingFiles.size, waitingText),
+                action = stringResource(R.string.downloads_start_now), onAction = viewModel::startWaitingNow
+            )
+        }
+        if (shortfall > 0) {
+            NoticeRow(text = stringResource(R.string.downloads_low_space, formatBytes(shortfall)), error = true)
+        }
         if (downloads.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
@@ -175,6 +201,8 @@ fun DownloadScreen(
                         item = item,
                         details = details[item.fileName],
                         upload = uploads[item.fileName],
+                        waitingReason = waitingText.takeIf { it.isNotEmpty() && item.fileName in waitingFiles },
+                        verify = verification[item.fileName],
                         compact = isLandscape,
                         viewModel = viewModel,
                         selectionMode = selectionMode,
@@ -215,6 +243,30 @@ fun DownloadScreen(
                 DialogButton(stringResource(keep), onClick = { viewModel.confirmDeleteKeepFile(fileNames) }, initialFocus = rememberInitialFocus())
             }
         )
+    }
+}
+
+/** A line of explanation above the list, with an optional button (e.g. "Start now"). */
+@Composable
+private fun NoticeRow(text: String, action: String? = null, onAction: () -> Unit = {}, error: Boolean = false) {
+    val scheme = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 2.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (error) scheme.errorContainer else scheme.surfaceContainer)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(
+            text,
+            style = MaterialTheme.typography.bodySmall,
+            color = if (error) scheme.onErrorContainer else scheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
+        )
+        if (action != null) PillButton(action, onAction)
     }
 }
 

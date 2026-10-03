@@ -108,6 +108,7 @@ import com.cortinadev.dogmatix.ui.screens.home.components.GameDetailsDialog
 import com.cortinadev.dogmatix.ui.screens.home.components.RomRow
 import com.cortinadev.dogmatix.ui.screens.home.components.SearchField
 import com.cortinadev.dogmatix.util.ConsoleFormatter
+import com.cortinadev.dogmatix.util.LetterJump
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -130,6 +131,8 @@ fun HomeScreen(
     val consolesWithFiles by viewModel.consolesWithFiles.collectAsState()
     val categorizedTags by viewModel.categorizedTags.collectAsState()
     val ownedKeys by viewModel.ownedKeys.collectAsState()
+    val rommKeys by viewModel.rommKeys.collectAsState()
+    val rommBase by viewModel.rommBase.collectAsState()
     val favouriteKeys by viewModel.favouriteKeys.collectAsState()
     val favouritesOnly by viewModel.favouritesOnly.collectAsState()
     val sourceFilter by viewModel.source.collectAsState()
@@ -252,6 +255,12 @@ fun HomeScreen(
             showMessage((if (starred) favouriteAddedMessage else favouriteRemovedMessage).format(stripExtension(item.file.name)))
         }
     }
+    val wishAddedMessage = stringResource(R.string.wishlist_added, "%s")
+    val wishExistsMessage = stringResource(R.string.wishlist_exists)
+    val addToWishlist: () -> Unit = {
+        val title = query.trim()
+        scope.launch { showMessage(if (viewModel.addToWishlist(title)) wishAddedMessage.format(title) else wishExistsMessage) }
+    }
     // Tapping a game already on disk asks whether to fetch it again or remove it.
     var ownedDialogItem by remember { mutableStateOf<DownloadableFileWithTags?>(null) }
     val onFileClick: (DownloadableFileWithTags) -> Unit = { item ->
@@ -292,7 +301,9 @@ fun HomeScreen(
             favourite = viewModel.isFavourite(state.item.file, favouriteKeys),
             onToggleFavourite = { toggleFavourite(state.item) },
             onDownload = { viewModel.closeDetails(); onFileClick(state.item) },
-            onDismiss = viewModel::closeDetails
+            onDismiss = viewModel::closeDetails,
+            onRomm = viewModel.isOnRomm(state.item.file, rommKeys, rommBase),
+            onDownloadBest = state.best?.let { best -> { viewModel.closeDetails(); onFileClick(best) } }
         )
     }
 
@@ -302,7 +313,8 @@ fun HomeScreen(
     val section = LegendEntry("ZL · ZR", stringResource(R.string.pad_section))
     val legendList = listOf(
         LegendEntry("A", stringResource(R.string.pad_download)), LegendEntry("X", stringResource(R.string.pad_details)),
-        LegendEntry("Y", stringResource(R.string.pad_search)), LegendEntry("SELECT", stringResource(R.string.pad_favourite))
+        LegendEntry("Y", stringResource(R.string.pad_search)), LegendEntry("SELECT", stringResource(R.string.pad_favourite)),
+        LegendEntry("◀ ▶", stringResource(R.string.pad_letters))
     ) + filtersKey + section
     val legendFilters = listOf(
         LegendEntry("A", stringResource(R.string.pad_options)), LegendEntry("◀ ▶", stringResource(R.string.pad_change))
@@ -483,10 +495,14 @@ fun HomeScreen(
                             getConsoleName = { ConsoleFormatter.getConsoleShortName(it) },
                             onFileClick = onFileClick,
                             isOwned = { viewModel.isOwned(it.file, ownedKeys) },
+                            isOnRomm = { viewModel.isOnRomm(it.file, rommKeys, rommBase) },
                             isFavourite = { viewModel.isFavourite(it.file, favouriteKeys) },
                             isDownloading = { viewModel.isDownloading(it.file, activeDownloads) },
                             onRowFocused = { focusedItem = it },
                             onRowLongClick = viewModel::openDetails,
+                            query = query,
+                            onAddWish = addToWishlist,
+                            byName = sort == SortOption.NAME_ASC || sort == SortOption.NAME_DESC,
                             modifier = Modifier
                                 .weight(1f)
                                 .onFocusChanged { listHasFocus = it.hasFocus }
@@ -552,10 +568,14 @@ fun HomeScreen(
                     getConsoleName = { ConsoleFormatter.getConsoleShortName(it) },
                     onFileClick = onFileClick,
                     isOwned = { viewModel.isOwned(it.file, ownedKeys) },
+                    isOnRomm = { viewModel.isOnRomm(it.file, rommKeys, rommBase) },
                     isFavourite = { viewModel.isFavourite(it.file, favouriteKeys) },
                     isDownloading = { viewModel.isDownloading(it.file, activeDownloads) },
                     onRowFocused = { focusedItem = it },
                     onRowLongClick = viewModel::openDetails,
+                    query = query,
+                    onAddWish = addToWishlist,
+                    byName = sort == SortOption.NAME_ASC || sort == SortOption.NAME_DESC,
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 12.dp)
@@ -669,21 +689,37 @@ private fun ResultList(
     onRowFocused: (DownloadableFileWithTags) -> Unit,
     onRowLongClick: (DownloadableFileWithTags) -> Unit,
     modifier: Modifier = Modifier,
+    isOnRomm: (DownloadableFileWithTags) -> Boolean = { false },
+    /** What the user searched for, offered for the wishlist when nothing is found. */
+    query: String = "",
+    onAddWish: (() -> Unit)? = null,
+    /** The list is sorted by name, so ◀ ▶ jumps by first letter (otherwise by ten rows). */
+    byName: Boolean = true,
     firstRowFocus: FocusRequester? = null,
     contentShift: () -> Int = { 0 }
 ) {
     if (results.isEmpty()) {
         Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Text(
-                stringResource(R.string.no_results),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    stringResource(R.string.no_results),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                if (onAddWish != null && query.trim().length >= 2) {
+                    Button(onClick = onAddWish) { Text(stringResource(R.string.wishlist_add_query, query.trim())) }
+                }
+            }
         }
         return
     }
     val listState = rememberLazyListState()
     val focusIndex = listState.firstVisibleItemIndex
+    // ◀ ▶ jump through a long list by first letter: scroll there, then focus that row.
+    val jumpScope = rememberCoroutineScope()
+    val jumpFocus = remember { FocusRequester() }
+    var jumpTarget by remember { mutableStateOf<Int?>(null) }
+    var currentIndex by remember { mutableStateOf(0) }
     // After "Load more" the button is replaced by a spinner and focus is lost:
     // remember where the new page starts and land on its first row once it arrives.
     var pendingFocusIndex by remember { mutableStateOf<Int?>(null) }
@@ -701,7 +737,21 @@ private fun ResultList(
     }
     LazyColumn(
         state = listState,
-        modifier = modifier,
+        modifier = modifier.onPreviewKeyEvent { event ->
+            if (event.type != KeyEventType.KeyDown || (event.key != Key.DirectionLeft && event.key != Key.DirectionRight)) return@onPreviewKeyEvent false
+            val forward = event.key == Key.DirectionRight
+            val target = if (byName) LetterJump.target(results.map { stripExtension(it.file.name) }, currentIndex, forward)
+            else LetterJump.step(results.size, currentIndex, forward)
+            if (target != currentIndex) jumpScope.launch {
+                jumpTarget = target
+                listState.scrollToItem(target)
+                withFrameNanos { }
+                withFrameNanos { }
+                runCatching { jumpFocus.requestFocus() }
+                jumpTarget = null
+            }
+            true
+        },
         contentPadding = PaddingValues(bottom = 12.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
@@ -713,15 +763,17 @@ private fun ResultList(
                 onClick = { onFileClick(item) },
                 onLongClick = { onRowLongClick(item) },
                 owned = isOwned(item),
+                onRomm = isOnRomm(item),
                 favourite = isFavourite(item),
                 downloading = isDownloading(item),
                 contentShift = contentShift,
                 // RB from the filters lands on the first row currently on screen.
                 modifier = when {
                     index == pendingFocusIndex -> Modifier.focusRequester(newPageFocus)
+                    index == jumpTarget -> Modifier.focusRequester(jumpFocus)
                     index == focusIndex && firstRowFocus != null -> Modifier.focusRequester(firstRowFocus)
                     else -> Modifier
-                }.onFocusChanged { if (it.isFocused) onRowFocused(item) }
+                }.onFocusChanged { if (it.isFocused) { currentIndex = index; onRowFocused(item) } }
             )
         }
         if (hasMore) {

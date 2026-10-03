@@ -39,6 +39,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -66,7 +67,11 @@ fun GameDetailsDialog(
     favourite: Boolean,
     onToggleFavourite: () -> Unit,
     onDownload: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    /** The RomM server already has this game. */
+    onRomm: Boolean = false,
+    /** Downloads the version the library ranks best for the user (see [DetailsState.best]). */
+    onDownloadBest: (() -> Unit)? = null
 ) {
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val scheme = MaterialTheme.colorScheme
@@ -112,11 +117,11 @@ fun GameDetailsDialog(
             if (isLandscape) {
                 Row(horizontalArrangement = Arrangement.spacedBy(18.dp), modifier = Modifier.heightIn(max = 260.dp)) {
                     Artwork(details, Modifier.width(240.dp).height(180.dp))
-                    Body(state, title, consoleName, scroll, Modifier.weight(1f))
+                    Body(state, title, consoleName, scroll, Modifier.weight(1f), onRomm)
                 }
             } else {
                 Artwork(details, Modifier.fillMaxWidth().aspectRatio(16f / 10f))
-                Body(state, title, consoleName, scroll, Modifier.heightIn(max = 300.dp))
+                Body(state, title, consoleName, scroll, Modifier.heightIn(max = 300.dp), onRomm)
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth()) {
@@ -127,6 +132,12 @@ fun GameDetailsDialog(
                 val closeSource = rememberFocusSource()
                 TextButton(onClick = onDismiss, interactionSource = closeSource, modifier = Modifier.focusRing(closeSource, 20.dp)) {
                     Text(stringResource(R.string.details_close))
+                }
+                if (onDownloadBest != null && state.best != null) {
+                    val bestSource = rememberFocusSource()
+                    TextButton(onClick = onDownloadBest, interactionSource = bestSource, modifier = Modifier.focusRing(bestSource, 20.dp)) {
+                        Text(stringResource(R.string.details_download_best))
+                    }
                 }
                 val downloadSource = rememberFocusSource()
                 Button(
@@ -162,7 +173,7 @@ private fun Artwork(details: GameDetails?, modifier: Modifier) {
 }
 
 @Composable
-private fun Body(state: DetailsState, title: String, consoleName: String, scroll: androidx.compose.foundation.ScrollState, modifier: Modifier) {
+private fun Body(state: DetailsState, title: String, consoleName: String, scroll: androidx.compose.foundation.ScrollState, modifier: Modifier, onRomm: Boolean) {
     val scheme = MaterialTheme.colorScheme
     val details = state.details
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -174,6 +185,15 @@ private fun Body(state: DetailsState, title: String, consoleName: String, scroll
             details?.genres?.takeIf { it.isNotEmpty() }?.joinToString(", ")
         ).joinToString("  ·  ")
         if (meta.isNotEmpty()) Text(meta, style = MaterialTheme.typography.labelLarge, color = scheme.primary)
+        if (onRomm) Text(stringResource(R.string.details_on_romm), style = MaterialTheme.typography.labelMedium, color = scheme.tertiary)
+        if (state.versionCount > 1) {
+            val best = state.best
+            Text(
+                if (best == null) pluralStringResource(R.plurals.details_versions_this_best, state.versionCount, state.versionCount)
+                else pluralStringResource(R.plurals.details_versions, state.versionCount, state.versionCount, stripExtension(best.file.fileName.let(com.cortinadev.dogmatix.util.FileParsingUtils::decodeUrlEncodedFileName))),
+                style = MaterialTheme.typography.labelMedium, color = scheme.onSurfaceVariant
+            )
+        }
 
         Box(modifier = Modifier.weight(1f, fill = false)) {
             when {

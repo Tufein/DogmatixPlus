@@ -47,6 +47,8 @@ import com.cortinadev.dogmatix.ui.components.formatBytes
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.stripExtension
 import com.cortinadev.dogmatix.util.ConsoleFormatter
+import com.cortinadev.dogmatix.util.VerifyState
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
@@ -66,6 +68,10 @@ fun DownloadItem(
     viewModel: DownloadViewModel,
     modifier: Modifier = Modifier,
     upload: UploadState? = null,
+    /** Why this download has not started (Wi-Fi / charger / night), or null. */
+    waitingReason: String? = null,
+    /** Result of comparing the finished file with the hash its source published. */
+    verify: VerifyState? = null,
     selectionMode: Boolean = false,
     selected: Boolean = false,
     /** Where ▲ goes from this row: the selection bar sits off-centre, so focus search never picks it. */
@@ -93,7 +99,7 @@ fun DownloadItem(
         DownloadStatus.DOWNLOADING -> R.drawable.ic_arrow_down
         DownloadStatus.QUEUED -> R.drawable.ic_web
     }
-    val statusLabel = when (status) {
+    val statusLabel = if (waitingReason != null && status == DownloadStatus.DOWNLOADING) waitingReason else when (status) {
         DownloadStatus.QUEUED -> stringResource(R.string.status_queued_debrid, viewModel.debridLabel.collectAsState().value, (item.progress * 100).toInt())
         DownloadStatus.COMPLETED -> stringResource(R.string.status_completed)
         DownloadStatus.FAILED -> stringResource(R.string.status_failed)
@@ -116,9 +122,14 @@ fun DownloadItem(
         DownloadStatus.DOWNLOADING -> stringResource(R.string.download_speed, item.downloadSpeed) +
             "  ·  ${formatBytes(item.downloadedBytes)} / ${formatBytes(item.fileSize)}"
         else -> formatBytes(item.fileSize)
-    } + (timeLabel?.let { "  ·  $it" } ?: "")
+    } + (timeLabel?.let { "  ·  $it" } ?: "") + when (verify) {
+        VerifyState.VERIFIED -> "  ·  " + stringResource(R.string.verify_ok)
+        VerifyState.MISMATCH -> "  ·  " + stringResource(R.string.verify_mismatch)
+        VerifyState.CHECKING -> "  ·  " + stringResource(R.string.verify_checking)
+        null -> ""
+    }
     val busy = status == DownloadStatus.COPYING || status == DownloadStatus.UNZIPPING ||
-        (status == DownloadStatus.QUEUED && item.progress <= 0f)
+        (status == DownloadStatus.QUEUED && item.progress <= 0f) || (waitingReason != null && status == DownloadStatus.DOWNLOADING)
     val actionSize: Dp = if (compact) 36.dp else 44.dp
 
     // A (or a tap) on the row runs the primary action; the side buttons stay for touch and
@@ -255,6 +266,12 @@ fun DownloadItem(
                     }
                 }
                 DownloadStatus.COMPLETED, DownloadStatus.STOPPED, DownloadStatus.FAILED -> {
+                    if (status == DownloadStatus.COMPLETED) {
+                        val context = LocalContext.current
+                        ActionButton(R.drawable.ic_play, stringResource(R.string.download_open), actionSize, scheme.primary) {
+                            viewModel.openDownload(context, item.fileName)
+                        }
+                    }
                     if (upload?.status == UploadStatus.FAILED) {
                         ActionButton(R.drawable.ic_arrow_up, stringResource(R.string.romm_upload_retry), actionSize, scheme.primary) {
                             viewModel.retryUpload(item.fileName)

@@ -9,6 +9,15 @@ import com.cortinadev.dogmatix.data.repository.DownloadRepository
 import com.cortinadev.dogmatix.data.repository.DownloadableFileRepository
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.service.RommUploadService
+import com.cortinadev.dogmatix.data.service.DownloadService
+import com.cortinadev.dogmatix.data.service.LibraryIndexService
+import com.cortinadev.dogmatix.util.StorageInsights
+import com.cortinadev.dogmatix.util.ToastUtil
+import com.cortinadev.dogmatix.util.VerifyState
+import com.cortinadev.dogmatix.util.WaitReason
+import android.content.Context
+import com.cortinadev.dogmatix.R
+import kotlinx.coroutines.flow.combine
 import com.cortinadev.dogmatix.data.service.UploadState
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
@@ -37,8 +46,37 @@ class DownloadViewModel @Inject constructor(
     private val repository: DownloadRepository,
     private val fileRepository: DownloadableFileRepository,
     private val rommUploadService: RommUploadService,
+    private val downloadService: DownloadService,
+    libraryIndexService: LibraryIndexService,
     settingsRepository: SettingsRepository
 ) : ViewModel() {
+
+    /** Downloads held back by the schedule (Wi-Fi / charger / night) and why. */
+    val waitingFiles: StateFlow<Set<String>> = downloadService.waitingFiles
+    val waitingReasons: StateFlow<List<WaitReason>> = downloadService.gate.waiting
+    /** Checksum check per finished download. */
+    val verification: StateFlow<Map<String, VerifyState>> = downloadService.verification
+
+    /** Lets everything that is waiting for the schedule start now. */
+    fun startWaitingNow() = downloadService.gate.startNow()
+
+    /** Bytes the queue is short of the free space; 0 when it fits or the space is unknown. */
+    val queueShortfall: StateFlow<Long> = combine(downloadService.downloads, libraryIndexService.freeBytes) { list, free ->
+        val need = StorageInsights.queueNeed(
+            list.filter { it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.QUEUED }
+                .map { StorageInsights.QueueItem((it.fileSize - it.downloadedBytes).coerceAtLeast(0), StorageInsights.isExtractable(it.fileName.substringAfterLast('.', ""))) }
+        )
+        StorageInsights.shortfall(need, free) ?: 0L
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
+
+    /** Opens a finished download in whichever app handles the file. */
+    fun openDownload(context: Context, fileName: String) {
+        viewModelScope.launch {
+            val intent = downloadService.openIntentFor(fileName)
+            val ok = intent != null && runCatching { context.startActivity(intent) }.isSuccess
+            if (!ok) ToastUtil.showInfo(context, context.getString(R.string.download_open_none))
+        }
+    }
 
     /** Name of the debrid service shown on QUEUED rows ("TorBox 40%"). */
     val debridLabel: StateFlow<String> = settingsRepository.debridProvider.map { it.label }

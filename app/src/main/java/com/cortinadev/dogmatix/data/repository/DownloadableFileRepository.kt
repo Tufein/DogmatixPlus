@@ -77,6 +77,12 @@ class DownloadableFileRepository @Inject constructor(
         return DownloadableFileWithTags(file = file, tags = dao.getTagsForFile(file.id))
     }
 
+    /** Every version of a game the library lists for its console (same cleaned title), with tags. */
+    suspend fun versionsOf(file: DownloadableFileEntity): List<DownloadableFileWithTags> {
+        val key = file.searchKey.ifEmpty { com.cortinadev.dogmatix.util.SearchNormalizer.key(file.name) }
+        return dao.versionsOf(file.consoleId, key).map { DownloadableFileWithTags(it, dao.tagsOf(it.id)) }
+    }
+
     suspend fun clearAll() = dao.clearAll()
 
     suspend fun backfillSearchKeys() = dao.backfillSearchKeys()

@@ -51,6 +51,8 @@ fun RomRow(
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
     owned: Boolean = false,
+    /** The RomM server already has this game. */
+    onRomm: Boolean = false,
     favourite: Boolean = false,
     downloading: Boolean = false,
     /**
@@ -82,6 +84,7 @@ fun RomRow(
             ) {
                 if (favourite) FavouriteBadge()
                 if (downloading) DownloadingBadge() else if (owned) OwnedBadge()
+                if (onRomm) RommBadge()
                 Text(
                     stripExtension(rom.name),
                     style = MaterialTheme.typography.bodyLarge,
@@ -113,7 +116,8 @@ fun RomRow(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (favourite) FavouriteBadge()
-                if (downloading) DownloadingBadge() else if (owned) OwnedBadge()
+                    if (downloading) DownloadingBadge() else if (owned) OwnedBadge()
+                    if (onRomm) RommBadge()
                     Text(
                         stripExtension(rom.name),
                         style = MaterialTheme.typography.bodyLarge,
@@ -164,6 +168,21 @@ private fun OwnedBadge() {
             modifier = Modifier.size(11.dp)
         )
     }
+}
+
+/** Small "RomM" pill: the server already has this game. */
+@Composable
+private fun RommBadge() {
+    Text(
+        stringResource(R.string.romm_badge),
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSecondaryContainer,
+        maxLines = 1,
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .padding(horizontal = 6.dp, vertical = 1.dp)
+    )
 }
 
 /** Star inside an accent circle: the user marked this game as a favourite. */
