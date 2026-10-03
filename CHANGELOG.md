@@ -3,7 +3,12 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
-## [Unreleased] – library tools & translations
+## [1.0.0] – 2026-10-03 · DogmatixPlus
+
+DogmatixPlus is an unofficial modification of Dogmatix 1.2 by Rafa Cortina (itself a fork of Milou
+by santiifm). Its version numbers start again at 1.0.0; everything listed under 1.2 and below comes
+from Dogmatix. The Credits screen shows the whole lineage, and the update check now looks at this
+repository's releases instead of the original project's.
 
 ### Added
 - **Duplicate games** (Settings): finds games that are on disk more than once per console —

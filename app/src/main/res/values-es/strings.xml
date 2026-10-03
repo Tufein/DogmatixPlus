@@ -6,6 +6,8 @@
     <string name="credits_original_role">Supuesto ingeniero de software · autor original de Milou</string>
     <string name="credits_original_name">santiifm</string>
     <string name="credits_original_note">Dogmatix es un fork de Milou. Todo el scraping, el indexado y las descargas son obra suya.</string>
+    <string name="credits_plus_role">Modificación no oficial · herramientas de biblioteca, copia de seguridad, traducciones</string>
+    <string name="credits_plus_note">Una modificación no oficial de Dogmatix 1.2 de Rafa Cortina, que a su vez es un fork de Milou de santiifm. Su trabajo es la base de todo lo que hay aquí.</string>
     <string name="credits_link_github">GitHub</string>
     <string name="credits_link_linkedin">LinkedIn</string>
     <string name="credits_link_web">Web</string>

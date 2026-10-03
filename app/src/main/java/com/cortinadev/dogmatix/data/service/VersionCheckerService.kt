@@ -22,7 +22,7 @@ class VersionCheckerService @Inject constructor(
 ) {
     
     companion object {
-        private const val GITHUB_API_URL = "https://api.github.com/repos/cortinadev/dogmatix/releases"
+        private const val GITHUB_API_URL = "https://api.github.com/repos/Tufein/DogmatixPlus/releases"
         private const val REQUEST_TIMEOUT = 10000 // 10 seconds
     }
     

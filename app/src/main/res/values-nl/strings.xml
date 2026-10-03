@@ -7,6 +7,8 @@
     <string name="credits_original_role">Zogenaamd software-engineer · oorspronkelijke maker van Milou</string>
     <string name="credits_original_name">santiifm</string>
     <string name="credits_original_note">Dogmatix is een fork van Milou. Al het scrapen, indexeren en downloaden is zijn werk.</string>
+    <string name="credits_plus_role">Onofficiële aanpassing · bibliotheekhulpmiddelen, back-up, vertalingen</string>
+    <string name="credits_plus_note">Een onofficiële aanpassing van Dogmatix 1.2 van Rafa Cortina, zelf een fork van Milou van santiifm. Hun werk is de basis van alles hier.</string>
     <string name="credits_link_github">GitHub</string>
     <string name="credits_link_linkedin">LinkedIn</string>
     <string name="credits_link_web">Website</string>

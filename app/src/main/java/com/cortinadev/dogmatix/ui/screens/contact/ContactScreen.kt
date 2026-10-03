@@ -40,6 +40,10 @@ import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 
 private data class CreditLink(val iconRes: Int, val labelRes: Int, val url: String, val display: String)
 
+private val plusLinks = listOf(
+    CreditLink(R.drawable.ic_github, R.string.credits_link_github, "https://github.com/Tufein/DogmatixPlus", "github.com/Tufein/DogmatixPlus"),
+)
+
 private val forkLinks = listOf(
     CreditLink(R.drawable.ic_github, R.string.credits_link_github, "https://github.com/cortinadev", "github.com/cortinadev"),
     CreditLink(R.drawable.ic_linkedin, R.string.credits_link_linkedin, "https://www.linkedin.com/in/rafa-cortina", "linkedin.com/in/rafa-cortina"),
@@ -69,6 +73,9 @@ fun ContactScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
+            // This build first, then the projects it is built on: DogmatixPlus -> Dogmatix -> Milou.
+            PlusCard(Modifier.fillMaxWidth())
+            Spacer(Modifier.height(16.dp))
             if (isLandscape) {
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.Top) {
                     ForkCard(Modifier.weight(1f))
@@ -82,6 +89,15 @@ fun ContactScreen(navController: NavController) {
         }
     }
 }
+
+@Composable
+private fun PlusCard(modifier: Modifier = Modifier) = CreditCard(
+    name = stringResource(R.string.credits_plus_name),
+    role = stringResource(R.string.credits_plus_role),
+    note = stringResource(R.string.credits_plus_note),
+    links = plusLinks,
+    modifier = modifier
+)
 
 @Composable
 private fun ForkCard(modifier: Modifier = Modifier) = CreditCard(
