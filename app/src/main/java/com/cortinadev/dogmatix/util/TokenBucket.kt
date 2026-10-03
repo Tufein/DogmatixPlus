@@ -29,10 +29,13 @@ class TokenBucket(private val clock: () -> Long = System::currentTimeMillis) {
 }
 
 object SpeedLimit {
-    /** The limit to apply now: none when the setting is off (infinite / 0), or when it is lifted at night and it is night. */
-    fun effectiveBytesPerSecond(limitMBs: Float, dayOnly: Boolean, minuteOfDay: Int, nightStart: Int, nightEnd: Int): Long {
-        if (limitMBs.isInfinite() || limitMBs <= 0f) return 0
+    /**
+     * The limit to apply now, in bytes per second: none when the setting is off (infinite / 0), or
+     * when it is lifted at night and it is night. The setting is in KB/s (Settings → speed limit).
+     */
+    fun effectiveBytesPerSecond(limitKBs: Float, dayOnly: Boolean, minuteOfDay: Int, nightStart: Int, nightEnd: Int): Long {
+        if (limitKBs.isInfinite() || limitKBs <= 0f) return 0
         if (dayOnly && DownloadPolicy.inWindow(minuteOfDay, nightStart, nightEnd)) return 0
-        return (limitMBs.toDouble() * Constants.MEBIBYTE).toLong().coerceAtLeast(1)
+        return (limitKBs.toDouble() * 1024).toLong().coerceAtLeast(1)
     }
 }

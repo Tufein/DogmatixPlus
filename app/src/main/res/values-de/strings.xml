@@ -752,6 +752,28 @@
     <string name="widget_description">Laufende Downloads und neue Spiele</string>
     <string name="widget_no_downloads">Keine laufenden Downloads</string>
     <string name="widget_no_new">In letzter Zeit keine neuen Spiele</string>
+    <string name="settings_limit_day_only">Nachts ohne Limit</string>
+    <string name="settings_limit_day_only_hint">Das Limit gilt nicht zwischen %1$s und %2$s</string>
+    <string name="settings_bold_focus">Dicker Fokusrahmen</string>
+    <string name="settings_bold_focus_hint">Besser sichtbar mit Controller, am Fernseher oder in der Sonne</string>
+    <string name="settings_autoscan">Quellen automatisch scannen</string>
+    <string name="settings_autoscan_hint">Im Hintergrund; neue Spiele werden gemeldet</string>
+    <string name="settings_autoscan_last">Letzter Hintergrund-Scan: %1$s</string>
+    <string name="settings_autoscan_every">Scannen alle</string>
+    <string name="settings_autoscan_wifi">Nur über WLAN scannen</string>
+    <string name="settings_autoscan_charging">Nur beim Laden scannen</string>
+    <string name="settings_autoscan_night">Nur nachts scannen</string>
+    <string name="settings_autoscan_night_hint">Zwischen %1$s und %2$s (die Nacht der Downloads)</string>
+    <string name="hours_short">%1$d Std.</string>
+    <string name="update_offer_title">Version %1$s ist verfügbar</string>
+    <string name="update_offer_message">Jetzt herunterladen und installieren? Der Download wird mit den Prüfsummen des Releases geprüft; danach fragt Android nach.</string>
+    <string name="update_offer_install">Installieren</string>
+    <string name="update_downloading">Update wird geladen… %1$d %%</string>
+    <string name="update_allow_installs">Erlaube Dogmatix+ das Installieren von Apps und tippe dann erneut auf Installieren</string>
+    <string name="update_no_apk">Das Release enthält keine %1$s</string>
+    <string name="update_no_checksum">Keine Prüfsumme für die APK; nicht installiert</string>
+    <string name="update_checksum_mismatch">Der Download passt nicht zur Prüfsumme; nicht installiert</string>
+    <string name="update_install_failed">Update fehlgeschlagen: %1$s</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d Spielstand wurde auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
         <item quantity="other">%d Spielstände wurden auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
@@ -843,6 +865,10 @@
     <plurals name="widget_new_games">
         <item quantity="one">%1$d neues Spiel</item>
         <item quantity="other">%1$d neue Spiele</item>
+    </plurals>
+    <plurals name="settings_days">
+        <item quantity="one">%1$d Tag</item>
+        <item quantity="other">%1$d Tage</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

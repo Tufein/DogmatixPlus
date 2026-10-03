@@ -19,6 +19,9 @@ import androidx.compose.ui.unit.dp
  * Accent ring drawn while the element owns keyboard / D-pad focus.
  * Pair it with a `clickable(interactionSource = source, ...)` on the same element.
  */
+/** Settings → "Bold focus ring": a thicker ring with a dark edge, readable on a TV or in sunlight. */
+val LocalBoldFocus = androidx.compose.runtime.staticCompositionLocalOf { false }
+
 @Composable
 fun Modifier.focusRing(
     interactionSource: MutableInteractionSource,
@@ -29,11 +32,20 @@ fun Modifier.focusRing(
 ): Modifier {
     val focused by interactionSource.collectIsFocusedAsState()
     val color = MaterialTheme.colorScheme.primary
+    val bold = LocalBoldFocus.current
+    val edge = MaterialTheme.colorScheme.scrim
     return this.drawWithContent {
         drawContent()
         if (!focused) return@drawWithContent
-        val stroke = width.toPx()
+        val stroke = (if (bold) maxOf(width, 3.5.dp) else width).toPx()
         val shift = startShift().toFloat()
+        if (bold) drawRoundRect(
+            edge,
+            topLeft = Offset(shift + stroke * 1.5f, stroke * 1.5f),
+            size = Size(size.width - shift - stroke * 3, size.height - stroke * 3),
+            cornerRadius = CornerRadius((cornerRadius.toPx() - stroke).coerceAtLeast(0f)),
+            style = Stroke(stroke / 2)
+        )
         drawRoundRect(
             color,
             topLeft = Offset(shift + stroke / 2, stroke / 2),

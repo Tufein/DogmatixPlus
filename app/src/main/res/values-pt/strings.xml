@@ -703,6 +703,28 @@
     <string name="widget_description">Transferências em curso e jogos novos</string>
     <string name="widget_no_downloads">Sem transferências em curso</string>
     <string name="widget_no_new">Sem jogos novos ultimamente</string>
+    <string name="settings_limit_day_only">Sem limite à noite</string>
+    <string name="settings_limit_day_only_hint">O limite não se aplica entre %1$s e %2$s</string>
+    <string name="settings_bold_focus">Contorno de foco grosso</string>
+    <string name="settings_bold_focus_hint">Mais visível com comando, numa TV ou ao sol</string>
+    <string name="settings_autoscan">Analisar fontes automaticamente</string>
+    <string name="settings_autoscan_hint">Em segundo plano; recebes um aviso quando aparecem jogos novos</string>
+    <string name="settings_autoscan_last">Última análise em segundo plano: %1$s</string>
+    <string name="settings_autoscan_every">Analisar a cada</string>
+    <string name="settings_autoscan_wifi">Analisar só em Wi-Fi</string>
+    <string name="settings_autoscan_charging">Analisar só a carregar</string>
+    <string name="settings_autoscan_night">Analisar só à noite</string>
+    <string name="settings_autoscan_night_hint">Entre %1$s e %2$s (a noite das transferências)</string>
+    <string name="hours_short">%1$d h</string>
+    <string name="update_offer_title">A versão %1$s está disponível</string>
+    <string name="update_offer_message">Transferir e instalar agora? A transferência é verificada com as somas da versão; depois o Android pede confirmação.</string>
+    <string name="update_offer_install">Instalar</string>
+    <string name="update_downloading">A transferir a atualização… %1$d%%</string>
+    <string name="update_allow_installs">Permite que a Dogmatix+ instale apps e toca de novo em Instalar</string>
+    <string name="update_no_apk">A versão não inclui %1$s</string>
+    <string name="update_no_checksum">Sem soma de verificação para o APK; não instalado</string>
+    <string name="update_checksum_mismatch">A transferência não corresponde à soma; não instalado</string>
+    <string name="update_install_failed">A atualização falhou: %1$s</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save mudou nos dois lados — abre o Dogmatix para escolher</item>
         <item quantity="other">%d saves mudaram nos dois lados — abre o Dogmatix para escolher</item>
@@ -794,6 +816,10 @@
     <plurals name="widget_new_games">
         <item quantity="one">%1$d jogo novo</item>
         <item quantity="other">%1$d jogos novos</item>
+    </plurals>
+    <plurals name="settings_days">
+        <item quantity="one">%1$d dia</item>
+        <item quantity="other">%1$d dias</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

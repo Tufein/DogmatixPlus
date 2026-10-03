@@ -757,6 +757,28 @@
     <string name="widget_description">Téléchargements en cours et nouveaux jeux</string>
     <string name="widget_no_downloads">Aucun téléchargement en cours</string>
     <string name="widget_no_new">Pas de nouveaux jeux récemment</string>
+    <string name="settings_limit_day_only">Pas de limite la nuit</string>
+    <string name="settings_limit_day_only_hint">La limite est levée entre %1$s et %2$s</string>
+    <string name="settings_bold_focus">Contour de focus épais</string>
+    <string name="settings_bold_focus_hint">Plus visible à la manette, sur une télé ou au soleil</string>
+    <string name="settings_autoscan">Analyser les sources automatiquement</string>
+    <string name="settings_autoscan_hint">En arrière-plan ; une notification signale les nouveaux jeux</string>
+    <string name="settings_autoscan_last">Dernière analyse en arrière-plan : %1$s</string>
+    <string name="settings_autoscan_every">Analyser tous les</string>
+    <string name="settings_autoscan_wifi">Analyser seulement en Wi-Fi</string>
+    <string name="settings_autoscan_charging">Analyser seulement en charge</string>
+    <string name="settings_autoscan_night">Analyser seulement la nuit</string>
+    <string name="settings_autoscan_night_hint">Entre %1$s et %2$s (la nuit des téléchargements)</string>
+    <string name="hours_short">%1$d h</string>
+    <string name="update_offer_title">La version %1$s est disponible</string>
+    <string name="update_offer_message">La télécharger et l\'installer maintenant ? Le fichier est vérifié avec les sommes de contrôle de la version ; Android demande ensuite de confirmer.</string>
+    <string name="update_offer_install">Installer</string>
+    <string name="update_downloading">Téléchargement de la mise à jour… %1$d %%</string>
+    <string name="update_allow_installs">Autorisez l\'installation d\'apps par Dogmatix+, puis touchez à nouveau Installer</string>
+    <string name="update_no_apk">La version ne contient pas %1$s</string>
+    <string name="update_no_checksum">Pas de somme de contrôle pour l\'APK ; non installé</string>
+    <string name="update_checksum_mismatch">Le fichier ne correspond pas à la somme de contrôle ; non installé</string>
+    <string name="update_install_failed">Échec de la mise à jour : %1$s</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d sauvegarde modifiée des deux côtés — ouvrez Dogmatix pour choisir</item>
         <item quantity="other">%d sauvegardes modifiées des deux côtés — ouvrez Dogmatix pour choisir</item>
@@ -848,6 +870,10 @@
     <plurals name="widget_new_games">
         <item quantity="one">%1$d nouveau jeu</item>
         <item quantity="other">%1$d nouveaux jeux</item>
+    </plurals>
+    <plurals name="settings_days">
+        <item quantity="one">%1$d jour</item>
+        <item quantity="other">%1$d jours</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

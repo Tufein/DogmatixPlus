@@ -8,6 +8,8 @@
     <!-- Background save sync: the periodic job survives a reboot and tells about conflicts. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- In-app update (Settings → Check for updates): hands the downloaded release APK to the installer. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- "Configure ES-DE" / "Configure iiSU" read the frontend's bundled defaults from its
          installed APK; without these entries Android 11+ package visibility hides the app and
@@ -81,6 +83,9 @@
             android:name=".data.service.AutoScanJobService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+        <receiver
+            android:name=".data.service.UpdateInstallReceiver"
+            android:exported="false" />
         <!-- Home-screen widget: downloads in progress and games recent rescans found (widget/WidgetUpdater). -->
         <receiver
             android:name=".widget.DogmatixWidget"

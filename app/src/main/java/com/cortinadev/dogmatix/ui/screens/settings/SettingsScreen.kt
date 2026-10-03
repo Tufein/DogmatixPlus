@@ -84,6 +84,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import com.cortinadev.dogmatix.ui.screens.sources.SourcesViewModel
 import com.cortinadev.dogmatix.ui.screens.sources.components.ConfirmDialog
+import androidx.compose.ui.res.pluralStringResource
 import java.text.DateFormat
 import java.time.LocalDate
 import java.util.Date
@@ -118,8 +119,20 @@ fun SettingsScreen(
 ) {
     val ui by viewModel.uiState.collectAsState()
     val more by extra.state.collectAsState()
+    val v2 by extra.v2.collectAsState()
+    val updateOffer by extra.updateOffer.collectAsState()
+    val updateProgress by extra.updateProgress.collectAsState()
     val context = LocalContext.current
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    updateOffer?.let { tag ->
+        ConfirmDialog(
+            title = stringResource(R.string.update_offer_title, tag),
+            message = stringResource(R.string.update_offer_message),
+            confirmText = stringResource(R.string.update_offer_install),
+            onConfirm = { extra.installUpdate(context) },
+            onDismiss = extra::dismissUpdateOffer
+        )
+    }
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let {
@@ -344,6 +357,14 @@ fun SettingsScreen(
                 ThemedSwitch(ui.swapFaceButtons) { viewModel.onSwapFaceButtonsChanged(context, it) }
             }
         },
+        SettingsRow(right = true) {
+            SettingRow(
+                title = stringResource(R.string.settings_bold_focus),
+                hint = stringResource(R.string.settings_bold_focus_hint),
+                onClick = { extra.setBoldFocus(context, !v2.boldFocus) },
+                onAdjust = { extra.setBoldFocus(context, it > 0) }
+            ) { ThemedSwitch(v2.boldFocus) { extra.setBoldFocus(context, it) } }
+        },
         SettingsRow(right = false) {
             SettingRow(
                 title = stringResource(R.string.settings_concurrent_label),
@@ -368,6 +389,14 @@ fun SettingsScreen(
                     valueWidth = 110.dp
                 )
             }
+        },
+        SettingsRow(right = true) {
+            if (limitKb > 0) SettingRow(
+                title = stringResource(R.string.settings_limit_day_only),
+                hint = stringResource(R.string.settings_limit_day_only_hint, DownloadPolicy.formatMinutes(more.nightStart), DownloadPolicy.formatMinutes(more.nightEnd)),
+                onClick = { extra.setSpeedLimitDayOnly(context, !v2.speedLimitDayOnly) },
+                onAdjust = { extra.setSpeedLimitDayOnly(context, it > 0) }
+            ) { ThemedSwitch(v2.speedLimitDayOnly) { extra.setSpeedLimitDayOnly(context, it) } }
         },
         SettingsRow(right = true) {
             SettingRow(
@@ -453,6 +482,46 @@ fun SettingsScreen(
                 title = stringResource(R.string.settings_dl_night_end), hint = null,
                 onClick = { shiftNightEnd(1) }, onAdjust = ::shiftNightEnd
             ) { Stepper(DownloadPolicy.formatMinutes(more.nightEnd), onDecrement = { shiftNightEnd(-1) }, onIncrement = { shiftNightEnd(1) }, valueWidth = 72.dp) }
+        },
+        SettingsRow(right = false) {
+            SettingRow(
+                title = stringResource(R.string.settings_autoscan),
+                hint = if (v2.autoScanLast > 0) stringResource(R.string.settings_autoscan_last, android.text.format.DateUtils.getRelativeTimeSpanString(v2.autoScanLast).toString())
+                       else stringResource(R.string.settings_autoscan_hint),
+                onClick = { extra.setAutoScan(context, !v2.autoScan) },
+                onAdjust = { extra.setAutoScan(context, it > 0) }
+            ) { ThemedSwitch(v2.autoScan) { extra.setAutoScan(context, it) } }
+        },
+        SettingsRow(right = false) {
+            if (v2.autoScan) SettingRow(
+                title = stringResource(R.string.settings_autoscan_every), hint = null,
+                onClick = { extra.shiftAutoScanHours(context, 1) }, onAdjust = { extra.shiftAutoScanHours(context, it) }
+            ) {
+                Stepper(
+                    if (v2.autoScanHours % 24 == 0) pluralStringResource(R.plurals.settings_days, v2.autoScanHours / 24, v2.autoScanHours / 24)
+                    else stringResource(R.string.hours_short, v2.autoScanHours),
+                    onDecrement = { extra.shiftAutoScanHours(context, -1) }, onIncrement = { extra.shiftAutoScanHours(context, 1) }, valueWidth = 96.dp
+                )
+            }
+        },
+        SettingsRow(right = false) {
+            if (v2.autoScan) SettingRow(
+                title = stringResource(R.string.settings_autoscan_wifi), hint = null,
+                onClick = { extra.setAutoScanWifi(context, !v2.autoScanWifi) }, onAdjust = { extra.setAutoScanWifi(context, it > 0) }
+            ) { ThemedSwitch(v2.autoScanWifi) { extra.setAutoScanWifi(context, it) } }
+        },
+        SettingsRow(right = false) {
+            if (v2.autoScan) SettingRow(
+                title = stringResource(R.string.settings_autoscan_charging), hint = null,
+                onClick = { extra.setAutoScanCharging(context, !v2.autoScanCharging) }, onAdjust = { extra.setAutoScanCharging(context, it > 0) }
+            ) { ThemedSwitch(v2.autoScanCharging) { extra.setAutoScanCharging(context, it) } }
+        },
+        SettingsRow(right = false) {
+            if (v2.autoScan) SettingRow(
+                title = stringResource(R.string.settings_autoscan_night),
+                hint = stringResource(R.string.settings_autoscan_night_hint, DownloadPolicy.formatMinutes(more.nightStart), DownloadPolicy.formatMinutes(more.nightEnd)),
+                onClick = { extra.setAutoScanNight(context, !v2.autoScanNight) }, onAdjust = { extra.setAutoScanNight(context, it > 0) }
+            ) { ThemedSwitch(v2.autoScanNight) { extra.setAutoScanNight(context, it) } }
         },
         SettingsRow(right = true) {
             SettingRow(
@@ -591,7 +660,7 @@ fun SettingsScreen(
         SettingsRow(right = true) {
             SettingRow(
                 title = stringResource(R.string.settings_update_check),
-                hint = stringResource(R.string.settings_update_check_hint),
+                hint = updateProgress?.let { stringResource(R.string.update_downloading, (it * 100).toInt()) } ?: stringResource(R.string.settings_update_check_hint),
                 onClick = { extra.checkForUpdates(context) }
             ) { PillButton(stringResource(R.string.settings_update_check_action)) { extra.checkForUpdates(context) } }
         },

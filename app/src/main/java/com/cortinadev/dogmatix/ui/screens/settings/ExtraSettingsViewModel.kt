@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.service.DiagnosticsService
 import com.cortinadev.dogmatix.data.service.VersionCheckerService
 import com.cortinadev.dogmatix.ui.common.executeWithToast
@@ -27,9 +28,23 @@ data class ExtraSettingsState(
     val preReleases: Boolean = false
 )
 
+/** The settings added in 2.0 (see [AppSettings]). */
+data class V2SettingsState(
+    val autoScan: Boolean = false,
+    val autoScanHours: Int = 24,
+    val autoScanWifi: Boolean = true,
+    val autoScanCharging: Boolean = true,
+    val autoScanNight: Boolean = true,
+    val autoScanLast: Long = 0L,
+    val speedLimitDayOnly: Boolean = false,
+    val boldFocus: Boolean = false
+)
+
 @HiltViewModel
 class ExtraSettingsViewModel @Inject constructor(
     private val settings: SettingsRepository,
+    private val appSettings: AppSettings,
+    private val updateInstaller: com.cortinadev.dogmatix.data.service.UpdateInstaller,
     private val versionChecker: VersionCheckerService,
     private val diagnostics: DiagnosticsService
 ) : ViewModel() {
@@ -39,6 +54,45 @@ class ExtraSettingsViewModel @Inject constructor(
         settings.downloadNightStart, settings.downloadNightEnd, settings.updatePreReleases
     ) { (wifi, charging, night), start, end, pre -> ExtraSettingsState(wifi, charging, night, start, end, pre) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ExtraSettingsState())
+
+    val v2: StateFlow<V2SettingsState> = combine(
+        combine(appSettings.autoScan, appSettings.autoScanHours, appSettings.autoScanWifiOnly, appSettings.autoScanCharging) { a, h, w, c -> listOf(a, h, w, c) },
+        appSettings.autoScanNightOnly, appSettings.autoScanLast, appSettings.speedLimitDayOnly, appSettings.boldFocus
+    ) { (a, h, w, c), night, last, dayOnly, bold ->
+        V2SettingsState(a as Boolean, h as Int, w as Boolean, c as Boolean, night, last, dayOnly, bold)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V2SettingsState())
+
+    fun setAutoScan(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoScan(on) }
+    fun setAutoScanWifi(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoScanWifiOnly(on) }
+    fun setAutoScanCharging(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoScanCharging(on) }
+    fun setAutoScanNight(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoScanNightOnly(on) }
+    fun shiftAutoScanHours(context: Context, delta: Int) = executeWithToast(context, TAG) {
+        val choices = com.cortinadev.dogmatix.util.AutoScanPolicy.INTERVALS
+        val i = choices.indexOf(v2.value.autoScanHours).takeIf { it >= 0 } ?: 1
+        appSettings.setAutoScanHours(choices[(i + delta).coerceIn(0, choices.lastIndex)])
+    }
+    fun setSpeedLimitDayOnly(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setSpeedLimitDayOnly(on) }
+    fun setBoldFocus(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setBoldFocus(on) }
+
+    /** Progress of an update download (0..1), or null when none runs. */
+    val updateProgress: StateFlow<Float?> = updateInstaller.progress
+
+    /** The newer release found by the last check, offered for installation; null when none. */
+    private val _offer = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    val updateOffer: StateFlow<String?> = _offer
+
+    fun dismissUpdateOffer() { _offer.value = null }
+
+    /** Downloads the release APK, checks it and hands it to the system installer. */
+    fun installUpdate(context: Context) {
+        val tag = _offer.value ?: return
+        _offer.value = null
+        val app = context.applicationContext
+        viewModelScope.launch {
+            val error = updateInstaller.downloadAndInstall(tag)
+            if (error != null) ToastUtil.showError(app, app.getString(R.string.update_install_failed, error))
+        }
+    }
 
     fun setWifiOnly(context: Context, on: Boolean) = executeWithToast(context, TAG) { settings.setDownloadWifiOnly(on) }
     fun setChargingOnly(context: Context, on: Boolean) = executeWithToast(context, TAG) { settings.setDownloadChargingOnly(on) }
@@ -51,7 +105,7 @@ class ExtraSettingsViewModel @Inject constructor(
         val app = context.applicationContext
         viewModelScope.launch {
             when (val result = versionChecker.check(app)) {
-                is VersionCheckerService.Result.Available -> ToastUtil.showInfo(app, app.getString(R.string.update_available, result.tag))
+                is VersionCheckerService.Result.Available -> _offer.value = result.tag
                 is VersionCheckerService.Result.UpToDate -> ToastUtil.showSuccess(app, app.getString(R.string.update_none, result.tag))
                 VersionCheckerService.Result.Failed -> ToastUtil.showError(app, app.getString(R.string.update_failed))
             }

@@ -101,6 +101,7 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var pendingFilters: PendingLibraryFilters
     @Inject lateinit var saveSyncService: SaveSyncService
+    @Inject lateinit var appSettings: com.cortinadev.dogmatix.data.local.AppSettings
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -117,11 +118,14 @@ class MainActivity : AppCompatActivity() {
                 Gamepad.layout.value = settings.gamepadLayout
                 Gamepad.swapFaceButtons.value = settings.swapFaceButtons
             }
+            val boldFocus by appSettings.boldFocus.collectAsState(initial = false)
             DogmatixTheme(themeMode = settings.themeMode, accent = settings.accent) {
-                when (onboardingDone) {
-                    null -> Unit                      // DataStore not read yet: avoid flashing the wrong screen
-                    false -> OnboardingHost()
-                    true -> DogmatixApp(pendingFilters)
+                CompositionLocalProvider(com.cortinadev.dogmatix.ui.components.LocalBoldFocus provides boldFocus) {
+                    when (onboardingDone) {
+                        null -> Unit                      // DataStore not read yet: avoid flashing the wrong screen
+                        false -> OnboardingHost()
+                        true -> DogmatixApp(pendingFilters)
+                    }
                 }
             }
         }

@@ -726,6 +726,28 @@
     <string name="widget_description">Descargas en curso y juegos nuevos</string>
     <string name="widget_no_downloads">No hay descargas en curso</string>
     <string name="widget_no_new">Sin juegos nuevos últimamente</string>
+    <string name="settings_limit_day_only">Sin límite de noche</string>
+    <string name="settings_limit_day_only_hint">El límite se levanta entre las %1$s y las %2$s</string>
+    <string name="settings_bold_focus">Borde de foco grueso</string>
+    <string name="settings_bold_focus_hint">Más visible con mando, en una tele o al sol</string>
+    <string name="settings_autoscan">Escanear fuentes automáticamente</string>
+    <string name="settings_autoscan_hint">En segundo plano; te avisa cuando aparecen juegos nuevos</string>
+    <string name="settings_autoscan_last">Último escaneo en segundo plano: %1$s</string>
+    <string name="settings_autoscan_every">Escanear cada</string>
+    <string name="settings_autoscan_wifi">Escanear solo con wifi</string>
+    <string name="settings_autoscan_charging">Escanear solo mientras carga</string>
+    <string name="settings_autoscan_night">Escanear solo de noche</string>
+    <string name="settings_autoscan_night_hint">Entre las %1$s y las %2$s (la noche de las descargas)</string>
+    <string name="hours_short">%1$d h</string>
+    <string name="update_offer_title">La versión %1$s está disponible</string>
+    <string name="update_offer_message">¿Descargarla e instalarla ahora? La descarga se comprueba con las sumas de la versión; luego Android pide confirmación.</string>
+    <string name="update_offer_install">Instalar</string>
+    <string name="update_downloading">Descargando la actualización… %1$d %%</string>
+    <string name="update_allow_installs">Permite que Dogmatix+ instale apps y vuelve a tocar Instalar</string>
+    <string name="update_no_apk">La versión no incluye %1$s</string>
+    <string name="update_no_checksum">No hay suma de comprobación para el APK; no se instala</string>
+    <string name="update_checksum_mismatch">La descarga no coincide con la suma de comprobación; no se instala</string>
+    <string name="update_install_failed">Error al actualizar: %1$s</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d partida cambió en ambos lados — abre Dogmatix para elegir</item>
         <item quantity="other">%d partidas cambiaron en ambos lados — abre Dogmatix para elegir</item>
@@ -817,6 +839,10 @@
     <plurals name="widget_new_games">
         <item quantity="one">%1$d juego nuevo</item>
         <item quantity="other">%1$d juegos nuevos</item>
+    </plurals>
+    <plurals name="settings_days">
+        <item quantity="one">%1$d día</item>
+        <item quantity="other">%1$d días</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>
