@@ -661,6 +661,19 @@
     <string name="language_pt">Português</string>
     <string name="accent_dialog_title">Colore principale</string>
     <string name="accent_dynamic_hint">Il primo è Material You: i colori seguono il tuo sfondo.</string>
+    <string name="scan_fail_rate_limited">il server chiede di rallentare (429)</string>
+    <string name="scan_fail_server">errore del server (%1$d)</string>
+    <string name="scan_fail_not_found">non trovato (%1$d) — controlla l\'indirizzo</string>
+    <string name="scan_fail_forbidden">accesso negato (%1$d) — forse un controllo anti-bot</string>
+    <string name="scan_fail_timeout">nessuna risposta in tempo</string>
+    <string name="scan_fail_network">nessuna connessione al server</string>
+    <string name="scan_fail_no_table">nessun elenco di file nella pagina</string>
+    <string name="scan_fail_torrent">l\'elenco dei file del torrent non è arrivato (due volte)</string>
+    <string name="scan_fail_other">errore imprevisto</string>
+    <string name="source_result_ok">✓ %1$d giochi · %2$s</string>
+    <string name="source_result_failed">⚠ %1$s · %2$s</string>
+    <string name="scan_report_hint">I server sovraccarichi di solito si riprendono in un minuto; riscansionare solo queste spesso funziona.</string>
+    <string name="scan_report_retry">Riscansiona queste</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d salvataggio è cambiato su entrambi i lati — apri Dogmatix per scegliere</item>
         <item quantity="other">%d salvataggi sono cambiati su entrambi i lati — apri Dogmatix per scegliere</item>
@@ -724,6 +737,10 @@
     <plurals name="save_sync_held_title">
         <item quantity="one">%1$d eliminazione trattenuta</item>
         <item quantity="other">%1$d eliminazioni trattenute</item>
+    </plurals>
+    <plurals name="scan_report_title">
+        <item quantity="one">%1$d fonte non è stata scansionata</item>
+        <item quantity="other">%1$d fonti non sono state scansionate</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

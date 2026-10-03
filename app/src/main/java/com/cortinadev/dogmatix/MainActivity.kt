@@ -252,6 +252,15 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
         sourcesViewModel.initializeSources()
     }
 
+    val scanReport by sourcesViewModel.scanReport.collectAsState()
+    scanReport?.let { failed ->
+        com.cortinadev.dogmatix.ui.screens.sources.components.ScanReportDialog(
+            failures = failed,
+            onRetry = sourcesViewModel::retryFailedSources,
+            onDismiss = sourcesViewModel::dismissScanReport
+        )
+    }
+
     if (rescanErrorMessage != null) {
         AlertDialog(
             onDismissRequest = { sourcesViewModel.clearRescanError() },

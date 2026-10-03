@@ -49,8 +49,41 @@ class SourcesViewModel @Inject constructor(
     private val pathResolver: ConsoleDownloadPathResolver,
     private val folderMergeService: FolderMergeService,
     private val libraryIndexService: LibraryIndexService,
-    private val rommClient: RommClient
+    private val rommClient: RommClient,
+    private val scanResults: com.cortinadev.dogmatix.data.state.SourceScanResults
 ) : ViewModel() {
+
+    /** The last scan's outcome per source (`consoleId|url`), shown under each URL. */
+    val sourceResults: StateFlow<Map<String, com.cortinadev.dogmatix.data.state.SourceScanResult>> = scanResults.results
+
+    /** Non-null after a scan in which some sources failed. */
+    val scanReport: StateFlow<List<com.cortinadev.dogmatix.util.ScanFailure>?> = rescanStateHolder.scanReport
+
+    fun dismissScanReport() = rescanStateHolder.dismissScanReport()
+
+    /**
+     * Scans again only the sources that failed (nothing else is cleared): servers often recover
+     * within a minute, and a second, calmer pass usually gets the rest.
+     */
+    fun retryFailedSources() {
+        val failed = scanReport.value.orEmpty()
+        rescanStateHolder.dismissScanReport()
+        if (failed.isEmpty() || rescanStateHolder.isRescanning.value) return
+        viewModelScope.launch {
+            val byConsole = failed.groupBy { it.consoleId }
+            withRescanState {
+                rescanStateHolder.startProgress(failed.size)
+                coroutineScope {
+                    byConsole.forEach { (consoleId, list) ->
+                        val entity = sources.getConsoleEntity(consoleId) ?: return@forEach
+                        val urls = SourcesJson.parseUrlEntries(entity.urls).filter { u -> u.enabled && list.any { it.url == u.url } }
+                        if (urls.isEmpty()) return@forEach
+                        launch { scrapeConsole(Console(entity.id, entity.name, urls), entity.manufacturerId) }
+                    }
+                }
+            }
+        }
+    }
 
     /** RomM platforms offered in the source dialog; empty when RomM is not configured or unreachable. */
     private val _rommPlatforms = MutableStateFlow<List<RommPlatform>>(emptyList())
@@ -302,8 +335,12 @@ class SourcesViewModel @Inject constructor(
     private suspend fun scrapeConsole(console: Console, manufacturerId: String) {
         databaseScrapingService.scrapeManufacturer(
             Manufacturer(manufacturerId, manufacturerId, listOf(console)),
-            onScrapeError = { rescanStateHolder.setErrorMessage(it) },
-            onSourceDone = rescanStateHolder::advanceProgress
+            // Failures are collected and reported once at the end, not one dialog each.
+            onScrapeError = rescanStateHolder::addFailure,
+            onSourceDone = rescanStateHolder::advanceProgress,
+            onSourceResult = { c, url, files, failure ->
+                scanResults.record(c.id, url, com.cortinadev.dogmatix.data.state.SourceScanResult(files, failure?.kind, failure?.httpCode))
+            }
         )
         // A console with nothing enabled still counts as one step (see scanWeight).
         if (console.urls.none { it.enabled }) rescanStateHolder.advanceProgress()
@@ -316,8 +353,11 @@ class SourcesViewModel @Inject constructor(
 
     private suspend fun withRescanState(block: suspend () -> Unit) {
         rescanStateHolder.setRescanning(true)
+        rescanStateHolder.beginScanReport()
+        databaseScrapingService.resetForScan()
         try {
             block()
+            rescanStateHolder.publishScanReport()
         } finally {
             rescanStateHolder.setRescanning(false)
             rescanStateHolder.clearProgressMessage()

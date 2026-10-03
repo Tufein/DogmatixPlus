@@ -710,6 +710,19 @@
     <string name="language_pt">Português</string>
     <string name="accent_dialog_title">Akzentfarbe</string>
     <string name="accent_dynamic_hint">Die erste ist Material You: die Farben folgen deinem Hintergrundbild.</string>
+    <string name="scan_fail_rate_limited">der Server bittet um weniger Anfragen (429)</string>
+    <string name="scan_fail_server">Serverfehler (%1$d)</string>
+    <string name="scan_fail_not_found">nicht gefunden (%1$d) — prüfe die Adresse</string>
+    <string name="scan_fail_forbidden">Zugriff verweigert (%1$d) — vielleicht eine Bot-Prüfung</string>
+    <string name="scan_fail_timeout">keine Antwort rechtzeitig</string>
+    <string name="scan_fail_network">keine Verbindung zum Server</string>
+    <string name="scan_fail_no_table">keine Dateiliste auf der Seite</string>
+    <string name="scan_fail_torrent">die Dateiliste des Torrents kam nicht an (zweimal)</string>
+    <string name="scan_fail_other">unerwarteter Fehler</string>
+    <string name="source_result_ok">✓ %1$d Spiele · %2$s</string>
+    <string name="source_result_failed">⚠ %1$s · %2$s</string>
+    <string name="scan_report_hint">Ausgelastete Server erholen sich meist innerhalb einer Minute; nur diese erneut zu scannen klappt oft.</string>
+    <string name="scan_report_retry">Diese erneut scannen</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d Spielstand wurde auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
         <item quantity="other">%d Spielstände wurden auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
@@ -773,6 +786,10 @@
     <plurals name="save_sync_held_title">
         <item quantity="one">%1$d Löschung zurückgehalten</item>
         <item quantity="other">%1$d Löschungen zurückgehalten</item>
+    </plurals>
+    <plurals name="scan_report_title">
+        <item quantity="one">%1$d Quelle konnte nicht gescannt werden</item>
+        <item quantity="other">%1$d Quellen konnten nicht gescannt werden</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

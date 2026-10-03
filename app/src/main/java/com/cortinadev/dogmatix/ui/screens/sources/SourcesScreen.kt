@@ -45,6 +45,7 @@ fun SourcesScreen(
 ) {
     val manufacturers by viewModel.manufacturers.collectAsState(initial = emptyList())
     val isRescanning by viewModel.isRescanning.collectAsState()
+    val sourceResults by viewModel.sourceResults.collectAsState()
     val consoleDownloadPaths by viewModel.consoleDownloadPaths.collectAsState()
     val downloadDirectory by viewModel.downloadDirectory.collectAsState()
     val context = LocalContext.current
@@ -165,7 +166,8 @@ fun SourcesScreen(
                         directoryPicker.launch(null)
                     },
                     onRefreshConsole = { viewModel.refreshConsole(console.id) },
-                    onMergeFolders = { viewModel.showMergeDialog(console.id) }
+                    onMergeFolders = { viewModel.showMergeDialog(console.id) },
+                    resultFor = { sourceResults[com.cortinadev.dogmatix.data.state.SourceScanResults.key(console.id, it.url)] }
                 )
             }
         }

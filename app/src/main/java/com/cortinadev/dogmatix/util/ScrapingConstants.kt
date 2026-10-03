@@ -8,8 +8,12 @@ object ScrapingConstants {
     const val REQUEST_DELAY_MS = 200L
     /** Sources of each kind scanned at the same time (see DatabaseScrapingService). */
     const val PARALLEL_HTTP = 4
-    const val PARALLEL_TORRENTS = 3
+    const val PARALLEL_TORRENTS = 2
     const val PARALLEL_ROMM = 2
+    /** Pause per request once a server has pushed back (429 / 5xx). */
+    const val SLOW_REQUEST_DELAY_MS = 1500L
+    /** Tries per listing when the server or network has a bad moment (see ScanFailures). */
+    const val MAX_ATTEMPTS = 5
     /** Directory listings fetched from one host at the same time. */
     const val PARALLEL_PER_HOST = 2
     const val USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"

@@ -710,6 +710,19 @@
     <string name="language_pt">Português</string>
     <string name="accent_dialog_title">Accentkleur</string>
     <string name="accent_dynamic_hint">De eerste is Material You: de kleuren volgen je achtergrond.</string>
+    <string name="scan_fail_rate_limited">de server vroeg om rustiger aan te doen (429)</string>
+    <string name="scan_fail_server">serverfout (%1$d)</string>
+    <string name="scan_fail_not_found">niet gevonden (%1$d) — controleer het adres</string>
+    <string name="scan_fail_forbidden">toegang geweigerd (%1$d) — misschien een botcontrole</string>
+    <string name="scan_fail_timeout">geen antwoord op tijd</string>
+    <string name="scan_fail_network">geen verbinding met de server</string>
+    <string name="scan_fail_no_table">geen bestandenlijst op de pagina</string>
+    <string name="scan_fail_torrent">de bestandenlijst van de torrent kwam niet binnen (twee keer)</string>
+    <string name="scan_fail_other">onverwachte fout</string>
+    <string name="source_result_ok">✓ %1$d games · %2$s</string>
+    <string name="source_result_failed">⚠ %1$s · %2$s</string>
+    <string name="scan_report_hint">Drukke servers herstellen meestal binnen een minuut; alleen deze opnieuw scannen lukt vaak.</string>
+    <string name="scan_report_retry">Deze opnieuw scannen</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save is op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
         <item quantity="other">%d saves zijn op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
@@ -773,6 +786,10 @@
     <plurals name="save_sync_held_title">
         <item quantity="one">%1$d verwijdering tegengehouden</item>
         <item quantity="other">%1$d verwijderingen tegengehouden</item>
+    </plurals>
+    <plurals name="scan_report_title">
+        <item quantity="one">%1$d bron kon niet worden gescand</item>
+        <item quantity="other">%1$d bronnen konden niet worden gescand</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

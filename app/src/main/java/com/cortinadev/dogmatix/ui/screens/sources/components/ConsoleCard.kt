@@ -34,7 +34,9 @@ fun ConsoleCard(
     onToggleUrl: (Int, Boolean) -> Unit,
     onSetCustomDownloadPath: () -> Unit,
     onRefreshConsole: () -> Unit,
-    onMergeFolders: () -> Unit = {}
+    onMergeFolders: () -> Unit = {},
+    /** How the last scan of a source went, if known. */
+    resultFor: (com.cortinadev.dogmatix.data.model.UrlEntry) -> com.cortinadev.dogmatix.data.state.SourceScanResult? = { null }
 ) {
     var expanded by remember { mutableStateOf(false) }
     // D-pad: when any button inside gains focus, scroll the whole card into view (not just the button),
@@ -145,6 +147,7 @@ fun ConsoleCard(
                     console.urls.forEachIndexed { index, urlEntry ->
                         UrlItem(
                             urlEntry = urlEntry,
+                            result = resultFor(urlEntry),
                             onEdit = { onEditUrl(index, urlEntry) },
                             onDelete = { onDeleteUrl(index, urlEntry) },
                             onToggle = { onToggleUrl(index, it) }
@@ -159,6 +162,7 @@ fun ConsoleCard(
 @Composable
 private fun UrlItem(
     urlEntry: com.cortinadev.dogmatix.data.model.UrlEntry,
+    result: com.cortinadev.dogmatix.data.state.SourceScanResult? = null,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onToggle: (Boolean) -> Unit
@@ -195,6 +199,11 @@ private fun UrlItem(
                            else stringResource(R.string.sources_url_disabled),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                if (result != null && urlEntry.enabled) Text(
+                    text = sourceResultText(result),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (result.failure != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary
                 )
             }
 

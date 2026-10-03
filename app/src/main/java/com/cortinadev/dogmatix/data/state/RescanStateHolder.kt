@@ -57,4 +57,18 @@ class RescanStateHolder @Inject constructor() {
     fun setTorrentFetchProgress(message: String) { _torrentFetchProgress.value = message }
     fun clearTorrentFetchProgress() { _torrentFetchProgress.value = "" }
     fun setErrorMessage(message: String?) { _errorMessage.value = message }
+
+    /** Sources that failed in the running scan; shown as one report when it ends. */
+    private val failures = java.util.Collections.synchronizedList(mutableListOf<com.cortinadev.dogmatix.util.ScanFailure>())
+    private val _scanReport = MutableStateFlow<List<com.cortinadev.dogmatix.util.ScanFailure>?>(null)
+    /** Non-null after a scan in which some sources failed (one app-wide report, whichever screen started it). */
+    val scanReport: StateFlow<List<com.cortinadev.dogmatix.util.ScanFailure>?> = _scanReport.asStateFlow()
+
+    fun beginScanReport() { failures.clear() }
+    fun addFailure(failure: com.cortinadev.dogmatix.util.ScanFailure) { failures += failure }
+    fun publishScanReport() {
+        val failed = synchronized(failures) { failures.toList() }
+        if (failed.isNotEmpty()) _scanReport.value = failed
+    }
+    fun dismissScanReport() { _scanReport.value = null }
 }

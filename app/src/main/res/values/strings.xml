@@ -711,6 +711,19 @@
     <string name="language_pt">Português</string>
     <string name="accent_dialog_title">Accent colour</string>
     <string name="accent_dynamic_hint">The first one is Material You: the colours follow your wallpaper.</string>
+    <string name="scan_fail_rate_limited">the server asked to slow down (429)</string>
+    <string name="scan_fail_server">server error (%1$d)</string>
+    <string name="scan_fail_not_found">not found (%1$d) — check the address</string>
+    <string name="scan_fail_forbidden">access refused (%1$d) — maybe a bot check</string>
+    <string name="scan_fail_timeout">no answer in time</string>
+    <string name="scan_fail_network">no connection to the server</string>
+    <string name="scan_fail_no_table">no file list on the page</string>
+    <string name="scan_fail_torrent">the torrent\'s file list did not arrive (twice)</string>
+    <string name="scan_fail_other">unexpected error</string>
+    <string name="source_result_ok">✓ %1$d games · %2$s</string>
+    <string name="source_result_failed">⚠ %1$s · %2$s</string>
+    <string name="scan_report_hint">Busy servers usually recover within a minute; scanning only these again often gets them.</string>
+    <string name="scan_report_retry">Scan these again</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save changed on both sides — open Dogmatix to choose</item>
         <item quantity="other">%d saves changed on both sides — open Dogmatix to choose</item>
@@ -774,6 +787,10 @@
     <plurals name="save_sync_held_title">
         <item quantity="one">%1$d deletion held back</item>
         <item quantity="other">%1$d deletions held back</item>
+    </plurals>
+    <plurals name="scan_report_title">
+        <item quantity="one">%1$d source could not be scanned</item>
+        <item quantity="other">%1$d sources could not be scanned</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>
