@@ -45,17 +45,23 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 - Elke console krijgt **een eigen map**. Mappen die je al hebt (zoals `gba` of `psx`) worden hergebruikt, en je kunt twee mappen die bij dezelfde console horen samenvoegen.
 - Je **downloadlijst blijft bewaard** als je de app sluit. Selecteer meerdere downloads om ze samen te stoppen, opnieuw te proberen of te verwijderen.
 - Optioneel: **TorBox** en **Real-Debrid** — betaalde diensten die torrents voor je ophalen, zodat de download een gewoon, snel bestand is.
+- **Alleen op wifi, alleen tijdens het opladen of alleen 's nachts** *(nieuw, alfa)*: nieuwe downloads wachten tot aan de ingestelde voorwaarden is voldaan en zeggen waarop ze wachten. Een **controlegetal-check** vergelijkt een klaar bestand met de hash die de bron publiceert. In de game-info kiest **Beste versie** de versie die bij jou past (jouw regio en taal, geen demo's). Een voltooide download kun je in een emulator **openen**.
 
 ### Je collectie netjes houden *(nieuw in DogmatixPlus)*
 - **Dubbele games**: vindt games die meer dan eens op je toestel staan, laat zien hoeveel ruimte je wint en laat je de extra kopie verwijderen. Er wordt niets verwijderd voordat je precies hebt gezien welke bestanden verdwijnen.
 - **Bibliotheekoverzicht**: voor elke console hoeveel games er in de lijst staan, hoeveel je er in bezit hebt, hoeveel er op je toestel staan en hoe groot dat is, en wanneer er voor het laatst is gescand.
 - **Back-up maken en terugzetten**: sla je instellingen, bronnen, favorieten en downloads op in één bestand en zet ze later terug — handig voor een nieuw toestel.
 - **Scanvoortgang**: een percentage en de resterende tijd terwijl je bronnen worden gelezen.
+- **Game-sets** *(nieuw, alfa)*: vindt schijfkopieën die niet kunnen draaien (een `.cue` waarvan de track weg is, een afspeellijst die een verwijderde schijf noemt) en maakt `.m3u`-afspeellijsten voor games met meerdere schijven.
+- **Opslag**: ruimte per console, je grootste games, en of de downloads in de wachtrij nog passen.
+- **Verlanglijst**: noteer games die je wilt hebben; je krijgt een melding zodra er een in je bronnen opduikt.
+- **Exporteer** je collectie als spreadsheet (CSV) of webpagina. De zoeker naar dubbele games kan ook **voorstellen welke kopie je houdt**.
 
 ### Gemaakt voor handhelds
 - **Bedien alles met een gamepad**: D-pad, A/B/X/Y en de schouderknoppen. De hints onderaan het scherm passen bij jouw pad (Xbox, Nintendo of PlayStation), en je kunt de knoppen omwisselen als je pad ze andersom doorgeeft.
 - **Liggende en staande** indeling, met een filterpaneel naast de lijst op brede schermen.
 - **Licht, donker of echt zwart** thema (mooi op OLED-schermen) en vijf accentkleuren.
+- **◀ ▶ springt door de bibliotheek op beginletter**, handig bij een lange lijst zonder aanraakscherm.
 
 ### Werkt met je gamelauncher
 - **ES-DE** en **iiSU** krijgen in elke console een vermelding "Search for more games", ingesteld met één knop. **Daijishō** laat je de paar waarden zien die je zelf moet invullen.
@@ -63,13 +69,15 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 ### Werkt met RomM
 - Stuur voltooide downloads naar je **RomM**-server, of gebruik RomM als bron van games.
 - **Saves synchroniseren** *(nieuw, bèta)*: je RomM-server bewaart je **opgeslagen spellen en save states**. Kies de mappen waarin je emulator opslaat (voor RetroArch: `saves` en `states`) en DogmatixPlus stuurt nieuwe voortgang naar de server en haalt nieuwere voortgang — van een andere handheld of van de webspeler van RomM — op. Is een save aan beide kanten gewijzigd, dan kies jij welke je houdt; een kopie die vervangen wordt, blijft 30 dagen bewaard. Het kan vanzelf gebeuren als je de app opent of vanuit een spel terugkomt (*Instellingen → Saves synchroniseren*).
+- *(nieuw, alfa)* Games die je RomM-server al heeft, worden in de bibliotheek **gemarkeerd**. Een server thuis met een **zelfgemaakt certificaat** werkt zodra je de vingerafdruk hebt gecontroleerd. Een onderbroken upload **gaat verder** waar hij stopte. De **covers** van RomM kunnen in ES-DE worden opgehaald.
+- *(nieuw, alfa)* Save-sync kan elke paar uur **op de achtergrond** draaien en kan ook **verwijderingen overnemen** (standaard uit, met waarborgen). Bij een save die aan beide kanten is gewijzigd zie je nu beide tijden en groottes.
 
 ### Jouw bronnen, op jouw manier
 - Voeg bronnen met de hand toe, of **importeer en exporteer** ze als bestand om ze tussen toestellen te delen. De export neemt nu ook je **★ favorieten** mee; importeren voegt ze op het andere toestel toe.
 - Een korte **startgids** helpt je om je ROM-map te kiezen en je bronnen te importeren.
 
 ### Talen
-- **Engels, Spaans, Nederlands, Frans en Duits** (*Instellingen → Taal*, of volg de taal van je telefoon).
+- **Engels, Spaans, Nederlands, Frans, Duits, Italiaans en Portugees** (*Instellingen → Taal*, of volg de taal van je telefoon).
 
 ---
 
@@ -112,6 +120,8 @@ Alles werkt ook met het touchscreen. De hints verschijnen alleen als er een cont
 - **Een back-upbestand bevat je accountsleutels** (TorBox, Real-Debrid, RomM). Houd het privé.
 - **Het venster met game-info blijft leeg in de versies van de app die je hier downloadt**, omdat het een gratis sleutel van een gamedatabase nodig heeft die wordt toegevoegd wanneer de app wordt gebouwd.
 - DogmatixPlus zoekt zelf niet naar games. Het leest alleen de bronnen die **jij** toevoegt.
+- **De nieuwste versies zijn voorlopige versies** (alfa, bèta). De updatecontrole in de app slaat ze over, tenzij je *Instellingen → Voorlopige versies meenemen* aanzet.
+- **Werkt iets niet?** *Instellingen → Diagnose delen* maakt een tekstrapport voor een foutmelding; tokens, serveradressen en magnetlinks worden eerst verwijderd.
 
 ---
 
@@ -123,7 +133,7 @@ DogmatixPlus is een kleine laag bovenop twee andere projecten. Het meeste van wa
 |---|---|---|
 | **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | De oorspronkelijke app en de hele motor ervan: bronnen lezen, games sorteren op console / regio / taal, zoeken, downloaden en uitpakken. |
 | **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) | De handheldversie: bediening met een gamepad, liggende indeling, thema's, favorieten, pauzeren en hervatten, de startgids, ES-DE / iiSU / Daijishō, TorBox en Real-Debrid, RomM. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Zoeken naar dubbele games, bibliotheekoverzicht, back-up maken en terugzetten, scanvoortgang, saves synchroniseren met RomM, de Nederlandse, Franse en Duitse vertalingen, en deze releases. |
+| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Zoeken naar dubbele games, bibliotheekoverzicht, back-up maken en terugzetten, scanvoortgang, saves synchroniseren met RomM, game-setcontrole, opslagoverzicht, verlanglijst, export, downloadplanning, controlegetal-checks, de Nederlandse, Franse, Duitse, Italiaanse en Portugese vertalingen, en deze releases. |
 
 DogmatixPlus is **gemaakt met hulp van AI**: de code, de tests en de documentatie zijn samen met een AI-assistent geschreven en in meerdere controlerondes nagekeken. De beslissingen, de richting en het publiceren liggen bij de beheerder.
 

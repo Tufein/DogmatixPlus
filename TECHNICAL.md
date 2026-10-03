@@ -2,7 +2,7 @@
 
 *This is the detailed documentation for developers and curious readers. For a simple overview, see the [README](README.md).*
 
-An unofficial modification of **[Dogmatix](https://github.com/cortinadev/dogmatix) 1.2** — the handheld-friendly fork of **[Milou](https://github.com/santiifm/milou)**, an Android app for discovering, downloading and managing retro games. Milou indexes the contents of `.torrent` files, magnet links and web directories, tags every file by console, region and language, and downloads straight into your ROMs folder; Dogmatix rebuilt the interface so the whole app works from a D-pad and buttons on Android handhelds; **DogmatixPlus adds tools to look after the library you build with it**: a duplicate finder, a library overview, backup & restore, scan progress, and Dutch, French and German.
+An unofficial modification of **[Dogmatix](https://github.com/cortinadev/dogmatix) 1.2** — the handheld-friendly fork of **[Milou](https://github.com/santiifm/milou)**, an Android app for discovering, downloading and managing retro games. Milou indexes the contents of `.torrent` files, magnet links and web directories, tags every file by console, region and language, and downloads straight into your ROMs folder; Dogmatix rebuilt the interface so the whole app works from a D-pad and buttons on Android handhelds; **DogmatixPlus adds tools to look after the library you build with it**: a duplicate finder, a library overview, backup & restore, scan progress, and Dutch, French, German, Italian and Portuguese.
 
 > The scraping, indexing, download and extraction engine is Milou's work ([santiifm](https://github.com/santiifm)); the handheld interface, gamepad support, frontend integration, debrid and RomM support are Dogmatix's ([Rafa Cortina](https://github.com/cortinadev)). Everything they built is still here — see [Credits](#credits).
 
@@ -10,7 +10,7 @@ Download links and screenshots are in the [README](README.md).
 
 ## What DogmatixPlus adds
 
-Everything is under **Settings**, works with a gamepad and with touch, and is available in English, Spanish, Dutch, French and German.
+Everything is under **Settings**, works with a gamepad and with touch, and is available in English, Spanish, Dutch, French, German, Italian and Portuguese.
 
 ### Duplicate games
 *Settings → Duplicate games* finds games that are on disk more than once, per console, and frees the space.
@@ -57,13 +57,46 @@ A sources export (*Sources → Export*) now carries your ★ favourites as a `_f
 ### Scan progress
 While sources are scanned the indicator in the top bar fills up and shows a **percentage**, counted per source. The overview adds *x of y sources done*, an estimate of the **time left** and a progress bar (the estimate is rough while torrents are involved).
 
-### Dutch, French and German
-The whole app — including scan messages, errors, the download notification and the update notice that used to be fixed English — is available in **Dutch, French and German** next to English and Spanish. Pick it in *Settings → Language*, or let it follow the system; Android's per-app language setting lists them too.
+### Dutch, French, German, Italian and Portuguese
+The whole app — including scan messages, errors, the download notification and the update notice that used to be fixed English — is available in **Dutch, French and German** (1.0.0) and **Italian and Portuguese** (1.2.0-alpha.1) next to English and Spanish. Pick it in *Settings → Language*, or let it follow the system; Android's per-app language setting lists them too.
+
+### What 1.2.0-alpha.1 adds
+Everything below is new in the alpha; none of it has been tried against a real RomM server yet (see the release notes for what was and was not tested).
+
+**RomM**
+- **Games on RomM are marked.** `RommLibraryService` reads the game list of every mapped platform (`/api/roms?platform_ids=…`), turns it into `consoleId|name-without-extension` keys (`RommMarks`, so `Game.zip` on the server matches `Game.gba` in the library), keeps them in `files/romm_library.json` and refreshes them after six hours, when the URL, token or platform map changes, or by hand. Rows that come from the server itself always count. A finished upload adds its key at once.
+- **Self-signed HTTPS** uses trust on first use. `TlsTrust.probe` opens the TLS handshake only (no HTTP request, so no credentials) to read the leaf certificate; after the user confirms its SHA-256 fingerprint it is stored (`romm_trust_fingerprint`) and `TlsTrust.apply` gives every `HttpURLConnection` to **that host** a trust manager that accepts exactly that leaf certificate (and skips the hostname check for it) and otherwise defers to the system trust store. Other hosts are untouched. `JsonHttp` and the download client both call it, so RomM downloads and covers work too.
+- **Resumable uploads.** The chunked upload session (`upload_id`, next chunk) of each file is written to `files/romm_upload_sessions.json` after every accepted chunk. A retry — also after the process died, picked up at the next start — skips the chunks already sent. A transient failure (no connection, 5xx, 408, 429) keeps the session; a 4xx on a resumed session means the server forgot it, so the upload starts over; other failures cancel the session. RomM has no endpoint to ask which chunks it holds, so the app trusts its own record.
+- **Covers for ES-DE** (`RommCoverService`): pairs the games on disk (from the library scan) with the server's covers by file-name stem, per ES-DE system (the console's folder name), and writes missing ones to `<ES-DE folder>/downloaded_media/<system>/covers/<stem>.<ext>`. The cover URL is `/assets/romm/resources/<path_cover_large>`; existing covers are never replaced.
+
+**Save sync**
+- **Background**: `SaveSyncScheduler` keeps one periodic `JobScheduler` job in step with the settings (interval, unmetered network or any, charging, persisted across reboots). `SaveSyncJobService` runs `SaveSyncService.sync()` and posts a notification only for conflicts or failures.
+- **Deletions** (opt-in): the planner knows `DeleteRemote` and `DeleteLocal`. A file deleted on the device is deleted on the server only when the server copy still equals the record of the last sync (time, size, hash); the other way round likewise, with the device file backed up first. Only kinds with a picked folder are considered, so un-picking a folder never looks like a mass deletion. The engine holds all deletions back when there are more than `max(3, records / 4)` until the user confirms. RomM's `POST /api/saves/delete` (`/api/states/delete`) is used, with `DELETE /api/saves/{id}` as a fallback.
+- **Conflicts** show both times and sizes, which copy looks newer (`SaveConflictInfo`; the clocks may differ, so it is a hint) and the size difference.
+
+**Library tools** (*Settings → Library tools*)
+- **Game sets**: `SheetParser` reads the files a `.cue`, `.gdi` or `.m3u` names; `SetChecker` reports tracks or discs missing from the same folder, empty and unreadable sheets. `PlaylistPlanner` finds games with several discs in one folder (`(Disc 1)`, `[CD II]`, `- Disc 2`) and no playlist and writes the `.m3u` (the sheet or image of each disc, never its tracks).
+- **Storage**: `StorageInsights` — space per console, the biggest games, and the queue's need (bytes left plus room to unpack archives) against the free space.
+- **Wishlist**: a Room table (`wishlist`); after each finished scan `WishlistRepository` searches the library (`searchKey LIKE`) and notifies once per wanted title.
+- **Export**: `CollectionExport` writes CSV (spreadsheet formulas are defused) or a script-free HTML page.
+- **Duplicates**: `KeepSuggester` ranks the copies with `VersionPicker`; identical files keep the shallowest folder.
+
+**Downloads**
+- **Schedule**: `DownloadGate` watches the network (`NET_CAPABILITY_NOT_METERED`), the battery and the clock; `DownloadPolicy` decides. Downloads that have not started wait inside their job, running ones are not interrupted, *Start now* releases everything waiting at that moment.
+- **Checksum**: RomM's `sha1_hash` / `md5_hash` / `crc_hash` are stored with the indexed file (`expectedHash`, `algo:hex`) and travel into the download history; `Content-MD5` and `Digest` response headers are used when the source gives none. The finished, not unpacked file is hashed in the background and compared (`Checksums`).
+- **Best version**: `VersionPicker` scores the versions of a title by region order (from the favourite languages; *World* first), wanted language, unwanted markers (beta, proto, demo, unlicensed, bad dumps) and revision.
+- **Open**: an `ACTION_VIEW` intent on the finished file's document URI, with a read grant.
+
+**Handheld and project**
+- **◀ ▶ in the library** jump by first letter (`LetterJump`), or ten rows when the list is sorted by size.
+- **Updates**: the check can include pre-releases (`Settings → Include pre-releases`); a pre-release counts as older than its final release.
+- **Diagnostics**: `DiagnosticsService` builds the report; `DiagnosticsRedactor` removes tokens, URLs, magnet links, IP addresses, e-mail addresses and the saved secrets before it is shared.
+- **Italian and Portuguese** (European) join the other languages.
 
 ### Smaller changes
-- The app version is **1.1.0-beta.1** (DogmatixPlus numbers its own releases; 1.0.0 was the first); the Credits screen shows the whole lineage, and the update check reads this repository's releases instead of the original project's. It skips pre-releases, and a beta counts as older than its final release.
+- The app version is **1.2.0-alpha.1** (1.1.0-beta.1 before it) (DogmatixPlus numbers its own releases; 1.0.0 was the first); the Credits screen shows the whole lineage, and the update check reads this repository's releases instead of the original project's. It skips pre-releases, and a beta counts as older than its final release.
 - The `.md` extension counts as a Mega Drive ROM inside console folders (but not `README.md`).
-- 167 unit tests (89 more than Dogmatix 1.2) cover the new logic. One of them runs the save sync of two devices against a real RomM server when `ROMM_TEST_URL` and `ROMM_TEST_TOKEN` are set (it is skipped otherwise); it passed against RomM 3.10.3, 4.0.0 and 5.3.1. The 1.0.0 screens were tried on an emulator, in portrait and landscape, in the debug and in the minified release build; the 1.1.0 beta screens were not (see the release notes).
+- 260 unit tests (182 more than Dogmatix 1.2) cover the new logic. One of them runs the save sync of two devices against a real RomM server when `ROMM_TEST_URL` and `ROMM_TEST_TOKEN` are set (it is skipped otherwise); it passed against RomM 3.10.3, 4.0.0 and 5.3.1. The 1.0.0 screens were tried on an emulator, in portrait and landscape, in the debug and in the minified release build; the 1.1.0 beta screens were not (see the release notes).
 
 The full list is in [CHANGELOG.md](CHANGELOG.md).
 
@@ -132,13 +165,13 @@ Milou was designed for phones and touch. On a handheld with a small landscape sc
 ### RomM
 - Settings → *Save sync* keeps emulator saves and save states in sync with the server (see [Save sync with RomM](#save-sync-with-romm-110-beta)).
 - Settings → *RomM server*: URL, API token (`rmm_…` client token or `user:password`), *Test connection*, *Upload finished downloads*, and one stepper per console to pick the RomM platform it uploads to. Suggestions come from the same folder-alias table used for frontend folders (`gba`, `psx`, `snes`…); *Apply suggestions* maps every unmapped console at once.
-- Every download that finishes while the switch is on (and whose console is mapped) is uploaded with RomM's chunked API (`/api/roms/upload/start` → chunks → `complete`); extracted archives upload each extracted file. The Downloads row shows *↑ RomM n%*, *Uploaded* or *failed* with a retry button. Uploads are not resumed after the process dies — use the retry button. Plain `http://` servers are allowed (cleartext traffic is enabled for the app); self-signed HTTPS is not supported.
+- Every download that finishes while the switch is on (and whose console is mapped) is uploaded with RomM's chunked API (`/api/roms/upload/start` → chunks → `complete`); extracted archives upload each extracted file. The Downloads row shows *↑ RomM n%*, *Uploaded* or *failed* with a retry button. A cut-short upload resumes from the chunk it stopped at (also after the app was killed). Plain `http://` servers are allowed (cleartext traffic is enabled for the app); self-signed HTTPS works after you confirm the certificate's fingerprint once (*RomM server → Server certificate*).
 - **RomM as a source**: in Sources → *Add URL*, pick one of the server's platforms (or type `romm://<slug>`) and the console indexes every ROM RomM has for it; downloads go through RomM's `/api/roms/{id}/content/…` with the account credentials, and files that came from RomM are never uploaded back.
 - RomM only lists a ROM once it has scanned it, and scanning is not exposed through its REST API: either run a scan from the RomM web UI after uploading, or start RomM with `ENABLE_RESCAN_ON_FILESYSTEM_CHANGE=true` so uploaded files are picked up automatically.
 
 ### Settings
 - Theme (System / Light / Dark / **True black**, a pure `#000000` background for AMOLED screens) and accent colour (5 presets), persisted in DataStore.
-- Language (System / English / Spanish / Dutch / French / German). *(DogmatixPlus added Dutch, French and German.)*
+- Language (System / English / Spanish / Dutch / French / German / Italian / Portuguese). *(DogmatixPlus added Dutch, French, German, Italian and Portuguese.)*
 - Download directory, concurrent downloads and speed limit as steppers (◀ ▶ with the controller), switches for auto-unzip and per-console subfolders, favorite languages picker, "About & contact".
 - *Maximum search results* stepper (50 / 100 / 250 / 500 / Unlimited, default 100): how many games a library search loads at once; *Load more* fetches the next batch, *Unlimited* lists everything the filters match.
 - *Metadata timeout* stepper (10–180 s, default 20): how long a rescan or a direct torrent download waits for a magnet's file list before giving up — raise it on slow trackers/DHT.
@@ -267,8 +300,11 @@ Everything is also reachable by touch; the legend only appears while a controlle
 
 Planned features, in no particular order:
 
-- **RomM: mark games already in RomM** as owned in the library (today only uploads are supported).
-- **Save sync in the background** (on a schedule, without opening the app), and per-console save folders for standalone emulators.
+- Try everything in 1.2.0-alpha.1 against real RomM servers and a real handheld, and fix what that shows (certificate trust, resumed uploads, deletion sync, background sync, covers, the schedule and the checksum check have only been covered by unit tests so far).
+- Per-console save folders for standalone emulators.
+- A "wanted" status from the wishlist that also checks RomM's library, and cover art for frontends other than ES-DE.
+- ~~Mark games already in RomM as owned in the library~~ — done in 1.2.0-alpha.1.
+- ~~Save sync in the background~~ — done in 1.2.0-alpha.1.
 - ~~Favourites sync across devices via the sources export~~ — done in 1.1.0.
 - ~~Saves and states on the RomM server~~ — done in 1.1.0 (beta).
 
@@ -288,7 +324,7 @@ DogmatixPlus is a small layer on top of two projects. Most of what you use every
 |---|---|---|
 | **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | The original app and its whole engine: indexing of torrents, magnets and web directories, tagging by console / region / language, searching, direct and torrent downloads, archive extraction. |
 | **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) ([cortina.dev](https://cortina.dev)) | The handheld rebuild: gamepad-first navigation and legend, landscape layout, themes, favourites, multi-selection and pause / resume in Downloads, onboarding, ES-DE / iiSU / Daijishō integration, TorBox and Real-Debrid, RomM, the `dogmatix://` deep links. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | The duplicate finder, the library overview, backup & restore, scan progress with percentage and time left, save sync with RomM, favourites in the sources export, the Dutch, French and German translations (and moving the last hard-coded English texts into them), the update check pointing at this repository, version 1.0.0, this documentation and the releases. |
+| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | The duplicate finder, the library overview, backup & restore, scan progress with percentage and time left, save sync with RomM (also in the background, with deletions), favourites in the sources export, RomM game marks, self-signed HTTPS, resumable uploads and ES-DE covers, game-set checks and playlists, storage overview, wishlist, collection export, a keep-the-best-copy suggestion, a download schedule, checksum checks, best-version choice, letter jump, diagnostics, the Dutch, French, German, Italian and Portuguese translations (and moving the last hard-coded English texts into them), the update check pointing at this repository, this documentation and the releases. |
 
 DogmatixPlus was **made with the help of A.I.**: the code, the tests and this documentation were written together with an AI assistant, then checked in several independent review rounds and tried on an emulator. Decisions, direction and publishing are the maintainer's.
 

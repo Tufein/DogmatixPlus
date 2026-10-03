@@ -45,17 +45,23 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 - Every console gets **its own folder**. Folders you already have (like `gba` or `psx`) are reused, and you can merge two folders that mean the same console.
 - Your **download list is kept** when you close the app. Select several downloads to stop, retry or delete them together.
 - Optional: **TorBox** and **Real-Debrid** — paid services that fetch torrents for you, so the download is a normal fast file.
+- **Only on Wi-Fi, only while charging or only at night** *(new, alpha)*: new downloads wait until the conditions you set are met, and say what they wait for. A **checksum check** compares a finished file with the hash its source publishes. In the game info, **Best version** picks the version that suits you (your region and language, no demos). A finished download can be **opened** in an emulator.
 
 ### Keep your collection tidy *(new in DogmatixPlus)*
 - **Duplicate games**: finds games that are on your device more than once, shows how much space you win, and lets you delete the extra copy. Nothing is deleted before you have seen exactly which files will go.
 - **Library overview**: for every console, how many games are listed, how many you own, how many are on your device and how big that is, and when it was last scanned.
 - **Back up and restore**: save your settings, sources, favourites and downloads in one file and put them back later — handy for a new device.
 - **Scan progress**: a percentage and the time left while your sources are being read.
+- **Game sets** *(new, alpha)*: finds disc images that cannot run (a `.cue` whose track is gone, a playlist that names a deleted disc) and makes `.m3u` playlists for games with several discs.
+- **Storage**: space per console, your biggest games, and whether the downloads in the queue still fit.
+- **Wishlist**: write down games you want; you get a message when one turns up in your sources.
+- **Export** your collection as a spreadsheet (CSV) or a web page. The duplicate finder can also **suggest which copy to keep**.
 
 ### Made for handhelds
 - **Control everything with a gamepad**: D-pad, A/B/X/Y and the shoulder buttons. On-screen hints at the bottom match your pad (Xbox, Nintendo or PlayStation), and you can swap the buttons if your pad reports them the other way round.
 - **Landscape and portrait** layouts, with a filter panel next to the list on wide screens.
 - **Light, dark or pure black** theme (nice on OLED screens) and five accent colours.
+- **◀ ▶ jumps through the library by first letter**, handy with a long list and no touch screen.
 
 ### Works with your game launcher
 - **ES-DE** and **iiSU** get a "Search for more games" entry in every console, set up with one button. **Daijishō** shows you the few values to type in.
@@ -63,13 +69,15 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 ### Works with RomM
 - Send finished downloads to your **RomM** server, or use RomM as a source of games.
 - **Save sync** *(new, beta)*: your RomM server keeps your **game saves and save states**. Pick the folders your emulator saves into (for RetroArch: `saves` and `states`) and DogmatixPlus sends new progress up and brings newer progress — from another handheld or from RomM's web player — down. If a save changed on both sides, you choose which one to keep; a copy that gets replaced is kept for 30 days. It can run by itself when you open the app or come back to it from a game (*Settings → Save sync*).
+- *(new, alpha)* Games your RomM server already has are **marked** in the library. A server at home with a **self-signed certificate** works once you have checked its fingerprint. An interrupted upload **continues** where it stopped. RomM's **cover art** can be fetched into ES-DE.
+- *(new, alpha)* Save sync can run **in the background** every few hours and can also **carry deletions over** (off by default, with safeguards). If a save changed on both sides you now see both times and sizes.
 
 ### Your sources, your way
 - Add sources by hand, or **import and export** them as a file to share between devices. The export now also carries your **★ favourites**, and importing it adds them on the other device.
 - A short **first-start guide** helps you pick your ROMs folder and import your sources.
 
 ### Languages
-- **English, Spanish, Dutch, French and German** (*Settings → Language*, or follow your phone).
+- **English, Spanish, Dutch, French, German, Italian and Portuguese** (*Settings → Language*, or follow your phone).
 
 ---
 
@@ -112,6 +120,8 @@ Everything also works by touch. The hints only show while a controller is connec
 - **A backup file contains your account keys** (TorBox, Real-Debrid, RomM). Keep it private.
 - **The game info window stays empty in the downloads here**, because it needs a free key from a game database that is added when the app is built.
 - DogmatixPlus does not look for games on its own. It only reads the sources **you** add.
+- **The newest versions are pre-releases** (alpha, beta). The in-app update check skips them unless you switch on *Settings → Include pre-releases*.
+- **Something not working?** *Settings → Share diagnostics* makes a text report for a bug report; tokens, server addresses and magnet links are removed first.
 
 ---
 
@@ -123,7 +133,7 @@ DogmatixPlus is a small layer on top of two other projects. Most of what you use
 |---|---|---|
 | **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | The original app and its whole engine: reading sources, sorting games by console / region / language, searching, downloading and unpacking. |
 | **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) | The handheld version: gamepad control, landscape layout, themes, favourites, pause and resume, the first-start guide, ES-DE / iiSU / Daijishō, TorBox and Real-Debrid, RomM. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Duplicate finder, library overview, back up and restore, scan progress, save sync with RomM, the Dutch, French and German translations, and these releases. |
+| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Duplicate finder, library overview, back up and restore, scan progress, save sync with RomM, game-set checks, storage overview, wishlist, export, download schedule, checksum checks, the Dutch, French, German, Italian and Portuguese translations, and these releases. |
 
 DogmatixPlus was **made with the help of A.I.**: the code, the tests and the documentation were written together with an AI assistant and checked in several review rounds. Decisions, direction and publishing are the maintainer's.
 

@@ -45,17 +45,23 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 - Chaque console a **son propre dossier**. Les dossiers que vous avez déjà (comme `gba` ou `psx`) sont réutilisés, et vous pouvez fusionner deux dossiers qui désignent la même console.
 - Votre **liste de téléchargements est conservée** quand vous fermez l’application. Sélectionnez plusieurs téléchargements pour les arrêter, les réessayer ou les supprimer ensemble.
 - En option : **TorBox** et **Real-Debrid** — des services payants qui récupèrent les torrents pour vous, de sorte que le téléchargement est un fichier normal et rapide.
+- **Seulement en Wi-Fi, seulement en charge ou seulement la nuit** *(nouveau, alpha)* : les nouveaux téléchargements attendent que vos conditions soient remplies et disent ce qu’ils attendent. Une **vérification de somme de contrôle** compare un fichier terminé au hash publié par sa source. Dans la fiche du jeu, **Meilleure version** choisit celle qui vous convient (votre région et langue, pas de démos). Un téléchargement terminé peut être **ouvert** dans un émulateur.
 
 ### Garder sa collection bien rangée *(nouveau dans DogmatixPlus)*
 - **Jeux en double** : trouve les jeux présents plusieurs fois sur votre appareil, montre combien de place vous gagnez et vous laisse supprimer la copie en trop. Rien n’est supprimé avant que vous ayez vu exactement quels fichiers vont disparaître.
 - **Aperçu de la bibliothèque** : pour chaque console, combien de jeux sont indexés, combien vous en possédez, combien sont sur votre appareil et quelle place ils prennent, et la date du dernier scan.
 - **Sauvegarder** et **Restaurer une sauvegarde** : enregistrez vos paramètres, vos sources, vos favoris et vos téléchargements dans un seul fichier et restaurez-les plus tard — pratique pour un nouvel appareil.
 - **Progression du scan** : un pourcentage et le temps restant pendant que vos sources sont lues.
+- **Jeux multi-fichiers** *(nouveau, alpha)* : trouve les images de disque inutilisables (un `.cue` dont la piste a disparu, une playlist qui cite un disque supprimé) et crée des playlists `.m3u` pour les jeux à plusieurs disques.
+- **Stockage** : l’espace par console, vos plus gros jeux, et si les téléchargements en attente tiennent encore.
+- **Liste de souhaits** : notez les jeux que vous voulez ; un message vous prévient quand l’un apparaît dans vos sources.
+- **Exportez** votre collection en tableur (CSV) ou en page web. La recherche de doublons peut aussi **proposer quelle copie garder**.
 
 ### Pensé pour les consoles portables
 - **Tout contrôler avec une manette** : D-pad, A/B/X/Y et les boutons d’épaule. Les indications à l’écran, en bas, correspondent à votre manette (Xbox, Nintendo ou PlayStation), et vous pouvez inverser les boutons si votre manette les signale à l’envers.
 - Affichage **paysage et portrait**, avec un panneau de filtres à côté de la liste sur les grands écrans.
 - Thème **clair, sombre ou noir pur** (agréable sur les écrans OLED) et cinq couleurs d’accent.
+- **◀ ▶ saute dans la bibliothèque par première lettre**, pratique avec une longue liste et sans écran tactile.
 
 ### Compatible avec votre lanceur de jeux
 - **ES-DE** et **iiSU** reçoivent une entrée « Search for more games » dans chaque console, configurée avec un seul bouton. **Daijishō** vous montre les quelques valeurs à saisir.
@@ -63,13 +69,15 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 ### Compatible avec RomM
 - Envoyez les téléchargements terminés vers votre serveur **RomM**, ou utilisez RomM comme source de jeux.
 - **Synchro des sauvegardes** *(nouveau, bêta)* : votre serveur RomM garde vos **sauvegardes et états de jeu**. Choisissez les dossiers où votre émulateur enregistre (pour RetroArch : `saves` et `states`) et DogmatixPlus envoie la nouvelle progression et récupère une progression plus récente — d’une autre console portable ou du lecteur web de RomM. Si une sauvegarde a changé des deux côtés, vous choisissez laquelle garder ; une copie remplacée est conservée 30 jours. Cela peut se faire tout seul à l’ouverture de l’application ou au retour d’un jeu (*Paramètres → Synchro des sauvegardes*).
+- *(nouveau, alpha)* Les jeux que votre serveur RomM a déjà sont **marqués** dans la bibliothèque. Un serveur maison à **certificat auto-signé** fonctionne une fois son empreinte vérifiée. Un envoi interrompu **reprend** là où il s’est arrêté. Les **jaquettes** de RomM peuvent être récupérées dans ES-DE.
+- *(nouveau, alpha)* La synchro des sauvegardes peut tourner **en arrière-plan** toutes les quelques heures et peut aussi **reporter les suppressions** (désactivé par défaut, avec garde-fous). Quand une sauvegarde a changé des deux côtés, vous voyez maintenant les deux heures et tailles.
 
 ### Vos sources, à votre façon
 - Ajoutez des sources à la main, ou **importez et exportez**-les sous forme de fichier pour les partager entre appareils. L’export emporte maintenant aussi vos **★ favoris**, et l’import les ajoute sur l’autre appareil.
 - Un court **guide de premier démarrage** vous aide à choisir votre dossier de ROM et à importer vos sources.
 
 ### Langues
-- **Anglais, espagnol, néerlandais, français et allemand** (*Paramètres → Langue*, ou selon la langue de votre téléphone).
+- **Anglais, espagnol, néerlandais, français, allemand, italien et portugais** (*Paramètres → Langue*, ou selon la langue de votre téléphone).
 
 ---
 
@@ -112,6 +120,8 @@ Tout fonctionne aussi au toucher. Les indications ne s’affichent que lorsqu’
 - **Un fichier de sauvegarde contient vos clés de compte** (TorBox, Real-Debrid, RomM). Gardez-le privé.
 - **La fenêtre d’infos du jeu reste vide dans les fichiers proposés au téléchargement ici**, car elle a besoin d’une clé gratuite, fournie par une base de données de jeux et ajoutée lors de la compilation de l’application.
 - DogmatixPlus ne cherche pas de jeux tout seul. Il lit seulement les sources que **vous** ajoutez.
+- **Les versions les plus récentes sont des préversions** (alpha, bêta). La recherche de mises à jour de l’app les ignore, sauf si vous activez *Paramètres → Inclure les préversions*.
+- **Quelque chose ne marche pas ?** *Paramètres → Partager le diagnostic* crée un rapport texte pour un signalement ; jetons, adresses de serveur et liens magnet sont d’abord retirés.
 
 ---
 
@@ -123,7 +133,7 @@ DogmatixPlus est une petite couche ajoutée par-dessus deux autres projets. La p
 |---|---|---|
 | **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | L’application d’origine et tout son moteur : lecture des sources, classement des jeux par console / région / langue, recherche, téléchargement et décompression. |
 | **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) | La version pour consoles portables : contrôle à la manette, affichage paysage, thèmes, favoris, pause et reprise, le guide de premier démarrage, ES-DE / iiSU / Daijishō, TorBox et Real-Debrid, RomM. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Recherche de doublons, aperçu de la bibliothèque, sauvegarde et restauration, progression du scan, synchro des sauvegardes avec RomM, traductions en néerlandais, en français et en allemand, et ces versions. |
+| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Recherche de doublons, aperçu de la bibliothèque, sauvegarde et restauration, progression du scan, synchro des sauvegardes avec RomM, vérification des jeux multi-fichiers, aperçu du stockage, liste de souhaits, export, planification des téléchargements, vérification des sommes de contrôle, traductions en néerlandais, français, allemand, italien et portugais, et ces versions. |
 
 DogmatixPlus a été **réalisé avec l’aide de l’IA** : le code, les tests et la documentation ont été écrits avec un assistant IA et vérifiés lors de plusieurs tours de relecture. Les décisions, l’orientation et la publication reviennent à la personne qui s’occupe du projet.
 

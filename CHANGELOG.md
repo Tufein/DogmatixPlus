@@ -3,6 +3,65 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [1.2.0-alpha.1] – 2026-10-03 · DogmatixPlus (pre-release)
+
+### Added
+- **RomM**
+  - **Games already on RomM are marked** in the library with a *RomM* tag, and the details card says
+    so (Settings → RomM server → *Mark games on RomM*; the server's list is read per mapped
+    platform, kept on the device and refreshed every six hours, on a change of the settings or by
+    hand). A finished upload marks its game at once.
+  - **Self-signed HTTPS**: *Server certificate* → *Check* reads the certificate without sending any
+    credentials, shows its SHA-256 fingerprint and, after you confirm, trusts exactly that
+    certificate for that server (a name mismatch such as an IP address is accepted for it too).
+    A failed connection test with a certificate problem offers the same question. Every other host
+    and certificate still goes through Android's normal checks; *Forget* removes the trust.
+  - **Uploads resume**: a cut-short chunked upload keeps its server session (written to disk), so the
+    next try continues at the first chunk the server has not got, also after the app was killed
+    (picked up again at the next start). If the server no longer knows the upload it starts over.
+  - **Covers for ES-DE**: fetches RomM's cover art for games on the device that ES-DE shows without
+    one, into `downloaded_media/<system>/covers`; existing covers are never replaced.
+- **Save sync**
+  - **Background sync** (Settings → Save sync): a periodic job every 1, 3, 6, 12 or 24 hours, on Wi-Fi
+    or any network, optionally only while charging; it survives a reboot and notifies only when a
+    save needs a choice or something failed.
+  - **Sync deletions** (opt-in): a save deleted on one side is deleted on the other, but only when the
+    other side is exactly as the last sync left it (a changed save is never deleted); a device file is
+    backed up first; more than a few deletions at once (over a quarter of the synced files) are held
+    back until you apply them.
+  - **Clearer conflicts**: both times, both sizes, which copy looks newer and the size difference.
+- **Library tools** (Settings → Library tools)
+  - **Game sets**: finds disc images that cannot run — a `.cue` or `.gdi` naming tracks that are gone, a
+    `.m3u` naming a deleted disc, an empty sheet — and multi-disc games without a playlist, whose
+    `.m3u` can be created in one tap.
+  - **Storage**: space per console, the 15 biggest games (deletable after a confirmation) and whether
+    the downloads still queued fit in the free space; the Downloads list warns when they do not.
+  - **Wishlist**: titles you want (for any console or one); after every scan the library is searched
+    and you get a notification the first time one turns up. A search without results offers to add
+    what you typed. Part of backups.
+  - **Export** the collection as a CSV file or a self-contained web page.
+  - **Duplicates**: suggests which copy of each group to keep (your regions and languages, no demos,
+    prototypes or bad dumps; the shallowest folder for identical files) and removes the rest after
+    one confirmation that lists every file; no suggestion where two copies rank the same.
+- **Downloads**
+  - **Schedule**: only on Wi-Fi, only while charging, only in a night window (default 23:00–07:00);
+    waiting downloads say what they wait for and *Start now* lets them go.
+  - **Checksum**: a finished file is compared with the hash its source published — RomM lists one per
+    game; `Content-MD5` and `Digest` headers are used too — and shows *✓ checksum verified* or a
+    warning. Archives that are unpacked are not checked.
+  - **Best version**: the details card shows how many versions of a game the library lists and offers
+    *Best version* (region and language from your favourite languages, no demos, later revisions).
+  - **Open**: a finished download opens in whichever app handles the file.
+- **Handheld**: **◀ ▶ jump through the library by first letter** (by ten rows when sorted by size).
+- **Project**: **pre-releases in the update check** (Settings → *Include pre-releases*) and a *Check for
+  updates* button; **share diagnostics** — a text report with versions, setup and the app's own
+  recent log, with tokens, server addresses and magnet links removed; **Italian and Portuguese**.
+
+### Changed
+- Version 1.2.0-alpha.1. The database moves to version 10 (wishlist table, expected-hash columns); an
+  existing library is kept.
+- 260 unit tests (93 more than 1.1.0-beta.1).
+
 ## [1.1.0-beta.1] – 2026-10-03 · DogmatixPlus (pre-release)
 
 ### Added
