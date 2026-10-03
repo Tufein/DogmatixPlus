@@ -93,6 +93,13 @@ interface DownloadableFileDao {
     @Query("SELECT COUNT(*) FROM downloadable_files")
     suspend fun getFilesCount(): Int
 
+    /** Indexed games per console, for the library overview. */
+    @Query("SELECT consoleId, COUNT(*) AS count FROM downloadable_files GROUP BY consoleId")
+    suspend fun countsByConsole(): List<ConsoleFileCount>
+
+    @Query("SELECT fileName FROM downloadable_files WHERE consoleId = :consoleId")
+    suspend fun fileNamesFor(consoleId: String): List<String>
+
     @Query("SELECT * FROM downloadable_files WHERE fileName = :fileName LIMIT 1")
     suspend fun getFileByFileName(fileName: String): DownloadableFileEntity?
 
@@ -195,3 +202,5 @@ data class ConsoleWithFileCount(
 )
 
 data class FileIdName(val id: Long, val name: String)
+
+data class ConsoleFileCount(val consoleId: String, val count: Int)

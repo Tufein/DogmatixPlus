@@ -289,6 +289,8 @@ class SourcesViewModel @Inject constructor(
             Manufacturer(manufacturerId, manufacturerId, listOf(console)),
             onScrapeError = { rescanStateHolder.setErrorMessage(it) }
         )
+        // Shown per console in the library overview.
+        runCatching { settingsRepository.markConsoleScanned(console.id, System.currentTimeMillis()) }
     }
 
     private suspend fun withRescanState(block: suspend () -> Unit) {

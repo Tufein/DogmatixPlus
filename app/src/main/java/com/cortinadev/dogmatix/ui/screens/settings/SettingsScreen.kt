@@ -77,6 +77,13 @@ import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
 import com.cortinadev.dogmatix.ui.theme.ThemeMode
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
+import com.cortinadev.dogmatix.ui.screens.sources.SourcesViewModel
+import com.cortinadev.dogmatix.ui.screens.sources.components.ConfirmDialog
+import java.text.DateFormat
+import java.time.LocalDate
+import java.util.Date
 
 /** Languages offered in Settings; [tag] is empty for "follow the device". */
 enum class AppLanguage(val tag: String, val label: Int) {
@@ -134,6 +141,29 @@ fun SettingsScreen(
     }
     fun runIisuSetup() {
         if (ui.iisuDirectory.isBlank()) iisuLauncher.launch(null) else viewModel.onConfigureIisu(context)
+    }
+
+    // Backup: export into a document the user creates, restore from one they pick (after a confirmation).
+    val backupExportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        uri?.let { viewModel.exportBackup(context, it.toString()) }
+    }
+    val backupImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { viewModel.readBackup(context, it.toString()) }
+    }
+    fun exportBackup() = backupExportLauncher.launch("dogmatix-backup-${LocalDate.now()}.json")
+    fun importBackup() = backupImportLauncher.launch(arrayOf("application/json", "application/octet-stream", "text/plain", "*/*"))
+    // The shell's instance, so the rescan after a restore survives leaving Settings.
+    val sourcesViewModel: SourcesViewModel = hiltViewModel(LocalActivity.current as ComponentActivity)
+    val pendingRestore by viewModel.pendingRestore.collectAsState()
+    pendingRestore?.let { pending ->
+        val date = if (pending.createdAt > 0) DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(pending.createdAt)) else "?"
+        ConfirmDialog(
+            title = stringResource(R.string.backup_import_title),
+            message = stringResource(R.string.backup_import_message, date, pending.appVersion),
+            confirmText = stringResource(R.string.backup_import_action),
+            onConfirm = { viewModel.restoreBackup(context) { sourcesViewModel.rescanAllSources() } },
+            onDismiss = viewModel::dismissRestore
+        )
     }
 
     fun cycleTheme(delta: Int) {
@@ -360,6 +390,42 @@ fun SettingsScreen(
                 onClick = { showDebridKeyDialog = true }
             ) {
                 PillButton(stringResource(R.string.settings_change)) { showDebridKeyDialog = true }
+            }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
+                title = stringResource(R.string.settings_overview),
+                hint = stringResource(R.string.settings_overview_hint),
+                onClick = { navController.navigate(NavRoutes.Overview.route) }
+            ) {
+                Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
+                title = stringResource(R.string.settings_duplicates),
+                hint = stringResource(R.string.settings_duplicates_hint),
+                onClick = { navController.navigate(NavRoutes.Duplicates.route) }
+            ) {
+                Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
+                title = stringResource(R.string.settings_backup_export),
+                hint = stringResource(R.string.settings_backup_export_hint),
+                onClick = ::exportBackup
+            ) {
+                PillButton(stringResource(R.string.settings_backup_export_action), ::exportBackup)
+            }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
+                title = stringResource(R.string.settings_backup_import),
+                hint = stringResource(R.string.settings_backup_import_hint),
+                onClick = ::importBackup
+            ) {
+                PillButton(stringResource(R.string.settings_backup_import_action), ::importBackup)
             }
         },
         SettingsRow(right = false) {

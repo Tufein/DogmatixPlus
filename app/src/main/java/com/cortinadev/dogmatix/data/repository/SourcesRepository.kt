@@ -171,6 +171,12 @@ class SourcesRepository @Inject constructor(
      * Local `.torrent` copies are not portable and are left out.
      */
     suspend fun exportToFile(): File = withContext(Dispatchers.IO) {
+        val dir = File(context.cacheDir, "exports").apply { mkdirs() }
+        File(dir, "dogmatix-sources.json").apply { writeText(exportDocument()) }
+    }
+
+    /** The current sources as a JSON document (the export format); also embedded in backups. */
+    suspend fun exportDocument(): String {
         val doc = manufacturers.first().map { m ->
             SourceManufacturer(
                 id = m.id, name = m.name,
@@ -185,8 +191,7 @@ class SourcesRepository @Inject constructor(
                 }
             )
         }
-        val dir = File(context.cacheDir, "exports").apply { mkdirs() }
-        File(dir, "dogmatix-sources.json").apply { writeText(SourcesJson.serializeDocument(doc)) }
+        return SourcesJson.serializeDocument(doc)
     }
 
     /**
@@ -197,6 +202,11 @@ class SourcesRepository @Inject constructor(
     suspend fun importFromUri(uri: String): Int = withContext(Dispatchers.IO) {
         val text = context.contentResolver.openInputStream(uri.toUri())?.bufferedReader()?.use { it.readText() }
             ?: throw IllegalStateException("Cannot open $uri")
+        importFromText(text)
+    }
+
+    /** [importFromUri] for a document already in memory (a backup carries one). */
+    suspend fun importFromText(text: String): Int = withContext(Dispatchers.IO) {
         val doc = SourcesJson.parseDocument(text)
         require(doc.isNotEmpty()) { "No sources found in file" }
 

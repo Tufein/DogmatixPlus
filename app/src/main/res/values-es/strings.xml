@@ -397,4 +397,69 @@
     <string name="onboarding_step">Paso %1$d de %2$d</string>
     <string name="onboarding_select">Seleccionar</string>
     <string name="onboarding_back">Atrás</string>
+
+    <!-- Herramientas de biblioteca: resumen, duplicados, copia de seguridad -->
+    <string name="nav_overview">Resumen de la biblioteca</string>
+    <string name="nav_duplicates">Juegos duplicados</string>
+    <string name="pad_rescan">Escanear</string>
+    <string name="settings_overview">Resumen de la biblioteca</string>
+    <string name="settings_overview_hint">Por consola: juegos encontrados por el escaneo, en disco y los que faltan</string>
+    <string name="settings_duplicates">Juegos duplicados</string>
+    <string name="settings_duplicates_hint">Busca juegos que están más de una vez en disco y libera espacio</string>
+    <string name="settings_backup_export">Copia de seguridad</string>
+    <string name="settings_backup_export_hint">Ajustes, fuentes, favoritos y descargas en un archivo (incluye tus claves API)</string>
+    <string name="settings_backup_export_action">Exportar</string>
+    <string name="settings_backup_import">Restaurar copia</string>
+    <string name="settings_backup_import_hint">Sustituye ajustes, fuentes y favoritos por los de una copia</string>
+    <string name="settings_backup_import_action">Importar</string>
+    <string name="backup_export_done">Copia guardada: %1$d ajustes, %2$d consolas, %3$d favoritos, %4$d descargas</string>
+    <string name="backup_export_failed">Fallo en la copia: %1$s</string>
+    <string name="backup_invalid">Este archivo no es una copia de Dogmatix</string>
+    <string name="backup_import_title">¿Restaurar copia?</string>
+    <string name="backup_import_message">Copia del %1$s (Dogmatix %2$s).
+
+Tus ajustes, fuentes y favoritos actuales se sustituyen y después se vuelven a escanear todas las fuentes.</string>
+    <string name="backup_import_action">Restaurar</string>
+    <string name="backup_import_done">Restaurados %1$d ajustes, %2$d consolas, %3$d favoritos, %4$d descargas</string>
+    <string name="backup_import_repick">%1$d carpeta(s) no son accesibles en esta instalación: vuelve a elegirlas en Ajustes o Fuentes</string>
+    <string name="backup_import_restart">Reinicia Dogmatix para ver la lista de descargas restaurada</string>
+    <string name="backup_import_failed">Fallo al restaurar: %1$s</string>
+    <string name="tools_scanning">Leyendo tus carpetas de descarga…</string>
+    <string name="tools_no_folder">Elige primero una carpeta de descarga en Ajustes</string>
+    <string name="tools_refresh">Actualizar</string>
+    <string name="tools_root_folder">Carpeta de descarga (sin consola)</string>
+    <string name="tools_unknown_folder">Carpeta %1$s</string>
+    <plurals name="tools_files">
+        <item quantity="one">%d archivo</item>
+        <item quantity="other">%d archivos</item>
+    </plurals>
+    <string name="duplicates_summary">%1$d grupos · %2$s recuperables · %3$d archivos revisados</string>
+    <string name="duplicates_none">Ningún duplicado entre %1$d archivos</string>
+    <string name="duplicates_kind_identical">El mismo archivo en varias carpetas</string>
+    <string name="duplicates_kind_variant">Versiones distintas (región, revisión, traducción)</string>
+    <string name="duplicates_largest">el más grande</string>
+    <string name="duplicates_delete">Borrar</string>
+    <string name="duplicates_delete_title">¿Borrar del disco?</string>
+    <string name="duplicates_delete_message">%1$s
+%2$s
+
+%3$s (%4$s) se borrarán definitivamente.</string>
+    <string name="duplicates_deleted">Borrado %1$s</string>
+    <string name="duplicates_delete_failed">No se pudo borrar %1$s</string>
+    <string name="overview_totals">%1$d consolas · %2$d juegos indexados · %3$d en tu colección (%4$d%%)</string>
+    <string name="overview_disk">En disco: %1$d juegos, %2$s · libre %3$s</string>
+    <string name="overview_disk_no_free">En disco: %1$d juegos, %2$s</string>
+    <string name="overview_rescan_all">Reescanear todas las fuentes</string>
+    <string name="overview_rescan_all_title">¿Reescanear todas las fuentes?</string>
+    <string name="overview_rescan_all_message">Todas las fuentes se descargan e indexan de nuevo. Con muchos torrents puede tardar.</string>
+    <string name="overview_scan_running">Escaneo en curso: %1$s</string>
+    <string name="overview_console_stats">%1$d indexados · %2$d en colección · %3$d en disco (%4$s)</string>
+    <string name="overview_scanned">escaneado %1$s</string>
+    <string name="overview_never_scanned">fecha de escaneo desconocida</string>
+    <string name="overview_status_ok">OK</string>
+    <string name="overview_status_no_sources">Sin fuentes</string>
+    <string name="overview_status_nothing_found">Nada encontrado</string>
+    <string name="overview_status_not_scanned">Sin escanear</string>
+    <string name="overview_unassigned">%1$d juego(s) en disco fuera de las carpetas de consola</string>
+    <string name="overview_unmatched">Carpetas sin consola: %1$s</string>
 </resources>

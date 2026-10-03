@@ -48,6 +48,8 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun setRommToken(token: String): Preferences = settingsDataStore.setRommToken(token)
     override suspend fun setRommAutoUpload(enabled: Boolean): Preferences = settingsDataStore.setRommAutoUpload(enabled)
     override suspend fun updateRommPlatform(consoleId: String, platformId: Int?) = settingsDataStore.updateRommPlatform(consoleId, platformId)
+    override val consoleScannedAt: Flow<Map<String, Long>> = settingsDataStore.consoleScannedAt
+    override suspend fun markConsoleScanned(consoleId: String, at: Long) = settingsDataStore.markConsoleScanned(consoleId, at)
 
     override suspend fun setOnboardingDone(done: Boolean): Preferences = settingsDataStore.setOnboardingDone(done)
 

@@ -428,4 +428,69 @@
     <string name="onboarding_step">Step %1$d of %2$d</string>
     <string name="onboarding_select">Select</string>
     <string name="onboarding_back">Back</string>
+
+    <!-- Library tools: overview, duplicates, backup -->
+    <string name="nav_overview">Library overview</string>
+    <string name="nav_duplicates">Duplicate games</string>
+    <string name="pad_rescan">Scan</string>
+    <string name="settings_overview">Library overview</string>
+    <string name="settings_overview_hint">Per console: games the scan found, what is on disk and what is missing</string>
+    <string name="settings_duplicates">Duplicate games</string>
+    <string name="settings_duplicates_hint">Find games that are on disk more than once and free up space</string>
+    <string name="settings_backup_export">Back up</string>
+    <string name="settings_backup_export_hint">Settings, sources, favourites and downloads in one file (includes your API keys)</string>
+    <string name="settings_backup_export_action">Export</string>
+    <string name="settings_backup_import">Restore backup</string>
+    <string name="settings_backup_import_hint">Replaces settings, sources and favourites with a backup file</string>
+    <string name="settings_backup_import_action">Import</string>
+    <string name="backup_export_done">Backup saved: %1$d settings, %2$d consoles, %3$d favourites, %4$d downloads</string>
+    <string name="backup_export_failed">Backup failed: %1$s</string>
+    <string name="backup_invalid">This file is not a Dogmatix backup</string>
+    <string name="backup_import_title">Restore backup?</string>
+    <string name="backup_import_message">Backup from %1$s (Dogmatix %2$s).
+
+Your current settings, sources and favourites are replaced, then every source is scanned again.</string>
+    <string name="backup_import_action">Restore</string>
+    <string name="backup_import_done">Restored %1$d settings, %2$d consoles, %3$d favourites, %4$d downloads</string>
+    <string name="backup_import_repick">%1$d folder(s) are not accessible on this install: pick them again in Settings or Sources</string>
+    <string name="backup_import_restart">Restart Dogmatix to see the restored downloads list</string>
+    <string name="backup_import_failed">Restore failed: %1$s</string>
+    <string name="tools_scanning">Reading your download folders…</string>
+    <string name="tools_no_folder">Pick a download directory in Settings first</string>
+    <string name="tools_refresh">Refresh</string>
+    <string name="tools_root_folder">Download folder (no console)</string>
+    <string name="tools_unknown_folder">Folder %1$s</string>
+    <plurals name="tools_files">
+        <item quantity="one">%d file</item>
+        <item quantity="other">%d files</item>
+    </plurals>
+    <string name="duplicates_summary">%1$d groups · %2$s can be freed · %3$d files checked</string>
+    <string name="duplicates_none">No duplicates among %1$d files</string>
+    <string name="duplicates_kind_identical">Same file in several folders</string>
+    <string name="duplicates_kind_variant">Different versions (region, revision, translation)</string>
+    <string name="duplicates_largest">largest</string>
+    <string name="duplicates_delete">Delete</string>
+    <string name="duplicates_delete_title">Delete from disk?</string>
+    <string name="duplicates_delete_message">%1$s
+%2$s
+
+%3$s (%4$s) will be deleted permanently.</string>
+    <string name="duplicates_deleted">Deleted %1$s</string>
+    <string name="duplicates_delete_failed">Could not delete %1$s</string>
+    <string name="overview_totals">%1$d consoles · %2$d games indexed · %3$d owned (%4$d%%)</string>
+    <string name="overview_disk">On disk: %1$d games, %2$s · free %3$s</string>
+    <string name="overview_disk_no_free">On disk: %1$d games, %2$s</string>
+    <string name="overview_rescan_all">Rescan all sources</string>
+    <string name="overview_rescan_all_title">Rescan all sources?</string>
+    <string name="overview_rescan_all_message">Every source is fetched and indexed again. With many torrents this can take a while.</string>
+    <string name="overview_scan_running">Scan running: %1$s</string>
+    <string name="overview_console_stats">%1$d indexed · %2$d owned · %3$d on disk (%4$s)</string>
+    <string name="overview_scanned">scanned %1$s</string>
+    <string name="overview_never_scanned">scan time unknown</string>
+    <string name="overview_status_ok">OK</string>
+    <string name="overview_status_no_sources">No sources</string>
+    <string name="overview_status_nothing_found">Nothing found</string>
+    <string name="overview_status_not_scanned">Not scanned</string>
+    <string name="overview_unassigned">%1$d game(s) on disk outside the console folders</string>
+    <string name="overview_unmatched">Folders without a console: %1$s</string>
 </resources>

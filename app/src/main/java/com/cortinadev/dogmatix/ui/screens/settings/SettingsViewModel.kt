@@ -7,6 +7,7 @@ import com.cortinadev.dogmatix.data.repository.DownloadableFileRepository
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.model.DebridProvider
+import com.cortinadev.dogmatix.data.service.BackupService
 import com.cortinadev.dogmatix.data.service.DaijishoConfigService
 import com.cortinadev.dogmatix.data.service.DebridClient
 import com.cortinadev.dogmatix.data.service.EsdeConfigService
@@ -34,6 +35,10 @@ import com.cortinadev.dogmatix.ui.theme.AccentPresets
 import com.cortinadev.dogmatix.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.map
 import java.io.IOException
+import androidx.core.net.toUri
+import com.google.gson.JsonObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 data class SettingsUiState(
@@ -70,8 +75,74 @@ class SettingsViewModel @Inject constructor(
     private val frontendShortcuts: FrontendShortcutService,
     private val esdeConfigService: EsdeConfigService,
     private val iisuConfigService: IisuConfigService,
-    private val daijishoConfigService: DaijishoConfigService
+    private val daijishoConfigService: DaijishoConfigService,
+    private val backupService: BackupService
 ) : ViewModel() {
+
+    /** A backup picked for restore, waiting for the user's confirmation. */
+    data class PendingRestore(val backup: JsonObject, val createdAt: Long, val appVersion: String)
+
+    private val _pendingRestore = MutableStateFlow<PendingRestore?>(null)
+    val pendingRestore: StateFlow<PendingRestore?> = _pendingRestore.asStateFlow()
+
+    /** Writes a backup into the document the user created through SAF. */
+    fun exportBackup(context: Context, uri: String) {
+        viewModelScope.launch {
+            runCatching {
+                val (json, summary) = backupService.export()
+                withContext(Dispatchers.IO) {
+                    context.contentResolver.openOutputStream(uri.toUri(), "wt")?.use { it.write(json.toByteArray(Charsets.UTF_8)) }
+                        ?: throw IOException("Cannot open $uri")
+                }
+                summary
+            }.onSuccess {
+                ToastUtil.showSuccess(context, context.getString(R.string.backup_export_done, it.settings, it.consoles, it.favourites, it.downloads))
+            }.onFailure {
+                ToastUtil.showError(context, context.getString(R.string.backup_export_failed, it.message ?: ""))
+            }
+        }
+    }
+
+    /** Reads and checks the picked file; the restore itself waits for [restoreBackup]. */
+    fun readBackup(context: Context, uri: String) {
+        viewModelScope.launch {
+            runCatching { backupService.read(uri) }
+                .onSuccess { backup ->
+                    _pendingRestore.value = PendingRestore(
+                        backup = backup,
+                        createdAt = runCatching { backup.get("createdAt").asLong }.getOrDefault(0L),
+                        appVersion = runCatching { backup.get("appVersion").asString }.getOrDefault("?")
+                    )
+                }
+                .onFailure {
+                    ToastUtil.showError(
+                        context,
+                        if (it is BackupService.InvalidBackupException) context.getString(R.string.backup_invalid)
+                        else context.getString(R.string.backup_import_failed, it.message ?: "")
+                    )
+                }
+        }
+    }
+
+    fun dismissRestore() {
+        _pendingRestore.value = null
+    }
+
+    /** Restores the confirmed backup; [onSourcesRestored] starts the rescan of the new sources. */
+    fun restoreBackup(context: Context, onSourcesRestored: () -> Unit) {
+        val pending = _pendingRestore.value ?: return
+        _pendingRestore.value = null
+        viewModelScope.launch {
+            runCatching { backupService.restore(pending.backup) }
+                .onSuccess {
+                    ToastUtil.showSuccess(context, context.getString(R.string.backup_import_done, it.settings, it.consoles, it.favourites, it.downloads))
+                    if (it.foldersToRepick > 0) ToastUtil.showInfo(context, context.getString(R.string.backup_import_repick, it.foldersToRepick))
+                    if (it.downloads > 0) ToastUtil.showInfo(context, context.getString(R.string.backup_import_restart))
+                    if (it.consoles > 0) onSourcesRestored()
+                }
+                .onFailure { ToastUtil.showError(context, context.getString(R.string.backup_import_failed, it.message ?: "")) }
+        }
+    }
 
     /** Non-null while the Daijishō sheet with the values to type is open. */
     private val _daijishoSetup = MutableStateFlow<DaijishoConfigService.Setup?>(null)

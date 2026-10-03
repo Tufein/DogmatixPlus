@@ -16,6 +16,12 @@ interface FavouriteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entry: FavouriteEntity)
 
+    @Query("SELECT * FROM favourites")
+    suspend fun getAll(): List<FavouriteEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(entries: List<FavouriteEntity>)
+
     @Query("DELETE FROM favourites WHERE consoleId = :consoleId AND fileName = :fileName")
     suspend fun delete(consoleId: String, fileName: String)
 }

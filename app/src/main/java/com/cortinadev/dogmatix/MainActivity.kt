@@ -82,6 +82,8 @@ import com.cortinadev.dogmatix.ui.screens.settings.SettingsViewModel
 import com.cortinadev.dogmatix.ui.screens.settings.romm.RommScreen
 import com.cortinadev.dogmatix.ui.screens.sources.SourcesScreen
 import com.cortinadev.dogmatix.ui.screens.sources.SourcesViewModel
+import com.cortinadev.dogmatix.ui.screens.tools.DuplicatesScreen
+import com.cortinadev.dogmatix.ui.screens.tools.LibraryOverviewScreen
 import com.cortinadev.dogmatix.ui.theme.DogmatixTheme
 import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
 import dagger.hilt.android.AndroidEntryPoint
@@ -331,6 +333,8 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.Settings.route) { SettingsScreen(navController) }
                     composable(NavRoutes.Contact.route) { ContactScreen(navController) }
                     composable(NavRoutes.Romm.route) { RommScreen() }
+                    composable(NavRoutes.Overview.route) { LibraryOverviewScreen() }
+                    composable(NavRoutes.Duplicates.route) { DuplicatesScreen() }
                 }
             }
 

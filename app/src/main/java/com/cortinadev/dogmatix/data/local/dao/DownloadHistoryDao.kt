@@ -15,6 +15,10 @@ interface DownloadHistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entry: DownloadHistoryEntity)
 
+    /** Restore from a backup: rows already in the list win over the backed-up ones. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertMissing(entries: List<DownloadHistoryEntity>)
+
     @Query("UPDATE download_history SET status = :status, finishedAt = :finishedAt WHERE fileName = :fileName")
     suspend fun updateStatus(fileName: String, status: String, finishedAt: Long?)
 

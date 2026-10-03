@@ -53,6 +53,8 @@ object SettingsKeys {
     val ROMM_AUTO_UPLOAD = booleanPreferencesKey("romm_auto_upload")
     /** `consoleId:platformId` entries, like [CONSOLE_DOWNLOAD_DIRECTORIES]. */
     val ROMM_PLATFORM_MAP = stringSetPreferencesKey("romm_platform_map")
+    /** `consoleId:epochMillis` of the last finished source scan per console (library overview). */
+    val CONSOLE_SCANNED_AT = stringSetPreferencesKey("console_scanned_at")
 }
 
 /** Language tags are upper-cased ISO codes ("EN", "ES"), matching how files are tagged. */
@@ -115,6 +117,13 @@ class SettingsDataStore @Inject constructor(
             value.toIntOrNull()?.let { id -> key to id }
         }.toMap()
     }
+    /** consoleId → epoch millis of its last source scan. */
+    val consoleScannedAt: Flow<Map<String, Long>> = context.dataStore.data.map { preferences ->
+        (preferences[SettingsKeys.CONSOLE_SCANNED_AT] ?: emptySet()).mapNotNull {
+            val (key, value) = it.split(":", limit = 2).takeIf { parts -> parts.size == 2 } ?: return@mapNotNull null
+            value.toLongOrNull()?.let { millis -> key to millis }
+        }.toMap()
+    }
     val consoleDownloadDirectories: Flow<Map<String, String>> = context.dataStore.data.map { preferences ->
         (preferences[SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES] ?: emptySet()).associate {
             val (key, value) = it.split(":", limit = 2)
@@ -150,6 +159,12 @@ class SettingsDataStore @Inject constructor(
             val next = current.filterNot { it.startsWith("$consoleId:") }.toMutableSet()
             if (platformId != null) next.add("$consoleId:$platformId")
             settings[SettingsKeys.ROMM_PLATFORM_MAP] = next
+        }
+    }
+    suspend fun markConsoleScanned(consoleId: String, at: Long) {
+        context.dataStore.edit { settings ->
+            val current = settings[SettingsKeys.CONSOLE_SCANNED_AT] ?: emptySet()
+            settings[SettingsKeys.CONSOLE_SCANNED_AT] = current.filterNot { it.startsWith("$consoleId:") }.toSet() + "$consoleId:$at"
         }
     }
     suspend fun updateConsoleDownloadDirectory(consoleId: String, path: String) {
