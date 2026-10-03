@@ -1,6 +1,10 @@
-# Builds the APKs and publishes a GitHub release when a version tag is pushed.
-# A tag with a suffix (v1.1.0-beta.1) becomes a pre-release; the text comes from
-# docs/release-notes/<tag>.md, with the SHA-256 checksums appended.
+# Builds the APKs and publishes a GitHub release:
+#  - when a version tag (v1.2.0) is pushed, or
+#  - when a push changes docs/release-notes/ (or this file) and the version in
+#    app/build.gradle.kts has notes (docs/release-notes/v<versionName>.md) but no release yet:
+#    the release and its tag are created on the pushed commit.
+# A version with a suffix (v1.1.0-beta.1) becomes a pre-release; the text is the notes file,
+# with the SHA-256 checksums appended.
 #
 # Signing: with the repository secrets RELEASE_KEYSTORE_BASE64, RELEASE_STORE_PASSWORD,
 # RELEASE_KEY_ALIAS and RELEASE_KEY_PASSWORD the release APK is signed with that key (the same
@@ -11,14 +15,49 @@ name: Release
 on:
   push:
     tags: ['v*']
+    branches: ['**']
+    paths: ['docs/release-notes/**', '.github/workflows/release.yml']
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Which version, and is it still to be released?
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            tag="$GITHUB_REF_NAME"
+          else
+            tag="v$(sed -n 's/^ *versionName = "\(.*\)"/\1/p' app/build.gradle.kts | head -1)"
+            if [ ! -f "docs/release-notes/$tag.md" ]; then
+              echo "No docs/release-notes/$tag.md: nothing to publish."
+              exit 0
+            fi
+            if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              echo "$tag is already released."
+              exit 0
+            fi
+          fi
+          echo "Publishing $tag"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
   release:
+    needs: version
+    if: needs.version.outputs.tag != ''
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      TAG: ${{ needs.version.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
 
@@ -55,15 +94,17 @@ jobs:
       - name: Test and build
         run: ./gradlew --no-daemon testDebugUnitTest assembleDebug assembleRelease
 
-      - name: Collect APKs
+      - name: Collect APKs and notes
         run: |
           mkdir dist
           cp app/build/outputs/apk/debug/app-debug.apk dist/DogmatixPlus-debug.apk
           cp app/build/outputs/apk/release/app-release.apk dist/DogmatixPlus-release.apk
           (cd dist && sha256sum DogmatixPlus-release.apk DogmatixPlus-debug.apk > SHA256SUMS.txt)
-          notes="docs/release-notes/${GITHUB_REF_NAME}.md"
-          if [ -f "$notes" ]; then cp "$notes" dist/notes.md; else echo "DogmatixPlus ${GITHUB_REF_NAME}. See CHANGELOG.md." > dist/notes.md; fi
+          notes="docs/release-notes/$TAG.md"
+          if [ -f "$notes" ]; then cp "$notes" dist/notes.md; else echo "DogmatixPlus $TAG. See CHANGELOG.md." > dist/notes.md; fi
           {
+            echo
+            echo "Source: commit \`${GITHUB_SHA::7}\`."
             echo
             echo '### Checksums (SHA-256)'
             echo '```'
@@ -73,9 +114,11 @@ jobs:
 
       - uses: softprops/action-gh-release@v2
         with:
-          name: DogmatixPlus ${{ github.ref_name }}
+          tag_name: ${{ env.TAG }}
+          target_commitish: ${{ github.sha }}
+          name: DogmatixPlus ${{ env.TAG }}
           body_path: dist/notes.md
-          prerelease: ${{ contains(github.ref_name, '-') }}
+          prerelease: ${{ contains(env.TAG, '-') }}
           files: |
             dist/DogmatixPlus-debug.apk
             dist/DogmatixPlus-release.apk
