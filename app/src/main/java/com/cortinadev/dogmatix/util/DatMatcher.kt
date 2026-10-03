@@ -69,8 +69,11 @@ class DatMatcher(entries: List<DatEntry>) {
     }
 
     companion object {
-        /** Formats DATs do not describe: compressed images and other archives. */
-        val NOT_IN_DATS = setOf("chd", "rvz", "wia", "gcz", "cso", "zso", "pbp", "7z", "rar", "nsp", "nsz", "xci", "xcz", "m3u", "txt", "jpg", "png", "xml", "dat")
+        /** What DATs do not describe: compressed images, other archives, saves and side files. */
+        val NOT_IN_DATS = setOf(
+            "chd", "rvz", "wia", "gcz", "cso", "zso", "pbp", "7z", "rar", "nsp", "nsz", "xci", "xcz",
+            "sav", "srm", "sa1", "eep", "fla", "rtc", "state", "bak", "m3u", "txt", "nfo", "cfg", "ini", "jpg", "png", "xml", "dat"
+        )
 
         /** Formats whose own hash is worth computing (everything else that is not a ZIP or skipped). */
         fun needsHash(name: String): Boolean {

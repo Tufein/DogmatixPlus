@@ -46,16 +46,30 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 /** QR codes for the source list: drawing them, and reading them back from a photo. */
 object QrCodes {
 
-    fun bitmap(content: String, size: Int = 720): Bitmap {
+    /**
+     * The code as a bitmap of at most [maxPx] pixels wide, every module the same whole number of
+     * pixels: drawn 1:1 on screen it stays sharp, where scaling by an odd factor makes modules of
+     * uneven width that cameras (and ZXing) cannot read.
+     */
+    fun bitmap(content: String, maxPx: Int): Bitmap {
         val matrix = QRCodeWriter().encode(
-            content, BarcodeFormat.QR_CODE, size, size,
-            mapOf(EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.M, EncodeHintType.MARGIN to 2)
+            content, BarcodeFormat.QR_CODE, 0, 0,
+            mapOf(EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.M, EncodeHintType.MARGIN to 4)
         )
-        val pixels = IntArray(matrix.width * matrix.height) { i -> if (matrix.get(i % matrix.width, i / matrix.width)) 0xFF000000.toInt() else 0xFFFFFFFF.toInt() }
-        return Bitmap.createBitmap(pixels, matrix.width, matrix.height, Bitmap.Config.ARGB_8888)
+        val scale = (maxPx / matrix.width).coerceAtLeast(1)
+        val size = matrix.width * scale
+        val pixels = IntArray(size * size) { i ->
+            if (matrix.get((i % size) / scale, (i / size) / scale)) 0xFF000000.toInt() else 0xFFFFFFFF.toInt()
+        }
+        return Bitmap.createBitmap(pixels, size, size, Bitmap.Config.ARGB_8888)
     }
 
-    /** The text of the QR code in the picture at [uri], or null when none can be read. */
+    /**
+     * The text of the QR code in the picture at [uri], or null when none can be read. ZXing's finder
+     * sometimes misses a perfectly sharp code at one size and finds it at another, so the picture
+     * is tried at a few sizes and with both binarizers, and finally as a "pure" code (a screenshot
+     * or a tight crop).
+     */
     fun read(context: Context, uri: Uri): String? = runCatching {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
@@ -64,20 +78,43 @@ object QrCodes {
         val bitmap = context.contentResolver.openInputStream(uri)?.use {
             BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sample })
         } ?: return null
-        val pixels = IntArray(bitmap.width * bitmap.height).also { bitmap.getPixels(it, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height) }
-        val source = RGBLuminanceSource(bitmap.width, bitmap.height, pixels)
-        val hints = mapOf(DecodeHintType.TRY_HARDER to true, DecodeHintType.POSSIBLE_FORMATS to listOf(BarcodeFormat.QR_CODE))
-        val reader = MultiFormatReader().apply { setHints(hints) }
-        runCatching { reader.decodeWithState(BinaryBitmap(HybridBinarizer(source))).text }.getOrNull()
-            ?: runCatching { reader.decodeWithState(BinaryBitmap(GlobalHistogramBinarizer(source))).text }.getOrNull()
+        decode(bitmap)
     }.getOrNull()
+
+    fun decode(bitmap: Bitmap): String? {
+        val reader = MultiFormatReader().apply {
+            setHints(mapOf(DecodeHintType.TRY_HARDER to true, DecodeHintType.POSSIBLE_FORMATS to listOf(BarcodeFormat.QR_CODE)))
+        }
+        fun attempt(b: Bitmap): String? {
+            val pixels = IntArray(b.width * b.height).also { b.getPixels(it, 0, b.width, 0, 0, b.width, b.height) }
+            val source = RGBLuminanceSource(b.width, b.height, pixels)
+            return runCatching { reader.decodeWithState(BinaryBitmap(HybridBinarizer(source))).text }.getOrNull()
+                ?: runCatching { reader.decodeWithState(BinaryBitmap(GlobalHistogramBinarizer(source))).text }.getOrNull()
+        }
+        for (divisor in listOf(1, 2, 3, 4)) {
+            val w = bitmap.width / divisor
+            val h = bitmap.height / divisor
+            if (minOf(w, h) < 150) break
+            val scaled = if (divisor == 1) bitmap else Bitmap.createScaledBitmap(bitmap, w, h, false)
+            attempt(scaled)?.let { return it }
+        }
+        val pixels = IntArray(bitmap.width * bitmap.height).also { bitmap.getPixels(it, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height) }
+        return runCatching {
+            MultiFormatReader().decode(
+                BinaryBitmap(HybridBinarizer(RGBLuminanceSource(bitmap.width, bitmap.height, pixels))),
+                mapOf(DecodeHintType.PURE_BARCODE to true, DecodeHintType.POSSIBLE_FORMATS to listOf(BarcodeFormat.QR_CODE))
+            ).text
+        }.getOrNull()
+    }
 }
 
 /** The source list as QR codes, one at a time when it needs several. */
 @Composable
 fun QrShowDialog(parts: List<String>, onDismiss: () -> Unit) {
     var index by remember { mutableIntStateOf(0) }
-    val bitmap = remember(index, parts) { QrCodes.bitmap(parts[index]).asImageBitmap() }
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val maxPx = with(density) { 300.dp.roundToPx() }
+    val bitmap = remember(index, parts, maxPx) { QrCodes.bitmap(parts[index], maxPx).asImageBitmap() }
     val closeFocus = rememberInitialFocus()
     AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
@@ -86,8 +123,9 @@ fun QrShowDialog(parts: List<String>, onDismiss: () -> Unit) {
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(stringResource(R.string.qr_show_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Box(Modifier.background(Color.White).padding(8.dp)) {
-                    Image(bitmap, contentDescription = null, filterQuality = FilterQuality.None, modifier = Modifier.size(280.dp))
+                // Drawn at its own pixel size (no scaling), with the quiet zone inside the bitmap.
+                Box(Modifier.background(Color.White)) {
+                    Image(bitmap, contentDescription = null, filterQuality = FilterQuality.None, modifier = Modifier.size(with(density) { bitmap.width.toDp() }))
                 }
                 if (parts.size > 1) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     PillButton("‹") { index = (index - 1 + parts.size) % parts.size }

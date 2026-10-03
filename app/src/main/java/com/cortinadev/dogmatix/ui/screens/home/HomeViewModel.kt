@@ -120,7 +120,9 @@ class HomeViewModel @Inject constructor(
         return com.cortinadev.dogmatix.util.BulkPlanner.plan(
             rows.map {
                 com.cortinadev.dogmatix.util.BulkCandidate(
-                    it.file.id, it.file.consoleId, it.file.searchKey.ifEmpty { com.cortinadev.dogmatix.util.SearchNormalizer.key(it.file.name) },
+                    // The cleaned title itself (tags are already stripped from it): the search key folds
+                    // repeated characters, so "Game 001" and "Game 011" would count as one game.
+                    it.file.id, it.file.consoleId, it.file.name.lowercase().replace(Regex("\\s+"), " ").trim(),
                     it.file.fileName, it.file.fileSize, it.tags, isOwned(it.file, owned), isDownloading(it.file, active)
                 )
             },
