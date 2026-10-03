@@ -217,12 +217,26 @@ app/src/test/                       JVM unit tests
 ```
 
 ## Tech stack
-- **UI**: Jetpack Compose, Material 3, Navigation Compose
-- **DI**: Hilt (KSP)
-- **Persistence**: Room + FTS, DataStore Preferences
-- **Torrents**: libtorrent4j · **HTTP**: HttpURLConnection, Jsoup
+
+### The app
+- **Language**: Kotlin 2.3.20 — all of the code (Java 11 source / target), Android `minSdk` 29, `compileSdk` / `targetSdk` 36
+- **UI**: Jetpack Compose (BOM 2026.03.01), Material 3, Navigation Compose 2.9.7, Coil 2.7.0 (cover art)
+- **DI**: Hilt 2.59.2 (KSP)
+- **Persistence**: Room 2.8.4 + FTS, DataStore Preferences 1.2.1
+- **Files**: Storage Access Framework (`DocumentsContract`, `DocumentFile`) for the ROM folders — one provider query per folder when scanning
+- **Torrents**: libtorrent4j 2.1.0-39 (arm64-v8a, armeabi-v7a, x86_64) · **HTTP**: `HttpURLConnection`, Jsoup 1.22.1
+- **JSON**: Gson 2.13.2, plus hand-written readers and writers for sources and backups (they stay readable after R8 renames fields)
 - **Archives**: 7-Zip-JBinding-4Android (ZIP/7z)
-- **Concurrency**: Kotlin Coroutines + Flow
+- **Concurrency**: Kotlin Coroutines 1.10.2 + Flow
+
+### How DogmatixPlus was built
+- **Build**: Gradle 9.3.1 (wrapper) with Android Gradle Plugin 9.1.0, JDK 21 (OpenJDK), Android SDK platform 36 and build-tools 36.0.0 from the command-line tools; **R8** minification and resource shrinking for the release build
+- **Tests**: JUnit 4 — 136 JVM unit tests for the pure logic — and Android Lint
+- **Trying it out**: the Android Emulator (an Android 15 / API 35 arm64 Google APIs image) driven with `adb` — installing, taps and swipes, logcat, screenshots, and `truncate` to create made-up ROM files — in portrait and landscape, in the debug and in the minified release build
+- **Checking the APKs**: `aapt2` (package, version, languages) and `apksigner` (signature) on every APK before it was released
+- **Test data**: small Python 3 scripts (not part of this repository) ran a local web server with made-up game indexes, so scans, the progress display and the duplicate finder could be tried without any real sources
+- **Releases**: git and the GitHub REST API for commits, tags and the release with its APKs and checksums
+- **AI assistance**: an AI coding assistant wrote and refactored code, tests and documentation, and independent AI review passes were run over the changes before they were published (see [Credits](#credits))
 
 ## Deep links
 
