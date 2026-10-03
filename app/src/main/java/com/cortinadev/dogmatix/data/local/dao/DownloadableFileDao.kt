@@ -163,6 +163,21 @@ interface DownloadableFileDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(files: List<DownloadableFileEntity>): List<Long>
 
+    /**
+     * The files of one source with their tags (`tags[i]` belongs to `files[i]`), written in one
+     * transaction: one commit for the whole source instead of one per statement batch, and the
+     * library never shows a source's files without their tags.
+     */
+    @Transaction
+    suspend fun insertSource(files: List<DownloadableFileEntity>, tags: List<List<String>>): Int {
+        if (files.isEmpty()) return 0
+        val ids = insertAll(files)
+        val rows = ArrayList<FileTagEntity>(tags.sumOf { it.size })
+        ids.forEachIndexed { i, id -> tags.getOrNull(i)?.forEach { rows += FileTagEntity(fileId = id, tag = it) } }
+        insertTags(rows)
+        return rows.size
+    }
+
     @Query("DELETE FROM downloadable_files")
     suspend fun clearAll()
 

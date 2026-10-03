@@ -10,7 +10,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.cortinadev.dogmatix.R
-import com.cortinadev.dogmatix.ui.theme.OnAccent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -164,7 +163,7 @@ private fun OwnedBadge() {
         Icon(
             painterResource(R.drawable.ic_check),
             contentDescription = stringResource(R.string.owned),
-            tint = OnAccent,
+            tint = MaterialTheme.colorScheme.onTertiary,
             modifier = Modifier.size(11.dp)
         )
     }
@@ -198,7 +197,7 @@ private fun FavouriteBadge() {
         Icon(
             painterResource(R.drawable.ic_star),
             contentDescription = stringResource(R.string.favourite),
-            tint = OnAccent,
+            tint = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.size(11.dp)
         )
     }
@@ -217,7 +216,7 @@ private fun DownloadingBadge() {
         Icon(
             painterResource(R.drawable.ic_arrow_down),
             contentDescription = stringResource(R.string.downloading_badge),
-            tint = OnAccent,
+            tint = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.size(11.dp)
         )
     }

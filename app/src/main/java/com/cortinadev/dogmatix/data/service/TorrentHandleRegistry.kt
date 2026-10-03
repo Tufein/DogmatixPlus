@@ -149,10 +149,56 @@ class TorrentHandleRegistry @Inject constructor(
 
     fun session(): SessionManager = session
 
+    /** Metadata of magnets fetched before, so a rescan does not ask the swarm again (a magnet's content never changes). */
+    private val metadataCache = File(context.filesDir, "torrent_meta")
+
+    private fun cacheFileFor(uri: String): File {
+        val digest = java.security.MessageDigest.getInstance("SHA-1").digest(uri.toByteArray()).joinToString("") { "%02x".format(it) }
+        return File(metadataCache, "$digest.torrent")
+    }
+
+    private fun cachedInfo(uri: String): TorrentInfo? {
+        val file = cacheFileFor(uri)
+        if (!file.isFile) return null
+        return try {
+            TorrentInfo(file)
+        } catch (e: Exception) {
+            Log.w(TAG, "Unreadable cached metadata, fetching again: ${e.message}")
+            file.delete()
+            null
+        }
+    }
+
+    private fun storeInfo(uri: String, info: TorrentInfo) {
+        try {
+            metadataCache.mkdirs()
+            val target = cacheFileFor(uri)
+            val tmp = File(metadataCache, target.name + ".tmp")
+            tmp.writeBytes(torrentFileBytes(info))
+            if (!tmp.renameTo(target)) { target.delete(); tmp.renameTo(target) }
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not cache metadata: ${e.message}")
+        }
+    }
+
+    /** A minimal .torrent (`d4:info…e`) around the info dictionary, which is all [TorrentInfo] needs. */
+    private fun torrentFileBytes(info: TorrentInfo): ByteArray {
+        val span = info.swig().get_info_section()
+        val size = span.size().toInt()
+        val head = "d4:info".toByteArray(Charsets.US_ASCII)
+        val out = ByteArray(head.size + size + 1)
+        head.copyInto(out)
+        for (i in 0 until size) out[head.size + i] = span.at(i.toLong())
+        out[out.lastIndex] = 'e'.code.toByte()
+        return out
+    }
+
     private suspend fun fetchMetadata(uri: String): TorrentHandle =
         withContext(Dispatchers.IO) {
+            val cached = if (uri.startsWith("magnet:")) cachedInfo(uri) else null
             val params = if (uri.startsWith("magnet:")) {
-                org.libtorrent4j.AddTorrentParams.parseMagnetUri(uri)
+                // The magnet keeps its trackers; known metadata makes the handle complete at once.
+                org.libtorrent4j.AddTorrentParams.parseMagnetUri(uri).also { p -> cached?.let { p.torrentInfo = it } }
             } else {
                 val torrentFile = File(uri)
                 val ti = org.libtorrent4j.TorrentInfo(torrentFile)
@@ -198,7 +244,10 @@ class TorrentHandleRegistry @Inject constructor(
             // swarm starts filling the cache with random files until we get to set priorities.
             try { handle.setFlags(TorrentFlags.UPLOAD_MODE) } catch (e: Exception) { Log.w(TAG, "upload_mode: ${e.message}") }
             handle.resume() // Resume just to fetch metadata
-            waitForMetadata(handle, uri)
+            val ready = waitForMetadata(handle, uri)
+            if (cached != null) Log.i(TAG, "Metadata from cache for $uri")
+            else if (uri.startsWith("magnet:")) ready.torrentFile()?.let { storeInfo(uri, it) }
+            ready
         }
 
     /**

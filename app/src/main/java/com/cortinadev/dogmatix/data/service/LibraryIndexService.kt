@@ -7,6 +7,11 @@ import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.FileParsingUtils
+import com.cortinadev.dogmatix.util.DiskDir
+import com.cortinadev.dogmatix.util.DiskScanner
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import com.cortinadev.dogmatix.util.LibraryKeys
 import com.cortinadev.dogmatix.util.StorageHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -84,21 +89,28 @@ class LibraryIndexService @Inject constructor(
         scope.launch { refresh() }
     }
 
+    /**
+     * Reads the download folders again. Each folder is listed with one provider query
+     * ([DiskScanner]) instead of one per file, and the console folders are read a few at a time.
+     */
     suspend fun refresh() = withContext(Dispatchers.IO) {
         val root = settingsRepository.downloadDirectory.first()
         val custom = settingsRepository.consoleDownloadDirectories.first()
-        val keys = HashSet<String>()
-        if (root.isNotBlank()) {
-            runCatching { StorageHelper.getDocumentFile(context, root) }.getOrNull()?.let { dir ->
-                collectRoot(dir, keys)
+        val keys = java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap<String, Boolean>())
+        val limit = Semaphore(PARALLEL_FOLDERS)
+        coroutineScope {
+            if (root.isNotBlank()) DiskScanner.rootOf(root)?.let { dir ->
+                for (child in DiskScanner.list(context, dir)) {
+                    if (child.isDirectory) launch { limit.withPermit { collect(DiskScanner.dirOf(dir, child), LibraryKeys.folderScope(child.name), keys, depth = 1) } }
+                    else keys += LibraryKeys.keysFor(LibraryKeys.ROOT_SCOPE, child.name)
+                }
+            }
+            custom.forEach { (consoleId, uri) ->
+                val dir = uri.takeIf { it.isNotBlank() }?.let { DiskScanner.rootOf(it) } ?: return@forEach
+                launch { limit.withPermit { collect(dir, LibraryKeys.customScope(consoleId), keys, depth = 0) } }
             }
         }
-        custom.forEach { (consoleId, uri) ->
-            if (uri.isBlank()) return@forEach
-            val dir = runCatching { StorageHelper.getDocumentFile(context, uri) }.getOrNull() ?: return@forEach
-            collect(dir, LibraryKeys.customScope(consoleId), keys, depth = 0)
-        }
-        _ownedKeys.value = keys
+        _ownedKeys.value = HashSet(keys)
         _freeBytes.value = (listOf(root) + custom.values).firstOrNull { it.isNotBlank() }
             ?.let { StorageHelper.getFreeBytes(context, it) }
     }
@@ -162,28 +174,18 @@ class LibraryIndexService @Inject constructor(
         return deleted
     }
 
-    /** Root of the download directory: loose files are root-scoped, each first-level folder is its own scope. */
-    private fun collectRoot(dir: DocumentFile, into: MutableSet<String>) {
-        val children = runCatching { dir.listFiles() }.getOrNull() ?: return
-        for (child in children) {
-            val name = child.name ?: continue
+    private fun collect(dir: DiskDir, scope: String, into: MutableSet<String>, depth: Int) {
+        for (child in DiskScanner.list(context, dir)) {
             if (child.isDirectory) {
-                collect(child, LibraryKeys.folderScope(name), into, depth = 1)
+                if (depth < 2) collect(DiskScanner.dirOf(dir, child), scope, into, depth + 1)
             } else {
-                into += LibraryKeys.keysFor(LibraryKeys.ROOT_SCOPE, name)
+                into += LibraryKeys.keysFor(scope, child.name)
             }
         }
     }
 
-    private fun collect(dir: DocumentFile, scope: String, into: MutableSet<String>, depth: Int) {
-        val children = runCatching { dir.listFiles() }.getOrNull() ?: return
-        for (child in children) {
-            val name = child.name ?: continue
-            if (child.isDirectory) {
-                if (depth < 2) collect(child, scope, into, depth + 1)
-            } else {
-                into += LibraryKeys.keysFor(scope, name)
-            }
-        }
+    private companion object {
+        /** Console folders listed at the same time. */
+        const val PARALLEL_FOLDERS = 4
     }
 }

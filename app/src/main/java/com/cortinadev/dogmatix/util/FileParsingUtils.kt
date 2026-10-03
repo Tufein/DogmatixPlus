@@ -58,11 +58,14 @@ object FileParsingUtils {
         return normalized.joinToString("/")
     }
 
+    /** Compiled once: a scan parses tens of thousands of names. */
+    private val tagPattern = Regex("\\(([^)]+)\\)")
+    private val whitespace = Regex("\\s+")
+
     fun extractNameAndTags(displayName: String): Pair<String, List<String>> {
         val tags = mutableListOf<String>()
         var cleanName = displayName
 
-        val tagPattern = Regex("\\(([^)]+)\\)")
         val matches = tagPattern.findAll(displayName)
 
         for (match in matches) {
@@ -82,7 +85,7 @@ object FileParsingUtils {
         }
 
         // Clean up any extra spaces that might be left
-        cleanName = cleanName.replace(Regex("\\s+"), " ").trim()
+        cleanName = cleanName.replace(whitespace, " ").trim()
 
         return Pair(cleanName, tags)
     }
@@ -132,9 +135,17 @@ object FileParsingUtils {
         }
     }
 
-    fun parseFileFromRow(row: Element, baseUrl: String, consoleId: String): Pair<DownloadableFileEntity?, List<FileTagEntity>> {
-        val linkCell = row.select("td.link a").first() ?: row.select("a").first()
-        val sizeCell = row.select("td.size").first() ?: row.select("td").getOrNull(1)
+    /** The link of a listing row (`td.link a`, else the first link), found by walking the row, not by a CSS query. */
+    fun linkOf(row: Element): Element? =
+        row.getElementsByClass("link").firstOrNull { it.tagName() == "td" }?.getElementsByTag("a")?.firstOrNull()
+            ?: row.getElementsByTag("a").firstOrNull()
+
+    private fun sizeCellOf(row: Element): Element? =
+        row.getElementsByClass("size").firstOrNull { it.tagName() == "td" } ?: row.getElementsByTag("td").getOrNull(1)
+
+    fun parseFileFromRow(row: Element, baseUrl: String, consoleId: String, link: Element? = null): Pair<DownloadableFileEntity?, List<FileTagEntity>> {
+        val linkCell = link ?: linkOf(row)
+        val sizeCell = sizeCellOf(row)
 
         if (linkCell == null) return Pair(null, emptyList())
 

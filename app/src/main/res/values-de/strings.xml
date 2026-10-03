@@ -1,6 +1,6 @@
 <resources>
     <!-- App Info -->
-    <string name="app_name">Dogmatix</string>
+    <string name="app_name">Dogmatix+</string>
     <string name="credits_title">Mitwirkende</string>
     <string name="credits_fork_role">Softwareentwickler · Dogmatix (UI/UX-Fork)</string>
     <string name="credits_fork_name">Rafa Cortina</string>
@@ -241,8 +241,8 @@
     <string name="language_es">Español</string>
 
     <!-- Top Bar -->
-    <string name="topbar_title">Dogmatix</string>
-    <string name="topbar_logo_desc">Dogmatix</string>
+    <string name="topbar_title">Dogmatix+</string>
+    <string name="topbar_logo_desc">Dogmatix+</string>
 
     <!-- Search & Filter -->
     <string name="search_library">Bibliothek durchsuchen</string>
@@ -708,6 +708,8 @@
     <string name="diagnostics_failed">Der Bericht konnte nicht erstellt werden</string>
     <string name="language_it">Italiano</string>
     <string name="language_pt">Português</string>
+    <string name="accent_dialog_title">Akzentfarbe</string>
+    <string name="accent_dynamic_hint">Die erste ist Material You: die Farben folgen deinem Hintergrundbild.</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d Spielstand wurde auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
         <item quantity="other">%d Spielstände wurden auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>

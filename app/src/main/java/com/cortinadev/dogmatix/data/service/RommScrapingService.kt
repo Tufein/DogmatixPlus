@@ -43,7 +43,7 @@ class RommScrapingService @Inject constructor(
                 return@withContext Pair(0, 0)
             }
             val files = ArrayList<DownloadableFileEntity>(roms.size)
-            val tags = ArrayList<List<FileTagEntity>>(roms.size)
+            val tags = ArrayList<List<String>>(roms.size)
             val contentTypeTag = FileParsingUtils.normalizeTag(urlEntry.contentType.name)
             roms.forEach { rom ->
                 val (cleanName, tagStrings) = FileParsingUtils.extractNameAndTags(rom.fsName.substringBeforeLast('.', rom.fsName))
@@ -56,13 +56,11 @@ class RommScrapingService @Inject constructor(
                     fileExtension = rom.fsName.substringAfterLast('.', "").let { if (it.isEmpty()) "" else ".$it" },
                     expectedHash = rom.hash
                 )
-                tags += (tagStrings + contentTypeTag).distinct().map { FileTagEntity(fileId = 0L, tag = it) }
+                tags += (tagStrings + contentTypeTag).distinct()
             }
-            val ids = downloadableFileDao.insertAll(files)
-            val tagRows = ids.zip(tags).flatMap { (id, list) -> list.map { it.copy(fileId = id) } }
-            downloadableFileDao.insertTags(tagRows)
+            val tagCount = downloadableFileDao.insertSource(files, tags)
             Log.i(TAG, "Indexed ${files.size} ROM(s) from RomM platform $slug")
-            Pair(files.size, tagRows.size)
+            Pair(files.size, tagCount)
         } finally {
             rescanStateHolder.setTorrentFetchProgress("")
         }

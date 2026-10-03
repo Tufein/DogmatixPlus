@@ -20,11 +20,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.cortinadev.dogmatix"
+        applicationId = "com.tufein.dogmatixplus"
         minSdk = 29
         targetSdk = 36
-        versionCode = 14
-        versionName = "1.2.0-alpha.1"
+        versionCode = 15
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -52,7 +52,7 @@ android {
 
     buildTypes {
         debug {
-            // Installs alongside the release build (com.cortinadev.dogmatix.debug).
+            // Installs alongside the release build (com.tufein.dogmatixplus.debug).
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
         }

@@ -1,13 +1,15 @@
 package com.cortinadev.dogmatix.util
 
 object FileSizeUtils {
+
+    /** Compiled once: every row of a directory listing goes through here. */
+    private val sizePattern = """(\d+(?:\.\d+)?)\s*([KMGTPE]?i?B)""".toRegex(RegexOption.IGNORE_CASE)
     
     fun parseFileSize(sizeString: String): Long {
         if (sizeString.isBlank() || sizeString == "0") return 0L
         
         val cleanString = sizeString.trim().replace(",", "")
-        val regex = """(\d+(?:\.\d+)?)\s*([KMGTPE]?i?B)""".toRegex(RegexOption.IGNORE_CASE)
-        val match = regex.find(cleanString)
+        val match = sizePattern.find(cleanString)
         
         if (match == null) return 0L
         

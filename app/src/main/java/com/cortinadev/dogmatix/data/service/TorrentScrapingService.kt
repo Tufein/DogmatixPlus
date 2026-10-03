@@ -58,8 +58,9 @@ class TorrentScrapingService @Inject constructor(
                 return@withContext Pair(0, 0)
             }
 
-            val allFiles = mutableListOf<DownloadableFileEntity>()
-            val allTagPairs = mutableListOf<Pair<DownloadableFileEntity, List<FileTagEntity>>>()
+            val allFiles = ArrayList<DownloadableFileEntity>(entries.size)
+            val allTags = ArrayList<List<String>>(entries.size)
+            val contentTypeTag = FileParsingUtils.normalizeTag(urlEntry.contentType.name)
 
             entries.forEach { entry ->
                 val (cleanName, tagStrings) = FileParsingUtils.extractNameAndTags(entry.fileName)
@@ -74,31 +75,21 @@ class TorrentScrapingService @Inject constructor(
                     torrentFileIndex = entry.fileIndex,
                     torrentMagnet = magnet
                 )
-                val tagEntities = tagStrings.map { FileTagEntity(fileId = 0, tag = it) }
-                val contentTypeTag = FileTagEntity(
-                    fileId = 0,
-                    tag = FileParsingUtils.normalizeTag(urlEntry.contentType.name)
-                )
                 allFiles.add(entity)
-                allTagPairs.add(entity to (tagEntities + contentTypeTag))
+                allTags.add(tagStrings + contentTypeTag)
             }
 
-            val insertedIds = downloadableFileDao.insertAll(allFiles)
-            val fileIdMap = allFiles.zip(insertedIds).associate { (f, id) -> f.fileName to id }
-
-            val updatedTags = allTagPairs.flatMap { (file, tags) ->
-                val id = fileIdMap[file.fileName] ?: 0L
-                tags.map { it.copy(fileId = id) }
-            }
-            downloadableFileDao.insertTags(updatedTags)
+            // One transaction; tags follow their file by position (two files of the same name in
+            // different torrent folders used to share one id).
+            val tagCount = downloadableFileDao.insertSource(allFiles, allTags)
             rescanStateHolder.setTorrentFetchProgress("")
 
-            Log.i(TAG, "Inserted ${allFiles.size} files, ${updatedTags.size} tags for ${console.name}")
+            Log.i(TAG, "Inserted ${allFiles.size} files, $tagCount tags for ${console.name}")
             
             // NOTE: We no longer release the handle here.
             // Keeping it in the session allows immediate starting of downloads.
 
-            Pair(allFiles.size, updatedTags.size)
+            Pair(allFiles.size, tagCount)
         }
 
     companion object { private const val TAG = "TorrentScrapingService" }

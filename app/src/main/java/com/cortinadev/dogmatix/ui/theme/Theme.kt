@@ -2,7 +2,11 @@ package com.cortinadev.dogmatix.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -119,6 +123,25 @@ fun DogmatixTheme(
         ThemeMode.DARK, ThemeMode.TRUE_BLACK -> true
     }
     val trueBlack = themeMode == ThemeMode.TRUE_BLACK
+    // Material You: the whole scheme follows the wallpaper; the Dogmatix tokens are taken from it.
+    if (accent == AccentPresets.dynamic && AccentPresets.dynamicAvailable) {
+        val context = LocalContext.current
+        val base = if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        val scheme = if (trueBlack) base.copy(
+            background = Color.Black, surface = Color.Black, surfaceContainerLowest = Color.Black
+        ) else base
+        val dynamicTokens = DogmatixTokens(
+            gradientTop = if (trueBlack) Color.Black else scheme.surfaceContainerLow,
+            knobOff = scheme.surfaceContainerHighest,
+            mutedStrong = scheme.onSurfaceVariant,
+            card = if (darkTheme) scheme.surfaceContainerHigh else scheme.surfaceContainerLowest,
+            isDark = darkTheme
+        )
+        CompositionLocalProvider(LocalDogmatixTokens provides dynamicTokens) {
+            MaterialTheme(colorScheme = scheme, typography = Typography, content = content)
+        }
+        return
+    }
     val tokens = when {
         trueBlack ->
             DogmatixTokens(DogmatixBlack.bg2, DogmatixBlack.knobOff, DogmatixBlack.muted2, DogmatixBlack.card, isDark = true)

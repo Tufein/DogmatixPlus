@@ -34,6 +34,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.coroutineScope
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 @HiltViewModel
@@ -240,10 +242,15 @@ class SourcesViewModel @Inject constructor(
                 if (added.isEmpty()) return@launch
                 withRescanState {
                     rescanStateHolder.startProgress(added.sumOf { (_, urls) -> scanWeight(urls) })
-                    added.forEachIndexed { i, (entity, newUrls) ->
-                        rescanStateHolder.setProgressMessage(
-                            context.getString(R.string.sources_processing_console, i + 1, added.size, entity.name))
-                        scrapeConsole(Console(entity.id, entity.name, newUrls), entity.manufacturerId)
+                    val started = AtomicInteger()
+                    coroutineScope {
+                        added.forEach { (entity, newUrls) ->
+                            launch {
+                                rescanStateHolder.setProgressMessage(
+                                    context.getString(R.string.sources_processing_console, started.incrementAndGet(), added.size, entity.name))
+                                scrapeConsole(Console(entity.id, entity.name, newUrls), entity.manufacturerId)
+                            }
+                        }
                     }
                 }
             }
@@ -274,15 +281,20 @@ class SourcesViewModel @Inject constructor(
     private suspend fun scrapeAll(startMessage: Int) = withRescanState {
         val current = manufacturers.first()
         val total = current.sumOf { it.consoles.size }
-        var processed = 0
         rescanStateHolder.setProgressMessage(context.getString(startMessage, total))
         rescanStateHolder.startProgress(current.sumOf { m -> m.consoles.sumOf { scanWeight(it.urls) } })
-        current.forEach { manufacturer ->
-            manufacturer.consoles.forEach { console ->
-                processed++
-                rescanStateHolder.setProgressMessage(
-                    context.getString(R.string.sources_processing_console, processed, total, console.name))
-                scrapeConsole(console, manufacturer.id)
+        // All consoles at once: the scraping service caps how many sources of each kind run
+        // together, so a slow torrent no longer holds up every console behind it.
+        val started = AtomicInteger()
+        coroutineScope {
+            current.forEach { manufacturer ->
+                manufacturer.consoles.forEach { console ->
+                    launch {
+                        rescanStateHolder.setProgressMessage(
+                            context.getString(R.string.sources_processing_console, started.incrementAndGet(), total, console.name))
+                        scrapeConsole(console, manufacturer.id)
+                    }
+                }
             }
         }
     }

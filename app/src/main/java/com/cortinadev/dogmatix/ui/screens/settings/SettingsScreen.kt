@@ -66,6 +66,7 @@ import com.cortinadev.dogmatix.ui.screens.settings.components.DaijishoSetupDialo
 import com.cortinadev.dogmatix.ui.screens.settings.components.FavoriteLanguagesDialog
 import com.cortinadev.dogmatix.ui.screens.settings.components.maskedSecret
 import com.cortinadev.dogmatix.ui.components.focusRing
+import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.data.model.DebridProvider
@@ -188,7 +189,7 @@ fun SettingsScreen(
         viewModel.onThemeModeChanged(context, modes[((ui.themeMode.ordinal + delta) % modes.size + modes.size) % modes.size])
     }
     fun cycleAccent(delta: Int) {
-        val presets = AccentPresets.all
+        val presets = AccentPresets.choices
         val current = presets.indexOf(ui.accent).coerceAtLeast(0)
         viewModel.onAccentChanged(context, presets[((current + delta) % presets.size + presets.size) % presets.size])
     }
@@ -226,6 +227,11 @@ fun SettingsScreen(
         val entries = AppLanguage.entries
         appLanguage = entries[(appLanguage.ordinal + delta + entries.size) % entries.size]
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(appLanguage.tag))
+    }
+
+    var showAccentDialog by remember { mutableStateOf(false) }
+    if (showAccentDialog) {
+        AccentDialog(selected = ui.accent, onPick = { viewModel.onAccentChanged(context, it); showAccentDialog = false }, onDismiss = { showAccentDialog = false })
     }
 
     var showLanguagesDialog by remember { mutableStateOf(false) }
@@ -307,8 +313,9 @@ fun SettingsScreen(
                 onClick = { cycleAccent(1) },
                 onAdjust = ::cycleAccent
             ) {
-                AccentSwatches(selected = ui.accent, size = if (isLandscape) 22.dp else 36.dp) {
-                    viewModel.onAccentChanged(context, it)
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    AccentSwatch(ui.accent, if (isLandscape) 24.dp else 32.dp, selected = true, onClick = { showAccentDialog = true })
+                    PillButton(stringResource(R.string.settings_change)) { showAccentDialog = true }
                 }
             }
         },
@@ -730,28 +737,54 @@ internal fun PillButton(label: String, onClick: () -> Unit) {
     }
 }
 
+/** One accent colour as a circle; Material You shows as a four-colour wheel. */
 @Composable
-private fun AccentSwatches(selected: Color, size: androidx.compose.ui.unit.Dp, onPick: (Color) -> Unit) {
+private fun AccentSwatch(color: Color, size: androidx.compose.ui.unit.Dp, selected: Boolean, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
-    Row(horizontalArrangement = Arrangement.spacedBy(if (size > 30.dp) 8.dp else 10.dp), verticalAlignment = Alignment.CenterVertically) {
-        AccentPresets.all.forEach { color ->
-            val source = rememberFocusSource()
-            val isSelected = color == selected
-            Box(
-                modifier = Modifier
-                    .size(size)
-                    .clip(CircleShape)
-                    .background(color)
-                    .border(
-                        width = if (isSelected) 2.dp else 0.dp,
-                        color = if (isSelected) scheme.onSurface else Color.Transparent,
-                        shape = CircleShape
-                    )
-                    .focusRing(source, size / 2)
-                    .clickable(interactionSource = source, indication = null) { onPick(color) }
-            )
-        }
-    }
+    val source = rememberFocusSource()
+    val fill = if (color == AccentPresets.dynamic) Modifier.background(
+        androidx.compose.ui.graphics.Brush.sweepGradient(listOf(Color(0xFFFF7F00), Color(0xFFD4E157), Color(0xFF3CC8FF), Color(0xFFE57BFF), Color(0xFFFF7F00)))
+    ) else Modifier.background(color)
+    Box(
+        modifier = Modifier
+            .size(size)
+            .clip(CircleShape)
+            .then(fill)
+            .border(width = if (selected) 2.dp else 0.dp, color = if (selected) scheme.onSurface else Color.Transparent, shape = CircleShape)
+            .focusRing(source, size / 2)
+            .clickable(interactionSource = source, indication = null, onClick = onClick)
+    )
+}
+
+/** Every accent colour, plus Material You where the system has it. */
+@Composable
+private fun AccentDialog(selected: Color, onPick: (Color) -> Unit, onDismiss: () -> Unit) {
+    val choices = AccentPresets.choices
+    val firstFocus = com.cortinadev.dogmatix.ui.components.rememberInitialFocus()
+    androidx.compose.material3.AlertDialog(
+        modifier = Modifier.closeOnGamepadB(onDismiss),
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.accent_dialog_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                choices.chunked(7).forEachIndexed { rowIndex, row ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        row.forEachIndexed { i, color ->
+                            Box(modifier = if (rowIndex == 0 && i == 0) Modifier.focusRequester(firstFocus) else Modifier) {
+                                AccentSwatch(color, 40.dp, selected = color == selected, onClick = { onPick(color) })
+                            }
+                        }
+                    }
+                }
+                if (AccentPresets.dynamicAvailable) Text(
+                    stringResource(R.string.accent_dynamic_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = { com.cortinadev.dogmatix.ui.components.DialogButton(text = stringResource(R.string.dialog_close), onClick = onDismiss) }
+    )
 }
 
 @Composable
