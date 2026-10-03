@@ -411,7 +411,7 @@
     <string name="http_accept">*/*</string>
     <string name="http_method_get">GET</string>
     <!-- Onboarding -->
-    <string name="onboarding_welcome_title">Willkommen bei Dogmatix</string>
+    <string name="onboarding_welcome_title">Willkommen bei Dogmatix+</string>
     <string name="onboarding_welcome_body">Dogmatix indexiert den Inhalt von ROM-Quellen — Torrents, Magnets und Webverzeichnisse —, versieht jede Datei mit Konsole, Region und Sprache und lässt dich stöbern, filtern und direkt in deinen ROM-Ordner herunterladen. Archive werden automatisch entpackt.</string>
     <string name="onboarding_welcome_point_1">Quellen werden indexiert, nicht heruntergeladen: Stöbere durch Tausende Titel, ohne deinen Speicher zu füllen.</string>
     <string name="onboarding_welcome_point_2">Filtere nach Konsole, Region, Sprache, Tag und Quelle; ✓ markiert, was du schon hast.</string>

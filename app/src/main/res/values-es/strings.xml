@@ -381,7 +381,7 @@
     <string name="error_download_dir_missing">La carpeta de descargas no está configurada. Elige una en Ajustes.</string>
     <string name="error_download_dir_inaccessible">No se puede acceder a la carpeta de descargas. Revisa los permisos de la carpeta en Ajustes.</string>
     <!-- Onboarding -->
-    <string name="onboarding_welcome_title">Bienvenido a Dogmatix</string>
+    <string name="onboarding_welcome_title">Bienvenido a Dogmatix+</string>
     <string name="onboarding_welcome_body">Dogmatix indexa el contenido de fuentes de ROMs — torrents, magnets y directorios web —, etiqueta cada archivo por consola, región e idioma y te deja explorar, filtrar y descargar directamente a tu carpeta de ROMs. Los archivos comprimidos se extraen solos.</string>
     <string name="onboarding_welcome_point_1">Las fuentes se indexan, no se descargan: explora miles de títulos sin llenar el almacenamiento.</string>
     <string name="onboarding_welcome_point_2">Filtra por consola, región, idioma, etiqueta y fuente; ✓ marca lo que ya tienes.</string>

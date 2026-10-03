@@ -362,7 +362,7 @@
     <string name="http_user_agent">Dogmatix Downloader/1.0</string>
     <string name="http_accept">*/*</string>
     <string name="http_method_get">GET</string>
-    <string name="onboarding_welcome_title">Bem-vindo ao Dogmatix</string>
+    <string name="onboarding_welcome_title">Bem-vindo ao Dogmatix+</string>
     <string name="onboarding_welcome_body">O Dogmatix indexa o conteúdo de fontes de ROMs — torrents, magnets e diretórios web —, etiqueta cada ficheiro por consola, região e idioma, e deixa-te navegar, filtrar e descarregar diretamente para a tua pasta de ROMs. Os arquivos são extraídos automaticamente.</string>
     <string name="onboarding_welcome_point_1">As fontes são indexadas, não descarregadas: navega por milhares de títulos sem encher o armazenamento.</string>
     <string name="onboarding_welcome_point_2">Filtra por consola, região, idioma, etiqueta e fonte; ✓ marca o que já tens.</string>

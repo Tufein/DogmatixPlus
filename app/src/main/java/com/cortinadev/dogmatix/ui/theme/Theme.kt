@@ -123,42 +123,36 @@ fun DogmatixTheme(
         ThemeMode.DARK, ThemeMode.TRUE_BLACK -> true
     }
     val trueBlack = themeMode == ThemeMode.TRUE_BLACK
-    // Material You: the whole scheme follows the wallpaper; the Dogmatix tokens are taken from it.
-    if (accent == AccentPresets.dynamic && AccentPresets.dynamicAvailable) {
-        val context = LocalContext.current
+    val context = LocalContext.current
+    val dynamic = accent == AccentPresets.dynamic && AccentPresets.dynamicAvailable
+    val colorScheme: ColorScheme
+    val tokens: DogmatixTokens
+    if (dynamic) {
+        // Material You: the whole scheme follows the wallpaper; the Dogmatix tokens are taken from it.
         val base = if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        val scheme = if (trueBlack) base.copy(
-            background = Color.Black, surface = Color.Black, surfaceContainerLowest = Color.Black
-        ) else base
-        val dynamicTokens = DogmatixTokens(
-            gradientTop = if (trueBlack) Color.Black else scheme.surfaceContainerLow,
-            knobOff = scheme.surfaceContainerHighest,
-            mutedStrong = scheme.onSurfaceVariant,
-            card = if (darkTheme) scheme.surfaceContainerHigh else scheme.surfaceContainerLowest,
+        colorScheme = if (trueBlack) base.copy(background = Color.Black, surface = Color.Black, surfaceContainerLowest = Color.Black) else base
+        tokens = DogmatixTokens(
+            gradientTop = if (trueBlack) Color.Black else colorScheme.surfaceContainerLow,
+            knobOff = colorScheme.surfaceContainerHighest,
+            mutedStrong = colorScheme.onSurfaceVariant,
+            card = if (darkTheme) colorScheme.surfaceContainerHigh else colorScheme.surfaceContainerLowest,
             isDark = darkTheme
         )
-        CompositionLocalProvider(LocalDogmatixTokens provides dynamicTokens) {
-            MaterialTheme(colorScheme = scheme, typography = Typography, content = content)
+    } else {
+        val preset = if (accent == AccentPresets.dynamic) AccentPresets.default else accent
+        colorScheme = when {
+            trueBlack -> blackScheme(preset)
+            darkTheme -> darkScheme(preset)
+            else -> lightScheme(preset)
         }
-        return
+        tokens = when {
+            trueBlack -> DogmatixTokens(DogmatixBlack.bg2, DogmatixBlack.knobOff, DogmatixBlack.muted2, DogmatixBlack.card, isDark = true)
+            darkTheme -> DogmatixTokens(DogmatixDark.bg2, DogmatixDark.knobOff, DogmatixDark.muted2, DogmatixDark.card, isDark = true)
+            else -> DogmatixTokens(DogmatixLight.bg2, DogmatixLight.knobOff, DogmatixLight.muted2, DogmatixLight.card, isDark = false)
+        }
     }
-    val tokens = when {
-        trueBlack ->
-            DogmatixTokens(DogmatixBlack.bg2, DogmatixBlack.knobOff, DogmatixBlack.muted2, DogmatixBlack.card, isDark = true)
-        darkTheme ->
-            DogmatixTokens(DogmatixDark.bg2, DogmatixDark.knobOff, DogmatixDark.muted2, DogmatixDark.card, isDark = true)
-        else ->
-            DogmatixTokens(DogmatixLight.bg2, DogmatixLight.knobOff, DogmatixLight.muted2, DogmatixLight.card, isDark = false)
-    }
+    // One call site for both kinds of scheme, so switching never resets what the app shows.
     CompositionLocalProvider(LocalDogmatixTokens provides tokens) {
-        MaterialTheme(
-            colorScheme = when {
-                trueBlack -> blackScheme(accent)
-                darkTheme -> darkScheme(accent)
-                else -> lightScheme(accent)
-            },
-            typography = Typography,
-            content = content
-        )
+        MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
     }
 }

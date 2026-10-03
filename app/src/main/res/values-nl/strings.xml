@@ -411,7 +411,7 @@
     <string name="http_accept">*/*</string>
     <string name="http_method_get">GET</string>
     <!-- Onboarding -->
-    <string name="onboarding_welcome_title">Welkom bij Dogmatix</string>
+    <string name="onboarding_welcome_title">Welkom bij Dogmatix+</string>
     <string name="onboarding_welcome_body">Dogmatix indexeert de inhoud van ROM-bronnen — torrents, magnets en webmappen —, tagt elk bestand op console, regio en taal, en laat je bladeren, filteren en direct naar je ROM-map downloaden. Archieven worden automatisch uitgepakt.</string>
     <string name="onboarding_welcome_point_1">Bronnen worden geïndexeerd, niet gedownload: blader door duizenden titels zonder je opslag te vullen.</string>
     <string name="onboarding_welcome_point_2">Filter op console, regio, taal, tag en bron; ✓ markeert wat je al hebt.</string>
