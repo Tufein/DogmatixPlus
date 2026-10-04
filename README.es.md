@@ -31,6 +31,11 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 3.1
+- **Las colas de descargas grandes vuelven a ir fluidas** (se acabó el «la aplicación no responde» tras un reinicio con cientos de descargas en espera).
+- **Botones para toda la cola** (*Detener todo*, *Reintentar fallidas*, *Quitar terminadas*), **pausar descargas web**, y **una notificación cuando termina la cola**.
+- **Sincronización de partidas para emuladores independientes**: DraStic, melonDS, mGBA, Snes9x EX+ y más sincronizan sus partidas con RomM.
+
 ### Novedades de 3.0
 - **Las descargas siguen donde se quedaron** (almacenamiento lleno, app cerrada, reinicio) y **la cola sobrevive a un reinicio**; un **límite por servidor** evita bloqueos.
 - **Lista de deseos en piloto automático**, **listas .m3u** para juegos de varios discos y un **asesor de almacenamiento** cuando «Descargar todo lo que se muestra» no cabe.

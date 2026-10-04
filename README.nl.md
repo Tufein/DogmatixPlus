@@ -31,6 +31,11 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 3.1
+- **Grote downloadwachtrijen blijven weer soepel** (geen "app reageert niet" meer na een herstart met honderden wachtende downloads).
+- **Knoppen voor de hele wachtrij** (*Alles stoppen*, *Mislukte opnieuw*, *Voltooide wissen*), **gewone downloads pauzeren**, en **een melding als de wachtrij klaar is**.
+- **Save-sync voor losse emulators**: DraStic, melonDS, mGBA, Snes9x EX+ en meer synchroniseren hun saves met RomM.
+
 ### Nieuw in 3.0
 - **Downloads gaan verder waar ze stopten** (opslag vol, app gesloten, herstart) en **de wachtrij overleeft een herstart**; een **limiet per server** voorkomt blokkades.
 - **Verlanglijst op de automatische piloot**, **.m3u-afspeellijsten** voor games met meerdere schijven, en een **opslagadviseur** als "Alles wat getoond wordt downloaden" niet past.

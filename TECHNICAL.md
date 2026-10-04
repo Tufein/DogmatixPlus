@@ -94,6 +94,15 @@ Everything below came with the alpha and is part of 1.2.0; the RomM parts have n
 - **Diagnostics**: `DiagnosticsService` builds the report; `DiagnosticsRedactor` removes tokens, URLs, magnet links, IP addresses, e-mail addresses and the saved secrets before it is shared.
 - **Italian and Portuguese** (European) join the other languages.
 
+### What 3.1.0 adds
+- **Requeue in one batch**: `requeueInterrupted()` runs on `Dispatchers.Default` and calls `DownloadService.retryDownloads(names)`: one `DownloadProgressTracker.resetDownloadsForRetry` list update, one `DownloadHistoryDao.markRestartedAll` per 500 rows, one foreground-service start. The whole-queue buttons (`QueueActions`) use the same batch for *Retry failed*.
+- **Progress batching**: `DownloadProgressTracker.updateDownloadProgress` (still throttled per file to once a second) puts progress in a pending map; one coroutine applies it to the list every `PROGRESS_BATCH_MS` (500 ms) through `ProgressBatch.apply`, at once at 100 %. A status change takes that file's pending progress along; a retry or removal drops it. `MainActivity` reads `DownloadViewModel.activeCount` instead of the list, and `downloadDetails` only recomputes when the file names change.
+- **416**: `DownloadHttpClient.createConnection` asks again without `Range` when a resumed request gets `416 Range Not Satisfiable`, so the caller starts over.
+- **Pause web downloads**: `QueueActions.canPause(status, isTorrent)` — torrents while DOWNLOADING, web downloads while QUEUED or DOWNLOADING. A web pause cancels the job with the file in `pausingFiles`, so `launchJob` lands it on PAUSED; the partial file stays for *Resume*.
+- **Queue summary**: `QueueSummaryService` feeds every list into `QueueSummary` (pure), which collects the names that were active in a run and returns the counts once nothing is active (paused rows do not keep a run open); runs of two or more give one notification (setting `queue_summary`).
+- **Emulator save folders**: `EmulatorSaveFolders` (pure, JSON in `AppSettings.saveSyncEmulatorFolders`). `SafSaveStore.list` scans each folder as SAVE files under a virtual top folder named after the emulator, with `LocalSaveFile.platformHints` that `SaveSyncPlanner.matchRom` adds to the path folders; `write` maps `<label>/…` back into that folder. `Listing.noRootFolder` lets the planner skip server files that have no folder on the device. A RetroArch top folder with the same name stops the sync with an error.
+- **PIN**: `Profiles.pinHash` is `pbkdf2$<rounds>$<salt>$<hash>` (PBKDF2-HMAC-SHA256, 120,000 rounds, 16-byte random salt); `pinMatches` still accepts the 3.0.0 fixed-salt SHA-256.
+
 ### What 3.0.0 adds
 - **Resume**: `PartialDownloads` (`files/partial_downloads.json`) records which partial files this app wrote, with the server's validator. `performHttpDownloadAttempt` sends `Range` + `If-Range` only for those and appends only when `ResumePlan.decide` sees a `206` whose `Content-Range` starts at the bytes on disk (and whose total matches a known size); otherwise it starts over. A `LowStorageException` keeps a recorded partial file for the retry.
 - **Requeue**: `restoreHistory` remembers rows that were QUEUED / DOWNLOADING / COPYING / UNZIPPING; `MainActivity` calls `DownloadService.requeueInterrupted()` once per run (setting `requeue_after_restart`), which retries them in their original order.
@@ -101,7 +110,7 @@ Everything below came with the alpha and is part of 1.2.0; the RomM parts have n
 - **Post-download** (`PostDownloadService`, on `DownloadService.finished`): `PlaylistPlanner` over the download's folder writes a missing `.m3u` that includes the new file; with *Covers for ES-DE*, `EsdeArtwork` writes `downloaded_media/<folder>/covers/<rom>.<ext>` and appends a gamelist entry (never replacing one). `GameMetadataService.lookup(name, console, fileName)` falls back to `ThumbnailService` (libretro-thumbnails `Named_Boxarts`, resolving GitHub's symlink stubs) for box art.
 - **Wishlist auto-download**: `WishlistRepository.checkAndNotify` → `autoDownload` picks `VersionPicker.best` among `DownloadableFileDao.filesMatching` rows that pass `GameTitleCleaner.containsAllWords`, skipping owned or active games.
 - **RetroAchievements**: `RetroAchievements` (pure) maps consoles to RA ids and hashes ROMs by RA's rules (iNES/FDS 16-byte, SNES/PCE 512-byte copier, Lynx 64, 7800 128-byte headers; N64 to big-endian); `RetroAchievementsService` fetches `API_GetGameList.php?…&h=1&f=1` (cached a week in `files/ra/`), hashes files ≤ 64 MB (single-file ZIPs unpacked) and matches No-Intro DAT MD5s; marks persist in `files/ra/marks.json`. The key is redacted from diagnostics.
-- **Profiles**: `Profiles` / `LibraryRestrictions` (pure, JSON in `AppSettings.profiles`); `ProfileService.current()` feeds `hiddenConsoles` / `hiddenTags` into the library query (`NOT IN` / `NOT EXISTS`) and the console list. The PIN is stored as a salted SHA-256.
+- **Profiles**: `Profiles` / `LibraryRestrictions` (pure, JSON in `AppSettings.profiles`); `ProfileService.current()` feeds `hiddenConsoles` / `hiddenTags` into the library query (`NOT IN` / `NOT EXISTS`) and the console list. The PIN was stored as a fixed-salt SHA-256 (PBKDF2 since 3.1.0).
 - **Statistics**: `EsdePlayService` + `EsdePlayStats` read `<playcount>` / `<lastplayed>` from ES-DE's gamelists.
 - **Storage advisor**: `BulkPlan.shortBytes` / `perConsole`; the dialog asks `LibraryToolsService.duplicateGroups()` for the reclaimable bytes.
 
@@ -153,7 +162,7 @@ Everything below came with the alpha and is part of 1.2.0; the RomM parts have n
 - **Colours.** Twelve accent presets and Material You (`AccentPresets.dynamic`, stored as `dynamic`): on Android 12+ the theme uses `dynamicLight/DarkColorScheme` (pure black keeps a black background) and derives the Dogmatix tokens from it; the theme is built at one call site so switching never resets the screen.
 
 ### Smaller changes
-- The app version is **3.0.0** (2.6.0, 2.5.0, 2.0.0, 1.3.0, 1.2.0, 1.2.0-alpha.1 and 1.1.0-beta.1 before it) (DogmatixPlus numbers its own releases; 1.0.0 was the first); the Credits screen shows the whole lineage, and the update check reads this repository's releases instead of the original project's. It skips pre-releases, and a beta counts as older than its final release.
+- The app version is **3.1.0** (3.0.0, 2.6.0, 2.5.0, 2.0.0, 1.3.0, 1.2.0, 1.2.0-alpha.1 and 1.1.0-beta.1 before it) (DogmatixPlus numbers its own releases; 1.0.0 was the first); the Credits screen shows the whole lineage, and the update check reads this repository's releases instead of the original project's. It skips pre-releases, and a beta counts as older than its final release.
 - The `.md` extension counts as a Mega Drive ROM inside console folders (but not `README.md`).
 - 332 unit tests (254 more than Dogmatix 1.2) cover the new logic. One of them runs the save sync of two devices against a real RomM server when `ROMM_TEST_URL` and `ROMM_TEST_TOKEN` are set (it is skipped otherwise); it passed against RomM 3.10.3, 4.0.0 and 5.3.1. The 1.0.0 screens were tried on an emulator, in portrait and landscape, in the debug and in the minified release build; the 1.1.0 beta screens were not (see the release notes).
 
@@ -361,7 +370,7 @@ Planned features, in no particular order:
 
 - Try everything in 1.2.0-alpha.1 against real RomM servers and a real handheld, and fix what that shows (certificate trust, resumed uploads, deletion sync, background sync, covers, the schedule and the checksum check have only been covered by unit tests so far).
 - Later: a "wanted" status from the wishlist that also checks RomM's library, and cover art for frontends other than ES-DE.
-- ~~Per-console save folders for standalone emulators~~ — done after 3.0.0 (*Save sync → Add an emulator's saves folder*).
+- ~~Per-console save folders for standalone emulators~~ — done in 3.1.0 (*Save sync → Add an emulator's saves folder*).
 - ~~Mark games already in RomM as owned in the library~~ — done in 1.2.0-alpha.1.
 - ~~Save sync in the background~~ — done in 1.2.0-alpha.1.
 - ~~Favourites sync across devices via the sources export~~ — done in 1.1.0.
