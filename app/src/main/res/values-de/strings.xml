@@ -529,6 +529,13 @@
     <string name="save_sync_saves_folder_hint">Nicht gesetzt · z. B. RetroArch/saves</string>
     <string name="save_sync_states_folder">Ordner für Savestates</string>
     <string name="save_sync_states_folder_hint">Nicht gesetzt · z. B. RetroArch/states</string>
+    <string name="save_sync_emulator_clash">Emulator-Ordner: %1$s hat einen gleichnamigen Ordner im Spielstand-Ordner. Entferne einen der beiden.</string>
+    <string name="save_sync_emulator_remove">Entfernen</string>
+    <string name="save_sync_emulator_add">Spielstand-Ordner eines Emulators hinzufügen</string>
+    <string name="save_sync_emulator_add_hint">Für eigenständige Emulatoren (DraStic, mGBA, Snes9x EX+…): ihre Spielstände werden auch mit RomM abgeglichen</string>
+    <string name="save_sync_emulator_add_action">Hinzufügen</string>
+    <string name="save_sync_emulator_pick">Zu welchem Emulator gehört dieser Ordner?</string>
+    <string name="save_sync_emulator_pick_hint">Seine In-Game-Spielstände werden unter diesem Namen abgeglichen. Savestates nicht.</string>
     <string name="save_sync_auto">Automatisch synchronisieren</string>
     <string name="save_sync_auto_hint">Beim Öffnen von Dogmatix und wenn du aus einem Spiel zurückkommst</string>
     <string name="save_sync_now">Jetzt synchronisieren</string>

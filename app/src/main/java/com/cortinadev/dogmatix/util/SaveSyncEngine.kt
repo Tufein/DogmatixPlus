@@ -41,7 +41,9 @@ interface SaveStore {
         /** Folders directly inside each picked folder (emulator / core folders). */
         val topFolders: Map<SaveKind, Set<String>>,
         /** Files skipped for their size. */
-        val tooLarge: Int = 0
+        val tooLarge: Int = 0,
+        /** Kinds listed only through emulators' own folders: server files of other emulators have no place here. */
+        val noRootFolder: Set<SaveKind> = emptySet()
     )
 
     /** Kinds with a picked folder are the keys of [Listing.topFolders]. */
@@ -74,7 +76,7 @@ class SaveSyncEngine(
     suspend fun sync(records: MutableMap<String, SaveSyncRecord>, confirmDeletions: Boolean = false): Pair<SaveSyncResult, List<SaveConflict>> {
         val listing = store.list()
         val remotes = SaveSyncPlanner.latestPerName(listing.topFolders.keys.flatMap { server.list(it) })
-        val planned = SaveSyncPlanner.plan(listing.files, remotes, records.values.toList(), listing.topFolders, syncDeletions())
+        val planned = SaveSyncPlanner.plan(listing.files, remotes, records.values.toList(), listing.topFolders, syncDeletions(), listing.noRootFolder)
         // A lot of deletions at once usually means something is wrong (a folder emptied, a wrong
         // server), not that the user cleaned up: hold them back until the user says yes.
         val deletions = planned.count { it is SaveSyncAction.DeleteRemote || it is SaveSyncAction.DeleteLocal }

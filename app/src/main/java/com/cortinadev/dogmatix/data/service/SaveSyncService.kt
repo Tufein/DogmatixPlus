@@ -8,6 +8,8 @@ import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.util.EmulatorSaveFolder
+import com.cortinadev.dogmatix.util.EmulatorSaveFolders
 import com.cortinadev.dogmatix.util.LocalSaveFile
 import com.cortinadev.dogmatix.util.RemoteSaveFile
 import com.cortinadev.dogmatix.util.SaveConflict
@@ -79,7 +81,8 @@ data class SaveSyncState(
 class SaveSyncService @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
-    private val rommClient: RommClient
+    private val rommClient: RommClient,
+    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val lock = Mutex()
@@ -99,7 +102,8 @@ class SaveSyncService @Inject constructor(
 
     suspend fun isConfigured(): Boolean =
         rommClient.configuredBaseUrl().isNotEmpty() && settingsRepository.rommToken.first().isNotBlank() &&
-            (settingsRepository.saveSyncSavesDir.first().isNotBlank() || settingsRepository.saveSyncStatesDir.first().isNotBlank())
+            (settingsRepository.saveSyncSavesDir.first().isNotBlank() || settingsRepository.saveSyncStatesDir.first().isNotBlank() ||
+                appSettings.saveSyncEmulatorFolders.first().isNotEmpty())
 
     /** Sync now (Save sync screen); ignored while one runs. [confirmDeletions] lets held-back deletions through. */
     fun syncNow(confirmDeletions: Boolean = false) {
@@ -200,12 +204,15 @@ class SaveSyncService @Inject constructor(
             val files = mutableListOf<Pair<LocalSaveFile, Uri>>()
             val topFolders = mutableMapOf<SaveKind, Set<String>>()
             var tooLarge = 0
-            fun scan(treeUri: String, kindOf: (String) -> SaveKind, kinds: List<SaveKind>) {
+            val emulatorFolders = appSettings.saveSyncEmulatorFolders.first()
+            fun scan(treeUri: String, kindOf: (String) -> SaveKind, kinds: List<SaveKind>, under: EmulatorSaveFolder? = null) {
                 val tree = treeUri.toUri()
                 val rootId = runCatching { DocumentsContract.getTreeDocumentId(tree) }.getOrNull()
                     ?: throw IOException("Pick the folder again (no access)")
                 val children = query(tree, rootId) ?: throw IOException("${folderName(tree)} cannot be read; pick it again")
-                kinds.forEach { topFolders[it] = children.filter { c -> c.isDir }.map { c -> c.name }.toSet() }
+                // An emulator's own folder shows up as one folder named after the emulator.
+                if (under == null) kinds.forEach { topFolders[it] = topFolders[it].orEmpty() + children.filter { c -> c.isDir }.map { c -> c.name } }
+                else kinds.forEach { topFolders[it] = topFolders[it].orEmpty() + under.label }
                 fun walk(prefix: String, depth: Int, list: List<Child>) {
                     list.forEach { child ->
                         val path = if (prefix.isEmpty()) child.name else "$prefix/${child.name}"
@@ -215,12 +222,12 @@ class SaveSyncService @Inject constructor(
                             }
                             !SaveSyncPlanner.isSyncable(child.name) -> Unit
                             child.size > MAX_FILE_BYTES -> tooLarge++
-                            else -> files += LocalSaveFile(kindOf(child.name), path, child.size, child.modified) to
+                            else -> files += LocalSaveFile(kindOf(child.name), path, child.size, child.modified, under?.platforms.orEmpty()) to
                                 DocumentsContract.buildDocumentUriUsingTree(tree, child.documentId)
                         }
                     }
                 }
-                walk("", 1, children)
+                walk(under?.label.orEmpty(), if (under == null) 1 else 2, children)
             }
             if (savesUri.isNotBlank() && savesUri == statesUri) {
                 scan(savesUri, SaveSyncPlanner::kindOf, SaveKind.entries)
@@ -228,8 +235,19 @@ class SaveSyncService @Inject constructor(
                 if (savesUri.isNotBlank()) scan(savesUri, { SaveKind.SAVE }, listOf(SaveKind.SAVE))
                 if (statesUri.isNotBlank()) scan(statesUri, { SaveKind.STATE }, listOf(SaveKind.STATE))
             }
+            // A folder of the same name in the saves folder would mix with it; stop rather than guess
+            // (skipping it would make its files look deleted).
+            emulatorFolders.forEach { folder ->
+                if (topFolders[SaveKind.SAVE].orEmpty().any { it.equals(folder.label, ignoreCase = true) })
+                    throw IOException(context.getString(R.string.save_sync_emulator_clash, folder.label))
+                scan(folder.uri, { SaveKind.SAVE }, listOf(SaveKind.SAVE), folder)
+            }
             documents = files.associate { (file, uri) -> SaveSyncEngine.key(file) to uri }
-            SaveStore.Listing(files.map { it.first }, topFolders, tooLarge)
+            val rooted = buildSet {
+                if (savesUri.isNotBlank()) add(if (savesUri == statesUri) SaveKind.entries else listOf(SaveKind.SAVE))
+                if (statesUri.isNotBlank()) add(listOf(SaveKind.STATE))
+            }.flatten().toSet()
+            SaveStore.Listing(files.map { it.first }, topFolders, tooLarge, topFolders.keys - rooted)
         }
 
         override suspend fun read(file: LocalSaveFile): ByteArray = withContext(Dispatchers.IO) {
@@ -238,9 +256,13 @@ class SaveSyncService @Inject constructor(
         }
 
         override suspend fun write(kind: SaveKind, path: String, bytes: ByteArray): LocalSaveFile = withContext(Dispatchers.IO) {
-            val root = rootFor(kind) ?: throw IOException("No folder picked for ${kind.apiPath}")
-            val written = StorageHelper.writeBytesSafely(context, root, path.substringBeforeLast('/', ""), path.substringAfterLast('/'), bytes)
-            val file = LocalSaveFile(kind, path, written.length(), written.lastModified())
+            // "DraStic (standalone)/Game.dsv" goes into DraStic's own folder when one is picked for it.
+            val emulator = if (kind == SaveKind.SAVE) EmulatorSaveFolders.locate(path, appSettings.saveSyncEmulatorFolders.first()) else null
+            val root = (if (emulator != null) StorageHelper.getDocumentFile(context, emulator.first.uri) else rootFor(kind))
+                ?: throw IOException("No folder picked for ${kind.apiPath}")
+            val inside = emulator?.second ?: path
+            val written = StorageHelper.writeBytesSafely(context, root, inside.substringBeforeLast('/', ""), inside.substringAfterLast('/'), bytes)
+            val file = LocalSaveFile(kind, path, written.length(), written.lastModified(), emulator?.first?.platforms.orEmpty())
             documents = documents + (SaveSyncEngine.key(file) to written.uri)
             file
         }

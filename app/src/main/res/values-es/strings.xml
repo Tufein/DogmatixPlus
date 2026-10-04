@@ -503,6 +503,13 @@
     <string name="save_sync_saves_folder_hint">Sin definir · p. ej. RetroArch/saves</string>
     <string name="save_sync_states_folder">Carpeta de estados</string>
     <string name="save_sync_states_folder_hint">Sin definir · p. ej. RetroArch/states</string>
+    <string name="save_sync_emulator_clash">Carpeta de emulador: %1$s tiene una carpeta con el mismo nombre en la carpeta de partidas. Quita una de las dos.</string>
+    <string name="save_sync_emulator_remove">Quitar</string>
+    <string name="save_sync_emulator_add">Añadir la carpeta de partidas de un emulador</string>
+    <string name="save_sync_emulator_add_hint">Para emuladores independientes (DraStic, mGBA, Snes9x EX+…): sus partidas también se sincronizan con RomM</string>
+    <string name="save_sync_emulator_add_action">Añadir</string>
+    <string name="save_sync_emulator_pick">¿De qué emulador es esta carpeta?</string>
+    <string name="save_sync_emulator_pick_hint">Sus partidas guardadas se sincronizan con este nombre. Los save states no.</string>
     <string name="save_sync_auto">Sincronizar automáticamente</string>
     <string name="save_sync_auto_hint">Al abrir Dogmatix y al volver de un juego</string>
     <string name="save_sync_now">Sincronizar ahora</string>

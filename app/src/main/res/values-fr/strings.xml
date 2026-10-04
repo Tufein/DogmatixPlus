@@ -534,6 +534,13 @@
     <string name="save_sync_saves_folder_hint">Non défini · ex. RetroArch/saves</string>
     <string name="save_sync_states_folder">Dossier des états</string>
     <string name="save_sync_states_folder_hint">Non défini · ex. RetroArch/states</string>
+    <string name="save_sync_emulator_clash">Dossier d\'émulateur : %1$s a un dossier du même nom dans le dossier des sauvegardes. Retirez l\'un des deux.</string>
+    <string name="save_sync_emulator_remove">Retirer</string>
+    <string name="save_sync_emulator_add">Ajouter le dossier de sauvegardes d\'un émulateur</string>
+    <string name="save_sync_emulator_add_hint">Pour les émulateurs autonomes (DraStic, mGBA, Snes9x EX+…) : leurs sauvegardes sont aussi synchronisées avec RomM</string>
+    <string name="save_sync_emulator_add_action">Ajouter</string>
+    <string name="save_sync_emulator_pick">À quel émulateur est ce dossier ?</string>
+    <string name="save_sync_emulator_pick_hint">Ses sauvegardes en jeu sont synchronisées sous ce nom. Pas les save states.</string>
     <string name="save_sync_auto">Synchroniser automatiquement</string>
     <string name="save_sync_auto_hint">À l\'ouverture de Dogmatix et au retour d\'un jeu</string>
     <string name="save_sync_now">Synchroniser maintenant</string>

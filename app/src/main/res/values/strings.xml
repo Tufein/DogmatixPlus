@@ -530,6 +530,13 @@
     <string name="save_sync_saves_folder_hint">Not set · e.g. RetroArch/saves</string>
     <string name="save_sync_states_folder">Save states folder</string>
     <string name="save_sync_states_folder_hint">Not set · e.g. RetroArch/states</string>
+    <string name="save_sync_emulator_clash">Emulator folder: %1$s has a folder of the same name in the saves folder. Remove one of the two.</string>
+    <string name="save_sync_emulator_remove">Remove</string>
+    <string name="save_sync_emulator_add">Add an emulator\'s saves folder</string>
+    <string name="save_sync_emulator_add_hint">For standalone emulators (DraStic, mGBA, Snes9x EX+…): their saves sync with RomM too</string>
+    <string name="save_sync_emulator_add_action">Add</string>
+    <string name="save_sync_emulator_pick">Which emulator is this folder for?</string>
+    <string name="save_sync_emulator_pick_hint">Its in-game saves are synced under this name. Save states are not.</string>
     <string name="save_sync_auto">Sync automatically</string>
     <string name="save_sync_auto_hint">When Dogmatix opens and when you come back to it from a game</string>
     <string name="save_sync_now">Sync now</string>

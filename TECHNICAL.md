@@ -48,6 +48,7 @@ Everything is under **Settings**, works with a gamepad and with touch, and is av
 - **Which game a file belongs to**: the file name without extension must equal the ROM's file name without extension (`Pokemon Emerald (USA).srm` ↔ `Pokemon Emerald (USA).gba`). Dogmatix asks RomM's search and checks the names exactly; when the same name exists on several platforms, a folder in the save's path named like the platform (`saves/gb/…`) decides, otherwise the file is left alone. A first-level folder (`saves/mGBA/…`, the RetroArch core) is sent as RomM's *emulator*, and a device that has a folder of that name gets the file in it.
 - **What moves**: after each sync Dogmatix remembers what both sides looked like (size and time of the device file; time, size and hash of the server file). Next time, only the side that changed is copied; when **both** changed, nothing is overwritten and the file is listed with *◀ Device* / *RomM ▶* to keep one. The first time a file exists on both sides, equal contents are simply recorded and different contents are listed the same way. Device clocks never have to agree with the server's.
 - **Safety**: a device file replaced by a download is first copied to the app's private storage (`files/save-backups/`, kept 30 days); downloads are written to a temporary file and only then replace the old one. Deletions are not synced: a file missing on one side is copied back from the other. Slot saves (RomM 5's dated history) are left alone.
+- **Standalone emulators**: next to RetroArch's folders, *Add an emulator's saves folder* takes the saves folder of DraStic, melonDS, mGBA, Pizza Boy GBA / GBC, GBA.emu, GBC.emu, Snes9x EX+, NES.emu or MD.emu (emulators that name their saves after the ROM). The sync sees it as a folder named after the emulator inside the saves folder: that name goes to RomM as *emulator*, server saves of that emulator come down into it, and the emulator's consoles decide between games of the same name on several platforms. A folder of the same name in RetroArch's saves folder stops the sync with a message instead of mixing the two. In-game saves only, no save states. With only emulator folders set up, server saves of other emulators stay on the server.
 - **When**: *Sync now*, and — when switched on — automatically when Dogmatix opens or comes back to the front (at most every two minutes), with a short message when something moved or needs a choice. Close the game before syncing: an emulator that is still running can write its older in-memory save over a freshly downloaded one.
 - Works with RomM 3.10, 4 and 5 (tested against 3.10.3, 4.0.0 and 5.3.1), with an `rmm_…` client token (scopes *assets* read/write and *roms* read) or `user:password`.
 
@@ -359,8 +360,8 @@ Everything is also reachable by touch; the legend only appears while a controlle
 Planned features, in no particular order:
 
 - Try everything in 1.2.0-alpha.1 against real RomM servers and a real handheld, and fix what that shows (certificate trust, resumed uploads, deletion sync, background sync, covers, the schedule and the checksum check have only been covered by unit tests so far).
-- Per-console save folders for standalone emulators.
-- A "wanted" status from the wishlist that also checks RomM's library, and cover art for frontends other than ES-DE.
+- Later: a "wanted" status from the wishlist that also checks RomM's library, and cover art for frontends other than ES-DE.
+- ~~Per-console save folders for standalone emulators~~ — done after 3.0.0 (*Save sync → Add an emulator's saves folder*).
 - ~~Mark games already in RomM as owned in the library~~ — done in 1.2.0-alpha.1.
 - ~~Save sync in the background~~ — done in 1.2.0-alpha.1.
 - ~~Favourites sync across devices via the sources export~~ — done in 1.1.0.

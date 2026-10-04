@@ -3,12 +3,48 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
-## [3.0.0] – 2026-10-04 · Dogmatix+
+## [Unreleased]
 
 ### Downloads
 - **Whole-queue buttons** on the Downloads screen: *Stop all*, *Retry failed* and *Clear finished*
   (the files stay), each with the number of rows it acts on and only shown when it has something to
   do. They work in one batch off the UI thread, so a queue of hundreds stays responsive.
+- **Pause web downloads**, running or still waiting in the queue (until now only torrents could
+  pause). The partial file stays and *Resume* continues from it; a paused download is not put back
+  in the queue after a restart.
+- **One notification when the queue is done**: how many downloads went through, failed or were
+  stopped, for runs of two or more; tapping it opens Downloads (*Settings → Notify when the queue is
+  done*, on by default).
+
+### Save sync
+- **Saves folders of standalone emulators** (*Settings → Save sync → Add an emulator's saves
+  folder*): DraStic, melonDS, mGBA, Pizza Boy GBA / GBC, GBA.emu, GBC.emu, Snes9x EX+, NES.emu and
+  MD.emu sync their in-game saves with RomM next to RetroArch. Each folder belongs to one emulator,
+  whose name goes to RomM as the save's *emulator*; server saves of that emulator come down into
+  it, and its console picks the right game when the same name exists on several platforms. The
+  names say "(standalone)" where RetroArch has a core folder of the same name, so the two never
+  mix. Save states of these emulators are not synced.
+
+### Profiles
+- The PIN is stored with a random salt and PBKDF2 instead of a fixed-salt SHA-256 (a PIN set in
+  3.0.0 keeps working).
+
+### Faster with big queues
+- Progress of all running downloads lands in the list together (at most twice a second) instead
+  of every download publishing its own copy of the whole list each second, and the app shell no
+  longer redraws on every progress tick (it only needs the number of active downloads).
+
+### Fixed
+- **Not-responding reports with a big queue.** *Continue the queue after a restart* put every
+  interrupted download back one by one on the UI thread — hundreds of list updates, database
+  writes and service requests while the first screen was drawing. Android closed the app, and the
+  next start did it all again. The queue now comes back as one batch, off the UI thread.
+- A download whose partial file was already complete (the app closed just before it finished)
+  failed on every retry with `HTTP 416`. It now starts over from zero instead.
+
+## [3.0.0] – 2026-10-04 · Dogmatix+
+
+### Downloads
 - **Continue where it stopped.** A web download cut off by a full storage, a closed app or a
   reboot now carries on from its partial file when you retry: Dogmatix+ asks for the rest with a
   `Range` request and appends it only when the server answers with exactly the missing part of the
@@ -45,17 +81,10 @@ All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 - **Profiles** (*Settings → Profiles*): a profile hides consoles and games with chosen tags from
   the library and its downloads (a child's profile, a couch profile). With a PIN, only someone who
   knows it can leave a restricted profile, and profiles and the PIN cannot be changed from inside one.
-  The PIN is stored with a random salt and PBKDF2 (a PIN set in an earlier 3.0.0 build keeps working).
 - **What you play** (*Statistics*): the games ES-DE started most and most recently. ES-DE records
   play counts, not play time; Cocoon keeps its play time in its own private database.
 
 ### Fixed
-- **Not-responding reports with a big queue.** *Continue the queue after a restart* put every
-  interrupted download back one by one on the UI thread — hundreds of list updates, database
-  writes and service requests while the first screen was drawing. Android closed the app, and the
-  next start did it all again. The queue now comes back as one batch, off the UI thread.
-- A download whose partial file was already complete (the app closed just before it finished)
-  failed on every retry with `HTTP 416`. It now starts over from zero instead.
 - The app read some settings with a blocking call while starting; on a slow device that could
   delay the first screen. Those reads now happen in the background.
 
