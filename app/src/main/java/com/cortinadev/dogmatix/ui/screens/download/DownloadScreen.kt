@@ -67,6 +67,7 @@ fun DownloadScreen(
     val queued by viewModel.queued.collectAsState()
     val verification by viewModel.verification.collectAsState()
     val shortfall by viewModel.queueShortfall.collectAsState()
+    val counts by viewModel.queueCounts.collectAsState()
     val waitWifi = stringResource(R.string.wait_wifi)
     val waitCharger = stringResource(R.string.wait_charger)
     val waitNight = stringResource(R.string.wait_night)
@@ -175,6 +176,16 @@ fun DownloadScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+        }
+        if (!selectionMode && counts.any) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (counts.stoppable > 0) PillButton(stringResource(R.string.downloads_stop_all, counts.stoppable), viewModel::stopAll)
+                if (counts.retryable > 0) PillButton(stringResource(R.string.downloads_retry_failed, counts.retryable), viewModel::retryFailed)
+                if (counts.clearable > 0) PillButton(stringResource(R.string.downloads_clear_finished, counts.clearable), viewModel::clearFinished)
             }
         }
         if (waitingFiles.isNotEmpty() && waitingText.isNotEmpty()) {

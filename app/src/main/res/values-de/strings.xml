@@ -627,6 +627,9 @@
     <string name="wait_charger">Wartet auf das Ladegerät</string>
     <string name="wait_night">Wartet auf das Nachtfenster</string>
     <string name="downloads_start_now">Jetzt starten</string>
+    <string name="downloads_stop_all">Alle stoppen (%1$d)</string>
+    <string name="downloads_retry_failed">Fehlgeschlagene wiederholen (%1$d)</string>
+    <string name="downloads_clear_finished">Fertige entfernen (%1$d)</string>
     <string name="downloads_low_space">Zu wenig freier Platz für die Warteschlange: %1$s fehlen</string>
     <string name="download_open">Öffnen</string>
     <string name="download_open_none">Keine App kann diese Datei öffnen</string>

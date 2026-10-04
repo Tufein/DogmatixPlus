@@ -601,6 +601,9 @@
     <string name="wait_charger">Esperando el cargador</string>
     <string name="wait_night">Esperando la franja nocturna</string>
     <string name="downloads_start_now">Iniciar ya</string>
+    <string name="downloads_stop_all">Detener todo (%1$d)</string>
+    <string name="downloads_retry_failed">Reintentar fallidas (%1$d)</string>
+    <string name="downloads_clear_finished">Quitar terminadas (%1$d)</string>
     <string name="downloads_low_space">No hay espacio libre suficiente para la cola: faltan %1$s</string>
     <string name="download_open">Abrir</string>
     <string name="download_open_none">Ninguna app puede abrir este archivo</string>
