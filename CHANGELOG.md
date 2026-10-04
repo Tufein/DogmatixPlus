@@ -46,6 +46,8 @@ All notable changes to Dogmatix are listed here. Dogmatix is a fork of
   play counts, not play time; Cocoon keeps its play time in its own private database.
 
 ### Fixed
+- A download whose partial file was already complete (the app closed just before it finished)
+  failed on every retry with `HTTP 416`. It now starts over from zero instead.
 - The app read some settings with a blocking call while starting; on a slow device that could
   delay the first screen. Those reads now happen in the background.
 
