@@ -632,6 +632,9 @@
     <string name="wait_charger">En attente du chargeur</string>
     <string name="wait_night">En attente de la plage de nuit</string>
     <string name="downloads_start_now">Démarrer maintenant</string>
+    <string name="downloads_stop_all">Tout arrêter (%1$d)</string>
+    <string name="downloads_retry_failed">Relancer les échecs (%1$d)</string>
+    <string name="downloads_clear_finished">Effacer les terminés (%1$d)</string>
     <string name="downloads_low_space">Pas assez d\'espace libre pour la file : il manque %1$s</string>
     <string name="download_open">Ouvrir</string>
     <string name="download_open_none">Aucune application ne peut ouvrir ce fichier</string>

@@ -11,7 +11,9 @@ import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.service.RommUploadService
 import com.cortinadev.dogmatix.data.service.DownloadService
 import com.cortinadev.dogmatix.data.service.LibraryIndexService
+import com.cortinadev.dogmatix.util.QueueActions
 import com.cortinadev.dogmatix.util.StorageInsights
+import kotlinx.coroutines.Dispatchers
 import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.VerifyState
 import com.cortinadev.dogmatix.util.WaitReason
@@ -89,6 +91,25 @@ class DownloadViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
 
     val downloads: StateFlow<List<DownloadItemModel>> = repository.downloads
+
+    /** What the whole-queue buttons would act on. */
+    val queueCounts: StateFlow<QueueActions.Counts> = downloads.map { QueueActions.counts(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), QueueActions.Counts())
+
+    // The whole-queue actions touch hundreds of rows: off the UI thread, so a big queue never freezes the screen.
+    fun stopAll() {
+        viewModelScope.launch(Dispatchers.Default) { QueueActions.stoppable(downloads.value).forEach { repository.cancelDownload(it) } }
+    }
+
+    /** Failed and stopped downloads go back in the queue as one batch (they continue from their partial file when they can). */
+    fun retryFailed() {
+        viewModelScope.launch(Dispatchers.Default) { downloadService.retryDownloads(QueueActions.retryable(downloads.value)) }
+    }
+
+    /** Removes the completed rows from the list; the files stay where they are. */
+    fun clearFinished() {
+        viewModelScope.launch(Dispatchers.Default) { QueueActions.clearable(downloads.value).forEach { repository.deleteDownload(it, false) } }
+    }
 
     /** RomM upload state per download (see [RommUploadService]). */
     val uploads: StateFlow<Map<String, UploadState>> = rommUploadService.uploads

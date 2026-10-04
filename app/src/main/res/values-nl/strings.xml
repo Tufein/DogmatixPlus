@@ -627,6 +627,9 @@
     <string name="wait_charger">Wacht op de oplader</string>
     <string name="wait_night">Wacht op het nachtvenster</string>
     <string name="downloads_start_now">Nu starten</string>
+    <string name="downloads_stop_all">Alles stoppen (%1$d)</string>
+    <string name="downloads_retry_failed">Mislukte opnieuw (%1$d)</string>
+    <string name="downloads_clear_finished">Voltooide wissen (%1$d)</string>
     <string name="downloads_low_space">Te weinig vrije ruimte voor de wachtrij: %1$s tekort</string>
     <string name="download_open">Openen</string>
     <string name="download_open_none">Geen app kan dit bestand openen</string>

@@ -578,6 +578,9 @@
     <string name="wait_charger">A aguardar o carregador</string>
     <string name="wait_night">A aguardar a janela noturna</string>
     <string name="downloads_start_now">Iniciar agora</string>
+    <string name="downloads_stop_all">Parar tudo (%1$d)</string>
+    <string name="downloads_retry_failed">Repetir falhadas (%1$d)</string>
+    <string name="downloads_clear_finished">Limpar concluídas (%1$d)</string>
     <string name="downloads_low_space">Sem espaço livre suficiente para a fila: faltam %1$s</string>
     <string name="download_open">Abrir</string>
     <string name="download_open_none">Nenhuma app consegue abrir este ficheiro</string>

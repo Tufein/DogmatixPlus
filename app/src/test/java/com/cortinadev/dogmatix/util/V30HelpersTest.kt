@@ -151,4 +151,19 @@ class V30HelpersTest {
         assertNull(LibretroThumbnails.symlinkTarget(byteArrayOf(0x89.toByte(), 'P'.code.toByte(), 'N'.code.toByte(), 'G'.code.toByte())))
         assertNull(LibretroThumbnails.symlinkTarget("<html>not found</html>".toByteArray()))
     }
+
+    @Test fun pinsAreSaltedAndOldHashesStillWork() {
+        val a = Profiles.pinHash("1234")
+        val b = Profiles.pinHash("1234")
+        assertTrue(a.startsWith("pbkdf2$"))
+        assertFalse("each PIN gets its own salt", a == b)
+        assertTrue(Profiles.pinMatches(" 1234 ", a))
+        assertFalse(Profiles.pinMatches("12345", a))
+        assertFalse(Profiles.pinMatches("1234", a.substringBeforeLast('$') + "$00"))
+        // The 3.0.0 format: SHA-256 of "dogmatix-profile:" + PIN.
+        val legacy = java.security.MessageDigest.getInstance("SHA-256").digest("dogmatix-profile:1234".toByteArray()).joinToString("") { "%02x".format(it) }
+        assertTrue(Profiles.pinMatches("1234", legacy))
+        assertFalse(Profiles.pinMatches("0000", legacy))
+        assertFalse(Profiles.pinMatches("1234", "pbkdf2\$broken"))
+    }
 }

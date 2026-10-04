@@ -628,6 +628,9 @@
     <string name="wait_charger">Waiting for the charger</string>
     <string name="wait_night">Waiting for the night window</string>
     <string name="downloads_start_now">Start now</string>
+    <string name="downloads_stop_all">Stop all (%1$d)</string>
+    <string name="downloads_retry_failed">Retry failed (%1$d)</string>
+    <string name="downloads_clear_finished">Clear finished (%1$d)</string>
     <string name="downloads_low_space">Not enough free space for the queue: %1$s short</string>
     <string name="download_open">Open</string>
     <string name="download_open_none">No app can open this file</string>

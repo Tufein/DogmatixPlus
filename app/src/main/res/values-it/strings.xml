@@ -578,6 +578,9 @@
     <string name="wait_charger">In attesa del caricatore</string>
     <string name="wait_night">In attesa della fascia notturna</string>
     <string name="downloads_start_now">Avvia ora</string>
+    <string name="downloads_stop_all">Ferma tutto (%1$d)</string>
+    <string name="downloads_retry_failed">Riprova le fallite (%1$d)</string>
+    <string name="downloads_clear_finished">Rimuovi completate (%1$d)</string>
     <string name="downloads_low_space">Spazio libero insufficiente per la coda: mancano %1$s</string>
     <string name="download_open">Apri</string>
     <string name="download_open_none">Nessuna app può aprire questo file</string>
