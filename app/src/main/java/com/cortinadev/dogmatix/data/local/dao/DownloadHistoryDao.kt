@@ -28,6 +28,10 @@ interface DownloadHistoryDao {
     @Query("UPDATE download_history SET status = :status, startedAt = :startedAt, finishedAt = NULL WHERE fileName = :fileName")
     suspend fun markRestarted(fileName: String, status: String, startedAt: Long)
 
+    /** [markRestarted] for many rows in one statement (keep [fileNames] under SQLite's variable limit). */
+    @Query("UPDATE download_history SET status = :status, startedAt = :startedAt, finishedAt = NULL WHERE fileName IN (:fileNames)")
+    suspend fun markRestartedAll(fileNames: List<String>, status: String, startedAt: Long)
+
     @Query("UPDATE download_history SET fileSize = :size WHERE fileName = :fileName")
     suspend fun setFileSize(fileName: String, size: Long)
 

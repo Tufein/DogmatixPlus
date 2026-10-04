@@ -46,6 +46,10 @@ All notable changes to Dogmatix are listed here. Dogmatix is a fork of
   play counts, not play time; Cocoon keeps its play time in its own private database.
 
 ### Fixed
+- **Not-responding reports with a big queue.** *Continue the queue after a restart* put every
+  interrupted download back one by one on the UI thread — hundreds of list updates, database
+  writes and service requests while the first screen was drawing. Android closed the app, and the
+  next start did it all again. The queue now comes back as one batch, off the UI thread.
 - A download whose partial file was already complete (the app closed just before it finished)
   failed on every retry with `HTTP 416`. It now starts over from zero instead.
 - The app read some settings with a blocking call while starting; on a slow device that could

@@ -132,6 +132,24 @@ class DownloadProgressTracker @Inject constructor(
         }
     }
 
+    /** [resetDownloadForRetry] for many rows in one list update; returns the names that could be retried. */
+    fun resetDownloadsForRetry(fileNames: Collection<String>): List<String> {
+        val wanted = fileNames.toHashSet()
+        val reset = ArrayList<String>()
+        val now = System.currentTimeMillis()
+        _downloads.update { list ->
+            reset.clear()
+            list.map { item ->
+                if (item.fileName in wanted && (item.status == DownloadStatus.FAILED || item.status == DownloadStatus.STOPPED ||
+                        item.status == DownloadStatus.COMPLETED || item.status == DownloadStatus.PAUSED)) {
+                    reset += item.fileName
+                    item.copy(status = DownloadStatus.DOWNLOADING, progress = 0f, downloadSpeed = 0f, downloadedBytes = 0L, startedAt = now, finishedAt = null)
+                } else item
+            }
+        }
+        return reset
+    }
+
     /** Finished rows (completed included — the UI offers "download again"), stopped or failed. */
     fun canRetryDownload(fileName: String): Boolean {
         return _downloads.value.any {

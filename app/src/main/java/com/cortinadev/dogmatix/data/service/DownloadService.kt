@@ -140,8 +140,10 @@ class DownloadService @Inject constructor(
         restored.await()
         if (!requeueDone.compareAndSet(false, true) || !appSettings.requeueAfterRestart.first()) return 0
         val names = interrupted.toList().also { interrupted.clear() }
-        names.forEach { retryDownload(it) }
-        return names.size
+        // Off the caller's (UI) thread, and as one batch: hundreds of single retries on the main
+        // thread made Android report the app as not responding, and the queue came back after
+        // every forced close.
+        return kotlinx.coroutines.withContext(Dispatchers.Default) { retryDownloads(names) }
     }
 
     /**
@@ -318,6 +320,22 @@ class DownloadService @Inject constructor(
         }
         startForegroundService()
         launchJob(entity)
+    }
+
+    /** [retryDownload] for many downloads at once: one list update, one database write, one service start. Returns how many were restarted. */
+    fun retryDownloads(fileNames: List<String>): Int {
+        val entities = synchronized(startLock) {
+            downloadProgressTracker.resetDownloadsForRetry(fileNames).mapNotNull { downloadEntities[it] }
+        }
+        if (entities.isEmpty()) return 0
+        _verification.update { it - entities.mapTo(HashSet()) { e -> e.fileName } }
+        val now = System.currentTimeMillis()
+        serviceScope.launch {
+            entities.map { it.fileName }.chunked(500).forEach { historyDao.markRestartedAll(it, DownloadStatus.DOWNLOADING.name, now) }
+        }
+        startForegroundService()
+        entities.forEach { launchJob(it) }
+        return entities.size
     }
 
     fun deleteDownload(fileName: String, deleteFile: Boolean = false) {
