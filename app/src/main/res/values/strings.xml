@@ -622,6 +622,10 @@
     <string name="wishlist_any_console">Any console</string>
     <string name="wishlist_not_yet">Not in the library yet</string>
     <string name="wishlist_badge_found">Found</string>
+    <string name="wishlist_on_device">Already on this device</string>
+    <string name="wishlist_in_romm">Already on your RomM server</string>
+    <string name="wishlist_badge_have">Have</string>
+    <string name="wishlist_badge_romm">RomM</string>
     <string name="wishlist_show">Show</string>
     <string name="wishlist_remove">Remove</string>
     <string name="wishlist_added">%1$s added to the wishlist</string>

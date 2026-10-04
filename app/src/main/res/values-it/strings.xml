@@ -572,6 +572,10 @@
     <string name="wishlist_any_console">Qualsiasi console</string>
     <string name="wishlist_not_yet">Non ancora nella libreria</string>
     <string name="wishlist_badge_found">Trovato</string>
+    <string name="wishlist_on_device">Già su questo dispositivo</string>
+    <string name="wishlist_in_romm">Già sul tuo server RomM</string>
+    <string name="wishlist_badge_have">Già tuo</string>
+    <string name="wishlist_badge_romm">RomM</string>
     <string name="wishlist_show">Mostra</string>
     <string name="wishlist_remove">Rimuovi</string>
     <string name="wishlist_added">%1$s aggiunto alla lista dei desideri</string>
