@@ -94,7 +94,7 @@ Everything below came with the alpha and is part of 1.2.0; the RomM parts have n
 - **Diagnostics**: `DiagnosticsService` builds the report; `DiagnosticsRedactor` removes tokens, URLs, magnet links, IP addresses, e-mail addresses and the saved secrets before it is shared.
 - **Italian and Portuguese** (European) join the other languages.
 
-### After 3.1.0
+### What 3.2.0 adds
 - **Wishlist status**: `WishlistMatch` (pure) — `onDevice` over `LibraryIndexService.ownedKeys` (scopes of the wish's console, `LibraryKeys.scopesFor`), `inRomm` over `RommLibraryService.keys`, both with `GameTitleCleaner.containsAllWords`; `state` puts ON_DEVICE before IN_ROMM before IN_SOURCES. `WishlistRepository.checkAndNotify` skips games that are already had; the screen reloads when either key set changes.
 - **Frontend covers**: `FrontendArtwork` (pure) gives the paths; `PostDownloadService` writes Pegasus' `media/<base name>/boxFront.<ext>` in the game's folder (cover from `GameMetadataService`) and RetroArch's `<libretro system>/Named_Boxarts/<thumbnail name>.png` under the picked thumbnails folder (box art from `ThumbnailService`, PNG). Existing covers are never replaced.
 
@@ -166,7 +166,7 @@ Everything below came with the alpha and is part of 1.2.0; the RomM parts have n
 - **Colours.** Twelve accent presets and Material You (`AccentPresets.dynamic`, stored as `dynamic`): on Android 12+ the theme uses `dynamicLight/DarkColorScheme` (pure black keeps a black background) and derives the Dogmatix tokens from it; the theme is built at one call site so switching never resets the screen.
 
 ### Smaller changes
-- The app version is **3.1.0** (3.0.0, 2.6.0, 2.5.0, 2.0.0, 1.3.0, 1.2.0, 1.2.0-alpha.1 and 1.1.0-beta.1 before it) (DogmatixPlus numbers its own releases; 1.0.0 was the first); the Credits screen shows the whole lineage, and the update check reads this repository's releases instead of the original project's. It skips pre-releases, and a beta counts as older than its final release.
+- The app version is **3.2.0** (3.1.0, 3.0.0, 2.6.0, 2.5.0, 2.0.0, 1.3.0, 1.2.0, 1.2.0-alpha.1 and 1.1.0-beta.1 before it) (DogmatixPlus numbers its own releases; 1.0.0 was the first); the Credits screen shows the whole lineage, and the update check reads this repository's releases instead of the original project's. It skips pre-releases, and a beta counts as older than its final release.
 - The `.md` extension counts as a Mega Drive ROM inside console folders (but not `README.md`).
 - 332 unit tests (254 more than Dogmatix 1.2) cover the new logic. One of them runs the save sync of two devices against a real RomM server when `ROMM_TEST_URL` and `ROMM_TEST_TOKEN` are set (it is skipped otherwise); it passed against RomM 3.10.3, 4.0.0 and 5.3.1. The 1.0.0 screens were tried on an emulator, in portrait and landscape, in the debug and in the minified release build; the 1.1.0 beta screens were not (see the release notes).
 
@@ -373,7 +373,7 @@ Everything is also reachable by touch; the legend only appears while a controlle
 Planned features, in no particular order:
 
 - Try everything in 1.2.0-alpha.1 against real RomM servers and a real handheld, and fix what that shows (certificate trust, resumed uploads, deletion sync, background sync, covers, the schedule and the checksum check have only been covered by unit tests so far).
-- ~~A "wanted" status from the wishlist that also checks RomM's library, and cover art for frontends other than ES-DE~~ — done after 3.1.0 (wishlist: on the device / on RomM; covers for Pegasus and RetroArch).
+- ~~A "wanted" status from the wishlist that also checks RomM's library, and cover art for frontends other than ES-DE~~ — done in 3.2.0 (wishlist: on the device / on RomM; covers for Pegasus and RetroArch).
 - ~~Per-console save folders for standalone emulators~~ — done in 3.1.0 (*Save sync → Add an emulator's saves folder*).
 - ~~Mark games already in RomM as owned in the library~~ — done in 1.2.0-alpha.1.
 - ~~Save sync in the background~~ — done in 1.2.0-alpha.1.

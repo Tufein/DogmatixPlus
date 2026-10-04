@@ -3,7 +3,7 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
-## [Unreleased]
+## [3.2.0] – 2026-10-04 · Dogmatix+
 
 ### Wishlist
 - **Already have it?** A wanted game that is on the device (in the download folders) or on your

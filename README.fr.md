@@ -31,6 +31,10 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveau dans 3.2
+- **La liste de souhaits sait ce que vous avez déjà** : les jeux déjà sur l'appareil ou sur votre serveur RomM sont signalés et ne sont pas retéléchargés.
+- **Jaquettes pour Pegasus et RetroArch** après chaque téléchargement, en plus de celles pour ES-DE.
+
 ### Nouveau dans 3.1
 - **Les grandes files de téléchargement restent fluides** (plus de « l'application ne répond pas » après un redémarrage avec des centaines de téléchargements en attente).
 - **Boutons pour toute la file** (*Tout arrêter*, *Relancer les échecs*, *Effacer les terminés*), **mettre en pause les téléchargements web**, et **une notification quand la file est terminée**.

@@ -31,6 +31,10 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 3.2
+- **De verlanglijst weet wat je al hebt**: games die al op het apparaat of op je RomM-server staan worden gemarkeerd en niet opnieuw gedownload.
+- **Covers voor Pegasus en RetroArch** na elke download, naast die voor ES-DE.
+
 ### Nieuw in 3.1
 - **Grote downloadwachtrijen blijven weer soepel** (geen "app reageert niet" meer na een herstart met honderden wachtende downloads).
 - **Knoppen voor de hele wachtrij** (*Alles stoppen*, *Mislukte opnieuw*, *Voltooide wissen*), **gewone downloads pauzeren**, en **een melding als de wachtrij klaar is**.

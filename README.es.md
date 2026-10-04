@@ -31,6 +31,10 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 3.2
+- **La lista de deseos sabe lo que ya tienes**: los juegos que ya están en el dispositivo o en tu servidor RomM se marcan y no se vuelven a descargar.
+- **Carátulas para Pegasus y RetroArch** tras cada descarga, además de las de ES-DE.
+
 ### Novedades de 3.1
 - **Las colas de descargas grandes vuelven a ir fluidas** (se acabó el «la aplicación no responde» tras un reinicio con cientos de descargas en espera).
 - **Botones para toda la cola** (*Detener todo*, *Reintentar fallidas*, *Quitar terminadas*), **pausar descargas web**, y **una notificación cuando termina la cola**.

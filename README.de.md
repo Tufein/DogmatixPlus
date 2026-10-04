@@ -31,6 +31,10 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 3.2
+- **Die Wunschliste weiß, was du schon hast**: Spiele, die schon auf dem Gerät oder auf deinem RomM-Server sind, werden markiert und nicht noch einmal heruntergeladen.
+- **Cover für Pegasus und RetroArch** nach jedem Download, neben denen für ES-DE.
+
 ### Neu in 3.1
 - **Große Download-Warteschlangen laufen wieder flüssig** (kein „App reagiert nicht“ mehr nach einem Neustart mit Hunderten wartenden Downloads).
 - **Knöpfe für die ganze Warteschlange** (*Alle stoppen*, *Fehlgeschlagene wiederholen*, *Fertige entfernen*), **Web-Downloads pausieren** und **eine Meldung, wenn die Warteschlange fertig ist**.
