@@ -18,7 +18,13 @@ data class ExpectedHash(val algo: HashAlgo, val hex: String) {
     val spec: String get() = "${algo.tag}:$hex"
 }
 
-enum class VerifyState { CHECKING, VERIFIED, MISMATCH }
+enum class VerifyState {
+    CHECKING, VERIFIED, MISMATCH,
+    /** Matches a game of the DAT the user imported for this console (see DatService.checkDownloaded). */
+    DAT_OK,
+    /** A DAT exists for the console but does not list this file: another dump or version, or a modified one. */
+    DAT_UNKNOWN
+}
 
 object Checksums {
 

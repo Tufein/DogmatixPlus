@@ -621,6 +621,8 @@
     <string name="verify_ok">✓ suma de verificación correcta</string>
     <string name="verify_mismatch">⚠ la suma de verificación no coincide — repite la descarga</string>
     <string name="verify_checking">comprobando…</string>
+    <string name="verify_dat_ok">✓ coincide con el DAT</string>
+    <string name="verify_dat_unknown">no está en el DAT</string>
     <string name="duplicates_suggest_hint">Conserva la mejor copia de cada juego (tu región e idioma, sin demos); ves cada archivo antes</string>
     <string name="duplicates_suggest_action">Revisar</string>
     <string name="duplicates_suggest_confirm_title">¿Quitar las copias sugeridas?</string>

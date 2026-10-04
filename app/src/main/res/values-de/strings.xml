@@ -647,6 +647,8 @@
     <string name="verify_ok">✓ Prüfsumme stimmt</string>
     <string name="verify_mismatch">⚠ Prüfsumme weicht ab — Download wiederholen</string>
     <string name="verify_checking">wird geprüft…</string>
+    <string name="verify_dat_ok">✓ entspricht der DAT</string>
+    <string name="verify_dat_unknown">nicht in der DAT</string>
     <string name="duplicates_suggest_hint">Behält von jedem Spiel die beste Kopie (deine Region und Sprache, keine Demos); du siehst zuerst jede Datei</string>
     <string name="duplicates_suggest_action">Ansehen</string>
     <string name="duplicates_suggest_confirm_title">Die vorgeschlagenen Kopien entfernen?</string>

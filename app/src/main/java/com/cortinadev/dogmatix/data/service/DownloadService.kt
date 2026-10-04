@@ -14,6 +14,7 @@ import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.ArchiveUtils
 import com.cortinadev.dogmatix.util.AutoRetry
+import com.cortinadev.dogmatix.util.DatStatus
 import com.cortinadev.dogmatix.util.ArchiveExtractionUtils
 import com.cortinadev.dogmatix.util.Constants
 import com.cortinadev.dogmatix.util.RommSource
@@ -76,7 +77,8 @@ class DownloadService @Inject constructor(
     private val downloadGate: DownloadGate,
     private val consoleDao: com.cortinadev.dogmatix.data.local.dao.ConsoleDao,
     private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings,
-    private val partials: PartialDownloads
+    private val partials: PartialDownloads,
+    private val datService: DatService
 ) {
     val downloads: StateFlow<List<DownloadItemModel>> = downloadProgressTracker.downloads
 
@@ -830,7 +832,8 @@ class DownloadService @Inject constructor(
      * the download is already usable while a big file is read through.
      */
     private fun verifyInBackground(file: DownloadableFileEntity, documentFile: DocumentFile) {
-        val expected: ExpectedHash = Checksums.parse(file.expectedHash) ?: Checksums.parse(headerHashes.remove(file.fileName)) ?: return
+        val expected: ExpectedHash = Checksums.parse(file.expectedHash) ?: Checksums.parse(headerHashes.remove(file.fileName))
+            ?: run { checkAgainstDat(file, documentFile); return }
         serviceScope.launch {
             _verification.update { it + (file.fileName to VerifyState.CHECKING) }
             val state = runCatching {
@@ -842,6 +845,20 @@ class DownloadService @Inject constructor(
             }
             _verification.update { if (state == null) it - file.fileName else it + (file.fileName to state) }
             if (state == VerifyState.MISMATCH) Log.w(TAG, "Checksum of ${file.fileName} differs from the one the source published")
+        }
+    }
+
+    /**
+     * No hash from the source: when the user imported a DAT for this console, the finished file is
+     * looked up in it (see [DatService.checkDownloaded]). No DAT, or a format DATs do not cover = nothing shown.
+     */
+    private fun checkAgainstDat(file: DownloadableFileEntity, documentFile: DocumentFile) {
+        serviceScope.launch {
+            val check = runCatching {
+                datService.checkDownloaded(file.consoleId, documentFile.name ?: file.fileName, documentFile.uri, documentFile.length(), documentFile.lastModified())
+            }.onFailure { Log.w(TAG, "Could not check ${file.fileName} against the DAT: ${it.message}") }.getOrNull() ?: return@launch
+            val state = if (check.status == DatStatus.UNKNOWN) VerifyState.DAT_UNKNOWN else VerifyState.DAT_OK
+            _verification.update { it + (file.fileName to state) }
         }
     }
 

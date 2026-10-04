@@ -598,6 +598,8 @@
     <string name="verify_ok">✓ checksum verificato</string>
     <string name="verify_mismatch">⚠ il checksum non coincide — ripeti il download</string>
     <string name="verify_checking">controllo…</string>
+    <string name="verify_dat_ok">✓ corrisponde al DAT</string>
+    <string name="verify_dat_unknown">non è nel DAT</string>
     <string name="duplicates_suggest_hint">Tiene la copia migliore di ogni gioco (tua regione e lingua, niente demo); vedi prima ogni file</string>
     <string name="duplicates_suggest_action">Rivedi</string>
     <string name="duplicates_suggest_confirm_title">Rimuovere le copie suggerite?</string>

@@ -652,6 +652,8 @@
     <string name="verify_ok">✓ somme de contrôle vérifiée</string>
     <string name="verify_mismatch">⚠ somme de contrôle différente — relancez le téléchargement</string>
     <string name="verify_checking">vérification…</string>
+    <string name="verify_dat_ok">✓ conforme au DAT</string>
+    <string name="verify_dat_unknown">absent du DAT</string>
     <string name="duplicates_suggest_hint">Garde la meilleure copie de chaque jeu (votre région et langue, pas de démos) ; vous voyez d\'abord chaque fichier</string>
     <string name="duplicates_suggest_action">Examiner</string>
     <string name="duplicates_suggest_confirm_title">Supprimer les copies proposées ?</string>

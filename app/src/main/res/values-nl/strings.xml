@@ -647,6 +647,8 @@
     <string name="verify_ok">✓ controlegetal klopt</string>
     <string name="verify_mismatch">⚠ controlegetal wijkt af — probeer de download opnieuw</string>
     <string name="verify_checking">wordt gecontroleerd…</string>
+    <string name="verify_dat_ok">✓ komt overeen met de DAT</string>
+    <string name="verify_dat_unknown">niet in de DAT</string>
     <string name="duplicates_suggest_hint">Houdt van elke game de beste kopie (jouw regio en taal, geen demo\'s); je ziet eerst elk bestand</string>
     <string name="duplicates_suggest_action">Bekijk</string>
     <string name="duplicates_suggest_confirm_title">De voorgestelde kopieën verwijderen?</string>

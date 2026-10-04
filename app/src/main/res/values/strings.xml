@@ -648,6 +648,8 @@
     <string name="verify_ok">✓ checksum verified</string>
     <string name="verify_mismatch">⚠ checksum differs — retry the download</string>
     <string name="verify_checking">checking…</string>
+    <string name="verify_dat_ok">✓ matches the DAT</string>
+    <string name="verify_dat_unknown">not in the DAT</string>
     <string name="duplicates_suggest_hint">Keeps the best copy of each game (your region and language, no demos); you see every file first</string>
     <string name="duplicates_suggest_action">Review</string>
     <string name="duplicates_suggest_confirm_title">Remove the suggested copies?</string>
