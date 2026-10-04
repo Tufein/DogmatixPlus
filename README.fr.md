@@ -31,6 +31,11 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveau dans 2.6
+- **Plus de fermetures forcées avec de longues files de téléchargement** : des centaines de téléchargements en attente restent fluides.
+- **Cocoon** : ajoutez Dogmatix+ en tuiles par console, vue enregistrée ou Téléchargements (*Réglages → Cocoon*) ; les mêmes raccourcis apparaissent par un appui long sur l'icône.
+- **Une nouvelle icône** : une cartouche avec des oreilles de chien et une flèche de téléchargement.
+
 ### Nouveau dans 2.5
 - **Vérification des BIOS** : voyez par console si les fichiers BIOS de votre émulateur sont là et sont les bons dumps (une vingtaine de systèmes).
 - **Appliquer des patchs IPS / UPS / BPS** depuis l'explorateur de fichiers ; le jeu patché est une nouvelle copie, l'original reste intact.

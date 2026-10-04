@@ -65,10 +65,16 @@ class DogmatixApplication : Application() {
     @Inject
     lateinit var autoBackupScheduler: com.cortinadev.dogmatix.data.service.AutoBackupScheduler
 
+    /** App shortcuts (consoles, saved views, Downloads) for launchers and frontends such as Cocoon. */
+    @Inject
+    lateinit var appShortcutService: com.cortinadev.dogmatix.data.service.AppShortcutService
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
     override fun onCreate() {
         super.onCreate()
+        com.cortinadev.dogmatix.util.CrashLog.install(this)
+        appShortcutService.start()
 
         createNotificationChannel()
 

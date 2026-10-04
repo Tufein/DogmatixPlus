@@ -31,6 +31,11 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
+### New in 2.6
+- **No more force quits with big download queues**: hundreds of queued downloads stay smooth.
+- **Cocoon**: add Dogmatix+ as tiles per console, saved view or Downloads (*Settings → Cocoon*); the same shortcuts appear on a long press of the icon.
+- **A new icon**: a cartridge with dog ears and a download arrow.
+
 ### New in 2.5
 - **BIOS check**: see per console whether your emulator's BIOS files are there and are the right dumps (about twenty systems).
 - **Apply IPS / UPS / BPS patches** from the file explorer; the patched game is a new copy, the original stays.

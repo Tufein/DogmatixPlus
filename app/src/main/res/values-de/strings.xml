@@ -972,6 +972,12 @@
     <string name="bios_note_boot_logo">nur das Startlogo</string>
     <string name="bios_note_original_bios_mode">nur im Original-BIOS-Modus</string>
     <string name="bios_note_neogeo_set">das BIOS-Set von MAME / FBNeo (Versionen unterscheiden sich)</string>
+    <string name="shortcut_pick_title">Dogmatix+-Verknüpfung hinzufügen</string>
+    <string name="shortcut_pick_label">Dogmatix+-Verknüpfung</string>
+    <string name="settings_cocoon">Cocoon</string>
+    <string name="settings_cocoon_hint">Dogmatix+ als Kacheln in Cocoon: pro Konsole, eine gespeicherte Ansicht oder Downloads</string>
+    <string name="cocoon_dialog_title">Dogmatix+ in Cocoon</string>
+    <string name="cocoon_dialog_body">Cocoon übernimmt Android-App-Verknüpfungen, und Dogmatix+ bietet eine für jede Konsole, jede gespeicherte Ansicht und Downloads.\n\n1. Öffne in Cocoon Add Games und wähle die Android-Verknüpfungen.\n2. Wähle Dogmatix+ und die gewünschte Konsole oder Ansicht.\n3. Gib ihr die Plattform der Konsole, dann steht sie bei deren Spielen.\n\nDie Kachel öffnet Dogmatix+ auf dieser Konsole oder Ansicht. Neue Konsolen und Ansichten erscheinen von selbst.\n\nTipp: Nutze in Cocoon lieber diese Kacheln als die .dgmtx-Dateien (Einstellungen → Frontend-Verknüpfungen): Cocoon würde sie als Spiele listen und im Emulator starten wollen.</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d Spielstand wurde auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
         <item quantity="other">%d Spielstände wurden auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>

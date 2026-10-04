@@ -1,69 +1,79 @@
 package com.cortinadev.dogmatix.util
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
 
 /**
  * The download slots: at most [slots] downloads run at once, and the ones waiting go in the
  * order of [waiting], which the user can change (move up / down / to the front). A plain
  * semaphore would always serve the oldest first.
+ *
+ * Each waiter holds its own ticket and is woken only when it is its turn: with hundreds of
+ * downloads queued, waking every waiter on every change (as 2.5.0 did) kept all cores busy and
+ * starved the UI thread into "app not responding".
  */
 class DownloadQueue(slots: Int) {
-    private data class State(val slots: Int, val running: Int, val waiting: List<String>)
+    private class Ticket(val name: String) { val granted = CompletableDeferred<Unit>() }
 
-    private val state = MutableStateFlow(State(slots.coerceAtLeast(1), 0, emptyList()))
+    private val lock = Any()
+    private var slots = slots.coerceAtLeast(1)
+    private var running = 0
+    private val tickets = ArrayList<Ticket>()
 
     private val _waiting = MutableStateFlow<List<String>>(emptyList())
     /** Waiting downloads, first to start first. */
     val waiting: StateFlow<List<String>> = _waiting.asStateFlow()
 
-    fun setSlots(slots: Int) { state.update { it.copy(slots = slots.coerceAtLeast(1)) }; publish() }
+    fun setSlots(slots: Int) {
+        synchronized(lock) { this.slots = slots.coerceAtLeast(1); grantLocked() }
+        publish()
+    }
 
     /** Suspends until [name] may start; call [release] when it is done (also when it failed). */
     suspend fun acquire(name: String) {
-        state.update { if (name in it.waiting) it else it.copy(waiting = it.waiting + name) }
+        val ticket = Ticket(name)
+        synchronized(lock) { tickets += ticket; grantLocked() }
         publish()
         try {
-            while (true) {
-                var granted = false
-                state.update { s ->
-                    if (s.running < s.slots && s.waiting.firstOrNull() == name) {
-                        granted = true
-                        s.copy(running = s.running + 1, waiting = s.waiting.drop(1))
-                    } else s
-                }
-                if (granted) { publish(); return }
-                val seen = state.value
-                state.first { it != seen }
-            }
+            ticket.granted.await()
         } catch (e: Throwable) {
-            state.update { it.copy(waiting = it.waiting - name) }
+            synchronized(lock) {
+                // Cancelled while waiting: leave the line. Cancelled just as the slot was granted:
+                // hand the slot on, nobody will release it.
+                if (!tickets.remove(ticket) && ticket.granted.isCompleted) { running = (running - 1).coerceAtLeast(0); grantLocked() }
+            }
             publish()
             throw e
         }
     }
 
     fun release() {
-        state.update { it.copy(running = (it.running - 1).coerceAtLeast(0)) }
+        synchronized(lock) { running = (running - 1).coerceAtLeast(0); grantLocked() }
         publish()
     }
 
-    fun moveUp(name: String) = reorder(name) { list, i -> if (i > 0) list.swap(i, i - 1) else list }
-    fun moveDown(name: String) = reorder(name) { list, i -> if (i < list.lastIndex) list.swap(i, i + 1) else list }
-    fun moveToFront(name: String) = reorder(name) { list, i -> listOf(list[i]) + list.filterIndexed { j, _ -> j != i } }
+    fun moveUp(name: String) = reorder(name) { i -> if (i > 0) java.util.Collections.swap(tickets, i, i - 1) }
+    fun moveDown(name: String) = reorder(name) { i -> if (i < tickets.lastIndex) java.util.Collections.swap(tickets, i, i + 1) }
+    fun moveToFront(name: String) = reorder(name) { i -> tickets.add(0, tickets.removeAt(i)) }
 
-    private fun reorder(name: String, change: (List<String>, Int) -> List<String>) {
-        state.update { s ->
-            val i = s.waiting.indexOf(name)
-            if (i < 0) s else s.copy(waiting = change(s.waiting, i))
+    private fun reorder(name: String, change: (Int) -> Unit) {
+        synchronized(lock) {
+            val i = tickets.indexOfFirst { it.name == name }
+            if (i >= 0) change(i)
         }
         publish()
     }
 
-    private fun List<String>.swap(a: Int, b: Int): List<String> = toMutableList().also { val t = it[a]; it[a] = it[b]; it[b] = t }
+    /** Starts the first waiters while slots are free; call with [lock] held. */
+    private fun grantLocked() {
+        while (running < slots && tickets.isNotEmpty()) {
+            val next = tickets.removeAt(0)
+            running++
+            next.granted.complete(Unit)
+        }
+    }
 
-    private fun publish() { _waiting.value = state.value.waiting }
+    private fun publish() { _waiting.value = synchronized(lock) { tickets.map { it.name } } }
 }

@@ -67,6 +67,8 @@ import com.cortinadev.dogmatix.ui.screens.settings.components.FavoriteLanguagesD
 import com.cortinadev.dogmatix.ui.screens.settings.components.maskedSecret
 import com.cortinadev.dogmatix.ui.components.focusRing
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
+import com.cortinadev.dogmatix.ui.components.DialogButton
+import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.data.model.DebridProvider
@@ -282,6 +284,16 @@ fun SettingsScreen(
         DaijishoSetupDialog(setup = setup, onDismiss = viewModel::onDaijishoSetupDismissed)
     }
 
+    var showCocoonHelp by remember { mutableStateOf(false) }
+    if (showCocoonHelp) {
+        androidx.compose.material3.AlertDialog(
+            modifier = Modifier.closeOnGamepadB { showCocoonHelp = false },
+            onDismissRequest = { showCocoonHelp = false },
+            title = { Text(stringResource(R.string.cocoon_dialog_title)) },
+            text = { Text(stringResource(R.string.cocoon_dialog_body)) },
+            confirmButton = { DialogButton(stringResource(R.string.dialog_ok), onClick = { showCocoonHelp = false }, initialFocus = rememberInitialFocus()) }
+        )
+    }
     var showDebridKeyDialog by remember { mutableStateOf(false) }
     if (showDebridKeyDialog && debrid != DebridProvider.NONE) {
         ApiKeyDialog(
@@ -681,6 +693,15 @@ fun SettingsScreen(
                 onClick = { viewModel.onPrepareDaijisho(context) }
             ) {
                 PillButton(stringResource(R.string.settings_daijisho_action)) { viewModel.onPrepareDaijisho(context) }
+            }
+        },
+        SettingsRow(right = false) {
+            SettingRow(
+                title = stringResource(R.string.settings_cocoon),
+                hint = stringResource(R.string.settings_cocoon_hint),
+                onClick = { showCocoonHelp = true }
+            ) {
+                PillButton(stringResource(R.string.settings_daijisho_action)) { showCocoonHelp = true }
             }
         },
         SettingsRow(right = false) {

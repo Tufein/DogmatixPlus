@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- App-shortcut icon for Downloads. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_shortcut_dark_bg" />
+    <foreground android:drawable="@drawable/ic_shortcut_downloads_fg" />
+</adaptive-icon>

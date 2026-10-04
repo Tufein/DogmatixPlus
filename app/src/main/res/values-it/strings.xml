@@ -923,6 +923,12 @@
     <string name="bios_note_boot_logo">solo il logo di avvio</string>
     <string name="bios_note_original_bios_mode">solo con la modalità BIOS originale</string>
     <string name="bios_note_neogeo_set">il set BIOS MAME / FBNeo (le versioni variano)</string>
+    <string name="shortcut_pick_title">Aggiungi una scorciatoia Dogmatix+</string>
+    <string name="shortcut_pick_label">Scorciatoia Dogmatix+</string>
+    <string name="settings_cocoon">Cocoon</string>
+    <string name="settings_cocoon_hint">Aggiungi Dogmatix+ a Cocoon come riquadri: per console, una vista salvata o Download</string>
+    <string name="cocoon_dialog_title">Dogmatix+ in Cocoon</string>
+    <string name="cocoon_dialog_body">Cocoon acquisisce le scorciatoie delle app Android, e Dogmatix+ ne offre una per ogni console, ogni vista salvata e Download.\n\n1. In Cocoon apri Add Games e scegli le scorciatoie Android.\n2. Scegli Dogmatix+ e la console o la vista che vuoi.\n3. Assegnale la piattaforma della console, così sta con i suoi giochi.\n\nIl riquadro apre Dogmatix+ su quella console o vista. Le nuove console e viste compaiono da sole.\n\nSuggerimento: in Cocoon usa questi riquadri invece dei file .dgmtx (Impostazioni → Scorciatoie frontend): Cocoon li vedrebbe come giochi e proverebbe ad avviarli nell\'emulatore.</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d salvataggio è cambiato su entrambi i lati — apri Dogmatix per scegliere</item>
         <item quantity="other">%d salvataggi sono cambiati su entrambi i lati — apri Dogmatix per scegliere</item>

@@ -105,7 +105,6 @@ class DownloadService @Inject constructor(
     fun moveUp(fileName: String) = queue.moveUp(fileName)
     fun moveDown(fileName: String) = queue.moveDown(fileName)
     fun moveToFront(fileName: String) = queue.moveToFront(fileName)
-    private var foregroundServiceStarted = false
     private val downloadEntities = ConcurrentHashMap<String, DownloadableFileEntity>()
     private val extractedFilesMap = ConcurrentHashMap<String, List<String>>()
     /** Debrid client + torrent id per file being fetched through the debrid route (see [performDebridDownload]). */
@@ -146,16 +145,34 @@ class DownloadService @Inject constructor(
         }
     }
 
-    fun startDownload(file: DownloadableFileEntity) {
-        // Ignore repeated taps: an in-flight download for this file must not be launched twice.
-        if (downloadProgressTracker.isActive(file.fileName)) return
-        val item = downloadFileManager.createDownloadItem(file)
-        downloadProgressTracker.addDownload(item)
-        downloadEntities[file.fileName] = file
-        serviceScope.launch { historyDao.upsert(DownloadHistoryEntity.from(file, item)) }
-        startForegroundService()
+    private val startLock = Any()
 
-        val job = serviceScope.launch {
+    fun startDownload(file: DownloadableFileEntity) = startDownloads(listOf(file))
+
+    /**
+     * Queues [files] in one go: one list update, one history write and one service start, then a
+     * job per file. A bulk start of hundreds of games used to do all of that once per game on the
+     * UI thread, long enough for Android to report the app as not responding. Files already
+     * queued or running are skipped (repeated taps, or a bulk start racing a tap).
+     */
+    fun startDownloads(files: List<DownloadableFileEntity>) {
+        val fresh = synchronized(startLock) {
+            val items = files.distinctBy { it.fileName }
+                .filterNot { downloadProgressTracker.isActive(it.fileName) }
+                .map { it to downloadFileManager.createDownloadItem(it) }
+            downloadProgressTracker.addDownloads(items.map { it.second })
+            items
+        }
+        if (fresh.isEmpty()) return
+        fresh.forEach { (file, _) -> downloadEntities[file.fileName] = file }
+        serviceScope.launch { historyDao.upsertAll(fresh.map { (file, item) -> DownloadHistoryEntity.from(file, item) }) }
+        startForegroundService()
+        fresh.forEach { (file, _) -> launchJob(file) }
+    }
+
+    private fun launchJob(file: DownloadableFileEntity) {
+        // Registered before it starts, so a download that ends at once cannot leave a stale entry.
+        val job = serviceScope.launch(start = kotlinx.coroutines.CoroutineStart.LAZY) {
             try {
                 withSlot(file.fileName) {
                     awaitSchedule(file.fileName)
@@ -174,10 +191,11 @@ class DownloadService @Inject constructor(
                 Log.e(TAG, "Download failed for ${file.fileName}: ${e.message}")
                 updateStatus(file.fileName, DownloadStatus.FAILED)
             } finally {
-                downloadJobs.remove(file.fileName)
+                downloadJobs.remove(file.fileName, coroutineContext[kotlinx.coroutines.Job]!!)
             }
         }
         downloadJobs[file.fileName] = job
+        job.start()
     }
 
     private suspend fun withSlot(fileName: String, block: suspend () -> Unit) {
@@ -255,41 +273,23 @@ class DownloadService @Inject constructor(
         serviceScope.launch {
             torrentDownloadService.pauseDownload(entity)
             updateStatus(fileName, DownloadStatus.PAUSED)
-            checkServiceLifecycle()
         }
     }
 
     fun retryDownload(fileName: String) {
-        if (!downloadProgressTracker.canRetryDownload(fileName)) return
-        val entity = downloadEntities[fileName] ?: return
-        // Reset the existing list entry in place — calling startDownload would add a duplicate.
-        downloadProgressTracker.resetDownloadForRetry(fileName)
+        val entity = synchronized(startLock) {
+            if (!downloadProgressTracker.canRetryDownload(fileName)) return
+            val entity = downloadEntities[fileName] ?: return
+            // Reset the existing list entry in place — calling startDownload would add a duplicate.
+            downloadProgressTracker.resetDownloadForRetry(fileName)
+            entity
+        }
         _verification.update { it - fileName }
         serviceScope.launch {
             historyDao.markRestarted(fileName, DownloadStatus.DOWNLOADING.name, System.currentTimeMillis())
         }
         startForegroundService()
-        val job = serviceScope.launch {
-            try {
-                withSlot(entity.fileName) {
-                    awaitSchedule(entity.fileName)
-                    delay(1000L)
-                    perform(entity)
-                }
-            } catch (e: kotlinx.coroutines.CancellationException) {
-                updateStatus(entity.fileName, if (pausingFiles.remove(entity.fileName)) DownloadStatus.PAUSED else DownloadStatus.STOPPED)
-                throw e
-            } catch (e: LowStorageException) {
-                updateStatus(entity.fileName, DownloadStatus.STOPPED)
-                notifyLowStorage()
-            } catch (e: Exception) {
-                Log.e(TAG, "Retry failed for ${entity.fileName}: ${e.message}")
-                updateStatus(entity.fileName, DownloadStatus.FAILED)
-            } finally {
-                downloadJobs.remove(entity.fileName)
-            }
-        }
-        downloadJobs[entity.fileName] = job
+        launchJob(entity)
     }
 
     fun deleteDownload(fileName: String, deleteFile: Boolean = false) {
@@ -418,7 +418,6 @@ class DownloadService @Inject constructor(
             Log.i(TAG, "Torrent processed successfully: ${file.fileName}")
             updateStatus(file.fileName, DownloadStatus.COMPLETED)
             _finished.tryEmit(file.fileName)
-            checkServiceLifecycle()
 
         } catch (e: Exception) {
             Log.e(TAG, "Error processing torrent file for ${file.fileName}: ${e.message}", e)
@@ -706,7 +705,6 @@ class DownloadService @Inject constructor(
         if (!ArchiveUtils.isExtractable(file.fileExtension) || !settingsRepository.autoUnzip.first()) {
             updateStatus(file.fileName, DownloadStatus.COMPLETED)
             _finished.tryEmit(file.fileName)
-            checkServiceLifecycle()
             verifyInBackground(file, documentFile)
             return
         }
@@ -726,7 +724,6 @@ class DownloadService @Inject constructor(
         }
         updateStatus(file.fileName, DownloadStatus.COMPLETED)
         _finished.tryEmit(file.fileName)
-        checkServiceLifecycle()
     }
 
     /**
@@ -771,19 +768,31 @@ class DownloadService @Inject constructor(
     private suspend fun updateStatus(fileName: String, status: DownloadStatus) =
         downloadProgressTracker.updateDownloadStatus(fileName, status)
 
-    private fun startForegroundService() {
-        context.startForegroundService(Intent(context, DownloadForegroundService::class.java).apply {
-            action = DownloadForegroundService.ACTION_START_SERVICE
-        })
-        foregroundServiceStarted = true
-    }
+    /**
+     * Starts the foreground service if it is not running; it stops itself once nothing is active
+     * (see [DownloadForegroundService]). Android 12+ refuses this from the background; the download
+     * then runs without the notification instead of taking the app down.
+     */
+    @Volatile private var lastServiceRequest = 0L
 
-    private fun checkServiceLifecycle() {
-        if (foregroundServiceStarted && !downloadProgressTracker.hasActiveDownloads()) {
-            context.startService(Intent(context, DownloadForegroundService::class.java).apply {
-                action = DownloadForegroundService.ACTION_STOP_SERVICE
+    private fun startForegroundService() {
+        if (DownloadForegroundService.running) return
+        // A retry of many rows asks many times before the service is up; one request is enough.
+        val now = android.os.SystemClock.elapsedRealtime()
+        if (now - lastServiceRequest < 5_000) return
+        lastServiceRequest = now
+        try {
+            context.startForegroundService(Intent(context, DownloadForegroundService::class.java).apply {
+                action = DownloadForegroundService.ACTION_START_SERVICE
             })
-            foregroundServiceStarted = false
+        } catch (e: Exception) {
+            Log.w(TAG, "Foreground service not started: ${e.message}")
         }
     }
+
+    /** True while any download is queued, running, copying or unpacking. */
+    fun hasActiveDownloads(): Boolean = downloadProgressTracker.hasActiveDownloads()
+
+    /** [hasActiveDownloads] as a flow, for the foreground service. */
+    val anyActive: kotlinx.coroutines.flow.Flow<Boolean> = downloadProgressTracker.downloads.map { downloadProgressTracker.hasActiveDownloads() }
 }

@@ -31,6 +31,11 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 2.6
+- **Geen force quits meer bij grote downloadwachtrijen**: honderden downloads in de wachtrij blijven soepel.
+- **Cocoon**: zet Dogmatix+ als tegels per console, opgeslagen weergave of Downloads in Cocoon (*Instellingen → Cocoon*); dezelfde snelkoppelingen verschijnen als je het icoon lang indrukt.
+- **Een nieuw icoon**: een cartridge met hondenoren en een downloadpijl.
+
 ### Nieuw in 2.5
 - **BIOS-controle**: zie per console of de BIOS-bestanden van je emulator er staan en de juiste dumps zijn (zo'n twintig systemen).
 - **IPS- / UPS- / BPS-patches toepassen** vanuit de bestandsverkenner; de gepatchte game is een nieuwe kopie, het origineel blijft.

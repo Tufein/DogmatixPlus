@@ -58,6 +58,37 @@ class V25HelpersTest {
         assertEquals(200L, dat.games[0].roms[1].size)
     }
 
+    @Test fun `a thousand waiters are served in order without waking each other`() = runBlocking {
+        val queue = DownloadQueue(2)
+        val order = java.util.Collections.synchronizedList(mutableListOf<Int>())
+        val started = System.nanoTime()
+        val jobs = (0 until 1000).map { i ->
+            async(kotlinx.coroutines.Dispatchers.Default) {
+                queue.acquire("g$i")
+                order += i
+                queue.release()
+            }
+        }
+        jobs.forEach { it.await() }
+        assertEquals(1000, order.size)
+        assertTrue(queue.waiting.value.isEmpty())
+        assertTrue("took ${(System.nanoTime() - started) / 1_000_000} ms", System.nanoTime() - started < 5_000_000_000L)
+    }
+
+    @Test fun `queue never strands a second waiter with the same name`() = runBlocking {
+        val queue = DownloadQueue(1)
+        queue.acquire("a")
+        val first = async { queue.acquire("dup"); "first" }
+        val second = async { queue.acquire("dup"); "second" }
+        repeat(5) { yield() }
+        assertEquals(listOf("dup", "dup"), queue.waiting.value)
+        queue.release()
+        assertEquals("first", first.await())
+        queue.release()
+        assertEquals("second", kotlinx.coroutines.withTimeout(2_000) { second.await() })
+        assertTrue(queue.waiting.value.isEmpty())
+    }
+
     @Test fun `queue serves in its own order and can be reordered`() = runBlocking {
         val queue = DownloadQueue(1)
         val order = mutableListOf<String>()

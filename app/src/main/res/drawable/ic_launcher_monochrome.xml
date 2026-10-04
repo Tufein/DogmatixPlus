@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Themed (Material You) icon: the same shapes in one colour; the label, arrow and plus are cut out. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#FFFFFF" android:pathData="M37,38 C30,37 25,42 25,50 C25,58 28,64 32,66 C34,67 36,65 36,62 L37,46 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M71,38 C78,37 83,42 83,50 C83,58 80,64 76,66 C74,67 72,65 72,62 L71,46 Z" />
+    <path android:fillColor="#FFFFFF" android:fillType="evenOdd"
+        android:pathData="M38,33 L66,33 L71,38 L71,74 Q71,77 68,77 L40,77 Q37,77 37,74 L37,36 Q37,33 40,33 Z M42,42 L66,42 Q67,42 67,43 L67,64 Q67,66 65,66 L43,66 Q41,66 41,64 L41,43 Q41,42 42,42 Z M46,70 h16 v3 h-16 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M51.5,46 h5 v8.5 h4.5 l-7,7.5 l-7,-7.5 h4.5 Z" />
+    <path android:fillColor="#FFFFFF" android:fillType="evenOdd"
+        android:pathData="M70,61.5 A8.5,8.5 0 1,1 69.99,61.5 Z M68.8,65.5 h2.4 v3.3 h3.3 v2.4 h-3.3 v3.3 h-2.4 v-3.3 h-3.3 v-2.4 h3.3 Z" />
+</vector>

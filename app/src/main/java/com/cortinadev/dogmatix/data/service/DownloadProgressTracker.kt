@@ -97,6 +97,13 @@ class DownloadProgressTracker @Inject constructor(
         _downloads.update { list -> list.filter { it.fileName != downloadItem.fileName } + downloadItem }
     }
 
+    /** Adds many downloads in one list update (a bulk start). */
+    fun addDownloads(items: List<DownloadItemModel>) {
+        if (items.isEmpty()) return
+        val names = items.mapTo(HashSet()) { it.fileName }
+        _downloads.update { list -> list.filter { it.fileName !in names } + items }
+    }
+
     fun removeDownload(fileName: String) {
         _downloads.update { list -> list.filter { it.fileName != fileName } }
         lastUpdateTimes.remove(fileName)

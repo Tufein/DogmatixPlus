@@ -82,6 +82,17 @@
                 <data android:pathPattern=".*\\..*\\..*\\..*\\.dgmtx" />
             </intent-filter>
         </activity>
+        <!-- "Add a shortcut" picker for launchers and frontends (Cocoon, …). -->
+        <activity
+            android:name=".ui.shortcut.CreateShortcutActivity"
+            android:exported="true"
+            android:label="@string/shortcut_pick_label"
+            android:theme="@style/Theme.Dogmatix">
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_SHORTCUT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <service
             android:name=".data.service.DownloadForegroundService"
             android:enabled="true"

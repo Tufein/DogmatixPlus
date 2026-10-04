@@ -3,6 +3,37 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [2.6.0] – 2026-10-04 · Dogmatix+
+
+### Fixed
+- **Force quits with big queues.** Starting hundreds of downloads at once (*Download everything
+  shown*) did the work for every game on the UI thread, and every waiting download was woken on
+  every change of the queue; with a few hundred queued, Android reported the app as not responding
+  and closed it. A bulk start is now one list update and one database write, off the UI thread,
+  and each waiting download is woken only when it is its turn (1,000 queued downloads are handed
+  out in 40 ms in the tests). Measured on an emulator with 500 queued downloads, the Downloads
+  screen open and the app sent to the background and back three times: no "not responding" any
+  more, and 90 % of frames drawn within 77 ms (was 1.5 s).
+- **The download notification no longer races the app.** The foreground service used to be
+  started and stopped from the outside for every download; a start and a stop close together made
+  Android end the app (a service started in the foreground that stopped before it showed its
+  notification). The service now keeps itself alive while anything is queued or running and stops
+  a few seconds after the last download; a refused start (from the background) no longer takes the
+  app down, and Android 15's time limit for such services is handled.
+- Two waiting downloads with the same name can no longer block each other; a download started
+  twice at the same moment (a tap and a bulk start) starts once.
+- Progress is drawn once a second instead of twice, which halves the work of a long list.
+
+### New
+- **Cocoon**: Dogmatix+ now offers Android app shortcuts — Downloads, each saved view and each
+  console — and a "create shortcut" picker. Cocoon picks these up (*Add Games* → Android shortcuts)
+  and shows them as tiles that open Dogmatix+ on that console or view; launchers show them on a
+  long press of the icon. *Settings → Cocoon* explains the steps.
+- **New icon**: a game cartridge with dog ears, a download arrow and a plus, on the app's orange,
+  with a themed (Material You) version. The banner Dogmatix+ gives ES-DE uses it too.
+- **Share diagnostics** now includes why the app last stopped (crash, "not responding", memory, …)
+  with the main thread's state for a "not responding", and the last crash's stack trace.
+
 ## [2.5.0] – 2026-10-04 · Dogmatix+
 
 ### Emulators

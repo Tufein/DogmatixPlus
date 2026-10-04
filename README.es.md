@@ -31,6 +31,11 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 2.6
+- **Se acabaron los cierres forzados con colas de descarga grandes**: cientos de descargas en cola siguen fluidas.
+- **Cocoon**: añade Dogmatix+ como fichas por consola, vista guardada o Descargas (*Ajustes → Cocoon*); los mismos accesos aparecen al mantener pulsado el icono.
+- **Un icono nuevo**: un cartucho con orejas de perro y una flecha de descarga.
+
 ### Novedades de 2.5
 - **Comprobación de BIOS**: mira por consola si los archivos BIOS de tu emulador están y son los volcados correctos (unos veinte sistemas).
 - **Aplicar parches IPS / UPS / BPS** desde el explorador de archivos; el juego parcheado es una copia nueva y el original se queda igual.

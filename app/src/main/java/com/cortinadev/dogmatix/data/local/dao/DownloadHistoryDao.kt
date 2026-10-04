@@ -15,6 +15,9 @@ interface DownloadHistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entry: DownloadHistoryEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(entries: List<DownloadHistoryEntity>)
+
     /** Restore from a backup: rows already in the list win over the backed-up ones. */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertMissing(entries: List<DownloadHistoryEntity>)

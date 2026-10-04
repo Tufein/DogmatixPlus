@@ -87,7 +87,7 @@ class SwitchViewModel @Inject constructor(
     fun fetch(context: android.content.Context, files: List<DownloadableFileEntity>) {
         if (files.isEmpty()) return
         viewModelScope.launch {
-            files.forEach { downloadService.startDownload(it) }
+            downloadService.startDownloads(files)
             ToastUtil.showInfo(context.applicationContext, context.getString(R.string.bulk_queued, files.size.toString()))
         }
     }

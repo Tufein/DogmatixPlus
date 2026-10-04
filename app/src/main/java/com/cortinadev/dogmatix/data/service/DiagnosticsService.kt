@@ -10,6 +10,7 @@ import com.cortinadev.dogmatix.data.local.dao.ConsoleDao
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.CertTrust
+import com.cortinadev.dogmatix.util.CrashLog
 import com.cortinadev.dogmatix.util.DiagnosticsRedactor
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -74,10 +75,59 @@ class DiagnosticsService @Inject constructor(
             val marks = rommLibraryService.state.value
             appendLine("  games known on RomM: ${marks.games}; last read: ${if (marks.updatedAt > 0) Date(marks.updatedAt) else "never"}${marks.error?.let { "; error: $it" } ?: ""}")
             appendLine()
+            appendLine("Recent exits")
+            appendLine(recentExits())
+            appendLine()
+            appendLine("Last crash")
+            appendLine(CrashLog.read(context) ?: "(none recorded)")
+            appendLine()
             appendLine("Recent log (this app only)")
             appendLine(recentLog())
         }
         DiagnosticsRedactor.redact(report, secrets)
+    }
+
+    /**
+     * Why the app's process ended the last few times (Android 11+): a crash, an "app not responding",
+     * the system freeing memory, the user swiping it away… An ANR comes with the main thread's stack.
+     */
+    private fun recentExits(): String {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return "(Android 11 or newer only)"
+        return runCatching {
+            val am = context.getSystemService(android.app.ActivityManager::class.java)
+            val exits = am.getHistoricalProcessExitReasons(context.packageName, 0, 6)
+            if (exits.isEmpty()) return "(none)"
+            val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT)
+            buildString {
+                exits.forEach { e ->
+                    appendLine("  ${format.format(Date(e.timestamp))} ${exitReason(e.reason)} importance=${e.importance} ${e.description.orEmpty()}")
+                    if (e.reason == android.app.ApplicationExitInfo.REASON_ANR) {
+                        val trace = runCatching { e.traceInputStream?.bufferedReader()?.use { it.readText() } }.getOrNull()
+                        trace?.let { t ->
+                            val main = t.substringAfter("\"main\"", "").lineSequence().take(25).joinToString("\n")
+                            if (main.isNotBlank()) appendLine("    main thread:\n" + main.prependIndent("    "))
+                        }
+                    }
+                }
+            }.trimEnd()
+        }.getOrElse { "(not available: ${it.message})" }
+    }
+
+    private fun exitReason(reason: Int): String = when (reason) {
+        android.app.ApplicationExitInfo.REASON_ANR -> "ANR"
+        android.app.ApplicationExitInfo.REASON_CRASH -> "CRASH"
+        android.app.ApplicationExitInfo.REASON_CRASH_NATIVE -> "NATIVE_CRASH"
+        android.app.ApplicationExitInfo.REASON_LOW_MEMORY -> "LOW_MEMORY"
+        android.app.ApplicationExitInfo.REASON_EXIT_SELF -> "EXIT_SELF"
+        android.app.ApplicationExitInfo.REASON_SIGNALED -> "SIGNALED"
+        android.app.ApplicationExitInfo.REASON_USER_REQUESTED -> "USER_REQUESTED"
+        android.app.ApplicationExitInfo.REASON_USER_STOPPED -> "USER_STOPPED"
+        android.app.ApplicationExitInfo.REASON_EXCESSIVE_RESOURCE_USAGE -> "EXCESSIVE_RESOURCE_USAGE"
+        android.app.ApplicationExitInfo.REASON_INITIALIZATION_FAILURE -> "INITIALIZATION_FAILURE"
+        android.app.ApplicationExitInfo.REASON_PERMISSION_CHANGE -> "PERMISSION_CHANGE"
+        android.app.ApplicationExitInfo.REASON_DEPENDENCY_DIED -> "DEPENDENCY_DIED"
+        android.app.ApplicationExitInfo.REASON_OTHER -> "OTHER"
+        else -> "reason $reason"
     }
 
     /** The app's own recent log lines; an app may read its own process only. */

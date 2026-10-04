@@ -178,7 +178,7 @@ class HomeViewModel @Inject constructor(
             ToastUtil.showError(context, context.getString(R.string.error_download_dir_missing))
             return 0
         }
-        rows.forEach { downloadService.startDownload(it.file) }
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { downloadService.startDownloads(rows.map { it.file }) }
         return rows.size
     }
 

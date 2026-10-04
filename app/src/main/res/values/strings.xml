@@ -973,6 +973,12 @@
     <string name="bios_note_boot_logo">boot logo only</string>
     <string name="bios_note_original_bios_mode">only with the original BIOS mode</string>
     <string name="bios_note_neogeo_set">the MAME / FBNeo BIOS set (versions differ)</string>
+    <string name="shortcut_pick_title">Add a Dogmatix+ shortcut</string>
+    <string name="shortcut_pick_label">Dogmatix+ shortcut</string>
+    <string name="settings_cocoon">Cocoon</string>
+    <string name="settings_cocoon_hint">Add Dogmatix+ to Cocoon as tiles: per console, a saved view or Downloads</string>
+    <string name="cocoon_dialog_title">Dogmatix+ in Cocoon</string>
+    <string name="cocoon_dialog_body">Cocoon picks up Android app shortcuts, and Dogmatix+ offers one for each console, each saved view and Downloads.\n\n1. In Cocoon, open Add Games and choose the Android shortcuts.\n2. Pick Dogmatix+ and the console or view you want.\n3. Give it the console\'s platform, so it sits with that console\'s games.\n\nThe tile opens Dogmatix+ on that console or view. New consoles and views appear in the list by themselves.\n\nTip: in Cocoon, prefer these tiles over the .dgmtx shortcut files (Settings → Frontend shortcuts): Cocoon would list those files as games and try to start them in the emulator.</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save changed on both sides — open Dogmatix to choose</item>
         <item quantity="other">%d saves changed on both sides — open Dogmatix to choose</item>

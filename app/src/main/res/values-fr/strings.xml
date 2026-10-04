@@ -977,6 +977,12 @@
     <string name="bios_note_boot_logo">logo de démarrage seulement</string>
     <string name="bios_note_original_bios_mode">seulement en mode BIOS d\'origine</string>
     <string name="bios_note_neogeo_set">le jeu de BIOS MAME / FBNeo (versions variables)</string>
+    <string name="shortcut_pick_title">Ajouter un raccourci Dogmatix+</string>
+    <string name="shortcut_pick_label">Raccourci Dogmatix+</string>
+    <string name="settings_cocoon">Cocoon</string>
+    <string name="settings_cocoon_hint">Ajouter Dogmatix+ à Cocoon en tuiles : par console, une vue enregistrée ou Téléchargements</string>
+    <string name="cocoon_dialog_title">Dogmatix+ dans Cocoon</string>
+    <string name="cocoon_dialog_body">Cocoon reprend les raccourcis d\'applis Android, et Dogmatix+ en propose un pour chaque console, chaque vue enregistrée et Téléchargements.\n\n1. Dans Cocoon, ouvrez Add Games et choisissez les raccourcis Android.\n2. Choisissez Dogmatix+ et la console ou la vue voulue.\n3. Donnez-lui la plateforme de la console pour qu\'il soit rangé avec ses jeux.\n\nLa tuile ouvre Dogmatix+ sur cette console ou cette vue. Les nouvelles consoles et vues apparaissent d\'elles-mêmes.\n\nAstuce : dans Cocoon, préférez ces tuiles aux fichiers .dgmtx (Réglages → Raccourcis frontend) : Cocoon les listerait comme des jeux et tenterait de les lancer dans l\'émulateur.</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d sauvegarde modifiée des deux côtés — ouvrez Dogmatix pour choisir</item>
         <item quantity="other">%d sauvegardes modifiées des deux côtés — ouvrez Dogmatix pour choisir</item>

@@ -972,6 +972,12 @@
     <string name="bios_note_boot_logo">alleen het opstartlogo</string>
     <string name="bios_note_original_bios_mode">alleen met de originele BIOS-modus</string>
     <string name="bios_note_neogeo_set">de BIOS-set van MAME / FBNeo (versies verschillen)</string>
+    <string name="shortcut_pick_title">Dogmatix+-snelkoppeling toevoegen</string>
+    <string name="shortcut_pick_label">Dogmatix+-snelkoppeling</string>
+    <string name="settings_cocoon">Cocoon</string>
+    <string name="settings_cocoon_hint">Zet Dogmatix+ als tegels in Cocoon: per console, een opgeslagen weergave of Downloads</string>
+    <string name="cocoon_dialog_title">Dogmatix+ in Cocoon</string>
+    <string name="cocoon_dialog_body">Cocoon neemt app-snelkoppelingen van Android over, en Dogmatix+ biedt er een voor elke console, elke opgeslagen weergave en Downloads.\n\n1. Open in Cocoon Add Games en kies de Android-snelkoppelingen.\n2. Kies Dogmatix+ en de console of weergave die je wilt.\n3. Geef hem het platform van die console, dan staat hij bij de games van die console.\n\nDe tegel opent Dogmatix+ op die console of weergave. Nieuwe consoles en weergaven verschijnen vanzelf in de lijst.\n\nTip: gebruik in Cocoon liever deze tegels dan de .dgmtx-bestanden (Instellingen → Frontend-snelkoppelingen): Cocoon ziet die bestanden als games en probeert ze in de emulator te starten.</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save is op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
         <item quantity="other">%d saves zijn op beide kanten gewijzigd — open Dogmatix om te kiezen</item>

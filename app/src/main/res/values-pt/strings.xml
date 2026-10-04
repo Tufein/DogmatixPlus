@@ -923,6 +923,12 @@
     <string name="bios_note_boot_logo">só o logótipo de arranque</string>
     <string name="bios_note_original_bios_mode">só com o modo BIOS original</string>
     <string name="bios_note_neogeo_set">o conjunto de BIOS MAME / FBNeo (as versões variam)</string>
+    <string name="shortcut_pick_title">Adicionar um atalho do Dogmatix+</string>
+    <string name="shortcut_pick_label">Atalho do Dogmatix+</string>
+    <string name="settings_cocoon">Cocoon</string>
+    <string name="settings_cocoon_hint">Adicionar o Dogmatix+ ao Cocoon como mosaicos: por consola, uma vista guardada ou Transferências</string>
+    <string name="cocoon_dialog_title">Dogmatix+ no Cocoon</string>
+    <string name="cocoon_dialog_body">O Cocoon aproveita os atalhos de apps do Android, e o Dogmatix+ oferece um para cada consola, cada vista guardada e Transferências.\n\n1. No Cocoon, abra Add Games e escolha os atalhos Android.\n2. Escolha o Dogmatix+ e a consola ou vista que quer.\n3. Atribua-lhe a plataforma da consola para ficar junto dos jogos dela.\n\nO mosaico abre o Dogmatix+ nessa consola ou vista. Novas consolas e vistas aparecem sozinhas.\n\nDica: no Cocoon, prefira estes mosaicos aos ficheiros .dgmtx (Definições → Atalhos para frontends): o Cocoon iria listá-los como jogos e tentar abri-los no emulador.</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save mudou nos dois lados — abre o Dogmatix para escolher</item>
         <item quantity="other">%d saves mudaram nos dois lados — abre o Dogmatix para escolher</item>

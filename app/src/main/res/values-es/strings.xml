@@ -946,6 +946,12 @@
     <string name="bios_note_boot_logo">solo el logo de arranque</string>
     <string name="bios_note_original_bios_mode">solo con el modo BIOS original</string>
     <string name="bios_note_neogeo_set">el set de BIOS de MAME / FBNeo (las versiones varían)</string>
+    <string name="shortcut_pick_title">Añadir un acceso directo de Dogmatix+</string>
+    <string name="shortcut_pick_label">Acceso directo de Dogmatix+</string>
+    <string name="settings_cocoon">Cocoon</string>
+    <string name="settings_cocoon_hint">Añade Dogmatix+ a Cocoon como fichas: por consola, una vista guardada o Descargas</string>
+    <string name="cocoon_dialog_title">Dogmatix+ en Cocoon</string>
+    <string name="cocoon_dialog_body">Cocoon recoge los accesos directos de apps de Android, y Dogmatix+ ofrece uno por cada consola, cada vista guardada y Descargas.\n\n1. En Cocoon, abre Add Games y elige los accesos directos de Android.\n2. Elige Dogmatix+ y la consola o vista que quieras.\n3. Asígnale la plataforma de la consola para que quede junto a sus juegos.\n\nLa ficha abre Dogmatix+ en esa consola o vista. Las consolas y vistas nuevas aparecen solas.\n\nConsejo: en Cocoon usa mejor estas fichas que los archivos .dgmtx (Ajustes → Accesos directos para frontends): Cocoon los mostraría como juegos e intentaría abrirlos en el emulador.</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d partida cambió en ambos lados — abre Dogmatix para elegir</item>
         <item quantity="other">%d partidas cambiaron en ambos lados — abre Dogmatix para elegir</item>

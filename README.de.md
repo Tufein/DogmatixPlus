@@ -31,6 +31,11 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 2.6
+- **Keine Zwangsbeendigungen mehr bei großen Download-Warteschlangen**: Hunderte wartende Downloads bleiben flüssig.
+- **Cocoon**: Dogmatix+ als Kacheln pro Konsole, gespeicherter Ansicht oder Downloads (*Einstellungen → Cocoon*); dieselben Verknüpfungen erscheinen bei langem Drücken aufs Symbol.
+- **Ein neues Symbol**: ein Modul mit Hundeohren und einem Download-Pfeil.
+
 ### Neu in 2.5
 - **BIOS-Prüfung**: sieh pro Konsole, ob die BIOS-Dateien deines Emulators da sind und die richtigen Dumps sind (rund zwanzig Systeme).
 - **IPS- / UPS- / BPS-Patches anwenden** aus dem Dateimanager; das gepatchte Spiel ist eine neue Kopie, das Original bleibt.
