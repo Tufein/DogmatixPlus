@@ -26,6 +26,13 @@ data class BulkPlan(
 ) {
     /** False when the downloads would not fit (with a 2 % margin); unknown space counts as enough. */
     val fits: Boolean get() = freeBytes == null || totalBytes <= freeBytes - freeBytes / 50
+
+    /** How much is missing to fit (0 when it fits or the free space is unknown). */
+    val shortBytes: Long get() = if (freeBytes == null || fits) 0L else totalBytes - (freeBytes - freeBytes / 50)
+
+    /** Per console: (console id, games, bytes), biggest first. */
+    val perConsole: List<Triple<String, Int, Long>> get() =
+        chosen.groupBy { it.consoleId }.map { (c, rows) -> Triple(c, rows.size, rows.sumOf { it.size }) }.sortedByDescending { it.third }
 }
 
 object BulkPlanner {

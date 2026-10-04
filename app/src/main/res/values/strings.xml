@@ -979,6 +979,80 @@
     <string name="settings_cocoon_hint">Add Dogmatix+ to Cocoon as tiles: per console, a saved view or Downloads</string>
     <string name="cocoon_dialog_title">Dogmatix+ in Cocoon</string>
     <string name="cocoon_dialog_body">Cocoon picks up Android app shortcuts, and Dogmatix+ offers one for each console, each saved view and Downloads.\n\n1. In Cocoon, open Add Games and choose the Android shortcuts.\n2. Pick Dogmatix+ and the console or view you want.\n3. Give it the console\'s platform, so it sits with that console\'s games.\n\nThe tile opens Dogmatix+ on that console or view. New consoles and views appear in the list by themselves.\n\nTip: in Cocoon, prefer these tiles over the .dgmtx shortcut files (Settings → Frontend shortcuts): Cocoon would list those files as games and try to start them in the emulator.</string>
+    <string name="settings_resume">Continue interrupted downloads</string>
+    <string name="settings_resume_hint">Retry carries on where it stopped (no space, app closed), when the server allows it</string>
+    <string name="settings_requeue">Continue the queue after a restart</string>
+    <string name="settings_requeue_hint">Downloads cut off by closing the app or a reboot start again when you open Dogmatix+</string>
+    <string name="settings_per_server">Per server</string>
+    <string name="settings_per_server_hint">At most this many downloads at once from one server, so it does not block you</string>
+    <string name="settings_wishlist_auto">Download wishlist games automatically</string>
+    <string name="settings_wishlist_auto_hint">When a wanted game turns up in a source, its best version is downloaded straight away</string>
+    <string name="settings_auto_m3u">Playlists for multi-disc games</string>
+    <string name="settings_auto_m3u_hint">Writes the .m3u as soon as all discs of a game are downloaded</string>
+    <string name="settings_esde_artwork">Covers for ES-DE</string>
+    <string name="settings_esde_artwork_hint">After a download: cover and description in ES-DE\'s folder (Cocoon\'s ES-DE link sees them too)</string>
+    <string name="settings_profiles">Profiles</string>
+    <string name="settings_profiles_hint">Hide consoles or tags, for a child or a couch profile</string>
+    <string name="settings_profiles_active">Active: %1$s</string>
+    <string name="profiles_intro">A profile hides consoles and games with certain tags from the library and from downloading through it. With a PIN, only someone who knows it can leave a restricted profile.</string>
+    <string name="profiles_everything">Everything</string>
+    <string name="profiles_everything_hint">No profile: the whole library</string>
+    <string name="profiles_active_badge">Active</string>
+    <string name="profiles_use">Use</string>
+    <string name="profiles_edit">Edit</string>
+    <string name="profiles_delete">Delete</string>
+    <string name="profiles_add">New profile</string>
+    <string name="profiles_add_hint">Choose what it hides</string>
+    <string name="profiles_add_action">Add</string>
+    <string name="profiles_edit_title">Profile</string>
+    <string name="profiles_name">Name</string>
+    <string name="profiles_tags_label">Hidden tags</string>
+    <string name="profiles_tags_hint">Comma-separated, e.g. Adult, Hack, Beta</string>
+    <string name="profiles_consoles_label">Consoles (✕ = hidden)</string>
+    <string name="profiles_hides_consoles">Hides %1$s</string>
+    <string name="profiles_hides_tags">Hides games tagged %1$s</string>
+    <string name="profiles_hides_nothing">Hides nothing yet</string>
+    <string name="profiles_save">Save</string>
+    <string name="profiles_pin">PIN</string>
+    <string name="profiles_pin_on">Needed to leave a restricted profile</string>
+    <string name="profiles_pin_off">Not set: anyone can switch profile</string>
+    <string name="profiles_pin_action">Set</string>
+    <string name="profiles_pin_label">PIN (4–8 digits)</string>
+    <string name="profiles_set_pin_title">PIN for leaving a profile (empty removes it)</string>
+    <string name="profiles_enter_pin">Enter the PIN</string>
+    <string name="profiles_wrong_pin">Wrong PIN</string>
+    <string name="profiles_switched">Profile switched</string>
+    <string name="profiles_pin_set">PIN set</string>
+    <string name="profiles_pin_removed">PIN removed</string>
+    <string name="profiles_pin_locked">Switch to Everything first</string>
+    <string name="nav_ra">RetroAchievements</string>
+    <string name="tools_ra_hint">Which of your games have achievements</string>
+    <string name="ra_intro">Checks your games against RetroAchievements: files on the device by their hash (cartridge systems), games only in your sources through an imported No-Intro DAT. Supported games get an RA badge in the library. Needs your RA name and web API key.</string>
+    <string name="ra_account">RetroAchievements account</string>
+    <string name="ra_account_hint">Not set: add your RA name and web API key</string>
+    <string name="ra_account_set">Signed in as %1$s</string>
+    <string name="ra_account_action">Set</string>
+    <string name="ra_key_where">Find the web API key on retroachievements.org under Settings → Keys. It stays on this device and in your backups.</string>
+    <string name="ra_user_label">RA user name</string>
+    <string name="ra_key_label">Web API key</string>
+    <string name="ra_no_consoles">None of your consoles is a cartridge system RetroAchievements covers</string>
+    <string name="ra_console_line">RetroAchievements: %1$s</string>
+    <string name="ra_check">Check</string>
+    <string name="ra_checking">Checking… %1$s</string>
+    <string name="ra_result">%1$d RA games · on device: %2$d of %3$d supported · %4$d more through the DAT</string>
+    <string name="ra_marked">%1$d games marked</string>
+    <string name="ra_not_checked">Not checked yet</string>
+    <string name="ra_need_key">Set your RetroAchievements name and web API key first</string>
+    <string name="ra_failed">RetroAchievements could not be reached: %1$s</string>
+    <string name="stats_played">Most played (ES-DE)</string>
+    <string name="stats_played_hint">How often ES-DE started each game; ES-DE does not count play time, and Cocoon keeps its own privately</string>
+    <string name="stats_played_no_esde">Set up ES-DE in Settings to see what you play</string>
+    <string name="stats_played_none">ES-DE has not recorded any plays yet</string>
+    <string name="stats_recent">Recently played</string>
+    <string name="bulk_no_room_short">Does not fit: %1$s short</string>
+    <string name="bulk_checking_duplicates">Looking for duplicate games to make room…</string>
+    <string name="bulk_duplicates_free">Removing duplicate games would free %1$s</string>
+    <string name="bulk_free_up">Show duplicates</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save changed on both sides — open Dogmatix to choose</item>
         <item quantity="other">%d saves changed on both sides — open Dogmatix to choose</item>
@@ -1110,6 +1184,22 @@
     <plurals name="view_shortcut_done">
         <item quantity="one">Shortcut placed in %1$d console folder</item>
         <item quantity="other">Shortcut placed in %1$d console folders</item>
+    </plurals>
+    <plurals name="downloads_requeued">
+        <item quantity="one">%1$d interrupted download is back in the queue</item>
+        <item quantity="other">%1$d interrupted downloads are back in the queue</item>
+    </plurals>
+    <plurals name="details_ra">
+        <item quantity="one">RetroAchievements: %1$d achievement</item>
+        <item quantity="other">RetroAchievements: %1$d achievements</item>
+    </plurals>
+    <plurals name="details_ra_probably">
+        <item quantity="one">RetroAchievements: probably (%1$d achievement; by title, this dump not checked)</item>
+        <item quantity="other">RetroAchievements: probably (%1$d achievements; by title, this dump not checked)</item>
+    </plurals>
+    <plurals name="stats_times_played">
+        <item quantity="one">%1$d time</item>
+        <item quantity="other">%1$d times</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

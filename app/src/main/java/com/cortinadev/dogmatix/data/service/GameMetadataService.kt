@@ -22,11 +22,24 @@ import javax.inject.Singleton
  */
 @Singleton
 class GameMetadataService @Inject constructor(
-    private val dao: GameMetadataDao
+    private val dao: GameMetadataDao,
+    private val thumbnails: ThumbnailService
 ) {
     private val userAgent = "Dogmatix/${BuildConfig.VERSION_NAME}"
 
-    suspend fun lookup(name: String, consoleId: String): GameDetails? = withContext(Dispatchers.IO) {
+    /**
+     * Details for a game; with [fileName] (the No-Intro / Redump name), libretro-thumbnails supplies
+     * the box art when the databases have none — or when no database key is configured at all.
+     */
+    suspend fun lookup(name: String, consoleId: String, fileName: String? = null): GameDetails? {
+        val found = lookupDatabases(name, consoleId)
+        if (fileName == null || found?.imageUrl?.isNotBlank() == true) return found
+        val cover = runCatching { thumbnails.boxart(consoleId, fileName) }.getOrNull() ?: return found
+        return found?.copy(imageUrl = cover, source = listOf(found.source, "libretro-thumbnails").filter { it.isNotBlank() }.joinToString(" · "))
+            ?: GameDetails(GameTitleCleaner.clean(name), "", emptyList(), "", "", cover, "libretro-thumbnails")
+    }
+
+    private suspend fun lookupDatabases(name: String, consoleId: String): GameDetails? = withContext(Dispatchers.IO) {
         val title = GameTitleCleaner.clean(name)
         if (title.isBlank()) return@withContext null
         val platform = consoleId.substringAfter("_", consoleId).lowercase()

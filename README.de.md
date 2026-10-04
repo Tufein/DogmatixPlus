@@ -31,6 +31,12 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 3.0
+- **Downloads machen dort weiter, wo sie stoppten** (Speicher voll, App geschlossen, Neustart), und **die Warteschlange übersteht einen Neustart**; ein **Limit pro Server** verhindert Sperren.
+- **Wunschliste auf Autopilot**, **.m3u-Playlists** für Spiele mit mehreren Discs und ein **Speicherberater**, wenn „Alles Angezeigte herunterladen“ nicht passt.
+- **Cover für ES-DE** (und Cocoons ES-DE-Verknüpfung) nach jedem Download, von libretro-thumbnails.
+- **RetroAchievements-Abzeichen**, **Profile mit PIN** und **was du spielst** aus ES-DE in den Statistiken.
+
 ### Neu in 2.6
 - **Keine Zwangsbeendigungen mehr bei großen Download-Warteschlangen**: Hunderte wartende Downloads bleiben flüssig.
 - **Cocoon**: Dogmatix+ als Kacheln pro Konsole, gespeicherter Ansicht oder Downloads (*Einstellungen → Cocoon*); dieselben Verknüpfungen erscheinen bei langem Drücken aufs Symbol.

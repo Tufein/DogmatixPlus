@@ -225,6 +225,13 @@ private fun Body(state: DetailsState, title: String, consoleName: String, scroll
             )
         }
 
+        state.achievements?.let { (game, byHash) ->
+            Text(
+                if (byHash) pluralStringResource(R.plurals.details_ra, game.achievements, game.achievements)
+                else pluralStringResource(R.plurals.details_ra_probably, game.achievements, game.achievements),
+                style = MaterialTheme.typography.labelMedium, color = scheme.primary
+            )
+        }
         state.switchTitle?.let { title -> SwitchLines(title, state.switch) }
 
         Box(modifier = Modifier.weight(1f, fill = false)) {

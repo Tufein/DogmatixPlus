@@ -929,6 +929,80 @@
     <string name="settings_cocoon_hint">Adicionar o Dogmatix+ ao Cocoon como mosaicos: por consola, uma vista guardada ou Transferências</string>
     <string name="cocoon_dialog_title">Dogmatix+ no Cocoon</string>
     <string name="cocoon_dialog_body">O Cocoon aproveita os atalhos de apps do Android, e o Dogmatix+ oferece um para cada consola, cada vista guardada e Transferências.\n\n1. No Cocoon, abra Add Games e escolha os atalhos Android.\n2. Escolha o Dogmatix+ e a consola ou vista que quer.\n3. Atribua-lhe a plataforma da consola para ficar junto dos jogos dela.\n\nO mosaico abre o Dogmatix+ nessa consola ou vista. Novas consolas e vistas aparecem sozinhas.\n\nDica: no Cocoon, prefira estes mosaicos aos ficheiros .dgmtx (Definições → Atalhos para frontends): o Cocoon iria listá-los como jogos e tentar abri-los no emulador.</string>
+    <string name="settings_resume">Retomar transferências interrompidas</string>
+    <string name="settings_resume_hint">Tentar de novo continua onde parou (sem espaço, app fechada), se o servidor permitir</string>
+    <string name="settings_requeue">Retomar a fila após reiniciar</string>
+    <string name="settings_requeue_hint">As transferências cortadas ao fechar a app ou reiniciar recomeçam ao abrir o Dogmatix+</string>
+    <string name="settings_per_server">Por servidor</string>
+    <string name="settings_per_server_hint">No máximo estas transferências em simultâneo de um servidor, para não ser bloqueado</string>
+    <string name="settings_wishlist_auto">Transferir automaticamente a lista de desejos</string>
+    <string name="settings_wishlist_auto_hint">Quando um jogo desejado aparece numa fonte, a melhor versão é transferida de imediato</string>
+    <string name="settings_auto_m3u">Listas para jogos com vários discos</string>
+    <string name="settings_auto_m3u_hint">Cria o .m3u assim que todos os discos de um jogo estão transferidos</string>
+    <string name="settings_esde_artwork">Capas para o ES-DE</string>
+    <string name="settings_esde_artwork_hint">Após uma transferência: capa e descrição na pasta do ES-DE (a ligação ES-DE do Cocoon também as vê)</string>
+    <string name="settings_profiles">Perfis</string>
+    <string name="settings_profiles_hint">Ocultar consolas ou etiquetas, para uma criança ou um perfil de sofá</string>
+    <string name="settings_profiles_active">Ativo: %1$s</string>
+    <string name="profiles_intro">Um perfil oculta consolas e jogos com certas etiquetas da biblioteca e das transferências a partir dela. Com um PIN, só quem o sabe pode sair de um perfil restrito.</string>
+    <string name="profiles_everything">Tudo</string>
+    <string name="profiles_everything_hint">Sem perfil: toda a biblioteca</string>
+    <string name="profiles_active_badge">Ativo</string>
+    <string name="profiles_use">Usar</string>
+    <string name="profiles_edit">Editar</string>
+    <string name="profiles_delete">Eliminar</string>
+    <string name="profiles_add">Novo perfil</string>
+    <string name="profiles_add_hint">Escolha o que oculta</string>
+    <string name="profiles_add_action">Adicionar</string>
+    <string name="profiles_edit_title">Perfil</string>
+    <string name="profiles_name">Nome</string>
+    <string name="profiles_tags_label">Etiquetas ocultas</string>
+    <string name="profiles_tags_hint">Separadas por vírgulas, p. ex. Adult, Hack, Beta</string>
+    <string name="profiles_consoles_label">Consolas (✕ = oculta)</string>
+    <string name="profiles_hides_consoles">Oculta %1$s</string>
+    <string name="profiles_hides_tags">Oculta jogos com a etiqueta %1$s</string>
+    <string name="profiles_hides_nothing">Ainda não oculta nada</string>
+    <string name="profiles_save">Guardar</string>
+    <string name="profiles_pin">PIN</string>
+    <string name="profiles_pin_on">Necessário para sair de um perfil restrito</string>
+    <string name="profiles_pin_off">Não definido: qualquer pessoa pode mudar de perfil</string>
+    <string name="profiles_pin_action">Definir</string>
+    <string name="profiles_pin_label">PIN (4–8 dígitos)</string>
+    <string name="profiles_set_pin_title">PIN para sair de um perfil (vazio remove-o)</string>
+    <string name="profiles_enter_pin">Introduza o PIN</string>
+    <string name="profiles_wrong_pin">PIN errado</string>
+    <string name="profiles_switched">Perfil mudado</string>
+    <string name="profiles_pin_set">PIN definido</string>
+    <string name="profiles_pin_removed">PIN removido</string>
+    <string name="profiles_pin_locked">Mude primeiro para Tudo</string>
+    <string name="nav_ra">RetroAchievements</string>
+    <string name="tools_ra_hint">Quais dos seus jogos têm conquistas</string>
+    <string name="ra_intro">Verifica os seus jogos no RetroAchievements: ficheiros no dispositivo pelo hash (sistemas de cartucho), jogos só nas suas fontes através de um DAT No-Intro importado. Os jogos suportados têm um selo RA na biblioteca. São precisos o seu nome RA e a chave de API web.</string>
+    <string name="ra_account">Conta RetroAchievements</string>
+    <string name="ra_account_hint">Não definido: adicione o seu nome RA e a chave de API web</string>
+    <string name="ra_account_set">Configurado como %1$s</string>
+    <string name="ra_account_action">Definir</string>
+    <string name="ra_key_where">A chave de API web está em retroachievements.org, em Settings → Keys. Fica neste dispositivo e nas suas cópias.</string>
+    <string name="ra_user_label">Nome de utilizador RA</string>
+    <string name="ra_key_label">Chave de API web</string>
+    <string name="ra_no_consoles">Nenhuma das suas consolas é um sistema de cartucho coberto pelo RetroAchievements</string>
+    <string name="ra_console_line">RetroAchievements: %1$s</string>
+    <string name="ra_check">Verificar</string>
+    <string name="ra_checking">A verificar… %1$s</string>
+    <string name="ra_result">%1$d jogos RA · no dispositivo: %2$d de %3$d suportados · mais %4$d pelo DAT</string>
+    <string name="ra_marked">%1$d jogos marcados</string>
+    <string name="ra_not_checked">Ainda não verificado</string>
+    <string name="ra_need_key">Defina primeiro o nome RetroAchievements e a chave de API web</string>
+    <string name="ra_failed">Não foi possível contactar o RetroAchievements: %1$s</string>
+    <string name="stats_played">Mais jogados (ES-DE)</string>
+    <string name="stats_played_hint">Quantas vezes o ES-DE iniciou cada jogo; o ES-DE não conta o tempo de jogo e o Cocoon guarda o seu em privado</string>
+    <string name="stats_played_no_esde">Configure o ES-DE nas definições para ver o que joga</string>
+    <string name="stats_played_none">O ES-DE ainda não registou jogos</string>
+    <string name="stats_recent">Jogados recentemente</string>
+    <string name="bulk_no_room_short">Não cabe: faltam %1$s</string>
+    <string name="bulk_checking_duplicates">A procurar jogos duplicados para libertar espaço…</string>
+    <string name="bulk_duplicates_free">Remover jogos duplicados libertaria %1$s</string>
+    <string name="bulk_free_up">Ver duplicados</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save mudou nos dois lados — abre o Dogmatix para escolher</item>
         <item quantity="other">%d saves mudaram nos dois lados — abre o Dogmatix para escolher</item>
@@ -1060,6 +1134,22 @@
     <plurals name="view_shortcut_done">
         <item quantity="one">Atalho colocado em %1$d pasta de consola</item>
         <item quantity="other">Atalho colocado em %1$d pastas de consola</item>
+    </plurals>
+    <plurals name="downloads_requeued">
+        <item quantity="one">%1$d transferência interrompida voltou à fila</item>
+        <item quantity="other">%1$d transferências interrompidas voltaram à fila</item>
+    </plurals>
+    <plurals name="details_ra">
+        <item quantity="one">RetroAchievements: %1$d conquista</item>
+        <item quantity="other">RetroAchievements: %1$d conquistas</item>
+    </plurals>
+    <plurals name="details_ra_probably">
+        <item quantity="one">RetroAchievements: provavelmente (%1$d conquista; pelo título, este dump não verificado)</item>
+        <item quantity="other">RetroAchievements: provavelmente (%1$d conquistas; pelo título, este dump não verificado)</item>
+    </plurals>
+    <plurals name="stats_times_played">
+        <item quantity="one">%1$d vez</item>
+        <item quantity="other">%1$d vezes</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

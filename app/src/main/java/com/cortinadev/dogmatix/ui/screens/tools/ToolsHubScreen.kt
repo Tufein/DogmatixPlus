@@ -123,6 +123,7 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { ToolRow(stringResource(R.string.nav_dat), listOf(stringResource(R.string.tools_dat_hint)), { go(NavRoutes.Dat) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_bios), listOf(stringResource(R.string.tools_bios_hint)), { go(NavRoutes.Bios) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_stats), listOf(stringResource(R.string.tools_stats_hint)), { go(NavRoutes.Stats) }, trailing = chevron) }
+            item { ToolRow(stringResource(R.string.nav_ra), listOf(stringResource(R.string.tools_ra_hint)), { go(NavRoutes.RetroAchievements) }, trailing = chevron) }
             item {
                 val run = { viewModel.importEsdeFavourites(context) }
                 ToolRow(stringResource(R.string.esde_favs), listOf(stringResource(R.string.esde_favs_hint)), run) { PillButton(stringResource(R.string.esde_favs_action), run) }

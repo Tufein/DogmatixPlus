@@ -31,6 +31,12 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 3.0
+- **Las descargas siguen donde se quedaron** (almacenamiento lleno, app cerrada, reinicio) y **la cola sobrevive a un reinicio**; un **límite por servidor** evita bloqueos.
+- **Lista de deseos en piloto automático**, **listas .m3u** para juegos de varios discos y un **asesor de almacenamiento** cuando «Descargar todo lo que se muestra» no cabe.
+- **Portadas para ES-DE** (y el enlace ES-DE de Cocoon) tras cada descarga, de libretro-thumbnails.
+- **Etiquetas de RetroAchievements**, **perfiles con PIN** y **a qué juegas** desde ES-DE en las estadísticas.
+
 ### Novedades de 2.6
 - **Se acabaron los cierres forzados con colas de descarga grandes**: cientos de descargas en cola siguen fluidas.
 - **Cocoon**: añade Dogmatix+ como fichas por consola, vista guardada o Descargas (*Ajustes → Cocoon*); los mismos accesos aparecen al mantener pulsado el icono.

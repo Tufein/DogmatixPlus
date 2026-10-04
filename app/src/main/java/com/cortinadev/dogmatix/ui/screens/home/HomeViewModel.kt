@@ -65,8 +65,22 @@ class HomeViewModel @Inject constructor(
     private val rommLibrary: RommLibraryService,
     private val wishlist: WishlistRepository,
     private val collectionsRepository: com.cortinadev.dogmatix.data.repository.CollectionsRepository,
-    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings
+    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings,
+    private val profiles: com.cortinadev.dogmatix.data.service.ProfileService,
+    private val retroAchievements: com.cortinadev.dogmatix.data.service.RetroAchievementsService,
+    private val libraryTools: com.cortinadev.dogmatix.data.service.LibraryToolsService
 ) : ViewModel() {
+
+    /** Bytes that removing duplicate games (keeping the biggest copy of each) would free; null on failure. */
+    suspend fun reclaimableBytes(): Long? = runCatching {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { libraryTools.duplicateGroups().sumOf { it.reclaimable } }
+    }.getOrNull()
+
+    /** RetroAchievements marks for the "RA" badge. */
+    val raMarks: StateFlow<com.cortinadev.dogmatix.data.service.RaMarks> = retroAchievements.marks
+
+    /** RA game of a row for the details card: (game, true) by hash, (game, false) by title only. */
+    suspend fun achievementsFor(file: DownloadableFileEntity) = runCatching { retroAchievements.lookup(file.consoleId, file.fileName, file.name) }.getOrNull()
 
     // ---- 2.5: saved views ("smart collections") ------------------------------------------------
 
@@ -243,6 +257,7 @@ class HomeViewModel @Inject constructor(
             val best = versions.firstOrNull { it.file.fileName == bestId }
             if (_details.value?.item == item) _details.value = _details.value!!.copy(versionCount = versions.size, best = best)
             if (_details.value?.item == item) _details.value = _details.value!!.copy(collectionIds = collectionsRepository.collectionsOf(item.file))
+            achievementsFor(item.file)?.let { ra -> if (_details.value?.item == item) _details.value = _details.value!!.copy(achievements = ra) }
             // A Switch game: its updates and DLC in the library, against what is on disk.
             com.cortinadev.dogmatix.util.SwitchTitles.parse(item.file.fileName)?.let { title ->
                 val rows = runCatching { repository.filesOf(item.file.consoleId) }.getOrDefault(emptyList())
@@ -250,7 +265,7 @@ class HomeViewModel @Inject constructor(
                     .firstOrNull { it.baseId == title.baseId }
                 if (_details.value?.item == item) _details.value = _details.value!!.copy(switchTitle = title, switch = status)
             }
-            val found = metadataService.lookup(item.file.name, item.file.consoleId)
+            val found = metadataService.lookup(item.file.name, item.file.consoleId, item.file.fileName)
             if (_details.value?.item == item) _details.value = _details.value!!.copy(loading = false, details = found)
         }
     }
@@ -326,7 +341,8 @@ class HomeViewModel @Inject constructor(
                 combine(_searchQuery, _selectedConsoles, _activeTags) { q, c, t -> Triple(q, c, t) },
                 combine(_sort, _favouritesOnly, _source, rescanStateHolder.lastRescanTime, combine(_newOnly, _collectionId) { n, c -> n to c }) { s, f, src, _, nc -> FilterExtra(s, f, src, nc.first, nc.second) },
                 // Re-query when a star changes while "Favourites only" is on, else the row would linger.
-                combine(_favouritesOnly, favourites.keys) { only, keys -> if (only) keys else emptySet() }.distinctUntilChanged(),
+                // …and when the active profile changes what is hidden.
+                combine(_favouritesOnly, favourites.keys, profiles.restrictions) { only, keys, r -> (if (only) keys else emptySet()) to r }.distinctUntilChanged(),
                 pageSize
             ) { (query, consoles, tags), extra, _, limit ->
                 FilterParams(
@@ -540,5 +556,7 @@ data class DetailsState(
     val collectionIds: Set<Long> = emptySet(),
     /** For a Switch file with a title ID: what it is, and its game's updates / DLC. */
     val switchTitle: com.cortinadev.dogmatix.util.SwitchTitles.Title? = null,
-    val switch: com.cortinadev.dogmatix.util.SwitchTitles.GameStatus<DownloadableFileEntity>? = null
+    val switch: com.cortinadev.dogmatix.util.SwitchTitles.GameStatus<DownloadableFileEntity>? = null,
+    /** RetroAchievements game and whether it was matched by hash (true) or only by title (false). */
+    val achievements: Pair<com.cortinadev.dogmatix.util.RaGame, Boolean>? = null
 )

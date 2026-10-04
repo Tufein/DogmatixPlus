@@ -31,6 +31,12 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
+### New in 3.0
+- **Downloads continue where they stopped** (full storage, closed app, reboot) and **the queue survives a restart**; a **per-server limit** keeps strict servers happy.
+- **Wishlist on autopilot**, **.m3u playlists** for multi-disc games, and a **storage advisor** when "Download everything shown" does not fit.
+- **Covers for ES-DE** (and Cocoon's ES-DE link) after every download, from libretro-thumbnails.
+- **RetroAchievements badges**, **profiles with a PIN**, and **what you play** from ES-DE in the statistics.
+
 ### New in 2.6
 - **No more force quits with big download queues**: hundreds of queued downloads stay smooth.
 - **Cocoon**: add Dogmatix+ as tiles per console, saved view or Downloads (*Settings → Cocoon*); the same shortcuts appear on a long press of the icon.

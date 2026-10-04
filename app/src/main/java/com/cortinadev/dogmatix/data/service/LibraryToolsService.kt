@@ -60,6 +60,11 @@ class LibraryToolsService @Inject constructor(
         }.getOrDefault(false)
     }
 
+    /** Duplicate games on disk (same game more than once), for the space a bulk download could get back. */
+    suspend fun duplicateGroups(): List<com.cortinadev.dogmatix.util.DuplicateGroup> = withContext(Dispatchers.IO) {
+        DuplicateFinder.find(scanService.scan().files)
+    }
+
     suspend fun disk(): DiskOverview = withContext(Dispatchers.IO) {
         val snapshot = scanService.scan()
         DiskOverview(DuplicateFinder.entries(snapshot.files), snapshot.freeBytes, snapshot.rootDisplay.isNotBlank() || snapshot.files.isNotEmpty())

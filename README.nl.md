@@ -31,6 +31,12 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 3.0
+- **Downloads gaan verder waar ze stopten** (opslag vol, app gesloten, herstart) en **de wachtrij overleeft een herstart**; een **limiet per server** voorkomt blokkades.
+- **Verlanglijst op de automatische piloot**, **.m3u-afspeellijsten** voor games met meerdere schijven, en een **opslagadviseur** als "Alles wat getoond wordt downloaden" niet past.
+- **Covers voor ES-DE** (en Cocoons ES-DE-koppeling) na elke download, van libretro-thumbnails.
+- **RetroAchievements-labels**, **profielen met een pincode**, en **wat je speelt** uit ES-DE in de statistieken.
+
 ### Nieuw in 2.6
 - **Geen force quits meer bij grote downloadwachtrijen**: honderden downloads in de wachtrij blijven soepel.
 - **Cocoon**: zet Dogmatix+ als tegels per console, opgeslagen weergave of Downloads in Cocoon (*Instellingen → Cocoon*); dezelfde snelkoppelingen verschijnen als je het icoon lang indrukt.

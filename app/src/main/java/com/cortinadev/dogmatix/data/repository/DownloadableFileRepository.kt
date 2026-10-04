@@ -15,7 +15,8 @@ import javax.inject.Singleton
 
 @Singleton
 class DownloadableFileRepository @Inject constructor(
-    private val dao: DownloadableFileDao
+    private val dao: DownloadableFileDao,
+    private val profiles: com.cortinadev.dogmatix.data.service.ProfileService
 ) {
     suspend fun searchFilesWithTags(
         query: String,
@@ -34,6 +35,7 @@ class DownloadableFileRepository @Inject constructor(
     ): List<DownloadableFileWithTags> {
         // Same-kind tags are OR-ed, different kinds are AND-ed (see the DAO query).
         val byKind = TagCategorizer.groupByKind(tags)
+        val hidden = profiles.current()
         fun kind(k: TagKind) = byKind[k].orEmpty().toList()
         val results = dao.queryFilesWithTags(
             query = searchPattern(query),
@@ -53,6 +55,10 @@ class DownloadableFileRepository @Inject constructor(
             favouritesOnly = favouritesOnly,
             newSince = newSince,
             collectionId = collectionId,
+            hiddenConsoles = hidden.hiddenConsoles.toList(),
+            hiddenConsolesCount = hidden.hiddenConsoles.size,
+            hiddenTags = hidden.hiddenTags.toList(),
+            hiddenTagsCount = hidden.hiddenTags.size,
             source = source.ordinal,
             sort = sort.ordinal,
             limit = limit,
@@ -117,6 +123,8 @@ class DownloadableFileRepository @Inject constructor(
             dao.getAvailableTags(searchPattern(query), manufacturer, consoleIds.toList(), consoleIds.size)
         )
 
-    suspend fun getConsolesWithFiles(query: String, manufacturer: String? = null): List<ConsoleWithFileCount> =
-        dao.getConsolesWithFiles(searchPattern(query), manufacturer)
+    suspend fun getConsolesWithFiles(query: String, manufacturer: String? = null): List<ConsoleWithFileCount> {
+        val hidden = profiles.current().hiddenConsoles
+        return dao.getConsolesWithFiles(searchPattern(query), manufacturer).filterNot { it.id in hidden }
+    }
 }

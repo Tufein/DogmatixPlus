@@ -139,6 +139,7 @@ fun HomeScreen(
     val activeDownloads by viewModel.activeDownloads.collectAsState()
     val favoriteLanguages by viewModel.favoriteLanguages.collectAsState()
     val detailsState by viewModel.details.collectAsState()
+    val raMarks by viewModel.raMarks.collectAsState()
     val newOnly by viewModel.newOnly.collectAsState()
     val collectionId by viewModel.collectionId.collectAsState()
     val collections by viewModel.collections.collectAsState()
@@ -346,7 +347,9 @@ fun HomeScreen(
                 showBulk = false
                 scope.launch { showMessage(bulkQueuedMessage.replace("%d", viewModel.startBulk(plan, context).toString())) }
             },
-            onDismiss = { showBulk = false }
+            onDismiss = { showBulk = false },
+            reclaimable = { viewModel.reclaimableBytes() },
+            onFreeUp = { showBulk = false; navController.navigate(com.cortinadev.dogmatix.ui.navigation.NavRoutes.Duplicates.route) }
         )
     }
     val collectionAddedMessage = stringResource(R.string.collection_added, "%s")
@@ -576,6 +579,7 @@ fun HomeScreen(
                             isFavourite = { viewModel.isFavourite(it.file, favouriteKeys) },
                             isDownloading = { viewModel.isDownloading(it.file, activeDownloads) },
                             isNew = { viewModel.isNew(it.file) },
+                            hasAchievements = { raMarks.gameFor(it.file.consoleId, it.file.fileName) != null },
                             onRowFocused = { focusedItem = it },
                             onRowLongClick = viewModel::openDetails,
                             query = query,
@@ -657,6 +661,7 @@ fun HomeScreen(
                     isFavourite = { viewModel.isFavourite(it.file, favouriteKeys) },
                     isDownloading = { viewModel.isDownloading(it.file, activeDownloads) },
                     isNew = { viewModel.isNew(it.file) },
+                    hasAchievements = { raMarks.gameFor(it.file.consoleId, it.file.fileName) != null },
                     onRowFocused = { focusedItem = it },
                     onRowLongClick = viewModel::openDetails,
                     query = query,
@@ -777,6 +782,7 @@ private fun ResultList(
     onRowLongClick: (DownloadableFileWithTags) -> Unit,
     modifier: Modifier = Modifier,
     isOnRomm: (DownloadableFileWithTags) -> Boolean = { false },
+    hasAchievements: (DownloadableFileWithTags) -> Boolean = { false },
     /** What the user searched for, offered for the wishlist when nothing is found. */
     query: String = "",
     onAddWish: (() -> Unit)? = null,
@@ -864,6 +870,7 @@ private fun ResultList(
                 favourite = isFavourite(item),
                 downloading = isDownloading(item),
                 isNew = isNew(item),
+                achievements = hasAchievements(item),
                 contentShift = contentShift,
                 // RB from the filters lands on the first row currently on screen.
                 modifier = when {

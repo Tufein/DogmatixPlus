@@ -56,6 +56,8 @@ fun RomRow(
     downloading: Boolean = false,
     /** A recent rescan found this file (see [com.cortinadev.dogmatix.util.NewGames]). */
     isNew: Boolean = false,
+    /** RetroAchievements has achievements for this game (see RetroAchievementsService). */
+    achievements: Boolean = false,
     /**
      * Horizontal shift (px) of the left-anchored content, read at placement time so the filter
      * panel animation can slide names along without re-measuring the row. 0 when idle.
@@ -87,6 +89,7 @@ fun RomRow(
                 if (downloading) DownloadingBadge() else if (owned) OwnedBadge()
                 if (onRomm) RommBadge()
                 if (isNew) NewBadge()
+                if (achievements) RaBadge()
                 Text(
                     stripExtension(rom.name),
                     style = MaterialTheme.typography.bodyLarge,
@@ -121,6 +124,7 @@ fun RomRow(
                     if (downloading) DownloadingBadge() else if (owned) OwnedBadge()
                     if (onRomm) RommBadge()
                     if (isNew) NewBadge()
+                    if (achievements) RaBadge()
                     Text(
                         stripExtension(rom.name),
                         style = MaterialTheme.typography.bodyLarge,
@@ -184,6 +188,21 @@ private fun RommBadge() {
         modifier = Modifier
             .clip(RoundedCornerShape(6.dp))
             .background(MaterialTheme.colorScheme.secondaryContainer)
+            .padding(horizontal = 6.dp, vertical = 1.dp)
+    )
+}
+
+/** Small "RA" pill: RetroAchievements has achievements for this game. */
+@Composable
+private fun RaBadge() {
+    Text(
+        "RA",
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onPrimary,
+        maxLines = 1,
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(MaterialTheme.colorScheme.primary)
             .padding(horizontal = 6.dp, vertical = 1.dp)
     )
 }

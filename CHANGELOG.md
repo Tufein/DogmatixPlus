@@ -3,6 +3,52 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [3.0.0] – 2026-10-04 · Dogmatix+
+
+### Downloads
+- **Continue where it stopped.** A web download cut off by a full storage, a closed app or a
+  reboot now carries on from its partial file when you retry: Dogmatix+ asks for the rest with a
+  `Range` request and appends it only when the server answers with exactly the missing part of the
+  same file (`If-Range` with the ETag / Last-Modified it saw first). A file of the same name that
+  Dogmatix+ did not write itself is never appended to. *Settings → Continue interrupted downloads*
+  (on by default). Tested: 7.3 of 8 MB, app force-stopped, reopened — it fetched the last 1.1 MB and
+  the file's MD5 matched.
+- **The queue survives a restart.** Downloads that were queued or running when the app closed (or
+  the phone rebooted) join the queue again when you open Dogmatix+, with a short notice. Paused ones
+  stay paused. *Settings → Continue the queue after a restart*.
+- **Per server**: at most 1–6 downloads at once from one server (*Settings → Per server*), so a
+  strict host does not block you; a download whose server is at its limit lets those of other
+  servers go first.
+- **Download wishlist games automatically** (*Settings*): when a scan finds a wanted game, its best
+  version (your languages and regions) is downloaded at once, unless you already have it. Every
+  word of the wish must be in the file name, so "Game 00321" does not take "Game 03215".
+- **Playlists for multi-disc games**: when the last disc of a game is in, its `.m3u` is written
+  next to the discs (*Settings*, on by default).
+- **Storage advisor in "Download everything shown"**: the dialog shows where the space goes per
+  console, how much is missing when it does not fit, and how much removing duplicate games would
+  free, with a button to the duplicates screen.
+
+### Library
+- **Covers for ES-DE** (*Settings*): after a download the game's box art goes to ES-DE's
+  `downloaded_media/<system>/covers`, and name, description, date, developer and genre to its
+  gamelist (unless ES-DE already has the game). Cocoon's ES-DE link reads them too. Box art comes
+  from libretro-thumbnails (matched on the No-Intro / Redump file name, no key needed) when the game
+  databases have none; the details card uses it as well.
+- **RetroAchievements** (*Library tools → RetroAchievements*): with your RA name and web API key,
+  check per console which games have achievements — files on the device by their RA hash (RA's own
+  rules: NES / SNES / Lynx / 7800 headers, N64 byte order; cartridge systems), games only in your
+  sources through an imported No-Intro DAT. Supported games get an **RA** badge in the library; the
+  details card says how many achievements (or "probably", when matched by title only).
+- **Profiles** (*Settings → Profiles*): a profile hides consoles and games with chosen tags from
+  the library and its downloads (a child's profile, a couch profile). With a PIN, only someone who
+  knows it can leave a restricted profile, and profiles and the PIN cannot be changed from inside one.
+- **What you play** (*Statistics*): the games ES-DE started most and most recently. ES-DE records
+  play counts, not play time; Cocoon keeps its play time in its own private database.
+
+### Fixed
+- The app read some settings with a blocking call while starting; on a slow device that could
+  delay the first screen. Those reads now happen in the background.
+
 ## [2.6.0] – 2026-10-04 · Dogmatix+
 
 ### Fixed

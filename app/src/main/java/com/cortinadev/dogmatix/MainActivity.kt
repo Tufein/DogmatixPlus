@@ -112,13 +112,18 @@ class MainActivity : AppCompatActivity() {
         hideSystemBars()
         Gamepad.startWatching(this)
         handleDeepLink(intent)
+        // Downloads that were cut off when the app closed join the queue again (once per run).
+        lifecycleScope.launch {
+            val n = downloadService.requeueInterrupted()
+            if (n > 0) ToastUtil.showInfo(this@MainActivity, resources.getQuantityString(R.plurals.downloads_requeued, n, n))
+        }
         // A second display (dual-screen handheld, TV) shows the game under the cursor and the downloads.
         lifecycleScope.launch {
             appSettings.secondScreen.collect { on ->
                 secondScreen?.stop()
                 secondScreen = if (!on) null else com.cortinadev.dogmatix.ui.secondscreen.SecondScreenPresenter(
                     this@MainActivity, downloadService.downloads
-                ) { item -> metadataService.lookup(item.file.name, item.file.consoleId) }.also { it.start() }
+                ) { item -> metadataService.lookup(item.file.name, item.file.consoleId, item.file.fileName) }.also { it.start() }
             }
         }
         setContent {
@@ -414,6 +419,8 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.Dat.route) { com.cortinadev.dogmatix.ui.screens.tools.DatScreen() }
                     composable(NavRoutes.Bios.route) { com.cortinadev.dogmatix.ui.screens.tools.BiosScreen() }
                     composable(NavRoutes.Stats.route) { com.cortinadev.dogmatix.ui.screens.tools.StatsScreen() }
+                    composable(NavRoutes.Profiles.route) { com.cortinadev.dogmatix.ui.screens.tools.ProfilesScreen() }
+                    composable(NavRoutes.RetroAchievements.route) { com.cortinadev.dogmatix.ui.screens.tools.RetroAchievementsScreen() }
                 }
             }
 

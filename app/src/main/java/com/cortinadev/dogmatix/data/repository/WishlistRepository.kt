@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,7 +36,11 @@ class WishlistRepository @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val dao: WishlistDao,
     private val fileDao: DownloadableFileDao,
-    rescanStateHolder: RescanStateHolder
+    rescanStateHolder: RescanStateHolder,
+    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings,
+    private val settingsRepository: SettingsRepository,
+    private val downloadService: com.cortinadev.dogmatix.data.service.DownloadService,
+    private val libraryIndex: dagger.Lazy<com.cortinadev.dogmatix.data.service.LibraryIndexService>
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -69,7 +74,32 @@ class WishlistRepository @Inject constructor(
         val now = System.currentTimeMillis()
         found.forEach { dao.markNotified(it.id, now) }
         notify(found)
+        if (appSettings.wishlistAutoDownload.first()) autoDownload(found)
         return found
+    }
+
+    /**
+     * Downloads the best version of each newly found wanted game (by the user's favourite
+     * languages), unless a version is already on the device or downloading. One per console.
+     */
+    suspend fun autoDownload(found: List<WishlistEntity>): Int {
+        val languages = settingsRepository.favoriteLanguages.first()
+        val regions = com.cortinadev.dogmatix.util.VersionPicker.regionPreference(languages)
+        val index = libraryIndex.get()
+        val picks = found.flatMap { item ->
+            fileDao.filesMatching(item.key, item.consoleId)
+                .filter { com.cortinadev.dogmatix.util.GameTitleCleaner.containsAllWords(item.title, it.fileName) }
+                .groupBy { it.consoleId }.mapNotNull { (_, files) ->
+                if (files.any { index.isOwned(it) || downloadService.isActive(it.fileName) }) return@mapNotNull null
+                val best = com.cortinadev.dogmatix.util.VersionPicker.best(
+                    files.map { com.cortinadev.dogmatix.util.VersionPicker.Candidate(it.fileName, it.fileName, fileDao.tagsOf(it.id), it.fileSize) },
+                    regions, languages
+                ) ?: return@mapNotNull null
+                files.first { it.fileName == best.id }
+            }
+        }.distinctBy { it.fileName }
+        if (picks.isNotEmpty()) downloadService.startDownloads(picks)
+        return picks.size
     }
 
     private fun notify(found: List<WishlistEntity>) {

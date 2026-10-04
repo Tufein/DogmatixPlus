@@ -53,6 +53,10 @@ interface DownloadableFileDao {
                 SELECT 1 FROM favourites f WHERE f.consoleId = df.consoleId AND f.fileName = df.fileName
           ))
           AND (:newSince = 0 OR df.firstSeenAt >= :newSince)
+          AND (:hiddenConsolesCount = 0 OR df.consoleId NOT IN (:hiddenConsoles))
+          AND (:hiddenTagsCount = 0 OR NOT EXISTS (
+                SELECT 1 FROM downloadable_file_tags t_hidden WHERE t_hidden.fileId = df.id AND t_hidden.tag IN (:hiddenTags)
+          ))
           AND (:collectionId = 0 OR EXISTS (
                 SELECT 1 FROM collection_items ci WHERE ci.collectionId = :collectionId AND ci.consoleId = df.consoleId AND ci.fileName = df.fileName
           ))
@@ -91,6 +95,12 @@ interface DownloadableFileDao {
         newSince: Long,
         /** Only games in this collection; 0 = any. */
         collectionId: Long,
+        /** Consoles the active profile hides. */
+        hiddenConsoles: List<String> = emptyList(),
+        hiddenConsolesCount: Int = 0,
+        /** Tags the active profile hides (a game with any of them is left out). */
+        hiddenTags: List<String> = emptyList(),
+        hiddenTagsCount: Int = 0,
         /** [com.cortinadev.dogmatix.data.model.SourceFilter] ordinal: 0 all, 1 torrent, 2 RomM, 3 direct HTTP. */
         source: Int,
         /** [com.cortinadev.dogmatix.data.model.SortOption] ordinal: 0 A→Z, 1 Z→A, 2 biggest first, 3 smallest first, 4 newest first. */
@@ -122,6 +132,10 @@ interface DownloadableFileDao {
 
     @Query("SELECT * FROM downloadable_files WHERE fileName = :fileName LIMIT 1")
     suspend fun getFileByFileName(fileName: String): DownloadableFileEntity?
+
+    /** Library rows whose title contains [key], optionally of one console (for the wishlist's automatic download). */
+    @Query("SELECT * FROM downloadable_files WHERE searchKey LIKE '%' || :key || '%' AND (:consoleId IS NULL OR consoleId = :consoleId) LIMIT :limit")
+    suspend fun filesMatching(key: String, consoleId: String?, limit: Int = 50): List<DownloadableFileEntity>
 
     @Query("SELECT tag FROM downloadable_file_tags WHERE fileId = :fileId ORDER BY tag ASC")
     suspend fun getTagsForFile(fileId: Long): List<String>

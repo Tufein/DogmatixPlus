@@ -31,6 +31,12 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveau dans 3.0
+- **Les téléchargements reprennent là où ils s'étaient arrêtés** (stockage plein, appli fermée, redémarrage) et **la file survit à un redémarrage** ; une **limite par serveur** évite les blocages.
+- **Liste d'envies en pilote automatique**, **playlists .m3u** pour les jeux multi-disques, et un **conseiller de stockage** quand « Tout télécharger » ne tient pas.
+- **Jaquettes pour ES-DE** (et le lien ES-DE de Cocoon) après chaque téléchargement, depuis libretro-thumbnails.
+- **Badges RetroAchievements**, **profils avec code**, et **ce à quoi vous jouez** depuis ES-DE dans les statistiques.
+
 ### Nouveau dans 2.6
 - **Plus de fermetures forcées avec de longues files de téléchargement** : des centaines de téléchargements en attente restent fluides.
 - **Cocoon** : ajoutez Dogmatix+ en tuiles par console, vue enregistrée ou Téléchargements (*Réglages → Cocoon*) ; les mêmes raccourcis apparaissent par un appui long sur l'icône.

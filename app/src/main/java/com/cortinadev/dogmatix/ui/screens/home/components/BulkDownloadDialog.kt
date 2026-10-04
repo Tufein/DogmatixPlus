@@ -35,7 +35,10 @@ import com.cortinadev.dogmatix.util.BulkPlanner
 fun BulkDownloadDialog(
     plan: suspend (bestOnly: Boolean) -> BulkPlan,
     onConfirm: (BulkPlan) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    /** Space that removing duplicate games would free, or null when unknown (a scan of the folders). */
+    reclaimable: suspend () -> Long? = { null },
+    onFreeUp: () -> Unit = {}
 ) {
     var bestOnly by remember { mutableStateOf(true) }
     var current by remember { mutableStateOf<BulkPlan?>(null) }
@@ -72,7 +75,24 @@ fun BulkDownloadDialog(
                     }
                     if (skipped.isNotEmpty()) Text(skipped.joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     p.freeBytes?.let { Text(stringResource(R.string.bulk_free, formatBytes(it)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                    if (!p.fits) Text(stringResource(R.string.bulk_no_room), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+                    // Where the space goes, per console (when more than one).
+                    if (p.perConsole.size > 1) Text(
+                        p.perConsole.take(6).joinToString("  ·  ") { (c, n, b) -> "${com.cortinadev.dogmatix.util.ConsoleFormatter.getConsoleShortName(c)} $n · ${formatBytes(b)}" },
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (!p.fits) {
+                        Text(stringResource(R.string.bulk_no_room_short, formatBytes(p.shortBytes)), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+                        var freeable by remember(p) { mutableStateOf<Long?>(-1L) }
+                        LaunchedEffect(p) { freeable = reclaimable() }
+                        when (val f = freeable) {
+                            -1L -> Text(stringResource(R.string.bulk_checking_duplicates), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            null, 0L -> Unit
+                            else -> {
+                                Text(stringResource(R.string.bulk_duplicates_free, formatBytes(f)), style = MaterialTheme.typography.bodySmall)
+                                DialogButton(stringResource(R.string.bulk_free_up), onClick = onFreeUp)
+                            }
+                        }
+                    }
                     if (p.chosen.size >= BulkPlanner.MAX_FILES) Text(stringResource(R.string.bulk_capped, BulkPlanner.MAX_FILES), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }

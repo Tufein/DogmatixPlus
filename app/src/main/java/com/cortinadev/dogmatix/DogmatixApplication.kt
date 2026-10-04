@@ -69,12 +69,17 @@ class DogmatixApplication : Application() {
     @Inject
     lateinit var appShortcutService: com.cortinadev.dogmatix.data.service.AppShortcutService
 
+    /** After a download: the .m3u of a multi-disc game, cover and description for ES-DE. */
+    @Inject
+    lateinit var postDownloadService: com.cortinadev.dogmatix.data.service.PostDownloadService
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
     override fun onCreate() {
         super.onCreate()
         com.cortinadev.dogmatix.util.CrashLog.install(this)
         appShortcutService.start()
+        postDownloadService.start()
 
         createNotificationChannel()
 

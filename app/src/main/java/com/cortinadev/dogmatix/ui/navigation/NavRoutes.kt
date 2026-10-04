@@ -22,10 +22,12 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     object Dat : NavRoutes("dat", R.string.nav_dat, R.drawable.ic_check)
     object Bios : NavRoutes("bios", R.string.nav_bios, R.drawable.ic_check)
     object Stats : NavRoutes("stats", R.string.nav_stats, R.drawable.ic_sort)
+    object Profiles : NavRoutes("profiles", R.string.settings_profiles, R.drawable.ic_settings)
+    object RetroAchievements : NavRoutes("retroachievements", R.string.nav_ra, R.drawable.ic_star)
 
     companion object {
         /** The four sections shown as tabs; Contact, RomM and the library tools are reached from Settings. */
         val tabs by lazy { listOf(Home, Downloads, Sources, Settings) }
-        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + Bios + Stats }
+        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + Bios + Stats + Profiles + RetroAchievements }
     }
 }

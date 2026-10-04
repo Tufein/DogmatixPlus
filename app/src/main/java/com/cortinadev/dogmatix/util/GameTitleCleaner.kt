@@ -35,6 +35,16 @@ object GameTitleCleaner {
         return wanted.count { it in found } * 2 > wanted.size
     }
 
+    /**
+     * Strict: every word of [title] is a whole word of [candidate]'s cleaned title (tags and the
+     * extension ignored). For downloading something automatically, where [matches]' majority
+     * vote would let "Game 00321" take "Game 03215".
+     */
+    fun containsAllWords(title: String, candidate: String): Boolean {
+        val wanted = tokens(title)
+        return wanted.isNotEmpty() && tokens(clean(candidate)).containsAll(wanted)
+    }
+
     private fun tokens(text: String): Set<String> {
         val ascii = Normalizer.normalize(text.lowercase(), Normalizer.Form.NFD).replace(Regex("\\p{M}"), "")
         return ascii.split(Regex("[^a-z0-9]+")).filter { it.isNotEmpty() && it !in fillers }.toSet()

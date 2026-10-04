@@ -72,7 +72,9 @@ class DownloadService @Inject constructor(
     private val realDebridClient: RealDebridClient,
     private val rommClient: RommClient,
     private val downloadGate: DownloadGate,
-    private val consoleDao: com.cortinadev.dogmatix.data.local.dao.ConsoleDao
+    private val consoleDao: com.cortinadev.dogmatix.data.local.dao.ConsoleDao,
+    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings,
+    private val partials: PartialDownloads
 ) {
     val downloads: StateFlow<List<DownloadItemModel>> = downloadProgressTracker.downloads
 
@@ -120,7 +122,26 @@ class DownloadService @Inject constructor(
         serviceScope.launch {
             settingsRepository.concurrentDownloads.collect { max -> queue.setSlots(max) }
         }
+        serviceScope.launch { appSettings.perServerLimit.collect { queue.setPerHost(it) } }
         serviceScope.launch { restoreHistory() }
+    }
+
+    /** Downloads that were queued or running when the process ended, oldest first (filled by [restoreHistory]). */
+    private val interrupted = java.util.concurrent.CopyOnWriteArrayList<String>()
+    private val restored = kotlinx.coroutines.CompletableDeferred<Unit>()
+    private val requeueDone = java.util.concurrent.atomic.AtomicBoolean(false)
+
+    /**
+     * Puts the downloads that were interrupted by the app closing back in the queue (once per
+     * run, when the user opens the app and *Settings → Continue the queue after a restart* is on).
+     * Returns how many.
+     */
+    suspend fun requeueInterrupted(): Int {
+        restored.await()
+        if (!requeueDone.compareAndSet(false, true) || !appSettings.requeueAfterRestart.first()) return 0
+        val names = interrupted.toList().also { interrupted.clear() }
+        names.forEach { retryDownload(it) }
+        return names.size
     }
 
     /**
@@ -132,6 +153,9 @@ class DownloadService @Inject constructor(
             val rows = historyDao.getAll()
             rows.forEach { row -> downloadEntities.putIfAbsent(row.fileName, row.toEntity()) }
             val items = rows.map { it.toItem() }
+            // Queued or running when the process ended (not paused: that was the user's choice).
+            interrupted += rows.filter { it.status in setOf(DownloadStatus.QUEUED.name, DownloadStatus.DOWNLOADING.name, DownloadStatus.COPYING.name, DownloadStatus.UNZIPPING.name) }
+                .sortedBy { it.startedAt }.map { it.fileName }
             downloadProgressTracker.restore(items)
             items.filter { it.status == DownloadStatus.STOPPED }.forEach { item ->
                 val row = rows.first { it.fileName == item.fileName }
@@ -142,6 +166,8 @@ class DownloadService @Inject constructor(
             Log.d(TAG, "Restored ${rows.size} download(s) from history")
         } catch (e: Exception) {
             Log.e(TAG, "Could not restore download history: ${e.message}")
+        } finally {
+            restored.complete(Unit)
         }
     }
 
@@ -174,7 +200,7 @@ class DownloadService @Inject constructor(
         // Registered before it starts, so a download that ends at once cannot leave a stale entry.
         val job = serviceScope.launch(start = kotlinx.coroutines.CoroutineStart.LAZY) {
             try {
-                withSlot(file.fileName) {
+                withSlot(file) {
                     awaitSchedule(file.fileName)
                     // Brief delay to allow the foreground service and initial UI state to settle
                     // before network/torrent activity begins.
@@ -198,9 +224,11 @@ class DownloadService @Inject constructor(
         job.start()
     }
 
-    private suspend fun withSlot(fileName: String, block: suspend () -> Unit) {
-        queue.acquire(fileName)
-        try { block() } finally { queue.release() }
+    private suspend fun withSlot(file: DownloadableFileEntity, block: suspend () -> Unit) {
+        // Torrents have no single server; web downloads count against their host's limit.
+        val host = if (file.isTorrent) "" else runCatching { java.net.URI(file.downloadUrl).host.orEmpty() }.getOrDefault("")
+        queue.acquire(file.fileName, host)
+        try { block() } finally { queue.release(host) }
     }
 
     /** Tells the user (once per minute at most) that downloads stopped for lack of space. */
@@ -601,15 +629,20 @@ class DownloadService @Inject constructor(
 
         try {
             val subPath = downloadFileManager.getSubPath(file)
-            val partial = if (resumable) downloadFileManager.findExistingFile(file, downloadDirUri.toString(), subPath) else null
+            // Only a partial file this app wrote (and noted) is continued; see PartialDownloads.
+            val resume = resumable && appSettings.resumeDownloads.first()
+            val record = if (resume) partials.get(file.fileName) else null
+            val partial = if (record != null) downloadFileManager.findExistingFile(file, downloadDirUri.toString(), subPath) else null
             val partialBytes = partial?.length() ?: 0L
             // Files served by the RomM library need the account's credentials.
-            val headers = if (RommSource.isDownloadFrom(rommClient.configuredBaseUrl(), downloadUrl)) rommClient.downloadHeaders() else emptyMap()
+            val auth = if (RommSource.isDownloadFrom(rommClient.configuredBaseUrl(), downloadUrl)) rommClient.downloadHeaders() else emptyMap()
+            val headers = if (partialBytes > 0 && record?.validator != null) auth + ("If-Range" to record.validator) else auth
             val connection = downloadHttpClient.createConnection(downloadUrl, rangeStart = partialBytes, headers = headers)
             inputStream = connection.inputStream
 
             val startOffset: Long
-            if (partial != null && partialBytes > 0L && connection.responseCode == java.net.HttpURLConnection.HTTP_PARTIAL) {
+            val action = com.cortinadev.dogmatix.util.ResumePlan.decide(partialBytes, connection.responseCode, connection.getHeaderField("Content-Range"), file.fileSize)
+            if (partial != null && action == com.cortinadev.dogmatix.util.ResumePlan.Action.APPEND) {
                 documentFile = partial
                 outputStream = downloadFileManager.getAppendOutputStream(partial)
                     ?: throw Exception("Failed to open output stream for ${partial.uri}")
@@ -621,6 +654,8 @@ class DownloadService @Inject constructor(
                 outputStream = downloadFileManager.getOutputStream(documentFile)
                     ?: throw Exception("Failed to open output stream for ${documentFile.uri}")
                 startOffset = 0L
+                if (resume) partials.put(file.fileName, PartialDownloads.Record(downloadUrl,
+                    com.cortinadev.dogmatix.util.ResumePlan.validator(connection.getHeaderField("ETag"), connection.getHeaderField("Last-Modified"))))
             }
             val contentLength = connection.contentLengthLong.let { if (it > 0) it + startOffset else it }
             if (file.fileSize <= 0) downloadProgressTracker.learnFileSize(file.fileName, contentLength)
@@ -631,11 +666,16 @@ class DownloadService @Inject constructor(
             }
 
             streamWithProgress(inputStream, outputStream, file, contentLength, startOffset)
+            partials.remove(file.fileName)
             handlePostDownload(file, documentFile, subPath)
 
         } catch (e: kotlinx.coroutines.CancellationException) {
             if (!resumable) documentFile?.let { downloadFileManager.deleteFile(it) }
             updateStatus(file.fileName, DownloadStatus.STOPPED)
+            throw e
+        } catch (e: LowStorageException) {
+            // Out of room: keep what is there (when resuming is on) so *Retry* carries on from it.
+            if (!resumable || partials.get(file.fileName) == null) { documentFile?.let { downloadFileManager.deleteFile(it) }; partials.remove(file.fileName) }
             throw e
         } catch (e: Exception) {
             if (!resumable) documentFile?.let { downloadFileManager.deleteFile(it) }
@@ -789,6 +829,9 @@ class DownloadService @Inject constructor(
             Log.w(TAG, "Foreground service not started: ${e.message}")
         }
     }
+
+    /** True while [fileName] is queued, downloading, copying or unpacking. */
+    fun isActive(fileName: String): Boolean = downloadProgressTracker.isActive(fileName)
 
     /** True while any download is queued, running, copying or unpacking. */
     fun hasActiveDownloads(): Boolean = downloadProgressTracker.hasActiveDownloads()

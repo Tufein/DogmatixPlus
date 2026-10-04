@@ -123,6 +123,8 @@ fun SettingsScreen(
     val more by extra.state.collectAsState()
     val v2 by extra.v2.collectAsState()
     val v25 by extra.v25.collectAsState()
+    val v30 by extra.v30.collectAsState()
+    val activeProfileName by extra.activeProfileName.collectAsState()
     val updateOffer by extra.updateOffer.collectAsState()
     val updateProgress by extra.updateProgress.collectAsState()
     val context = LocalContext.current
@@ -440,6 +442,43 @@ fun SettingsScreen(
         },
         SettingsRow(right = true) {
             SettingRow(
+                title = stringResource(R.string.settings_per_server),
+                hint = stringResource(R.string.settings_per_server_hint),
+                onClick = { extra.shiftPerServer(context, 1) },
+                onAdjust = { extra.shiftPerServer(context, it) }
+            ) {
+                Stepper(
+                    if (v30.perServer == 0) stringResource(R.string.settings_off) else "${v30.perServer}",
+                    onDecrement = { extra.shiftPerServer(context, -1) }, onIncrement = { extra.shiftPerServer(context, 1) }, valueWidth = 96.dp
+                )
+            }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
+                title = stringResource(R.string.settings_resume),
+                hint = stringResource(R.string.settings_resume_hint),
+                onClick = { extra.setResume(context, !v30.resume) },
+                onAdjust = { extra.setResume(context, it > 0) }
+            ) { ThemedSwitch(v30.resume) { extra.setResume(context, it) } }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
+                title = stringResource(R.string.settings_requeue),
+                hint = stringResource(R.string.settings_requeue_hint),
+                onClick = { extra.setRequeue(context, !v30.requeue) },
+                onAdjust = { extra.setRequeue(context, it > 0) }
+            ) { ThemedSwitch(v30.requeue) { extra.setRequeue(context, it) } }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
+                title = stringResource(R.string.settings_wishlist_auto),
+                hint = stringResource(R.string.settings_wishlist_auto_hint),
+                onClick = { extra.setWishlistAuto(context, !v30.wishlistAuto) },
+                onAdjust = { extra.setWishlistAuto(context, it > 0) }
+            ) { ThemedSwitch(v30.wishlistAuto) { extra.setWishlistAuto(context, it) } }
+        },
+        SettingsRow(right = true) {
+            SettingRow(
                 title = stringResource(R.string.settings_metadata_timeout),
                 hint = stringResource(R.string.settings_metadata_timeout_hint),
                 onClick = { adjustMetadataTimeout(1) },
@@ -457,6 +496,14 @@ fun SettingsScreen(
             ) {
                 ThemedSwitch(ui.autoUnzip) { viewModel.onAutoUnzipChanged(context, it) }
             }
+        },
+        SettingsRow(right = false) {
+            SettingRow(
+                title = stringResource(R.string.settings_auto_m3u),
+                hint = stringResource(R.string.settings_auto_m3u_hint),
+                onClick = { extra.setAutoM3u(context, !v30.autoM3u) },
+                onAdjust = { extra.setAutoM3u(context, it > 0) }
+            ) { ThemedSwitch(v30.autoM3u) { extra.setAutoM3u(context, it) } }
         },
         SettingsRow(right = true) {
             SettingRow(
@@ -693,6 +740,23 @@ fun SettingsScreen(
                 onClick = { viewModel.onPrepareDaijisho(context) }
             ) {
                 PillButton(stringResource(R.string.settings_daijisho_action)) { viewModel.onPrepareDaijisho(context) }
+            }
+        },
+        SettingsRow(right = false) {
+            SettingRow(
+                title = stringResource(R.string.settings_esde_artwork),
+                hint = stringResource(R.string.settings_esde_artwork_hint),
+                onClick = { extra.setEsdeArtwork(context, !v30.esdeArtwork) },
+                onAdjust = { extra.setEsdeArtwork(context, it > 0) }
+            ) { ThemedSwitch(v30.esdeArtwork) { extra.setEsdeArtwork(context, it) } }
+        },
+        SettingsRow(right = false) {
+            SettingRow(
+                title = stringResource(R.string.settings_profiles),
+                hint = activeProfileName?.let { stringResource(R.string.settings_profiles_active, it) } ?: stringResource(R.string.settings_profiles_hint),
+                onClick = { navController.navigate(NavRoutes.Profiles.route) }
+            ) {
+                Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
         SettingsRow(right = false) {

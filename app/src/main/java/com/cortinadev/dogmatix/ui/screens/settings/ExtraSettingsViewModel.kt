@@ -49,6 +49,15 @@ data class V25SettingsState(
     val secondScreen: Boolean = true
 )
 
+data class V30SettingsState(
+    val resume: Boolean = true,
+    val requeue: Boolean = true,
+    val perServer: Int = 0,
+    val esdeArtwork: Boolean = false,
+    val wishlistAuto: Boolean = false,
+    val autoM3u: Boolean = true
+)
+
 @HiltViewModel
 class ExtraSettingsViewModel @Inject constructor(
     private val autoBackupScheduler: com.cortinadev.dogmatix.data.service.AutoBackupScheduler,
@@ -56,8 +65,14 @@ class ExtraSettingsViewModel @Inject constructor(
     private val appSettings: AppSettings,
     private val updateInstaller: com.cortinadev.dogmatix.data.service.UpdateInstaller,
     private val versionChecker: VersionCheckerService,
-    private val diagnostics: DiagnosticsService
+    private val diagnostics: DiagnosticsService,
+    private val profiles: com.cortinadev.dogmatix.data.service.ProfileService
 ) : ViewModel() {
+
+    /** Name of the active profile, or null when everything is shown. */
+    val activeProfileName: StateFlow<String?> = combine(profiles.profiles, profiles.activeId) { list, id -> list.firstOrNull { it.id == id }?.name }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
 
     val state: StateFlow<ExtraSettingsState> = combine(
         combine(settings.downloadWifiOnly, settings.downloadChargingOnly, settings.downloadNightOnly) { w, c, n -> Triple(w, c, n) },
@@ -76,6 +91,23 @@ class ExtraSettingsViewModel @Inject constructor(
         appSettings.minFreeGb, appSettings.autoBackup, appSettings.autoBackupDir, appSettings.autoBackupLast, appSettings.secondScreen
     ) { gb, backup, dir, last, second -> V25SettingsState(gb, backup, dir, last, second) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V25SettingsState())
+
+    val v30: StateFlow<V30SettingsState> = combine(
+        combine(appSettings.resumeDownloads, appSettings.requeueAfterRestart, appSettings.perServerLimit) { r, q, p -> Triple(r, q, p) },
+        appSettings.esdeArtwork, appSettings.wishlistAutoDownload, appSettings.autoM3u
+    ) { (r, q, p), art, wish, m3u -> V30SettingsState(r, q, p, art, wish, m3u) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V30SettingsState())
+
+    fun setResume(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setResumeDownloads(on) }
+    fun setRequeue(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setRequeueAfterRestart(on) }
+    fun shiftPerServer(context: Context, delta: Int) = executeWithToast(context, TAG) {
+        val choices = listOf(0, 1, 2, 3, 4, 6)
+        val i = choices.indexOf(v30.value.perServer).takeIf { it >= 0 } ?: 0
+        appSettings.setPerServerLimit(choices[(i + delta).coerceIn(0, choices.lastIndex)])
+    }
+    fun setEsdeArtwork(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setEsdeArtwork(on) }
+    fun setWishlistAuto(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setWishlistAutoDownload(on) }
+    fun setAutoM3u(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoM3u(on) }
 
     fun shiftMinFree(context: Context, delta: Int) = executeWithToast(context, TAG) {
         val choices = listOf(0, 1, 2, 5, 10, 20, 50)

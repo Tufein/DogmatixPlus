@@ -978,6 +978,80 @@
     <string name="settings_cocoon_hint">Zet Dogmatix+ als tegels in Cocoon: per console, een opgeslagen weergave of Downloads</string>
     <string name="cocoon_dialog_title">Dogmatix+ in Cocoon</string>
     <string name="cocoon_dialog_body">Cocoon neemt app-snelkoppelingen van Android over, en Dogmatix+ biedt er een voor elke console, elke opgeslagen weergave en Downloads.\n\n1. Open in Cocoon Add Games en kies de Android-snelkoppelingen.\n2. Kies Dogmatix+ en de console of weergave die je wilt.\n3. Geef hem het platform van die console, dan staat hij bij de games van die console.\n\nDe tegel opent Dogmatix+ op die console of weergave. Nieuwe consoles en weergaven verschijnen vanzelf in de lijst.\n\nTip: gebruik in Cocoon liever deze tegels dan de .dgmtx-bestanden (Instellingen → Frontend-snelkoppelingen): Cocoon ziet die bestanden als games en probeert ze in de emulator te starten.</string>
+    <string name="settings_resume">Onderbroken downloads hervatten</string>
+    <string name="settings_resume_hint">Opnieuw proberen gaat verder waar hij stopte (geen ruimte, app gesloten), als de server het toestaat</string>
+    <string name="settings_requeue">Wachtrij hervatten na een herstart</string>
+    <string name="settings_requeue_hint">Downloads die onderbroken werden door het sluiten van de app of een herstart, starten weer als je Dogmatix+ opent</string>
+    <string name="settings_per_server">Per server</string>
+    <string name="settings_per_server_hint">Hoogstens zoveel downloads tegelijk van één server, zodat die je niet blokkeert</string>
+    <string name="settings_wishlist_auto">Verlanglijst-games automatisch downloaden</string>
+    <string name="settings_wishlist_auto_hint">Duikt een gewenste game op in een bron, dan wordt de beste versie meteen gedownload</string>
+    <string name="settings_auto_m3u">Afspeellijsten voor games met meerdere schijven</string>
+    <string name="settings_auto_m3u_hint">Maakt de .m3u zodra alle schijven van een game binnen zijn</string>
+    <string name="settings_esde_artwork">Covers voor ES-DE</string>
+    <string name="settings_esde_artwork_hint">Na een download: cover en beschrijving in de map van ES-DE (Cocoon ziet ze ook via de ES-DE-koppeling)</string>
+    <string name="settings_profiles">Profielen</string>
+    <string name="settings_profiles_hint">Verberg consoles of tags, voor een kind of een bankprofiel</string>
+    <string name="settings_profiles_active">Actief: %1$s</string>
+    <string name="profiles_intro">Een profiel verbergt consoles en games met bepaalde tags uit de bibliotheek en uit het downloaden daaruit. Met een pincode kan alleen wie die kent een beperkt profiel verlaten.</string>
+    <string name="profiles_everything">Alles</string>
+    <string name="profiles_everything_hint">Geen profiel: de hele bibliotheek</string>
+    <string name="profiles_active_badge">Actief</string>
+    <string name="profiles_use">Gebruiken</string>
+    <string name="profiles_edit">Bewerken</string>
+    <string name="profiles_delete">Verwijderen</string>
+    <string name="profiles_add">Nieuw profiel</string>
+    <string name="profiles_add_hint">Kies wat het verbergt</string>
+    <string name="profiles_add_action">Toevoegen</string>
+    <string name="profiles_edit_title">Profiel</string>
+    <string name="profiles_name">Naam</string>
+    <string name="profiles_tags_label">Verborgen tags</string>
+    <string name="profiles_tags_hint">Gescheiden door komma\'s, bv. Adult, Hack, Beta</string>
+    <string name="profiles_consoles_label">Consoles (✕ = verborgen)</string>
+    <string name="profiles_hides_consoles">Verbergt %1$s</string>
+    <string name="profiles_hides_tags">Verbergt games met tag %1$s</string>
+    <string name="profiles_hides_nothing">Verbergt nog niets</string>
+    <string name="profiles_save">Opslaan</string>
+    <string name="profiles_pin">Pincode</string>
+    <string name="profiles_pin_on">Nodig om een beperkt profiel te verlaten</string>
+    <string name="profiles_pin_off">Niet ingesteld: iedereen kan van profiel wisselen</string>
+    <string name="profiles_pin_action">Instellen</string>
+    <string name="profiles_pin_label">Pincode (4–8 cijfers)</string>
+    <string name="profiles_set_pin_title">Pincode om een profiel te verlaten (leeg verwijdert hem)</string>
+    <string name="profiles_enter_pin">Voer de pincode in</string>
+    <string name="profiles_wrong_pin">Verkeerde pincode</string>
+    <string name="profiles_switched">Profiel gewisseld</string>
+    <string name="profiles_pin_set">Pincode ingesteld</string>
+    <string name="profiles_pin_removed">Pincode verwijderd</string>
+    <string name="profiles_pin_locked">Wissel eerst naar Alles</string>
+    <string name="nav_ra">RetroAchievements</string>
+    <string name="tools_ra_hint">Welke van je games achievements hebben</string>
+    <string name="ra_intro">Controleert je games bij RetroAchievements: bestanden op het toestel via hun hash (cartridgesystemen), games die alleen in je bronnen staan via een geïmporteerde No-Intro-DAT. Ondersteunde games krijgen een RA-label in de bibliotheek. Je RA-naam en web-API-sleutel zijn nodig.</string>
+    <string name="ra_account">RetroAchievements-account</string>
+    <string name="ra_account_hint">Niet ingesteld: voeg je RA-naam en web-API-sleutel toe</string>
+    <string name="ra_account_set">Ingesteld als %1$s</string>
+    <string name="ra_account_action">Instellen</string>
+    <string name="ra_key_where">Je vindt de web-API-sleutel op retroachievements.org onder Settings → Keys. Hij blijft op dit toestel en in je back-ups.</string>
+    <string name="ra_user_label">RA-gebruikersnaam</string>
+    <string name="ra_key_label">Web-API-sleutel</string>
+    <string name="ra_no_consoles">Geen van je consoles is een cartridgesysteem dat RetroAchievements dekt</string>
+    <string name="ra_console_line">RetroAchievements: %1$s</string>
+    <string name="ra_check">Controleren</string>
+    <string name="ra_checking">Bezig met controleren… %1$s</string>
+    <string name="ra_result">%1$d RA-games · op toestel: %2$d van %3$d ondersteund · %4$d meer via de DAT</string>
+    <string name="ra_marked">%1$d games gemarkeerd</string>
+    <string name="ra_not_checked">Nog niet gecontroleerd</string>
+    <string name="ra_need_key">Stel eerst je RetroAchievements-naam en web-API-sleutel in</string>
+    <string name="ra_failed">RetroAchievements was niet bereikbaar: %1$s</string>
+    <string name="stats_played">Meest gespeeld (ES-DE)</string>
+    <string name="stats_played_hint">Hoe vaak ES-DE elke game startte; ES-DE telt geen speeltijd, en Cocoon houdt die privé bij</string>
+    <string name="stats_played_no_esde">Stel ES-DE in bij Instellingen om te zien wat je speelt</string>
+    <string name="stats_played_none">ES-DE heeft nog niets gespeeld bijgehouden</string>
+    <string name="stats_recent">Onlangs gespeeld</string>
+    <string name="bulk_no_room_short">Past niet: %1$s tekort</string>
+    <string name="bulk_checking_duplicates">Zoeken naar dubbele games om ruimte te maken…</string>
+    <string name="bulk_duplicates_free">Dubbele games verwijderen maakt %1$s vrij</string>
+    <string name="bulk_free_up">Dubbele games tonen</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save is op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
         <item quantity="other">%d saves zijn op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
@@ -1109,6 +1183,22 @@
     <plurals name="view_shortcut_done">
         <item quantity="one">Snelkoppeling in %1$d consolemap gezet</item>
         <item quantity="other">Snelkoppeling in %1$d consolemappen gezet</item>
+    </plurals>
+    <plurals name="downloads_requeued">
+        <item quantity="one">%1$d onderbroken download staat weer in de wachtrij</item>
+        <item quantity="other">%1$d onderbroken downloads staan weer in de wachtrij</item>
+    </plurals>
+    <plurals name="details_ra">
+        <item quantity="one">RetroAchievements: %1$d achievement</item>
+        <item quantity="other">RetroAchievements: %1$d achievements</item>
+    </plurals>
+    <plurals name="details_ra_probably">
+        <item quantity="one">RetroAchievements: waarschijnlijk (%1$d achievement; op titel, deze dump niet gecontroleerd)</item>
+        <item quantity="other">RetroAchievements: waarschijnlijk (%1$d achievements; op titel, deze dump niet gecontroleerd)</item>
+    </plurals>
+    <plurals name="stats_times_played">
+        <item quantity="one">%1$d keer</item>
+        <item quantity="other">%1$d keer</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

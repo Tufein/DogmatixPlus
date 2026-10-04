@@ -36,7 +36,8 @@ class DiagnosticsService @Inject constructor(
     private val consoleDao: ConsoleDao,
     private val fileDao: DownloadableFileDao,
     private val downloadService: DownloadService,
-    private val rommLibraryService: RommLibraryService
+    private val rommLibraryService: RommLibraryService,
+    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings
 ) {
 
     suspend fun buildReport(): String = withContext(Dispatchers.IO) {
@@ -49,6 +50,7 @@ class DiagnosticsService @Inject constructor(
             add(rommUrl.removePrefix("https://").removePrefix("http://").substringBefore('/'))
             add(s.torboxApiKey.first())
             add(s.realDebridApiKey.first())
+            add(appSettings.raKey.first())
         }.filter { it.isNotBlank() }
 
         val downloads = downloadService.getDownloads().groupingBy { it.status.name }.eachCount()
@@ -67,6 +69,7 @@ class DiagnosticsService @Inject constructor(
             appendLine("  schedule: wifi=${s.downloadWifiOnly.first()} charging=${s.downloadChargingOnly.first()} night=${s.downloadNightOnly.first()}")
             appendLine("  RomM: url set=${rommUrl.isNotBlank()} (https=${CertTrust.isHttps(rommUrl)}), token set=${rommToken.isNotBlank()}, pinned certificate=${s.rommTrustFingerprint.first().isNotBlank()}, mapped platforms=${s.rommPlatformMap.first().size}, auto upload=${s.rommAutoUpload.first()}, mark games=${s.rommMarkGames.first()}")
             appendLine("  save sync: saves folder=${s.saveSyncSavesDir.first().isNotBlank()} states folder=${s.saveSyncStatesDir.first().isNotBlank()} auto=${s.saveSyncAuto.first()} background=${s.saveSyncBackground.first()} deletions=${s.saveSyncDeletions.first()}")
+            appendLine("  3.0: resume=${appSettings.resumeDownloads.first()} requeue=${appSettings.requeueAfterRestart.first()} per server=${appSettings.perServerLimit.first()} m3u=${appSettings.autoM3u.first()} esde covers=${appSettings.esdeArtwork.first()} wishlist auto=${appSettings.wishlistAutoDownload.first()} RA key set=${appSettings.raKey.first().isNotBlank()} profile active=${appSettings.activeProfile.first().isNotBlank()}")
             appendLine("  update channel: ${if (s.updatePreReleases.first()) "pre-releases" else "releases"}")
             appendLine()
             appendLine("Library")

@@ -14,12 +14,15 @@ import kotlinx.coroutines.flow.asStateFlow
  * downloads queued, waking every waiter on every change (as 2.5.0 did) kept all cores busy and
  * starved the UI thread into "app not responding".
  */
-class DownloadQueue(slots: Int) {
-    private class Ticket(val name: String) { val granted = CompletableDeferred<Unit>() }
+class DownloadQueue(slots: Int, perHost: Int = 0) {
+    private class Ticket(val name: String, val host: String) { val granted = CompletableDeferred<Unit>() }
 
     private val lock = Any()
     private var slots = slots.coerceAtLeast(1)
+    /** At most this many at once from one server; 0 = no limit. */
+    private var perHost = perHost.coerceAtLeast(0)
     private var running = 0
+    private val runningPerHost = HashMap<String, Int>()
     private val tickets = ArrayList<Ticket>()
 
     private val _waiting = MutableStateFlow<List<String>>(emptyList())
@@ -31,9 +34,18 @@ class DownloadQueue(slots: Int) {
         publish()
     }
 
-    /** Suspends until [name] may start; call [release] when it is done (also when it failed). */
-    suspend fun acquire(name: String) {
-        val ticket = Ticket(name)
+    /** Limit per server (host name); 0 lifts it. A waiting download of a busy server lets later ones of other servers go first. */
+    fun setPerHost(limit: Int) {
+        synchronized(lock) { perHost = limit.coerceAtLeast(0); grantLocked() }
+        publish()
+    }
+
+    /**
+     * Suspends until [name] may start; call [release] with the same [host] when it is done (also
+     * when it failed). [host] is the server it comes from; empty = not limited per server.
+     */
+    suspend fun acquire(name: String, host: String = "") {
+        val ticket = Ticket(name, host.lowercase())
         synchronized(lock) { tickets += ticket; grantLocked() }
         publish()
         try {
@@ -42,16 +54,21 @@ class DownloadQueue(slots: Int) {
             synchronized(lock) {
                 // Cancelled while waiting: leave the line. Cancelled just as the slot was granted:
                 // hand the slot on, nobody will release it.
-                if (!tickets.remove(ticket) && ticket.granted.isCompleted) { running = (running - 1).coerceAtLeast(0); grantLocked() }
+                if (!tickets.remove(ticket) && ticket.granted.isCompleted) { releaseLocked(ticket.host); grantLocked() }
             }
             publish()
             throw e
         }
     }
 
-    fun release() {
-        synchronized(lock) { running = (running - 1).coerceAtLeast(0); grantLocked() }
+    fun release(host: String = "") {
+        synchronized(lock) { releaseLocked(host.lowercase()); grantLocked() }
         publish()
+    }
+
+    private fun releaseLocked(host: String) {
+        running = (running - 1).coerceAtLeast(0)
+        if (host.isNotEmpty()) runningPerHost[host]?.let { if (it <= 1) runningPerHost.remove(host) else runningPerHost[host] = it - 1 }
     }
 
     fun moveUp(name: String) = reorder(name) { i -> if (i > 0) java.util.Collections.swap(tickets, i, i - 1) }
@@ -61,16 +78,21 @@ class DownloadQueue(slots: Int) {
     private fun reorder(name: String, change: (Int) -> Unit) {
         synchronized(lock) {
             val i = tickets.indexOfFirst { it.name == name }
-            if (i >= 0) change(i)
+            if (i >= 0) { change(i); grantLocked() }
         }
         publish()
     }
 
-    /** Starts the first waiters while slots are free; call with [lock] held. */
+    private fun hostFull(host: String) = perHost > 0 && host.isNotEmpty() && (runningPerHost[host] ?: 0) >= perHost
+
+    /** Starts waiters in order while slots are free, skipping ones whose server is at its limit; call with [lock] held. */
     private fun grantLocked() {
-        while (running < slots && tickets.isNotEmpty()) {
-            val next = tickets.removeAt(0)
+        while (running < slots) {
+            val i = tickets.indexOfFirst { !hostFull(it.host) }
+            if (i < 0) return
+            val next = tickets.removeAt(i)
             running++
+            if (next.host.isNotEmpty()) runningPerHost[next.host] = (runningPerHost[next.host] ?: 0) + 1
             next.granted.complete(Unit)
         }
     }
