@@ -24,6 +24,12 @@ class DownloadHttpClient @Inject constructor() {
         connection.readTimeout = Constants.READ_TIMEOUT_MS.toInt()
         
         val redirectResponseCode = connection.responseCode
+        // 416: the partial file is already as long as the file (or longer), so there is nothing to
+        // continue from. Ask for the whole file instead; the caller then starts over (a 200, not a 206).
+        if (rangeStart > 0L && redirectResponseCode == 416) {
+            connection.disconnect()
+            return createConnection(downloadUrl, 0L, headers - "If-Range")
+        }
         if (redirectResponseCode != HttpURLConnection.HTTP_OK && redirectResponseCode != HttpURLConnection.HTTP_PARTIAL) {
             throw Exception("HTTP Error after redirect: $redirectResponseCode")
         }
