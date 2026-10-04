@@ -64,8 +64,14 @@ data class StorageUiState(
 class StorageViewModel @Inject constructor(
     private val tools: LibraryToolsService,
     private val scanService: LibraryScanService,
-    private val downloadService: DownloadService
+    private val downloadService: DownloadService,
+    private val mover: com.cortinadev.dogmatix.data.service.LibraryMoveService
 ) : ViewModel() {
+    val move: StateFlow<com.cortinadev.dogmatix.data.service.MoveState> = mover.state
+    fun startMove(destination: String) = mover.start(destination)
+    fun cancelMove() = mover.cancel()
+    fun dismissMove() { mover.dismiss(); refresh() }
+
     private val _ui = MutableStateFlow(StorageUiState())
     val ui: StateFlow<StorageUiState> = _ui.asStateFlow()
     private var job: Job? = null
@@ -108,6 +114,23 @@ fun StorageScreen(viewModel: StorageViewModel = hiltViewModel()) {
     val ui by viewModel.ui.collectAsState()
     val context = LocalContext.current
     var pendingDelete by remember { mutableStateOf<GameEntry?>(null) }
+    val move by viewModel.move.collectAsState()
+    var pendingMove by remember { mutableStateOf<String?>(null) }
+    val moveLauncher = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree()) { uri ->
+        uri?.let {
+            context.contentResolver.takePersistableUriPermission(it, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            pendingMove = it.toString()
+        }
+    }
+    pendingMove?.let { destination ->
+        ConfirmDialog(
+            title = stringResource(R.string.storage_move_title),
+            message = stringResource(R.string.storage_move_message, formatBytes(ui.totalBytes)),
+            confirmText = stringResource(R.string.storage_move_confirm),
+            onConfirm = { viewModel.startMove(destination) },
+            onDismiss = { pendingMove = null }
+        )
+    }
     pendingDelete?.let { entry ->
         ConfirmDialog(
             title = stringResource(R.string.duplicates_delete_title),
@@ -144,6 +167,36 @@ fun StorageScreen(viewModel: StorageViewModel = hiltViewModel()) {
                     listOfNotNull(ui.freeBytes?.let { stringResource(R.string.storage_free, formatBytes(it)) }),
                     viewModel::refresh, Modifier.focusRequester(firstFocus)
                 ) { PillButton(stringResource(R.string.tools_refresh), viewModel::refresh) }
+            }
+            if (!ui.loading && ui.folderSet) item(key = "move") {
+                val problem = when (move.problem) {
+                    com.cortinadev.dogmatix.data.service.MoveProblem.NO_SOURCE -> stringResource(R.string.storage_move_no_source)
+                    com.cortinadev.dogmatix.data.service.MoveProblem.CANNOT_OPEN -> stringResource(R.string.storage_move_cannot_open)
+                    com.cortinadev.dogmatix.data.service.MoveProblem.OVERLAP -> stringResource(R.string.storage_move_overlap)
+                    com.cortinadev.dogmatix.data.service.MoveProblem.DOWNLOADS_ACTIVE -> stringResource(R.string.storage_move_downloads_active)
+                    com.cortinadev.dogmatix.data.service.MoveProblem.NO_ROOM -> stringResource(R.string.storage_move_no_room, formatBytes(move.needBytes), formatBytes(move.freeBytes))
+                    null -> null
+                }
+                val lines = when {
+                    move.running && move.scanning -> listOf(stringResource(R.string.tools_scanning))
+                    move.running -> listOf(
+                        stringResource(R.string.storage_move_running, move.filesDone, move.filesTotal, formatBytes(move.bytesDone), formatBytes(move.bytesTotal)),
+                        move.current
+                    )
+                    move.finished && move.failed == 0 -> listOf(stringResource(R.string.storage_move_done, move.filesTotal))
+                    move.finished -> listOf(stringResource(R.string.storage_move_done_failed, move.failed))
+                    problem != null -> listOf(problem)
+                    else -> listOf(stringResource(R.string.storage_move_hint))
+                }
+                val idle = !move.running
+                ToolRow(
+                    stringResource(R.string.storage_move), lines,
+                    { if (idle) { if (move.finished || move.problem != null) viewModel.dismissMove() else moveLauncher.launch(null) } else viewModel.cancelMove() }
+                ) {
+                    if (move.running) PillButton(stringResource(R.string.storage_move_stop)) { viewModel.cancelMove() }
+                    else if (move.finished || move.problem != null) PillButton(stringResource(R.string.storage_move_ok)) { viewModel.dismissMove() }
+                    else PillButton(stringResource(R.string.storage_move_action)) { moveLauncher.launch(null) }
+                }
             }
             if (ui.queue.total > 0) item(key = "queue") {
                 InfoCard(
