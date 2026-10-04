@@ -413,6 +413,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.Sets.route) { SetsScreen() }
                     composable(NavRoutes.Storage.route) { StorageScreen() }
                     composable(NavRoutes.Wishlist.route) { WishlistScreen(navController) }
+                    composable(NavRoutes.Frontends.route) { com.cortinadev.dogmatix.ui.screens.tools.FrontendCheckScreen(navController) }
                     composable(NavRoutes.Files.route) { com.cortinadev.dogmatix.ui.screens.tools.FileExplorerScreen() }
                     composable(NavRoutes.Collections.route) { com.cortinadev.dogmatix.ui.screens.tools.CollectionsScreen(navController) }
                     composable(NavRoutes.Switch.route) { com.cortinadev.dogmatix.ui.screens.tools.SwitchScreen() }
