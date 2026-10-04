@@ -460,6 +460,13 @@
     <string name="save_sync_saves_folder_hint">Não definida · p. ex. RetroArch/saves</string>
     <string name="save_sync_states_folder">Pasta dos estados de gravação</string>
     <string name="save_sync_states_folder_hint">Não definida · p. ex. RetroArch/states</string>
+    <string name="save_sync_emulator_clash">Pasta de emulador: %1$s tem uma pasta com o mesmo nome na pasta de gravações. Remova uma das duas.</string>
+    <string name="save_sync_emulator_remove">Remover</string>
+    <string name="save_sync_emulator_add">Adicionar a pasta de gravações de um emulador</string>
+    <string name="save_sync_emulator_add_hint">Para emuladores independentes (DraStic, mGBA, Snes9x EX+…): as gravações também sincronizam com o RomM</string>
+    <string name="save_sync_emulator_add_action">Adicionar</string>
+    <string name="save_sync_emulator_pick">De que emulador é esta pasta?</string>
+    <string name="save_sync_emulator_pick_hint">As gravações do jogo sincronizam com este nome. Os save states não.</string>
     <string name="save_sync_auto">Sincronizar automaticamente</string>
     <string name="save_sync_auto_hint">Quando o Dogmatix abre e quando voltas a ele a partir de um jogo</string>
     <string name="save_sync_now">Sincronizar agora</string>

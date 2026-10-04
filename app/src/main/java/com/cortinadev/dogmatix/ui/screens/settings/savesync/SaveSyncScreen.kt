@@ -1,6 +1,18 @@
 package com.cortinadev.dogmatix.ui.screens.settings.savesync
 
 import android.content.Intent
+import com.cortinadev.dogmatix.util.EmulatorSaveFolders
+import com.cortinadev.dogmatix.ui.components.rememberFocusSource
+import com.cortinadev.dogmatix.ui.components.focusRing
+import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.mutableStateOf
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.text.format.DateUtils
@@ -87,8 +99,21 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
     }
     fun adjustInterval(delta: Int) = viewModel.setInterval(context, BackgroundSyncPolicy.cycle(ui.intervalHours, delta))
 
+    val emulatorFolders by viewModel.emulatorFolders.collectAsState()
+    // An emulator's folder is picked first, then which emulator it is.
+    var pickedEmulatorFolder by remember { mutableStateOf<String?>(null) }
+    val emulatorPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        uri?.let { persist(it); pickedEmulatorFolder = it.toString() }
+    }
+    pickedEmulatorFolder?.let { uri ->
+        EmulatorPresetDialog(
+            onPick = { preset -> viewModel.addEmulatorFolder(context, preset, uri); pickedEmulatorFolder = null },
+            onDismiss = { pickedEmulatorFolder = null }
+        )
+    }
+
     val notSet = stringResource(R.string.settings_not_set)
-    val ready = ui.rommUrl.isNotBlank() && (ui.savesDir.isNotBlank() || ui.statesDir.isNotBlank())
+    val ready = ui.rommUrl.isNotBlank() && (ui.savesDir.isNotBlank() || ui.statesDir.isNotBlank() || emulatorFolders.isNotEmpty())
     val rows: List<@Composable () -> Unit> = buildList {
         add {
             SettingRow(
@@ -103,6 +128,22 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
                 hint = folderLabel(ui.statesDir) ?: stringResource(R.string.save_sync_states_folder_hint),
                 onClick = { statesPicker.launch(null) }
             ) { PillButton(stringResource(R.string.settings_change)) { statesPicker.launch(null) } }
+        }
+        emulatorFolders.forEach { folder ->
+            add {
+                SettingRow(
+                    title = folder.label,
+                    hint = folderLabel(folder.uri) ?: folder.uri,
+                    onClick = { viewModel.removeEmulatorFolder(context, folder.label) }
+                ) { PillButton(stringResource(R.string.save_sync_emulator_remove)) { viewModel.removeEmulatorFolder(context, folder.label) } }
+            }
+        }
+        add {
+            SettingRow(
+                title = stringResource(R.string.save_sync_emulator_add),
+                hint = stringResource(R.string.save_sync_emulator_add_hint),
+                onClick = { emulatorPicker.launch(null) }
+            ) { PillButton(stringResource(R.string.save_sync_emulator_add_action)) { emulatorPicker.launch(null) } }
         }
         add {
             SettingRow(
@@ -286,4 +327,38 @@ internal fun relative(millis: Long?): String? =
 private fun folderLabel(uri: String): String? {
     if (uri.isBlank()) return null
     return runCatching { DocumentsContract.getTreeDocumentId(uri.toUri()).substringAfter(':').ifBlank { "/" } }.getOrDefault(uri)
+}
+
+/** Which emulator a picked folder belongs to: its saves are synced under that emulator's name. */
+@Composable
+private fun EmulatorPresetDialog(onPick: (EmulatorSaveFolders.Preset) -> Unit, onDismiss: () -> Unit) {
+    val closeFocus = com.cortinadev.dogmatix.ui.components.rememberInitialFocus()
+    androidx.compose.material3.AlertDialog(
+        modifier = Modifier.closeOnGamepadB(onDismiss),
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.save_sync_emulator_pick)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+                modifier = Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState())
+            ) {
+                Text(stringResource(R.string.save_sync_emulator_pick_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                EmulatorSaveFolders.presets.forEach { preset ->
+                    val source = rememberFocusSource()
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .focusRing(source)
+                            .clickable(interactionSource = source, indication = null) { onPick(preset) }
+                            .padding(horizontal = 8.dp, vertical = 8.dp)
+                    ) {
+                        Text(preset.label, style = MaterialTheme.typography.bodyLarge)
+                        Text(preset.folderHint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+        },
+        confirmButton = { com.cortinadev.dogmatix.ui.components.DialogButton(text = stringResource(R.string.dialog_close), onClick = onDismiss, initialFocus = closeFocus) }
+    )
 }

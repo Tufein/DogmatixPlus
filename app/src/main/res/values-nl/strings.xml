@@ -529,6 +529,13 @@
     <string name="save_sync_saves_folder_hint">Niet ingesteld · bv. RetroArch/saves</string>
     <string name="save_sync_states_folder">Map met save states</string>
     <string name="save_sync_states_folder_hint">Niet ingesteld · bv. RetroArch/states</string>
+    <string name="save_sync_emulator_clash">Emulatormap: %1$s heeft een map met dezelfde naam in de savemap. Haal er één weg.</string>
+    <string name="save_sync_emulator_remove">Verwijderen</string>
+    <string name="save_sync_emulator_add">Savemap van een emulator toevoegen</string>
+    <string name="save_sync_emulator_add_hint">Voor losse emulators (DraStic, mGBA, Snes9x EX+…): hun saves gaan ook mee met RomM</string>
+    <string name="save_sync_emulator_add_action">Toevoegen</string>
+    <string name="save_sync_emulator_pick">Van welke emulator is deze map?</string>
+    <string name="save_sync_emulator_pick_hint">De in-game saves worden onder deze naam gesynchroniseerd. Save states niet.</string>
     <string name="save_sync_auto">Automatisch synchroniseren</string>
     <string name="save_sync_auto_hint">Als Dogmatix opent en als je vanuit een spel terugkomt</string>
     <string name="save_sync_now">Nu synchroniseren</string>

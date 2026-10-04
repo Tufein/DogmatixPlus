@@ -17,7 +17,9 @@ data class LocalSaveFile(
     /** Path below the picked folder, `/`-separated ("mGBA/Pokemon Emerald.srm"). */
     val path: String,
     val size: Long,
-    val modified: Long
+    val modified: Long,
+    /** Platforms the folder it came from is for (an emulator's own saves folder), normalized; see [EmulatorSaveFolder]. */
+    val platformHints: Set<String> = emptySet()
 ) {
     val name: String get() = path.substringAfterLast('/')
     /** First folder below the picked folder ("mGBA"), or "" for a file directly inside it. */
@@ -145,7 +147,9 @@ object SaveSyncPlanner {
         /** Folders directly inside the picked folder, per kind (emulator / core folders). */
         topFolders: Map<SaveKind, Set<String>> = emptyMap(),
         /** Mirror deletions between the device and the server (Settings → Save sync). */
-        syncDeletions: Boolean = false
+        syncDeletions: Boolean = false,
+        /** Kinds without a picked folder of their own (only emulators' folders): server files for no known folder stay on the server. */
+        noRootFolder: Set<SaveKind> = emptySet()
     ): List<SaveSyncAction> {
         val actions = mutableListOf<SaveSyncAction>()
         val recordByPath = records.associateBy { key(it.kind, it.path) }
@@ -220,7 +224,7 @@ object SaveSyncPlanner {
                 topFolders[remote.kind].orEmpty().firstOrNull { it.equals(emulator, ignoreCase = true) }
             }
             remote to (if (folder != null) "$folder/${remote.fileName}" else remote.fileName)
-        }
+        }.filter { (remote, path) -> path.contains('/') || remote.kind !in noRootFolder }
         val targets = downloads.groupingBy { (remote, path) -> key(remote.kind, path) }.eachCount()
         downloads.forEach { (remote, path) ->
             val target = key(remote.kind, path)
@@ -259,7 +263,7 @@ object SaveSyncPlanner {
             ?.distinctBy { it.id }
             ?: return RomMatch.NotFound
         if (hits.size == 1) return RomMatch.Found(hits.single().id)
-        val folders = local.path.split('/').dropLast(1).map(ConsoleFolderAliases::normalize).filter { it.isNotEmpty() }.toSet()
+        val folders = local.path.split('/').dropLast(1).map(ConsoleFolderAliases::normalize).filter { it.isNotEmpty() }.toSet() + local.platformHints
         val byFolder = hits.filter { rom ->
             listOf(rom.platformSlug, rom.platformFsSlug).map(ConsoleFolderAliases::normalize).any { it.isNotEmpty() && it in folders }
         }

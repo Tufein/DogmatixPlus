@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import com.cortinadev.dogmatix.util.EmulatorSaveFolder
+import com.cortinadev.dogmatix.util.EmulatorSaveFolders
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 data class SaveSyncUiState(
@@ -30,8 +33,23 @@ data class SaveSyncUiState(
 @HiltViewModel
 class SaveSyncViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val service: SaveSyncService
+    private val service: SaveSyncService,
+    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings
 ) : ViewModel() {
+
+    /** Standalone emulators' saves folders (DraStic, mGBA…). */
+    val emulatorFolders: StateFlow<List<EmulatorSaveFolder>> = appSettings.saveSyncEmulatorFolders
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun addEmulatorFolder(context: Context, preset: EmulatorSaveFolders.Preset, uri: String) = executeWithToast(context, TAG) {
+        val current = appSettings.saveSyncEmulatorFolders.first()
+        val label = EmulatorSaveFolders.uniqueLabel(preset.label, current.map { it.label })
+        appSettings.setSaveSyncEmulatorFolders(current + EmulatorSaveFolder(label, preset.platforms, uri))
+    }
+
+    fun removeEmulatorFolder(context: Context, label: String) = executeWithToast(context, TAG) {
+        appSettings.setSaveSyncEmulatorFolders(appSettings.saveSyncEmulatorFolders.first().filterNot { it.label == label })
+    }
 
     val uiState: StateFlow<SaveSyncUiState> = combine(
         combine(
