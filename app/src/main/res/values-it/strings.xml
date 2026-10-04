@@ -942,6 +942,25 @@
     <string name="settings_wishlist_auto_hint">Quando un gioco desiderato compare in una fonte, ne viene scaricata subito la versione migliore</string>
     <string name="settings_auto_m3u">Playlist per giochi multi-disco</string>
     <string name="settings_auto_m3u_hint">Scrive il .m3u appena tutti i dischi di un gioco sono scaricati</string>
+    <string name="settings_queue_summary">Avvisa quando la coda è finita</string>
+    <string name="settings_queue_summary_hint">Una notifica con quanti download sono riusciti o falliti</string>
+    <string name="queue_done_title">Download finiti</string>
+    <plurals name="queue_done_title_ok">
+        <item quantity="one">%1$d download finito</item>
+        <item quantity="other">Tutti i %1$d download finiti</item>
+    </plurals>
+    <plurals name="queue_done_completed">
+        <item quantity="one">%1$d scaricato</item>
+        <item quantity="other">%1$d scaricati</item>
+    </plurals>
+    <plurals name="queue_done_failed">
+        <item quantity="one">%1$d fallito</item>
+        <item quantity="other">%1$d falliti</item>
+    </plurals>
+    <plurals name="queue_done_stopped">
+        <item quantity="one">%1$d fermato</item>
+        <item quantity="other">%1$d fermati</item>
+    </plurals>
     <string name="settings_esde_artwork">Copertine per ES-DE</string>
     <string name="settings_esde_artwork_hint">Dopo un download: copertina e descrizione nella cartella di ES-DE (anche il collegamento ES-DE di Cocoon le vede)</string>
     <string name="settings_profiles">Profili</string>

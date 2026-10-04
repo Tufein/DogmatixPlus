@@ -505,6 +505,14 @@ fun SettingsScreen(
                 onAdjust = { extra.setAutoM3u(context, it > 0) }
             ) { ThemedSwitch(v30.autoM3u) { extra.setAutoM3u(context, it) } }
         },
+        SettingsRow(right = false) {
+            SettingRow(
+                title = stringResource(R.string.settings_queue_summary),
+                hint = stringResource(R.string.settings_queue_summary_hint),
+                onClick = { extra.setQueueSummary(context, !v30.queueSummary) },
+                onAdjust = { extra.setQueueSummary(context, it > 0) }
+            ) { ThemedSwitch(v30.queueSummary) { extra.setQueueSummary(context, it) } }
+        },
         SettingsRow(right = true) {
             SettingRow(
                 title = stringResource(R.string.settings_separate_by_console),

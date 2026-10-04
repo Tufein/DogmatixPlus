@@ -996,6 +996,25 @@
     <string name="settings_wishlist_auto_hint">Quand un jeu voulu apparaît dans une source, sa meilleure version est téléchargée aussitôt</string>
     <string name="settings_auto_m3u">Playlists pour les jeux multi-disques</string>
     <string name="settings_auto_m3u_hint">Écrit le .m3u dès que tous les disques d\'un jeu sont téléchargés</string>
+    <string name="settings_queue_summary">Prévenir quand la file est terminée</string>
+    <string name="settings_queue_summary_hint">Une notification indiquant combien de téléchargements ont réussi ou échoué</string>
+    <string name="queue_done_title">Téléchargements terminés</string>
+    <plurals name="queue_done_title_ok">
+        <item quantity="one">%1$d téléchargement terminé</item>
+        <item quantity="other">Les %1$d téléchargements sont terminés</item>
+    </plurals>
+    <plurals name="queue_done_completed">
+        <item quantity="one">%1$d téléchargé</item>
+        <item quantity="other">%1$d téléchargés</item>
+    </plurals>
+    <plurals name="queue_done_failed">
+        <item quantity="one">%1$d en échec</item>
+        <item quantity="other">%1$d en échec</item>
+    </plurals>
+    <plurals name="queue_done_stopped">
+        <item quantity="one">%1$d arrêté</item>
+        <item quantity="other">%1$d arrêtés</item>
+    </plurals>
     <string name="settings_esde_artwork">Jaquettes pour ES-DE</string>
     <string name="settings_esde_artwork_hint">Après un téléchargement : jaquette et description dans le dossier d\'ES-DE (le lien ES-DE de Cocoon les voit aussi)</string>
     <string name="settings_profiles">Profils</string>

@@ -991,6 +991,25 @@
     <string name="settings_wishlist_auto_hint">Duikt een gewenste game op in een bron, dan wordt de beste versie meteen gedownload</string>
     <string name="settings_auto_m3u">Afspeellijsten voor games met meerdere schijven</string>
     <string name="settings_auto_m3u_hint">Maakt de .m3u zodra alle schijven van een game binnen zijn</string>
+    <string name="settings_queue_summary">Melding als de wachtrij klaar is</string>
+    <string name="settings_queue_summary_hint">Eén melding met hoeveel downloads gelukt of mislukt zijn</string>
+    <string name="queue_done_title">Downloads klaar</string>
+    <plurals name="queue_done_title_ok">
+        <item quantity="one">%1$d download klaar</item>
+        <item quantity="other">Alle %1$d downloads klaar</item>
+    </plurals>
+    <plurals name="queue_done_completed">
+        <item quantity="one">%1$d gedownload</item>
+        <item quantity="other">%1$d gedownload</item>
+    </plurals>
+    <plurals name="queue_done_failed">
+        <item quantity="one">%1$d mislukt</item>
+        <item quantity="other">%1$d mislukt</item>
+    </plurals>
+    <plurals name="queue_done_stopped">
+        <item quantity="one">%1$d gestopt</item>
+        <item quantity="other">%1$d gestopt</item>
+    </plurals>
     <string name="settings_esde_artwork">Covers voor ES-DE</string>
     <string name="settings_esde_artwork_hint">Na een download: cover en beschrijving in de map van ES-DE (Cocoon ziet ze ook via de ES-DE-koppeling)</string>
     <string name="settings_profiles">Profielen</string>

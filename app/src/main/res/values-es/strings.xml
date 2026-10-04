@@ -965,6 +965,25 @@
     <string name="settings_wishlist_auto_hint">Cuando un juego deseado aparece en una fuente, se descarga enseguida su mejor versión</string>
     <string name="settings_auto_m3u">Listas para juegos de varios discos</string>
     <string name="settings_auto_m3u_hint">Crea el .m3u en cuanto todos los discos de un juego están descargados</string>
+    <string name="settings_queue_summary">Avisar cuando termine la cola</string>
+    <string name="settings_queue_summary_hint">Una notificación con cuántas descargas salieron bien o fallaron</string>
+    <string name="queue_done_title">Descargas terminadas</string>
+    <plurals name="queue_done_title_ok">
+        <item quantity="one">%1$d descarga terminada</item>
+        <item quantity="other">Las %1$d descargas terminadas</item>
+    </plurals>
+    <plurals name="queue_done_completed">
+        <item quantity="one">%1$d descargada</item>
+        <item quantity="other">%1$d descargadas</item>
+    </plurals>
+    <plurals name="queue_done_failed">
+        <item quantity="one">%1$d fallida</item>
+        <item quantity="other">%1$d fallidas</item>
+    </plurals>
+    <plurals name="queue_done_stopped">
+        <item quantity="one">%1$d detenida</item>
+        <item quantity="other">%1$d detenidas</item>
+    </plurals>
     <string name="settings_esde_artwork">Portadas para ES-DE</string>
     <string name="settings_esde_artwork_hint">Tras una descarga: portada y descripción en la carpeta de ES-DE (el enlace ES-DE de Cocoon también las ve)</string>
     <string name="settings_profiles">Perfiles</string>
