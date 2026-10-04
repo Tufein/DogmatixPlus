@@ -18,6 +18,7 @@ import androidx.compose.foundation.focusable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.displayCutout
@@ -40,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.core.view.WindowCompat
@@ -65,6 +67,7 @@ import com.cortinadev.dogmatix.ui.screens.sources.components.ScanReportDialog
 import com.cortinadev.dogmatix.ui.screens.tools.BiosScreen
 import com.cortinadev.dogmatix.ui.screens.tools.CollectionsScreen
 import com.cortinadev.dogmatix.ui.screens.tools.DatScreen
+import com.cortinadev.dogmatix.ui.screens.tools.ImportListScreen
 import com.cortinadev.dogmatix.ui.screens.tools.FileExplorerScreen
 import com.cortinadev.dogmatix.ui.screens.tools.FrontendCheckScreen
 import com.cortinadev.dogmatix.ui.screens.tools.ProfilesScreen
@@ -75,6 +78,7 @@ import com.cortinadev.dogmatix.ui.secondscreen.SecondScreenPresenter
 import com.cortinadev.dogmatix.util.DeepLinkParser
 import com.cortinadev.dogmatix.util.DgmtxFile
 import com.cortinadev.dogmatix.util.SharedLinks
+import com.cortinadev.dogmatix.util.TextSize
 import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.WhatsNew
 import kotlinx.coroutines.Dispatchers
@@ -154,8 +158,13 @@ class MainActivity : AppCompatActivity() {
                 Gamepad.swapFaceButtons.value = settings.swapFaceButtons
             }
             val boldFocus by appSettings.boldFocus.collectAsState(initial = false)
+            val textSize by appSettings.textSizePercent.collectAsState(initial = TextSize.DEFAULT)
+            val density = LocalDensity.current
             DogmatixTheme(themeMode = settings.themeMode, accent = settings.accent) {
-                CompositionLocalProvider(LocalBoldFocus provides boldFocus) {
+                CompositionLocalProvider(
+                    LocalBoldFocus provides boldFocus,
+                    LocalDensity provides Density(density.density, density.fontScale * TextSize.factor(textSize))
+                ) {
                     when (onboardingDone) {
                         null -> Unit                      // DataStore not read yet: avoid flashing the wrong screen
                         false -> OnboardingHost()
@@ -454,7 +463,8 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.Files.route) { FileExplorerScreen() }
                     composable(NavRoutes.Collections.route) { CollectionsScreen(navController) }
                     composable(NavRoutes.Switch.route) { SwitchScreen() }
-                    composable(NavRoutes.Dat.route) { DatScreen() }
+                    composable(NavRoutes.Dat.route) { DatScreen(navController) }
+                    composable(NavRoutes.ImportList.route) { ImportListScreen() }
                     composable(NavRoutes.Bios.route) { BiosScreen() }
                     composable(NavRoutes.Stats.route) { StatsScreen() }
                     composable(NavRoutes.Profiles.route) { ProfilesScreen() }

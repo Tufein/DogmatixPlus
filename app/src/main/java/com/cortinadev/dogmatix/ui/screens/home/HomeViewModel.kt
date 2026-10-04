@@ -43,6 +43,7 @@ import com.cortinadev.dogmatix.data.service.GameMetadataService
 import com.cortinadev.dogmatix.data.model.GameDetails
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import com.cortinadev.dogmatix.data.state.LibraryFilterRequest
 import com.cortinadev.dogmatix.data.state.PendingLibraryFilters
@@ -59,11 +60,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
@@ -92,7 +95,7 @@ class HomeViewModel @Inject constructor(
 
     /** Bytes that removing duplicate games (keeping the biggest copy of each) would free; null on failure. */
     suspend fun reclaimableBytes(): Long? = runCatching {
-        kotlinx.coroutines.withContext(Dispatchers.IO) { libraryTools.duplicateGroups().sumOf { it.reclaimable } }
+        withContext(Dispatchers.IO) { libraryTools.duplicateGroups().sumOf { it.reclaimable } }
     }.getOrNull()
 
     /** RetroAchievements marks for the "RA" badge. */
@@ -189,7 +192,7 @@ class HomeViewModel @Inject constructor(
         val languages = settingsRepository.favoriteLanguages.first()
         val whitespace = Regex("\\s+")
         // Thousands of rows for a whole console: plan them off the UI thread (the dialog asks from it).
-        return kotlinx.coroutines.withContext(Dispatchers.Default) { BulkPlanner.plan(
+        return withContext(Dispatchers.Default) { BulkPlanner.plan(
             rows.map {
                 BulkCandidate(
                     // The cleaned title itself (tags are already stripped from it): the search key folds
@@ -213,7 +216,7 @@ class HomeViewModel @Inject constructor(
             ToastUtil.showError(context, context.getString(R.string.error_download_dir_missing))
             return 0
         }
-        kotlinx.coroutines.withContext(Dispatchers.Default) { downloadService.startDownloads(rows.map { it.file }) }
+        withContext(Dispatchers.Default) { downloadService.startDownloads(rows.map { it.file }) }
         return rows.size
     }
 
@@ -319,6 +322,22 @@ class HomeViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
+    /** The last searches, newest first (see [RecentSearches]). */
+    val recentSearches: StateFlow<List<String>> = appSettings.recentSearches
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun clearRecentSearches() {
+        viewModelScope.launch { appSettings.clearRecentSearches() }
+    }
+
+    /** A search is remembered once the typing has stopped for a moment. */
+    @OptIn(FlowPreview::class)
+    private fun rememberSearches() {
+        viewModelScope.launch {
+            _searchQuery.debounce(1500L).collect { if (it.isNotBlank()) appSettings.addRecentSearch(it) }
+        }
+    }
+
     private val _activeTags = MutableStateFlow<Set<String>>(emptySet())
     val activeTags: StateFlow<Set<String>> = _activeTags.asStateFlow()
 
@@ -354,6 +373,7 @@ class HomeViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Eagerly, Constants.DEFAULT_MAX_SEARCH_RESULTS)
 
     init {
+        rememberSearches()
         // Deep links (dogmatix://library?…): apply whatever is waiting, now and on every new link.
         viewModelScope.launch {
             pendingFilters.request.collect { if (it != null) pendingFilters.consume()?.let { request -> applyRequest(request) } }

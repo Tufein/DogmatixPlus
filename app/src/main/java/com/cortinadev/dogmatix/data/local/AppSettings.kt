@@ -5,8 +5,11 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.cortinadev.dogmatix.util.EmulatorSaveFolder
 import com.cortinadev.dogmatix.util.EmulatorSaveFolders
+import com.cortinadev.dogmatix.util.RecentSearches
+import com.cortinadev.dogmatix.util.TextSize
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -26,12 +29,12 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
         val AUTO_SCAN_LAST = longPreferencesKey("auto_scan_last")
         val SPEED_LIMIT_DAY_ONLY = booleanPreferencesKey("speed_limit_day_only")
         val BOLD_FOCUS = booleanPreferencesKey("bold_focus")
-        val BIOS_DIR = androidx.datastore.preferences.core.stringPreferencesKey("bios_dir")
+        val BIOS_DIR = stringPreferencesKey("bios_dir")
         val MIN_FREE_GB = intPreferencesKey("min_free_gb")
         val AUTO_BACKUP = booleanPreferencesKey("auto_backup")
-        val AUTO_BACKUP_DIR = androidx.datastore.preferences.core.stringPreferencesKey("auto_backup_dir")
+        val AUTO_BACKUP_DIR = stringPreferencesKey("auto_backup_dir")
         val AUTO_BACKUP_LAST = longPreferencesKey("auto_backup_last")
-        val LIBRARY_VIEWS = androidx.datastore.preferences.core.stringPreferencesKey("library_views")
+        val LIBRARY_VIEWS = stringPreferencesKey("library_views")
         val SECOND_SCREEN = booleanPreferencesKey("second_screen")
         // 3.0
         val RESUME_DOWNLOADS = booleanPreferencesKey("resume_downloads")
@@ -39,19 +42,21 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
         val PER_SERVER_LIMIT = intPreferencesKey("per_server_limit")
         val ESDE_ARTWORK = booleanPreferencesKey("esde_artwork")
         val PEGASUS_ARTWORK = booleanPreferencesKey("pegasus_artwork")
-        val RETROARCH_THUMBNAILS_DIR = androidx.datastore.preferences.core.stringPreferencesKey("retroarch_thumbnails_dir")
+        val RETROARCH_THUMBNAILS_DIR = stringPreferencesKey("retroarch_thumbnails_dir")
         val WISHLIST_AUTO_DOWNLOAD = booleanPreferencesKey("wishlist_auto_download")
-        val RA_USER = androidx.datastore.preferences.core.stringPreferencesKey("ra_user")
-        val RA_KEY = androidx.datastore.preferences.core.stringPreferencesKey("ra_api_key")
+        val RA_USER = stringPreferencesKey("ra_user")
+        val RA_KEY = stringPreferencesKey("ra_api_key")
         val AUTO_M3U = booleanPreferencesKey("auto_m3u")
         val QUEUE_SUMMARY = booleanPreferencesKey("queue_summary")
         val AUTO_RETRY = booleanPreferencesKey("auto_retry_failed")
         val QUEUE_HELD = booleanPreferencesKey("queue_held")
         val LAST_SEEN_VERSION = intPreferencesKey("last_seen_version_code")
-        val SAVE_SYNC_EMULATOR_FOLDERS = androidx.datastore.preferences.core.stringPreferencesKey("save_sync_emulator_folders")
-        val PROFILES = androidx.datastore.preferences.core.stringPreferencesKey("profiles")
-        val ACTIVE_PROFILE = androidx.datastore.preferences.core.stringPreferencesKey("active_profile")
-        val PROFILE_PIN = androidx.datastore.preferences.core.stringPreferencesKey("profile_pin_hash")
+        val TEXT_SIZE = intPreferencesKey("text_size_percent")
+        val RECENT_SEARCHES = stringPreferencesKey("recent_searches")
+        val SAVE_SYNC_EMULATOR_FOLDERS = stringPreferencesKey("save_sync_emulator_folders")
+        val PROFILES = stringPreferencesKey("profiles")
+        val ACTIVE_PROFILE = stringPreferencesKey("active_profile")
+        val PROFILE_PIN = stringPreferencesKey("profile_pin_hash")
     }
 
     /** Scan the sources by itself now and then (see [com.cortinadev.dogmatix.data.service.AutoScanScheduler]). */
@@ -110,6 +115,10 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
     val queueHeld: Flow<Boolean> = context.dataStore.data.map { it[Keys.QUEUE_HELD] ?: false }
     /** Version code whose "what's new" the user has seen; 0 = none yet (see [com.cortinadev.dogmatix.util.WhatsNew]). */
     val lastSeenVersion: Flow<Int> = context.dataStore.data.map { it[Keys.LAST_SEEN_VERSION] ?: 0 }
+    /** Text size in percent on top of Android's font size (see [TextSize]). */
+    val textSizePercent: Flow<Int> = context.dataStore.data.map { it[Keys.TEXT_SIZE] ?: TextSize.DEFAULT }
+    /** The last library searches, newest first (see [RecentSearches]). */
+    val recentSearches: Flow<List<String>> = context.dataStore.data.map { RecentSearches.decode(it[Keys.RECENT_SEARCHES] ?: "") }
     /** Profiles as JSON (see [com.cortinadev.dogmatix.util.Profiles]). */
     val profiles: Flow<String> = context.dataStore.data.map { it[Keys.PROFILES] ?: "[]" }
     /** Id of the active profile; empty = everything visible. */
@@ -130,6 +139,11 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
     suspend fun setAutoRetryFailed(on: Boolean) = context.dataStore.edit { it[Keys.AUTO_RETRY] = on }
     suspend fun setQueueHeld(on: Boolean) = context.dataStore.edit { it[Keys.QUEUE_HELD] = on }
     suspend fun setLastSeenVersion(code: Int) = context.dataStore.edit { it[Keys.LAST_SEEN_VERSION] = code }
+    suspend fun setTextSizePercent(percent: Int) = context.dataStore.edit { it[Keys.TEXT_SIZE] = percent }
+    suspend fun addRecentSearch(query: String) = context.dataStore.edit {
+        it[Keys.RECENT_SEARCHES] = RecentSearches.encode(RecentSearches.add(RecentSearches.decode(it[Keys.RECENT_SEARCHES] ?: ""), query))
+    }
+    suspend fun clearRecentSearches() = context.dataStore.edit { it.remove(Keys.RECENT_SEARCHES) }
     suspend fun setSaveSyncEmulatorFolders(folders: List<EmulatorSaveFolder>) =
         context.dataStore.edit { it[Keys.SAVE_SYNC_EMULATOR_FOLDERS] = EmulatorSaveFolders.toJson(folders) }
     suspend fun setProfiles(json: String) = context.dataStore.edit { it[Keys.PROFILES] = json }

@@ -1326,4 +1326,42 @@
         <item>Hold the queue on Downloads: running downloads finish, nothing new starts.</item>
         <item>The Downloads list shows what is left and roughly how long it takes.</item>
     </string-array>
+
+    <!-- 4.0 -->
+    <string name="settings_text_size">Text size</string>
+    <string name="settings_text_size_hint">Bigger or smaller text in the whole app, on top of Android\'s own font size</string>
+    <string name="recent_searches">Recent:</string>
+    <string name="recent_searches_clear">Forget recent searches</string>
+    <string name="surprise_me">Surprise me</string>
+    <string name="nav_import_list">Import a list</string>
+    <string name="tools_import_list_hint">Download the games of a list in one go, or put them on the wishlist</string>
+    <string name="import_list_file">From a file</string>
+    <string name="import_list_file_hint">A text file with one game per line</string>
+    <string name="import_list_pick">Pick</string>
+    <string name="import_list_paste_title">From the clipboard</string>
+    <string name="import_list_paste_hint">Copy a list somewhere, then paste it here</string>
+    <string name="import_list_paste">Paste</string>
+    <string name="import_list_console">Console</string>
+    <string name="import_list_console_hint">Look the games up in one console, or in all of them</string>
+    <string name="import_list_empty">No game names found in this list</string>
+    <string name="import_list_read_failed">This file could not be read</string>
+    <string name="import_list_progress">Looking up %1$d of %2$d…</string>
+    <string name="import_list_found">%1$d of %2$d games found</string>
+    <string name="import_list_have">%1$d already on the device or downloading</string>
+    <string name="import_list_missing">%1$d not in your sources</string>
+    <string name="import_list_download">Download what was found</string>
+    <string name="import_list_download_hint">%1$d files, %2$s</string>
+    <string name="import_list_download_action">Download</string>
+    <string name="import_list_wish">Put the missing games on the wishlist</string>
+    <string name="import_list_wish_hint">You are told when a source lists one</string>
+    <string name="import_list_wish_action">Add</string>
+    <string name="import_list_section_found">Found</string>
+    <string name="import_list_section_missing">Not in your sources</string>
+    <string name="dat_find_missing">Look for them in your sources</string>
+    <string name="dat_find_missing_hint">Import a list with these games: download what your sources have, wish the rest</string>
+    <string name="dat_find_missing_action">Look up</string>
+    <plurals name="import_list_wished">
+        <item quantity="one">%1$d game put on the wishlist</item>
+        <item quantity="other">%1$d games put on the wishlist</item>
+    </plurals>
 </resources>

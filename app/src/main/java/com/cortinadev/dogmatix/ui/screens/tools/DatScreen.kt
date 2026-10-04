@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.entity.ConsoleEntity
 import com.cortinadev.dogmatix.data.local.entity.DatSetEntity
@@ -43,6 +44,9 @@ import com.cortinadev.dogmatix.data.service.DatProgress
 import com.cortinadev.dogmatix.data.service.DatReport
 import com.cortinadev.dogmatix.data.service.DatService
 import com.cortinadev.dogmatix.data.service.LibraryIndexService
+import com.cortinadev.dogmatix.data.state.ListImportRequest
+import com.cortinadev.dogmatix.data.state.PendingListImport
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.DatCheck
@@ -64,8 +68,12 @@ import javax.inject.Inject
 class DatViewModel @Inject constructor(
     private val dat: DatService,
     consoleRepository: ConsoleRepository,
-    private val libraryIndex: LibraryIndexService
+    private val libraryIndex: LibraryIndexService,
+    private val pendingImport: PendingListImport
 ) : ViewModel() {
+    /** Hands the missing games of [consoleId] to *Import a list*, which looks them up in the sources. */
+    fun findMissing(consoleId: String, missing: List<String>) = pendingImport.submit(ListImportRequest(missing, consoleId))
+
     val consoles: StateFlow<List<ConsoleEntity>> = consoleRepository.getAllConsoles()
         .map { list -> list.sortedBy { ConsoleFormatter.getConsoleDisplayName(it.id) } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -138,7 +146,7 @@ class DatViewModel @Inject constructor(
  * it, and give files the DAT's names.
  */
 @Composable
-fun DatScreen(viewModel: DatViewModel = hiltViewModel()) {
+fun DatScreen(navController: NavController, viewModel: DatViewModel = hiltViewModel()) {
     val consoles by viewModel.consoles.collectAsState()
     val sets by viewModel.sets.collectAsState()
     val reports by viewModel.reports.collectAsState()
@@ -234,6 +242,12 @@ fun DatScreen(viewModel: DatViewModel = hiltViewModel()) {
                 }
                 if (report.missing.isNotEmpty()) {
                     item { SectionHeader(stringResource(R.string.dat_section_missing), stringResource(R.string.dat_section_missing_hint, report.missing.size)) }
+                    item {
+                        val find = { viewModel.findMissing(consoleId, report.missing); navController.navigate(NavRoutes.ImportList.route) }
+                        ToolRow(stringResource(R.string.dat_find_missing), listOf(stringResource(R.string.dat_find_missing_hint)), find) {
+                            PillButton(stringResource(R.string.dat_find_missing_action), find)
+                        }
+                    }
                     items(report.missing.take(200), key = { "x$it" }) { name ->
                         Text(name, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp))

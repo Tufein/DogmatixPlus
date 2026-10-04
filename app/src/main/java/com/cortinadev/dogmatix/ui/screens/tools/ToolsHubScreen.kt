@@ -122,6 +122,7 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { ToolRow(stringResource(R.string.nav_storage), listOf(stringResource(R.string.tools_storage_hint)), { go(NavRoutes.Storage) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_stats), listOf(stringResource(R.string.tools_stats_hint)), { go(NavRoutes.Stats) }, trailing = chevron) }
             item { ToolsGroup(stringResource(R.string.tools_group_games)) }
+            item { ToolRow(stringResource(R.string.nav_import_list), listOf(stringResource(R.string.tools_import_list_hint)), { go(NavRoutes.ImportList) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_wishlist), listOf(stringResource(R.string.tools_wishlist_hint)), { go(NavRoutes.Wishlist) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_dat), listOf(stringResource(R.string.tools_dat_hint)), { go(NavRoutes.Dat) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_bios), listOf(stringResource(R.string.tools_bios_hint)), { go(NavRoutes.Bios) }, trailing = chevron) }

@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
@@ -33,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -343,6 +345,16 @@ fun SettingsScreen(
                 onAdjust = ::cycleLanguage
             ) {
                 Stepper(stringResource(appLanguage.label), onDecrement = { cycleLanguage(-1) }, onIncrement = { cycleLanguage(1) }, valueWidth = 96.dp)
+            }
+        },
+        SettingsRow(SettingsSection.LOOK) {
+            SettingRow(
+                title = stringResource(R.string.settings_text_size),
+                hint = stringResource(R.string.settings_text_size_hint),
+                onClick = { extra.shiftTextSize(context, 1) },
+                onAdjust = { extra.shiftTextSize(context, it) }
+            ) {
+                Stepper("${appPrefs.textSize} %", onDecrement = { extra.shiftTextSize(context, -1) }, onIncrement = { extra.shiftTextSize(context, 1) }, valueWidth = 96.dp)
             }
         },
         SettingsRow(SettingsSection.LOOK) {
@@ -858,14 +870,14 @@ fun SettingsScreen(
         if (inSection.isEmpty()) emptyList()
         else listOfNotNull(section.title?.let { SettingsCell(section, null, 0) }) + inSection.mapIndexed { i, row -> SettingsCell(section, row, i % columns) }
     }
-    val currentCells by androidx.compose.runtime.rememberUpdatedState(cells)
+    val currentCells by rememberUpdatedState(cells)
 
     // LB / RB: in landscape hop between the two columns (same grid row of the group); in portrait
     // jump to the first row of the previous / next group.
     val rowFocus = remember(cells.size) { List(cells.size) { FocusRequester() } }
-    val currentFocus by androidx.compose.runtime.rememberUpdatedState(rowFocus)
+    val currentFocus by rememberUpdatedState(rowFocus)
     var focusedIndex by remember { mutableStateOf(-1) }
-    val gridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
+    val gridState = rememberLazyGridState()
     LaunchedEffect(isLandscape) {
         Gamepad.presses.collect { button ->
             if (button != GamepadButton.PREV_PANEL && button != GamepadButton.NEXT_PANEL) return@collect
@@ -1059,7 +1071,7 @@ private fun AccentSwatch(color: Color, size: Dp, selected: Boolean, onClick: () 
 @Composable
 private fun AccentDialog(selected: Color, onPick: (Color) -> Unit, onDismiss: () -> Unit) {
     val choices = AccentPresets.choices
-    val firstFocus = com.cortinadev.dogmatix.ui.components.rememberInitialFocus()
+    val firstFocus = rememberInitialFocus()
     AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,

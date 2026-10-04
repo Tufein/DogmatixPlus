@@ -29,7 +29,7 @@ import com.cortinadev.dogmatix.data.local.queries.DownloadableFileFts
 
 @Database(
     entities = [ManufacturerEntity::class, ConsoleEntity::class, DownloadableFileEntity::class, FileTagEntity::class, DownloadableFileFts::class, DownloadHistoryEntity::class, GameMetadataEntity::class, FavouriteEntity::class, WishlistEntity::class, CollectionEntity::class, CollectionItemEntity::class, DatSetEntity::class, DatRomEntity::class],
-    version = 11,
+    version = 12,
     exportSchema = false
 )
 abstract class DogmatixDatabase : RoomDatabase() {
@@ -44,6 +44,13 @@ abstract class DogmatixDatabase : RoomDatabase() {
     abstract fun datDao(): DatDao
 
     companion object {
+        /** 4.0: finished downloads are looked up by file name; an index keeps that quick in a big library. */
+        val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_downloadable_files_fileName ON downloadable_files (fileName)")
+            }
+        }
+
         /**
          * 2.0: every row remembers its source (a rescan replaces one source at a time and can skip
          * an unchanged one) and when a rescan first found it; own collections; imported DAT files.

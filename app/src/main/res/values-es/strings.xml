@@ -1299,4 +1299,42 @@
         <item>Pausar la cola en Descargas: las descargas en curso terminan, no empieza nada nuevo.</item>
         <item>La lista de descargas muestra lo que falta y cuánto tardará aproximadamente.</item>
     </string-array>
+
+    <!-- 4.0 -->
+    <string name="settings_text_size">Tamaño del texto</string>
+    <string name="settings_text_size_hint">Texto más grande o más pequeño en toda la app, además del tamaño de letra de Android</string>
+    <string name="recent_searches">Recientes:</string>
+    <string name="recent_searches_clear">Olvidar las búsquedas recientes</string>
+    <string name="surprise_me">Sorpréndeme</string>
+    <string name="nav_import_list">Importar una lista</string>
+    <string name="tools_import_list_hint">Descargar los juegos de una lista de una vez, o añadirlos a la lista de deseos</string>
+    <string name="import_list_file">Desde un archivo</string>
+    <string name="import_list_file_hint">Un archivo de texto con un juego por línea</string>
+    <string name="import_list_pick">Elegir</string>
+    <string name="import_list_paste_title">Desde el portapapeles</string>
+    <string name="import_list_paste_hint">Copia una lista en otro sitio y pégala aquí</string>
+    <string name="import_list_paste">Pegar</string>
+    <string name="import_list_console">Consola</string>
+    <string name="import_list_console_hint">Buscar los juegos en una consola o en todas</string>
+    <string name="import_list_empty">No hay nombres de juegos en esta lista</string>
+    <string name="import_list_read_failed">No se pudo leer este archivo</string>
+    <string name="import_list_progress">Buscando %1$d de %2$d…</string>
+    <string name="import_list_found">%1$d de %2$d juegos encontrados</string>
+    <string name="import_list_have">%1$d ya en el dispositivo o descargándose</string>
+    <string name="import_list_missing">%1$d no están en tus fuentes</string>
+    <string name="import_list_download">Descargar lo encontrado</string>
+    <string name="import_list_download_hint">%1$d archivos, %2$s</string>
+    <string name="import_list_download_action">Descargar</string>
+    <string name="import_list_wish">Añadir los juegos que faltan a la lista de deseos</string>
+    <string name="import_list_wish_hint">Te avisamos cuando una fuente tenga uno</string>
+    <string name="import_list_wish_action">Añadir</string>
+    <string name="import_list_section_found">Encontrados</string>
+    <string name="import_list_section_missing">No están en tus fuentes</string>
+    <string name="dat_find_missing">Buscarlos en tus fuentes</string>
+    <string name="dat_find_missing_hint">Importar una lista con estos juegos: descarga lo que tienen tus fuentes, desea el resto</string>
+    <string name="dat_find_missing_action">Buscar</string>
+    <plurals name="import_list_wished">
+        <item quantity="one">%1$d juego añadido a la lista de deseos</item>
+        <item quantity="other">%1$d juegos añadidos a la lista de deseos</item>
+    </plurals>
 </resources>

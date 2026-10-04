@@ -4,6 +4,8 @@ import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -130,6 +132,7 @@ fun HomeScreen(
     val hasMoreResults by viewModel.hasMoreResults.collectAsState()
     val isLoadingMore by viewModel.isLoadingMore.collectAsState()
     val query by viewModel.searchQuery.collectAsState()
+    val recentSearches by viewModel.recentSearches.collectAsState()
     val selectedConsoles by viewModel.selectedConsoles.collectAsState()
     val activeTags by viewModel.activeTags.collectAsState()
     val sort by viewModel.sort.collectAsState()
@@ -546,6 +549,7 @@ fun HomeScreen(
                         )
                         if (activeFilterCount > 0 || query.isNotBlank()) PanelArrow(R.drawable.ic_star, stringResource(R.string.view_save)) { savingView = true }
                         if (results.isNotEmpty()) PanelArrow(R.drawable.ic_arrow_down, stringResource(R.string.bulk_title)) { showBulk = true }
+                        if (results.isNotEmpty()) PanelArrow(R.drawable.ic_shuffle, stringResource(R.string.surprise_me)) { results.randomOrNull()?.let(viewModel::openDetails) }
                         PanelArrow(R.drawable.ic_arrow_left, stringResource(R.string.collapse_filters)) { collapseFilters() }
                     }
                 }
@@ -564,6 +568,10 @@ fun HomeScreen(
                             onDismiss = { searchActive = false; runCatching { listFocus.requestFocus() } },
                             focusRequester = searchFocus,
                             contentShift = contentShift
+                        )
+                        if (query.isEmpty() && recentSearches.isNotEmpty()) RecentSearchesRow(
+                            recentSearches, onPick = viewModel::setSearch, onClear = viewModel::clearRecentSearches,
+                            modifier = Modifier.padding(start = 6.dp, top = 6.dp)
                         )
                         if (tableRows) TableHeader(contentShift) else Text(
                             resultsLabel(results.size, hasMoreResults),
@@ -634,6 +642,10 @@ fun HomeScreen(
                     )
                     FilterButton(count = activeFilterCount) { showFilterSheet = true }
                 }
+                if (query.isEmpty() && recentSearches.isNotEmpty()) RecentSearchesRow(
+                    recentSearches, onPick = viewModel::setSearch, onClear = viewModel::clearRecentSearches,
+                    modifier = Modifier.padding(start = 20.dp, end = 16.dp, top = 6.dp)
+                )
                 ConsoleChips(
                     options = consoleOptions,
                     selected = selectedConsoles,
@@ -652,6 +664,7 @@ fun HomeScreen(
                     )
                     if (activeFilterCount > 0 || query.isNotBlank()) BulkLink(stringResource(R.string.view_save)) { savingView = true }
                     if (results.isNotEmpty()) BulkLink(stringResource(R.string.bulk_link)) { showBulk = true }
+                    if (results.isNotEmpty()) BulkLink(stringResource(R.string.surprise_me)) { results.randomOrNull()?.let(viewModel::openDetails) }
                 }
                 ResultList(
                     results = results,
@@ -911,6 +924,21 @@ private fun ResultList(
 }
 
 /** "Download all" next to the result count (portrait). */
+/** The last searches under the search field, while nothing is typed: a tap searches again. */
+@Composable
+private fun RecentSearchesRow(searches: List<String>, onPick: (String) -> Unit, onClear: () -> Unit, modifier: Modifier = Modifier) {
+    Row(modifier = modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            stringResource(R.string.recent_searches),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(end = 4.dp)
+        )
+        searches.forEach { search -> BulkLink(search) { onPick(search) } }
+        PanelArrow(R.drawable.ic_close, stringResource(R.string.recent_searches_clear), onClear)
+    }
+}
+
 @Composable
 private fun BulkLink(label: String, onClick: () -> Unit) {
     val source = rememberFocusSource()

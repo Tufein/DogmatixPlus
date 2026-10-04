@@ -17,7 +17,7 @@ import com.cortinadev.dogmatix.util.SearchNormalizer
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("consoleId"), Index(value = ["consoleId", "sourceUrl"])]
+    indices = [Index("consoleId"), Index(value = ["consoleId", "sourceUrl"]), Index("fileName")]
 )
 data class DownloadableFileEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,

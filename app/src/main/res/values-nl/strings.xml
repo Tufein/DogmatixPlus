@@ -1325,4 +1325,42 @@
         <item>Wachtrij pauzeren bij Downloads: lopende downloads maken af, er start niets nieuws.</item>
         <item>De Downloads-lijst toont wat er nog over is en hoe lang dat ongeveer duurt.</item>
     </string-array>
+
+    <!-- 4.0 -->
+    <string name="settings_text_size">Tekstgrootte</string>
+    <string name="settings_text_size_hint">Grotere of kleinere tekst in de hele app, bovenop de lettergrootte van Android</string>
+    <string name="recent_searches">Recent:</string>
+    <string name="recent_searches_clear">Recente zoekopdrachten vergeten</string>
+    <string name="surprise_me">Verras me</string>
+    <string name="nav_import_list">Lijst importeren</string>
+    <string name="tools_import_list_hint">De games van een lijst in één keer downloaden, of op de verlanglijst zetten</string>
+    <string name="import_list_file">Uit een bestand</string>
+    <string name="import_list_file_hint">Een tekstbestand met één game per regel</string>
+    <string name="import_list_pick">Kiezen</string>
+    <string name="import_list_paste_title">Van het klembord</string>
+    <string name="import_list_paste_hint">Kopieer ergens een lijst en plak die hier</string>
+    <string name="import_list_paste">Plakken</string>
+    <string name="import_list_console">Console</string>
+    <string name="import_list_console_hint">Zoek de games in één console, of in alle</string>
+    <string name="import_list_empty">Geen gamenamen gevonden in deze lijst</string>
+    <string name="import_list_read_failed">Dit bestand kon niet gelezen worden</string>
+    <string name="import_list_progress">%1$d van %2$d opzoeken…</string>
+    <string name="import_list_found">%1$d van %2$d games gevonden</string>
+    <string name="import_list_have">%1$d al op het toestel of aan het downloaden</string>
+    <string name="import_list_missing">%1$d niet in je bronnen</string>
+    <string name="import_list_download">Download wat gevonden is</string>
+    <string name="import_list_download_hint">%1$d bestanden, %2$s</string>
+    <string name="import_list_download_action">Downloaden</string>
+    <string name="import_list_wish">Zet de ontbrekende games op de verlanglijst</string>
+    <string name="import_list_wish_hint">Je hoort het zodra een bron er een heeft</string>
+    <string name="import_list_wish_action">Toevoegen</string>
+    <string name="import_list_section_found">Gevonden</string>
+    <string name="import_list_section_missing">Niet in je bronnen</string>
+    <string name="dat_find_missing">Zoek ze in je bronnen</string>
+    <string name="dat_find_missing_hint">Lijst importeren met deze games: download wat je bronnen hebben, wens de rest</string>
+    <string name="dat_find_missing_action">Opzoeken</string>
+    <plurals name="import_list_wished">
+        <item quantity="one">%1$d game op de verlanglijst gezet</item>
+        <item quantity="other">%1$d games op de verlanglijst gezet</item>
+    </plurals>
 </resources>

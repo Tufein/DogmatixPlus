@@ -13,6 +13,7 @@ import com.cortinadev.dogmatix.data.service.UpdateInstaller
 import com.cortinadev.dogmatix.data.service.VersionCheckerService
 import com.cortinadev.dogmatix.ui.common.executeWithToast
 import com.cortinadev.dogmatix.util.AutoScanPolicy
+import com.cortinadev.dogmatix.util.TextSize
 import com.cortinadev.dogmatix.util.ToastUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,7 +70,8 @@ data class AppPrefs(
     val secondScreen: Boolean = true,
     val autoBackup: Boolean = false,
     val autoBackupDir: String = "",
-    val autoBackupLast: Long = 0L
+    val autoBackupLast: Long = 0L,
+    val textSize: Int = TextSize.DEFAULT
 )
 
 @HiltViewModel
@@ -113,8 +115,9 @@ class ExtraSettingsViewModel @Inject constructor(
 
     val appPrefs: StateFlow<AppPrefs> = combine(
         combine(settings.updatePreReleases, appSettings.boldFocus, appSettings.secondScreen) { pre, bold, second -> Triple(pre, bold, second) },
-        appSettings.autoBackup, appSettings.autoBackupDir, appSettings.autoBackupLast
-    ) { (pre, bold, second), backup, dir, last -> AppPrefs(pre, bold, second, backup, dir, last) }
+        combine(appSettings.autoBackup, appSettings.autoBackupDir) { backup, dir -> backup to dir },
+        appSettings.autoBackupLast, appSettings.textSizePercent
+    ) { (pre, bold, second), (backup, dir), last, textSize -> AppPrefs(pre, bold, second, backup, dir, last, textSize) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppPrefs())
 
     fun setPegasusArtwork(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setPegasusArtwork(on) }
@@ -124,7 +127,7 @@ class ExtraSettingsViewModel @Inject constructor(
     fun setRequeue(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setRequeueAfterRestart(on) }
     fun shiftPerServer(context: Context, delta: Int) = executeWithToast(context, TAG) {
         val choices = listOf(0, 1, 2, 3, 4, 6)
-        val i = choices.indexOf(v30.value.perServer).takeIf { it >= 0 } ?: 0
+        val i = choices.indexOf(queue.value.perServer).takeIf { it >= 0 } ?: 0
         appSettings.setPerServerLimit(choices[(i + delta).coerceIn(0, choices.lastIndex)])
     }
     fun setEsdeArtwork(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setEsdeArtwork(on) }
@@ -135,7 +138,7 @@ class ExtraSettingsViewModel @Inject constructor(
 
     fun shiftMinFree(context: Context, delta: Int) = executeWithToast(context, TAG) {
         val choices = listOf(0, 1, 2, 5, 10, 20, 50)
-        val i = choices.indexOf(v25.value.minFreeGb).takeIf { it >= 0 } ?: 0
+        val i = choices.indexOf(queue.value.minFreeGb).takeIf { it >= 0 } ?: 0
         appSettings.setMinFreeGb(choices[(i + delta).coerceIn(0, choices.lastIndex)])
     }
     fun setAutoBackup(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoBackup(on) }
@@ -158,10 +161,13 @@ class ExtraSettingsViewModel @Inject constructor(
     fun setAutoScanNight(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoScanNightOnly(on) }
     fun shiftAutoScanHours(context: Context, delta: Int) = executeWithToast(context, TAG) {
         val choices = AutoScanPolicy.INTERVALS
-        val i = choices.indexOf(v2.value.autoScanHours).takeIf { it >= 0 } ?: 1
+        val i = choices.indexOf(autoScan.value.hours).takeIf { it >= 0 } ?: 1
         appSettings.setAutoScanHours(choices[(i + delta).coerceIn(0, choices.lastIndex)])
     }
     fun setSpeedLimitDayOnly(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setSpeedLimitDayOnly(on) }
+    fun shiftTextSize(context: Context, delta: Int) = executeWithToast(context, TAG) {
+        appSettings.setTextSizePercent(TextSize.shift(appPrefs.value.textSize, delta))
+    }
     fun setBoldFocus(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setBoldFocus(on) }
 
     /** Progress of an update download (0..1), or null when none runs. */

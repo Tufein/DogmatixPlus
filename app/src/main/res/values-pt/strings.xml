@@ -1276,4 +1276,42 @@
         <item>Pausar a fila em Transferências: as transferências em curso terminam, nada de novo começa.</item>
         <item>A lista de transferências mostra o que falta e quanto tempo demora, aproximadamente.</item>
     </string-array>
+
+    <!-- 4.0 -->
+    <string name="settings_text_size">Tamanho do texto</string>
+    <string name="settings_text_size_hint">Texto maior ou menor em toda a app, além do tamanho de letra do Android</string>
+    <string name="recent_searches">Recentes:</string>
+    <string name="recent_searches_clear">Esquecer as pesquisas recentes</string>
+    <string name="surprise_me">Surpreende-me</string>
+    <string name="nav_import_list">Importar uma lista</string>
+    <string name="tools_import_list_hint">Transferir os jogos de uma lista de uma vez, ou pô-los na lista de desejos</string>
+    <string name="import_list_file">De um ficheiro</string>
+    <string name="import_list_file_hint">Um ficheiro de texto com um jogo por linha</string>
+    <string name="import_list_pick">Escolher</string>
+    <string name="import_list_paste_title">Da área de transferência</string>
+    <string name="import_list_paste_hint">Copia uma lista noutro sítio e cola-a aqui</string>
+    <string name="import_list_paste">Colar</string>
+    <string name="import_list_console">Consola</string>
+    <string name="import_list_console_hint">Procurar os jogos numa consola ou em todas</string>
+    <string name="import_list_empty">Nenhum nome de jogo encontrado nesta lista</string>
+    <string name="import_list_read_failed">Não foi possível ler este ficheiro</string>
+    <string name="import_list_progress">A procurar %1$d de %2$d…</string>
+    <string name="import_list_found">%1$d de %2$d jogos encontrados</string>
+    <string name="import_list_have">%1$d já no dispositivo ou a transferir</string>
+    <string name="import_list_missing">%1$d não estão nas tuas fontes</string>
+    <string name="import_list_download">Transferir o que foi encontrado</string>
+    <string name="import_list_download_hint">%1$d ficheiros, %2$s</string>
+    <string name="import_list_download_action">Transferir</string>
+    <string name="import_list_wish">Pôr os jogos em falta na lista de desejos</string>
+    <string name="import_list_wish_hint">És avisado quando uma fonte tiver um</string>
+    <string name="import_list_wish_action">Adicionar</string>
+    <string name="import_list_section_found">Encontrados</string>
+    <string name="import_list_section_missing">Não estão nas tuas fontes</string>
+    <string name="dat_find_missing">Procurá-los nas tuas fontes</string>
+    <string name="dat_find_missing_hint">Importar uma lista com estes jogos: transfere o que as tuas fontes têm, deseja o resto</string>
+    <string name="dat_find_missing_action">Procurar</string>
+    <plurals name="import_list_wished">
+        <item quantity="one">%1$d jogo adicionado à lista de desejos</item>
+        <item quantity="other">%1$d jogos adicionados à lista de desejos</item>
+    </plurals>
 </resources>

@@ -45,6 +45,19 @@ object GameTitleCleaner {
         return wanted.isNotEmpty() && tokens(clean(candidate)).containsAll(wanted)
     }
 
+    /**
+     * Whether [candidate] (a file name) is the game called [title]: exactly the same words once
+     * tags, the extension and words like "the" are left out, so "Super Mario World" does not take
+     * "Super Mario World 2 - Yoshi's Island".
+     */
+    fun sameTitle(title: String, candidate: String): Boolean {
+        val wanted = tokens(clean(title))
+        return wanted.isNotEmpty() && wanted == tokens(clean(candidate))
+    }
+
+    /** The meaningful words of [title], lower-case and without accents. */
+    fun words(title: String): Set<String> = tokens(clean(title))
+
     private fun tokens(text: String): Set<String> {
         val ascii = Normalizer.normalize(text.lowercase(), Normalizer.Form.NFD).replace(Regex("\\p{M}"), "")
         return ascii.split(Regex("[^a-z0-9]+")).filter { it.isNotEmpty() && it !in fillers }.toSet()
