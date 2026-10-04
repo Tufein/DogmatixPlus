@@ -5,13 +5,15 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import com.cortinadev.dogmatix.util.EmulatorSaveFolder
+import com.cortinadev.dogmatix.util.EmulatorSaveFolders
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** The settings added in 2.0 (same preferences file as [SettingsDataStore]). */
+/** Settings stored next to [SettingsDataStore], in the same preferences file. */
 @Singleton
 class AppSettings @Inject constructor(@param:ApplicationContext private val context: Context) {
 
@@ -100,8 +102,8 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
     /** One notification when a run of downloads is done (see [com.cortinadev.dogmatix.data.service.QueueSummaryService]). */
     val queueSummary: Flow<Boolean> = context.dataStore.data.map { it[Keys.QUEUE_SUMMARY] ?: true }
     /** Saves folders of standalone emulators synced with RomM (see [com.cortinadev.dogmatix.util.EmulatorSaveFolder]). */
-    val saveSyncEmulatorFolders: Flow<List<com.cortinadev.dogmatix.util.EmulatorSaveFolder>> =
-        context.dataStore.data.map { com.cortinadev.dogmatix.util.EmulatorSaveFolders.fromJson(it[Keys.SAVE_SYNC_EMULATOR_FOLDERS]) }
+    val saveSyncEmulatorFolders: Flow<List<EmulatorSaveFolder>> =
+        context.dataStore.data.map { EmulatorSaveFolders.fromJson(it[Keys.SAVE_SYNC_EMULATOR_FOLDERS]) }
     /** Start downloads that failed for a passing reason again by themselves (see [com.cortinadev.dogmatix.util.AutoRetry]). */
     val autoRetryFailed: Flow<Boolean> = context.dataStore.data.map { it[Keys.AUTO_RETRY] ?: true }
     /** The queue is on hold: running downloads finish, nothing new starts (see [com.cortinadev.dogmatix.data.service.DownloadGate]). */
@@ -128,8 +130,8 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
     suspend fun setAutoRetryFailed(on: Boolean) = context.dataStore.edit { it[Keys.AUTO_RETRY] = on }
     suspend fun setQueueHeld(on: Boolean) = context.dataStore.edit { it[Keys.QUEUE_HELD] = on }
     suspend fun setLastSeenVersion(code: Int) = context.dataStore.edit { it[Keys.LAST_SEEN_VERSION] = code }
-    suspend fun setSaveSyncEmulatorFolders(folders: List<com.cortinadev.dogmatix.util.EmulatorSaveFolder>) =
-        context.dataStore.edit { it[Keys.SAVE_SYNC_EMULATOR_FOLDERS] = com.cortinadev.dogmatix.util.EmulatorSaveFolders.toJson(folders) }
+    suspend fun setSaveSyncEmulatorFolders(folders: List<EmulatorSaveFolder>) =
+        context.dataStore.edit { it[Keys.SAVE_SYNC_EMULATOR_FOLDERS] = EmulatorSaveFolders.toJson(folders) }
     suspend fun setProfiles(json: String) = context.dataStore.edit { it[Keys.PROFILES] = json }
     suspend fun setActiveProfile(id: String) = context.dataStore.edit { it[Keys.ACTIVE_PROFILE] = id }
     suspend fun setProfilePinHash(hash: String) = context.dataStore.edit { it[Keys.PROFILE_PIN] = hash }

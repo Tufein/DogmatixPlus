@@ -4,27 +4,45 @@ import android.content.Context
 import com.cortinadev.dogmatix.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cortinadev.dogmatix.data.local.AppSettings
+import com.cortinadev.dogmatix.data.local.dao.CollectionWithCount
 import com.cortinadev.dogmatix.data.local.entity.ConsoleEntity
 import com.cortinadev.dogmatix.data.local.dao.ConsoleWithFileCount
 import com.cortinadev.dogmatix.data.model.DownloadableFileWithTags
 import com.cortinadev.dogmatix.data.model.CategorizedTags
 import com.cortinadev.dogmatix.data.model.SortOption
 import com.cortinadev.dogmatix.data.model.SourceFilter
+import com.cortinadev.dogmatix.data.repository.CollectionsRepository
 import com.cortinadev.dogmatix.data.repository.ConsoleRepository
 import com.cortinadev.dogmatix.data.repository.DownloadableFileRepository
 import com.cortinadev.dogmatix.data.repository.FavouritesRepository
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.service.LibraryIndexService
+import com.cortinadev.dogmatix.data.service.LibraryToolsService
+import com.cortinadev.dogmatix.data.service.ProfileService
+import com.cortinadev.dogmatix.data.service.RaMarks
+import com.cortinadev.dogmatix.data.service.RetroAchievementsService
 import com.cortinadev.dogmatix.data.service.RommLibraryService
 import com.cortinadev.dogmatix.data.repository.WishlistRepository
+import com.cortinadev.dogmatix.util.BulkCandidate
+import com.cortinadev.dogmatix.util.BulkPlan
+import com.cortinadev.dogmatix.util.BulkPlanner
 import com.cortinadev.dogmatix.util.FileParsingUtils
+import com.cortinadev.dogmatix.util.LibraryKeys
+import com.cortinadev.dogmatix.util.LibraryView
+import com.cortinadev.dogmatix.util.LibraryViews
+import com.cortinadev.dogmatix.util.NewGames
+import com.cortinadev.dogmatix.util.RaGame
 import com.cortinadev.dogmatix.util.RommMarks
 import com.cortinadev.dogmatix.util.RommSource
+import com.cortinadev.dogmatix.util.SwitchTitles
 import com.cortinadev.dogmatix.util.VersionPicker
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.service.DownloadService
 import com.cortinadev.dogmatix.data.service.GameMetadataService
 import com.cortinadev.dogmatix.data.model.GameDetails
+import java.util.UUID
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import com.cortinadev.dogmatix.data.state.LibraryFilterRequest
 import com.cortinadev.dogmatix.data.state.PendingLibraryFilters
@@ -65,32 +83,32 @@ class HomeViewModel @Inject constructor(
     private val pendingFilters: PendingLibraryFilters,
     private val rommLibrary: RommLibraryService,
     private val wishlist: WishlistRepository,
-    private val collectionsRepository: com.cortinadev.dogmatix.data.repository.CollectionsRepository,
-    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings,
-    private val profiles: com.cortinadev.dogmatix.data.service.ProfileService,
-    private val retroAchievements: com.cortinadev.dogmatix.data.service.RetroAchievementsService,
-    private val libraryTools: com.cortinadev.dogmatix.data.service.LibraryToolsService
+    private val collectionsRepository: CollectionsRepository,
+    private val appSettings: AppSettings,
+    private val profiles: ProfileService,
+    private val retroAchievements: RetroAchievementsService,
+    private val libraryTools: LibraryToolsService
 ) : ViewModel() {
 
     /** Bytes that removing duplicate games (keeping the biggest copy of each) would free; null on failure. */
     suspend fun reclaimableBytes(): Long? = runCatching {
-        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { libraryTools.duplicateGroups().sumOf { it.reclaimable } }
+        kotlinx.coroutines.withContext(Dispatchers.IO) { libraryTools.duplicateGroups().sumOf { it.reclaimable } }
     }.getOrNull()
 
     /** RetroAchievements marks for the "RA" badge. */
-    val raMarks: StateFlow<com.cortinadev.dogmatix.data.service.RaMarks> = retroAchievements.marks
+    val raMarks: StateFlow<RaMarks> = retroAchievements.marks
 
     /** RA game of a row for the details card: (game, true) by hash, (game, false) by title only. */
     suspend fun achievementsFor(file: DownloadableFileEntity) = runCatching { retroAchievements.lookup(file.consoleId, file.fileName, file.name) }.getOrNull()
 
     // ---- 2.5: saved views ("smart collections") ------------------------------------------------
 
-    val views: StateFlow<List<com.cortinadev.dogmatix.util.LibraryView>> = appSettings.libraryViews
-        .map { com.cortinadev.dogmatix.util.LibraryViews.fromJson(it) }
+    val views: StateFlow<List<LibraryView>> = appSettings.libraryViews
+        .map { LibraryViews.fromJson(it) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     /** The current filters as a view (no id or name yet). */
-    private fun currentView(id: String = "", name: String = "") = com.cortinadev.dogmatix.util.LibraryView(
+    private fun currentView(id: String = "", name: String = "") = LibraryView(
         id = id, name = name, query = _searchQuery.value, consoles = _selectedConsoles.value, tags = _activeTags.value,
         favouritesOnly = _favouritesOnly.value, newOnly = _newOnly.value, collectionId = _collectionId.value,
         source = _source.value.name, sort = _sort.value.name
@@ -103,12 +121,12 @@ class HomeViewModel @Inject constructor(
         val clean = name.trim().take(60)
         if (clean.isEmpty()) return false
         val others = views.value.filterNot { it.name.equals(clean, ignoreCase = true) }
-        val view = currentView(java.util.UUID.randomUUID().toString(), clean)
-        appSettings.setLibraryViews(com.cortinadev.dogmatix.util.LibraryViews.toJson(others + view))
+        val view = currentView(UUID.randomUUID().toString(), clean)
+        appSettings.setLibraryViews(LibraryViews.toJson(others + view))
         return true
     }
 
-    fun applyView(view: com.cortinadev.dogmatix.util.LibraryView) {
+    fun applyView(view: LibraryView) {
         _searchQuery.value = view.query
         _selectedConsoles.value = view.consoles
         _activeTags.value = view.tags
@@ -131,7 +149,7 @@ class HomeViewModel @Inject constructor(
     val collectionId: StateFlow<Long> = _collectionId.asStateFlow()
     fun setCollection(id: Long) { _collectionId.value = id }
 
-    val collections: StateFlow<List<com.cortinadev.dogmatix.data.local.dao.CollectionWithCount>> = collectionsRepository.collections
+    val collections: StateFlow<List<CollectionWithCount>> = collectionsRepository.collections
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     /** Puts the game of the open details card in or out of collection [id]; returns whether it is in it now. */
@@ -148,11 +166,11 @@ class HomeViewModel @Inject constructor(
         return true
     }
 
-    fun isNew(file: DownloadableFileEntity): Boolean = com.cortinadev.dogmatix.util.NewGames.isNew(file.firstSeenAt, System.currentTimeMillis())
+    fun isNew(file: DownloadableFileEntity): Boolean = NewGames.isNew(file.firstSeenAt, System.currentTimeMillis())
 
     /** File names on disk for [consoleId] (from the library index keys of its folders). */
     private fun ownedNamesFor(consoleId: String): List<String> {
-        val scopes = com.cortinadev.dogmatix.util.LibraryKeys.scopesFor(consoleId)
+        val scopes = LibraryKeys.scopesFor(consoleId)
         return libraryIndex.ownedKeys.value.mapNotNull { key ->
             val bar = key.indexOf('|')
             if (bar < 0 || key.substring(0, bar) !in scopes) null else key.substring(bar + 1)
@@ -160,20 +178,20 @@ class HomeViewModel @Inject constructor(
     }
 
     /** What "Download all" would queue for the current filters ([bestOnly]: one version per game). */
-    suspend fun planBulk(bestOnly: Boolean): com.cortinadev.dogmatix.util.BulkPlan {
+    suspend fun planBulk(bestOnly: Boolean): BulkPlan {
         val rows = repository.searchFilesWithTags(
             query = _searchQuery.value, consoleIds = _selectedConsoles.value, tags = _activeTags.value,
             favouritesOnly = _favouritesOnly.value, newSince = newSince(), collectionId = _collectionId.value,
-            source = _source.value, sort = _sort.value, limit = com.cortinadev.dogmatix.util.BulkPlanner.MAX_FILES * 4, offset = 0
+            source = _source.value, sort = _sort.value, limit = BulkPlanner.MAX_FILES * 4, offset = 0
         )
         val owned = ownedKeys.value
         val active = activeDownloads.value
         val languages = settingsRepository.favoriteLanguages.first()
         val whitespace = Regex("\\s+")
         // Thousands of rows for a whole console: plan them off the UI thread (the dialog asks from it).
-        return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { com.cortinadev.dogmatix.util.BulkPlanner.plan(
+        return kotlinx.coroutines.withContext(Dispatchers.Default) { BulkPlanner.plan(
             rows.map {
-                com.cortinadev.dogmatix.util.BulkCandidate(
+                BulkCandidate(
                     // The cleaned title itself (tags are already stripped from it): the search key folds
                     // repeated characters, so "Game 001" and "Game 011" would count as one game.
                     it.file.id, it.file.consoleId, it.file.name.lowercase().replace(whitespace, " ").trim(),
@@ -187,7 +205,7 @@ class HomeViewModel @Inject constructor(
     private var lastBulkRows: Map<Long, DownloadableFileWithTags> = emptyMap()
 
     /** Queues every game of [plan]; returns how many. */
-    suspend fun startBulk(plan: com.cortinadev.dogmatix.util.BulkPlan, context: Context): Int {
+    suspend fun startBulk(plan: BulkPlan, context: Context): Int {
         val rows = plan.chosen.mapNotNull { lastBulkRows[it.id] }
         if (rows.isEmpty()) return 0
         val downloadDirectory = settingsRepository.downloadDirectory.first()
@@ -195,7 +213,7 @@ class HomeViewModel @Inject constructor(
             ToastUtil.showError(context, context.getString(R.string.error_download_dir_missing))
             return 0
         }
-        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { downloadService.startDownloads(rows.map { it.file }) }
+        kotlinx.coroutines.withContext(Dispatchers.Default) { downloadService.startDownloads(rows.map { it.file }) }
         return rows.size
     }
 
@@ -204,7 +222,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch { downloadService.startDownload(file) }
     }
 
-    private fun newSince(): Long = if (_newOnly.value) com.cortinadev.dogmatix.util.NewGames.since(System.currentTimeMillis()) else 0L
+    private fun newSince(): Long = if (_newOnly.value) NewGames.since(System.currentTimeMillis()) else 0L
 
     /** `consoleId|name` keys of the games the RomM server has (empty when marking is off). */
     val rommKeys: StateFlow<Set<String>> = rommLibrary.keys
@@ -262,9 +280,9 @@ class HomeViewModel @Inject constructor(
             if (_details.value?.item == item) _details.value = _details.value!!.copy(collectionIds = collectionsRepository.collectionsOf(item.file))
             achievementsFor(item.file)?.let { ra -> if (_details.value?.item == item) _details.value = _details.value!!.copy(achievements = ra) }
             // A Switch game: its updates and DLC in the library, against what is on disk.
-            com.cortinadev.dogmatix.util.SwitchTitles.parse(item.file.fileName)?.let { title ->
+            SwitchTitles.parse(item.file.fileName)?.let { title ->
                 val rows = runCatching { repository.filesOf(item.file.consoleId) }.getOrDefault(emptyList())
-                val status = com.cortinadev.dogmatix.util.SwitchTitles.analyse(rows, { it.fileName }, ownedNamesFor(item.file.consoleId), onlyOwned = false)
+                val status = SwitchTitles.analyse(rows, { it.fileName }, ownedNamesFor(item.file.consoleId), onlyOwned = false)
                     .firstOrNull { it.baseId == title.baseId }
                 if (_details.value?.item == item) _details.value = _details.value!!.copy(switchTitle = title, switch = status)
             }
@@ -286,7 +304,7 @@ class HomeViewModel @Inject constructor(
     /** File names with a download in flight (queued, downloading, copying or extracting). */
     val activeDownloads: StateFlow<Set<String>> = downloadService.downloads
         .map { list -> list.filter { !it.isFinished }.map { it.fileName }.toSet() }
-        .flowOn(kotlinx.coroutines.Dispatchers.Default)
+        .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     fun isDownloading(file: DownloadableFileEntity, active: Set<String>): Boolean = file.fileName in active
@@ -351,7 +369,7 @@ class HomeViewModel @Inject constructor(
             ) { (query, consoles, tags), extra, _, limit ->
                 FilterParams(
                     query = query, consoles = consoles, tags = tags, sort = extra.sort, favouritesOnly = extra.favouritesOnly, source = extra.source, limit = limit,
-                    newSince = if (extra.newOnly) com.cortinadev.dogmatix.util.NewGames.since(System.currentTimeMillis()) else 0L, collectionId = extra.collectionId
+                    newSince = if (extra.newOnly) NewGames.since(System.currentTimeMillis()) else 0L, collectionId = extra.collectionId
                 )
             }.collect { params ->
                 currentOffset = 0
@@ -559,8 +577,8 @@ data class DetailsState(
     /** Own collections this game is in. */
     val collectionIds: Set<Long> = emptySet(),
     /** For a Switch file with a title ID: what it is, and its game's updates / DLC. */
-    val switchTitle: com.cortinadev.dogmatix.util.SwitchTitles.Title? = null,
-    val switch: com.cortinadev.dogmatix.util.SwitchTitles.GameStatus<DownloadableFileEntity>? = null,
+    val switchTitle: SwitchTitles.Title? = null,
+    val switch: SwitchTitles.GameStatus<DownloadableFileEntity>? = null,
     /** RetroAchievements game and whether it was matched by hash (true) or only by title (false). */
-    val achievements: Pair<com.cortinadev.dogmatix.util.RaGame, Boolean>? = null
+    val achievements: Pair<RaGame, Boolean>? = null
 )

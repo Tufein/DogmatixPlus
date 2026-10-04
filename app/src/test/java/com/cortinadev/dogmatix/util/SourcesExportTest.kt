@@ -6,7 +6,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class SourcesV2Test {
+class SourcesExportTest {
     @Test fun `reserve addresses survive a round trip and never repeat the address itself`() {
         val entries = listOf(UrlEntry("https://a.example/gba/", mirrors = listOf("https://b.example/gba/", "https://c.example/gba/")))
         val back = SourcesJson.parseUrlEntries(SourcesJson.serializeUrlEntries(entries))

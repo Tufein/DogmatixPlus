@@ -4,6 +4,7 @@ import com.cortinadev.dogmatix.util.CertTrust
 import java.net.HttpURLConnection
 import java.net.URL
 import java.security.KeyStore
+import java.security.cert.Certificate
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 import javax.net.ssl.HostnameVerifier
@@ -87,8 +88,8 @@ object TlsTrust {
     }.getOrNull()
 
     /** A handshake that accepts anything, used only to read the chain the server shows. */
-    private fun readUntrusted(url: String): List<java.security.cert.Certificate> {
-        val captured = mutableListOf<java.security.cert.Certificate>()
+    private fun readUntrusted(url: String): List<Certificate> {
+        val captured = mutableListOf<Certificate>()
         val capture = object : X509TrustManager {
             override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) = Unit
             override fun checkServerTrusted(chain: Array<out X509Certificate>, authType: String?) { captured += chain }

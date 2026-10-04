@@ -101,12 +101,17 @@ import com.cortinadev.dogmatix.ui.components.LegendEntry
 import com.cortinadev.dogmatix.ui.components.focusRing
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.swapFaceButtons
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
+import com.cortinadev.dogmatix.ui.screens.home.components.BulkDownloadDialog
+import com.cortinadev.dogmatix.ui.screens.home.components.CollectionPickerDialog
 import com.cortinadev.dogmatix.ui.screens.home.components.FilterOption
 import com.cortinadev.dogmatix.ui.screens.home.components.FilterPanel
 import com.cortinadev.dogmatix.ui.screens.home.components.FilterRowSpec
 import com.cortinadev.dogmatix.ui.screens.home.components.GameDetailsDialog
 import com.cortinadev.dogmatix.ui.screens.home.components.RomRow
+import com.cortinadev.dogmatix.ui.screens.home.components.SaveViewDialog
 import com.cortinadev.dogmatix.ui.screens.home.components.SearchField
+import com.cortinadev.dogmatix.ui.secondscreen.SecondScreenState
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.LetterJump
 import kotlinx.coroutines.Job
@@ -172,9 +177,9 @@ fun HomeScreen(
     var focusedItem by remember { mutableStateOf<DownloadableFileWithTags?>(null) }
     val focusManager = LocalFocusManager.current
     // The game under the cursor also goes to a second screen, when there is one.
-    LaunchedEffect(focusedItem) { com.cortinadev.dogmatix.ui.secondscreen.SecondScreenState.focus(focusedItem) }
+    LaunchedEffect(focusedItem) { SecondScreenState.focus(focusedItem) }
     // With touch there is no cursor: the game whose details are open goes to the second screen.
-    LaunchedEffect(detailsState?.item) { detailsState?.item?.let { com.cortinadev.dogmatix.ui.secondscreen.SecondScreenState.focus(it) } }
+    LaunchedEffect(detailsState?.item) { detailsState?.item?.let { SecondScreenState.focus(it) } }
     // Folding hides whichever side holds the focus, so it is handed over explicitly
     // (two frames later when expanding: the panel has to be laid out first).
     val collapseFilters = {
@@ -334,14 +339,14 @@ fun HomeScreen(
 
     val viewSavedMessage = stringResource(R.string.view_saved, "%s")
     if (savingView) {
-        com.cortinadev.dogmatix.ui.screens.home.components.SaveViewDialog(
+        SaveViewDialog(
             onSave = { name -> savingView = false; scope.launch { if (viewModel.saveView(name)) showMessage(viewSavedMessage.format(name.trim())) } },
             onDismiss = { savingView = false }
         )
     }
     val bulkQueuedMessage = stringResource(R.string.bulk_queued, "%d")
     if (showBulk) {
-        com.cortinadev.dogmatix.ui.screens.home.components.BulkDownloadDialog(
+        BulkDownloadDialog(
             plan = { viewModel.planBulk(it) },
             onConfirm = { plan ->
                 showBulk = false
@@ -349,12 +354,12 @@ fun HomeScreen(
             },
             onDismiss = { showBulk = false },
             reclaimable = { viewModel.reclaimableBytes() },
-            onFreeUp = { showBulk = false; navController.navigate(com.cortinadev.dogmatix.ui.navigation.NavRoutes.Duplicates.route) }
+            onFreeUp = { showBulk = false; navController.navigate(NavRoutes.Duplicates.route) }
         )
     }
     val collectionAddedMessage = stringResource(R.string.collection_added, "%s")
     if (showCollectionPicker) detailsState?.let { state ->
-        com.cortinadev.dogmatix.ui.screens.home.components.CollectionPickerDialog(
+        CollectionPickerDialog(
             collections = collections,
             selected = state.collectionIds,
             onToggle = { id -> scope.launch { viewModel.toggleCollection(state.item, id) } },

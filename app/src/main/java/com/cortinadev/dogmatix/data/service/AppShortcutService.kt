@@ -19,6 +19,7 @@ import com.cortinadev.dogmatix.util.LibraryViews
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -43,7 +44,7 @@ class AppShortcutService @Inject constructor(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    @OptIn(kotlinx.coroutines.FlowPreview::class)
+    @OptIn(FlowPreview::class)
     fun start() {
         scope.launch {
             combine(consoleDao.getAllConsoles(), appSettings.libraryViews) { consoles, views ->

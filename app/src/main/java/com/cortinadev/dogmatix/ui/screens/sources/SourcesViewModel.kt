@@ -19,9 +19,15 @@ import com.cortinadev.dogmatix.data.service.RommPlatform
 import com.cortinadev.dogmatix.data.service.FolderMergeService
 import com.cortinadev.dogmatix.data.service.LibraryIndexService
 import com.cortinadev.dogmatix.data.state.RescanStateHolder
+import com.cortinadev.dogmatix.data.state.SourceScanResult
+import com.cortinadev.dogmatix.data.state.SourceScanResults
+import com.cortinadev.dogmatix.ui.screens.sources.components.QrCodes
+import com.cortinadev.dogmatix.util.QrTransfer
+import com.cortinadev.dogmatix.util.ScanFailure
 import com.cortinadev.dogmatix.util.SourcesJson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -46,15 +52,15 @@ class SourcesViewModel @Inject constructor(
     private val folderMergeService: FolderMergeService,
     private val libraryIndexService: LibraryIndexService,
     private val rommClient: RommClient,
-    private val scanResults: com.cortinadev.dogmatix.data.state.SourceScanResults,
+    private val scanResults: SourceScanResults,
     private val scanService: com.cortinadev.dogmatix.data.service.SourceScanService
 ) : ViewModel() {
 
     /** The last scan's outcome per source (`consoleId|url`), shown under each URL. */
-    val sourceResults: StateFlow<Map<String, com.cortinadev.dogmatix.data.state.SourceScanResult>> = scanResults.results
+    val sourceResults: StateFlow<Map<String, SourceScanResult>> = scanResults.results
 
     /** Non-null after a scan in which some sources failed. */
-    val scanReport: StateFlow<List<com.cortinadev.dogmatix.util.ScanFailure>?> = rescanStateHolder.scanReport
+    val scanReport: StateFlow<List<ScanFailure>?> = rescanStateHolder.scanReport
 
     fun dismissScanReport() = rescanStateHolder.dismissScanReport()
 
@@ -275,7 +281,7 @@ class SourcesViewModel @Inject constructor(
 
     fun showQr() {
         viewModelScope.launch {
-            runCatching { com.cortinadev.dogmatix.util.QrTransfer.encode(sources.exportDocument(includeFavourites = false)) }
+            runCatching { QrTransfer.encode(sources.exportDocument(includeFavourites = false)) }
                 .onSuccess { _qrParts.value = it }
                 .onFailure { rescanStateHolder.setErrorMessage(context.getString(R.string.sources_export_failed, it.message ?: "")) }
         }
@@ -283,7 +289,7 @@ class SourcesViewModel @Inject constructor(
 
     fun hideQr() { _qrParts.value = null }
 
-    private var qrCollector = com.cortinadev.dogmatix.util.QrTransfer.Collector()
+    private var qrCollector = QrTransfer.Collector()
 
     /** A complete list read from QR codes, waiting for the user to confirm the import. */
     private val _qrImport = MutableStateFlow<String?>(null)
@@ -293,13 +299,13 @@ class SourcesViewModel @Inject constructor(
     fun readQr(uris: List<Uri>) {
         if (uris.isEmpty()) return
         viewModelScope.launch {
-            val texts = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                uris.mapNotNull { com.cortinadev.dogmatix.ui.screens.sources.components.QrCodes.read(context, it) }
+            val texts = kotlinx.coroutines.withContext(Dispatchers.IO) {
+                uris.mapNotNull { QrCodes.read(context, it) }
             }
             val accepted = texts.count { qrCollector.add(it) }
             val complete = qrCollector.text()
             when {
-                complete != null -> { _qrImport.value = complete; qrCollector = com.cortinadev.dogmatix.util.QrTransfer.Collector() }
+                complete != null -> { _qrImport.value = complete; qrCollector = QrTransfer.Collector() }
                 accepted == 0 -> _importMessage.value = context.getString(R.string.qr_none_found)
                 else -> _importMessage.value = context.getString(R.string.qr_progress, qrCollector.have, qrCollector.total)
             }

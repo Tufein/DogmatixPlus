@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.data.state
 
+import com.cortinadev.dogmatix.util.SharedLink
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,9 +49,9 @@ class PendingLibraryFilters @Inject constructor() {
     fun openSection(route: String) { _openRoute.value = route }
 
     /** A link shared to the app (browser, chat), waiting for the user to say what to do with it. */
-    private val _shared = MutableStateFlow<com.cortinadev.dogmatix.util.SharedLink?>(null)
-    val shared: StateFlow<com.cortinadev.dogmatix.util.SharedLink?> = _shared.asStateFlow()
-    fun share(link: com.cortinadev.dogmatix.util.SharedLink) { _shared.value = link }
+    private val _shared = MutableStateFlow<SharedLink?>(null)
+    val shared: StateFlow<SharedLink?> = _shared.asStateFlow()
+    fun share(link: SharedLink) { _shared.value = link }
     fun dismissShare() { _shared.value = null }
     fun consumeSection(): String? = _openRoute.getAndUpdate { null }
 

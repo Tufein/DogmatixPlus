@@ -1,11 +1,14 @@
 package com.cortinadev.dogmatix.data.service
 
+import android.app.ActivityManager
+import android.app.ApplicationExitInfo
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Process
 import androidx.core.content.FileProvider
 import com.cortinadev.dogmatix.BuildConfig
+import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.local.dao.ConsoleDao
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
@@ -37,7 +40,7 @@ class DiagnosticsService @Inject constructor(
     private val fileDao: DownloadableFileDao,
     private val downloadService: DownloadService,
     private val rommLibraryService: RommLibraryService,
-    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings
+    private val appSettings: AppSettings
 ) {
 
     suspend fun buildReport(): String = withContext(Dispatchers.IO) {
@@ -97,14 +100,14 @@ class DiagnosticsService @Inject constructor(
     private fun recentExits(): String {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return "(Android 11 or newer only)"
         return runCatching {
-            val am = context.getSystemService(android.app.ActivityManager::class.java)
+            val am = context.getSystemService(ActivityManager::class.java)
             val exits = am.getHistoricalProcessExitReasons(context.packageName, 0, 6)
             if (exits.isEmpty()) return "(none)"
             val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ROOT)
             buildString {
                 exits.forEach { e ->
                     appendLine("  ${format.format(Date(e.timestamp))} ${exitReason(e.reason)} importance=${e.importance} ${e.description.orEmpty()}")
-                    if (e.reason == android.app.ApplicationExitInfo.REASON_ANR) {
+                    if (e.reason == ApplicationExitInfo.REASON_ANR) {
                         val trace = runCatching { e.traceInputStream?.bufferedReader()?.use { it.readText() } }.getOrNull()
                         trace?.let { t ->
                             val main = t.substringAfter("\"main\"", "").lineSequence().take(25).joinToString("\n")
@@ -117,19 +120,19 @@ class DiagnosticsService @Inject constructor(
     }
 
     private fun exitReason(reason: Int): String = when (reason) {
-        android.app.ApplicationExitInfo.REASON_ANR -> "ANR"
-        android.app.ApplicationExitInfo.REASON_CRASH -> "CRASH"
-        android.app.ApplicationExitInfo.REASON_CRASH_NATIVE -> "NATIVE_CRASH"
-        android.app.ApplicationExitInfo.REASON_LOW_MEMORY -> "LOW_MEMORY"
-        android.app.ApplicationExitInfo.REASON_EXIT_SELF -> "EXIT_SELF"
-        android.app.ApplicationExitInfo.REASON_SIGNALED -> "SIGNALED"
-        android.app.ApplicationExitInfo.REASON_USER_REQUESTED -> "USER_REQUESTED"
-        android.app.ApplicationExitInfo.REASON_USER_STOPPED -> "USER_STOPPED"
-        android.app.ApplicationExitInfo.REASON_EXCESSIVE_RESOURCE_USAGE -> "EXCESSIVE_RESOURCE_USAGE"
-        android.app.ApplicationExitInfo.REASON_INITIALIZATION_FAILURE -> "INITIALIZATION_FAILURE"
-        android.app.ApplicationExitInfo.REASON_PERMISSION_CHANGE -> "PERMISSION_CHANGE"
-        android.app.ApplicationExitInfo.REASON_DEPENDENCY_DIED -> "DEPENDENCY_DIED"
-        android.app.ApplicationExitInfo.REASON_OTHER -> "OTHER"
+        ApplicationExitInfo.REASON_ANR -> "ANR"
+        ApplicationExitInfo.REASON_CRASH -> "CRASH"
+        ApplicationExitInfo.REASON_CRASH_NATIVE -> "NATIVE_CRASH"
+        ApplicationExitInfo.REASON_LOW_MEMORY -> "LOW_MEMORY"
+        ApplicationExitInfo.REASON_EXIT_SELF -> "EXIT_SELF"
+        ApplicationExitInfo.REASON_SIGNALED -> "SIGNALED"
+        ApplicationExitInfo.REASON_USER_REQUESTED -> "USER_REQUESTED"
+        ApplicationExitInfo.REASON_USER_STOPPED -> "USER_STOPPED"
+        ApplicationExitInfo.REASON_EXCESSIVE_RESOURCE_USAGE -> "EXCESSIVE_RESOURCE_USAGE"
+        ApplicationExitInfo.REASON_INITIALIZATION_FAILURE -> "INITIALIZATION_FAILURE"
+        ApplicationExitInfo.REASON_PERMISSION_CHANGE -> "PERMISSION_CHANGE"
+        ApplicationExitInfo.REASON_DEPENDENCY_DIED -> "DEPENDENCY_DIED"
+        ApplicationExitInfo.REASON_OTHER -> "OTHER"
         else -> "reason $reason"
     }
 

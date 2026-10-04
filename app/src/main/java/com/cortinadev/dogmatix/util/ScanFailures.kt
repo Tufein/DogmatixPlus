@@ -1,8 +1,12 @@
 package com.cortinadev.dogmatix.util
 
 import java.io.IOException
+import java.net.ConnectException
+import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import javax.net.ssl.SSLException
 
 /** Why a source could not be scanned, in words the scan report can show. */
@@ -52,7 +56,7 @@ object ScanFailures {
             chain.any { it is NoFileTableException } -> FailureKind.NO_TABLE
             chain.any { it.javaClass.simpleName == "TorrentMetadataTimeoutException" } -> FailureKind.TORRENT_METADATA
             chain.any { it is SocketTimeoutException || it.javaClass.simpleName.contains("Timeout") } -> FailureKind.TIMEOUT
-            chain.any { it is UnknownHostException || it is SSLException || it is java.net.ConnectException || it is java.net.SocketException } -> FailureKind.NETWORK
+            chain.any { it is UnknownHostException || it is SSLException || it is ConnectException || it is SocketException } -> FailureKind.NETWORK
             chain.any { it is IOException } -> FailureKind.NETWORK
             else -> FailureKind.OTHER
         }
@@ -88,7 +92,7 @@ object ScanFailures {
         if (v.isEmpty()) return null
         v.toLongOrNull()?.let { return it.coerceAtLeast(0) }
         return runCatching {
-            val at = java.time.ZonedDateTime.parse(v, java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME).toInstant().toEpochMilli()
+            val at = ZonedDateTime.parse(v, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant().toEpochMilli()
             ((at - now) / 1000).coerceAtLeast(0)
         }.getOrNull()
     }

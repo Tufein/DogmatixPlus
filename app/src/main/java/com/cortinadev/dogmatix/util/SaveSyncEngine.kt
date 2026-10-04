@@ -1,6 +1,7 @@
 package com.cortinadev.dogmatix.util
 
 import java.io.IOException
+import java.security.MessageDigest
 
 /** Both sides changed since the last sync; the user picks which one stays. */
 data class SaveConflict(val local: LocalSaveFile, val remote: RemoteSaveFile)
@@ -207,6 +208,6 @@ class SaveSyncEngine(
 
         /** RomM's `content_hash` of a save: the MD5 of its bytes, in hex. */
         fun md5(bytes: ByteArray): String =
-            java.security.MessageDigest.getInstance("MD5").digest(bytes).joinToString("") { "%02x".format(it) }
+            MessageDigest.getInstance("MD5").digest(bytes).joinToString("") { "%02x".format(it) }
     }
 }

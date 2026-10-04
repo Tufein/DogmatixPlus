@@ -3,7 +3,9 @@ package com.cortinadev.dogmatix.di
 import android.content.Context
 import androidx.room.Room
 import com.cortinadev.dogmatix.data.local.DogmatixDatabase
+import com.cortinadev.dogmatix.data.local.dao.CollectionDao
 import com.cortinadev.dogmatix.data.local.dao.ConsoleDao
+import com.cortinadev.dogmatix.data.local.dao.DatDao
 import com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.dao.FavouriteDao
@@ -41,10 +43,10 @@ object DatabaseModule {
     fun provideWishlistDao(db: DogmatixDatabase): WishlistDao = db.wishlistDao()
 
     @Provides
-    fun provideCollectionDao(db: DogmatixDatabase): com.cortinadev.dogmatix.data.local.dao.CollectionDao = db.collectionDao()
+    fun provideCollectionDao(db: DogmatixDatabase): CollectionDao = db.collectionDao()
 
     @Provides
-    fun provideDatDao(db: DogmatixDatabase): com.cortinadev.dogmatix.data.local.dao.DatDao = db.datDao()
+    fun provideDatDao(db: DogmatixDatabase): DatDao = db.datDao()
 
     @Provides
     fun provideConsoleDao(db: DogmatixDatabase): ConsoleDao = db.consoleDao()

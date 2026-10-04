@@ -2,7 +2,9 @@ package com.cortinadev.dogmatix.data.service
 
 import com.cortinadev.dogmatix.data.local.dao.CollectionDao
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
+import com.cortinadev.dogmatix.data.local.dao.FavouriteDao
 import com.cortinadev.dogmatix.data.local.entity.CollectionItemEntity
+import com.cortinadev.dogmatix.data.local.entity.FavouriteEntity
 import com.cortinadev.dogmatix.data.repository.CollectionsRepository
 import com.cortinadev.dogmatix.util.RommSource
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +25,7 @@ class RommCollectionsService @Inject constructor(
     private val collections: CollectionsRepository,
     private val collectionDao: CollectionDao,
     private val fileDao: DownloadableFileDao,
-    private val favouriteDao: com.cortinadev.dogmatix.data.local.dao.FavouriteDao
+    private val favouriteDao: FavouriteDao
 ) {
     data class Result(val collections: Int, val games: Int, val skipped: Int)
 
@@ -47,7 +49,7 @@ class RommCollectionsService @Inject constructor(
                 val items = c.romIds.mapNotNull { rows[it] }
                 skipped += c.romIds.size - items.size
                 val fresh = items.filter { it !in have }
-                favouriteDao.upsertAll(fresh.map { (console, file) -> com.cortinadev.dogmatix.data.local.entity.FavouriteEntity(console, file) })
+                favouriteDao.upsertAll(fresh.map { (console, file) -> FavouriteEntity(console, file) })
                 games += fresh.size
                 return@forEach
             }

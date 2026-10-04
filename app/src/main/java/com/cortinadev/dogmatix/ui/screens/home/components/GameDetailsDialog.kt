@@ -1,11 +1,15 @@
 package com.cortinadev.dogmatix.ui.screens.home.components
 
 import android.content.res.Configuration
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,9 +21,12 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -51,7 +58,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.data.local.dao.CollectionWithCount
 import com.cortinadev.dogmatix.data.model.GameDetails
+import com.cortinadev.dogmatix.ui.components.DialogButton
 import com.cortinadev.dogmatix.ui.components.TagRow
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.focusRing
@@ -59,6 +68,8 @@ import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.stripExtension
 import com.cortinadev.dogmatix.ui.components.swapFaceButtons
 import com.cortinadev.dogmatix.ui.screens.home.DetailsState
+import com.cortinadev.dogmatix.util.FileParsingUtils
+import com.cortinadev.dogmatix.util.SwitchTitles
 import kotlinx.coroutines.launch
 
 /**
@@ -134,8 +145,8 @@ fun GameDetailsDialog(
                 Body(state, title, consoleName, scroll, Modifier.heightIn(max = 300.dp), onRomm)
             }
 
-            @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
-            androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth()) {
+            @OptIn(ExperimentalLayoutApi::class)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End), modifier = Modifier.fillMaxWidth()) {
                 if (onDownloadUpdate != null) {
                     val updateSource = rememberFocusSource()
                     TextButton(onClick = onDownloadUpdate, interactionSource = updateSource, modifier = Modifier.focusRing(updateSource, 20.dp)) {
@@ -203,7 +214,7 @@ private fun Artwork(details: GameDetails?, modifier: Modifier) {
 }
 
 @Composable
-private fun Body(state: DetailsState, title: String, consoleName: String, scroll: androidx.compose.foundation.ScrollState, modifier: Modifier, onRomm: Boolean) {
+private fun Body(state: DetailsState, title: String, consoleName: String, scroll: ScrollState, modifier: Modifier, onRomm: Boolean) {
     val scheme = MaterialTheme.colorScheme
     val details = state.details
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -220,7 +231,7 @@ private fun Body(state: DetailsState, title: String, consoleName: String, scroll
             val best = state.best
             Text(
                 if (best == null) pluralStringResource(R.plurals.details_versions_this_best, state.versionCount, state.versionCount)
-                else pluralStringResource(R.plurals.details_versions, state.versionCount, state.versionCount, stripExtension(best.file.fileName.let(com.cortinadev.dogmatix.util.FileParsingUtils::decodeUrlEncodedFileName))),
+                else pluralStringResource(R.plurals.details_versions, state.versionCount, state.versionCount, stripExtension(best.file.fileName.let(FileParsingUtils::decodeUrlEncodedFileName))),
                 style = MaterialTheme.typography.labelMedium, color = scheme.onSurfaceVariant
             )
         }
@@ -256,12 +267,12 @@ private fun Body(state: DetailsState, title: String, consoleName: String, scroll
 
 /** What a Switch file is (base game, update, DLC) and how its game's updates and DLC stand. */
 @Composable
-private fun SwitchLines(title: com.cortinadev.dogmatix.util.SwitchTitles.Title, status: com.cortinadev.dogmatix.util.SwitchTitles.GameStatus<*>?) {
+private fun SwitchLines(title: SwitchTitles.Title, status: SwitchTitles.GameStatus<*>?) {
     val scheme = MaterialTheme.colorScheme
     val kind = when (title.kind) {
-        com.cortinadev.dogmatix.util.SwitchTitles.Kind.BASE -> stringResource(R.string.switch_kind_base)
-        com.cortinadev.dogmatix.util.SwitchTitles.Kind.UPDATE -> stringResource(R.string.switch_kind_update, title.release ?: 0L)
-        com.cortinadev.dogmatix.util.SwitchTitles.Kind.DLC -> stringResource(R.string.switch_kind_dlc)
+        SwitchTitles.Kind.BASE -> stringResource(R.string.switch_kind_base)
+        SwitchTitles.Kind.UPDATE -> stringResource(R.string.switch_kind_update, title.release ?: 0L)
+        SwitchTitles.Kind.DLC -> stringResource(R.string.switch_kind_dlc)
     }
     Text("$kind · ${title.id}", style = MaterialTheme.typography.labelMedium, color = scheme.onSurfaceVariant)
     if (status == null) return
@@ -285,7 +296,7 @@ private fun SwitchLines(title: com.cortinadev.dogmatix.util.SwitchTitles.Title, 
  */
 @Composable
 fun CollectionPickerDialog(
-    collections: List<com.cortinadev.dogmatix.data.local.dao.CollectionWithCount>,
+    collections: List<CollectionWithCount>,
     selected: Set<Long>,
     onToggle: (Long) -> Unit,
     onCreate: (String) -> Unit,
@@ -293,7 +304,7 @@ fun CollectionPickerDialog(
 ) {
     var name by remember { mutableStateOf("") }
     val closeFocus = com.cortinadev.dogmatix.ui.components.rememberInitialFocus()
-    androidx.compose.material3.AlertDialog(
+    AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.collections_pick_title)) },
@@ -312,13 +323,13 @@ fun CollectionPickerDialog(
                             .toggleRow(c.id in selected, source) { onToggle(c.id) }
                             .padding(horizontal = 8.dp, vertical = 8.dp)
                     ) {
-                        androidx.compose.material3.Checkbox(checked = c.id in selected, onCheckedChange = null)
+                        Checkbox(checked = c.id in selected, onCheckedChange = null)
                         Text(c.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Text(c.count.toString(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
-                    androidx.compose.material3.OutlinedTextField(
+                    OutlinedTextField(
                         value = name, onValueChange = { name = it.take(60) }, singleLine = true,
                         label = { Text(stringResource(R.string.collections_new)) }, modifier = Modifier.weight(1f)
                     )
@@ -328,11 +339,11 @@ fun CollectionPickerDialog(
                 }
             }
         },
-        confirmButton = { com.cortinadev.dogmatix.ui.components.DialogButton(text = stringResource(R.string.dialog_close), onClick = onDismiss, initialFocus = closeFocus) }
+        confirmButton = { DialogButton(text = stringResource(R.string.dialog_close), onClick = onDismiss, initialFocus = closeFocus) }
     )
 }
 
-private fun Modifier.toggleRow(value: Boolean, source: androidx.compose.foundation.interaction.MutableInteractionSource, onToggle: () -> Unit): Modifier =
+private fun Modifier.toggleRow(value: Boolean, source: MutableInteractionSource, onToggle: () -> Unit): Modifier =
     this.toggleable(value = value, interactionSource = source, indication = null, onValueChange = { onToggle() })
 
 private const val SCROLL_STEP = 160f

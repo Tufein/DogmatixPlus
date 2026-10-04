@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.util
 
+import java.io.IOException
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -124,7 +125,7 @@ class SaveSyncEngineTest {
         a.store.put(SaveKind.SAVE, "Pokemon Emerald (USA).srm", "ok")
         server.put(SaveKind.SAVE, 2, "Super Mario World (USA).srm", "server")
         val broken = object : SaveStore by a.store {
-            override suspend fun write(kind: SaveKind, path: String, bytes: ByteArray): LocalSaveFile = throw java.io.IOException("disk full")
+            override suspend fun write(kind: SaveKind, path: String, bytes: ByteArray): LocalSaveFile = throw IOException("disk full")
         }
         val (result, _) = runBlocking { SaveSyncEngine(server, broken, clock = { clock.now }).sync(a.records) }
         assertEquals(1, result.uploaded)

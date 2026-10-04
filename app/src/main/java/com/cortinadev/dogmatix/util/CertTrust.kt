@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.util
 
+import java.net.URI
 import java.security.MessageDigest
 
 /**
@@ -32,7 +33,7 @@ object CertTrust {
 
     /** Host part of a server URL, lower-case; "" when there is none. */
     fun hostOf(url: String): String =
-        runCatching { java.net.URI(url.trim()).host.orEmpty().lowercase() }.getOrDefault("")
+        runCatching { URI(url.trim()).host.orEmpty().lowercase() }.getOrDefault("")
 
     fun isHttps(url: String): Boolean = url.trim().startsWith("https://", ignoreCase = true)
 }

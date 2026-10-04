@@ -14,12 +14,14 @@ import com.cortinadev.dogmatix.data.service.LibraryIndexService
 import com.cortinadev.dogmatix.util.QueueActions
 import com.cortinadev.dogmatix.util.QueueEta
 import com.cortinadev.dogmatix.util.StorageInsights
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
 import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.VerifyState
 import com.cortinadev.dogmatix.util.WaitReason
 import android.content.Context
 import com.cortinadev.dogmatix.R
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.combine
 import com.cortinadev.dogmatix.data.service.UploadState
 import kotlinx.coroutines.flow.SharingStarted
@@ -139,8 +141,8 @@ class DownloadViewModel @Inject constructor(
     fun retryUpload(fileName: String) = rommUploadService.retry(fileName)
 
     /** Looked-up details per file name; names the library does not know are in [detailsMissing]. */
-    private val detailsCache = java.util.concurrent.ConcurrentHashMap<String, DownloadableFileWithTags>()
-    private val detailsMissing = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+    private val detailsCache = ConcurrentHashMap<String, DownloadableFileWithTags>()
+    private val detailsMissing = ConcurrentHashMap.newKeySet<String>()
 
     /**
      * Indexed file + tags for each download, keyed by fileName, so the list can show what each one is.
@@ -148,7 +150,7 @@ class DownloadViewModel @Inject constructor(
      * batch. One query per name (each a scan of the whole library table) after queueing a whole
      * console kept the database and the UI thread busy for minutes.
      */
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     val downloadDetails: StateFlow<Map<String, DownloadableFileWithTags>> = downloads
         .map { list -> list.map { it.fileName } }
         .distinctUntilChanged()

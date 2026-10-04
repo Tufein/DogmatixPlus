@@ -14,6 +14,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.ui.focus.onFocusChanged
+import com.cortinadev.dogmatix.data.model.UrlEntry
+import com.cortinadev.dogmatix.data.state.SourceScanResult
+import com.cortinadev.dogmatix.ui.screens.settings.ThemedSwitch
 import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,14 +32,14 @@ fun ConsoleCard(
     onAddUrl: () -> Unit,
     onEditConsole: () -> Unit,
     onDeleteConsole: () -> Unit,
-    onEditUrl: (Int, com.cortinadev.dogmatix.data.model.UrlEntry) -> Unit,
-    onDeleteUrl: (Int, com.cortinadev.dogmatix.data.model.UrlEntry) -> Unit,
+    onEditUrl: (Int, UrlEntry) -> Unit,
+    onDeleteUrl: (Int, UrlEntry) -> Unit,
     onToggleUrl: (Int, Boolean) -> Unit,
     onSetCustomDownloadPath: () -> Unit,
     onRefreshConsole: () -> Unit,
     onMergeFolders: () -> Unit = {},
     /** How the last scan of a source went, if known. */
-    resultFor: (com.cortinadev.dogmatix.data.model.UrlEntry) -> com.cortinadev.dogmatix.data.state.SourceScanResult? = { null }
+    resultFor: (UrlEntry) -> SourceScanResult? = { null }
 ) {
     var expanded by remember { mutableStateOf(false) }
     // D-pad: when any button inside gains focus, scroll the whole card into view (not just the button),
@@ -161,8 +164,8 @@ fun ConsoleCard(
 
 @Composable
 private fun UrlItem(
-    urlEntry: com.cortinadev.dogmatix.data.model.UrlEntry,
-    result: com.cortinadev.dogmatix.data.state.SourceScanResult? = null,
+    urlEntry: UrlEntry,
+    result: SourceScanResult? = null,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onToggle: (Boolean) -> Unit
@@ -208,7 +211,7 @@ private fun UrlItem(
             }
 
             Box(modifier = Modifier.padding(start = 12.dp)) {
-                com.cortinadev.dogmatix.ui.screens.settings.ThemedSwitch(checked = urlEntry.enabled, onChange = onToggle)
+                ThemedSwitch(checked = urlEntry.enabled, onChange = onToggle)
             }
             Row(horizontalArrangement = Arrangement.spacedBy((-12).dp)) {
                 IconButton(onClick = onEdit) {

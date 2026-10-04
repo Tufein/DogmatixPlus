@@ -9,10 +9,17 @@ import androidx.core.app.NotificationManagerCompat
 import com.cortinadev.dogmatix.DogmatixApplication
 import com.cortinadev.dogmatix.MainActivity
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.dao.WishlistDao
 import com.cortinadev.dogmatix.data.local.entity.WishlistEntity
+import com.cortinadev.dogmatix.data.service.DownloadService
+import com.cortinadev.dogmatix.data.service.LibraryIndexService
+import com.cortinadev.dogmatix.data.service.RommLibraryService
 import com.cortinadev.dogmatix.data.state.RescanStateHolder
+import com.cortinadev.dogmatix.util.GameTitleCleaner
+import com.cortinadev.dogmatix.util.LibraryKeys
+import com.cortinadev.dogmatix.util.VersionPicker
 import com.cortinadev.dogmatix.util.WishlistMatch
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -43,11 +50,11 @@ class WishlistRepository @Inject constructor(
     private val dao: WishlistDao,
     private val fileDao: DownloadableFileDao,
     rescanStateHolder: RescanStateHolder,
-    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings,
+    private val appSettings: AppSettings,
     private val settingsRepository: SettingsRepository,
-    private val downloadService: com.cortinadev.dogmatix.data.service.DownloadService,
-    private val libraryIndex: dagger.Lazy<com.cortinadev.dogmatix.data.service.LibraryIndexService>,
-    private val rommLibrary: dagger.Lazy<com.cortinadev.dogmatix.data.service.RommLibraryService>
+    private val downloadService: DownloadService,
+    private val libraryIndex: dagger.Lazy<LibraryIndexService>,
+    private val rommLibrary: dagger.Lazy<RommLibraryService>
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -90,7 +97,7 @@ class WishlistRepository @Inject constructor(
     suspend fun status(item: WishlistEntity): WishlistStatus {
         val matches = matches(item)
         val owned = libraryIndex.get().ownedKeys.value
-        val scopes = item.consoleId?.let { com.cortinadev.dogmatix.util.LibraryKeys.scopesFor(it) }
+        val scopes = item.consoleId?.let { LibraryKeys.scopesFor(it) }
         val onDevice = WishlistMatch.onDevice(item.title, scopes, owned)
         val inRomm = !onDevice && WishlistMatch.inRomm(item.title, item.consoleId, rommLibrary.get().keys.value)
         return WishlistStatus(item, matches, WishlistMatch.state(onDevice, inRomm, matches))
@@ -117,15 +124,15 @@ class WishlistRepository @Inject constructor(
      */
     suspend fun autoDownload(found: List<WishlistEntity>): Int {
         val languages = settingsRepository.favoriteLanguages.first()
-        val regions = com.cortinadev.dogmatix.util.VersionPicker.regionPreference(languages)
+        val regions = VersionPicker.regionPreference(languages)
         val index = libraryIndex.get()
         val picks = found.flatMap { item ->
             fileDao.filesMatching(item.key, item.consoleId)
-                .filter { com.cortinadev.dogmatix.util.GameTitleCleaner.containsAllWords(item.title, it.fileName) }
+                .filter { GameTitleCleaner.containsAllWords(item.title, it.fileName) }
                 .groupBy { it.consoleId }.mapNotNull { (_, files) ->
                 if (files.any { index.isOwned(it) || downloadService.isActive(it.fileName) }) return@mapNotNull null
-                val best = com.cortinadev.dogmatix.util.VersionPicker.best(
-                    files.map { com.cortinadev.dogmatix.util.VersionPicker.Candidate(it.fileName, it.fileName, fileDao.tagsOf(it.id), it.fileSize) },
+                val best = VersionPicker.best(
+                    files.map { VersionPicker.Candidate(it.fileName, it.fileName, fileDao.tagsOf(it.id), it.fileSize) },
                     regions, languages
                 ) ?: return@mapNotNull null
                 files.first { it.fileName == best.id }

@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -84,7 +85,7 @@ class SwitchViewModel @Inject constructor(
         }
     }
 
-    fun fetch(context: android.content.Context, files: List<DownloadableFileEntity>) {
+    fun fetch(context: Context, files: List<DownloadableFileEntity>) {
         if (files.isEmpty()) return
         viewModelScope.launch {
             downloadService.startDownloads(files)

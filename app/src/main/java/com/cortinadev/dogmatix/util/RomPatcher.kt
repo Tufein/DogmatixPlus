@@ -1,6 +1,7 @@
 package com.cortinadev.dogmatix.util
 
 import java.io.ByteArrayOutputStream
+import java.util.Arrays
 import java.util.zip.CRC32
 
 /** A patch that could not be applied, with the reason in [message]. */
@@ -73,7 +74,7 @@ object RomPatcher {
                 val run = u16()
                 val value = u8().toByte()
                 ensure(offset + run)
-                java.util.Arrays.fill(out, offset, offset + run, value)
+                Arrays.fill(out, offset, offset + run, value)
             }
         }
     }
@@ -109,7 +110,7 @@ object RomPatcher {
         }
         if (size > MAX_SIZE) throw PatchException("Result too large")
         val out = rom.copyOf(size.toInt())
-        if (expectedIn < size) java.util.Arrays.fill(out, expectedIn.toInt(), size.toInt(), 0)
+        if (expectedIn < size) Arrays.fill(out, expectedIn.toInt(), size.toInt(), 0)
         var o = 0L
         while (p < patch.size - 12) {
             o += varint()

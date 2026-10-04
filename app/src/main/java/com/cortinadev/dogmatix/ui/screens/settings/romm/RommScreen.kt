@@ -1,6 +1,7 @@
 package com.cortinadev.dogmatix.ui.screens.settings.romm
 
 import android.content.res.Configuration
+import android.text.format.DateUtils
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,12 +29,14 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.ui.common.Gamepad
 import com.cortinadev.dogmatix.ui.common.GamepadButton
 import com.cortinadev.dogmatix.ui.common.Legend
+import com.cortinadev.dogmatix.ui.components.DialogButton
 import com.cortinadev.dogmatix.ui.components.LegendEntry
 import com.cortinadev.dogmatix.ui.components.Stepper
 import com.cortinadev.dogmatix.ui.components.legendFor
@@ -46,6 +50,8 @@ import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.util.CertTrust
 import com.cortinadev.dogmatix.data.service.CoverRunState
+import java.text.DateFormat
+import java.util.Date
 
 /**
  * RomM server settings: URL, token, auto-upload and one stepper per console to pick the RomM
@@ -156,7 +162,7 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
             val hint = when {
                 libraryState.refreshing -> stringResource(R.string.romm_marks_refreshing)
                 libraryState.error != null -> stringResource(R.string.romm_marks_error, libraryState.error ?: "")
-                libraryState.updatedAt > 0 -> stringResource(R.string.romm_marks_known, libraryState.games, android.text.format.DateUtils.getRelativeTimeSpanString(libraryState.updatedAt).toString())
+                libraryState.updatedAt > 0 -> stringResource(R.string.romm_marks_known, libraryState.games, DateUtils.getRelativeTimeSpanString(libraryState.updatedAt).toString())
                 else -> stringResource(R.string.romm_marks_never)
             }
             SettingRow(title = stringResource(R.string.romm_marks), hint = hint, onClick = viewModel::refreshMarks) {
@@ -276,23 +282,23 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
     }
 }
 
-@androidx.compose.runtime.Composable
+@Composable
 private fun TrustCertificateDialog(prompt: TrustPrompt, onTrust: () -> Unit, onDismiss: () -> Unit) {
     val cert = prompt.certificate
-    val until = java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(java.util.Date(cert.validUntil))
+    val until = DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(cert.validUntil))
     val cancelFocus = com.cortinadev.dogmatix.ui.components.rememberInitialFocus()
-    androidx.compose.material3.AlertDialog(
+    AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.romm_cert_dialog_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.romm_cert_dialog_message, prompt.url))
-                Text(CertTrust.format(cert.fingerprint), style = MaterialTheme.typography.bodySmall, fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
+                Text(CertTrust.format(cert.fingerprint), style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
                 Text(stringResource(R.string.romm_cert_dialog_details, cert.subject, until), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
-        confirmButton = { com.cortinadev.dogmatix.ui.components.DialogButton(text = stringResource(R.string.romm_cert_trust), onClick = onTrust) },
-        dismissButton = { com.cortinadev.dogmatix.ui.components.DialogButton(text = stringResource(R.string.dialog_cancel), onClick = onDismiss, initialFocus = cancelFocus) }
+        confirmButton = { DialogButton(text = stringResource(R.string.romm_cert_trust), onClick = onTrust) },
+        dismissButton = { DialogButton(text = stringResource(R.string.dialog_cancel), onClick = onDismiss, initialFocus = cancelFocus) }
     )
 }

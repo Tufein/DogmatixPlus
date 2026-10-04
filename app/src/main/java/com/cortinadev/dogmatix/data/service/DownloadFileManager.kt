@@ -13,6 +13,7 @@ import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.StorageHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.OutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -62,10 +63,10 @@ class DownloadFileManager @Inject constructor(
         return runCatching { StorageHelper.createDirectory(context, downloadDirectoryUri, subPath)?.findFile(name)?.takeIf { it.isFile } }.getOrNull()
     }
 
-    fun getAppendOutputStream(documentFile: DocumentFile): java.io.OutputStream? =
+    fun getAppendOutputStream(documentFile: DocumentFile): OutputStream? =
         runCatching { context.contentResolver.openOutputStream(documentFile.uri, "wa") }.getOrNull()
 
-    fun getOutputStream(documentFile: DocumentFile): java.io.OutputStream? {
+    fun getOutputStream(documentFile: DocumentFile): OutputStream? {
         return StorageHelper.getOutputStream(context, documentFile)
     }
 

@@ -27,6 +27,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.data.service.EsdeFavouritesService
 import com.cortinadev.dogmatix.data.service.LibraryToolsService
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
@@ -43,7 +44,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ToolsHubViewModel @Inject constructor(
     private val tools: LibraryToolsService,
-    private val esdeFavourites: com.cortinadev.dogmatix.data.service.EsdeFavouritesService
+    private val esdeFavourites: EsdeFavouritesService
 ) : ViewModel() {
 
     /** Stars the games ES-DE has as favourites; says how many. */

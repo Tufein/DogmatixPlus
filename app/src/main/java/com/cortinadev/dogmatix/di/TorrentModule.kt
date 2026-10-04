@@ -1,5 +1,7 @@
 package com.cortinadev.dogmatix.di
 
+import android.content.Context
+import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.service.TorrentFileIndexer
 import com.cortinadev.dogmatix.data.service.TorrentHandleRegistry
 import com.cortinadev.dogmatix.data.service.TorrentMetadataFetcher
@@ -8,6 +10,7 @@ import com.cortinadev.dogmatix.data.service.DownloadProgressTracker
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -35,8 +38,8 @@ object TorrentModule {
     @Provides
     @Singleton
     fun provideTorrentHandleRegistry(
-        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context,
-        settingsRepository: com.cortinadev.dogmatix.data.repository.SettingsRepository
+        @ApplicationContext context: Context,
+        settingsRepository: SettingsRepository
     ): TorrentHandleRegistry = TorrentHandleRegistry(context, settingsRepository)
 
     @Provides

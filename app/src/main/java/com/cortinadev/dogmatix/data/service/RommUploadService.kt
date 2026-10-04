@@ -1,10 +1,14 @@
 package com.cortinadev.dogmatix.data.service
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
+import com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
+import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.util.LibraryKeys
 import com.cortinadev.dogmatix.util.RommPlatformMapper
 import com.cortinadev.dogmatix.util.RommSource
 import com.cortinadev.dogmatix.util.RommUploadPlan
@@ -50,7 +54,7 @@ class RommUploadService @Inject constructor(
     private val downloadFileManager: DownloadFileManager,
     private val rommClient: RommClient,
     private val rommLibraryService: RommLibraryService,
-    private val historyDao: com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao,
+    private val historyDao: DownloadHistoryDao,
     private val libraryIndexService: LibraryIndexService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -101,9 +105,9 @@ class RommUploadService @Inject constructor(
         val base = rommClient.configuredBaseUrl()
         val owned = libraryIndexService.ownedKeys.value
         val candidates = historyDao.getAll()
-            .filter { it.status == com.cortinadev.dogmatix.data.model.DownloadStatus.COMPLETED.name }
+            .filter { it.status == DownloadStatus.COMPLETED.name }
             .map { RommUploadPlan.Candidate(it.fileName, it.consoleId, it.downloadUrl) }
-        val names = RommUploadPlan.missing(candidates, serverKeys, mapped, base) { com.cortinadev.dogmatix.util.LibraryKeys.isOwned(it.consoleId, it.fileName, owned) }
+        val names = RommUploadPlan.missing(candidates, serverKeys, mapped, base) { LibraryKeys.isOwned(it.consoleId, it.fileName, owned) }
         names.forEach { name -> scope.launch { enqueue(name) } }
         return names.size
     }
@@ -134,7 +138,7 @@ class RommUploadService @Inject constructor(
 
     private suspend fun uploadAll(file: DownloadableFileEntity, names: List<String>, platformId: Int) {
         val dirUri = downloadFileManager.getDownloadDirectoryUri(file)
-        if (dirUri == android.net.Uri.EMPTY) throw RommException("Download directory not accessible")
+        if (dirUri == Uri.EMPTY) throw RommException("Download directory not accessible")
         val directory = StorageHelper.createDirectory(context, dirUri.toString(), downloadFileManager.getSubPath(file))
             ?: throw RommException("Could not open the download folder")
         val docs = names.mapNotNull { directory.findFile(it) }.filter { it.isFile }
@@ -169,7 +173,7 @@ class RommUploadService @Inject constructor(
      * disk), so the next try continues at the first chunk the server has not got instead of
      * sending everything again; if the server no longer knows the session it starts over.
      */
-    private suspend fun uploadOne(uri: android.net.Uri, name: String, size: Long, platformId: Int, downloadFileName: String, onProgress: (Long) -> Unit) {
+    private suspend fun uploadOne(uri: Uri, name: String, size: Long, platformId: Int, downloadFileName: String, onProgress: (Long) -> Unit) {
         val chunks = RommPlatformMapper.chunkCount(size, CHUNK_SIZE)
         // Runs inside the upload lock (see enqueue), so the session list is not touched concurrently.
         var resumed = UploadSessions.resumable(sessions.values, platformId, name, size, chunks, System.currentTimeMillis())
@@ -204,7 +208,7 @@ class RommUploadService @Inject constructor(
         }
     }
 
-    private suspend fun sendChunks(uri: android.net.Uri, name: String, session: UploadSession, chunks: Int, onProgress: (Long) -> Unit) {
+    private suspend fun sendChunks(uri: Uri, name: String, session: UploadSession, chunks: Int, onProgress: (Long) -> Unit) {
         context.contentResolver.openInputStream(uri)?.use { input ->
             var skip = UploadSessions.offsetOf(session.nextChunk, CHUNK_SIZE)
             while (skip > 0) {

@@ -9,6 +9,7 @@ import android.app.job.JobService
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -133,7 +134,7 @@ class AutoScanJobService : JobService() {
         val open = PendingIntent.getActivity(
             this, 2,
             Intent(this, MainActivity::class.java)
-                .apply { if (summary.newFiles > 0) { action = Intent.ACTION_VIEW; data = android.net.Uri.parse("dogmatix://library?new=1") } }
+                .apply { if (summary.newFiles > 0) { action = Intent.ACTION_VIEW; data = Uri.parse("dogmatix://library?new=1") } }
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )

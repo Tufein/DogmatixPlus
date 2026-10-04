@@ -2,10 +2,12 @@ package com.cortinadev.dogmatix.data.service
 
 import android.content.Context
 import android.util.Log
+import androidx.documentfile.provider.DocumentFile
 import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.DiskFile
 import com.cortinadev.dogmatix.util.EsdeArtwork
+import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.LibretroThumbnails
 import com.cortinadev.dogmatix.util.FrontendArtwork
 import com.cortinadev.dogmatix.util.PlaylistPlanner
@@ -74,8 +76,8 @@ class PostDownloadService @Inject constructor(
     }
 
     /** Pegasus: `media/<game>/boxFront.<ext>` next to the game, unless a cover is already there. */
-    private suspend fun writePegasusCover(name: String, consoleId: String, fileName: String, dir: androidx.documentfile.provider.DocumentFile, romName: String) {
-        val url = metadata.lookup(name, consoleId, com.cortinadev.dogmatix.util.FileParsingUtils.decodeUrlEncodedFileName(fileName))
+    private suspend fun writePegasusCover(name: String, consoleId: String, fileName: String, dir: DocumentFile, romName: String) {
+        val url = metadata.lookup(name, consoleId, FileParsingUtils.decodeUrlEncodedFileName(fileName))
             ?.imageUrl?.takeIf { it.isNotBlank() } ?: return
         val media = "media/${com.cortinadev.dogmatix.util.LibraryKeys.baseName(romName)}"
         val existing = StorageHelper.findFile(dir, media)?.listFiles().orEmpty()
@@ -90,7 +92,7 @@ class PostDownloadService @Inject constructor(
         val system = LibretroThumbnails.systemFor(consoleId) ?: return
         val path = FrontendArtwork.retroArchCoverPath(system, romName)
         if (StorageHelper.findFile(root, path) != null) return
-        val url = thumbnails.boxart(consoleId, com.cortinadev.dogmatix.util.FileParsingUtils.decodeUrlEncodedFileName(fileName)) ?: return
+        val url = thumbnails.boxart(consoleId, FileParsingUtils.decodeUrlEncodedFileName(fileName)) ?: return
         downloadImage(url)?.let { StorageHelper.writeBytesSafely(context, root, path.substringBeforeLast('/'), path.substringAfterLast('/'), it) }
     }
 
@@ -101,7 +103,7 @@ class PostDownloadService @Inject constructor(
         val esdeUri = settingsRepository.esdeDirectory.first().takeIf { it.isNotBlank() } ?: return
         val system = folder.takeIf { it.isNotBlank() } ?: return
         val esdeDir = StorageHelper.getDocumentFile(context, esdeUri)?.takeIf { it.isDirectory && it.canWrite() } ?: return
-        val details = metadata.lookup(name, consoleId, com.cortinadev.dogmatix.util.FileParsingUtils.decodeUrlEncodedFileName(fileName)) ?: return
+        val details = metadata.lookup(name, consoleId, FileParsingUtils.decodeUrlEncodedFileName(fileName)) ?: return
 
         details.imageUrl.takeIf { it.isNotBlank() }?.let { url ->
             val path = EsdeArtwork.coverPath(system, romName, EsdeArtwork.imageExtension(url))

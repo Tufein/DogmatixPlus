@@ -4,6 +4,9 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import java.security.MessageDigest
+import java.security.SecureRandom
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.PBEKeySpec
 
 /**
  * A profile hides consoles and tags from the library (and from what can be downloaded through
@@ -62,8 +65,8 @@ object Profiles {
     private fun unhex(s: String) = ByteArray(s.length / 2) { s.substring(it * 2, it * 2 + 2).toInt(16).toByte() }
 
     private fun pbkdf2(pin: String, salt: ByteArray, rounds: Int): ByteArray =
-        javax.crypto.SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-            .generateSecret(javax.crypto.spec.PBEKeySpec(pin.toCharArray(), salt, rounds, 256)).encoded
+        SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+            .generateSecret(PBEKeySpec(pin.toCharArray(), salt, rounds, 256)).encoded
 
     /** Old (3.0.0) format: SHA-256 with a fixed salt, 64 hex characters. Still accepted so a PIN set earlier keeps working. */
     private fun legacyHash(pin: String): String =
@@ -71,7 +74,7 @@ object Profiles {
 
     /** `pbkdf2$rounds$salt$hash`: a random salt per PIN and a slow hash, so a copied settings file does not give the PIN away in seconds. The PIN itself is never kept. */
     fun pinHash(pin: String): String {
-        val salt = ByteArray(16).also { java.security.SecureRandom().nextBytes(it) }
+        val salt = ByteArray(16).also { SecureRandom().nextBytes(it) }
         return "pbkdf2$$PBKDF2_ROUNDS$${hex(salt)}$${hex(pbkdf2(pin.trim(), salt, PBKDF2_ROUNDS))}"
     }
 

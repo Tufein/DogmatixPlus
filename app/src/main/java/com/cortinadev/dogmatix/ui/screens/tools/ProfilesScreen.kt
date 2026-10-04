@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -47,6 +48,7 @@ import com.cortinadev.dogmatix.util.Profile
 import com.cortinadev.dogmatix.util.Profiles
 import com.cortinadev.dogmatix.util.ToastUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.UUID
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -72,7 +74,7 @@ class ProfilesViewModel @Inject constructor(
     fun save(profile: Profile) { viewModelScope.launch { service.save(profile) } }
     fun delete(id: String) { viewModelScope.launch { service.delete(id) } }
 
-    fun switchTo(context: android.content.Context, id: String, pin: String = "", onWrongPin: () -> Unit = {}) {
+    fun switchTo(context: Context, id: String, pin: String = "", onWrongPin: () -> Unit = {}) {
         val app = context.applicationContext
         viewModelScope.launch {
             if (service.switchTo(id, pin)) ToastUtil.showSuccess(app, app.getString(R.string.profiles_switched))
@@ -80,7 +82,7 @@ class ProfilesViewModel @Inject constructor(
         }
     }
 
-    fun setPin(context: android.content.Context, pin: String) {
+    fun setPin(context: Context, pin: String) {
         val app = context.applicationContext
         viewModelScope.launch {
             if (service.setPin(pin)) ToastUtil.showSuccess(app, app.getString(if (pin.isBlank()) R.string.profiles_pin_removed else R.string.profiles_pin_set))
@@ -144,8 +146,8 @@ fun ProfilesScreen(viewModel: ProfilesViewModel = hiltViewModel()) {
             if (!locked) {
                 item(key = "add") {
                     ToolRow(stringResource(R.string.profiles_add), listOf(stringResource(R.string.profiles_add_hint)), onClick = {
-                        editing = Profile(java.util.UUID.randomUUID().toString(), "")
-                    }) { PillButton(stringResource(R.string.profiles_add_action)) { editing = Profile(java.util.UUID.randomUUID().toString(), "") } }
+                        editing = Profile(UUID.randomUUID().toString(), "")
+                    }) { PillButton(stringResource(R.string.profiles_add_action)) { editing = Profile(UUID.randomUUID().toString(), "") } }
                 }
                 item(key = "pin") {
                     ToolRow(stringResource(R.string.profiles_pin), listOf(stringResource(if (pinSet) R.string.profiles_pin_on else R.string.profiles_pin_off)), onClick = { settingPin = true }) {

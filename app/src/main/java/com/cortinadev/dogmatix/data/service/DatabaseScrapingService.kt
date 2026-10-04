@@ -1,8 +1,10 @@
 package com.cortinadev.dogmatix.data.service
 
 import android.content.Context
+import android.util.Log
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
+import com.cortinadev.dogmatix.data.state.SourceScanResult
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.local.entity.FileTagEntity
@@ -20,6 +22,8 @@ import com.cortinadev.dogmatix.util.NoFileTableException
 import com.cortinadev.dogmatix.util.ScanFailure
 import com.cortinadev.dogmatix.util.ScanFailures
 import com.cortinadev.dogmatix.util.ScrapeHttpException
+import java.io.ByteArrayInputStream
+import java.net.URI
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -30,6 +34,7 @@ import kotlinx.coroutines.sync.withPermit
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.withContext
+import org.jsoup.Connection
 import org.jsoup.Jsoup
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -65,7 +70,7 @@ class DatabaseScrapingService @Inject constructor(
     fun resetForScan() = hostGates.clear()
 
     private fun hostGate(url: String): HostGate =
-        hostGates.getOrPut(runCatching { java.net.URI(url).host.orEmpty().lowercase() }.getOrDefault("")) {
+        hostGates.getOrPut(runCatching { URI(url).host.orEmpty().lowercase() }.getOrDefault("")) {
             HostGate(ScrapingConstants.PARALLEL_PER_HOST, ScrapingConstants.REQUEST_DELAY_MS, ScrapingConstants.SLOW_REQUEST_DELAY_MS)
         }
 
@@ -75,7 +80,7 @@ class DatabaseScrapingService @Inject constructor(
      * growing pause — what its `Retry-After` asks, else 3, 6, 12, 24 s — and from then on gets one
      * request at a time. 404 / 403 are final. With [conditional] headers a 304 counts as an answer.
      */
-    private suspend fun makeRequest(url: String, conditional: Map<String, String> = emptyMap()): org.jsoup.Connection.Response {
+    private suspend fun makeRequest(url: String, conditional: Map<String, String> = emptyMap()): Connection.Response {
         val gate = hostGate(url)
         var attempt = 0
         while (true) {
@@ -98,7 +103,7 @@ class DatabaseScrapingService @Inject constructor(
                 val kind = ScanFailures.kindOf(e)
                 if (!ScanFailures.isRetryable(kind) || attempt >= ScrapingConstants.MAX_ATTEMPTS) throw e
                 val wait = ScanFailures.backoffMillis(attempt, (e as? ScrapeHttpException)?.retryAfterSeconds)
-                android.util.Log.w("DatabaseScrapingService", "$url: ${e.message} ($kind), try ${attempt + 1} in ${wait / 1000} s")
+                Log.w("DatabaseScrapingService", "$url: ${e.message} ($kind), try ${attempt + 1} in ${wait / 1000} s")
                 if (kind == FailureKind.RATE_LIMITED || kind == FailureKind.SERVER_ERROR) gate.pushBack(wait) else delay(wait)
             }
         }
@@ -120,7 +125,7 @@ class DatabaseScrapingService @Inject constructor(
                     throw e
                 } catch (e: Exception) {
                     lastError = e
-                    if (target != targets.last()) android.util.Log.w("DatabaseScrapingService", "$target failed (${e.message}); trying the next address")
+                    if (target != targets.last()) Log.w("DatabaseScrapingService", "$target failed (${e.message}); trying the next address")
                 }
             }
             throw lastError ?: IllegalStateException("No address for ${entry.url}")
@@ -136,17 +141,17 @@ class DatabaseScrapingService @Inject constructor(
         val etag = response.header("ETag")
         val lastModified = response.header("Last-Modified")
         if (response.statusCode() == 304) {
-            android.util.Log.i("DatabaseScrapingService", "$target unchanged (304) in ${t1 - t0} ms")
+            Log.i("DatabaseScrapingService", "$target unchanged (304) in ${t1 - t0} ms")
             return SourceIndexResult(previous!!.files, 0, unchanged = true, servedBy = servedBy,
                 etag = etag ?: previous.etag, lastModified = lastModified ?: previous.lastModified, bodyHash = previous.bodyHash)
         }
         val body = response.bodyAsBytes()
         val bodyHash = ListingCheck.hash(body)
         if (ListingCheck.sameBody(entry, previous, force, bodyHash)) {
-            android.util.Log.i("DatabaseScrapingService", "$target unchanged (same listing) in ${t1 - t0} ms")
+            Log.i("DatabaseScrapingService", "$target unchanged (same listing) in ${t1 - t0} ms")
             return SourceIndexResult(previous!!.files, 0, unchanged = true, servedBy = servedBy, etag = etag, lastModified = lastModified, bodyHash = bodyHash)
         }
-        val doc = Jsoup.parse(java.io.ByteArrayInputStream(body), response.charset(), target)
+        val doc = Jsoup.parse(ByteArrayInputStream(body), response.charset(), target)
         val table = doc.select(ScrapingConstants.TABLE_SELECTOR).first()
             ?: throw NoFileTableException(target)
 
@@ -174,7 +179,7 @@ class DatabaseScrapingService @Inject constructor(
 
         val t2 = System.currentTimeMillis()
         val write = downloadableFileDao.replaceSource(console.id, entry.url, files, tags, System.currentTimeMillis())
-        android.util.Log.i("DatabaseScrapingService", "Indexed ${files.size} files (${write.newFiles} new) from $target: fetch ${t1 - t0} ms, parse ${t2 - t1} ms, store ${System.currentTimeMillis() - t2} ms")
+        Log.i("DatabaseScrapingService", "Indexed ${files.size} files (${write.newFiles} new) from $target: fetch ${t1 - t0} ms, parse ${t2 - t1} ms, store ${System.currentTimeMillis() - t2} ms")
         return SourceIndexResult(files.size, write.tags, write.newFiles, servedBy = servedBy, etag = etag, lastModified = lastModified, bodyHash = bodyHash)
     }
 
@@ -205,7 +210,7 @@ class DatabaseScrapingService @Inject constructor(
         /** Every source's outcome: what it gave, or null and the failure. */
         onSourceResult: (console: Console, entry: UrlEntry, result: SourceIndexResult?, failure: ScanFailure?) -> Unit = { _, _, _, _ -> },
         /** What the last scan of a source left behind, if anything. */
-        previousOf: (consoleId: String, url: String) -> com.cortinadev.dogmatix.data.state.SourceScanResult? = { _, _ -> null },
+        previousOf: (consoleId: String, url: String) -> SourceScanResult? = { _, _ -> null },
         force: Boolean = false
     ): Pair<Int, Int> =
         withContext(Dispatchers.IO) {
@@ -241,7 +246,7 @@ class DatabaseScrapingService @Inject constructor(
                             } catch (e: CancellationException) {
                                 throw e
                             } catch (e: Exception) {
-                                android.util.Log.w("DatabaseScrapingService", "Scan of ${urlEntry.url} for ${console.id} failed", e)
+                                Log.w("DatabaseScrapingService", "Scan of ${urlEntry.url} for ${console.id} failed", e)
                                 val failure = ScanFailure(
                                     console.id, console.name, urlEntry.url, ScanFailures.kindOf(e), ScanFailures.httpCodeOf(e),
                                     (e.message ?: e.javaClass.simpleName).take(300)
@@ -263,7 +268,7 @@ class DatabaseScrapingService @Inject constructor(
         try {
             torrentScrapingService.scrapeAndInsert(urlEntry, console)
         } catch (e: TorrentMetadataTimeoutException) {
-            android.util.Log.w("DatabaseScrapingService", "Metadata timed out for ${console.id}; one more try")
+            Log.w("DatabaseScrapingService", "Metadata timed out for ${console.id}; one more try")
             torrentScrapingService.scrapeAndInsert(urlEntry, console)
         }
 

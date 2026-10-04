@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.theme
 
+import android.os.Build
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.cortinadev.dogmatix.R
@@ -41,7 +42,7 @@ object AccentPresets {
     val dynamic: Color = Color.Unspecified
     const val DYNAMIC = "dynamic"
 
-    val dynamicAvailable: Boolean get() = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S
+    val dynamicAvailable: Boolean get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
     /** What Settings offers, Material You first where the system supports it. */
     val choices: List<Color> get() = (if (dynamicAvailable) listOf(dynamic) else emptyList()) + all

@@ -6,6 +6,7 @@ import com.cortinadev.dogmatix.util.RemoteSaveFile
 import com.cortinadev.dogmatix.util.SaveKind
 import com.cortinadev.dogmatix.util.SaveSyncPlanner.RomCandidate
 import com.google.gson.JsonObject
+import java.util.Base64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -322,7 +323,7 @@ class RommClient @Inject constructor(
         fun authHeader(token: String): String {
             val t = token.trim()
             return if (t.contains(':') && !t.startsWith("rmm_")) {
-                "Basic " + java.util.Base64.getEncoder().encodeToString(t.toByteArray(Charsets.UTF_8))
+                "Basic " + Base64.getEncoder().encodeToString(t.toByteArray(Charsets.UTF_8))
             } else "Bearer $t"
         }
     }

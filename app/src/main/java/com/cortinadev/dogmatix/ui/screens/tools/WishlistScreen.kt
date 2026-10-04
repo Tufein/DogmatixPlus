@@ -1,5 +1,11 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -46,8 +53,10 @@ import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.util.ConsoleFormatter
+import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.WishlistMatch
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -85,33 +94,33 @@ class WishlistViewModel @Inject constructor(
     fun remove(id: Long) { viewModelScope.launch { wishlist.remove(id) } }
 
     /** Writes the wishlist to [uri]. */
-    fun export(context: android.content.Context, uri: String) {
+    fun export(context: Context, uri: String) {
         val app = context.applicationContext
         viewModelScope.launch {
             val ok = runCatching {
                 val text = wishlist.exportText()
-                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    app.contentResolver.openOutputStream(android.net.Uri.parse(uri), "wt")?.use { it.write(text.toByteArray(Charsets.UTF_8)) } ?: error("cannot write")
+                kotlinx.coroutines.withContext(Dispatchers.IO) {
+                    app.contentResolver.openOutputStream(Uri.parse(uri), "wt")?.use { it.write(text.toByteArray(Charsets.UTF_8)) } ?: error("cannot write")
                 }
             }.isSuccess
-            if (ok) com.cortinadev.dogmatix.util.ToastUtil.showSuccess(app, app.getString(R.string.wishlist_exported))
-            else com.cortinadev.dogmatix.util.ToastUtil.showError(app, app.getString(R.string.wishlist_export_failed))
+            if (ok) ToastUtil.showSuccess(app, app.getString(R.string.wishlist_exported))
+            else ToastUtil.showError(app, app.getString(R.string.wishlist_export_failed))
         }
     }
 
     /** Adds the wishes of the file at [uri] that are not on the list yet. */
-    fun import(context: android.content.Context, uri: String) {
+    fun import(context: Context, uri: String) {
         val app = context.applicationContext
         viewModelScope.launch {
             val added = runCatching {
-                val text = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    app.contentResolver.openInputStream(android.net.Uri.parse(uri))?.use { it.readBytes().toString(Charsets.UTF_8) }
+                val text = kotlinx.coroutines.withContext(Dispatchers.IO) {
+                    app.contentResolver.openInputStream(Uri.parse(uri))?.use { it.readBytes().toString(Charsets.UTF_8) }
                 }
                 text?.let { wishlist.importText(it) }
             }.getOrNull()
-            if (added == null) com.cortinadev.dogmatix.util.ToastUtil.showError(app, app.getString(R.string.wishlist_import_failed))
-            else if (added == 0) com.cortinadev.dogmatix.util.ToastUtil.showInfo(app, app.getString(R.string.wishlist_import_nothing))
-            else com.cortinadev.dogmatix.util.ToastUtil.showSuccess(app, app.resources.getQuantityString(R.plurals.wishlist_imported, added, added))
+            if (added == null) ToastUtil.showError(app, app.getString(R.string.wishlist_import_failed))
+            else if (added == 0) ToastUtil.showInfo(app, app.getString(R.string.wishlist_import_nothing))
+            else ToastUtil.showSuccess(app, app.resources.getQuantityString(R.plurals.wishlist_imported, added, added))
         }
     }
 
@@ -129,21 +138,21 @@ fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = 
     var showAdd by remember { mutableStateOf(false) }
     // Android 13+ asks before the "a wanted game turned up" notification may be shown.
     val notificationPermission = androidx.activity.compose.rememberLauncherForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+        ActivityResultContracts.RequestPermission()
     ) { }
     if (showAdd) {
         AddWishDialog(ui.consoles, onAdd = { title, console ->
             viewModel.viewModelScopeAdd(context, title, console)
-            if (android.os.Build.VERSION.SDK_INT >= 33 &&
-                androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED
-            ) notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            if (Build.VERSION.SDK_INT >= 33 &&
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+            ) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }, onDismiss = { showAdd = false })
     }
     val exportLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")
+        ActivityResultContracts.CreateDocument("application/json")
     ) { uri -> uri?.let { viewModel.export(context, it.toString()) } }
     val importLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+        ActivityResultContracts.OpenDocument()
     ) { uri -> uri?.let { viewModel.import(context, it.toString()) } }
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -203,11 +212,11 @@ fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = 
     }
 }
 
-private fun WishlistViewModel.viewModelScopeAdd(context: android.content.Context, title: String, consoleId: String?) {
+private fun WishlistViewModel.viewModelScopeAdd(context: Context, title: String, consoleId: String?) {
     val app = context.applicationContext
     viewModelScope.launch {
-        if (add(title, consoleId)) com.cortinadev.dogmatix.util.ToastUtil.showSuccess(app, app.getString(R.string.wishlist_added, title.trim()))
-        else com.cortinadev.dogmatix.util.ToastUtil.showInfo(app, app.getString(R.string.wishlist_exists))
+        if (add(title, consoleId)) ToastUtil.showSuccess(app, app.getString(R.string.wishlist_added, title.trim()))
+        else ToastUtil.showInfo(app, app.getString(R.string.wishlist_exists))
     }
 }
 

@@ -2,8 +2,10 @@ package com.cortinadev.dogmatix.ui.screens.settings
 
 import android.content.Intent
 import android.content.res.Configuration
+import android.text.format.DateUtils
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,6 +25,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -33,6 +36,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.unit.Dp
 import com.cortinadev.dogmatix.ui.common.Gamepad
 import com.cortinadev.dogmatix.ui.common.GamepadButton
 import com.cortinadev.dogmatix.ui.common.Legend
@@ -78,6 +83,7 @@ import com.cortinadev.dogmatix.ui.common.GamepadLayout
 import com.cortinadev.dogmatix.ui.theme.AccentPresets
 import com.cortinadev.dogmatix.util.Constants
 import com.cortinadev.dogmatix.util.DownloadPolicy
+import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.TorrentConstants
 import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
@@ -122,11 +128,11 @@ fun SettingsScreen(
     extra: ExtraSettingsViewModel = hiltViewModel()
 ) {
     val ui by viewModel.uiState.collectAsState()
-    val more by extra.state.collectAsState()
-    val v2 by extra.v2.collectAsState()
-    val v25 by extra.v25.collectAsState()
-    val v30 by extra.v30.collectAsState()
-    val v32 by extra.v32.collectAsState()
+    val schedule by extra.schedule.collectAsState()
+    val queue by extra.queue.collectAsState()
+    val autoScan by extra.autoScan.collectAsState()
+    val afterDownload by extra.afterDownload.collectAsState()
+    val appPrefs by extra.appPrefs.collectAsState()
     val activeProfileName by extra.activeProfileName.collectAsState()
     val updateOffer by extra.updateOffer.collectAsState()
     val updateProgress by extra.updateProgress.collectAsState()
@@ -242,8 +248,8 @@ fun SettingsScreen(
     fun adjustMetadataTimeout(delta: Int) = viewModel.onMetadataTimeoutChanged(
         context, (ui.metadataTimeoutSeconds + delta * 10).coerceIn(TorrentConstants.MIN_METADATA_TIMEOUT_S, TorrentConstants.MAX_METADATA_TIMEOUT_S)
     )
-    fun shiftNightStart(delta: Int) = extra.setNightWindow(context, DownloadPolicy.shift(more.nightStart, delta), more.nightEnd)
-    fun shiftNightEnd(delta: Int) = extra.setNightWindow(context, more.nightStart, DownloadPolicy.shift(more.nightEnd, delta))
+    fun shiftNightStart(delta: Int) = extra.setNightWindow(context, DownloadPolicy.shift(schedule.nightStart, delta), schedule.nightEnd)
+    fun shiftNightEnd(delta: Int) = extra.setNightWindow(context, schedule.nightStart, DownloadPolicy.shift(schedule.nightEnd, delta))
     val limitKb = if (ui.limitSpeed == Float.POSITIVE_INFINITY) 0 else ui.limitSpeed.toInt()
     fun adjustLimit(delta: Int) {
         val next = (limitKb + delta * SPEED_STEP).coerceIn(0, SPEED_MAX)
@@ -297,7 +303,7 @@ fun SettingsScreen(
 
     var showCocoonHelp by remember { mutableStateOf(false) }
     if (showCocoonHelp) {
-        androidx.compose.material3.AlertDialog(
+        AlertDialog(
             modifier = Modifier.closeOnGamepadB { showCocoonHelp = false },
             onDismissRequest = { showCocoonHelp = false },
             title = { Text(stringResource(R.string.cocoon_dialog_title)) },
@@ -381,17 +387,17 @@ fun SettingsScreen(
             SettingRow(
                 title = stringResource(R.string.settings_second_screen),
                 hint = stringResource(R.string.settings_second_screen_hint),
-                onClick = { extra.setSecondScreen(context, !v25.secondScreen) },
+                onClick = { extra.setSecondScreen(context, !appPrefs.secondScreen) },
                 onAdjust = { extra.setSecondScreen(context, it > 0) }
-            ) { ThemedSwitch(v25.secondScreen) { extra.setSecondScreen(context, it) } }
+            ) { ThemedSwitch(appPrefs.secondScreen) { extra.setSecondScreen(context, it) } }
         },
         SettingsRow(SettingsSection.LOOK) {
             SettingRow(
                 title = stringResource(R.string.settings_bold_focus),
                 hint = stringResource(R.string.settings_bold_focus_hint),
-                onClick = { extra.setBoldFocus(context, !v2.boldFocus) },
+                onClick = { extra.setBoldFocus(context, !appPrefs.boldFocus) },
                 onAdjust = { extra.setBoldFocus(context, it > 0) }
-            ) { ThemedSwitch(v2.boldFocus) { extra.setBoldFocus(context, it) } }
+            ) { ThemedSwitch(appPrefs.boldFocus) { extra.setBoldFocus(context, it) } }
         },
         SettingsRow(SettingsSection.DOWNLOADS) {
             SettingRow(
@@ -430,7 +436,7 @@ fun SettingsScreen(
                 onAdjust = { extra.shiftPerServer(context, it) }
             ) {
                 Stepper(
-                    if (v30.perServer == 0) stringResource(R.string.settings_off) else "${v30.perServer}",
+                    if (queue.perServer == 0) stringResource(R.string.settings_off) else "${queue.perServer}",
                     onDecrement = { extra.shiftPerServer(context, -1) }, onIncrement = { extra.shiftPerServer(context, 1) }, valueWidth = 96.dp
                 )
             }
@@ -453,10 +459,10 @@ fun SettingsScreen(
         SettingsRow(SettingsSection.DOWNLOADS, visible = limitKb > 0) {
             SettingRow(
                 title = stringResource(R.string.settings_limit_day_only),
-                hint = stringResource(R.string.settings_limit_day_only_hint, DownloadPolicy.formatMinutes(more.nightStart), DownloadPolicy.formatMinutes(more.nightEnd)),
-                onClick = { extra.setSpeedLimitDayOnly(context, !v2.speedLimitDayOnly) },
+                hint = stringResource(R.string.settings_limit_day_only_hint, DownloadPolicy.formatMinutes(schedule.nightStart), DownloadPolicy.formatMinutes(schedule.nightEnd)),
+                onClick = { extra.setSpeedLimitDayOnly(context, !schedule.speedLimitDayOnly) },
                 onAdjust = { extra.setSpeedLimitDayOnly(context, it > 0) }
-            ) { ThemedSwitch(v2.speedLimitDayOnly) { extra.setSpeedLimitDayOnly(context, it) } }
+            ) { ThemedSwitch(schedule.speedLimitDayOnly) { extra.setSpeedLimitDayOnly(context, it) } }
         },
         SettingsRow(SettingsSection.DOWNLOADS) {
             SettingRow(
@@ -466,7 +472,7 @@ fun SettingsScreen(
                 onAdjust = { extra.shiftMinFree(context, it) }
             ) {
                 Stepper(
-                    if (v25.minFreeGb == 0) stringResource(R.string.settings_off) else "${v25.minFreeGb} GB",
+                    if (queue.minFreeGb == 0) stringResource(R.string.settings_off) else "${queue.minFreeGb} GB",
                     onDecrement = { extra.shiftMinFree(context, -1) }, onIncrement = { extra.shiftMinFree(context, 1) }, valueWidth = 96.dp
                 )
             }
@@ -475,69 +481,69 @@ fun SettingsScreen(
             SettingRow(
                 title = stringResource(R.string.settings_resume),
                 hint = stringResource(R.string.settings_resume_hint),
-                onClick = { extra.setResume(context, !v30.resume) },
+                onClick = { extra.setResume(context, !queue.resume) },
                 onAdjust = { extra.setResume(context, it > 0) }
-            ) { ThemedSwitch(v30.resume) { extra.setResume(context, it) } }
+            ) { ThemedSwitch(queue.resume) { extra.setResume(context, it) } }
         },
         SettingsRow(SettingsSection.DOWNLOADS) {
             SettingRow(
                 title = stringResource(R.string.settings_requeue),
                 hint = stringResource(R.string.settings_requeue_hint),
-                onClick = { extra.setRequeue(context, !v30.requeue) },
+                onClick = { extra.setRequeue(context, !queue.requeue) },
                 onAdjust = { extra.setRequeue(context, it > 0) }
-            ) { ThemedSwitch(v30.requeue) { extra.setRequeue(context, it) } }
+            ) { ThemedSwitch(queue.requeue) { extra.setRequeue(context, it) } }
         },
         SettingsRow(SettingsSection.DOWNLOADS) {
             SettingRow(
                 title = stringResource(R.string.settings_auto_retry),
                 hint = stringResource(R.string.settings_auto_retry_hint),
-                onClick = { extra.setAutoRetry(context, !v32.autoRetry) },
+                onClick = { extra.setAutoRetry(context, !queue.autoRetry) },
                 onAdjust = { extra.setAutoRetry(context, it > 0) }
-            ) { ThemedSwitch(v32.autoRetry) { extra.setAutoRetry(context, it) } }
+            ) { ThemedSwitch(queue.autoRetry) { extra.setAutoRetry(context, it) } }
         },
         SettingsRow(SettingsSection.DOWNLOADS) {
             SettingRow(
                 title = stringResource(R.string.settings_queue_summary),
                 hint = stringResource(R.string.settings_queue_summary_hint),
-                onClick = { extra.setQueueSummary(context, !v30.queueSummary) },
+                onClick = { extra.setQueueSummary(context, !queue.queueSummary) },
                 onAdjust = { extra.setQueueSummary(context, it > 0) }
-            ) { ThemedSwitch(v30.queueSummary) { extra.setQueueSummary(context, it) } }
+            ) { ThemedSwitch(queue.queueSummary) { extra.setQueueSummary(context, it) } }
         },
         SettingsRow(SettingsSection.SCHEDULE) {
             SettingRow(
                 title = stringResource(R.string.settings_dl_wifi),
                 hint = stringResource(R.string.settings_dl_wifi_hint),
-                onClick = { extra.setWifiOnly(context, !more.wifiOnly) },
+                onClick = { extra.setWifiOnly(context, !schedule.wifiOnly) },
                 onAdjust = { extra.setWifiOnly(context, it > 0) }
-            ) { ThemedSwitch(more.wifiOnly) { extra.setWifiOnly(context, it) } }
+            ) { ThemedSwitch(schedule.wifiOnly) { extra.setWifiOnly(context, it) } }
         },
         SettingsRow(SettingsSection.SCHEDULE) {
             SettingRow(
                 title = stringResource(R.string.settings_dl_charging),
                 hint = stringResource(R.string.settings_dl_charging_hint),
-                onClick = { extra.setChargingOnly(context, !more.chargingOnly) },
+                onClick = { extra.setChargingOnly(context, !schedule.chargingOnly) },
                 onAdjust = { extra.setChargingOnly(context, it > 0) }
-            ) { ThemedSwitch(more.chargingOnly) { extra.setChargingOnly(context, it) } }
+            ) { ThemedSwitch(schedule.chargingOnly) { extra.setChargingOnly(context, it) } }
         },
         SettingsRow(SettingsSection.SCHEDULE) {
             SettingRow(
                 title = stringResource(R.string.settings_dl_night),
-                hint = stringResource(R.string.settings_dl_night_hint, DownloadPolicy.formatMinutes(more.nightStart), DownloadPolicy.formatMinutes(more.nightEnd)),
-                onClick = { extra.setNightOnly(context, !more.nightOnly) },
+                hint = stringResource(R.string.settings_dl_night_hint, DownloadPolicy.formatMinutes(schedule.nightStart), DownloadPolicy.formatMinutes(schedule.nightEnd)),
+                onClick = { extra.setNightOnly(context, !schedule.nightOnly) },
                 onAdjust = { extra.setNightOnly(context, it > 0) }
-            ) { ThemedSwitch(more.nightOnly) { extra.setNightOnly(context, it) } }
+            ) { ThemedSwitch(schedule.nightOnly) { extra.setNightOnly(context, it) } }
         },
-        SettingsRow(SettingsSection.SCHEDULE, visible = more.nightOnly) {
+        SettingsRow(SettingsSection.SCHEDULE, visible = schedule.nightOnly) {
             SettingRow(
                 title = stringResource(R.string.settings_dl_night_start), hint = null,
                 onClick = { shiftNightStart(1) }, onAdjust = ::shiftNightStart
-            ) { Stepper(DownloadPolicy.formatMinutes(more.nightStart), onDecrement = { shiftNightStart(-1) }, onIncrement = { shiftNightStart(1) }, valueWidth = 72.dp) }
+            ) { Stepper(DownloadPolicy.formatMinutes(schedule.nightStart), onDecrement = { shiftNightStart(-1) }, onIncrement = { shiftNightStart(1) }, valueWidth = 72.dp) }
         },
-        SettingsRow(SettingsSection.SCHEDULE, visible = more.nightOnly) {
+        SettingsRow(SettingsSection.SCHEDULE, visible = schedule.nightOnly) {
             SettingRow(
                 title = stringResource(R.string.settings_dl_night_end), hint = null,
                 onClick = { shiftNightEnd(1) }, onAdjust = ::shiftNightEnd
-            ) { Stepper(DownloadPolicy.formatMinutes(more.nightEnd), onDecrement = { shiftNightEnd(-1) }, onIncrement = { shiftNightEnd(1) }, valueWidth = 72.dp) }
+            ) { Stepper(DownloadPolicy.formatMinutes(schedule.nightEnd), onDecrement = { shiftNightEnd(-1) }, onIncrement = { shiftNightEnd(1) }, valueWidth = 72.dp) }
         },
         SettingsRow(SettingsSection.AFTER) {
             SettingRow(
@@ -553,34 +559,34 @@ fun SettingsScreen(
             SettingRow(
                 title = stringResource(R.string.settings_auto_m3u),
                 hint = stringResource(R.string.settings_auto_m3u_hint),
-                onClick = { extra.setAutoM3u(context, !v30.autoM3u) },
+                onClick = { extra.setAutoM3u(context, !afterDownload.autoM3u) },
                 onAdjust = { extra.setAutoM3u(context, it > 0) }
-            ) { ThemedSwitch(v30.autoM3u) { extra.setAutoM3u(context, it) } }
+            ) { ThemedSwitch(afterDownload.autoM3u) { extra.setAutoM3u(context, it) } }
         },
         SettingsRow(SettingsSection.AFTER) {
             SettingRow(
                 title = stringResource(R.string.settings_esde_artwork),
                 hint = stringResource(R.string.settings_esde_artwork_hint),
-                onClick = { extra.setEsdeArtwork(context, !v30.esdeArtwork) },
+                onClick = { extra.setEsdeArtwork(context, !afterDownload.esdeArtwork) },
                 onAdjust = { extra.setEsdeArtwork(context, it > 0) }
-            ) { ThemedSwitch(v30.esdeArtwork) { extra.setEsdeArtwork(context, it) } }
+            ) { ThemedSwitch(afterDownload.esdeArtwork) { extra.setEsdeArtwork(context, it) } }
         },
         SettingsRow(SettingsSection.AFTER) {
             SettingRow(
                 title = stringResource(R.string.settings_pegasus_artwork),
                 hint = stringResource(R.string.settings_pegasus_artwork_hint),
-                onClick = { extra.setPegasusArtwork(context, !v32.pegasusArtwork) },
+                onClick = { extra.setPegasusArtwork(context, !afterDownload.pegasusArtwork) },
                 onAdjust = { extra.setPegasusArtwork(context, it > 0) }
-            ) { ThemedSwitch(v32.pegasusArtwork) { extra.setPegasusArtwork(context, it) } }
+            ) { ThemedSwitch(afterDownload.pegasusArtwork) { extra.setPegasusArtwork(context, it) } }
         },
         SettingsRow(SettingsSection.AFTER) {
             SettingRow(
                 title = stringResource(R.string.settings_retroarch_artwork),
-                hint = v32.retroArchThumbnailsDir.takeIf { it.isNotBlank() }?.let { com.cortinadev.dogmatix.util.FileParsingUtils.toUserReadablePath(it) }
+                hint = afterDownload.retroArchThumbnailsDir.takeIf { it.isNotBlank() }?.let { FileParsingUtils.toUserReadablePath(it) }
                     ?: stringResource(R.string.settings_retroarch_artwork_hint),
                 onClick = { retroArchThumbsLauncher.launch(null) }
             ) {
-                if (v32.retroArchThumbnailsDir.isNotBlank()) PillButton(stringResource(R.string.settings_retroarch_artwork_off)) { extra.setRetroArchThumbnailsDir(context, "") }
+                if (afterDownload.retroArchThumbnailsDir.isNotBlank()) PillButton(stringResource(R.string.settings_retroarch_artwork_off)) { extra.setRetroArchThumbnailsDir(context, "") }
                 PillButton(stringResource(R.string.settings_change)) { retroArchThumbsLauncher.launch(null) }
             }
         },
@@ -616,42 +622,42 @@ fun SettingsScreen(
         SettingsRow(SettingsSection.LIBRARY) {
             SettingRow(
                 title = stringResource(R.string.settings_autoscan),
-                hint = if (v2.autoScanLast > 0) stringResource(R.string.settings_autoscan_last, android.text.format.DateUtils.getRelativeTimeSpanString(v2.autoScanLast).toString())
+                hint = if (autoScan.last > 0) stringResource(R.string.settings_autoscan_last, DateUtils.getRelativeTimeSpanString(autoScan.last).toString())
                        else stringResource(R.string.settings_autoscan_hint),
-                onClick = { extra.setAutoScan(context, !v2.autoScan) },
+                onClick = { extra.setAutoScan(context, !autoScan.on) },
                 onAdjust = { extra.setAutoScan(context, it > 0) }
-            ) { ThemedSwitch(v2.autoScan) { extra.setAutoScan(context, it) } }
+            ) { ThemedSwitch(autoScan.on) { extra.setAutoScan(context, it) } }
         },
-        SettingsRow(SettingsSection.LIBRARY, visible = v2.autoScan) {
+        SettingsRow(SettingsSection.LIBRARY, visible = autoScan.on) {
             SettingRow(
                 title = stringResource(R.string.settings_autoscan_every), hint = null,
                 onClick = { extra.shiftAutoScanHours(context, 1) }, onAdjust = { extra.shiftAutoScanHours(context, it) }
             ) {
                 Stepper(
-                    if (v2.autoScanHours % 24 == 0) pluralStringResource(R.plurals.settings_days, v2.autoScanHours / 24, v2.autoScanHours / 24)
-                    else stringResource(R.string.hours_short, v2.autoScanHours),
+                    if (autoScan.hours % 24 == 0) pluralStringResource(R.plurals.settings_days, autoScan.hours / 24, autoScan.hours / 24)
+                    else stringResource(R.string.hours_short, autoScan.hours),
                     onDecrement = { extra.shiftAutoScanHours(context, -1) }, onIncrement = { extra.shiftAutoScanHours(context, 1) }, valueWidth = 96.dp
                 )
             }
         },
-        SettingsRow(SettingsSection.LIBRARY, visible = v2.autoScan) {
+        SettingsRow(SettingsSection.LIBRARY, visible = autoScan.on) {
             SettingRow(
                 title = stringResource(R.string.settings_autoscan_wifi), hint = null,
-                onClick = { extra.setAutoScanWifi(context, !v2.autoScanWifi) }, onAdjust = { extra.setAutoScanWifi(context, it > 0) }
-            ) { ThemedSwitch(v2.autoScanWifi) { extra.setAutoScanWifi(context, it) } }
+                onClick = { extra.setAutoScanWifi(context, !autoScan.wifiOnly) }, onAdjust = { extra.setAutoScanWifi(context, it > 0) }
+            ) { ThemedSwitch(autoScan.wifiOnly) { extra.setAutoScanWifi(context, it) } }
         },
-        SettingsRow(SettingsSection.LIBRARY, visible = v2.autoScan) {
+        SettingsRow(SettingsSection.LIBRARY, visible = autoScan.on) {
             SettingRow(
                 title = stringResource(R.string.settings_autoscan_charging), hint = null,
-                onClick = { extra.setAutoScanCharging(context, !v2.autoScanCharging) }, onAdjust = { extra.setAutoScanCharging(context, it > 0) }
-            ) { ThemedSwitch(v2.autoScanCharging) { extra.setAutoScanCharging(context, it) } }
+                onClick = { extra.setAutoScanCharging(context, !autoScan.charging) }, onAdjust = { extra.setAutoScanCharging(context, it > 0) }
+            ) { ThemedSwitch(autoScan.charging) { extra.setAutoScanCharging(context, it) } }
         },
-        SettingsRow(SettingsSection.LIBRARY, visible = v2.autoScan) {
+        SettingsRow(SettingsSection.LIBRARY, visible = autoScan.on) {
             SettingRow(
                 title = stringResource(R.string.settings_autoscan_night),
-                hint = stringResource(R.string.settings_autoscan_night_hint, DownloadPolicy.formatMinutes(more.nightStart), DownloadPolicy.formatMinutes(more.nightEnd)),
-                onClick = { extra.setAutoScanNight(context, !v2.autoScanNight) }, onAdjust = { extra.setAutoScanNight(context, it > 0) }
-            ) { ThemedSwitch(v2.autoScanNight) { extra.setAutoScanNight(context, it) } }
+                hint = stringResource(R.string.settings_autoscan_night_hint, DownloadPolicy.formatMinutes(schedule.nightStart), DownloadPolicy.formatMinutes(schedule.nightEnd)),
+                onClick = { extra.setAutoScanNight(context, !autoScan.nightOnly) }, onAdjust = { extra.setAutoScanNight(context, it > 0) }
+            ) { ThemedSwitch(autoScan.nightOnly) { extra.setAutoScanNight(context, it) } }
         },
         SettingsRow(SettingsSection.LIBRARY) {
             SettingRow(
@@ -682,9 +688,9 @@ fun SettingsScreen(
             SettingRow(
                 title = stringResource(R.string.settings_wishlist_auto),
                 hint = stringResource(R.string.settings_wishlist_auto_hint),
-                onClick = { extra.setWishlistAuto(context, !v30.wishlistAuto) },
+                onClick = { extra.setWishlistAuto(context, !afterDownload.wishlistAuto) },
                 onAdjust = { extra.setWishlistAuto(context, it > 0) }
-            ) { ThemedSwitch(v30.wishlistAuto) { extra.setWishlistAuto(context, it) } }
+            ) { ThemedSwitch(afterDownload.wishlistAuto) { extra.setWishlistAuto(context, it) } }
         },
         SettingsRow(SettingsSection.TOOLS) {
             SettingRow(
@@ -782,23 +788,23 @@ fun SettingsScreen(
             SettingRow(
                 title = stringResource(R.string.settings_auto_backup),
                 hint = when {
-                    v25.autoBackup && v25.autoBackupDir.isBlank() -> stringResource(R.string.settings_auto_backup_pick)
-                    v25.autoBackupLast > 0 -> stringResource(R.string.settings_auto_backup_last, android.text.format.DateUtils.formatDateTime(context, v25.autoBackupLast, android.text.format.DateUtils.FORMAT_SHOW_DATE or android.text.format.DateUtils.FORMAT_SHOW_TIME or android.text.format.DateUtils.FORMAT_ABBREV_MONTH))
+                    appPrefs.autoBackup && appPrefs.autoBackupDir.isBlank() -> stringResource(R.string.settings_auto_backup_pick)
+                    appPrefs.autoBackupLast > 0 -> stringResource(R.string.settings_auto_backup_last, DateUtils.formatDateTime(context, appPrefs.autoBackupLast, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_ABBREV_MONTH))
                     else -> stringResource(R.string.settings_auto_backup_hint)
                 },
-                onClick = { extra.setAutoBackup(context, !v25.autoBackup) },
+                onClick = { extra.setAutoBackup(context, !appPrefs.autoBackup) },
                 onAdjust = { extra.setAutoBackup(context, it > 0) }
-            ) { ThemedSwitch(v25.autoBackup) { extra.setAutoBackup(context, it) } }
+            ) { ThemedSwitch(appPrefs.autoBackup) { extra.setAutoBackup(context, it) } }
         },
-        SettingsRow(SettingsSection.BACKUP, visible = v25.autoBackup) {
+        SettingsRow(SettingsSection.BACKUP, visible = appPrefs.autoBackup) {
             SettingRow(
                 title = stringResource(R.string.settings_auto_backup_folder),
-                hint = v25.autoBackupDir.ifBlank { stringResource(R.string.settings_not_set) }.let { if (it.startsWith("content://")) com.cortinadev.dogmatix.util.FileParsingUtils.toUserReadablePath(it) else it },
+                hint = appPrefs.autoBackupDir.ifBlank { stringResource(R.string.settings_not_set) }.let { if (it.startsWith("content://")) FileParsingUtils.toUserReadablePath(it) else it },
                 onClick = { backupDirLauncher.launch(null) }
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     PillButton(stringResource(R.string.settings_change)) { backupDirLauncher.launch(null) }
-                    if (v25.autoBackupDir.isNotBlank()) PillButton(stringResource(R.string.auto_backup_now)) { extra.backupNow(context) }
+                    if (appPrefs.autoBackupDir.isNotBlank()) PillButton(stringResource(R.string.auto_backup_now)) { extra.backupNow(context) }
                 }
             }
         },
@@ -815,9 +821,9 @@ fun SettingsScreen(
             SettingRow(
                 title = stringResource(R.string.settings_prereleases),
                 hint = stringResource(R.string.settings_prereleases_hint),
-                onClick = { extra.setPreReleases(context, !more.preReleases) },
+                onClick = { extra.setPreReleases(context, !appPrefs.preReleases) },
                 onAdjust = { extra.setPreReleases(context, it > 0) }
-            ) { ThemedSwitch(more.preReleases) { extra.setPreReleases(context, it) } }
+            ) { ThemedSwitch(appPrefs.preReleases) { extra.setPreReleases(context, it) } }
         },
         SettingsRow(SettingsSection.APP) {
             SettingRow(
@@ -930,7 +936,7 @@ fun SettingsScreen(
 }
 
 /** The groups of the Settings screen, in the order they are shown. */
-private enum class SettingsSection(@androidx.annotation.StringRes val title: Int?) {
+private enum class SettingsSection(@StringRes val title: Int?) {
     /** The way into Tools, first and without a heading. */
     TOOLS(null),
     LOOK(R.string.settings_section_look),
@@ -1032,11 +1038,11 @@ internal fun PillButton(label: String, onClick: () -> Unit) {
 
 /** One accent colour as a circle; Material You shows as a four-colour wheel. */
 @Composable
-private fun AccentSwatch(color: Color, size: androidx.compose.ui.unit.Dp, selected: Boolean, onClick: () -> Unit) {
+private fun AccentSwatch(color: Color, size: Dp, selected: Boolean, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
     val fill = if (color == AccentPresets.dynamic) Modifier.background(
-        androidx.compose.ui.graphics.Brush.sweepGradient(listOf(Color(0xFFFF7F00), Color(0xFFD4E157), Color(0xFF3CC8FF), Color(0xFFE57BFF), Color(0xFFFF7F00)))
+        Brush.sweepGradient(listOf(Color(0xFFFF7F00), Color(0xFFD4E157), Color(0xFF3CC8FF), Color(0xFFE57BFF), Color(0xFFFF7F00)))
     ) else Modifier.background(color)
     Box(
         modifier = Modifier
@@ -1054,7 +1060,7 @@ private fun AccentSwatch(color: Color, size: androidx.compose.ui.unit.Dp, select
 private fun AccentDialog(selected: Color, onPick: (Color) -> Unit, onDismiss: () -> Unit) {
     val choices = AccentPresets.choices
     val firstFocus = com.cortinadev.dogmatix.ui.components.rememberInitialFocus()
-    androidx.compose.material3.AlertDialog(
+    AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.accent_dialog_title)) },
@@ -1076,7 +1082,7 @@ private fun AccentDialog(selected: Color, onPick: (Color) -> Unit, onDismiss: ()
                 )
             }
         },
-        confirmButton = { com.cortinadev.dogmatix.ui.components.DialogButton(text = stringResource(R.string.dialog_close), onClick = onDismiss) }
+        confirmButton = { DialogButton(text = stringResource(R.string.dialog_close), onClick = onDismiss) }
     )
 }
 

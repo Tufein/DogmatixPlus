@@ -3,6 +3,7 @@ package com.cortinadev.dogmatix.ui.screens.settings.savesync
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.SaveConflict
 import com.cortinadev.dogmatix.data.service.SaveSyncService
@@ -34,7 +35,7 @@ data class SaveSyncUiState(
 class SaveSyncViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val service: SaveSyncService,
-    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings
+    private val appSettings: AppSettings
 ) : ViewModel() {
 
     /** Standalone emulators' saves folders (DraStic, mGBA…). */

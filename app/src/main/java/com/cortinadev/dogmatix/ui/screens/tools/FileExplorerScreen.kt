@@ -1,7 +1,10 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
 import android.content.Context
+import android.net.Uri
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.Alignment
 import android.provider.DocumentsContract
 import android.content.Intent
@@ -33,23 +36,28 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.documentfile.provider.DocumentFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.data.service.ArchiveExtractorService
 import com.cortinadev.dogmatix.ui.components.DialogButton
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.formatBytes
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.ui.screens.sources.components.ConfirmDialog
+import com.cortinadev.dogmatix.util.ArchiveUtils
 import com.cortinadev.dogmatix.util.ConsoleFormatter
+import com.cortinadev.dogmatix.util.DatMatcher
 import com.cortinadev.dogmatix.util.DiskDir
 import com.cortinadev.dogmatix.util.DiskEntry
 import com.cortinadev.dogmatix.util.DiskFile
 import com.cortinadev.dogmatix.util.DiskScanner
 import com.cortinadev.dogmatix.util.DuplicateFinder
+import com.cortinadev.dogmatix.util.RomPatcher
 import com.cortinadev.dogmatix.util.SetChecker
 import com.cortinadev.dogmatix.util.SetProblem
 import com.cortinadev.dogmatix.util.ToastUtil
@@ -101,7 +109,7 @@ data class ExplorerState(
 class FileExplorerViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settings: SettingsRepository,
-    private val extractor: com.cortinadev.dogmatix.data.service.ArchiveExtractorService
+    private val extractor: ArchiveExtractorService
 ) : ViewModel() {
     private val _state = MutableStateFlow(ExplorerState())
     val state: StateFlow<ExplorerState> = _state.asStateFlow()
@@ -181,7 +189,7 @@ class FileExplorerViewModel @Inject constructor(
         viewModelScope.launch {
             val problems = withContext(Dispatchers.IO) {
                 SetChecker.check(files) { f ->
-                    runCatching { context.contentResolver.openInputStream(android.net.Uri.parse(f.uri))?.use { it.readNBytes(SetChecker.MAX_SHEET_BYTES.toInt()) }?.toString(Charsets.UTF_8) }.getOrNull()
+                    runCatching { context.contentResolver.openInputStream(Uri.parse(f.uri))?.use { it.readNBytes(SetChecker.MAX_SHEET_BYTES.toInt()) }?.toString(Charsets.UTF_8) }.getOrNull()
                 }
             }
             _state.update { it.copy(problems = problems) }
@@ -198,7 +206,7 @@ class FileExplorerViewModel @Inject constructor(
 
     /** Gives [entry] a new name in the same folder. */
     fun rename(context: Context, entry: DiskEntry, newName: String) {
-        val name = com.cortinadev.dogmatix.util.DatMatcher.safeFileName(newName)
+        val name = DatMatcher.safeFileName(newName)
         if (name.isEmpty() || name == entry.name) return
         val app = context.applicationContext
         viewModelScope.launch {
@@ -248,10 +256,10 @@ class FileExplorerViewModel @Inject constructor(
      * Applies an IPS / UPS / BPS patch to [entry] and writes the result next to it as a new file
      * (`Game [Patch name].ext`); the original stays as it is.
      */
-    fun applyPatch(context: Context, entry: DiskEntry, patchUri: android.net.Uri) {
+    fun applyPatch(context: Context, entry: DiskEntry, patchUri: Uri) {
         val dir = _state.value.path.lastOrNull()?.second ?: return
         val app = context.applicationContext
-        if (entry.size > com.cortinadev.dogmatix.util.RomPatcher.MAX_SIZE) {
+        if (entry.size > RomPatcher.MAX_SIZE) {
             ToastUtil.showError(app, app.getString(R.string.patch_too_large)); return
         }
         _state.update { it.copy(busy = app.getString(R.string.patch_working, entry.name)) }
@@ -259,11 +267,11 @@ class FileExplorerViewModel @Inject constructor(
             val result = withContext(Dispatchers.IO) {
                 runCatching {
                     val resolver = app.contentResolver
-                    val patchName = androidx.documentfile.provider.DocumentFile.fromSingleUri(app, patchUri)?.name ?: "patch"
+                    val patchName = DocumentFile.fromSingleUri(app, patchUri)?.name ?: "patch"
                     val patch = resolver.openInputStream(patchUri)!!.use { it.readBytes() }
                     val rom = resolver.openInputStream(entry.uri)!!.use { it.readBytes() }
-                    val out = com.cortinadev.dogmatix.util.RomPatcher.apply(rom, patch)
-                    val name = com.cortinadev.dogmatix.util.RomPatcher.outputName(entry.name, patchName)
+                    val out = RomPatcher.apply(rom, patch)
+                    val name = RomPatcher.outputName(entry.name, patchName)
                     val target = DocumentsContract.createDocument(resolver, DiskScanner.uriOf(dir), "application/octet-stream", name) ?: error("cannot create $name")
                     resolver.openOutputStream(target)!!.use { it.write(out) }
                     name
@@ -311,7 +319,7 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
 
     var renaming by remember { mutableStateOf<DiskEntry?>(null) }
     var patching by remember { mutableStateOf<DiskEntry?>(null) }
-    val patchPicker = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.OpenDocument()) { uri ->
+    val patchPicker = androidx.activity.compose.rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         val entry = patching
         if (uri != null && entry != null) viewModel.applyPatch(context, entry, uri)
         patching = null
@@ -324,7 +332,7 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
             onRename = { selected = null; renaming = entry },
             onMove = { selected = null; viewModel.startMove(entry) },
             onPatch = { selected = null; patching = entry; patchPicker.launch(arrayOf("*/*")) },
-            onExtract = if (com.cortinadev.dogmatix.util.ArchiveUtils.isExtractable(entry.name.substringAfterLast('.', ""))) ({ selected = null; viewModel.extract(context, entry) }) else null,
+            onExtract = if (ArchiveUtils.isExtractable(entry.name.substringAfterLast('.', ""))) ({ selected = null; viewModel.extract(context, entry) }) else null,
             onDismiss = { selected = null }
         )
     }
@@ -437,7 +445,7 @@ private fun RenameDialog(current: String, onSave: (String) -> Unit, onDismiss: (
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.files_rename)) },
-        text = { androidx.compose.material3.OutlinedTextField(value = name, onValueChange = { name = it.take(250) }, singleLine = true, modifier = Modifier.fillMaxWidth()) },
+        text = { OutlinedTextField(value = name, onValueChange = { name = it.take(250) }, singleLine = true, modifier = Modifier.fillMaxWidth()) },
         confirmButton = { DialogButton(text = stringResource(R.string.dialog_save), onClick = { onSave(name) }, enabled = name.isNotBlank() && name != current) },
         dismissButton = { DialogButton(text = stringResource(R.string.dialog_cancel), onClick = onDismiss, initialFocus = cancelFocus) }
     )

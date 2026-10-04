@@ -46,6 +46,7 @@ import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.model.DownloadableFileWithTags
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.ui.components.formatBytes
+import com.cortinadev.dogmatix.util.QueueEta
 import com.cortinadev.dogmatix.util.WaitReason
 import com.cortinadev.dogmatix.ui.common.Gamepad
 import com.cortinadev.dogmatix.ui.common.GamepadButton
@@ -274,11 +275,11 @@ fun DownloadScreen(
 
 /** " · 12.4 GB left · about 1 h 20 min" while something is left to download; empty otherwise. */
 @Composable
-private fun etaText(eta: com.cortinadev.dogmatix.util.QueueEta.Eta): String {
+private fun etaText(eta: QueueEta.Eta): String {
     if (eta.remainingBytes <= 0) return ""
     val left = " · " + stringResource(R.string.downloads_left, formatBytes(eta.remainingBytes))
     val seconds = eta.seconds ?: return left
-    val (hours, minutes) = com.cortinadev.dogmatix.util.QueueEta.hoursMinutes(seconds)
+    val (hours, minutes) = QueueEta.hoursMinutes(seconds)
     return left + " · " + if (hours > 0) stringResource(R.string.downloads_eta_hours, hours, minutes) else stringResource(R.string.downloads_eta_minutes, minutes)
 }
 

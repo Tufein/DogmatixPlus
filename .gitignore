@@ -1,12 +1,9 @@
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+# IDE files stay local; only the shared code style is versioned
+/.idea/*
+!/.idea/codeStyles/
 .DS_Store
 /build
 /captures

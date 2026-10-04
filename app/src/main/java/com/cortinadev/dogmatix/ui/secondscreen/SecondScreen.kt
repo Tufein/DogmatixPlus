@@ -3,6 +3,7 @@ package com.cortinadev.dogmatix.ui.secondscreen
 import android.app.Activity
 import android.app.Presentation
 import android.content.Context
+import android.content.res.Configuration
 import android.hardware.display.DisplayManager
 import android.os.Bundle
 import android.view.Display
@@ -105,7 +106,7 @@ class SecondScreenPresenter(
             window?.decorView?.let { it.setViewTreeLifecycleOwner(owner); it.setViewTreeSavedStateRegistryOwner(saved) }
             // The display context does not inherit the in-app language; take the activity's.
             val localized = context.createConfigurationContext(
-                android.content.res.Configuration(context.resources.configuration).apply { setLocales(activity.resources.configuration.locales) }
+                Configuration(context.resources.configuration).apply { setLocales(activity.resources.configuration.locales) }
             )
             setContentView(ComposeView(localized).apply {
                 setViewTreeLifecycleOwner(owner)

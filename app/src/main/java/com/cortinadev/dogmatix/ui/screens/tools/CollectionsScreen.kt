@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -33,8 +35,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.local.dao.CollectionWithCount
 import com.cortinadev.dogmatix.data.repository.CollectionsRepository
+import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.data.service.FrontendShortcutService
+import com.cortinadev.dogmatix.data.service.RommCollectionsService
 import com.cortinadev.dogmatix.data.state.LibraryFilterRequest
 import com.cortinadev.dogmatix.data.state.PendingLibraryFilters
 import com.cortinadev.dogmatix.ui.components.DialogButton
@@ -42,6 +48,11 @@ import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.ui.screens.sources.components.ConfirmDialog
+import com.cortinadev.dogmatix.util.ConsoleFormatter
+import com.cortinadev.dogmatix.util.DeepLinkParser
+import com.cortinadev.dogmatix.util.LibraryView
+import com.cortinadev.dogmatix.util.LibraryViews
+import com.cortinadev.dogmatix.util.ToastUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -54,13 +65,13 @@ import javax.inject.Inject
 class CollectionsViewModel @Inject constructor(
     private val repository: CollectionsRepository,
     private val pendingFilters: PendingLibraryFilters,
-    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings,
-    private val shortcuts: com.cortinadev.dogmatix.data.service.FrontendShortcutService,
-    private val rommCollections: com.cortinadev.dogmatix.data.service.RommCollectionsService,
-    settings: com.cortinadev.dogmatix.data.repository.SettingsRepository
+    private val appSettings: AppSettings,
+    private val shortcuts: FrontendShortcutService,
+    private val rommCollections: RommCollectionsService,
+    settings: SettingsRepository
 ) : ViewModel() {
-    val views: StateFlow<List<com.cortinadev.dogmatix.util.LibraryView>> = appSettings.libraryViews
-        .map { com.cortinadev.dogmatix.util.LibraryViews.fromJson(it) }
+    val views: StateFlow<List<LibraryView>> = appSettings.libraryViews
+        .map { LibraryViews.fromJson(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     /** RomM is set up, so collections can be synced with it. */
@@ -68,32 +79,32 @@ class CollectionsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     /** Opens a saved view in the library (through the same hand-off as a deep link). */
-    fun openView(view: com.cortinadev.dogmatix.util.LibraryView) {
-        com.cortinadev.dogmatix.util.DeepLinkParser.parse(view.deepLink())?.let(pendingFilters::submit)
+    fun openView(view: LibraryView) {
+        DeepLinkParser.parse(view.deepLink())?.let(pendingFilters::submit)
     }
 
     fun deleteView(id: String) {
         viewModelScope.launch {
-            appSettings.setLibraryViews(com.cortinadev.dogmatix.util.LibraryViews.toJson(views.value.filterNot { it.id == id }))
+            appSettings.setLibraryViews(LibraryViews.toJson(views.value.filterNot { it.id == id }))
         }
     }
 
-    fun shortcut(context: android.content.Context, view: com.cortinadev.dogmatix.util.LibraryView) {
+    fun shortcut(context: Context, view: LibraryView) {
         val app = context.applicationContext
         viewModelScope.launch {
-            if (view.consoles.isEmpty()) { com.cortinadev.dogmatix.util.ToastUtil.showError(app, app.getString(R.string.view_shortcut_needs_console)); return@launch }
+            if (view.consoles.isEmpty()) { ToastUtil.showError(app, app.getString(R.string.view_shortcut_needs_console)); return@launch }
             val n = runCatching { shortcuts.deployView(view) }.getOrDefault(0)
-            if (n > 0) com.cortinadev.dogmatix.util.ToastUtil.showSuccess(app, app.resources.getQuantityString(R.plurals.view_shortcut_done, n, n))
-            else com.cortinadev.dogmatix.util.ToastUtil.showError(app, app.getString(R.string.view_shortcut_failed))
+            if (n > 0) ToastUtil.showSuccess(app, app.resources.getQuantityString(R.plurals.view_shortcut_done, n, n))
+            else ToastUtil.showError(app, app.getString(R.string.view_shortcut_failed))
         }
     }
 
-    fun syncRomm(context: android.content.Context, push: Boolean) {
+    fun syncRomm(context: Context, push: Boolean) {
         val app = context.applicationContext
         viewModelScope.launch {
             runCatching { if (push) rommCollections.push() else rommCollections.pull() }
-                .onSuccess { com.cortinadev.dogmatix.util.ToastUtil.showSuccess(app, app.getString(if (push) R.string.romm_collections_pushed else R.string.romm_collections_pulled, it.collections, it.games, it.skipped)) }
-                .onFailure { com.cortinadev.dogmatix.util.ToastUtil.showError(app, app.getString(R.string.romm_collections_failed, it.message ?: "")) }
+                .onSuccess { ToastUtil.showSuccess(app, app.getString(if (push) R.string.romm_collections_pushed else R.string.romm_collections_pulled, it.collections, it.games, it.skipped)) }
+                .onFailure { ToastUtil.showError(app, app.getString(R.string.romm_collections_failed, it.message ?: "")) }
         }
     }
     val collections: StateFlow<List<CollectionWithCount>?> = repository.collections
@@ -113,7 +124,7 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
     val collections by viewModel.collections.collectAsState()
     val views by viewModel.views.collectAsState()
     val rommReady by viewModel.rommReady.collectAsState()
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     var naming by remember { mutableStateOf<CollectionWithCount?>(null) }
     var creating by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<CollectionWithCount?>(null) }
@@ -170,7 +181,7 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
                 item { SectionHeader(stringResource(R.string.views_title), stringResource(R.string.views_hint)) }
                 if (views.isEmpty()) item { InfoCard(listOf(stringResource(R.string.views_empty)), Modifier.padding(16.dp)) }
                 items(views, key = { "v" + it.id }) { v ->
-                    ToolRow(v.name, listOf((v.consoles.map { com.cortinadev.dogmatix.util.ConsoleFormatter.getConsoleShortName(it) } + v.tags.sorted() + listOfNotNull(v.query.takeIf { it.isNotBlank() }?.let { "“$it”" })).joinToString(" · ").ifEmpty { "—" }), onClick = { viewModel.openView(v) }) {
+                    ToolRow(v.name, listOf((v.consoles.map { ConsoleFormatter.getConsoleShortName(it) } + v.tags.sorted() + listOfNotNull(v.query.takeIf { it.isNotBlank() }?.let { "“$it”" })).joinToString(" · ").ifEmpty { "—" }), onClick = { viewModel.openView(v) }) {
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             PillButton(stringResource(R.string.view_shortcut)) { viewModel.shortcut(context, v) }
                             PillButton(stringResource(R.string.dialog_delete)) { viewModel.deleteView(v.id) }

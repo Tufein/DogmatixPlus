@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.data.service
 
+import android.util.Log
 import com.cortinadev.dogmatix.data.model.DebridProvider
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.google.gson.JsonElement
@@ -74,7 +75,7 @@ class RealDebridClient @Inject constructor(
     ): JsonElement {
         val token = key ?: apiKey()
         val response = JsonHttp.request(method, BASE_URL + path, headers = mapOf("Authorization" to "Bearer $token"), body = body, contentType = contentType)
-        if (!response.ok) android.util.Log.w("RealDebridClient", "HTTP ${response.code} for ${path.substringBefore('?')}: ${response.body.take(300)}")
+        if (!response.ok) Log.w("RealDebridClient", "HTTP ${response.code} for ${path.substringBefore('?')}: ${response.body.take(300)}")
         val json = response.json
         val error = json?.takeIf { it.isJsonObject }?.asJsonObject?.str("error").orEmpty()
         if (response.code == 401) throw DebridAuthException("API key rejected (${error.ifEmpty { "HTTP 401" }})")

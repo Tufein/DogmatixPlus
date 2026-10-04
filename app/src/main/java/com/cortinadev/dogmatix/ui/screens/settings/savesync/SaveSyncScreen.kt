@@ -1,6 +1,8 @@
 package com.cortinadev.dogmatix.ui.screens.settings.savesync
 
 import android.content.Intent
+import androidx.compose.material3.AlertDialog
+import com.cortinadev.dogmatix.ui.components.DialogButton
 import com.cortinadev.dogmatix.util.EmulatorSaveFolders
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.focusRing
@@ -333,7 +335,7 @@ private fun folderLabel(uri: String): String? {
 @Composable
 private fun EmulatorPresetDialog(onPick: (EmulatorSaveFolders.Preset) -> Unit, onDismiss: () -> Unit) {
     val closeFocus = com.cortinadev.dogmatix.ui.components.rememberInitialFocus()
-    androidx.compose.material3.AlertDialog(
+    AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.save_sync_emulator_pick)) },
@@ -359,6 +361,6 @@ private fun EmulatorPresetDialog(onPick: (EmulatorSaveFolders.Preset) -> Unit, o
                 }
             }
         },
-        confirmButton = { com.cortinadev.dogmatix.ui.components.DialogButton(text = stringResource(R.string.dialog_close), onClick = onDismiss, initialFocus = closeFocus) }
+        confirmButton = { DialogButton(text = stringResource(R.string.dialog_close), onClick = onDismiss, initialFocus = closeFocus) }
     )
 }

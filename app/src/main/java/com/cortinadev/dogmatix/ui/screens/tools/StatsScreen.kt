@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import android.text.format.DateUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,10 +36,13 @@ import com.cortinadev.dogmatix.data.local.dao.CollectionDao
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.dao.FavouriteDao
 import com.cortinadev.dogmatix.data.service.DownloadLog
+import com.cortinadev.dogmatix.data.service.EsdePlayService
 import com.cortinadev.dogmatix.ui.components.formatBytes
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.DownloadStats
 import com.cortinadev.dogmatix.util.DownloadStatsSummary
+import com.cortinadev.dogmatix.util.EsdePlay
+import com.cortinadev.dogmatix.util.EsdePlayStats
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,7 +59,7 @@ data class StatsUiState(
     val collections: Int = 0,
     val newPerWeek: List<Int> = emptyList(),
     /** Plays recorded by ES-DE; null when ES-DE is not set up. */
-    val plays: List<com.cortinadev.dogmatix.util.EsdePlay>? = null
+    val plays: List<EsdePlay>? = null
 )
 
 @HiltViewModel
@@ -64,7 +68,7 @@ class StatsViewModel @Inject constructor(
     private val fileDao: DownloadableFileDao,
     private val favouriteDao: FavouriteDao,
     private val collectionDao: CollectionDao,
-    private val esdePlays: com.cortinadev.dogmatix.data.service.EsdePlayService
+    private val esdePlays: EsdePlayService
 ) : ViewModel() {
     private val _ui = MutableStateFlow(StatsUiState())
     val ui: StateFlow<StatsUiState> = _ui.asStateFlow()
@@ -127,15 +131,15 @@ fun StatsScreen(viewModel: StatsViewModel = hiltViewModel()) {
                 plays == null -> item { InfoCard(listOf(stringResource(R.string.stats_played_no_esde))) }
                 plays.isEmpty() -> item { InfoCard(listOf(stringResource(R.string.stats_played_none))) }
                 else -> {
-                    val top = com.cortinadev.dogmatix.util.EsdePlayStats.top(plays)
+                    val top = EsdePlayStats.top(plays)
                     val maxPlays = top.first().playCount.coerceAtLeast(1)
                     top.forEach { p ->
                         item(key = "p${p.system}/${p.path}") { Bar(p.name, p.playCount.toFloat() / maxPlays, pluralStringResource(R.plurals.stats_times_played, p.playCount, p.playCount)) }
                     }
                     item { SectionHeader(stringResource(R.string.stats_recent)) }
-                    com.cortinadev.dogmatix.util.EsdePlayStats.recent(plays, 5).forEach { p ->
+                    EsdePlayStats.recent(plays, 5).forEach { p ->
                         item(key = "r${p.system}/${p.path}") {
-                            Bar(p.name, 0f, android.text.format.DateUtils.getRelativeTimeSpanString(p.lastPlayed ?: 0L).toString())
+                            Bar(p.name, 0f, DateUtils.getRelativeTimeSpanString(p.lastPlayed ?: 0L).toString())
                         }
                     }
                 }

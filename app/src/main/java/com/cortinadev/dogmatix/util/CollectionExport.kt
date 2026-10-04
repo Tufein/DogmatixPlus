@@ -1,5 +1,7 @@
 package com.cortinadev.dogmatix.util
 
+import java.util.Locale
+
 /** One game of the collection as it appears in an export. */
 data class ExportGame(val console: String, val title: String, val files: Int, val sizeBytes: Long, val folder: String)
 
@@ -49,9 +51,9 @@ object CollectionExport {
     fun escape(text: String): String = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
 
     fun humanSize(bytes: Long): String = when {
-        bytes >= 1L shl 30 -> "%.1f GB".format(java.util.Locale.ROOT, bytes / (1L shl 30).toDouble())
-        bytes >= 1L shl 20 -> "%.1f MB".format(java.util.Locale.ROOT, bytes / (1L shl 20).toDouble())
-        bytes >= 1L shl 10 -> "%.0f KB".format(java.util.Locale.ROOT, bytes / 1024.0)
+        bytes >= 1L shl 30 -> "%.1f GB".format(Locale.ROOT, bytes / (1L shl 30).toDouble())
+        bytes >= 1L shl 20 -> "%.1f MB".format(Locale.ROOT, bytes / (1L shl 20).toDouble())
+        bytes >= 1L shl 10 -> "%.0f KB".format(Locale.ROOT, bytes / 1024.0)
         else -> "$bytes B"
     }
 }

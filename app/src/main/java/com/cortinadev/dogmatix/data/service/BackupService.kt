@@ -17,6 +17,7 @@ import com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao
 import com.cortinadev.dogmatix.data.local.dao.FavouriteDao
 import com.cortinadev.dogmatix.data.local.dao.WishlistDao
 import com.cortinadev.dogmatix.data.local.dataStore
+import com.cortinadev.dogmatix.data.repository.CollectionsRepository
 import com.cortinadev.dogmatix.data.repository.SourcesRepository
 import com.cortinadev.dogmatix.util.BackupJson
 import com.cortinadev.dogmatix.util.SourcesJson
@@ -24,6 +25,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.first
@@ -52,7 +54,7 @@ class BackupService @Inject constructor(
     private val favouriteDao: FavouriteDao,
     private val downloadHistoryDao: DownloadHistoryDao,
     private val wishlistDao: WishlistDao,
-    private val collections: com.cortinadev.dogmatix.data.repository.CollectionsRepository
+    private val collections: CollectionsRepository
 ) {
     data class Summary(
         val settings: Int,
@@ -104,7 +106,7 @@ class BackupService @Inject constructor(
      */
     suspend fun read(uri: String): JsonObject = withContext(Dispatchers.IO) {
         val bytes = context.contentResolver.openInputStream(uri.toUri())?.use { input ->
-            val out = java.io.ByteArrayOutputStream()
+            val out = ByteArrayOutputStream()
             val buffer = ByteArray(64 * 1024)
             while (true) {
                 val n = input.read(buffer)

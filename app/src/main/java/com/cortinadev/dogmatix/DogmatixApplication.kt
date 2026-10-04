@@ -4,6 +4,24 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.util.Log
+import com.cortinadev.dogmatix.data.repository.DownloadableFileRepository
+import com.cortinadev.dogmatix.data.repository.SourcesRepository
+import com.cortinadev.dogmatix.data.repository.WishlistRepository
+import com.cortinadev.dogmatix.data.service.AppShortcutService
+import com.cortinadev.dogmatix.data.service.AutoBackupScheduler
+import com.cortinadev.dogmatix.data.service.AutoScanScheduler
+import com.cortinadev.dogmatix.data.service.BandwidthLimiter
+import com.cortinadev.dogmatix.data.service.DownloadLog
+import com.cortinadev.dogmatix.data.service.PostDownloadService
+import com.cortinadev.dogmatix.data.service.QueueSummaryService
+import com.cortinadev.dogmatix.data.service.RommLibraryService
+import com.cortinadev.dogmatix.data.service.RommTrustService
+import com.cortinadev.dogmatix.data.service.RommUploadService
+import com.cortinadev.dogmatix.data.service.SaveSyncScheduler
+import com.cortinadev.dogmatix.data.service.VersionCheckerService
+import com.cortinadev.dogmatix.util.ConsoleAliasRegistry
+import com.cortinadev.dogmatix.util.CrashLog
+import com.cortinadev.dogmatix.widget.WidgetUpdater
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,71 +35,71 @@ import javax.inject.Inject
 class DogmatixApplication : Application() {
     
     @Inject
-    lateinit var versionCheckerService: com.cortinadev.dogmatix.data.service.VersionCheckerService
+    lateinit var versionCheckerService: VersionCheckerService
 
     @Inject
-    lateinit var downloadableFileRepository: com.cortinadev.dogmatix.data.repository.DownloadableFileRepository
+    lateinit var downloadableFileRepository: DownloadableFileRepository
 
     @Inject
-    lateinit var sourcesRepository: com.cortinadev.dogmatix.data.repository.SourcesRepository
+    lateinit var sourcesRepository: SourcesRepository
 
     /** Injected so it starts watching finished downloads from the first one. */
     @Inject
-    lateinit var rommUploadService: com.cortinadev.dogmatix.data.service.RommUploadService
+    lateinit var rommUploadService: RommUploadService
 
     /** Injected so the pinned RomM certificate is active from the first request. */
     @Inject
-    lateinit var rommTrustService: com.cortinadev.dogmatix.data.service.RommTrustService
+    lateinit var rommTrustService: RommTrustService
 
     /** Injected so the marks of games on the RomM server are read from the first launch. */
     @Inject
-    lateinit var rommLibraryService: com.cortinadev.dogmatix.data.service.RommLibraryService
+    lateinit var rommLibraryService: RommLibraryService
 
     /** Injected so the background save sync job follows its settings from the start. */
     @Inject
-    lateinit var saveSyncScheduler: com.cortinadev.dogmatix.data.service.SaveSyncScheduler
+    lateinit var saveSyncScheduler: SaveSyncScheduler
 
     /** Injected so finished scans are checked against the wishlist from the start. */
     @Inject
-    lateinit var wishlistRepository: com.cortinadev.dogmatix.data.repository.WishlistRepository
+    lateinit var wishlistRepository: WishlistRepository
 
     /** Injected so the background source scan follows its settings from the start. */
     @Inject
-    lateinit var autoScanScheduler: com.cortinadev.dogmatix.data.service.AutoScanScheduler
+    lateinit var autoScanScheduler: AutoScanScheduler
 
     /** Injected so the speed limit (and its night exception) applies from the first download. */
     @Inject
-    lateinit var bandwidthLimiter: com.cortinadev.dogmatix.data.service.BandwidthLimiter
+    lateinit var bandwidthLimiter: BandwidthLimiter
 
     /** Injected so the home-screen widget follows downloads and scans from the start. */
     @Inject
-    lateinit var widgetUpdater: com.cortinadev.dogmatix.widget.WidgetUpdater
+    lateinit var widgetUpdater: WidgetUpdater
 
     /** Injected so finished downloads go into the statistics log from the first one. */
     @Inject
-    lateinit var downloadLog: com.cortinadev.dogmatix.data.service.DownloadLog
+    lateinit var downloadLog: DownloadLog
 
     /** Injected so the weekly automatic backup follows its settings from the start. */
     @Inject
-    lateinit var autoBackupScheduler: com.cortinadev.dogmatix.data.service.AutoBackupScheduler
+    lateinit var autoBackupScheduler: AutoBackupScheduler
 
     /** App shortcuts (consoles, saved views, Downloads) for launchers and frontends such as Cocoon. */
     @Inject
-    lateinit var appShortcutService: com.cortinadev.dogmatix.data.service.AppShortcutService
+    lateinit var appShortcutService: AppShortcutService
 
     /** After a download: the .m3u of a multi-disc game, cover and description for ES-DE. */
     @Inject
-    lateinit var postDownloadService: com.cortinadev.dogmatix.data.service.PostDownloadService
+    lateinit var postDownloadService: PostDownloadService
 
     /** One notification with how a run of downloads ended. */
     @Inject
-    lateinit var queueSummaryService: com.cortinadev.dogmatix.data.service.QueueSummaryService
+    lateinit var queueSummaryService: QueueSummaryService
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
     override fun onCreate() {
         super.onCreate()
-        com.cortinadev.dogmatix.util.CrashLog.install(this)
+        CrashLog.install(this)
         appShortcutService.start()
         postDownloadService.start()
         queueSummaryService.start()
@@ -107,7 +125,7 @@ class DogmatixApplication : Application() {
 
         // Short names / folder aliases configured per console, kept in sync for the static helpers
         applicationScope.launch {
-            sourcesRepository.aliasOverrides.collect { com.cortinadev.dogmatix.util.ConsoleAliasRegistry.overrides = it }
+            sourcesRepository.aliasOverrides.collect { ConsoleAliasRegistry.overrides = it }
         }
 
         // Files indexed before the search key column existed need it computed once

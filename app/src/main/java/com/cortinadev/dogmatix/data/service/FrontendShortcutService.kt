@@ -5,7 +5,9 @@ import com.cortinadev.dogmatix.data.model.ResolvedDownloadPath
 import com.cortinadev.dogmatix.data.repository.ConsoleRepository
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.ConsoleFormatter
+import com.cortinadev.dogmatix.util.DatMatcher
 import com.cortinadev.dogmatix.util.DgmtxFile
+import com.cortinadev.dogmatix.util.LibraryView
 import com.cortinadev.dogmatix.util.StorageHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -43,11 +45,11 @@ class FrontendShortcutService @Inject constructor(
      * A shortcut for a saved library view (`★ <name>.dgmtx`) in the folder of every console of the
      * view, so a frontend lists it next to that console's games. Returns how many were written.
      */
-    suspend fun deployView(view: com.cortinadev.dogmatix.util.LibraryView): Int = withContext(Dispatchers.IO) {
+    suspend fun deployView(view: LibraryView): Int = withContext(Dispatchers.IO) {
         val customDirs = settingsRepository.consoleDownloadDirectories.first()
         val downloadDir = settingsRepository.downloadDirectory.first()
         val resolved = pathResolver.resolveAll(view.consoles, downloadDir, settingsRepository.separateByConsole.first(), customDirs)
-        val name = "★ " + com.cortinadev.dogmatix.util.DatMatcher.safeFileName(view.name) + "." + DgmtxFile.EXTENSION
+        val name = "★ " + DatMatcher.safeFileName(view.name) + "." + DgmtxFile.EXTENSION
         val body = "# Dogmatix shortcut — ${view.name}\n# Opening this file shows this saved view in Dogmatix.\n${view.deepLink()}\n"
         view.consoles.count { consoleId ->
             val path = resolved[consoleId] ?: return@count false

@@ -9,6 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.libtorrent4j.AlertListener
 import org.libtorrent4j.TorrentHandle
+import org.libtorrent4j.TorrentStatus
 import org.libtorrent4j.alerts.Alert
 import org.libtorrent4j.alerts.AlertType
 import org.libtorrent4j.alerts.FileErrorAlert
@@ -120,8 +121,8 @@ class TorrentProgressBridge @Inject constructor(
             }
 
             val state = status.state()
-            val isChecking = state == org.libtorrent4j.TorrentStatus.State.CHECKING_FILES ||
-                             state == org.libtorrent4j.TorrentStatus.State.CHECKING_RESUME_DATA
+            val isChecking = state == TorrentStatus.State.CHECKING_FILES ||
+                             state == TorrentStatus.State.CHECKING_RESUME_DATA
             val isFinished = downloaded >= total
 
             val currentItem = progressTracker.downloads.value.find { it.fileName == fileName }

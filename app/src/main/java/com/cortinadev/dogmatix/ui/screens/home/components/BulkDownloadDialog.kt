@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,7 +56,7 @@ fun BulkDownloadDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    androidx.compose.material3.Checkbox(checked = bestOnly, onCheckedChange = { bestOnly = it })
+                    Checkbox(checked = bestOnly, onCheckedChange = { bestOnly = it })
                     Text(stringResource(R.string.bulk_best_only), style = MaterialTheme.typography.bodyMedium)
                 }
                 val p = current
@@ -121,7 +123,7 @@ fun SaveViewDialog(onSave: (String) -> Unit, onDismiss: () -> Unit) {
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(stringResource(R.string.view_save_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                androidx.compose.material3.OutlinedTextField(value = name, onValueChange = { name = it.take(60) }, singleLine = true)
+                OutlinedTextField(value = name, onValueChange = { name = it.take(60) }, singleLine = true)
             }
         },
         confirmButton = { DialogButton(stringResource(R.string.dialog_save), onClick = { onSave(name) }, enabled = name.isNotBlank()) },

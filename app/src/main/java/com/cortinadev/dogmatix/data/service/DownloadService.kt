@@ -1,10 +1,18 @@
 package com.cortinadev.dogmatix.data.service
 
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.SystemClock
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.documentfile.provider.DocumentFile
+import com.cortinadev.dogmatix.DogmatixApplication
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.data.local.AppSettings
+import com.cortinadev.dogmatix.data.local.dao.ConsoleDao
 import com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao
 import com.cortinadev.dogmatix.data.local.entity.DownloadHistoryEntity
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
@@ -17,12 +25,22 @@ import com.cortinadev.dogmatix.util.AutoRetry
 import com.cortinadev.dogmatix.util.DatStatus
 import com.cortinadev.dogmatix.util.ArchiveExtractionUtils
 import com.cortinadev.dogmatix.util.Constants
+import com.cortinadev.dogmatix.util.DownloadQueue
+import com.cortinadev.dogmatix.util.FileParsingUtils
+import com.cortinadev.dogmatix.util.MirrorUrls
+import com.cortinadev.dogmatix.util.ResumePlan
 import com.cortinadev.dogmatix.util.RommSource
 import com.cortinadev.dogmatix.util.DebridMatcher
 import com.cortinadev.dogmatix.util.Checksums
 import com.cortinadev.dogmatix.util.ExpectedHash
+import com.cortinadev.dogmatix.util.SourcesJson
 import com.cortinadev.dogmatix.util.StorageHelper
 import com.cortinadev.dogmatix.util.VerifyState
+import java.net.URI
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -75,8 +93,8 @@ class DownloadService @Inject constructor(
     private val realDebridClient: RealDebridClient,
     private val rommClient: RommClient,
     private val downloadGate: DownloadGate,
-    private val consoleDao: com.cortinadev.dogmatix.data.local.dao.ConsoleDao,
-    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings,
+    private val consoleDao: ConsoleDao,
+    private val appSettings: AppSettings,
     private val partials: PartialDownloads,
     private val datService: DatService
 ) {
@@ -105,7 +123,7 @@ class DownloadService @Inject constructor(
 
     private val downloadJobs = ConcurrentHashMap<String, Job>()
     /** The download slots and the order of what waits for one (the user can reorder it). */
-    private val queue = com.cortinadev.dogmatix.util.DownloadQueue(3)
+    private val queue = DownloadQueue(3)
 
     /** Downloads waiting for a free slot, first to start first. */
     val queued: StateFlow<List<String>> = queue.waiting
@@ -133,9 +151,9 @@ class DownloadService @Inject constructor(
     }
 
     /** Downloads that were queued or running when the process ended, oldest first (filled by [restoreHistory]). */
-    private val interrupted = java.util.concurrent.CopyOnWriteArrayList<String>()
-    private val restored = kotlinx.coroutines.CompletableDeferred<Unit>()
-    private val requeueDone = java.util.concurrent.atomic.AtomicBoolean(false)
+    private val interrupted = CopyOnWriteArrayList<String>()
+    private val restored = CompletableDeferred<Unit>()
+    private val requeueDone = AtomicBoolean(false)
 
     /**
      * Puts the downloads that were interrupted by the app closing back in the queue (once per
@@ -208,7 +226,7 @@ class DownloadService @Inject constructor(
 
     private fun launchJob(file: DownloadableFileEntity) {
         // Registered before it starts, so a download that ends at once cannot leave a stale entry.
-        val job = serviceScope.launch(start = kotlinx.coroutines.CoroutineStart.LAZY) {
+        val job = serviceScope.launch(start = CoroutineStart.LAZY) {
             try {
                 withSlot(file) {
                     awaitSchedule(file.fileName)
@@ -229,7 +247,7 @@ class DownloadService @Inject constructor(
                 updateStatus(file.fileName, DownloadStatus.FAILED)
                 scheduleAutoRetry(file.fileName, e)
             } finally {
-                downloadJobs.remove(file.fileName, coroutineContext[kotlinx.coroutines.Job]!!)
+                downloadJobs.remove(file.fileName, coroutineContext[Job]!!)
             }
         }
         downloadJobs[file.fileName] = job
@@ -237,7 +255,7 @@ class DownloadService @Inject constructor(
     }
 
     /** Automatic retries done so far per download; a retry by the user starts the count again. */
-    private val autoRetries = java.util.concurrent.ConcurrentHashMap<String, Int>()
+    private val autoRetries = ConcurrentHashMap<String, Int>()
 
     /**
      * A failure that may pass (see [AutoRetry]) is started again after a growing wait, unless the
@@ -259,7 +277,7 @@ class DownloadService @Inject constructor(
 
     private suspend fun withSlot(file: DownloadableFileEntity, block: suspend () -> Unit) {
         // Torrents have no single server; web downloads count against their host's limit.
-        val host = if (file.isTorrent) "" else runCatching { java.net.URI(file.downloadUrl).host.orEmpty() }.getOrDefault("")
+        val host = if (file.isTorrent) "" else runCatching { URI(file.downloadUrl).host.orEmpty() }.getOrDefault("")
         queue.acquire(file.fileName, host)
         try { block() } finally { queue.release(host) }
     }
@@ -270,14 +288,14 @@ class DownloadService @Inject constructor(
         val now = System.currentTimeMillis()
         if (now - lastLowStorageNotice < 60_000) return
         lastLowStorageNotice = now
-        if (!androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()) return
-        val notification = androidx.core.app.NotificationCompat.Builder(context, com.cortinadev.dogmatix.DogmatixApplication.SCAN_CHANNEL_ID)
+        if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return
+        val notification = NotificationCompat.Builder(context, DogmatixApplication.SCAN_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_error)
             .setContentTitle(context.getString(R.string.storage_low_title))
             .setContentText(context.getString(R.string.storage_low_text))
             .setAutoCancel(true)
             .build()
-        context.getSystemService(android.app.NotificationManager::class.java).notify(4221, notification)
+        context.getSystemService(NotificationManager::class.java).notify(4221, notification)
     }
 
     /** Waits while the user's schedule (Wi-Fi only, charging only, night only) says no. */
@@ -412,7 +430,7 @@ class DownloadService @Inject constructor(
     /** Names on disk for a finished download: the extracted files, or the file itself. */
     fun uploadCandidates(fileName: String): List<String> =
         extractedFilesMap[fileName]?.takeIf { it.isNotEmpty() }
-            ?: listOf(com.cortinadev.dogmatix.util.FileParsingUtils.decodeUrlEncodedFileName(fileName))
+            ?: listOf(FileParsingUtils.decodeUrlEncodedFileName(fileName))
 
     private suspend fun performTorrentDownload(file: DownloadableFileEntity) {
         Log.d(TAG, "Starting torrent download for ${file.fileName}")
@@ -435,7 +453,7 @@ class DownloadService @Inject constructor(
     private suspend fun moveTorrentFile(file: DownloadableFileEntity) {
         try {
             val downloadDirUri = downloadFileManager.getDownloadDirectoryUri(file)
-            if (downloadDirUri == android.net.Uri.EMPTY)
+            if (downloadDirUri == Uri.EMPTY)
                 throw Exception("Download directory not configured or no longer accessible.")
 
             // Use the info cached at download-start time so this works even if the handle was
@@ -676,15 +694,15 @@ class DownloadService @Inject constructor(
     /** The file under the other addresses of the web source it came from (none for torrents, RomM, debrid). */
     private suspend fun mirrorsOf(file: DownloadableFileEntity): List<String> = runCatching {
         if (file.isTorrent) return emptyList()
-        val entries = com.cortinadev.dogmatix.util.SourcesJson.parseUrlEntries(consoleDao.getConsoleById(file.consoleId)?.urls ?: return emptyList())
+        val entries = SourcesJson.parseUrlEntries(consoleDao.getConsoleById(file.consoleId)?.urls ?: return emptyList())
         entries.filter { it.enabled && it.mirrors.isNotEmpty() }.firstNotNullOfOrNull { entry ->
-            com.cortinadev.dogmatix.util.MirrorUrls.alternatives(file.downloadUrl, entry.url, entry.mirrors).takeIf { it.isNotEmpty() }
+            MirrorUrls.alternatives(file.downloadUrl, entry.url, entry.mirrors).takeIf { it.isNotEmpty() }
         }.orEmpty()
     }.getOrDefault(emptyList())
 
     private suspend fun performHttpDownloadAttempt(file: DownloadableFileEntity, downloadUrl: String, resumable: Boolean = false) {
         val downloadDirUri = downloadFileManager.getDownloadDirectoryUri(file)
-        if (downloadDirUri == android.net.Uri.EMPTY)
+        if (downloadDirUri == Uri.EMPTY)
             throw Exception("Download directory not configured or no longer accessible.")
 
         var inputStream: InputStream? = null
@@ -705,8 +723,8 @@ class DownloadService @Inject constructor(
             inputStream = connection.inputStream
 
             val startOffset: Long
-            val action = com.cortinadev.dogmatix.util.ResumePlan.decide(partialBytes, connection.responseCode, connection.getHeaderField("Content-Range"), file.fileSize)
-            if (partial != null && action == com.cortinadev.dogmatix.util.ResumePlan.Action.APPEND) {
+            val action = ResumePlan.decide(partialBytes, connection.responseCode, connection.getHeaderField("Content-Range"), file.fileSize)
+            if (partial != null && action == ResumePlan.Action.APPEND) {
                 documentFile = partial
                 outputStream = downloadFileManager.getAppendOutputStream(partial)
                     ?: throw Exception("Failed to open output stream for ${partial.uri}")
@@ -719,7 +737,7 @@ class DownloadService @Inject constructor(
                     ?: throw Exception("Failed to open output stream for ${documentFile.uri}")
                 startOffset = 0L
                 if (resume) partials.put(file.fileName, PartialDownloads.Record(downloadUrl,
-                    com.cortinadev.dogmatix.util.ResumePlan.validator(connection.getHeaderField("ETag"), connection.getHeaderField("Last-Modified"))))
+                    ResumePlan.validator(connection.getHeaderField("ETag"), connection.getHeaderField("Last-Modified"))))
             }
             val contentLength = connection.contentLengthLong.let { if (it > 0) it + startOffset else it }
             if (file.fileSize <= 0) downloadProgressTracker.learnFileSize(file.fileName, contentLength)
@@ -874,7 +892,7 @@ class DownloadService @Inject constructor(
     suspend fun openIntentFor(fileName: String): Intent? {
         val entity = downloadEntities[fileName] ?: return null
         val dirUri = downloadFileManager.getDownloadDirectoryUri(entity)
-        if (dirUri == android.net.Uri.EMPTY) return null
+        if (dirUri == Uri.EMPTY) return null
         val dir = StorageHelper.createDirectory(context, dirUri.toString(), downloadFileManager.getSubPath(entity)) ?: return null
         val priority = listOf("m3u", "cue", "gdi", "chd", "iso", "pbp", "ccd", "mds")
         val names = uploadCandidates(fileName).sortedBy { n -> priority.indexOf(n.substringAfterLast('.').lowercase()).let { if (it < 0) priority.size else it } }
@@ -897,7 +915,7 @@ class DownloadService @Inject constructor(
     private fun startForegroundService() {
         if (DownloadForegroundService.running) return
         // A retry of many rows asks many times before the service is up; one request is enough.
-        val now = android.os.SystemClock.elapsedRealtime()
+        val now = SystemClock.elapsedRealtime()
         if (now - lastServiceRequest < 5_000) return
         lastServiceRequest = now
         try {

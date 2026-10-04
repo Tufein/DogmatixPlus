@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.data.service
 
+import android.util.Log
 import com.cortinadev.dogmatix.data.model.DebridProvider
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.google.gson.JsonElement
@@ -95,7 +96,7 @@ class TorBoxClient @Inject constructor(
     ): JsonElement {
         val token = key ?: apiKey()
         val response = JsonHttp.request(method, BASE_URL + path, headers = mapOf("Authorization" to "Bearer $token"), body = body, contentType = contentType)
-        if (!response.ok) android.util.Log.w("TorBoxClient", "HTTP ${response.code} for ${path.substringBefore('?')}: ${response.body.take(300)}")
+        if (!response.ok) Log.w("TorBoxClient", "HTTP ${response.code} for ${path.substringBefore('?')}: ${response.body.take(300)}")
         if (response.code == 401 || response.code == 403) throw DebridAuthException("API key rejected (HTTP ${response.code})")
         val json = response.json?.takeIf { it.isJsonObject }?.asJsonObject
         if (!response.ok) throw DebridException("TorBox HTTP ${response.code}: ${json?.str("detail").orEmpty().ifEmpty { response.body.take(120) }}")

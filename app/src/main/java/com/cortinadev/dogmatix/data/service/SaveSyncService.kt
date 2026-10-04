@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.EmulatorSaveFolder
 import com.cortinadev.dogmatix.util.EmulatorSaveFolders
@@ -82,7 +83,7 @@ class SaveSyncService @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val rommClient: RommClient,
-    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings
+    private val appSettings: AppSettings
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val lock = Mutex()

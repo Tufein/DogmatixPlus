@@ -9,6 +9,8 @@ import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.DiskDir
 import com.cortinadev.dogmatix.util.DiskScanner
+import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -105,7 +107,7 @@ class LibraryIndexService @Inject constructor(
     suspend fun refresh() = withContext(Dispatchers.IO) {
         val root = settingsRepository.downloadDirectory.first()
         val custom = settingsRepository.consoleDownloadDirectories.first()
-        val keys = java.util.Collections.newSetFromMap(java.util.concurrent.ConcurrentHashMap<String, Boolean>())
+        val keys = Collections.newSetFromMap(ConcurrentHashMap<String, Boolean>())
         val limit = Semaphore(PARALLEL_FOLDERS)
         coroutineScope {
             if (root.isNotBlank()) DiskScanner.rootOf(root)?.let { dir ->

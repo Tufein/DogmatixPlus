@@ -6,6 +6,7 @@ import androidx.core.net.toUri
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.DiskFile
 import com.cortinadev.dogmatix.util.DuplicateFinder
+import com.cortinadev.dogmatix.util.DuplicateGroup
 import com.cortinadev.dogmatix.util.ExportGame
 import com.cortinadev.dogmatix.util.GameEntry
 import com.cortinadev.dogmatix.util.PlaylistPlan
@@ -61,7 +62,7 @@ class LibraryToolsService @Inject constructor(
     }
 
     /** Duplicate games on disk (same game more than once), for the space a bulk download could get back. */
-    suspend fun duplicateGroups(): List<com.cortinadev.dogmatix.util.DuplicateGroup> = withContext(Dispatchers.IO) {
+    suspend fun duplicateGroups(): List<DuplicateGroup> = withContext(Dispatchers.IO) {
         DuplicateFinder.find(scanService.scan().files)
     }
 

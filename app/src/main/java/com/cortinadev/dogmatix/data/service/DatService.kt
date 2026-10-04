@@ -16,6 +16,7 @@ import com.cortinadev.dogmatix.util.DatStatus
 import com.cortinadev.dogmatix.util.DiskDir
 import com.cortinadev.dogmatix.util.DiskEntry
 import com.cortinadev.dogmatix.util.DiskScanner
+import com.cortinadev.dogmatix.util.RedumpSystems
 import com.cortinadev.dogmatix.util.ScannedFile
 import com.cortinadev.dogmatix.util.ZipDirectory
 import com.google.gson.JsonObject
@@ -86,8 +87,8 @@ class DatService @Inject constructor(
 
     /** Fetches the newest Redump DAT of [consoleId]'s system (no account needed); null when Redump has none. */
     suspend fun importFromRedump(consoleId: String): Int? = withContext(Dispatchers.IO) {
-        val system = com.cortinadev.dogmatix.util.RedumpSystems.systemFor(consoleId) ?: return@withContext null
-        val bytes = JsonHttp.download(com.cortinadev.dogmatix.util.RedumpSystems.url(system), maxBytes = 200L * 1024 * 1024, readTimeoutMs = 120_000)
+        val system = RedumpSystems.systemFor(consoleId) ?: return@withContext null
+        val bytes = JsonHttp.download(RedumpSystems.url(system), maxBytes = 200L * 1024 * 1024, readTimeoutMs = 120_000)
         importBytes(consoleId, bytes, "Redump $system")
     }
 

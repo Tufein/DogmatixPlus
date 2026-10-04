@@ -48,9 +48,11 @@ import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.DatCheck
 import com.cortinadev.dogmatix.util.DatStatus
 import com.cortinadev.dogmatix.util.DiskEntry
+import com.cortinadev.dogmatix.util.RedumpSystems
 import com.cortinadev.dogmatix.util.ToastUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -84,7 +86,7 @@ class DatViewModel @Inject constructor(
     }
 
     /** The console whose DAT is being fetched from Redump (a 10+ MB download, then parsed), or null. */
-    private val _fetching = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    private val _fetching = MutableStateFlow<String?>(null)
     val fetching: StateFlow<String?> = _fetching
 
     fun fetchRedump(context: Context, consoleId: String) {
@@ -182,7 +184,7 @@ fun DatScreen(viewModel: DatViewModel = hiltViewModel()) {
             PillButton(stringResource(if (set == null) R.string.dat_import else R.string.dat_replace)) {
                 picker.launch(arrayOf("application/xml", "text/xml", "application/zip", "application/octet-stream", "text/plain", "*/*"))
             }
-            if (com.cortinadev.dogmatix.util.RedumpSystems.systemFor(consoleId) != null && fetching == null) {
+            if (RedumpSystems.systemFor(consoleId) != null && fetching == null) {
                 PillButton(stringResource(R.string.dat_redump)) { viewModel.fetchRedump(context, consoleId) }
             }
             if (set != null) {

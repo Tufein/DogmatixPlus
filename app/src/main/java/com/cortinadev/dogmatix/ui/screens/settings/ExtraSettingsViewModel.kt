@@ -6,11 +6,16 @@ import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.local.AppSettings
+import com.cortinadev.dogmatix.data.service.AutoBackupScheduler
 import com.cortinadev.dogmatix.data.service.DiagnosticsService
+import com.cortinadev.dogmatix.data.service.ProfileService
+import com.cortinadev.dogmatix.data.service.UpdateInstaller
 import com.cortinadev.dogmatix.data.service.VersionCheckerService
 import com.cortinadev.dogmatix.ui.common.executeWithToast
+import com.cortinadev.dogmatix.util.AutoScanPolicy
 import com.cortinadev.dogmatix.util.ToastUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -18,59 +23,64 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/** The settings added in 1.2: download schedule, update channel and the diagnostics report. */
-data class ExtraSettingsState(
+/** When downloads may run, and whether the speed limit is lifted at night. */
+data class ScheduleSettings(
     val wifiOnly: Boolean = false,
     val chargingOnly: Boolean = false,
     val nightOnly: Boolean = false,
     val nightStart: Int = 23 * 60,
     val nightEnd: Int = 7 * 60,
-    val preReleases: Boolean = false
+    val speedLimitDayOnly: Boolean = false
 )
 
-/** The settings added in 2.0 (see [AppSettings]). */
-data class V2SettingsState(
-    val autoScan: Boolean = false,
-    val autoScanHours: Int = 24,
-    val autoScanWifi: Boolean = true,
-    val autoScanCharging: Boolean = true,
-    val autoScanNight: Boolean = true,
-    val autoScanLast: Long = 0L,
-    val speedLimitDayOnly: Boolean = false,
-    val boldFocus: Boolean = false
-)
-
-/** The settings added in 2.5. */
-data class V25SettingsState(
-    val minFreeGb: Int = 0,
-    val autoBackup: Boolean = false,
-    val autoBackupDir: String = "",
-    val autoBackupLast: Long = 0L,
-    val secondScreen: Boolean = true
-)
-
-data class V30SettingsState(
+/** How the download queue behaves. */
+data class QueueSettings(
     val resume: Boolean = true,
     val requeue: Boolean = true,
     val perServer: Int = 0,
-    val esdeArtwork: Boolean = false,
-    val wishlistAuto: Boolean = false,
-    val autoM3u: Boolean = true,
-    val queueSummary: Boolean = true
+    val autoRetry: Boolean = true,
+    val queueSummary: Boolean = true,
+    val minFreeGb: Int = 0
 )
 
-/** The settings added in 3.2. */
-data class V32SettingsState(val pegasusArtwork: Boolean = false, val retroArchThumbnailsDir: String = "", val autoRetry: Boolean = true)
+/** Scanning the sources in the background. */
+data class AutoScanSettings(
+    val on: Boolean = false,
+    val hours: Int = 24,
+    val wifiOnly: Boolean = true,
+    val charging: Boolean = true,
+    val nightOnly: Boolean = true,
+    val last: Long = 0L
+)
+
+/** What happens after a download: covers for the frontends, playlists and the wishlist. */
+data class AfterDownloadSettings(
+    val esdeArtwork: Boolean = false,
+    val pegasusArtwork: Boolean = false,
+    val retroArchThumbnailsDir: String = "",
+    val autoM3u: Boolean = true,
+    val wishlistAuto: Boolean = false
+)
+
+/** Look, backup and update settings. */
+data class AppPrefs(
+    val preReleases: Boolean = false,
+    val boldFocus: Boolean = false,
+    val secondScreen: Boolean = true,
+    val autoBackup: Boolean = false,
+    val autoBackupDir: String = "",
+    val autoBackupLast: Long = 0L
+)
 
 @HiltViewModel
 class ExtraSettingsViewModel @Inject constructor(
-    private val autoBackupScheduler: com.cortinadev.dogmatix.data.service.AutoBackupScheduler,
+    private val autoBackupScheduler: AutoBackupScheduler,
     private val settings: SettingsRepository,
     private val appSettings: AppSettings,
-    private val updateInstaller: com.cortinadev.dogmatix.data.service.UpdateInstaller,
+    private val updateInstaller: UpdateInstaller,
     private val versionChecker: VersionCheckerService,
     private val diagnostics: DiagnosticsService,
-    private val profiles: com.cortinadev.dogmatix.data.service.ProfileService
+    private val profiles: ProfileService
 ) : ViewModel() {
 
     /** Name of the active profile, or null when everything is shown. */
@@ -78,33 +88,34 @@ class ExtraSettingsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
 
-    val state: StateFlow<ExtraSettingsState> = combine(
+    val schedule: StateFlow<ScheduleSettings> = combine(
         combine(settings.downloadWifiOnly, settings.downloadChargingOnly, settings.downloadNightOnly) { w, c, n -> Triple(w, c, n) },
-        settings.downloadNightStart, settings.downloadNightEnd, settings.updatePreReleases
-    ) { (wifi, charging, night), start, end, pre -> ExtraSettingsState(wifi, charging, night, start, end, pre) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ExtraSettingsState())
+        settings.downloadNightStart, settings.downloadNightEnd, appSettings.speedLimitDayOnly
+    ) { (wifi, charging, night), start, end, dayOnly -> ScheduleSettings(wifi, charging, night, start, end, dayOnly) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ScheduleSettings())
 
-    val v2: StateFlow<V2SettingsState> = combine(
-        combine(appSettings.autoScan, appSettings.autoScanHours, appSettings.autoScanWifiOnly, appSettings.autoScanCharging) { a, h, w, c -> listOf(a, h, w, c) },
-        appSettings.autoScanNightOnly, appSettings.autoScanLast, appSettings.speedLimitDayOnly, appSettings.boldFocus
-    ) { (a, h, w, c), night, last, dayOnly, bold ->
-        V2SettingsState(a as Boolean, h as Int, w as Boolean, c as Boolean, night, last, dayOnly, bold)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V2SettingsState())
-
-    val v25: StateFlow<V25SettingsState> = combine(
-        appSettings.minFreeGb, appSettings.autoBackup, appSettings.autoBackupDir, appSettings.autoBackupLast, appSettings.secondScreen
-    ) { gb, backup, dir, last, second -> V25SettingsState(gb, backup, dir, last, second) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V25SettingsState())
-
-    val v30: StateFlow<V30SettingsState> = combine(
+    val queue: StateFlow<QueueSettings> = combine(
         combine(appSettings.resumeDownloads, appSettings.requeueAfterRestart, appSettings.perServerLimit) { r, q, p -> Triple(r, q, p) },
-        appSettings.esdeArtwork, appSettings.wishlistAutoDownload,
-        combine(appSettings.autoM3u, appSettings.queueSummary) { m, s -> m to s }
-    ) { (r, q, p), art, wish, (m3u, summary) -> V30SettingsState(r, q, p, art, wish, m3u, summary) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V30SettingsState())
+        appSettings.autoRetryFailed, appSettings.queueSummary, appSettings.minFreeGb
+    ) { (resume, requeue, perServer), retry, summary, minFree -> QueueSettings(resume, requeue, perServer, retry, summary, minFree) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), QueueSettings())
 
-    val v32: StateFlow<V32SettingsState> = combine(appSettings.pegasusArtwork, appSettings.retroArchThumbnailsDir, appSettings.autoRetryFailed) { p, r, a -> V32SettingsState(p, r, a) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V32SettingsState())
+    val autoScan: StateFlow<AutoScanSettings> = combine(
+        combine(appSettings.autoScan, appSettings.autoScanHours) { on, hours -> on to hours },
+        appSettings.autoScanWifiOnly, appSettings.autoScanCharging, appSettings.autoScanNightOnly, appSettings.autoScanLast
+    ) { (on, hours), wifi, charging, night, last -> AutoScanSettings(on, hours, wifi, charging, night, last) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AutoScanSettings())
+
+    val afterDownload: StateFlow<AfterDownloadSettings> = combine(
+        appSettings.esdeArtwork, appSettings.pegasusArtwork, appSettings.retroArchThumbnailsDir, appSettings.autoM3u, appSettings.wishlistAutoDownload
+    ) { esde, pegasus, retroArch, m3u, wish -> AfterDownloadSettings(esde, pegasus, retroArch, m3u, wish) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AfterDownloadSettings())
+
+    val appPrefs: StateFlow<AppPrefs> = combine(
+        combine(settings.updatePreReleases, appSettings.boldFocus, appSettings.secondScreen) { pre, bold, second -> Triple(pre, bold, second) },
+        appSettings.autoBackup, appSettings.autoBackupDir, appSettings.autoBackupLast
+    ) { (pre, bold, second), backup, dir, last -> AppPrefs(pre, bold, second, backup, dir, last) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AppPrefs())
 
     fun setPegasusArtwork(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setPegasusArtwork(on) }
     fun setRetroArchThumbnailsDir(context: Context, uri: String) = executeWithToast(context, TAG) { appSettings.setRetroArchThumbnailsDir(uri) }
@@ -146,7 +157,7 @@ class ExtraSettingsViewModel @Inject constructor(
     fun setAutoScanCharging(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoScanCharging(on) }
     fun setAutoScanNight(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoScanNightOnly(on) }
     fun shiftAutoScanHours(context: Context, delta: Int) = executeWithToast(context, TAG) {
-        val choices = com.cortinadev.dogmatix.util.AutoScanPolicy.INTERVALS
+        val choices = AutoScanPolicy.INTERVALS
         val i = choices.indexOf(v2.value.autoScanHours).takeIf { it >= 0 } ?: 1
         appSettings.setAutoScanHours(choices[(i + delta).coerceIn(0, choices.lastIndex)])
     }
@@ -157,7 +168,7 @@ class ExtraSettingsViewModel @Inject constructor(
     val updateProgress: StateFlow<Float?> = updateInstaller.progress
 
     /** The newer release found by the last check, offered for installation; null when none. */
-    private val _offer = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    private val _offer = MutableStateFlow<String?>(null)
     val updateOffer: StateFlow<String?> = _offer
 
     fun dismissUpdateOffer() { _offer.value = null }

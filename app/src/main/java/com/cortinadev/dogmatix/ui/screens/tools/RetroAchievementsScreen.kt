@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -73,7 +74,7 @@ class RetroAchievementsViewModel @Inject constructor(
 
     fun saveCredentials(user: String, key: String) { viewModelScope.launch { settings.setRetroAchievements(user, key) } }
 
-    fun check(context: android.content.Context, consoleId: String) {
+    fun check(context: Context, consoleId: String) {
         if (_busy.value != null) return
         val app = context.applicationContext
         viewModelScope.launch {

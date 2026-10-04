@@ -1,6 +1,8 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
 import android.content.Context
+import android.content.Intent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,8 +31,11 @@ import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.service.DownloadService
+import com.cortinadev.dogmatix.data.service.LibraryMoveService
 import com.cortinadev.dogmatix.data.service.LibraryScanService
 import com.cortinadev.dogmatix.data.service.LibraryToolsService
+import com.cortinadev.dogmatix.data.service.MoveProblem
+import com.cortinadev.dogmatix.data.service.MoveState
 import com.cortinadev.dogmatix.ui.components.formatBytes
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.ui.screens.sources.components.ConfirmDialog
@@ -65,9 +70,9 @@ class StorageViewModel @Inject constructor(
     private val tools: LibraryToolsService,
     private val scanService: LibraryScanService,
     private val downloadService: DownloadService,
-    private val mover: com.cortinadev.dogmatix.data.service.LibraryMoveService
+    private val mover: LibraryMoveService
 ) : ViewModel() {
-    val move: StateFlow<com.cortinadev.dogmatix.data.service.MoveState> = mover.state
+    val move: StateFlow<MoveState> = mover.state
     fun startMove(destination: String) = mover.start(destination)
     fun cancelMove() = mover.cancel()
     fun dismissMove() { mover.dismiss(); refresh() }
@@ -116,9 +121,9 @@ fun StorageScreen(viewModel: StorageViewModel = hiltViewModel()) {
     var pendingDelete by remember { mutableStateOf<GameEntry?>(null) }
     val move by viewModel.move.collectAsState()
     var pendingMove by remember { mutableStateOf<String?>(null) }
-    val moveLauncher = androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree()) { uri ->
+    val moveLauncher = androidx.activity.compose.rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let {
-            context.contentResolver.takePersistableUriPermission(it, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             pendingMove = it.toString()
         }
     }
@@ -170,11 +175,11 @@ fun StorageScreen(viewModel: StorageViewModel = hiltViewModel()) {
             }
             if (!ui.loading && ui.folderSet) item(key = "move") {
                 val problem = when (move.problem) {
-                    com.cortinadev.dogmatix.data.service.MoveProblem.NO_SOURCE -> stringResource(R.string.storage_move_no_source)
-                    com.cortinadev.dogmatix.data.service.MoveProblem.CANNOT_OPEN -> stringResource(R.string.storage_move_cannot_open)
-                    com.cortinadev.dogmatix.data.service.MoveProblem.OVERLAP -> stringResource(R.string.storage_move_overlap)
-                    com.cortinadev.dogmatix.data.service.MoveProblem.DOWNLOADS_ACTIVE -> stringResource(R.string.storage_move_downloads_active)
-                    com.cortinadev.dogmatix.data.service.MoveProblem.NO_ROOM -> stringResource(R.string.storage_move_no_room, formatBytes(move.needBytes), formatBytes(move.freeBytes))
+                    MoveProblem.NO_SOURCE -> stringResource(R.string.storage_move_no_source)
+                    MoveProblem.CANNOT_OPEN -> stringResource(R.string.storage_move_cannot_open)
+                    MoveProblem.OVERLAP -> stringResource(R.string.storage_move_overlap)
+                    MoveProblem.DOWNLOADS_ACTIVE -> stringResource(R.string.storage_move_downloads_active)
+                    MoveProblem.NO_ROOM -> stringResource(R.string.storage_move_no_room, formatBytes(move.needBytes), formatBytes(move.freeBytes))
                     null -> null
                 }
                 val lines = when {

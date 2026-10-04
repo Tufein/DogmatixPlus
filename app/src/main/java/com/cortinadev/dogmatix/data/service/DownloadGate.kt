@@ -9,10 +9,12 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.os.BatteryManager
 import androidx.core.content.ContextCompat
+import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.DeviceConditions
 import com.cortinadev.dogmatix.util.DownloadConditions
 import com.cortinadev.dogmatix.util.DownloadPolicy
+import com.cortinadev.dogmatix.util.StorageHelper
 import com.cortinadev.dogmatix.util.WaitReason
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -41,7 +43,7 @@ import javax.inject.Singleton
 class DownloadGate @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
-    appSettings: com.cortinadev.dogmatix.data.local.AppSettings
+    appSettings: AppSettings
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -86,7 +88,7 @@ class DownloadGate @Inject constructor(
 
     private suspend fun freeBytesNow(): Long? = runCatching {
         val dir = settingsRepository.downloadDirectory.first()
-        if (dir.isBlank()) null else com.cortinadev.dogmatix.util.StorageHelper.getFreeBytes(context, dir)
+        if (dir.isBlank()) null else StorageHelper.getFreeBytes(context, dir)
     }.getOrNull()
 
     /** Suspends until the conditions allow a download to start (or [startNow] was pressed meanwhile). */

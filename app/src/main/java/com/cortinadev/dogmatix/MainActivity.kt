@@ -54,10 +54,29 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import android.net.Uri
 import androidx.lifecycle.lifecycleScope
+import com.cortinadev.dogmatix.data.local.AppSettings
+import com.cortinadev.dogmatix.data.service.DownloadService
+import com.cortinadev.dogmatix.data.service.GameMetadataService
 import com.cortinadev.dogmatix.data.state.PendingLibraryFilters
+import com.cortinadev.dogmatix.ui.components.LocalBoldFocus
+import com.cortinadev.dogmatix.ui.components.WhatsNewDialog
+import com.cortinadev.dogmatix.ui.screens.share.ShareTargetDialog
+import com.cortinadev.dogmatix.ui.screens.sources.components.ScanReportDialog
+import com.cortinadev.dogmatix.ui.screens.tools.BiosScreen
+import com.cortinadev.dogmatix.ui.screens.tools.CollectionsScreen
+import com.cortinadev.dogmatix.ui.screens.tools.DatScreen
+import com.cortinadev.dogmatix.ui.screens.tools.FileExplorerScreen
+import com.cortinadev.dogmatix.ui.screens.tools.FrontendCheckScreen
+import com.cortinadev.dogmatix.ui.screens.tools.ProfilesScreen
+import com.cortinadev.dogmatix.ui.screens.tools.RetroAchievementsScreen
+import com.cortinadev.dogmatix.ui.screens.tools.StatsScreen
+import com.cortinadev.dogmatix.ui.screens.tools.SwitchScreen
+import com.cortinadev.dogmatix.ui.secondscreen.SecondScreenPresenter
 import com.cortinadev.dogmatix.util.DeepLinkParser
 import com.cortinadev.dogmatix.util.DgmtxFile
+import com.cortinadev.dogmatix.util.SharedLinks
 import com.cortinadev.dogmatix.util.ToastUtil
+import com.cortinadev.dogmatix.util.WhatsNew
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -100,10 +119,10 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var pendingFilters: PendingLibraryFilters
     @Inject lateinit var saveSyncService: SaveSyncService
-    @Inject lateinit var appSettings: com.cortinadev.dogmatix.data.local.AppSettings
-    @Inject lateinit var downloadService: com.cortinadev.dogmatix.data.service.DownloadService
-    @Inject lateinit var metadataService: com.cortinadev.dogmatix.data.service.GameMetadataService
-    private var secondScreen: com.cortinadev.dogmatix.ui.secondscreen.SecondScreenPresenter? = null
+    @Inject lateinit var appSettings: AppSettings
+    @Inject lateinit var downloadService: DownloadService
+    @Inject lateinit var metadataService: GameMetadataService
+    private var secondScreen: SecondScreenPresenter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,7 +139,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             appSettings.secondScreen.collect { on ->
                 secondScreen?.stop()
-                secondScreen = if (!on) null else com.cortinadev.dogmatix.ui.secondscreen.SecondScreenPresenter(
+                secondScreen = if (!on) null else SecondScreenPresenter(
                     this@MainActivity, downloadService.downloads
                 ) { item -> metadataService.lookup(item.file.name, item.file.consoleId, item.file.fileName) }.also { it.start() }
             }
@@ -136,7 +155,7 @@ class MainActivity : AppCompatActivity() {
             }
             val boldFocus by appSettings.boldFocus.collectAsState(initial = false)
             DogmatixTheme(themeMode = settings.themeMode, accent = settings.accent) {
-                CompositionLocalProvider(com.cortinadev.dogmatix.ui.components.LocalBoldFocus provides boldFocus) {
+                CompositionLocalProvider(LocalBoldFocus provides boldFocus) {
                     when (onboardingDone) {
                         null -> Unit                      // DataStore not read yet: avoid flashing the wrong screen
                         false -> OnboardingHost()
@@ -158,8 +177,8 @@ class MainActivity : AppCompatActivity() {
             LaunchedEffect(lastSeen) { if (lastSeen != current) appSettings.setLastSeenVersion(current) }
             return
         }
-        if (com.cortinadev.dogmatix.util.WhatsNew.shouldShow(lastSeen, current, onboarded = true)) {
-            com.cortinadev.dogmatix.ui.components.WhatsNewDialog(BuildConfig.VERSION_NAME) {
+        if (WhatsNew.shouldShow(lastSeen, current, onboarded = true)) {
+            WhatsNewDialog(BuildConfig.VERSION_NAME) {
                 lifecycleScope.launch { appSettings.setLastSeenVersion(current) }
             }
         }
@@ -185,14 +204,14 @@ class MainActivity : AppCompatActivity() {
         }
         // Shared text (a link from a browser or chat) or a magnet link opened in the app.
         if (intent?.action == Intent.ACTION_SEND) {
-            com.cortinadev.dogmatix.util.SharedLinks.parse(intent.getStringExtra(Intent.EXTRA_TEXT))?.let(pendingFilters::share)
+            SharedLinks.parse(intent.getStringExtra(Intent.EXTRA_TEXT))?.let(pendingFilters::share)
                 ?: ToastUtil.showError(this, getString(R.string.share_no_link))
             return
         }
         if (intent?.action != Intent.ACTION_VIEW) return
         val data = intent.data ?: return
         if (data.scheme.equals("magnet", ignoreCase = true)) {
-            com.cortinadev.dogmatix.util.SharedLinks.parse(intent.dataString)?.let(pendingFilters::share)
+            SharedLinks.parse(intent.dataString)?.let(pendingFilters::share)
             return
         }
         if (DeepLinkParser.SCHEME.equals(data.scheme, ignoreCase = true)) {
@@ -312,11 +331,11 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
 
     // A link shared to the app: download it or add it as a source.
     val shared by pendingFilters.shared.collectAsState()
-    shared?.let { link -> com.cortinadev.dogmatix.ui.screens.share.ShareTargetDialog(link, onDismiss = pendingFilters::dismissShare) }
+    shared?.let { link -> ShareTargetDialog(link, onDismiss = pendingFilters::dismissShare) }
 
     val scanReport by sourcesViewModel.scanReport.collectAsState()
     scanReport?.let { failed ->
-        com.cortinadev.dogmatix.ui.screens.sources.components.ScanReportDialog(
+        ScanReportDialog(
             failures = failed,
             onRetry = sourcesViewModel::retryFailedSources,
             onDismiss = sourcesViewModel::dismissScanReport
@@ -431,15 +450,15 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.Sets.route) { SetsScreen() }
                     composable(NavRoutes.Storage.route) { StorageScreen() }
                     composable(NavRoutes.Wishlist.route) { WishlistScreen(navController) }
-                    composable(NavRoutes.Frontends.route) { com.cortinadev.dogmatix.ui.screens.tools.FrontendCheckScreen(navController) }
-                    composable(NavRoutes.Files.route) { com.cortinadev.dogmatix.ui.screens.tools.FileExplorerScreen() }
-                    composable(NavRoutes.Collections.route) { com.cortinadev.dogmatix.ui.screens.tools.CollectionsScreen(navController) }
-                    composable(NavRoutes.Switch.route) { com.cortinadev.dogmatix.ui.screens.tools.SwitchScreen() }
-                    composable(NavRoutes.Dat.route) { com.cortinadev.dogmatix.ui.screens.tools.DatScreen() }
-                    composable(NavRoutes.Bios.route) { com.cortinadev.dogmatix.ui.screens.tools.BiosScreen() }
-                    composable(NavRoutes.Stats.route) { com.cortinadev.dogmatix.ui.screens.tools.StatsScreen() }
-                    composable(NavRoutes.Profiles.route) { com.cortinadev.dogmatix.ui.screens.tools.ProfilesScreen() }
-                    composable(NavRoutes.RetroAchievements.route) { com.cortinadev.dogmatix.ui.screens.tools.RetroAchievementsScreen() }
+                    composable(NavRoutes.Frontends.route) { FrontendCheckScreen(navController) }
+                    composable(NavRoutes.Files.route) { FileExplorerScreen() }
+                    composable(NavRoutes.Collections.route) { CollectionsScreen(navController) }
+                    composable(NavRoutes.Switch.route) { SwitchScreen() }
+                    composable(NavRoutes.Dat.route) { DatScreen() }
+                    composable(NavRoutes.Bios.route) { BiosScreen() }
+                    composable(NavRoutes.Stats.route) { StatsScreen() }
+                    composable(NavRoutes.Profiles.route) { ProfilesScreen() }
+                    composable(NavRoutes.RetroAchievements.route) { RetroAchievementsScreen() }
                 }
             }
 

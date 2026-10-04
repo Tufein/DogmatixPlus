@@ -6,6 +6,7 @@ import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.TorrentConstants
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.security.MessageDigest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -13,7 +14,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import org.libtorrent4j.AddTorrentParams
+import org.libtorrent4j.Priority
 import org.libtorrent4j.SessionManager
+import org.libtorrent4j.SettingsPack
 import org.libtorrent4j.TorrentFlags
 import org.libtorrent4j.TorrentHandle
 import org.libtorrent4j.TorrentInfo
@@ -41,7 +45,7 @@ class TorrentHandleRegistry @Inject constructor(
             // libtorrent rejects info dicts above 3 MiB by default (peers get disconnected with
             // "metadata too large" and re-tried forever); multi-TB collection torrents need more.
             session.applySettings(
-                org.libtorrent4j.SettingsPack().apply { setMaxMetadataSize(TorrentConstants.MAX_METADATA_SIZE_BYTES) }
+                SettingsPack().apply { setMaxMetadataSize(TorrentConstants.MAX_METADATA_SIZE_BYTES) }
                     .downloadRateLimit(rateLimit.coerceIn(0, Int.MAX_VALUE.toLong()).toInt())
             )
             TorrentConstants.DHT_BOOTSTRAP_NODES.forEach { (host, port) ->
@@ -58,7 +62,7 @@ class TorrentHandleRegistry @Inject constructor(
     fun setDownloadRateLimit(bytesPerSecond: Long) {
         rateLimit = bytesPerSecond
         if (session.isRunning) {
-            session.applySettings(org.libtorrent4j.SettingsPack().downloadRateLimit(bytesPerSecond.coerceIn(0, Int.MAX_VALUE.toLong()).toInt()))
+            session.applySettings(SettingsPack().downloadRateLimit(bytesPerSecond.coerceIn(0, Int.MAX_VALUE.toLong()).toInt()))
         }
     }
 
@@ -164,7 +168,7 @@ class TorrentHandleRegistry @Inject constructor(
     private val metadataCache = File(context.filesDir, "torrent_meta")
 
     private fun cacheFileFor(uri: String): File {
-        val digest = java.security.MessageDigest.getInstance("SHA-1").digest(uri.toByteArray()).joinToString("") { "%02x".format(it) }
+        val digest = MessageDigest.getInstance("SHA-1").digest(uri.toByteArray()).joinToString("") { "%02x".format(it) }
         return File(metadataCache, "$digest.torrent")
     }
 
@@ -209,11 +213,11 @@ class TorrentHandleRegistry @Inject constructor(
             val cached = if (uri.startsWith("magnet:")) cachedInfo(uri) else null
             val params = if (uri.startsWith("magnet:")) {
                 // The magnet keeps its trackers; known metadata makes the handle complete at once.
-                org.libtorrent4j.AddTorrentParams.parseMagnetUri(uri).also { p -> cached?.let { p.torrentInfo = it } }
+                AddTorrentParams.parseMagnetUri(uri).also { p -> cached?.let { p.torrentInfo = it } }
             } else {
                 val torrentFile = File(uri)
-                val ti = org.libtorrent4j.TorrentInfo(torrentFile)
-                val p = org.libtorrent4j.AddTorrentParams()
+                val ti = TorrentInfo(torrentFile)
+                val p = AddTorrentParams()
                 p.torrentInfo = ti
                 p
             }
@@ -282,7 +286,7 @@ class TorrentHandleRegistry @Inject constructor(
                         handle.pause()
                         val info = handle.torrentFile()
                         if (info != null) {
-                            val priorities = Array(info.numFiles()) { org.libtorrent4j.Priority.IGNORE }
+                            val priorities = Array(info.numFiles()) { Priority.IGNORE }
                             handle.prioritizeFiles(priorities)
                         }
                         return@withTimeoutOrNull handle

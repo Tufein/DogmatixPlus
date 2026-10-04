@@ -1,5 +1,8 @@
 package com.cortinadev.dogmatix.util
 
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+
 /**
  * Where ES-DE looks for a game's media and data, and the gamelist entry Dogmatix+ adds after a
  * download so ES-DE (and Cocoon's ES-DE link) show a cover and description straight away.
@@ -76,7 +79,7 @@ object EsdePlayStats {
         val m = Regex("""^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})""").find(s.trim()) ?: return null
         val (y, mo, d, h, mi, se) = m.destructured
         return runCatching {
-            java.time.LocalDateTime.of(y.toInt(), mo.toInt(), d.toInt(), h.toInt(), mi.toInt(), se.toInt()).toInstant(java.time.ZoneOffset.UTC).toEpochMilli()
+            LocalDateTime.of(y.toInt(), mo.toInt(), d.toInt(), h.toInt(), mi.toInt(), se.toInt()).toInstant(ZoneOffset.UTC).toEpochMilli()
         }.getOrNull()
     }
 

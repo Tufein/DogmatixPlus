@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.util
 
+import java.util.Collections
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -71,8 +72,8 @@ class DownloadQueue(slots: Int, perHost: Int = 0) {
         if (host.isNotEmpty()) runningPerHost[host]?.let { if (it <= 1) runningPerHost.remove(host) else runningPerHost[host] = it - 1 }
     }
 
-    fun moveUp(name: String) = reorder(name) { i -> if (i > 0) java.util.Collections.swap(tickets, i, i - 1) }
-    fun moveDown(name: String) = reorder(name) { i -> if (i < tickets.lastIndex) java.util.Collections.swap(tickets, i, i + 1) }
+    fun moveUp(name: String) = reorder(name) { i -> if (i > 0) Collections.swap(tickets, i, i - 1) }
+    fun moveDown(name: String) = reorder(name) { i -> if (i < tickets.lastIndex) Collections.swap(tickets, i, i + 1) }
     fun moveToFront(name: String) = reorder(name) { i -> tickets.add(0, tickets.removeAt(i)) }
 
     private fun reorder(name: String, change: (Int) -> Unit) {

@@ -14,6 +14,7 @@ import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.service.DownloadService
+import com.cortinadev.dogmatix.data.state.PendingLibraryFilters
 import com.cortinadev.dogmatix.data.state.RescanStateHolder
 import com.cortinadev.dogmatix.util.NewGames
 import dagger.hilt.EntryPoint
@@ -120,7 +121,7 @@ class WidgetUpdater @Inject constructor(
         Intent(context, MainActivity::class.java)
             .apply {
                 if (link != null) { action = Intent.ACTION_VIEW; data = Uri.parse(link) }
-                if (route != null) putExtra(com.cortinadev.dogmatix.data.state.PendingLibraryFilters.EXTRA_OPEN_ROUTE, route)
+                if (route != null) putExtra(PendingLibraryFilters.EXTRA_OPEN_ROUTE, route)
             }
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT

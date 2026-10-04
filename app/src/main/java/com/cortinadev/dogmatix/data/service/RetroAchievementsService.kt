@@ -11,7 +11,9 @@ import com.cortinadev.dogmatix.util.StorageHelper
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -54,7 +56,7 @@ class RetroAchievementsService @Inject constructor(
 
     init {
         // The marks file is read off the main thread; the badges appear once it is in.
-        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.IO).launch {
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             val stored = loadMarks()
             _marks.update { current -> RaMarks(stored.byConsole + current.byConsole) }
         }

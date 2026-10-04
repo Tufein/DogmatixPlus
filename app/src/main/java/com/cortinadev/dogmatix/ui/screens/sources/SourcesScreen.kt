@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.sources
 
+import android.content.res.Configuration
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
@@ -24,8 +25,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.data.state.SourceScanResults
+import com.cortinadev.dogmatix.ui.screens.sources.components.QrShowDialog
+import com.cortinadev.dogmatix.ui.screens.sources.components.ShareSourcesDialog
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.ui.screens.sources.components.AddConsoleDialog
 import com.cortinadev.dogmatix.ui.screens.sources.components.AddUrlDialog
@@ -37,6 +42,7 @@ import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.screens.sources.SourcesViewModel.Dialog as SourcesDialog
 import com.cortinadev.dogmatix.ui.screens.sources.components.MergeFoldersDialog
 import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +56,7 @@ fun SourcesScreen(
     val downloadDirectory by viewModel.downloadDirectory.collectAsState()
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val directoryPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree(),
@@ -90,12 +96,12 @@ fun SourcesScreen(
     var photoUri by remember { mutableStateOf<Uri?>(null) }
     val qrCamera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> photoUri?.takeIf { ok }?.let { viewModel.readQr(listOf(it)) } }
     fun takeQrPhoto() {
-        val file = java.io.File(java.io.File(context.cacheDir, "qr").apply { mkdirs() }, "qr-${System.currentTimeMillis()}.jpg")
-        val uri = androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+        val file = File(File(context.cacheDir, "qr").apply { mkdirs() }, "qr-${System.currentTimeMillis()}.jpg")
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
         photoUri = uri
         runCatching { qrCamera.launch(uri) }.onFailure { qrPictures.launch("image/*") }
     }
-    qrParts?.let { com.cortinadev.dogmatix.ui.screens.sources.components.QrShowDialog(it, onDismiss = viewModel::hideQr) }
+    qrParts?.let { QrShowDialog(it, onDismiss = viewModel::hideQr) }
     qrImport?.let {
         ConfirmDialog(
             title = stringResource(R.string.qr_import_title),
@@ -190,7 +196,7 @@ fun SourcesScreen(
                     },
                     onRefreshConsole = { viewModel.refreshConsole(console.id) },
                     onMergeFolders = { viewModel.showMergeDialog(console.id) },
-                    resultFor = { sourceResults[com.cortinadev.dogmatix.data.state.SourceScanResults.key(console.id, it.url)] }
+                    resultFor = { sourceResults[SourceScanResults.key(console.id, it.url)] }
                 )
             }
         }
@@ -198,7 +204,7 @@ fun SourcesScreen(
 
     val dialog by viewModel.dialog.collectAsState()
     if (showShare) {
-        com.cortinadev.dogmatix.ui.screens.sources.components.ShareSourcesDialog(
+        ShareSourcesDialog(
             onFile = { showShare = false; viewModel.exportSources(::shareExport) },
             onShowQr = { showShare = false; viewModel.showQr() },
             onReadQrCamera = { showShare = false; takeQrPhoto() },

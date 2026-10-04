@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.cortinadev.dogmatix.R
@@ -112,7 +113,7 @@ object QrCodes {
 @Composable
 fun QrShowDialog(parts: List<String>, onDismiss: () -> Unit) {
     var index by remember { mutableIntStateOf(0) }
-    val density = androidx.compose.ui.platform.LocalDensity.current
+    val density = LocalDensity.current
     val maxPx = with(density) { 300.dp.roundToPx() }
     val bitmap = remember(index, parts, maxPx) { QrCodes.bitmap(parts[index], maxPx).asImageBitmap() }
     val closeFocus = rememberInitialFocus()

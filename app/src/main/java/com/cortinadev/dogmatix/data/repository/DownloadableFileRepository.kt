@@ -9,6 +9,7 @@ import com.cortinadev.dogmatix.data.model.TagCategorizer
 import com.cortinadev.dogmatix.data.model.SortOption
 import com.cortinadev.dogmatix.data.model.SourceFilter
 import com.cortinadev.dogmatix.data.model.TagKind
+import com.cortinadev.dogmatix.data.service.ProfileService
 import com.cortinadev.dogmatix.util.SearchNormalizer
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -16,7 +17,7 @@ import javax.inject.Singleton
 @Singleton
 class DownloadableFileRepository @Inject constructor(
     private val dao: DownloadableFileDao,
-    private val profiles: com.cortinadev.dogmatix.data.service.ProfileService
+    private val profiles: ProfileService
 ) {
     suspend fun searchFilesWithTags(
         query: String,
@@ -114,7 +115,7 @@ class DownloadableFileRepository @Inject constructor(
 
     /** Every version of a game the library lists for its console (same cleaned title), with tags. */
     suspend fun versionsOf(file: DownloadableFileEntity): List<DownloadableFileWithTags> {
-        val key = file.searchKey.ifEmpty { com.cortinadev.dogmatix.util.SearchNormalizer.key(file.name) }
+        val key = file.searchKey.ifEmpty { SearchNormalizer.key(file.name) }
         return dao.versionsOf(file.consoleId, key).map { DownloadableFileWithTags(it, dao.tagsOf(it.id)) }
     }
 

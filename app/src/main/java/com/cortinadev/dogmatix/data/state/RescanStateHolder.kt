@@ -1,5 +1,7 @@
 package com.cortinadev.dogmatix.data.state
 
+import com.cortinadev.dogmatix.util.ScanFailure
+import java.util.Collections
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -59,13 +61,13 @@ class RescanStateHolder @Inject constructor() {
     fun setErrorMessage(message: String?) { _errorMessage.value = message }
 
     /** Sources that failed in the running scan; shown as one report when it ends. */
-    private val failures = java.util.Collections.synchronizedList(mutableListOf<com.cortinadev.dogmatix.util.ScanFailure>())
-    private val _scanReport = MutableStateFlow<List<com.cortinadev.dogmatix.util.ScanFailure>?>(null)
+    private val failures = Collections.synchronizedList(mutableListOf<ScanFailure>())
+    private val _scanReport = MutableStateFlow<List<ScanFailure>?>(null)
     /** Non-null after a scan in which some sources failed (one app-wide report, whichever screen started it). */
-    val scanReport: StateFlow<List<com.cortinadev.dogmatix.util.ScanFailure>?> = _scanReport.asStateFlow()
+    val scanReport: StateFlow<List<ScanFailure>?> = _scanReport.asStateFlow()
 
     fun beginScanReport() { failures.clear() }
-    fun addFailure(failure: com.cortinadev.dogmatix.util.ScanFailure) { failures += failure }
+    fun addFailure(failure: ScanFailure) { failures += failure }
     fun publishScanReport() {
         val failed = synchronized(failures) { failures.toList() }
         if (failed.isNotEmpty()) _scanReport.value = failed

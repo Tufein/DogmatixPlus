@@ -14,6 +14,7 @@ import com.cortinadev.dogmatix.data.service.RommCoverService
 import com.cortinadev.dogmatix.data.service.RommLibraryService
 import com.cortinadev.dogmatix.data.service.RommLibraryState
 import com.cortinadev.dogmatix.data.service.RommTrustService
+import com.cortinadev.dogmatix.data.service.RommUploadService
 import com.cortinadev.dogmatix.data.service.ServerCertificate
 import com.cortinadev.dogmatix.util.CertTrust
 import javax.net.ssl.SSLException
@@ -56,7 +57,7 @@ class RommViewModel @Inject constructor(
     private val trustService: RommTrustService,
     private val libraryService: RommLibraryService,
     private val coverService: RommCoverService,
-    private val uploadService: com.cortinadev.dogmatix.data.service.RommUploadService
+    private val uploadService: RommUploadService
 ) : ViewModel() {
 
     val uiState: StateFlow<RommUiState> = combine(

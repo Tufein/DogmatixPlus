@@ -1,6 +1,7 @@
 package com.cortinadev.dogmatix.util
 
 import com.google.gson.JsonParser
+import java.net.URLEncoder
 import java.security.MessageDigest
 
 /** One game of RetroAchievements' list for a console, with the ROM hashes it accepts. */
@@ -104,5 +105,5 @@ object RetroAchievements {
     fun gameListUrl(consoleId: Int, user: String, key: String): String =
         "https://retroachievements.org/API/API_GetGameList.php?z=${enc(user)}&y=${enc(key)}&i=$consoleId&h=1&f=1"
 
-    private fun enc(s: String) = java.net.URLEncoder.encode(s, "UTF-8")
+    private fun enc(s: String) = URLEncoder.encode(s, "UTF-8")
 }

@@ -3,6 +3,7 @@ package com.cortinadev.dogmatix.data.service
 import com.cortinadev.dogmatix.BuildConfig
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -75,7 +76,7 @@ object JsonHttp {
             }
             if (connection.contentLengthLong > maxBytes) throw IOException("File too large (${connection.contentLengthLong} bytes)")
             connection.inputStream.use { input ->
-                val out = java.io.ByteArrayOutputStream()
+                val out = ByteArrayOutputStream()
                 val buffer = ByteArray(64 * 1024)
                 while (true) {
                     val n = input.read(buffer)
@@ -120,7 +121,7 @@ object JsonHttp {
             "Content-Disposition: form-data; name=\"$fieldName\"; filename=\"$safeName\"\r\n" +
             "Content-Type: application/octet-stream\r\n\r\n"
         val tail = "\r\n--$boundary--\r\n"
-        val out = java.io.ByteArrayOutputStream(bytes.size + 512)
+        val out = ByteArrayOutputStream(bytes.size + 512)
         out.write(head.toByteArray(Charsets.UTF_8))
         out.write(bytes)
         out.write(tail.toByteArray(Charsets.UTF_8))
