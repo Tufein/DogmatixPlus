@@ -13,7 +13,7 @@ All notable changes to Dogmatix are listed here. Dogmatix is a fork of
   *Retry* yourself, or deleting the row, starts the count again. Torrents and debrid downloads that
   end in a failure of their own are not retried this way.
 - **Checked against your DAT after the download.** When the source publishes no checksum but you
-  imported a DAT for that console (*Tools → DAT check*), the finished file is looked up in it right
+  imported a DAT for that console (see *DAT check*), the finished file is looked up in it right
   away and the row says *✓ matches the DAT* or *not in the DAT* (another dump or version, or a
   modified one), instead of waiting for a full check of the folder. A source's own checksum still
   goes first; unpacked archives and formats DATs do not describe (CHD, RVZ, 7z…) show nothing.
