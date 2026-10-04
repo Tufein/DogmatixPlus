@@ -41,6 +41,8 @@ object Constants {
     const val TEBIBYTE = 1024L * 1024L * 1024L * 1024L
 
     const val PROGRESS_UPDATE_INTERVAL_MS = 1000L
+    /** Progress of all running downloads is applied to the list together, at most this often. */
+    const val PROGRESS_BATCH_MS = 500L
     const val SPEED_CHECK_INTERVAL_MS = 100L
 
     // Tag Constants
