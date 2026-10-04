@@ -1311,4 +1311,18 @@
     <string name="tools_group_library">Bibliothek</string>
     <string name="tools_group_games">Spiele und Prüfungen</string>
     <string name="tools_group_export">Exportieren</string>
+    <string name="wait_held">Warteschlange angehalten</string>
+    <string name="downloads_hold">Warteschlange anhalten</string>
+    <string name="downloads_release">Warteschlange fortsetzen</string>
+    <string name="downloads_left">noch %1$s</string>
+    <string name="downloads_eta_hours">etwa %1$d h %2$d min</string>
+    <string name="downloads_eta_minutes">etwa %1$d min</string>
+    <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
+    <string-array name="whats_new_items">
+        <item>Kein „App reagiert nicht“ mehr, nachdem eine ganze Konsole in die Warteschlange kam.</item>
+        <item>Einstellungen und Tools in klaren Gruppen; LB / RB springen zwischen den Gruppen.</item>
+        <item>Alle herunterladen nimmt ein ganzes Konsolen-Set auf einmal (bis zu 3000 Spiele).</item>
+        <item>Warteschlange anhalten unter Downloads: laufende Downloads werden fertig, nichts Neues startet.</item>
+        <item>Die Download-Liste zeigt, was noch fehlt und wie lange es etwa dauert.</item>
+    </string-array>
 </resources>

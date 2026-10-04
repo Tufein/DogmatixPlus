@@ -1311,4 +1311,18 @@
     <string name="tools_group_library">Bibliotheek</string>
     <string name="tools_group_games">Games en controles</string>
     <string name="tools_group_export">Exporteren</string>
+    <string name="wait_held">wachtrij gepauzeerd</string>
+    <string name="downloads_hold">Wachtrij pauzeren</string>
+    <string name="downloads_release">Wachtrij hervatten</string>
+    <string name="downloads_left">nog %1$s</string>
+    <string name="downloads_eta_hours">ongeveer %1$d u %2$d min</string>
+    <string name="downloads_eta_minutes">ongeveer %1$d min</string>
+    <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
+    <string-array name="whats_new_items">
+        <item>Geen \"app reageert niet\" meer na het in de wachtrij zetten van een hele console.</item>
+        <item>Instellingen en Tools in duidelijke groepen; LB / RB springen tussen de groepen.</item>
+        <item>Alles downloaden neemt een hele consoleset in één keer (tot 3000 games).</item>
+        <item>Wachtrij pauzeren bij Downloads: lopende downloads maken af, er start niets nieuws.</item>
+        <item>De Downloads-lijst toont wat er nog over is en hoe lang dat ongeveer duurt.</item>
+    </string-array>
 </resources>

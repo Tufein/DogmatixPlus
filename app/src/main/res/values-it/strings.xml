@@ -1262,4 +1262,18 @@
     <string name="tools_group_library">Libreria</string>
     <string name="tools_group_games">Giochi e controlli</string>
     <string name="tools_group_export">Esporta</string>
+    <string name="wait_held">coda in pausa</string>
+    <string name="downloads_hold">Metti in pausa la coda</string>
+    <string name="downloads_release">Riprendi la coda</string>
+    <string name="downloads_left">mancano %1$s</string>
+    <string name="downloads_eta_hours">circa %1$d h %2$d min</string>
+    <string name="downloads_eta_minutes">circa %1$d min</string>
+    <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
+    <string-array name="whats_new_items">
+        <item>Niente più «l’app non risponde» dopo aver messo in coda un’intera console.</item>
+        <item>Impostazioni e Strumenti in gruppi chiari; LB / RB saltano tra i gruppi.</item>
+        <item>Scarica tutto accetta un’intera console in una volta (fino a 3000 giochi).</item>
+        <item>Metti in pausa la coda in Download: i download in corso finiscono, non ne parte di nuovi.</item>
+        <item>L’elenco dei download mostra quanto manca e quanto ci vorrà circa.</item>
+    </string-array>
 </resources>

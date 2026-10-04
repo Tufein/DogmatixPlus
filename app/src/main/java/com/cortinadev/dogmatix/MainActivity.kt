@@ -142,7 +142,25 @@ class MainActivity : AppCompatActivity() {
                         false -> OnboardingHost()
                         true -> DogmatixApp(pendingFilters)
                     }
+                    WhatsNewAfterUpdate(onboardingDone)
                 }
+            }
+        }
+    }
+
+    /** The highlights of this version, once after an update; a fresh install only records the version. */
+    @Composable
+    private fun WhatsNewAfterUpdate(onboardingDone: Boolean?) {
+        val lastSeen by appSettings.lastSeenVersion.collectAsState(initial = -1)
+        if (onboardingDone == null || lastSeen < 0) return
+        val current = BuildConfig.VERSION_CODE
+        if (onboardingDone == false) {
+            LaunchedEffect(lastSeen) { if (lastSeen != current) appSettings.setLastSeenVersion(current) }
+            return
+        }
+        if (com.cortinadev.dogmatix.util.WhatsNew.shouldShow(lastSeen, current, onboarded = true)) {
+            com.cortinadev.dogmatix.ui.components.WhatsNewDialog(BuildConfig.VERSION_NAME) {
+                lifecycleScope.launch { appSettings.setLastSeenVersion(current) }
             }
         }
     }

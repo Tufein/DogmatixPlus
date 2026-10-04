@@ -1316,4 +1316,18 @@
     <string name="tools_group_library">Bibliothèque</string>
     <string name="tools_group_games">Jeux et vérifications</string>
     <string name="tools_group_export">Exporter</string>
+    <string name="wait_held">file en pause</string>
+    <string name="downloads_hold">Mettre la file en pause</string>
+    <string name="downloads_release">Reprendre la file</string>
+    <string name="downloads_left">reste %1$s</string>
+    <string name="downloads_eta_hours">environ %1$d h %2$d min</string>
+    <string name="downloads_eta_minutes">environ %1$d min</string>
+    <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
+    <string-array name="whats_new_items">
+        <item>Plus de « l’application ne répond pas » après avoir mis toute une console en file.</item>
+        <item>Paramètres et Outils rangés en groupes clairs ; LB / RB passent d’un groupe à l’autre.</item>
+        <item>Tout télécharger prend toute une console d’un coup (jusqu’à 3000 jeux).</item>
+        <item>Mettre la file en pause dans Téléchargements : les téléchargements en cours se terminent, rien de nouveau ne démarre.</item>
+        <item>La liste des téléchargements indique ce qui reste et le temps approximatif.</item>
+    </string-array>
 </resources>

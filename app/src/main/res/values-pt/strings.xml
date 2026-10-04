@@ -1262,4 +1262,18 @@
     <string name="tools_group_library">Biblioteca</string>
     <string name="tools_group_games">Jogos e verificações</string>
     <string name="tools_group_export">Exportar</string>
+    <string name="wait_held">fila em pausa</string>
+    <string name="downloads_hold">Pausar a fila</string>
+    <string name="downloads_release">Retomar a fila</string>
+    <string name="downloads_left">faltam %1$s</string>
+    <string name="downloads_eta_hours">cerca de %1$d h %2$d min</string>
+    <string name="downloads_eta_minutes">cerca de %1$d min</string>
+    <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
+    <string-array name="whats_new_items">
+        <item>Acabou o «a aplicação não responde» depois de pôr uma consola inteira na fila.</item>
+        <item>Definições e Ferramentas em grupos claros; LB / RB saltam entre os grupos.</item>
+        <item>Transferir tudo aceita uma consola inteira de uma vez (até 3000 jogos).</item>
+        <item>Pausar a fila em Transferências: as transferências em curso terminam, nada de novo começa.</item>
+        <item>A lista de transferências mostra o que falta e quanto tempo demora, aproximadamente.</item>
+    </string-array>
 </resources>

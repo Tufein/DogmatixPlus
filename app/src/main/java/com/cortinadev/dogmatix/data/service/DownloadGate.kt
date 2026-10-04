@@ -54,9 +54,17 @@ class DownloadGate @Inject constructor(
     private val device = MutableStateFlow(DeviceConditions(onUnmeteredNetwork = true, charging = true, minuteOfDay = minuteOfDay()))
     private val releases = MutableStateFlow(0)
 
+    /** The user's hold on the queue (*Downloads → Hold the queue*); kept across restarts. */
+    val held: StateFlow<Boolean> = appSettings.queueHeld.stateIn(scope, SharingStarted.Eagerly, false)
+    private val settings = appSettings
+
     /** What a download that starts now would have to wait for; empty = go. */
-    val waiting: StateFlow<List<WaitReason>> = combine(conditions, device) { c, d -> DownloadPolicy.waitingFor(c, d) }
-        .stateIn(scope, SharingStarted.Eagerly, emptyList())
+    val waiting: StateFlow<List<WaitReason>> = combine(conditions, device, held) { c, d, h ->
+        DownloadPolicy.waitingFor(c, d) + if (h) listOf(WaitReason.HELD) else emptyList()
+    }.stateIn(scope, SharingStarted.Eagerly, emptyList())
+
+    /** Holds the queue (running downloads finish, nothing new starts) or lets it go again. */
+    fun setHeld(on: Boolean) { scope.launch { settings.setQueueHeld(on) } }
 
     init {
         watchNetwork()

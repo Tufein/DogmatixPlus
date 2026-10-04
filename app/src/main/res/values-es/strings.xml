@@ -1285,4 +1285,18 @@
     <string name="tools_group_library">Biblioteca</string>
     <string name="tools_group_games">Juegos y comprobaciones</string>
     <string name="tools_group_export">Exportar</string>
+    <string name="wait_held">cola en pausa</string>
+    <string name="downloads_hold">Pausar la cola</string>
+    <string name="downloads_release">Reanudar la cola</string>
+    <string name="downloads_left">quedan %1$s</string>
+    <string name="downloads_eta_hours">unos %1$d h %2$d min</string>
+    <string name="downloads_eta_minutes">unos %1$d min</string>
+    <string name="whats_new_title">Novedades de Dogmatix+ %1$s</string>
+    <string-array name="whats_new_items">
+        <item>Se acabó el «la aplicación no responde» tras poner en cola una consola entera.</item>
+        <item>Ajustes y Herramientas en grupos claros; LB / RB saltan entre los grupos.</item>
+        <item>Descargar todo acepta una consola entera de una vez (hasta 3000 juegos).</item>
+        <item>Pausar la cola en Descargas: las descargas en curso terminan, no empieza nada nuevo.</item>
+        <item>La lista de descargas muestra lo que falta y cuánto tardará aproximadamente.</item>
+    </string-array>
 </resources>
