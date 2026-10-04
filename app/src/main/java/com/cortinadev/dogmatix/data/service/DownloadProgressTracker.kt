@@ -5,14 +5,17 @@ import com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao
 import com.cortinadev.dogmatix.data.model.DownloadItemModel
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.util.Constants
+import com.cortinadev.dogmatix.util.ProgressBatch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -36,11 +39,14 @@ class DownloadProgressTracker @Inject constructor(
 
     fun updateDownloadStatus(fileName: String, status: DownloadStatus) {
         var changed: DownloadItemModel? = null
+        // Progress still waiting for the next batch lands together with the new status.
+        val late = pending.remove(fileName)
         _downloads.update { list ->
             list.map { item ->
                 if (item.fileName != fileName) item
                 else {
-                    val updated = item.copy(status = status)
+                    val base = late?.let { item.copy(progress = it.progress, downloadSpeed = it.speed, downloadedBytes = it.downloadedBytes) } ?: item
+                    val updated = base.copy(status = status)
                     val finished = if (updated.isFinished) item.finishedAt ?: System.currentTimeMillis() else null
                     updated.copy(finishedAt = finished).also { changed = it }
                 }
@@ -61,26 +67,35 @@ class DownloadProgressTracker @Inject constructor(
 
     private val lastUpdateTimes = ConcurrentHashMap<String, Long>()
 
+    /** Progress waiting for the next list update (see [ProgressBatch]). */
+    private val pending = ConcurrentHashMap<String, ProgressBatch.Progress>()
+    private val flushScheduled = AtomicBoolean(false)
+
     fun updateDownloadProgress(fileName: String, progress: Float, speed: Float, downloadedBytes: Long) {
         val now = System.currentTimeMillis()
         val lastUpdate = lastUpdateTimes[fileName] ?: 0L
 
         if (shouldUpdateProgress(progress, lastUpdate, now)) {
             lastUpdateTimes[fileName] = now
-            _downloads.update { list ->
-                list.map { item ->
-                    if (item.fileName == fileName) {
-                        item.copy(
-                            progress = progress,
-                            downloadSpeed = speed,
-                            downloadedBytes = downloadedBytes
-                        )
-                    } else {
-                        item
-                    }
+            pending[fileName] = ProgressBatch.Progress(progress, speed, downloadedBytes)
+            when {
+                // A finished transfer shows 100% at once.
+                progress >= Constants.PROGRESS_COMPLETE -> flushProgress()
+                flushScheduled.compareAndSet(false, true) -> persistScope.launch {
+                    delay(Constants.PROGRESS_BATCH_MS)
+                    flushScheduled.set(false)
+                    flushProgress()
                 }
             }
         }
+    }
+
+    /** Applies all gathered progress in one list update. */
+    fun flushProgress() {
+        if (pending.isEmpty()) return
+        val batch = HashMap<String, ProgressBatch.Progress>()
+        for (name in pending.keys.toList()) pending.remove(name)?.let { batch[name] = it }
+        if (batch.isNotEmpty()) _downloads.update { ProgressBatch.apply(it, batch) }
     }
 
     /** A download started without a known size (a shared link) takes the size the server announces. */
@@ -105,6 +120,7 @@ class DownloadProgressTracker @Inject constructor(
     }
 
     fun removeDownload(fileName: String) {
+        pending.remove(fileName)
         _downloads.update { list -> list.filter { it.fileName != fileName } }
         lastUpdateTimes.remove(fileName)
     }
@@ -114,6 +130,7 @@ class DownloadProgressTracker @Inject constructor(
     }
 
     fun resetDownloadForRetry(fileName: String) {
+        pending.remove(fileName)
         _downloads.update { list ->
             list.map { item ->
                 if (item.fileName == fileName) {
@@ -135,6 +152,7 @@ class DownloadProgressTracker @Inject constructor(
     /** [resetDownloadForRetry] for many rows in one list update; returns the names that could be retried. */
     fun resetDownloadsForRetry(fileNames: Collection<String>): List<String> {
         val wanted = fileNames.toHashSet()
+        wanted.forEach { pending.remove(it) }
         val reset = ArrayList<String>()
         val now = System.currentTimeMillis()
         _downloads.update { list ->

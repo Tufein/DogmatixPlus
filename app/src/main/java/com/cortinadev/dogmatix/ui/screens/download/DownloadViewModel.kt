@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.combine
 import com.cortinadev.dogmatix.data.service.UploadState
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -92,6 +93,10 @@ class DownloadViewModel @Inject constructor(
 
     val downloads: StateFlow<List<DownloadItemModel>> = repository.downloads
 
+    /** Queued or downloading, for the tab badge: changes with the status, not with every progress tick. */
+    val activeCount: StateFlow<Int> = downloads.map { list -> list.count { it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.QUEUED } }
+        .distinctUntilChanged().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
     /** What the whole-queue buttons would act on. */
     val queueCounts: StateFlow<QueueActions.Counts> = downloads.map { QueueActions.counts(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), QueueActions.Counts())
@@ -120,14 +125,16 @@ class DownloadViewModel @Inject constructor(
 
     /** Indexed file + tags for each download, keyed by fileName, so the list can show what each one is. */
     val downloadDetails: StateFlow<Map<String, DownloadableFileWithTags>> = downloads
-        .map { list ->
-            list.mapNotNull { item ->
-                val details = if (detailsCache.containsKey(item.fileName)) {
-                    detailsCache[item.fileName]
+        .map { list -> list.map { it.fileName } }
+        .distinctUntilChanged()
+        .map { names ->
+            names.mapNotNull { fileName ->
+                val details = if (detailsCache.containsKey(fileName)) {
+                    detailsCache[fileName]
                 } else {
-                    fileRepository.findByFileName(item.fileName).also { detailsCache[item.fileName] = it }
+                    fileRepository.findByFileName(fileName).also { detailsCache[fileName] = it }
                 }
-                details?.let { item.fileName to it }
+                details?.let { fileName to it }
             }.toMap()
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())

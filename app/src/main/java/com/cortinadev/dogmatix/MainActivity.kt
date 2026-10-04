@@ -54,7 +54,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import android.net.Uri
 import androidx.lifecycle.lifecycleScope
-import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.state.PendingLibraryFilters
 import com.cortinadev.dogmatix.util.DeepLinkParser
 import com.cortinadev.dogmatix.util.DgmtxFile
@@ -281,7 +280,8 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
     val sourcesViewModel: SourcesViewModel = hiltViewModel()
     val downloadViewModel: DownloadViewModel = hiltViewModel()
     val rescanErrorMessage by sourcesViewModel.rescanErrorMessage.collectAsState()
-    val downloads by downloadViewModel.downloads.collectAsState()
+    // Only the count: the whole list changes with every progress tick and would redraw the app shell each time.
+    val activeDownloadCount by downloadViewModel.activeCount.collectAsState()
     val gamepadConnected by Gamepad.connected.collectAsState()
     val legendOverride by Gamepad.legendOverride.collectAsState()
     val storageViewModel: StorageStatusViewModel = hiltViewModel()
@@ -433,7 +433,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
             if (!isLandscape) {
                 BottomTabs(
                     currentRoute = currentRoute,
-                    activeDownloads = downloads.count { it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.QUEUED },
+                    activeDownloads = activeDownloadCount,
                     onSelect = navController::switchTo
                 )
             }
