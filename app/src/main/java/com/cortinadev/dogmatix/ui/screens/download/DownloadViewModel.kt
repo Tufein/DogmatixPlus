@@ -24,6 +24,8 @@ import com.cortinadev.dogmatix.data.service.UploadState
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.flow.stateIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,6 +45,9 @@ internal val DownloadStatus.canStop: Boolean
 
 /** Same set as [canRetry]: a running download is stopped first, never deleted outright. */
 internal val DownloadStatus.canDelete: Boolean get() = canRetry
+
+/** Download names looked up in the library per batch (see [DownloadViewModel.downloadDetails]). */
+private const val DETAILS_BATCH = 400
 
 @HiltViewModel
 class DownloadViewModel @Inject constructor(
@@ -76,7 +81,7 @@ class DownloadViewModel @Inject constructor(
                 .map { StorageInsights.QueueItem((it.fileSize - it.downloadedBytes).coerceAtLeast(0), StorageInsights.isExtractable(it.fileName.substringAfterLast('.', ""))) }
         )
         StorageInsights.shortfall(need, free) ?: 0L
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
+    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
 
     /** Opens a finished download in whichever app handles the file. */
     fun openDownload(context: Context, fileName: String) {
@@ -95,11 +100,11 @@ class DownloadViewModel @Inject constructor(
 
     /** Queued or downloading, for the tab badge: changes with the status, not with every progress tick. */
     val activeCount: StateFlow<Int> = downloads.map { list -> list.count { it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.QUEUED } }
-        .distinctUntilChanged().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+        .distinctUntilChanged().flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     /** What the whole-queue buttons would act on. */
     val queueCounts: StateFlow<QueueActions.Counts> = downloads.map { QueueActions.counts(it) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), QueueActions.Counts())
+        .flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), QueueActions.Counts())
 
     // The whole-queue actions touch hundreds of rows: off the UI thread, so a big queue never freezes the screen.
     fun stopAll() {
@@ -121,22 +126,31 @@ class DownloadViewModel @Inject constructor(
 
     fun retryUpload(fileName: String) = rommUploadService.retry(fileName)
 
-    private val detailsCache = mutableMapOf<String, DownloadableFileWithTags?>()
+    /** Looked-up details per file name; names the library does not know are in [detailsMissing]. */
+    private val detailsCache = java.util.concurrent.ConcurrentHashMap<String, DownloadableFileWithTags>()
+    private val detailsMissing = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
 
-    /** Indexed file + tags for each download, keyed by fileName, so the list can show what each one is. */
+    /**
+     * Indexed file + tags for each download, keyed by fileName, so the list can show what each one is.
+     * New names are looked up a few hundred per query, off the UI thread, and the list fills in per
+     * batch. One query per name (each a scan of the whole library table) after queueing a whole
+     * console kept the database and the UI thread busy for minutes.
+     */
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     val downloadDetails: StateFlow<Map<String, DownloadableFileWithTags>> = downloads
         .map { list -> list.map { it.fileName } }
         .distinctUntilChanged()
-        .map { names ->
-            names.mapNotNull { fileName ->
-                val details = if (detailsCache.containsKey(fileName)) {
-                    detailsCache[fileName]
-                } else {
-                    fileRepository.findByFileName(fileName).also { detailsCache[fileName] = it }
-                }
-                details?.let { fileName to it }
-            }.toMap()
+        .transformLatest { names ->
+            fun known() = names.mapNotNull { name -> detailsCache[name]?.let { name to it } }.toMap()
+            val unknown = names.filter { it !in detailsCache && it !in detailsMissing }
+            emit(known())
+            for (chunk in unknown.chunked(DETAILS_BATCH)) {
+                val found = fileRepository.findByFileNames(chunk) { downloadService.entityFor(it)?.consoleId }
+                chunk.forEach { name -> found[name]?.let { detailsCache[name] = it } ?: detailsMissing.add(name) }
+                emit(known())
+            }
         }
+        .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
     /** File names ticked for a bulk action; empty = no selection mode. */

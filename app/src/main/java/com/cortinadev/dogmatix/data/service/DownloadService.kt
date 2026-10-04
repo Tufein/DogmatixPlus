@@ -87,7 +87,9 @@ class DownloadService @Inject constructor(
      * torrent bridge flips a row to COMPLETED as soon as libtorrent is done, before the file is
      * moved into place, so status watchers cannot tell "done" from "about to be copied".
      */
-    private val _finished = MutableSharedFlow<String>(extraBufferCapacity = 32)
+    // Room for a whole batch: tryEmit drops the name when the buffer is full, and the after-download
+    // steps (covers, playlists, RomM upload, the log) are slower than small games finish.
+    private val _finished = MutableSharedFlow<String>(extraBufferCapacity = 10_000)
     val finished: SharedFlow<String> = _finished.asSharedFlow()
 
     private val _waiting = MutableStateFlow<Set<String>>(emptySet())
@@ -189,8 +191,10 @@ class DownloadService @Inject constructor(
      */
     fun startDownloads(files: List<DownloadableFileEntity>) {
         val fresh = synchronized(startLock) {
+            // One set of the active names instead of a walk over the whole list per file.
+            val active = downloadProgressTracker.activeNames()
             val items = files.distinctBy { it.fileName }
-                .filterNot { downloadProgressTracker.isActive(it.fileName) }
+                .filterNot { it.fileName in active }
                 .map { it to downloadFileManager.createDownloadItem(it) }
             downloadProgressTracker.addDownloads(items.map { it.second })
             items

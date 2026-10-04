@@ -90,6 +90,28 @@ class DownloadableFileRepository @Inject constructor(
         return DownloadableFileWithTags(file = file, tags = dao.getTagsForFile(file.id))
     }
 
+    /**
+     * [findByFileName] for many downloads: two queries per [LOOKUP_CHUNK] names instead of two per
+     * name (each of those scanned the whole library table). When two consoles list the same file
+     * name, [preferConsole] picks the row.
+     */
+    suspend fun findByFileNames(
+        names: Collection<String>,
+        preferConsole: (String) -> String? = { null }
+    ): Map<String, DownloadableFileWithTags> {
+        val found = HashMap<String, DownloadableFileWithTags>()
+        for (chunk in names.distinct().chunked(LOOKUP_CHUNK)) {
+            val files = dao.filesByFileNames(chunk).groupBy { it.fileName }.mapValues { (name, rows) ->
+                val console = preferConsole(name)
+                rows.firstOrNull { it.consoleId == console } ?: rows.first()
+            }
+            val tags = files.values.map { it.id }.chunked(LOOKUP_CHUNK).flatMap { dao.tagsOfFiles(it) }
+                .groupBy({ it.fileId }, { it.tag })
+            files.forEach { (name, file) -> found[name] = DownloadableFileWithTags(file = file, tags = tags[file.id].orEmpty()) }
+        }
+        return found
+    }
+
     /** Every version of a game the library lists for its console (same cleaned title), with tags. */
     suspend fun versionsOf(file: DownloadableFileEntity): List<DownloadableFileWithTags> {
         val key = file.searchKey.ifEmpty { com.cortinadev.dogmatix.util.SearchNormalizer.key(file.name) }
@@ -126,5 +148,10 @@ class DownloadableFileRepository @Inject constructor(
     suspend fun getConsolesWithFiles(query: String, manufacturer: String? = null): List<ConsoleWithFileCount> {
         val hidden = profiles.current().hiddenConsoles
         return dao.getConsolesWithFiles(searchPattern(query), manufacturer).filterNot { it.id in hidden }
+    }
+
+    private companion object {
+        /** Names per IN (...) query, well below SQLite's 999 variables. */
+        const val LOOKUP_CHUNK = 400
     }
 }

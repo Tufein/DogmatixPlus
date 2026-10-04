@@ -69,15 +69,24 @@ class LibraryIndexService @Inject constructor(
                 .map { list -> list.filter { it.status == DownloadStatus.COMPLETED }.map { it.fileName }.toSet() }
                 .distinctUntilChanged()
                 // Mark finished downloads as owned right away; the full disk walk is slow over SAF.
-                .onEach { completed -> _ownedKeys.update { it + completed.flatMap { keysForCompleted(it) } } }
+                // Only the ones that finished since the last change: looking up every finished row
+                // again each time was quadratic, and each lookup scanned the whole library table.
+                .onEach { completed ->
+                    val keys = finishedNames.next(completed).flatMap { keysForCompleted(it) }
+                    if (keys.isNotEmpty()) _ownedKeys.update { it + keys }
+                }
                 .debounce(500)
                 .collect { refresh() }
         }
     }
 
-    /** Keys for a download that just finished: scoped to its console (looked up by file name). */
+    /** Finished downloads already marked as owned (see [FreshNames]). */
+    private val finishedNames = com.cortinadev.dogmatix.util.FreshNames()
+
+    /** Keys for a download that just finished: scoped to its console (known from the download itself). */
     private suspend fun keysForCompleted(fileName: String): List<String> {
-        val consoleId = downloadableFileDao.getFileByFileName(fileName)?.consoleId ?: return emptyList()
+        val consoleId = (downloadService.entityFor(fileName) ?: downloadableFileDao.getFileByFileName(fileName))?.consoleId
+            ?: return emptyList()
         return LibraryKeys.keysFor(LibraryKeys.consoleScope(consoleId), fileName)
     }
 

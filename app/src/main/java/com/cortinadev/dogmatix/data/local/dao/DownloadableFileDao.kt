@@ -137,6 +137,14 @@ interface DownloadableFileDao {
     @Query("SELECT * FROM downloadable_files WHERE searchKey LIKE '%' || :key || '%' AND (:consoleId IS NULL OR consoleId = :consoleId) LIMIT :limit")
     suspend fun filesMatching(key: String, consoleId: String?, limit: Int = 50): List<DownloadableFileEntity>
 
+    /** Library rows for many downloads at once (keep [names] under SQLite's 999 variables). */
+    @Query("SELECT * FROM downloadable_files WHERE fileName IN (:names)")
+    suspend fun filesByFileNames(names: List<String>): List<DownloadableFileEntity>
+
+    /** Tags of many files at once (keep [fileIds] under SQLite's 999 variables). */
+    @Query("SELECT fileId, tag FROM downloadable_file_tags WHERE fileId IN (:fileIds) ORDER BY tag ASC")
+    suspend fun tagsOfFiles(fileIds: List<Long>): List<FileTagRow>
+
     @Query("SELECT tag FROM downloadable_file_tags WHERE fileId = :fileId ORDER BY tag ASC")
     suspend fun getTagsForFile(fileId: Long): List<String>
 
@@ -320,6 +328,8 @@ data class FileIdName(val id: Long, val name: String)
 data class SourceWrite(val tags: Int, val newFiles: Int)
 
 data class FileSeen(val fileName: String, val firstSeenAt: Long)
+
+data class FileTagRow(val fileId: Long, val tag: String)
 
 data class IndexedSource(val consoleId: String, val sourceUrl: String)
 

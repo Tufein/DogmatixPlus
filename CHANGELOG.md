@@ -3,6 +3,22 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [Unreleased]
+
+### Fixed
+- **"App isn't responding" after queueing a whole console.** Every time a download finished, the
+  library looked up *every* finished download again in the database, by file name, and that column
+  has no index: with a few thousand finished rows that grew into millions of full table scans, which
+  kept the database and the processor busy long after the batch (and again after a restart, from the
+  download history). Each finished download is now handled once, with the console it came from
+  instead of a database lookup.
+- The Downloads list looked up the game behind each row one by one (again a full table scan per
+  row); it now asks a few hundred at a time, off the UI thread, and the rows fill in per batch.
+- The counters above the Downloads list, the "already downloading" marks in the library and the
+  *Download all* planning are worked out off the UI thread.
+- After-download steps (covers, playlists, RomM upload, the download log) no longer miss games when
+  many small downloads finish in quick succession.
+
 ## [3.3.0] – 2026-10-04 · Dogmatix+
 
 ### Downloads
