@@ -769,7 +769,7 @@
     <string name="settings_dl_night_start">La nuit commence à</string>
     <string name="settings_dl_night_end">La nuit se termine à</string>
     <string name="settings_prereleases">Inclure les préversions</string>
-    <string name="settings_prereleases_hint">La recherche de mises à jour propose aussi les versions alpha et bêta</string>
+    <string name="settings_prereleases_hint">La recherche de mises à jour propose aussi les préversions</string>
     <string name="settings_update_check">Rechercher des mises à jour</string>
     <string name="settings_update_check_hint">Consulte les versions de DogmatixPlus sur GitHub</string>
     <string name="settings_update_check_action">Vérifier</string>
@@ -1324,11 +1324,11 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Plus de « l’application ne répond pas » après avoir mis toute une console en file.</item>
-        <item>Paramètres et Outils rangés en groupes clairs ; LB / RB passent d’un groupe à l’autre.</item>
-        <item>Tout télécharger prend toute une console d’un coup (jusqu’à 3000 jeux).</item>
-        <item>Mettre la file en pause dans Téléchargements : les téléchargements en cours se terminent, rien de nouveau ne démarre.</item>
-        <item>La liste des téléchargements indique ce qui reste et le temps approximatif.</item>
+        <item>Importer une liste (Outils) : télécharger d’un coup les jeux d’un fichier texte ou du presse-papiers.</item>
+        <item>Des sets de console entiers en une fois, sans « l’application ne répond pas ».</item>
+        <item>Recherches récentes, Surprenez-moi et un réglage de la taille du texte.</item>
+        <item>Les téléchargements échoués réessaient d’eux-mêmes ; mettez la file ou un téléchargement en pause.</item>
+        <item>Paramètres et Outils rangés en groupes clairs.</item>
     </string-array>
 
     <!-- 4.0 -->

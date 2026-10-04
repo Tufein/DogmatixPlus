@@ -31,41 +31,21 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
-### Novedades de 3.5
-- **Se acabó el «la aplicación no responde»** tras poner en cola una consola entera, y *Descargar todo* acepta ahora una consola entera de una vez.
-- **Ajustes y Herramientas en grupos claros**, **pausar la cola**, el **tiempo restante** de la cola y un breve **novedades** tras una actualización.
-
-### Novedades de 3.3
-- **Las descargas fallidas se reintentan solas** y se **comprueban con tu DAT** en cuanto terminan.
-- **Mover toda la biblioteca** a otro almacenamiento (por ejemplo la tarjeta SD), **subir lo que le falta a RomM**, **compartir la lista de deseos** como archivo, y una **comprobación de frontends** en Herramientas.
-
-### Novedades de 3.2
-- **La lista de deseos sabe lo que ya tienes**: los juegos que ya están en el dispositivo o en tu servidor RomM se marcan y no se vuelven a descargar.
-- **Carátulas para Pegasus y RetroArch** tras cada descarga, además de las de ES-DE.
-
-### Novedades de 3.1
-- **Las colas de descargas grandes vuelven a ir fluidas** (se acabó el «la aplicación no responde» tras un reinicio con cientos de descargas en espera).
-- **Botones para toda la cola** (*Detener todo*, *Reintentar fallidas*, *Quitar terminadas*), **pausar descargas web**, y **una notificación cuando termina la cola**.
-- **Sincronización de partidas para emuladores independientes**: DraStic, melonDS, mGBA, Snes9x EX+ y más sincronizan sus partidas con RomM.
+### Novedades de 4.0
+- **Sets de consola enteros de una vez**: *Descargar todo* admite hasta 3000 juegos, sin «la app no responde» durante o después del lote. Las colas grandes siguen fluidas, se pueden **pausar**, muestran el **tiempo restante** y tienen botones para toda la cola (detener todo, reintentar las fallidas, quitar las terminadas).
+- **Las descargas se cuidan solas**: una descarga fallida **se reintenta sola**, las descargas web se pueden **pausar**, un archivo terminado se **compara con tu DAT**, y recibes **una notificación cuando la cola termina**.
+- **Importar una lista** (*Herramientas*): un archivo de texto o el portapapeles con un juego por línea. Se descarga de una vez la mejor versión de cada juego, y el resto puede ir a la lista de deseos. La comprobación DAT lo usa para los juegos que te faltan.
+- **Búsquedas recientes** bajo el campo de búsqueda, **Sorpréndeme** (un juego al azar de la lista) y un ajuste del **tamaño del texto**.
+- **Ajustes y Herramientas en grupos claros**, unas breves **novedades** tras una actualización, y una **comprobación de frontends** en Herramientas.
+- **Carátulas para Pegasus y RetroArch** junto a las de ES-DE, una **lista de deseos que sabe lo que ya tienes** (y se comparte como archivo), **mover la biblioteca** a otro almacenamiento, **subir lo que le falta a RomM**, y **sincronizar partidas de emuladores independientes** (DraStic, melonDS, mGBA, Snes9x EX+ y más).
 
 ### Novedades de 3.0
-- **Las descargas siguen donde se quedaron** (almacenamiento lleno, app cerrada, reinicio) y **la cola sobrevive a un reinicio**; un **límite por servidor** evita bloqueos.
-- **Lista de deseos en piloto automático**, **listas .m3u** para juegos de varios discos y un **asesor de almacenamiento** cuando «Descargar todo lo que se muestra» no cabe.
-- **Portadas para ES-DE** (y el enlace ES-DE de Cocoon) tras cada descarga, de libretro-thumbnails.
-- **Etiquetas de RetroAchievements**, **perfiles con PIN** y **a qué juegas** desde ES-DE en las estadísticas.
-
-### Novedades de 2.6
-- **Se acabaron los cierres forzados con colas de descarga grandes**: cientos de descargas en cola siguen fluidas.
-- **Cocoon**: añade Dogmatix+ como fichas por consola, vista guardada o Descargas (*Ajustes → Cocoon*); los mismos accesos aparecen al mantener pulsado el icono.
-- **Un icono nuevo**: un cartucho con orejas de perro y una flecha de descarga.
-
-### Novedades de 2.5
-- **Comprobación de BIOS**: mira por consola si los archivos BIOS de tu emulador están y son los volcados correctos (unos veinte sistemas).
-- **Aplicar parches IPS / UPS / BPS** desde el explorador de archivos; el juego parcheado es una copia nueva y el original se queda igual.
-- **Compartir enlaces con la app**: un enlace de descarga o un magnet del navegador va directo a la carpeta de una consola, o se convierte en fuente.
-- **Reordenar la cola de descargas** (▲ ▼, o **Y** para ponerla primera), **reservar espacio libre** para que las descargas se paren antes de llenar el almacenamiento, y descargas que recurren a las **direcciones de reserva** de una fuente.
-- **Vistas guardadas**: guarda tus filtros con un nombre y pon un acceso directo en ES-DE; los **favoritos de ES-DE** reciben aquí una estrella.
-- **Estadísticas**, **colecciones de RomM** en ambos sentidos, **DAT directamente de Redump**, una **segunda pantalla** para portátiles de doble pantalla y teles, y una **copia de seguridad automática** semanal.
+- **Las descargas siguen donde se quedaron** (almacenamiento lleno, app cerrada, reinicio) y **la cola sobrevive a un reinicio**; un **límite por servidor** contenta a los servidores estrictos. **Reordena la cola** (▲ ▼, o **Y** para poner una primero) y **guarda espacio libre** para que las descargas paren antes de llenar el almacenamiento.
+- **Lista de deseos en piloto automático**, **listas .m3u** para juegos de varios discos y un **asesor de almacenamiento** cuando «Descargar todo lo mostrado» no cabe.
+- **Carátulas para ES-DE** (y el enlace ES-DE de Cocoon) tras cada descarga, de libretro-thumbnails. **Cocoon**: añade Dogmatix+ como mosaicos por consola, vista guardada o Descargas.
+- **Insignias de RetroAchievements**, **perfiles con PIN**, **estadísticas** con lo que juegas en ES-DE, y **vistas guardadas** con un acceso directo en ES-DE.
+- **Comprobación de BIOS** para unos veinte sistemas, **parches IPS / UPS / BPS** desde el explorador de archivos, y los **enlaces compartidos con la app** van directos a la carpeta de una consola.
+- **Colecciones de RomM** en los dos sentidos, **DAT directo de Redump**, una **segunda pantalla** para portátiles de doble pantalla y teles, una **copia de seguridad automática** semanal, y un icono nuevo.
 
 ### Novedades de 2.0
 - **Reescaneos más rápidos**: se omiten las fuentes cuya lista no cambió (6 fuentes de 4000 juegos: de 18 s a 2 s). Una fuente que falla conserva sus juegos, y una fuente web puede tener **direcciones de reserva**.
@@ -91,19 +71,19 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 - Cada consola tiene **su propia carpeta**. Las carpetas que ya tienes (como `gba` o `psx`) se reutilizan, y puedes unificar dos carpetas que corresponden a la misma consola.
 - Tu **lista de descargas se conserva** cuando cierras la app. Selecciona varias descargas para detenerlas, reintentarlas o borrarlas a la vez.
 - Opcional: **TorBox** y **Real-Debrid** — servicios de pago que obtienen los torrents por ti, así que la descarga es un archivo normal y rápido.
-- **Solo con Wi-Fi, solo mientras carga o solo de noche** *(novedad, alfa)*: las descargas nuevas esperan a que se cumplan tus condiciones y dicen qué esperan. Una **comprobación de suma** compara un archivo terminado con el hash que publica su fuente. En la ficha del juego, **Mejor versión** elige la que te conviene (tu región e idioma, sin demos). Una descarga terminada se puede **abrir** en un emulador.
+- **Solo con Wi-Fi, solo mientras carga o solo de noche**: las descargas nuevas esperan a que se cumplan tus condiciones y dicen qué esperan. Una **comprobación de suma** compara un archivo terminado con el hash que publica su fuente. En la ficha del juego, **Mejor versión** elige la que te conviene (tu región e idioma, sin demos). Una descarga terminada se puede **abrir** en un emulador.
 
 ### Mantén ordenada tu colección *(novedad en DogmatixPlus)*
 - **Juegos duplicados**: encuentra los juegos que están más de una vez en tu dispositivo, te muestra cuánto espacio ganas y te deja borrar la copia sobrante. No se borra nada antes de que hayas visto exactamente qué archivos se van a borrar.
 - **Resumen de la biblioteca**: para cada consola, cuántos juegos hay en la lista, cuántos tienes, cuántos están en tu dispositivo y cuánto ocupan, y cuándo se escaneó por última vez.
 - **Copia de seguridad** y **Restaurar copia**: guarda tus ajustes, fuentes, favoritos y descargas en un solo archivo y recupéralos más tarde — muy útil para un dispositivo nuevo.
-- **Progreso del escaneo**: un porcentaje y el tiempo que queda mientras se leen tus fuentes. Desde la 1.2.0 las fuentes se escanean **en paralelo**, mucho más rápido.
-- **Juegos de varios archivos** *(novedad, alfa)*: encuentra imágenes de disco que no funcionan (un `.cue` cuya pista ya no está, una lista que nombra un disco borrado) y crea listas `.m3u` para juegos de varios discos.
+- **Progreso del escaneo**: un porcentaje y el tiempo que queda mientras se leen tus fuentes. Las fuentes se escanean **en paralelo**, así que va rápido.
+- **Juegos de varios archivos**: encuentra imágenes de disco que no funcionan (un `.cue` cuya pista ya no está, una lista que nombra un disco borrado) y crea listas `.m3u` para juegos de varios discos.
 - **Almacenamiento**: espacio por consola, tus juegos más grandes y si las descargas en cola todavía caben.
 - **Lista de deseos**: apunta los juegos que quieres; te avisamos cuando uno aparece en tus fuentes.
 - **Exporta** tu colección como hoja de cálculo (CSV) o página web. El buscador de duplicados también puede **sugerir qué copia conservar**.
-- **Explorador de archivos** *(1.3)*: mira dentro de tus carpetas, tamaños y qué archivos cuentan como juegos, comprueba discos, abre o borra archivos.
-- **Informe de escaneo** *(1.3)*: tras un escaneo, un resumen de las fuentes que fallaron y por qué, con *Escanear estas otra vez*; cada fuente muestra su último resultado.
+- **Explorador de archivos**: mira dentro de tus carpetas, tamaños y qué archivos cuentan como juegos, comprueba discos, abre o borra archivos.
+- **Informe de escaneo**: tras un escaneo, un resumen de las fuentes que fallaron y por qué, con *Escanear estas otra vez*; cada fuente muestra su último resultado.
 
 ### Pensada para consolas portátiles
 - **Controla todo con un mando**: D-pad, A/B/X/Y y los botones superiores. Las ayudas en pantalla de la parte inferior se adaptan a tu mando (Xbox, Nintendo o PlayStation), y puedes intercambiar los botones si tu mando los envía al revés.
@@ -116,9 +96,9 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ### Funciona con RomM
 - Envía las descargas terminadas a tu servidor **RomM**, o usa RomM como fuente de juegos.
-- **Sincronizar partidas** *(nuevo, beta)*: tu servidor RomM guarda tus **partidas y estados guardados**. Elige las carpetas donde guarda tu emulador (en RetroArch: `saves` y `states`) y DogmatixPlus sube el progreso nuevo y baja el progreso más reciente — de otra portátil o del reproductor web de RomM. Si una partida cambió en ambos lados, tú eliges cuál conservar; una copia sustituida se guarda 30 días. Puede hacerse solo al abrir la app o al volver de un juego (*Ajustes → Sincronizar partidas*).
-- *(novedad, alfa)* Los juegos que tu servidor RomM ya tiene se **marcan** en la biblioteca. Un servidor casero con **certificado autofirmado** funciona cuando has comprobado su huella. Una subida interrumpida **continúa** donde se quedó. Las **carátulas** de RomM se pueden descargar en ES-DE.
-- *(novedad, alfa)* La sincronización de partidas puede funcionar **en segundo plano** cada pocas horas y también **trasladar eliminaciones** (desactivado por defecto, con salvaguardas). Si una partida cambió en ambos lados, ahora ves las dos horas y tamaños.
+- **Sincronizar partidas**: tu servidor RomM guarda tus **partidas y estados guardados**. Elige las carpetas donde guarda tu emulador (en RetroArch: `saves` y `states`) y DogmatixPlus sube el progreso nuevo y baja el progreso más reciente — de otra portátil o del reproductor web de RomM. Si una partida cambió en ambos lados, tú eliges cuál conservar; una copia sustituida se guarda 30 días. Puede hacerse solo al abrir la app o al volver de un juego (*Ajustes → Sincronizar partidas*).
+- Los juegos que tu servidor RomM ya tiene se **marcan** en la biblioteca. Un servidor casero con **certificado autofirmado** funciona cuando has comprobado su huella. Una subida interrumpida **continúa** donde se quedó. Las **carátulas** de RomM se pueden descargar en ES-DE.
+- La sincronización de partidas puede funcionar **en segundo plano** cada pocas horas y también **trasladar eliminaciones** (desactivado por defecto, con salvaguardas). Si una partida cambió en ambos lados, ahora ves las dos horas y tamaños.
 
 ### Tus fuentes, a tu manera
 - Añade fuentes a mano, o **impórtalas y expórtalas** como un archivo para compartirlas entre dispositivos. La exportación ahora también lleva tus **★ favoritos**, y al importarla se añaden en el otro dispositivo.
@@ -133,7 +113,7 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 1. Abre la **[página de Releases](https://github.com/Tufein/DogmatixPlus/releases)** en tu móvil o en tu consola portátil, o descarga el archivo allí y cópialo al dispositivo.
 2. Descarga uno de los dos archivos:
-   - **`DogmatixPlus-release.apk`** — *la opción normal.* Desde la 1.2.0 la app se llama **Dogmatix+** y tiene su propio nombre de paquete, así que se instala **junto al** Dogmatix oficial y a versiones anteriores de DogmatixPlus, sin tocar nada tuyo.
+   - **`DogmatixPlus-release.apk`** — *la opción normal.* La app se llama **Dogmatix+** y tiene su propio nombre de paquete, así que se instala **junto al** Dogmatix oficial y a versiones anteriores de DogmatixPlus, sin tocar nada tuyo.
    - **`DogmatixPlus-debug.apk`** — una versión de depuración que también se instala junto a todo lo demás.
    - **¿Vienes de un DogmatixPlus anterior?** En la app antigua usa *Ajustes → Copia de seguridad*, luego *Ajustes → Restaurar copia* en Dogmatix+, y vuelve a configurar ES-DE / iiSU / Daijishō una vez.
 3. Abre el archivo y permite **«Instalar aplicaciones desconocidas»** si Android te lo pide.
@@ -169,7 +149,7 @@ Todo funciona también con la pantalla táctil. Las ayudas solo se muestran mien
 - **Un archivo de copia de seguridad contiene tus claves de cuenta** (TorBox, Real-Debrid, RomM). Mantenlo en privado.
 - **La ventana de información del juego se queda vacía en las descargas que se ofrecen aquí**, porque necesita una clave gratuita de una base de datos de juegos que se añade cuando se crea la app.
 - DogmatixPlus no busca juegos por su cuenta. Solo lee las fuentes que **tú** añades.
-- **Las versiones más nuevas son versiones preliminares** (alfa, beta). La búsqueda de actualizaciones de la app las omite, salvo que actives *Ajustes → Incluir versiones preliminares*.
+- **Algunas versiones son versiones preliminares.** La búsqueda de actualizaciones de la app las omite, salvo que actives *Ajustes → Incluir versiones preliminares*.
 - **¿Algo no funciona?** *Ajustes → Compartir diagnóstico* crea un informe de texto para reportar un fallo; antes se quitan tokens, direcciones de servidor y enlaces magnet.
 
 ---

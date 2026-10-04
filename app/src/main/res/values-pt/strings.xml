@@ -715,7 +715,7 @@
     <string name="settings_dl_night_start">A noite começa às</string>
     <string name="settings_dl_night_end">A noite termina às</string>
     <string name="settings_prereleases">Incluir pré-lançamentos</string>
-    <string name="settings_prereleases_hint">A verificação de atualizações oferece também versões alfa e beta</string>
+    <string name="settings_prereleases_hint">A verificação de atualizações oferece também versões preliminares</string>
     <string name="settings_update_check">Procurar atualizações</string>
     <string name="settings_update_check_hint">Consulta as versões do DogmatixPlus no GitHub</string>
     <string name="settings_update_check_action">Verificar</string>
@@ -1270,11 +1270,11 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Acabou o «a aplicação não responde» depois de pôr uma consola inteira na fila.</item>
-        <item>Definições e Ferramentas em grupos claros; LB / RB saltam entre os grupos.</item>
-        <item>Transferir tudo aceita uma consola inteira de uma vez (até 3000 jogos).</item>
-        <item>Pausar a fila em Transferências: as transferências em curso terminam, nada de novo começa.</item>
-        <item>A lista de transferências mostra o que falta e quanto tempo demora, aproximadamente.</item>
+        <item>Importar uma lista (Ferramentas): transfere de uma vez os jogos de um ficheiro de texto ou da área de transferência.</item>
+        <item>Sets de consola inteiros de uma vez, sem «a app não responde».</item>
+        <item>Pesquisas recentes, Surpreende-me e uma definição do tamanho do texto.</item>
+        <item>As transferências falhadas tentam de novo sozinhas; pausa a fila ou uma transferência.</item>
+        <item>Definições e Ferramentas em grupos claros.</item>
     </string-array>
 
     <!-- 4.0 -->

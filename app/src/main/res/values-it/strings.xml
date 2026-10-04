@@ -715,7 +715,7 @@
     <string name="settings_dl_night_start">La notte inizia alle</string>
     <string name="settings_dl_night_end">La notte finisce alle</string>
     <string name="settings_prereleases">Includi le versioni preliminari</string>
-    <string name="settings_prereleases_hint">Il controllo aggiornamenti propone anche versioni alpha e beta</string>
+    <string name="settings_prereleases_hint">Il controllo aggiornamenti propone anche le versioni preliminari</string>
     <string name="settings_update_check">Controlla aggiornamenti</string>
     <string name="settings_update_check_hint">Controlla le release di DogmatixPlus su GitHub</string>
     <string name="settings_update_check_action">Controlla</string>
@@ -1270,11 +1270,11 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Niente più «l’app non risponde» dopo aver messo in coda un’intera console.</item>
-        <item>Impostazioni e Strumenti in gruppi chiari; LB / RB saltano tra i gruppi.</item>
-        <item>Scarica tutto accetta un’intera console in una volta (fino a 3000 giochi).</item>
-        <item>Metti in pausa la coda in Download: i download in corso finiscono, non ne parte di nuovi.</item>
-        <item>L’elenco dei download mostra quanto manca e quanto ci vorrà circa.</item>
+        <item>Importa un elenco (Strumenti): scarica in una volta i giochi di un file di testo o degli appunti.</item>
+        <item>Set di console interi in una volta, senza «l’app non risponde».</item>
+        <item>Ricerche recenti, Sorprendimi e un’impostazione per la dimensione del testo.</item>
+        <item>I download falliti riprovano da soli; metti in pausa la coda o un download.</item>
+        <item>Impostazioni e Strumenti in gruppi chiari.</item>
     </string-array>
 
     <!-- 4.0 -->

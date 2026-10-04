@@ -764,7 +764,7 @@
     <string name="settings_dl_night_start">Nacht beginnt um</string>
     <string name="settings_dl_night_end">Nacht endet um</string>
     <string name="settings_prereleases">Vorabversionen einbeziehen</string>
-    <string name="settings_prereleases_hint">Die Update-Prüfung bietet auch Alpha- und Beta-Versionen an</string>
+    <string name="settings_prereleases_hint">Die Update-Prüfung bietet auch Vorabversionen an</string>
     <string name="settings_update_check">Nach Updates suchen</string>
     <string name="settings_update_check_hint">Sieht in den DogmatixPlus-Releases auf GitHub nach</string>
     <string name="settings_update_check_action">Prüfen</string>
@@ -1319,11 +1319,11 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Kein „App reagiert nicht“ mehr, nachdem eine ganze Konsole in die Warteschlange kam.</item>
-        <item>Einstellungen und Tools in klaren Gruppen; LB / RB springen zwischen den Gruppen.</item>
-        <item>Alle herunterladen nimmt ein ganzes Konsolen-Set auf einmal (bis zu 3000 Spiele).</item>
-        <item>Warteschlange anhalten unter Downloads: laufende Downloads werden fertig, nichts Neues startet.</item>
-        <item>Die Download-Liste zeigt, was noch fehlt und wie lange es etwa dauert.</item>
+        <item>Liste importieren (Tools): die Spiele einer Textdatei oder der Zwischenablage auf einmal laden.</item>
+        <item>Ganze Konsolen-Sets auf einmal, ohne „App reagiert nicht“.</item>
+        <item>Letzte Suchen, Überrasch mich und eine Einstellung für die Textgröße.</item>
+        <item>Fehlgeschlagene Downloads versuchen es von selbst erneut; halte die Warteschlange oder einen Download an.</item>
+        <item>Einstellungen und Tools in klaren Gruppen.</item>
     </string-array>
 
     <!-- 4.0 -->

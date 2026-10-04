@@ -738,7 +738,7 @@
     <string name="settings_dl_night_start">La noche empieza a las</string>
     <string name="settings_dl_night_end">La noche termina a las</string>
     <string name="settings_prereleases">Incluir versiones preliminares</string>
-    <string name="settings_prereleases_hint">La búsqueda de actualizaciones ofrece también versiones alfa y beta</string>
+    <string name="settings_prereleases_hint">La búsqueda de actualizaciones ofrece también versiones preliminares</string>
     <string name="settings_update_check">Buscar actualizaciones</string>
     <string name="settings_update_check_hint">Consulta las versiones de DogmatixPlus en GitHub</string>
     <string name="settings_update_check_action">Buscar</string>
@@ -1293,11 +1293,11 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Se acabó el «la aplicación no responde» tras poner en cola una consola entera.</item>
-        <item>Ajustes y Herramientas en grupos claros; LB / RB saltan entre los grupos.</item>
-        <item>Descargar todo acepta una consola entera de una vez (hasta 3000 juegos).</item>
-        <item>Pausar la cola en Descargas: las descargas en curso terminan, no empieza nada nuevo.</item>
-        <item>La lista de descargas muestra lo que falta y cuánto tardará aproximadamente.</item>
+        <item>Importar una lista (Herramientas): descarga de una vez los juegos de un archivo de texto o del portapapeles.</item>
+        <item>Sets de consola enteros de una vez, sin «la app no responde».</item>
+        <item>Búsquedas recientes, Sorpréndeme y un ajuste del tamaño del texto.</item>
+        <item>Las descargas fallidas se reintentan solas; pausa la cola o una descarga.</item>
+        <item>Ajustes y Herramientas en grupos claros.</item>
     </string-array>
 
     <!-- 4.0 -->

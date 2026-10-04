@@ -764,7 +764,7 @@
     <string name="settings_dl_night_start">Nacht begint om</string>
     <string name="settings_dl_night_end">Nacht eindigt om</string>
     <string name="settings_prereleases">Voorlopige versies meenemen</string>
-    <string name="settings_prereleases_hint">De updatecontrole biedt ook alfa- en bètaversies aan</string>
+    <string name="settings_prereleases_hint">De updatecontrole biedt ook voorlopige versies aan</string>
     <string name="settings_update_check">Controleren op updates</string>
     <string name="settings_update_check_hint">Kijkt naar de DogmatixPlus-releases op GitHub</string>
     <string name="settings_update_check_action">Controleer</string>
@@ -1319,11 +1319,11 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Geen \"app reageert niet\" meer na het in de wachtrij zetten van een hele console.</item>
-        <item>Instellingen en Tools in duidelijke groepen; LB / RB springen tussen de groepen.</item>
-        <item>Alles downloaden neemt een hele consoleset in één keer (tot 3000 games).</item>
-        <item>Wachtrij pauzeren bij Downloads: lopende downloads maken af, er start niets nieuws.</item>
-        <item>De Downloads-lijst toont wat er nog over is en hoe lang dat ongeveer duurt.</item>
+        <item>Lijst importeren (Tools): de games van een tekstbestand of het klembord in één keer downloaden.</item>
+        <item>Hele consolesets in één keer, zonder \"app reageert niet\".</item>
+        <item>Recente zoekopdrachten, Verras me en een instelling voor de tekstgrootte.</item>
+        <item>Mislukte downloads proberen het zelf opnieuw; pauzeer de wachtrij of één download.</item>
+        <item>Instellingen en Tools in duidelijke groepen.</item>
     </string-array>
 
     <!-- 4.0 -->

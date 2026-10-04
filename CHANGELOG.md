@@ -3,6 +3,40 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [4.0.0] – 2026-10-04 · Dogmatix+
+
+The first full release since 3.0.0: it carries everything of 3.1 to 3.5 below, plus the following.
+
+### Import a list
+- **Tools → Import a list**: a text file or the clipboard with one game per line. Numbering
+  ("1.", "2)"), bullets, quotes, comment lines (`#`) and extra tab-separated columns are left out.
+  Each listed game is looked up in one console or in all of them, by exactly the same title words
+  (tags, the extension and words like "the" do not count, so *Super Mario World* does not take
+  *Super Mario World 2*). The best version by your languages is downloaded in one go; games already
+  on the device or downloading are skipped, and the ones no source lists can go on the wishlist.
+- **DAT check → Look for them in your sources** hands the missing games of a console to *Import a
+  list*.
+
+### Library
+- **Recent searches**: the last six searches show under the search field while it is empty; a tap
+  searches again, the × forgets them. A search is remembered once the typing stops, and the
+  shorter steps typed on the way are not kept.
+- **Surprise me** opens the details of a random game from the list on screen.
+
+### Look
+- **Text size** (*Settings → Look and controls*): 85, 100, 115, 130 or 150 %, on top of Android's
+  own font size.
+
+### Faster
+- Database version 12: an index on the file name, which every finished download and the Downloads
+  list look up.
+
+### Code
+- Inline package names became imports, the settings screen reads its state per section instead of
+  per version, and the grab-bag tests of earlier versions are split into one test class per subject.
+- Local IDE files are no longer versioned (the shared code style still is).
+- The release workflow publishes half versions (x.5.0) as pre-releases.
+
 ## [3.5.0] – 2026-10-04 · Dogmatix+
 
 ### Downloads

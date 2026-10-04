@@ -31,41 +31,21 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
-### New in 3.5
-- **No more "app isn't responding"** after queueing a whole console, and *Download all* now takes a whole console set at once.
-- **Settings and Tools in clear groups**, **hold the queue**, the **time left** for the queue, and a short **what's new** after an update.
-
-### New in 3.3
-- **Failed downloads retry by themselves** and are **checked against your DAT** as soon as they finish.
-- **Move the whole library** to another storage (for example the SD card), **upload what RomM lacks**, **share the wishlist** as a file, and a **frontend check** in Tools.
-
-### New in 3.2
-- **The wishlist knows what you already have**: games already on the device or on your RomM server are marked and not downloaded again.
-- **Covers for Pegasus and RetroArch** after every download, next to the ones for ES-DE.
-
-### New in 3.1
-- **Big download queues stay smooth again** (no more "app isn't responding" after a restart with hundreds of downloads waiting).
-- **Whole-queue buttons** (*Stop all*, *Retry failed*, *Clear finished*), **pause web downloads**, and **a notification when the queue is done**.
-- **Save sync for standalone emulators**: DraStic, melonDS, mGBA, Snes9x EX+ and more sync their saves with RomM.
+### New in 4.0
+- **Whole console sets in one go**: *Download all* takes up to 3000 games, without "app isn't responding" during or after the batch. Big queues stay smooth, can be **held**, show the **time left**, and have whole-queue buttons (*Stop all*, *Retry failed*, *Clear finished*).
+- **Downloads look after themselves**: failed downloads **retry by themselves**, web downloads can be **paused**, a finished file is **checked against your DAT**, and you get **a notification when the queue is done**.
+- **Import a list** (*Tools*): a text file or the clipboard with one game per line. The best version of each game is downloaded in one go, and the rest can go on the wishlist. The DAT check uses it for the games you are missing.
+- **Recent searches** under the search field, **Surprise me** (a random game from the list), and a **text size** setting.
+- **Settings and Tools in clear groups**, a short **what's new** after an update, and a **frontend check** in Tools.
+- **Covers for Pegasus and RetroArch** next to ES-DE, a **wishlist that knows what you already have** (and can be shared as a file), **move the library** to another storage, **upload what RomM lacks**, and **save sync for standalone emulators** (DraStic, melonDS, mGBA, Snes9x EX+ and more).
 
 ### New in 3.0
-- **Downloads continue where they stopped** (full storage, closed app, reboot) and **the queue survives a restart**; a **per-server limit** keeps strict servers happy.
+- **Downloads continue where they stopped** (full storage, closed app, reboot) and **the queue survives a restart**; a **per-server limit** keeps strict servers happy. **Reorder the queue** (▲ ▼, or **Y** to put one first) and **keep free space** so downloads stop before the storage is full.
 - **Wishlist on autopilot**, **.m3u playlists** for multi-disc games, and a **storage advisor** when "Download everything shown" does not fit.
-- **Covers for ES-DE** (and Cocoon's ES-DE link) after every download, from libretro-thumbnails.
-- **RetroAchievements badges**, **profiles with a PIN**, and **what you play** from ES-DE in the statistics.
-
-### New in 2.6
-- **No more force quits with big download queues**: hundreds of queued downloads stay smooth.
-- **Cocoon**: add Dogmatix+ as tiles per console, saved view or Downloads (*Settings → Cocoon*); the same shortcuts appear on a long press of the icon.
-- **A new icon**: a cartridge with dog ears and a download arrow.
-
-### New in 2.5
-- **BIOS check**: see per console whether your emulator's BIOS files are there and are the right dumps (about twenty systems).
-- **Apply IPS / UPS / BPS patches** from the file explorer; the patched game is a new copy, the original stays.
-- **Share links to the app**: a download link or magnet from the browser goes straight into a console's folder, or becomes a source.
-- **Reorder the download queue** (▲ ▼, or **Y** to put one first), **keep free space** so downloads stop before the storage is full, and downloads that fall back to a source's **reserve addresses**.
-- **Saved views**: save your filters under a name and put a shortcut to them in ES-DE; **ES-DE favourites** become stars here.
-- **Statistics**, **RomM collections** both ways, **DAT straight from Redump**, a **second screen** for dual-screen handhelds and TVs, and a weekly **automatic backup**.
+- **Covers for ES-DE** (and Cocoon's ES-DE link) after every download, from libretro-thumbnails. **Cocoon**: add Dogmatix+ as tiles per console, saved view or Downloads.
+- **RetroAchievements badges**, **profiles with a PIN**, **statistics** with what you play from ES-DE, and **saved views** with a shortcut in ES-DE.
+- **BIOS check** for about twenty systems, **IPS / UPS / BPS patches** from the file explorer, and **links shared to the app** go straight into a console's folder.
+- **RomM collections** both ways, **DAT straight from Redump**, a **second screen** for dual-screen handhelds and TVs, a weekly **automatic backup**, and a new icon.
 
 ### New in 2.0
 - **Faster rescans**: sources whose list did not change are skipped (6 sources of 4,000 games: from 18 s to 2 s). A source that fails keeps its games, and a web source can have **reserve addresses**.
@@ -91,19 +71,19 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 - Every console gets **its own folder**. Folders you already have (like `gba` or `psx`) are reused, and you can merge two folders that mean the same console.
 - Your **download list is kept** when you close the app. Select several downloads to stop, retry or delete them together.
 - Optional: **TorBox** and **Real-Debrid** — paid services that fetch torrents for you, so the download is a normal fast file.
-- **Only on Wi-Fi, only while charging or only at night** *(new, alpha)*: new downloads wait until the conditions you set are met, and say what they wait for. A **checksum check** compares a finished file with the hash its source publishes. In the game info, **Best version** picks the version that suits you (your region and language, no demos). A finished download can be **opened** in an emulator.
+- **Only on Wi-Fi, only while charging or only at night**: new downloads wait until the conditions you set are met, and say what they wait for. A **checksum check** compares a finished file with the hash its source publishes. In the game info, **Best version** picks the version that suits you (your region and language, no demos). A finished download can be **opened** in an emulator.
 
 ### Keep your collection tidy *(new in DogmatixPlus)*
 - **Duplicate games**: finds games that are on your device more than once, shows how much space you win, and lets you delete the extra copy. Nothing is deleted before you have seen exactly which files will go.
 - **Library overview**: for every console, how many games are listed, how many you own, how many are on your device and how big that is, and when it was last scanned.
 - **Back up and restore**: save your settings, sources, favourites and downloads in one file and put them back later — handy for a new device.
-- **Scan progress**: a percentage and the time left while your sources are being read. Since 1.2.0 sources are **scanned side by side** and much faster.
-- **Game sets** *(new, alpha)*: finds disc images that cannot run (a `.cue` whose track is gone, a playlist that names a deleted disc) and makes `.m3u` playlists for games with several discs.
+- **Scan progress**: a percentage and the time left while your sources are being read. Sources are **scanned side by side**, so this goes fast.
+- **Game sets**: finds disc images that cannot run (a `.cue` whose track is gone, a playlist that names a deleted disc) and makes `.m3u` playlists for games with several discs.
 - **Storage**: space per console, your biggest games, and whether the downloads in the queue still fit.
 - **Wishlist**: write down games you want; you get a message when one turns up in your sources.
 - **Export** your collection as a spreadsheet (CSV) or a web page. The duplicate finder can also **suggest which copy to keep**.
-- **File explorer** *(1.3)*: look inside your folders, see sizes and which files count as games, check disc sets, open or delete files.
-- **Scan report** *(1.3)*: after a scan, one overview of the sources that failed and why, with *Scan these again*; every source shows its last result.
+- **File explorer**: look inside your folders, see sizes and which files count as games, check disc sets, open or delete files.
+- **Scan report**: after a scan, one overview of the sources that failed and why, with *Scan these again*; every source shows its last result.
 
 ### Made for handhelds
 - **Control everything with a gamepad**: D-pad, A/B/X/Y and the shoulder buttons. On-screen hints at the bottom match your pad (Xbox, Nintendo or PlayStation), and you can swap the buttons if your pad reports them the other way round.
@@ -116,9 +96,9 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ### Works with RomM
 - Send finished downloads to your **RomM** server, or use RomM as a source of games.
-- **Save sync** *(new, beta)*: your RomM server keeps your **game saves and save states**. Pick the folders your emulator saves into (for RetroArch: `saves` and `states`) and DogmatixPlus sends new progress up and brings newer progress — from another handheld or from RomM's web player — down. If a save changed on both sides, you choose which one to keep; a copy that gets replaced is kept for 30 days. It can run by itself when you open the app or come back to it from a game (*Settings → Save sync*).
-- *(new, alpha)* Games your RomM server already has are **marked** in the library. A server at home with a **self-signed certificate** works once you have checked its fingerprint. An interrupted upload **continues** where it stopped. RomM's **cover art** can be fetched into ES-DE.
-- *(new, alpha)* Save sync can run **in the background** every few hours and can also **carry deletions over** (off by default, with safeguards). If a save changed on both sides you now see both times and sizes.
+- **Save sync**: your RomM server keeps your **game saves and save states**. Pick the folders your emulator saves into (for RetroArch: `saves` and `states`) and DogmatixPlus sends new progress up and brings newer progress — from another handheld or from RomM's web player — down. If a save changed on both sides, you choose which one to keep; a copy that gets replaced is kept for 30 days. It can run by itself when you open the app or come back to it from a game (*Settings → Save sync*).
+- Games your RomM server already has are **marked** in the library. A server at home with a **self-signed certificate** works once you have checked its fingerprint. An interrupted upload **continues** where it stopped. RomM's **cover art** can be fetched into ES-DE.
+- Save sync can run **in the background** every few hours and can also **carry deletions over** (off by default, with safeguards). If a save changed on both sides you now see both times and sizes.
 
 ### Your sources, your way
 - Add sources by hand, or **import and export** them as a file to share between devices. The export now also carries your **★ favourites**, and importing it adds them on the other device.
@@ -133,7 +113,7 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 1. Open the **[Releases page](https://github.com/Tufein/DogmatixPlus/releases)** on your phone or handheld, or download there and copy the file over.
 2. Download one of the two files:
-   - **`DogmatixPlus-release.apk`** — *the normal choice.* Since 1.2.0 the app is called **Dogmatix+** and has its own package name, so it installs **next to** the official Dogmatix and next to older DogmatixPlus versions; nothing of yours is touched.
+   - **`DogmatixPlus-release.apk`** — *the normal choice.* The app is called **Dogmatix+** and has its own package name, so it installs **next to** the official Dogmatix and next to older DogmatixPlus versions; nothing of yours is touched.
    - **`DogmatixPlus-debug.apk`** — a debug build that also installs next to everything else.
    - **Coming from an older DogmatixPlus?** In the old app use *Settings → Back up*, then *Settings → Restore backup* in Dogmatix+, and run the ES-DE / iiSU / Daijishō setup once more.
 3. Open the file and allow **"install unknown apps"** if Android asks.
@@ -169,7 +149,7 @@ Everything also works by touch. The hints only show while a controller is connec
 - **A backup file contains your account keys** (TorBox, Real-Debrid, RomM). Keep it private.
 - **The game info window stays empty in the downloads here**, because it needs a free key from a game database that is added when the app is built.
 - DogmatixPlus does not look for games on its own. It only reads the sources **you** add.
-- **The newest versions are pre-releases** (alpha, beta). The in-app update check skips them unless you switch on *Settings → Include pre-releases*.
+- **Some versions are pre-releases.** The in-app update check skips them unless you switch on *Settings → Include pre-releases*.
 - **Something not working?** *Settings → Share diagnostics* makes a text report for a bug report; tokens, server addresses and magnet links are removed first.
 
 ---

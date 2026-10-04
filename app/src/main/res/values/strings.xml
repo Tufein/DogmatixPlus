@@ -765,7 +765,7 @@
     <string name="settings_dl_night_start">Night starts at</string>
     <string name="settings_dl_night_end">Night ends at</string>
     <string name="settings_prereleases">Include pre-releases</string>
-    <string name="settings_prereleases_hint">The update check also offers alpha and beta versions</string>
+    <string name="settings_prereleases_hint">The update check also offers pre-releases</string>
     <string name="settings_update_check">Check for updates</string>
     <string name="settings_update_check_hint">Looks at the DogmatixPlus releases on GitHub</string>
     <string name="settings_update_check_action">Check</string>
@@ -1320,11 +1320,11 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>No more \"app isn’t responding\" after queueing a whole console.</item>
-        <item>Settings and Tools sorted into clear groups; LB / RB jump between the groups.</item>
-        <item>Download all takes a whole console set at once (up to 3000 games).</item>
-        <item>Hold the queue on Downloads: running downloads finish, nothing new starts.</item>
-        <item>The Downloads list shows what is left and roughly how long it takes.</item>
+        <item>Import a list (Tools): download the games of a text file or the clipboard in one go.</item>
+        <item>Whole console sets in one go, without \"app isn’t responding\".</item>
+        <item>Recent searches, Surprise me and a text size setting.</item>
+        <item>Failed downloads retry by themselves; hold the queue or pause a download.</item>
+        <item>Settings and Tools sorted into clear groups.</item>
     </string-array>
 
     <!-- 4.0 -->
