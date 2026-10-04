@@ -40,6 +40,7 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
         val RA_USER = androidx.datastore.preferences.core.stringPreferencesKey("ra_user")
         val RA_KEY = androidx.datastore.preferences.core.stringPreferencesKey("ra_api_key")
         val AUTO_M3U = booleanPreferencesKey("auto_m3u")
+        val QUEUE_SUMMARY = booleanPreferencesKey("queue_summary")
         val PROFILES = androidx.datastore.preferences.core.stringPreferencesKey("profiles")
         val ACTIVE_PROFILE = androidx.datastore.preferences.core.stringPreferencesKey("active_profile")
         val PROFILE_PIN = androidx.datastore.preferences.core.stringPreferencesKey("profile_pin_hash")
@@ -86,6 +87,8 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
     val raKey: Flow<String> = context.dataStore.data.map { it[Keys.RA_KEY] ?: "" }
     /** Write a .m3u playlist when a finished download completes a multi-disc game. */
     val autoM3u: Flow<Boolean> = context.dataStore.data.map { it[Keys.AUTO_M3U] ?: true }
+    /** One notification when a run of downloads is done (see [com.cortinadev.dogmatix.data.service.QueueSummaryService]). */
+    val queueSummary: Flow<Boolean> = context.dataStore.data.map { it[Keys.QUEUE_SUMMARY] ?: true }
     /** Profiles as JSON (see [com.cortinadev.dogmatix.util.Profiles]). */
     val profiles: Flow<String> = context.dataStore.data.map { it[Keys.PROFILES] ?: "[]" }
     /** Id of the active profile; empty = everything visible. */
@@ -100,6 +103,7 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
     suspend fun setWishlistAutoDownload(on: Boolean) = context.dataStore.edit { it[Keys.WISHLIST_AUTO_DOWNLOAD] = on }
     suspend fun setRetroAchievements(user: String, key: String) = context.dataStore.edit { it[Keys.RA_USER] = user.trim(); it[Keys.RA_KEY] = key.trim() }
     suspend fun setAutoM3u(on: Boolean) = context.dataStore.edit { it[Keys.AUTO_M3U] = on }
+    suspend fun setQueueSummary(on: Boolean) = context.dataStore.edit { it[Keys.QUEUE_SUMMARY] = on }
     suspend fun setProfiles(json: String) = context.dataStore.edit { it[Keys.PROFILES] = json }
     suspend fun setActiveProfile(id: String) = context.dataStore.edit { it[Keys.ACTIVE_PROFILE] = id }
     suspend fun setProfilePinHash(hash: String) = context.dataStore.edit { it[Keys.PROFILE_PIN] = hash }

@@ -991,6 +991,25 @@
     <string name="settings_wishlist_auto_hint">Taucht ein gewünschtes Spiel in einer Quelle auf, wird die beste Version sofort geladen</string>
     <string name="settings_auto_m3u">Playlists für Spiele mit mehreren Discs</string>
     <string name="settings_auto_m3u_hint">Schreibt die .m3u, sobald alle Discs eines Spiels geladen sind</string>
+    <string name="settings_queue_summary">Melden, wenn die Warteschlange fertig ist</string>
+    <string name="settings_queue_summary_hint">Eine Meldung, wie viele Downloads geklappt haben oder fehlgeschlagen sind</string>
+    <string name="queue_done_title">Downloads fertig</string>
+    <plurals name="queue_done_title_ok">
+        <item quantity="one">%1$d Download fertig</item>
+        <item quantity="other">Alle %1$d Downloads fertig</item>
+    </plurals>
+    <plurals name="queue_done_completed">
+        <item quantity="one">%1$d heruntergeladen</item>
+        <item quantity="other">%1$d heruntergeladen</item>
+    </plurals>
+    <plurals name="queue_done_failed">
+        <item quantity="one">%1$d fehlgeschlagen</item>
+        <item quantity="other">%1$d fehlgeschlagen</item>
+    </plurals>
+    <plurals name="queue_done_stopped">
+        <item quantity="one">%1$d gestoppt</item>
+        <item quantity="other">%1$d gestoppt</item>
+    </plurals>
     <string name="settings_esde_artwork">Cover für ES-DE</string>
     <string name="settings_esde_artwork_hint">Nach einem Download: Cover und Beschreibung im ES-DE-Ordner (Cocoons ES-DE-Verknüpfung sieht sie auch)</string>
     <string name="settings_profiles">Profile</string>

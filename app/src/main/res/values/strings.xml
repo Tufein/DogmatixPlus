@@ -992,6 +992,25 @@
     <string name="settings_wishlist_auto_hint">When a wanted game turns up in a source, its best version is downloaded straight away</string>
     <string name="settings_auto_m3u">Playlists for multi-disc games</string>
     <string name="settings_auto_m3u_hint">Writes the .m3u as soon as all discs of a game are downloaded</string>
+    <string name="settings_queue_summary">Notify when the queue is done</string>
+    <string name="settings_queue_summary_hint">One notification with how many downloads succeeded or failed</string>
+    <string name="queue_done_title">Downloads done</string>
+    <plurals name="queue_done_title_ok">
+        <item quantity="one">%1$d download done</item>
+        <item quantity="other">All %1$d downloads done</item>
+    </plurals>
+    <plurals name="queue_done_completed">
+        <item quantity="one">%1$d downloaded</item>
+        <item quantity="other">%1$d downloaded</item>
+    </plurals>
+    <plurals name="queue_done_failed">
+        <item quantity="one">%1$d failed</item>
+        <item quantity="other">%1$d failed</item>
+    </plurals>
+    <plurals name="queue_done_stopped">
+        <item quantity="one">%1$d stopped</item>
+        <item quantity="other">%1$d stopped</item>
+    </plurals>
     <string name="settings_esde_artwork">Covers for ES-DE</string>
     <string name="settings_esde_artwork_hint">After a download: cover and description in ES-DE\'s folder (Cocoon\'s ES-DE link sees them too)</string>
     <string name="settings_profiles">Profiles</string>

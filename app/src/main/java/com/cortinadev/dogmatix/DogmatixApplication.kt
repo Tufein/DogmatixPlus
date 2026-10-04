@@ -73,6 +73,10 @@ class DogmatixApplication : Application() {
     @Inject
     lateinit var postDownloadService: com.cortinadev.dogmatix.data.service.PostDownloadService
 
+    /** One notification with how a run of downloads ended. */
+    @Inject
+    lateinit var queueSummaryService: com.cortinadev.dogmatix.data.service.QueueSummaryService
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     
     override fun onCreate() {
@@ -80,6 +84,7 @@ class DogmatixApplication : Application() {
         com.cortinadev.dogmatix.util.CrashLog.install(this)
         appShortcutService.start()
         postDownloadService.start()
+        queueSummaryService.start()
 
         createNotificationChannel()
 

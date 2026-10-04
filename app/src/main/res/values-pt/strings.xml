@@ -942,6 +942,25 @@
     <string name="settings_wishlist_auto_hint">Quando um jogo desejado aparece numa fonte, a melhor versão é transferida de imediato</string>
     <string name="settings_auto_m3u">Listas para jogos com vários discos</string>
     <string name="settings_auto_m3u_hint">Cria o .m3u assim que todos os discos de um jogo estão transferidos</string>
+    <string name="settings_queue_summary">Avisar quando a fila terminar</string>
+    <string name="settings_queue_summary_hint">Uma notificação com quantas transferências correram bem ou falharam</string>
+    <string name="queue_done_title">Transferências concluídas</string>
+    <plurals name="queue_done_title_ok">
+        <item quantity="one">%1$d transferência concluída</item>
+        <item quantity="other">Todas as %1$d transferências concluídas</item>
+    </plurals>
+    <plurals name="queue_done_completed">
+        <item quantity="one">%1$d transferida</item>
+        <item quantity="other">%1$d transferidas</item>
+    </plurals>
+    <plurals name="queue_done_failed">
+        <item quantity="one">%1$d falhada</item>
+        <item quantity="other">%1$d falhadas</item>
+    </plurals>
+    <plurals name="queue_done_stopped">
+        <item quantity="one">%1$d parada</item>
+        <item quantity="other">%1$d paradas</item>
+    </plurals>
     <string name="settings_esde_artwork">Capas para o ES-DE</string>
     <string name="settings_esde_artwork_hint">Após uma transferência: capa e descrição na pasta do ES-DE (a ligação ES-DE do Cocoon também as vê)</string>
     <string name="settings_profiles">Perfis</string>

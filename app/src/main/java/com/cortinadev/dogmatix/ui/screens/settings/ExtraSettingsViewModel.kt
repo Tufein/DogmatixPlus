@@ -55,7 +55,8 @@ data class V30SettingsState(
     val perServer: Int = 0,
     val esdeArtwork: Boolean = false,
     val wishlistAuto: Boolean = false,
-    val autoM3u: Boolean = true
+    val autoM3u: Boolean = true,
+    val queueSummary: Boolean = true
 )
 
 @HiltViewModel
@@ -94,8 +95,9 @@ class ExtraSettingsViewModel @Inject constructor(
 
     val v30: StateFlow<V30SettingsState> = combine(
         combine(appSettings.resumeDownloads, appSettings.requeueAfterRestart, appSettings.perServerLimit) { r, q, p -> Triple(r, q, p) },
-        appSettings.esdeArtwork, appSettings.wishlistAutoDownload, appSettings.autoM3u
-    ) { (r, q, p), art, wish, m3u -> V30SettingsState(r, q, p, art, wish, m3u) }
+        appSettings.esdeArtwork, appSettings.wishlistAutoDownload,
+        combine(appSettings.autoM3u, appSettings.queueSummary) { m, s -> m to s }
+    ) { (r, q, p), art, wish, (m3u, summary) -> V30SettingsState(r, q, p, art, wish, m3u, summary) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V30SettingsState())
 
     fun setResume(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setResumeDownloads(on) }
@@ -108,6 +110,7 @@ class ExtraSettingsViewModel @Inject constructor(
     fun setEsdeArtwork(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setEsdeArtwork(on) }
     fun setWishlistAuto(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setWishlistAutoDownload(on) }
     fun setAutoM3u(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoM3u(on) }
+    fun setQueueSummary(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setQueueSummary(on) }
 
     fun shiftMinFree(context: Context, delta: Int) = executeWithToast(context, TAG) {
         val choices = listOf(0, 1, 2, 5, 10, 20, 50)
