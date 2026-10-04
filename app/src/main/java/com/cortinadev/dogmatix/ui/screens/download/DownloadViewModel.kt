@@ -154,7 +154,7 @@ class DownloadViewModel @Inject constructor(
         .distinctUntilChanged()
         .transformLatest { names ->
             fun known() = names.mapNotNull { name -> detailsCache[name]?.let { name to it } }.toMap()
-            val unknown = names.filter { it !in detailsCache && it !in detailsMissing }
+            val unknown = names.filter { !detailsCache.containsKey(it) && it !in detailsMissing }
             emit(known())
             for (chunk in unknown.chunked(DETAILS_BATCH)) {
                 val found = fileRepository.findByFileNames(chunk) { downloadService.entityFor(it)?.consoleId }
