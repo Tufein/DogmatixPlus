@@ -55,7 +55,8 @@ class RommViewModel @Inject constructor(
     private val client: RommClient,
     private val trustService: RommTrustService,
     private val libraryService: RommLibraryService,
-    private val coverService: RommCoverService
+    private val coverService: RommCoverService,
+    private val uploadService: com.cortinadev.dogmatix.data.service.RommUploadService
 ) : ViewModel() {
 
     val uiState: StateFlow<RommUiState> = combine(
@@ -152,6 +153,19 @@ class RommViewModel @Inject constructor(
 
     fun setUrl(context: Context, url: String) = executeWithToast(context, TAG) { settingsRepository.setRommUrl(url) }
     fun setToken(context: Context, token: String) = executeWithToast(context, TAG) { settingsRepository.setRommToken(token) }
+    /** Uploads the finished downloads the server lacks; says how many, or why it cannot know. */
+    fun uploadMissing(context: Context) {
+        val app = context.applicationContext
+        viewModelScope.launch {
+            val started = runCatching { uploadService.uploadMissing() }.getOrNull()
+            when {
+                started == null -> ToastUtil.showInfo(app, app.getString(R.string.romm_upload_missing_needs_marks))
+                started == 0 -> ToastUtil.showInfo(app, app.getString(R.string.romm_upload_missing_none))
+                else -> ToastUtil.showSuccess(app, app.resources.getQuantityString(R.plurals.romm_upload_missing_started, started, started))
+            }
+        }
+    }
+
     fun setAutoUpload(context: Context, enabled: Boolean) = executeWithToast(context, TAG) { settingsRepository.setRommAutoUpload(enabled) }
     fun setPlatform(context: Context, consoleId: String, platformId: Int?) =
         executeWithToast(context, TAG) { settingsRepository.updateRommPlatform(consoleId, platformId) }

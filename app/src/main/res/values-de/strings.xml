@@ -184,6 +184,15 @@
     <string name="romm_platforms_count">%1$d Plattformen auf dem Server</string>
     <string name="romm_auto_upload">Fertige Downloads hochladen</string>
     <string name="romm_auto_upload_hint">Nur Konsolen, die unten einer Plattform zugeordnet sind</string>
+    <string name="romm_upload_missing">Hochladen, was dem Server fehlt</string>
+    <string name="romm_upload_missing_hint">Sendet fertige Downloads, die RomM noch nicht kennt (braucht Spiele markieren, die schon in RomM sind)</string>
+    <string name="romm_upload_missing_action">Hochladen</string>
+    <string name="romm_upload_missing_needs_marks">Schalte zuerst Spiele markieren, die schon in RomM sind ein, damit Dogmatix weiß, was der Server hat</string>
+    <string name="romm_upload_missing_none">Nichts hochzuladen: der Server hat alles, was diese App geladen hat</string>
+    <plurals name="romm_upload_missing_started">
+        <item quantity="one">%1$d Upload gestartet</item>
+        <item quantity="other">%1$d Uploads gestartet</item>
+    </plurals>
     <string name="romm_platforms_header">Konsole → Plattform</string>
     <string name="romm_platforms_hint">◀ ▶ wählt die RomM-Plattform, in die jede Konsole hochlädt</string>
     <string name="romm_apply_suggestions">Vorschläge übernehmen</string>

@@ -18,6 +18,13 @@ All notable changes to Dogmatix are listed here. Dogmatix is a fork of
   modified one), instead of waiting for a full check of the folder. A source's own checksum still
   goes first; unpacked archives and formats DATs do not describe (CHD, RVZ, 7z…) show nothing.
 
+### RomM
+- **Upload what the server lacks** (*Settings → RomM → Upload what the server lacks*): sends the
+  finished downloads that RomM does not list yet, for games downloaded before *Upload finished
+  downloads* was on. Only games this app downloaded, still on the device, for a console mapped to a
+  RomM platform, and not from the server itself. It needs *Mark games already in RomM*, so Dogmatix
+  knows what the server has. The existing resumable chunked upload does the sending.
+
 ### Wishlist
 - **Share the wishlist** (*Wishlist → Share the wishlist*): *Export* saves it as a small file
   (titles and consoles), *Import* adds the wishes of such a file to the list, skipping the ones

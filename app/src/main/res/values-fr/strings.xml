@@ -185,6 +185,15 @@
     <string name="romm_platforms_count">%1$d plateformes sur le serveur</string>
     <string name="romm_auto_upload">Envoyer les téléchargements terminés</string>
     <string name="romm_auto_upload_hint">Uniquement les consoles associées à une plateforme ci-dessous</string>
+    <string name="romm_upload_missing">Envoyer ce qui manque au serveur</string>
+    <string name="romm_upload_missing_hint">Envoie les téléchargements terminés que RomM ne connaît pas encore (demande Marquer les jeux déjà dans RomM)</string>
+    <string name="romm_upload_missing_action">Envoyer</string>
+    <string name="romm_upload_missing_needs_marks">Activez d’abord Marquer les jeux déjà dans RomM, pour que Dogmatix sache ce que le serveur a</string>
+    <string name="romm_upload_missing_none">Rien à envoyer : le serveur a tout ce que cette appli a téléchargé</string>
+    <plurals name="romm_upload_missing_started">
+        <item quantity="one">%1$d envoi lancé</item>
+        <item quantity="other">%1$d envois lancés</item>
+    </plurals>
     <string name="romm_platforms_header">Console → plateforme</string>
     <string name="romm_platforms_hint">◀ ▶ choisit la plateforme RomM vers laquelle chaque console envoie</string>
     <string name="romm_apply_suggestions">Appliquer les suggestions</string>
