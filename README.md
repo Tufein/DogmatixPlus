@@ -31,6 +31,10 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
+### New in 3.2
+- **The wishlist knows what you already have**: games already on the device or on your RomM server are marked and not downloaded again.
+- **Covers for Pegasus and RetroArch** after every download, next to the ones for ES-DE.
+
 ### New in 3.1
 - **Big download queues stay smooth again** (no more "app isn't responding" after a restart with hundreds of downloads waiting).
 - **Whole-queue buttons** (*Stop all*, *Retry failed*, *Clear finished*), **pause web downloads**, and **a notification when the queue is done**.
