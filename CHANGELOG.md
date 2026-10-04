@@ -18,6 +18,15 @@ All notable changes to Dogmatix are listed here. Dogmatix is a fork of
   modified one), instead of waiting for a full check of the folder. A source's own checksum still
   goes first; unpacked archives and formats DATs do not describe (CHD, RVZ, 7z…) show nothing.
 
+### Storage
+- **Move the library to another storage** (*Tools → Storage → Move the library*): pick a folder
+  (for example on the SD card); every game is copied to the same place below it, each copy is checked
+  against the original's size, and only then is the original deleted. A game that cannot be copied
+  stays where it is. When all files are moved Dogmatix switches to the new folder. Stop your
+  downloads first and keep Dogmatix open; after an interruption start it again and it carries on
+  (a file already at the target with exactly the same size counts as copied). Folders you gave a
+  console of its own are not moved. Not tried on a real device yet; try it on a small folder first.
+
 ### RomM
 - **Upload what the server lacks** (*Settings → RomM → Upload what the server lacks*): sends the
   finished downloads that RomM does not list yet, for games downloaded before *Upload finished
