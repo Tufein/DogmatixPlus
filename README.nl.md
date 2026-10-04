@@ -31,6 +31,10 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 3.5
+- **Geen "app reageert niet" meer** na het in de wachtrij zetten van een hele console, en *Alles downloaden* neemt nu een hele consoleset in één keer.
+- **Instellingen en Tools in duidelijke groepen**, **de wachtrij pauzeren**, de **resterende tijd** van de wachtrij, en een kort **wat is nieuw** na een update.
+
 ### Nieuw in 3.3
 - **Mislukte downloads proberen het vanzelf opnieuw** en worden **met je DAT vergeleken** zodra ze klaar zijn.
 - **De hele bibliotheek verplaatsen** naar een andere opslag (bijvoorbeeld de SD-kaart), **uploaden wat RomM mist**, **de verlanglijst delen** als bestand, en een **frontend-controle** bij Tools.

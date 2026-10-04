@@ -94,6 +94,14 @@ Everything below came with the alpha and is part of 1.2.0; the RomM parts have n
 - **Diagnostics**: `DiagnosticsService` builds the report; `DiagnosticsRedactor` removes tokens, URLs, magnet links, IP addresses, e-mail addresses and the saved secrets before it is shared.
 - **Italian and Portuguese** (European) join the other languages.
 
+### What 3.5.0 adds
+- **ANR after a big batch**: `LibraryIndexService` marked finished downloads as owned by looking up *every* completed row again (`getFileByFileName`, a full scan: `fileName` has no index) on each change of the completed set — quadratic in the batch size, and again after a restart from the history. `FreshNames` (pure) hands each finished name out once and the console comes from `DownloadService.entityFor`. `DownloadViewModel.downloadDetails` uses `DownloadableFileRepository.findByFileNames` (two `IN (...)` queries per 400 names) in a `transformLatest` on `Dispatchers.Default`; the derived counters, Home's `activeDownloads` and `planBulk` run off the main thread; `startDownloads` checks one set of active names; the `finished` buffer holds 10,000 names (`tryEmit` used to drop them past 32).
+- **Settings groups**: every `SettingsRow` has a `SettingsSection`; the grid shows a full-width heading per group (`GridItemSpan(maxLineSpan)`) and fills two columns per group in landscape. LB/RB: columns in landscape, groups in portrait (`scrollToItem` before `requestFocus`). Tools hub rows got `ToolsGroup` headings.
+- **Download all**: `BulkPlanner.MAX_FILES` 3000.
+- **Hold the queue**: `AppSettings.queueHeld`, `DownloadGate.held` adds `WaitReason.HELD` to `waiting`, so new starts wait in `awaitSchedule` while running downloads finish.
+- **Time left**: `QueueEta` (pure) — bytes left of queued and running rows, speed of the running ones (MiB/s), rounded-up hours/minutes.
+- **What's new**: `WhatsNew.shouldShow(lastSeen, current, onboarded)`; `MainActivity` shows `WhatsNewDialog` (`R.array.whats_new_items`) once per version code; a fresh install only records the version.
+
 ### What 3.3.0 adds
 - **Automatic retry**: `AutoRetry` (pure) holds the waits (1, 5, 15 minutes), `temporaryStatus` (408, 425, 429, 5xx) and `isTemporary`; `DownloadHttpClient` throws `HttpStatusException(code)`, and `DownloadService.launchJob` calls `scheduleAutoRetry` after a FAILED from such an error (counter per file in `autoRetries`, cleared by a manual retry, a delete, or a success). Setting `auto_retry_failed` (default on).
 - **DAT check after download**: `verifyInBackground` falls back to `checkAgainstDat` when the source has no hash; `DatService.checkDownloaded` reuses the DAT tables, the hash cache and `DatMatcher` and returns null without a DAT, without hashes or for skipped formats. `VerifyState` gained `DAT_OK` / `DAT_UNKNOWN`.
@@ -175,7 +183,7 @@ Everything below came with the alpha and is part of 1.2.0; the RomM parts have n
 - **Colours.** Twelve accent presets and Material You (`AccentPresets.dynamic`, stored as `dynamic`): on Android 12+ the theme uses `dynamicLight/DarkColorScheme` (pure black keeps a black background) and derives the Dogmatix tokens from it; the theme is built at one call site so switching never resets the screen.
 
 ### Smaller changes
-- The app version is **3.3.0** (3.2.0, 3.1.0, 3.0.0, 2.6.0, 2.5.0, 2.0.0, 1.3.0, 1.2.0, 1.2.0-alpha.1 and 1.1.0-beta.1 before it) (DogmatixPlus numbers its own releases; 1.0.0 was the first); the Credits screen shows the whole lineage, and the update check reads this repository's releases instead of the original project's. It skips pre-releases, and a beta counts as older than its final release.
+- The app version is **3.5.0** (3.3.0, 3.2.0, 3.1.0, 3.0.0, 2.6.0, 2.5.0, 2.0.0, 1.3.0, 1.2.0, 1.2.0-alpha.1 and 1.1.0-beta.1 before it) (DogmatixPlus numbers its own releases; 1.0.0 was the first); the Credits screen shows the whole lineage, and the update check reads this repository's releases instead of the original project's. It skips pre-releases, and a beta counts as older than its final release.
 - The `.md` extension counts as a Mega Drive ROM inside console folders (but not `README.md`).
 - 332 unit tests (254 more than Dogmatix 1.2) cover the new logic. One of them runs the save sync of two devices against a real RomM server when `ROMM_TEST_URL` and `ROMM_TEST_TOKEN` are set (it is skipped otherwise); it passed against RomM 3.10.3, 4.0.0 and 5.3.1. The 1.0.0 screens were tried on an emulator, in portrait and landscape, in the debug and in the minified release build; the 1.1.0 beta screens were not (see the release notes).
 
