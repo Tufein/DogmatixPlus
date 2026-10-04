@@ -1005,6 +1005,8 @@
     <string name="settings_auto_m3u_hint">Writes the .m3u as soon as all discs of a game are downloaded</string>
     <string name="settings_queue_summary">Notify when the queue is done</string>
     <string name="settings_queue_summary_hint">One notification with how many downloads succeeded or failed</string>
+    <string name="settings_auto_retry">Retry failed downloads by itself</string>
+    <string name="settings_auto_retry_hint">After a dropped connection or a busy server: up to 3 more tries, after 1, 5 and 15 minutes</string>
     <string name="queue_done_title">Downloads done</string>
     <plurals name="queue_done_title_ok">
         <item quantity="one">%1$d download done</item>

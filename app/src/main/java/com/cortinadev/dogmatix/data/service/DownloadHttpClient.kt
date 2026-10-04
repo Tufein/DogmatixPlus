@@ -6,6 +6,9 @@ import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** A server answer other than 200 / 206; the message is what the diagnostics have always shown. */
+class HttpStatusException(val code: Int) : Exception("HTTP Error after redirect: $code")
+
 @Singleton
 class DownloadHttpClient @Inject constructor() {
     /** [rangeStart] > 0 asks for the rest of the file; the caller checks for 206 before appending. */
@@ -31,7 +34,7 @@ class DownloadHttpClient @Inject constructor() {
             return createConnection(downloadUrl, 0L, headers - "If-Range")
         }
         if (redirectResponseCode != HttpURLConnection.HTTP_OK && redirectResponseCode != HttpURLConnection.HTTP_PARTIAL) {
-            throw Exception("HTTP Error after redirect: $redirectResponseCode")
+            throw HttpStatusException(redirectResponseCode)
         }
         
         return connection

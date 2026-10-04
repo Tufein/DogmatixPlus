@@ -978,6 +978,8 @@
     <string name="settings_auto_m3u_hint">Crea el .m3u en cuanto todos los discos de un juego están descargados</string>
     <string name="settings_queue_summary">Avisar cuando termine la cola</string>
     <string name="settings_queue_summary_hint">Una notificación con cuántas descargas salieron bien o fallaron</string>
+    <string name="settings_auto_retry">Reintentar solo las descargas fallidas</string>
+    <string name="settings_auto_retry_hint">Tras una conexión cortada o un servidor saturado: hasta 3 intentos más, tras 1, 5 y 15 minutos</string>
     <string name="queue_done_title">Descargas terminadas</string>
     <plurals name="queue_done_title_ok">
         <item quantity="one">%1$d descarga terminada</item>

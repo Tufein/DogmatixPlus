@@ -1004,6 +1004,8 @@
     <string name="settings_auto_m3u_hint">Maakt de .m3u zodra alle schijven van een game binnen zijn</string>
     <string name="settings_queue_summary">Melding als de wachtrij klaar is</string>
     <string name="settings_queue_summary_hint">Eén melding met hoeveel downloads gelukt of mislukt zijn</string>
+    <string name="settings_auto_retry">Mislukte downloads zelf opnieuw proberen</string>
+    <string name="settings_auto_retry_hint">Na een verbroken verbinding of een drukke server: nog max. 3 pogingen, na 1, 5 en 15 minuten</string>
     <string name="queue_done_title">Downloads klaar</string>
     <plurals name="queue_done_title_ok">
         <item quantity="one">%1$d download klaar</item>

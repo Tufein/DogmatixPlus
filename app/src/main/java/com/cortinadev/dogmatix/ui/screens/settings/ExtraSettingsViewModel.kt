@@ -60,7 +60,7 @@ data class V30SettingsState(
 )
 
 /** The settings added in 3.2. */
-data class V32SettingsState(val pegasusArtwork: Boolean = false, val retroArchThumbnailsDir: String = "")
+data class V32SettingsState(val pegasusArtwork: Boolean = false, val retroArchThumbnailsDir: String = "", val autoRetry: Boolean = true)
 
 @HiltViewModel
 class ExtraSettingsViewModel @Inject constructor(
@@ -103,7 +103,7 @@ class ExtraSettingsViewModel @Inject constructor(
     ) { (r, q, p), art, wish, (m3u, summary) -> V30SettingsState(r, q, p, art, wish, m3u, summary) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V30SettingsState())
 
-    val v32: StateFlow<V32SettingsState> = combine(appSettings.pegasusArtwork, appSettings.retroArchThumbnailsDir) { p, r -> V32SettingsState(p, r) }
+    val v32: StateFlow<V32SettingsState> = combine(appSettings.pegasusArtwork, appSettings.retroArchThumbnailsDir, appSettings.autoRetryFailed) { p, r, a -> V32SettingsState(p, r, a) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V32SettingsState())
 
     fun setPegasusArtwork(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setPegasusArtwork(on) }
@@ -119,6 +119,7 @@ class ExtraSettingsViewModel @Inject constructor(
     fun setEsdeArtwork(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setEsdeArtwork(on) }
     fun setWishlistAuto(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setWishlistAutoDownload(on) }
     fun setAutoM3u(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoM3u(on) }
+    fun setAutoRetry(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setAutoRetryFailed(on) }
     fun setQueueSummary(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setQueueSummary(on) }
 
     fun shiftMinFree(context: Context, delta: Int) = executeWithToast(context, TAG) {

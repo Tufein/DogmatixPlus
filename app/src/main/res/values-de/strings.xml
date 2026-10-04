@@ -1004,6 +1004,8 @@
     <string name="settings_auto_m3u_hint">Schreibt die .m3u, sobald alle Discs eines Spiels geladen sind</string>
     <string name="settings_queue_summary">Melden, wenn die Warteschlange fertig ist</string>
     <string name="settings_queue_summary_hint">Eine Meldung, wie viele Downloads geklappt haben oder fehlgeschlagen sind</string>
+    <string name="settings_auto_retry">Fehlgeschlagene Downloads selbst neu versuchen</string>
+    <string name="settings_auto_retry_hint">Nach einer abgebrochenen Verbindung oder bei einem überlasteten Server: bis zu 3 weitere Versuche, nach 1, 5 und 15 Minuten</string>
     <string name="queue_done_title">Downloads fertig</string>
     <plurals name="queue_done_title_ok">
         <item quantity="one">%1$d Download fertig</item>

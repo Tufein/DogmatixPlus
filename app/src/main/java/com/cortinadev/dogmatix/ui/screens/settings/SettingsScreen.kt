@@ -520,6 +520,14 @@ fun SettingsScreen(
                 onAdjust = { extra.setQueueSummary(context, it > 0) }
             ) { ThemedSwitch(v30.queueSummary) { extra.setQueueSummary(context, it) } }
         },
+        SettingsRow(right = false) {
+            SettingRow(
+                title = stringResource(R.string.settings_auto_retry),
+                hint = stringResource(R.string.settings_auto_retry_hint),
+                onClick = { extra.setAutoRetry(context, !v32.autoRetry) },
+                onAdjust = { extra.setAutoRetry(context, it > 0) }
+            ) { ThemedSwitch(v32.autoRetry) { extra.setAutoRetry(context, it) } }
+        },
         SettingsRow(right = true) {
             SettingRow(
                 title = stringResource(R.string.settings_separate_by_console),

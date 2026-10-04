@@ -13,6 +13,7 @@ import com.cortinadev.dogmatix.data.model.DownloadItemModel
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.ArchiveUtils
+import com.cortinadev.dogmatix.util.AutoRetry
 import com.cortinadev.dogmatix.util.ArchiveExtractionUtils
 import com.cortinadev.dogmatix.util.Constants
 import com.cortinadev.dogmatix.util.RommSource
@@ -210,6 +211,7 @@ class DownloadService @Inject constructor(
                     delay(1000L)
                     perform(file)
                 }
+                autoRetries.remove(file.fileName)
             } catch (e: kotlinx.coroutines.CancellationException) {
                 updateStatus(file.fileName, if (pausingFiles.remove(file.fileName)) DownloadStatus.PAUSED else DownloadStatus.STOPPED)
                 throw e
@@ -219,12 +221,34 @@ class DownloadService @Inject constructor(
             } catch (e: Exception) {
                 Log.e(TAG, "Download failed for ${file.fileName}: ${e.message}")
                 updateStatus(file.fileName, DownloadStatus.FAILED)
+                scheduleAutoRetry(file.fileName, e)
             } finally {
                 downloadJobs.remove(file.fileName, coroutineContext[kotlinx.coroutines.Job]!!)
             }
         }
         downloadJobs[file.fileName] = job
         job.start()
+    }
+
+    /** Automatic retries done so far per download; a retry by the user starts the count again. */
+    private val autoRetries = java.util.concurrent.ConcurrentHashMap<String, Int>()
+
+    /**
+     * A failure that may pass (see [AutoRetry]) is started again after a growing wait, unless the
+     * user did something with the row in the meantime or switched this off.
+     */
+    private fun scheduleAutoRetry(fileName: String, error: Exception) {
+        if (!AutoRetry.isTemporary(error)) return
+        val done = autoRetries[fileName] ?: 0
+        val wait = AutoRetry.waitBeforeRetry(done) ?: return
+        serviceScope.launch {
+            if (!appSettings.autoRetryFailed.first()) return@launch
+            autoRetries[fileName] = done + 1
+            Log.i(TAG, "Retrying $fileName by itself in ${wait / 1000}s (retry ${done + 1} of ${AutoRetry.WAITS_MS.size})")
+            delay(wait)
+            val stillFailed = downloadProgressTracker.getDownloads().any { it.fileName == fileName && it.status == DownloadStatus.FAILED }
+            if (stillFailed && downloadEntities.containsKey(fileName)) restartDownload(fileName)
+        }
     }
 
     private suspend fun withSlot(file: DownloadableFileEntity, block: suspend () -> Unit) {
@@ -316,6 +340,11 @@ class DownloadService @Inject constructor(
     }
 
     fun retryDownload(fileName: String) {
+        autoRetries.remove(fileName)
+        restartDownload(fileName)
+    }
+
+    private fun restartDownload(fileName: String) {
         val entity = synchronized(startLock) {
             if (!downloadProgressTracker.canRetryDownload(fileName)) return
             val entity = downloadEntities[fileName] ?: return
@@ -333,6 +362,7 @@ class DownloadService @Inject constructor(
 
     /** [retryDownload] for many downloads at once: one list update, one database write, one service start. Returns how many were restarted. */
     fun retryDownloads(fileNames: List<String>): Int {
+        fileNames.forEach { autoRetries.remove(it) }
         val entities = synchronized(startLock) {
             downloadProgressTracker.resetDownloadsForRetry(fileNames).mapNotNull { downloadEntities[it] }
         }
@@ -349,6 +379,7 @@ class DownloadService @Inject constructor(
 
     fun deleteDownload(fileName: String, deleteFile: Boolean = false) {
         downloadJobs.remove(fileName)?.cancel()
+        autoRetries.remove(fileName)
         val entity = downloadEntities.remove(fileName)
         val extracted = extractedFilesMap.remove(fileName) ?: emptyList()
         val debrid = debridTorrents.remove(fileName)

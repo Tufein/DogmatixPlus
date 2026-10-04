@@ -955,6 +955,8 @@
     <string name="settings_auto_m3u_hint">Cria o .m3u assim que todos os discos de um jogo estão transferidos</string>
     <string name="settings_queue_summary">Avisar quando a fila terminar</string>
     <string name="settings_queue_summary_hint">Uma notificação com quantas transferências correram bem ou falharam</string>
+    <string name="settings_auto_retry">Repetir sozinho as transferências falhadas</string>
+    <string name="settings_auto_retry_hint">Após uma ligação cortada ou um servidor ocupado: até 3 novas tentativas, após 1, 5 e 15 minutos</string>
     <string name="queue_done_title">Transferências concluídas</string>
     <plurals name="queue_done_title_ok">
         <item quantity="one">%1$d transferência concluída</item>
