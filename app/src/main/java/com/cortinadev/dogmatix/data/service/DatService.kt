@@ -124,6 +124,27 @@ class DatService @Inject constructor(
         dir
     }
 
+    /**
+     * Checks one file that was just downloaded against [consoleId]'s DAT; null when there is no DAT
+     * for the console or the format is not in DATs. Only the DAT rows that can match the file are
+     * read from the database, and the hashes land in the cache the full check uses.
+     */
+    suspend fun checkDownloaded(consoleId: String, name: String, uri: Uri, size: Long, lastModified: Long): DatCheck? = withContext(Dispatchers.IO) {
+        if (dao.setOf(consoleId) == null) return@withContext null
+        val cache = loadCache()
+        val scanned = scan(DiskEntry(name, size, false, uri, "", lastModified), cache)
+        saveCache(cache)
+        // Nothing to look up (an unreadable ZIP, a format that is not hashed): say nothing rather than "not in the DAT".
+        if (scanned.zipEntries.isNullOrEmpty() && scanned.sha1 == null && scanned.crc == null) return@withContext null
+        val rows = buildList {
+            scanned.zipEntries?.forEach { addAll(dao.byCrc(consoleId, it.crc.lowercase())) }
+            scanned.sha1?.let { addAll(dao.bySha1(consoleId, it.lowercase())) }
+            scanned.crc?.let { addAll(dao.byCrc(consoleId, it.lowercase())) }
+        }
+        val check = DatMatcher(rows.map { DatEntry(it.gameName, it.romName, it.size, it.crc, it.sha1) }).check(scanned)
+        check.takeIf { it.status != DatStatus.SKIPPED }
+    }
+
     /** Checks every file in [consoleId]'s folder (and one level of sub-folders) against its DAT. */
     suspend fun verify(consoleId: String): DatReport? = withContext(Dispatchers.IO) {
         val roms = dao.romsOf(consoleId)

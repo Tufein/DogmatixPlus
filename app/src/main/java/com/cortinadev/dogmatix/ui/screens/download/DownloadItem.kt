@@ -131,6 +131,8 @@ fun DownloadItem(
         VerifyState.VERIFIED -> "  ·  " + stringResource(R.string.verify_ok)
         VerifyState.MISMATCH -> "  ·  " + stringResource(R.string.verify_mismatch)
         VerifyState.CHECKING -> "  ·  " + stringResource(R.string.verify_checking)
+        VerifyState.DAT_OK -> "  ·  " + stringResource(R.string.verify_dat_ok)
+        VerifyState.DAT_UNKNOWN -> "  ·  " + stringResource(R.string.verify_dat_unknown)
         null -> ""
     }
     val busy = status == DownloadStatus.COPYING || status == DownloadStatus.UNZIPPING ||
