@@ -1023,6 +1023,11 @@
     </plurals>
     <string name="settings_esde_artwork">Covers voor ES-DE</string>
     <string name="settings_esde_artwork_hint">Na een download: cover en beschrijving in de map van ES-DE (Cocoon ziet ze ook via de ES-DE-koppeling)</string>
+    <string name="settings_pegasus_artwork">Covers voor Pegasus</string>
+    <string name="settings_pegasus_artwork_hint">Na een download: de cover in media/&lt;game&gt;/boxFront naast de game, waar Pegasus kijkt</string>
+    <string name="settings_retroarch_artwork">Covers voor RetroArch</string>
+    <string name="settings_retroarch_artwork_hint">Niet ingesteld · kies RetroArch\' thumbnails-map; na een download komt de box art daar voor de afspeellijsten</string>
+    <string name="settings_retroarch_artwork_off">Uit</string>
     <string name="settings_profiles">Profielen</string>
     <string name="settings_profiles_hint">Verberg consoles of tags, voor een kind of een bankprofiel</string>
     <string name="settings_profiles_active">Actief: %1$s</string>

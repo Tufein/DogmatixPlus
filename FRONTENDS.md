@@ -198,6 +198,22 @@ that URI to Dogmatix. Verified end to end on a real device: with this exact entr
 `.dgmtx` launches with `FLAG_GRANT_READ_URI_PERMISSION` set and Dogmatix opens filtered to
 the platform.
 
+## Covers for Pegasus and RetroArch
+
+Next to *Covers for ES-DE*, Dogmatix can put a game's cover where two other frontends look,
+right after the download (Settings):
+
+- **Covers for Pegasus**: `media/<game file name without extension>/boxFront.<ext>` next to
+  the game. Pegasus finds it when the console's `metadata.pegasus.txt` is in the same folder
+  as the games (its usual layout); with the metadata file elsewhere, its `media` folder is
+  elsewhere too. A `boxFront` that is already there is kept.
+- **Covers for RetroArch**: pick RetroArch's `thumbnails` folder (on Android usually
+  `RetroArch/thumbnails`); the box art goes to
+  `<system>/Named_Boxarts/<game>.png` — `Nintendo - Game Boy Advance/Named_Boxarts/Advance Wars (USA).png` —
+  which is what a RetroArch playlist of that system shows for an entry with that name. The
+  image is libretro-thumbnails' own PNG, so it matches what RetroArch would download itself;
+  consoles libretro-thumbnails does not have get none.
+
 ## Any other launcher
 
 Anything that can fire an Android intent works:

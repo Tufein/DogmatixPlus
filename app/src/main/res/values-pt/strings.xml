@@ -974,6 +974,11 @@
     </plurals>
     <string name="settings_esde_artwork">Capas para o ES-DE</string>
     <string name="settings_esde_artwork_hint">Após uma transferência: capa e descrição na pasta do ES-DE (a ligação ES-DE do Cocoon também as vê)</string>
+    <string name="settings_pegasus_artwork">Capas para o Pegasus</string>
+    <string name="settings_pegasus_artwork_hint">Depois de uma transferência: a capa em media/&lt;jogo&gt;/boxFront ao lado do jogo, onde o Pegasus procura</string>
+    <string name="settings_retroarch_artwork">Capas para o RetroArch</string>
+    <string name="settings_retroarch_artwork_hint">Não definida · escolhe a pasta thumbnails do RetroArch; depois de uma transferência a capa vai para lá para as playlists</string>
+    <string name="settings_retroarch_artwork_off">Desligar</string>
     <string name="settings_profiles">Perfis</string>
     <string name="settings_profiles_hint">Ocultar consolas ou etiquetas, para uma criança ou um perfil de sofá</string>
     <string name="settings_profiles_active">Ativo: %1$s</string>

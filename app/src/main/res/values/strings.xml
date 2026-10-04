@@ -1024,6 +1024,11 @@
     </plurals>
     <string name="settings_esde_artwork">Covers for ES-DE</string>
     <string name="settings_esde_artwork_hint">After a download: cover and description in ES-DE\'s folder (Cocoon\'s ES-DE link sees them too)</string>
+    <string name="settings_pegasus_artwork">Covers for Pegasus</string>
+    <string name="settings_pegasus_artwork_hint">After a download: the cover in media/&lt;game&gt;/boxFront next to the game, where Pegasus looks</string>
+    <string name="settings_retroarch_artwork">Covers for RetroArch</string>
+    <string name="settings_retroarch_artwork_hint">Not set · pick RetroArch\'s thumbnails folder; after a download the box art goes there for its playlists</string>
+    <string name="settings_retroarch_artwork_off">Off</string>
     <string name="settings_profiles">Profiles</string>
     <string name="settings_profiles_hint">Hide consoles or tags, for a child or a couch profile</string>
     <string name="settings_profiles_active">Active: %1$s</string>

@@ -94,6 +94,10 @@ Everything below came with the alpha and is part of 1.2.0; the RomM parts have n
 - **Diagnostics**: `DiagnosticsService` builds the report; `DiagnosticsRedactor` removes tokens, URLs, magnet links, IP addresses, e-mail addresses and the saved secrets before it is shared.
 - **Italian and Portuguese** (European) join the other languages.
 
+### After 3.1.0
+- **Wishlist status**: `WishlistMatch` (pure) — `onDevice` over `LibraryIndexService.ownedKeys` (scopes of the wish's console, `LibraryKeys.scopesFor`), `inRomm` over `RommLibraryService.keys`, both with `GameTitleCleaner.containsAllWords`; `state` puts ON_DEVICE before IN_ROMM before IN_SOURCES. `WishlistRepository.checkAndNotify` skips games that are already had; the screen reloads when either key set changes.
+- **Frontend covers**: `FrontendArtwork` (pure) gives the paths; `PostDownloadService` writes Pegasus' `media/<base name>/boxFront.<ext>` in the game's folder (cover from `GameMetadataService`) and RetroArch's `<libretro system>/Named_Boxarts/<thumbnail name>.png` under the picked thumbnails folder (box art from `ThumbnailService`, PNG). Existing covers are never replaced.
+
 ### What 3.1.0 adds
 - **Requeue in one batch**: `requeueInterrupted()` runs on `Dispatchers.Default` and calls `DownloadService.retryDownloads(names)`: one `DownloadProgressTracker.resetDownloadsForRetry` list update, one `DownloadHistoryDao.markRestartedAll` per 500 rows, one foreground-service start. The whole-queue buttons (`QueueActions`) use the same batch for *Retry failed*.
 - **Progress batching**: `DownloadProgressTracker.updateDownloadProgress` (still throttled per file to once a second) puts progress in a pending map; one coroutine applies it to the list every `PROGRESS_BATCH_MS` (500 ms) through `ProgressBatch.apply`, at once at 100 %. A status change takes that file's pending progress along; a retry or removal drops it. `MainActivity` reads `DownloadViewModel.activeCount` instead of the list, and `downloadDetails` only recomputes when the file names change.
@@ -369,7 +373,7 @@ Everything is also reachable by touch; the legend only appears while a controlle
 Planned features, in no particular order:
 
 - Try everything in 1.2.0-alpha.1 against real RomM servers and a real handheld, and fix what that shows (certificate trust, resumed uploads, deletion sync, background sync, covers, the schedule and the checksum check have only been covered by unit tests so far).
-- Later: a "wanted" status from the wishlist that also checks RomM's library, and cover art for frontends other than ES-DE.
+- ~~A "wanted" status from the wishlist that also checks RomM's library, and cover art for frontends other than ES-DE~~ — done after 3.1.0 (wishlist: on the device / on RomM; covers for Pegasus and RetroArch).
 - ~~Per-console save folders for standalone emulators~~ — done in 3.1.0 (*Save sync → Add an emulator's saves folder*).
 - ~~Mark games already in RomM as owned in the library~~ — done in 1.2.0-alpha.1.
 - ~~Save sync in the background~~ — done in 1.2.0-alpha.1.

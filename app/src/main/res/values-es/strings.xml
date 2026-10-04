@@ -997,6 +997,11 @@
     </plurals>
     <string name="settings_esde_artwork">Portadas para ES-DE</string>
     <string name="settings_esde_artwork_hint">Tras una descarga: portada y descripción en la carpeta de ES-DE (el enlace ES-DE de Cocoon también las ve)</string>
+    <string name="settings_pegasus_artwork">Carátulas para Pegasus</string>
+    <string name="settings_pegasus_artwork_hint">Tras una descarga: la carátula en media/&lt;juego&gt;/boxFront junto al juego, donde mira Pegasus</string>
+    <string name="settings_retroarch_artwork">Carátulas para RetroArch</string>
+    <string name="settings_retroarch_artwork_hint">Sin definir · elige la carpeta thumbnails de RetroArch; tras una descarga la carátula va allí para sus listas</string>
+    <string name="settings_retroarch_artwork_off">Desactivar</string>
     <string name="settings_profiles">Perfiles</string>
     <string name="settings_profiles_hint">Oculta consolas o etiquetas, para un niño o un perfil de sofá</string>
     <string name="settings_profiles_active">Activo: %1$s</string>

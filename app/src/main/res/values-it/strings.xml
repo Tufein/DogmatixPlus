@@ -974,6 +974,11 @@
     </plurals>
     <string name="settings_esde_artwork">Copertine per ES-DE</string>
     <string name="settings_esde_artwork_hint">Dopo un download: copertina e descrizione nella cartella di ES-DE (anche il collegamento ES-DE di Cocoon le vede)</string>
+    <string name="settings_pegasus_artwork">Copertine per Pegasus</string>
+    <string name="settings_pegasus_artwork_hint">Dopo un download: la copertina in media/&lt;gioco&gt;/boxFront accanto al gioco, dove guarda Pegasus</string>
+    <string name="settings_retroarch_artwork">Copertine per RetroArch</string>
+    <string name="settings_retroarch_artwork_hint">Non impostata · scegli la cartella thumbnails di RetroArch; dopo un download la copertina va lì per le playlist</string>
+    <string name="settings_retroarch_artwork_off">Disattiva</string>
     <string name="settings_profiles">Profili</string>
     <string name="settings_profiles_hint">Nascondi console o tag, per un bambino o un profilo divano</string>
     <string name="settings_profiles_active">Attivo: %1$s</string>

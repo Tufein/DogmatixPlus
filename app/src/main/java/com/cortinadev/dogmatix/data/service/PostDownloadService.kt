@@ -6,6 +6,8 @@ import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.DiskFile
 import com.cortinadev.dogmatix.util.EsdeArtwork
+import com.cortinadev.dogmatix.util.LibretroThumbnails
+import com.cortinadev.dogmatix.util.FrontendArtwork
 import com.cortinadev.dogmatix.util.PlaylistPlanner
 import com.cortinadev.dogmatix.util.StorageHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -32,7 +34,8 @@ class PostDownloadService @Inject constructor(
     private val appSettings: AppSettings,
     private val settingsRepository: SettingsRepository,
     private val libraryTools: LibraryToolsService,
-    private val metadata: GameMetadataService
+    private val metadata: GameMetadataService,
+    private val thumbnails: ThumbnailService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -66,7 +69,33 @@ class PostDownloadService @Inject constructor(
 
         // ES-DE names its systems after the console folders of the shared ROM tree.
         if (appSettings.esdeArtwork.first()) writeEsdeArtwork(entity.name, entity.consoleId, entity.fileName, dir.name.orEmpty(), romName)
+        if (appSettings.pegasusArtwork.first()) writePegasusCover(entity.name, entity.consoleId, entity.fileName, dir, romName)
+        appSettings.retroArchThumbnailsDir.first().takeIf { it.isNotBlank() }?.let { writeRetroArchCover(it, entity.consoleId, entity.fileName, romName) }
     }
+
+    /** Pegasus: `media/<game>/boxFront.<ext>` next to the game, unless a cover is already there. */
+    private suspend fun writePegasusCover(name: String, consoleId: String, fileName: String, dir: androidx.documentfile.provider.DocumentFile, romName: String) {
+        val url = metadata.lookup(name, consoleId, com.cortinadev.dogmatix.util.FileParsingUtils.decodeUrlEncodedFileName(fileName))
+            ?.imageUrl?.takeIf { it.isNotBlank() } ?: return
+        val media = "media/${com.cortinadev.dogmatix.util.LibraryKeys.baseName(romName)}"
+        val existing = StorageHelper.findFile(dir, media)?.listFiles().orEmpty()
+        if (existing.any { it.name.orEmpty().substringBeforeLast('.').equals("boxFront", ignoreCase = true) }) return
+        val path = FrontendArtwork.pegasusCoverPath(romName, EsdeArtwork.imageExtension(url))
+        downloadImage(url)?.let { StorageHelper.writeBytesSafely(context, dir, path.substringBeforeLast('/'), path.substringAfterLast('/'), it) }
+    }
+
+    /** RetroArch: the libretro-thumbnails box art (PNG) under its thumbnails folder, unless one is already there. */
+    private suspend fun writeRetroArchCover(thumbnailsUri: String, consoleId: String, fileName: String, romName: String) {
+        val root = StorageHelper.getDocumentFile(context, thumbnailsUri)?.takeIf { it.isDirectory && it.canWrite() } ?: return
+        val system = LibretroThumbnails.systemFor(consoleId) ?: return
+        val path = FrontendArtwork.retroArchCoverPath(system, romName)
+        if (StorageHelper.findFile(root, path) != null) return
+        val url = thumbnails.boxart(consoleId, com.cortinadev.dogmatix.util.FileParsingUtils.decodeUrlEncodedFileName(fileName)) ?: return
+        downloadImage(url)?.let { StorageHelper.writeBytesSafely(context, root, path.substringBeforeLast('/'), path.substringAfterLast('/'), it) }
+    }
+
+    private fun downloadImage(url: String): ByteArray? =
+        runCatching { JsonHttp.download(url, maxBytes = 15L * 1024 * 1024) }.getOrNull()?.takeIf { it.isNotEmpty() }
 
     private suspend fun writeEsdeArtwork(name: String, consoleId: String, fileName: String, folder: String, romName: String) {
         val esdeUri = settingsRepository.esdeDirectory.first().takeIf { it.isNotBlank() } ?: return
