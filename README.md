@@ -31,6 +31,11 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
+### New in 3.1
+- **Big download queues stay smooth again** (no more "app isn't responding" after a restart with hundreds of downloads waiting).
+- **Whole-queue buttons** (*Stop all*, *Retry failed*, *Clear finished*), **pause web downloads**, and **a notification when the queue is done**.
+- **Save sync for standalone emulators**: DraStic, melonDS, mGBA, Snes9x EX+ and more sync their saves with RomM.
+
 ### New in 3.0
 - **Downloads continue where they stopped** (full storage, closed app, reboot) and **the queue survives a restart**; a **per-server limit** keeps strict servers happy.
 - **Wishlist on autopilot**, **.m3u playlists** for multi-disc games, and a **storage advisor** when "Download everything shown" does not fit.

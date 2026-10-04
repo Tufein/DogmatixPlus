@@ -31,6 +31,11 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 3.1
+- **Große Download-Warteschlangen laufen wieder flüssig** (kein „App reagiert nicht“ mehr nach einem Neustart mit Hunderten wartenden Downloads).
+- **Knöpfe für die ganze Warteschlange** (*Alle stoppen*, *Fehlgeschlagene wiederholen*, *Fertige entfernen*), **Web-Downloads pausieren** und **eine Meldung, wenn die Warteschlange fertig ist**.
+- **Spielstand-Abgleich für eigenständige Emulatoren**: DraStic, melonDS, mGBA, Snes9x EX+ und mehr gleichen ihre Spielstände mit RomM ab.
+
 ### Neu in 3.0
 - **Downloads machen dort weiter, wo sie stoppten** (Speicher voll, App geschlossen, Neustart), und **die Warteschlange übersteht einen Neustart**; ein **Limit pro Server** verhindert Sperren.
 - **Wunschliste auf Autopilot**, **.m3u-Playlists** für Spiele mit mehreren Discs und ein **Speicherberater**, wenn „Alles Angezeigte herunterladen“ nicht passt.

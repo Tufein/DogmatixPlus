@@ -31,6 +31,11 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveau dans 3.1
+- **Les grandes files de téléchargement restent fluides** (plus de « l'application ne répond pas » après un redémarrage avec des centaines de téléchargements en attente).
+- **Boutons pour toute la file** (*Tout arrêter*, *Relancer les échecs*, *Effacer les terminés*), **mettre en pause les téléchargements web**, et **une notification quand la file est terminée**.
+- **Synchronisation des sauvegardes pour les émulateurs autonomes** : DraStic, melonDS, mGBA, Snes9x EX+ et d'autres synchronisent leurs sauvegardes avec RomM.
+
 ### Nouveau dans 3.0
 - **Les téléchargements reprennent là où ils s'étaient arrêtés** (stockage plein, appli fermée, redémarrage) et **la file survit à un redémarrage** ; une **limite par serveur** évite les blocages.
 - **Liste d'envies en pilote automatique**, **playlists .m3u** pour les jeux multi-disques, et un **conseiller de stockage** quand « Tout télécharger » ne tient pas.

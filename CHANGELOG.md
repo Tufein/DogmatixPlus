@@ -3,7 +3,7 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
-## [Unreleased]
+## [3.1.0] – 2026-10-04 · Dogmatix+
 
 ### Downloads
 - **Whole-queue buttons** on the Downloads screen: *Stop all*, *Retry failed* and *Clear finished*
