@@ -3,6 +3,16 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [Unreleased]
+
+### Downloads
+- **Failed downloads retry by themselves** (*Settings → Retry failed downloads by itself*, on by
+  default): a download that failed because the connection dropped, timed out or the server was
+  busy (HTTP 408, 429 or 5xx) is started again after 1, then 5, then 15 minutes, and then left to
+  you. A missing file (404), a refused one (403) or a folder problem is not retried. Pressing
+  *Retry* yourself, or deleting the row, starts the count again. Torrents and debrid downloads that
+  end in a failure of their own are not retried this way.
+
 ## [3.2.0] – 2026-10-04 · Dogmatix+
 
 ### Wishlist

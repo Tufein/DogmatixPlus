@@ -955,6 +955,8 @@
     <string name="settings_auto_m3u_hint">Scrive il .m3u appena tutti i dischi di un gioco sono scaricati</string>
     <string name="settings_queue_summary">Avvisa quando la coda è finita</string>
     <string name="settings_queue_summary_hint">Una notifica con quanti download sono riusciti o falliti</string>
+    <string name="settings_auto_retry">Riprova da solo i download falliti</string>
+    <string name="settings_auto_retry_hint">Dopo una connessione caduta o un server occupato: fino a 3 nuovi tentativi, dopo 1, 5 e 15 minuti</string>
     <string name="queue_done_title">Download finiti</string>
     <plurals name="queue_done_title_ok">
         <item quantity="one">%1$d download finito</item>
