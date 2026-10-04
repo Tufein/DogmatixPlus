@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -62,8 +63,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.withContext
 
 data class WishlistUiState(val loading: Boolean = true, val items: List<WishlistStatus> = emptyList(), val consoles: List<ConsoleEntity> = emptyList())
 
@@ -80,7 +83,7 @@ class WishlistViewModel @Inject constructor(
     init {
         // Re-read whenever the list changes; the match counts come from the library table.
         // …and when the device's or the RomM server's games change ("already have it").
-        viewModelScope.launch { kotlinx.coroutines.flow.merge(wishlist.items, wishlist.haveChanges).conflate().collect { reload() } }
+        viewModelScope.launch { merge(wishlist.items, wishlist.haveChanges).conflate().collect { reload() } }
     }
 
     private suspend fun reload() {
@@ -99,7 +102,7 @@ class WishlistViewModel @Inject constructor(
         viewModelScope.launch {
             val ok = runCatching {
                 val text = wishlist.exportText()
-                kotlinx.coroutines.withContext(Dispatchers.IO) {
+                withContext(Dispatchers.IO) {
                     app.contentResolver.openOutputStream(Uri.parse(uri), "wt")?.use { it.write(text.toByteArray(Charsets.UTF_8)) } ?: error("cannot write")
                 }
             }.isSuccess
@@ -113,7 +116,7 @@ class WishlistViewModel @Inject constructor(
         val app = context.applicationContext
         viewModelScope.launch {
             val added = runCatching {
-                val text = kotlinx.coroutines.withContext(Dispatchers.IO) {
+                val text = withContext(Dispatchers.IO) {
                     app.contentResolver.openInputStream(Uri.parse(uri))?.use { it.readBytes().toString(Charsets.UTF_8) }
                 }
                 text?.let { wishlist.importText(it) }
@@ -137,7 +140,7 @@ fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = 
     val context = LocalContext.current
     var showAdd by remember { mutableStateOf(false) }
     // Android 13+ asks before the "a wanted game turned up" notification may be shown.
-    val notificationPermission = androidx.activity.compose.rememberLauncherForActivityResult(
+    val notificationPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { }
     if (showAdd) {
@@ -148,10 +151,10 @@ fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = 
             ) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }, onDismiss = { showAdd = false })
     }
-    val exportLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+    val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
     ) { uri -> uri?.let { viewModel.export(context, it.toString()) } }
-    val importLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+    val importLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri -> uri?.let { viewModel.import(context, it.toString()) } }
     val firstFocus = remember { FocusRequester() }

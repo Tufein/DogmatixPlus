@@ -2,6 +2,7 @@ package com.cortinadev.dogmatix.ui.screens.tools
 
 import android.content.Context
 import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -121,7 +122,7 @@ fun StorageScreen(viewModel: StorageViewModel = hiltViewModel()) {
     var pendingDelete by remember { mutableStateOf<GameEntry?>(null) }
     val move by viewModel.move.collectAsState()
     var pendingMove by remember { mutableStateOf<String?>(null) }
-    val moveLauncher = androidx.activity.compose.rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+    val moveLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let {
             context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             pendingMove = it.toString()

@@ -65,6 +65,7 @@ import com.cortinadev.dogmatix.ui.components.TagRow
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.focusRing
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
+import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.components.stripExtension
 import com.cortinadev.dogmatix.ui.components.swapFaceButtons
 import com.cortinadev.dogmatix.ui.screens.home.DetailsState
@@ -303,7 +304,7 @@ fun CollectionPickerDialog(
     onDismiss: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
-    val closeFocus = com.cortinadev.dogmatix.ui.components.rememberInitialFocus()
+    val closeFocus = rememberInitialFocus()
     AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,

@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.coroutineScope
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class SourcesViewModel @Inject constructor(
@@ -299,7 +300,7 @@ class SourcesViewModel @Inject constructor(
     fun readQr(uris: List<Uri>) {
         if (uris.isEmpty()) return
         viewModelScope.launch {
-            val texts = kotlinx.coroutines.withContext(Dispatchers.IO) {
+            val texts = withContext(Dispatchers.IO) {
                 uris.mapNotNull { QrCodes.read(context, it) }
             }
             val accepted = texts.count { qrCollector.add(it) }

@@ -2,6 +2,7 @@ package com.cortinadev.dogmatix.ui.screens.tools
 
 import android.content.Context
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.OutlinedTextField
@@ -319,7 +320,7 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
 
     var renaming by remember { mutableStateOf<DiskEntry?>(null) }
     var patching by remember { mutableStateOf<DiskEntry?>(null) }
-    val patchPicker = androidx.activity.compose.rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+    val patchPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         val entry = patching
         if (uri != null && entry != null) viewModel.applyPatch(context, entry, uri)
         patching = null

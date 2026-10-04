@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -38,7 +39,7 @@ class DownloadQueueOrderTest {
         queue.release()
         assertEquals("first", first.await())
         queue.release()
-        assertEquals("second", kotlinx.coroutines.withTimeout(2_000) { second.await() })
+        assertEquals("second", withTimeout(2_000) { second.await() })
         assertTrue(queue.waiting.value.isEmpty())
     }
 

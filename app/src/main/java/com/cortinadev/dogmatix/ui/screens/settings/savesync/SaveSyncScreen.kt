@@ -2,7 +2,9 @@ package com.cortinadev.dogmatix.ui.screens.settings.savesync
 
 import android.content.Intent
 import androidx.compose.material3.AlertDialog
+import androidx.compose.ui.res.pluralStringResource
 import com.cortinadev.dogmatix.ui.components.DialogButton
+import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.util.EmulatorSaveFolders
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.focusRing
@@ -217,7 +219,7 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
         sync.last?.takeIf { it.deletionsHeld > 0 }?.let { held ->
             add {
                 SettingRow(
-                    title = androidx.compose.ui.res.pluralStringResource(R.plurals.save_sync_held_title, held.deletionsHeld, held.deletionsHeld),
+                    title = pluralStringResource(R.plurals.save_sync_held_title, held.deletionsHeld, held.deletionsHeld),
                     hint = stringResource(R.string.save_sync_held_hint),
                     onClick = viewModel::applyHeldDeletions
                 ) { PillButton(stringResource(R.string.save_sync_held_apply), viewModel::applyHeldDeletions) }
@@ -334,7 +336,7 @@ private fun folderLabel(uri: String): String? {
 /** Which emulator a picked folder belongs to: its saves are synced under that emulator's name. */
 @Composable
 private fun EmulatorPresetDialog(onPick: (EmulatorSaveFolders.Preset) -> Unit, onDismiss: () -> Unit) {
-    val closeFocus = com.cortinadev.dogmatix.ui.components.rememberInitialFocus()
+    val closeFocus = rememberInitialFocus()
     AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.withContext
 
 /**
  * Keeps [TlsTrust] in step with Settings → RomM (server URL and the certificate fingerprint the
@@ -25,7 +26,7 @@ class RommTrustService @Inject constructor(private val settingsRepository: Setti
     }
 
     /** The certificate [url] presents, or null when it is not an HTTPS server or cannot be reached. */
-    suspend fun inspect(url: String): ServerCertificate? = kotlinx.coroutines.withContext(Dispatchers.IO) { TlsTrust.probe(url) }
+    suspend fun inspect(url: String): ServerCertificate? = withContext(Dispatchers.IO) { TlsTrust.probe(url) }
 
     suspend fun trust(fingerprint: String) { settingsRepository.setRommTrustFingerprint(fingerprint) }
 

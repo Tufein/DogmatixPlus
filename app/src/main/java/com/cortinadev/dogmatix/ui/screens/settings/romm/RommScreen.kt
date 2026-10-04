@@ -28,6 +28,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -40,6 +41,7 @@ import com.cortinadev.dogmatix.ui.components.DialogButton
 import com.cortinadev.dogmatix.ui.components.LegendEntry
 import com.cortinadev.dogmatix.ui.components.Stepper
 import com.cortinadev.dogmatix.ui.components.legendFor
+import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.ui.screens.settings.SettingRow
@@ -176,7 +178,7 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                 coverState.problem == CoverRunState.Problem.NO_PLATFORMS -> stringResource(R.string.romm_covers_needs_platforms)
                 coverState.problem == CoverRunState.Problem.ESDE_NOT_WRITABLE -> stringResource(R.string.romm_covers_not_writable)
                 coverState.problem == CoverRunState.Problem.FAILED -> stringResource(R.string.romm_covers_failed)
-                coverState.fetched != null -> androidx.compose.ui.res.pluralStringResource(R.plurals.romm_covers_done, coverState.fetched ?: 0, coverState.fetched ?: 0) + if (coverState.failed > 0) " · " + stringResource(R.string.romm_covers_some_failed, coverState.failed) else ""
+                coverState.fetched != null -> pluralStringResource(R.plurals.romm_covers_done, coverState.fetched ?: 0, coverState.fetched ?: 0) + if (coverState.failed > 0) " · " + stringResource(R.string.romm_covers_some_failed, coverState.failed) else ""
                 else -> stringResource(R.string.romm_covers_hint)
             }
             SettingRow(title = stringResource(R.string.romm_covers), hint = hint, onClick = viewModel::startCovers) {
@@ -286,7 +288,7 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
 private fun TrustCertificateDialog(prompt: TrustPrompt, onTrust: () -> Unit, onDismiss: () -> Unit) {
     val cert = prompt.certificate
     val until = DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(cert.validUntil))
-    val cancelFocus = com.cortinadev.dogmatix.ui.components.rememberInitialFocus()
+    val cancelFocus = rememberInitialFocus()
     AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,

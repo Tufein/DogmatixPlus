@@ -68,6 +68,7 @@ import java.io.OutputStream
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.withContext
 
 private const val TAG = "DownloadService"
 /** Upper bound for an uncached torrent to be fetched by the debrid service before we give up. */
@@ -167,7 +168,7 @@ class DownloadService @Inject constructor(
         // Off the caller's (UI) thread, and as one batch: hundreds of single retries on the main
         // thread made Android report the app as not responding, and the queue came back after
         // every forced close.
-        return kotlinx.coroutines.withContext(Dispatchers.Default) { retryDownloads(names) }
+        return withContext(Dispatchers.Default) { retryDownloads(names) }
     }
 
     /**

@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -62,7 +63,7 @@ class WishlistRepository @Inject constructor(
 
     /** Moves when what the device or the RomM server has changes (the "have" part of [status]). */
     val haveChanges: Flow<Any> = kotlinx.coroutines.flow.flow {
-        emitAll(kotlinx.coroutines.flow.merge(libraryIndex.get().ownedKeys, rommLibrary.get().keys))
+        emitAll(merge(libraryIndex.get().ownedKeys, rommLibrary.get().keys))
     }
 
     init {
