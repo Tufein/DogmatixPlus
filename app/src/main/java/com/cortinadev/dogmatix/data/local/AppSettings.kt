@@ -44,6 +44,8 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
         val AUTO_M3U = booleanPreferencesKey("auto_m3u")
         val QUEUE_SUMMARY = booleanPreferencesKey("queue_summary")
         val AUTO_RETRY = booleanPreferencesKey("auto_retry_failed")
+        val QUEUE_HELD = booleanPreferencesKey("queue_held")
+        val LAST_SEEN_VERSION = intPreferencesKey("last_seen_version_code")
         val SAVE_SYNC_EMULATOR_FOLDERS = androidx.datastore.preferences.core.stringPreferencesKey("save_sync_emulator_folders")
         val PROFILES = androidx.datastore.preferences.core.stringPreferencesKey("profiles")
         val ACTIVE_PROFILE = androidx.datastore.preferences.core.stringPreferencesKey("active_profile")
@@ -102,6 +104,10 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
         context.dataStore.data.map { com.cortinadev.dogmatix.util.EmulatorSaveFolders.fromJson(it[Keys.SAVE_SYNC_EMULATOR_FOLDERS]) }
     /** Start downloads that failed for a passing reason again by themselves (see [com.cortinadev.dogmatix.util.AutoRetry]). */
     val autoRetryFailed: Flow<Boolean> = context.dataStore.data.map { it[Keys.AUTO_RETRY] ?: true }
+    /** The queue is on hold: running downloads finish, nothing new starts (see [com.cortinadev.dogmatix.data.service.DownloadGate]). */
+    val queueHeld: Flow<Boolean> = context.dataStore.data.map { it[Keys.QUEUE_HELD] ?: false }
+    /** Version code whose "what's new" the user has seen; 0 = none yet (see [com.cortinadev.dogmatix.util.WhatsNew]). */
+    val lastSeenVersion: Flow<Int> = context.dataStore.data.map { it[Keys.LAST_SEEN_VERSION] ?: 0 }
     /** Profiles as JSON (see [com.cortinadev.dogmatix.util.Profiles]). */
     val profiles: Flow<String> = context.dataStore.data.map { it[Keys.PROFILES] ?: "[]" }
     /** Id of the active profile; empty = everything visible. */
@@ -120,6 +126,8 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
     suspend fun setAutoM3u(on: Boolean) = context.dataStore.edit { it[Keys.AUTO_M3U] = on }
     suspend fun setQueueSummary(on: Boolean) = context.dataStore.edit { it[Keys.QUEUE_SUMMARY] = on }
     suspend fun setAutoRetryFailed(on: Boolean) = context.dataStore.edit { it[Keys.AUTO_RETRY] = on }
+    suspend fun setQueueHeld(on: Boolean) = context.dataStore.edit { it[Keys.QUEUE_HELD] = on }
+    suspend fun setLastSeenVersion(code: Int) = context.dataStore.edit { it[Keys.LAST_SEEN_VERSION] = code }
     suspend fun setSaveSyncEmulatorFolders(folders: List<com.cortinadev.dogmatix.util.EmulatorSaveFolder>) =
         context.dataStore.edit { it[Keys.SAVE_SYNC_EMULATOR_FOLDERS] = com.cortinadev.dogmatix.util.EmulatorSaveFolders.toJson(folders) }
     suspend fun setProfiles(json: String) = context.dataStore.edit { it[Keys.PROFILES] = json }

@@ -12,6 +12,7 @@ import com.cortinadev.dogmatix.data.service.RommUploadService
 import com.cortinadev.dogmatix.data.service.DownloadService
 import com.cortinadev.dogmatix.data.service.LibraryIndexService
 import com.cortinadev.dogmatix.util.QueueActions
+import com.cortinadev.dogmatix.util.QueueEta
 import com.cortinadev.dogmatix.util.StorageInsights
 import kotlinx.coroutines.Dispatchers
 import com.cortinadev.dogmatix.util.ToastUtil
@@ -67,6 +68,17 @@ class DownloadViewModel @Inject constructor(
 
     /** Lets everything that is waiting for the schedule start now. */
     fun startWaitingNow() = downloadService.gate.startNow()
+
+    /** The user's hold on the queue: running downloads finish, nothing new starts. */
+    val held: StateFlow<Boolean> = downloadService.gate.held
+    fun setHeld(on: Boolean) = downloadService.gate.setHeld(on)
+
+    /** What is left of the queue and how long it takes at the current speed. */
+    val queueEta: StateFlow<QueueEta.Eta> = downloadService.downloads.map { list ->
+        QueueEta.of(list.filter { it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.QUEUED }.map {
+            QueueEta.Item((it.fileSize - it.downloadedBytes).coerceAtLeast(0), it.downloadSpeed, running = it.status == DownloadStatus.DOWNLOADING)
+        })
+    }.distinctUntilChanged().flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), QueueEta.Eta(0, 0, null))
 
     /** Downloads waiting for a free slot, in the order they will start. */
     val queued: StateFlow<List<String>> = downloadService.queued

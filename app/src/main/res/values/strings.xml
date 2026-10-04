@@ -1312,4 +1312,18 @@
     <string name="tools_group_library">Library</string>
     <string name="tools_group_games">Games and checks</string>
     <string name="tools_group_export">Export</string>
+    <string name="wait_held">queue on hold</string>
+    <string name="downloads_hold">Hold the queue</string>
+    <string name="downloads_release">Resume the queue</string>
+    <string name="downloads_left">%1$s left</string>
+    <string name="downloads_eta_hours">about %1$d h %2$d min</string>
+    <string name="downloads_eta_minutes">about %1$d min</string>
+    <string name="whats_new_title">New in Dogmatix+ %1$s</string>
+    <string-array name="whats_new_items">
+        <item>No more \"app isn’t responding\" after queueing a whole console.</item>
+        <item>Settings and Tools sorted into clear groups; LB / RB jump between the groups.</item>
+        <item>Download all takes a whole console set at once (up to 3000 games).</item>
+        <item>Hold the queue on Downloads: running downloads finish, nothing new starts.</item>
+        <item>The Downloads list shows what is left and roughly how long it takes.</item>
+    </string-array>
 </resources>

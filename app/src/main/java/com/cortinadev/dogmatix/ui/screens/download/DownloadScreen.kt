@@ -69,16 +69,20 @@ fun DownloadScreen(
     val verification by viewModel.verification.collectAsState()
     val shortfall by viewModel.queueShortfall.collectAsState()
     val counts by viewModel.queueCounts.collectAsState()
+    val eta by viewModel.queueEta.collectAsState()
+    val held by viewModel.held.collectAsState()
     val waitWifi = stringResource(R.string.wait_wifi)
     val waitCharger = stringResource(R.string.wait_charger)
     val waitNight = stringResource(R.string.wait_night)
     val waitStorage = stringResource(R.string.wait_storage)
+    val waitHeld = stringResource(R.string.wait_held)
     val waitingText = waitingReasons.joinToString(" · ") {
         when (it) {
             WaitReason.WIFI -> waitWifi
             WaitReason.CHARGER -> waitCharger
             WaitReason.NIGHT -> waitNight
             WaitReason.STORAGE -> waitStorage
+            WaitReason.HELD -> waitHeld
         }
     }
     val selection by viewModel.selection.collectAsState()
@@ -173,26 +177,31 @@ fun DownloadScreen(
                 horizontalArrangement = Arrangement.End
             ) {
                 Text(
-                    stringResource(R.string.downloads_summary, active, completed),
+                    stringResource(R.string.downloads_summary, active, completed) + etaText(eta),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
-        if (!selectionMode && counts.any) {
+        if (!selectionMode && (counts.any || held)) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 2.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                if (held || counts.stoppable > 0) PillButton(stringResource(if (held) R.string.downloads_release else R.string.downloads_hold)) { viewModel.setHeld(!held) }
                 if (counts.stoppable > 0) PillButton(stringResource(R.string.downloads_stop_all, counts.stoppable), viewModel::stopAll)
                 if (counts.retryable > 0) PillButton(stringResource(R.string.downloads_retry_failed, counts.retryable), viewModel::retryFailed)
                 if (counts.clearable > 0) PillButton(stringResource(R.string.downloads_clear_finished, counts.clearable), viewModel::clearFinished)
             }
         }
         if (waitingFiles.isNotEmpty() && waitingText.isNotEmpty()) {
+            // On hold by the user: the button lifts the hold; otherwise it starts the waiting ones anyway.
+            val onHold = WaitReason.HELD in waitingReasons
+            val release: () -> Unit = { if (onHold) viewModel.setHeld(false) else viewModel.startWaitingNow() }
             NoticeRow(
                 text = pluralStringResource(R.plurals.downloads_waiting, waitingFiles.size, waitingFiles.size, waitingText),
-                action = stringResource(R.string.downloads_start_now), onAction = viewModel::startWaitingNow
+                action = stringResource(if (onHold) R.string.downloads_release else R.string.downloads_start_now),
+                onAction = release
             )
         }
         if (shortfall > 0) {
@@ -261,6 +270,16 @@ fun DownloadScreen(
             }
         )
     }
+}
+
+/** " · 12.4 GB left · about 1 h 20 min" while something is left to download; empty otherwise. */
+@Composable
+private fun etaText(eta: com.cortinadev.dogmatix.util.QueueEta.Eta): String {
+    if (eta.remainingBytes <= 0) return ""
+    val left = " · " + stringResource(R.string.downloads_left, formatBytes(eta.remainingBytes))
+    val seconds = eta.seconds ?: return left
+    val (hours, minutes) = com.cortinadev.dogmatix.util.QueueEta.hoursMinutes(seconds)
+    return left + " · " + if (hours > 0) stringResource(R.string.downloads_eta_hours, hours, minutes) else stringResource(R.string.downloads_eta_minutes, minutes)
 }
 
 /** A line of explanation above the list, with an optional button (e.g. "Start now"). */

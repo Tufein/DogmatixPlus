@@ -37,8 +37,11 @@ data class BulkPlan(
 
 object BulkPlanner {
 
-    /** Most games one "Download all" may queue, so a mistaken tap cannot queue a whole collection. */
-    const val MAX_FILES = 500
+    /**
+     * Most games one "Download all" may queue: a whole console set (a few thousand games), but not
+     * every console at once by a mistaken tap. The dialog shows the count and size before anything starts.
+     */
+    const val MAX_FILES = 3000
 
     /**
      * Skips what is on disk or already downloading; with [bestOnly], keeps one version per game

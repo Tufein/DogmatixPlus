@@ -5,6 +5,17 @@ All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 
 ## [Unreleased]
 
+### Downloads
+- **Download all takes a whole console set**: up to 3000 games per tap instead of 500. The dialog
+  still shows how many games and how much space before anything starts.
+- **Hold the queue** (*Downloads → Hold the queue*): running downloads finish, nothing new starts
+  until *Resume the queue*. The hold stays after a restart.
+- **What is left**: the line above the Downloads list shows how much the queue still has to fetch and,
+  while downloads run, roughly how long that takes at the current speed.
+
+### What's new
+- After an update Dogmatix+ shows the highlights of the new version once (not on a fresh install).
+
 ### Settings and Tools, tidied up
 - **Settings in groups**: *Look and controls*, *Downloads*, *When to download*, *After a download*,
   *Torrents and debrid*, *Library and sources*, *Frontends*, *RomM and saves*, *Profiles*, *Backup*
