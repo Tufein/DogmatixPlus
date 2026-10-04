@@ -6,6 +6,9 @@ All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 ## [3.0.0] – 2026-10-04 · Dogmatix+
 
 ### Downloads
+- **Whole-queue buttons** on the Downloads screen: *Stop all*, *Retry failed* and *Clear finished*
+  (the files stay), each with the number of rows it acts on and only shown when it has something to
+  do. They work in one batch off the UI thread, so a queue of hundreds stays responsive.
 - **Continue where it stopped.** A web download cut off by a full storage, a closed app or a
   reboot now carries on from its partial file when you retry: Dogmatix+ asks for the rest with a
   `Range` request and appends it only when the server answers with exactly the missing part of the
@@ -42,6 +45,7 @@ All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 - **Profiles** (*Settings → Profiles*): a profile hides consoles and games with chosen tags from
   the library and its downloads (a child's profile, a couch profile). With a PIN, only someone who
   knows it can leave a restricted profile, and profiles and the PIN cannot be changed from inside one.
+  The PIN is stored with a random salt and PBKDF2 (a PIN set in an earlier 3.0.0 build keeps working).
 - **What you play** (*Statistics*): the games ES-DE started most and most recently. ES-DE records
   play counts, not play time; Cocoon keeps its play time in its own private database.
 
