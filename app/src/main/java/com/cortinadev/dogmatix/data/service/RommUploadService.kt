@@ -7,6 +7,7 @@ import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.RommPlatformMapper
 import com.cortinadev.dogmatix.util.RommSource
+import com.cortinadev.dogmatix.util.RommUploadPlan
 import com.cortinadev.dogmatix.util.StorageHelper
 import com.cortinadev.dogmatix.util.UploadSession
 import com.cortinadev.dogmatix.util.UploadSessions
@@ -48,7 +49,9 @@ class RommUploadService @Inject constructor(
     private val downloadableFileDao: DownloadableFileDao,
     private val downloadFileManager: DownloadFileManager,
     private val rommClient: RommClient,
-    private val rommLibraryService: RommLibraryService
+    private val rommLibraryService: RommLibraryService,
+    private val historyDao: com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao,
+    private val libraryIndexService: LibraryIndexService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val uploadLock = Mutex()
@@ -83,6 +86,26 @@ class RommUploadService @Inject constructor(
 
     fun retry(fileName: String) {
         scope.launch { enqueue(fileName) }
+    }
+
+    /**
+     * Sends the finished downloads the server does not have yet (see [RommUploadPlan]); this is for
+     * games downloaded before auto-upload was on. Returns how many uploads were started, or null when
+     * the server's game list is not known (it needs *Mark games already in RomM*).
+     */
+    suspend fun uploadMissing(): Int? {
+        if (!settingsRepository.rommMarkGames.first()) return null
+        val serverKeys = rommLibraryService.keys.value
+        if (serverKeys.isEmpty()) return null
+        val mapped = settingsRepository.rommPlatformMap.first().keys
+        val base = rommClient.configuredBaseUrl()
+        val owned = libraryIndexService.ownedKeys.value
+        val candidates = historyDao.getAll()
+            .filter { it.status == com.cortinadev.dogmatix.data.model.DownloadStatus.COMPLETED.name }
+            .map { RommUploadPlan.Candidate(it.fileName, it.consoleId, it.downloadUrl) }
+        val names = RommUploadPlan.missing(candidates, serverKeys, mapped, base) { com.cortinadev.dogmatix.util.LibraryKeys.isOwned(it.consoleId, it.fileName, owned) }
+        names.forEach { name -> scope.launch { enqueue(name) } }
+        return names.size
     }
 
     private suspend fun enqueue(fileName: String) {

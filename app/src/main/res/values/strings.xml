@@ -185,6 +185,15 @@
     <string name="romm_platforms_count">%1$d platforms on the server</string>
     <string name="romm_auto_upload">Upload finished downloads</string>
     <string name="romm_auto_upload_hint">Only consoles mapped to a platform below</string>
+    <string name="romm_upload_missing">Upload what the server lacks</string>
+    <string name="romm_upload_missing_hint">Sends finished downloads that RomM does not list yet (needs Mark games already in RomM)</string>
+    <string name="romm_upload_missing_action">Upload</string>
+    <string name="romm_upload_missing_needs_marks">Turn on Mark games already in RomM first, so Dogmatix knows what the server has</string>
+    <string name="romm_upload_missing_none">Nothing to upload: the server has everything this app downloaded</string>
+    <plurals name="romm_upload_missing_started">
+        <item quantity="one">%1$d upload started</item>
+        <item quantity="other">%1$d uploads started</item>
+    </plurals>
     <string name="romm_platforms_header">Console → platform</string>
     <string name="romm_platforms_hint">◀ ▶ picks the RomM platform each console uploads to</string>
     <string name="romm_apply_suggestions">Apply suggestions</string>

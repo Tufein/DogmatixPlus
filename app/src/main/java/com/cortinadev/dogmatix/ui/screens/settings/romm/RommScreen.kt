@@ -125,6 +125,13 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                 ThemedSwitch(ui.autoUpload) { viewModel.setAutoUpload(context, it) }
             }
         }
+        add {
+            SettingRow(
+                title = stringResource(R.string.romm_upload_missing),
+                hint = stringResource(R.string.romm_upload_missing_hint),
+                onClick = { viewModel.uploadMissing(context) }
+            ) { PillButton(stringResource(R.string.romm_upload_missing_action)) { viewModel.uploadMissing(context) } }
+        }
         if (ui.url.startsWith("https://", ignoreCase = true)) add {
             val pinned = ui.trustFingerprint.isNotBlank()
             SettingRow(

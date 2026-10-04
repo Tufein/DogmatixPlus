@@ -172,6 +172,15 @@
     <string name="romm_platforms_count">%1$d piattaforme sul server</string>
     <string name="romm_auto_upload">Carica i download completati</string>
     <string name="romm_auto_upload_hint">Solo le console associate a una piattaforma qui sotto</string>
+    <string name="romm_upload_missing">Carica ciò che manca al server</string>
+    <string name="romm_upload_missing_hint">Invia i download completati che RomM non elenca ancora (richiede Segna i giochi già in RomM)</string>
+    <string name="romm_upload_missing_action">Carica</string>
+    <string name="romm_upload_missing_needs_marks">Attiva prima Segna i giochi già in RomM, così Dogmatix sa cosa ha il server</string>
+    <string name="romm_upload_missing_none">Niente da caricare: il server ha tutto ciò che questa app ha scaricato</string>
+    <plurals name="romm_upload_missing_started">
+        <item quantity="one">%1$d caricamento avviato</item>
+        <item quantity="other">%1$d caricamenti avviati</item>
+    </plurals>
     <string name="romm_platforms_header">Console → piattaforma</string>
     <string name="romm_platforms_hint">◀ ▶ sceglie la piattaforma RomM su cui carica ogni console</string>
     <string name="romm_apply_suggestions">Applica i suggerimenti</string>
