@@ -32,6 +32,17 @@ internal fun ToolsTitle(text: String) {
     )
 }
 
+/** Heading over a group of rows in the Tools list (not focusable). */
+@Composable
+internal fun ToolsGroup(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 2.dp)
+    )
+}
+
 /** Non-focusable block of summary lines (totals, scan progress, notes). */
 @Composable
 internal fun InfoCard(lines: List<String>, modifier: Modifier = Modifier, accent: Boolean = false) {

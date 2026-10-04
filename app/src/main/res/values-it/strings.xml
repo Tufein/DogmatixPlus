@@ -1247,4 +1247,19 @@
         <item quantity="other">%1$d volte</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
+    <string name="settings_section_look">Aspetto e comandi</string>
+    <string name="settings_section_downloads">Download</string>
+    <string name="settings_section_schedule">Quando scaricare</string>
+    <string name="settings_section_after">Dopo un download</string>
+    <string name="settings_section_torrents">Torrent e debrid</string>
+    <string name="settings_section_library">Libreria e fonti</string>
+    <string name="settings_section_frontends">Frontend</string>
+    <string name="settings_section_romm">RomM e salvataggi</string>
+    <string name="settings_section_profiles">Profili</string>
+    <string name="settings_section_backup">Backup</string>
+    <string name="settings_section_app">App e aggiornamenti</string>
+    <string name="pad_group">Gruppo</string>
+    <string name="tools_group_library">Libreria</string>
+    <string name="tools_group_games">Giochi e controlli</string>
+    <string name="tools_group_export">Esporta</string>
 </resources>
