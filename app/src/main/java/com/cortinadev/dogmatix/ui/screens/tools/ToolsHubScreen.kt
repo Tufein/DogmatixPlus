@@ -117,6 +117,7 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { ToolRow(stringResource(R.string.nav_sets), listOf(stringResource(R.string.tools_sets_hint)), { go(NavRoutes.Sets) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_storage), listOf(stringResource(R.string.tools_storage_hint)), { go(NavRoutes.Storage) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_wishlist), listOf(stringResource(R.string.tools_wishlist_hint)), { go(NavRoutes.Wishlist) }, trailing = chevron) }
+            item { ToolRow(stringResource(R.string.nav_frontends), listOf(stringResource(R.string.tools_frontends_hint)), { go(NavRoutes.Frontends) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_files), listOf(stringResource(R.string.tools_files_hint)), { go(NavRoutes.Files) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_collections), listOf(stringResource(R.string.tools_collections_hint)), { go(NavRoutes.Collections) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_switch), listOf(stringResource(R.string.tools_switch_hint)), { go(NavRoutes.Switch) }, trailing = chevron) }

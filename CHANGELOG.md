@@ -18,6 +18,16 @@ All notable changes to Dogmatix are listed here. Dogmatix is a fork of
   modified one), instead of waiting for a full check of the folder. A source's own checksum still
   goes first; unpacked archives and formats DATs do not describe (CHD, RVZ, 7z…) show nothing.
 
+### Wishlist
+- **Share the wishlist** (*Wishlist → Share the wishlist*): *Export* saves it as a small file
+  (titles and consoles), *Import* adds the wishes of such a file to the list, skipping the ones
+  already on it. An imported wish starts as "wanted" again.
+
+### Tools
+- **Frontend check** (*Tools → Frontend check*): one list of ES-DE, iiSU, Daijishō, Pegasus and
+  RetroArch with what is ready, what is still to do and what only works by hand, each with a tap
+  through to Settings. It reads Dogmatix's own settings, not the frontends' folders.
+
 ## [3.2.0] – 2026-10-04 · Dogmatix+
 
 ### Wishlist

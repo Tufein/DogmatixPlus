@@ -84,6 +84,37 @@ class WishlistViewModel @Inject constructor(
 
     fun remove(id: Long) { viewModelScope.launch { wishlist.remove(id) } }
 
+    /** Writes the wishlist to [uri]. */
+    fun export(context: android.content.Context, uri: String) {
+        val app = context.applicationContext
+        viewModelScope.launch {
+            val ok = runCatching {
+                val text = wishlist.exportText()
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    app.contentResolver.openOutputStream(android.net.Uri.parse(uri), "wt")?.use { it.write(text.toByteArray(Charsets.UTF_8)) } ?: error("cannot write")
+                }
+            }.isSuccess
+            if (ok) com.cortinadev.dogmatix.util.ToastUtil.showSuccess(app, app.getString(R.string.wishlist_exported))
+            else com.cortinadev.dogmatix.util.ToastUtil.showError(app, app.getString(R.string.wishlist_export_failed))
+        }
+    }
+
+    /** Adds the wishes of the file at [uri] that are not on the list yet. */
+    fun import(context: android.content.Context, uri: String) {
+        val app = context.applicationContext
+        viewModelScope.launch {
+            val added = runCatching {
+                val text = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    app.contentResolver.openInputStream(android.net.Uri.parse(uri))?.use { it.readBytes().toString(Charsets.UTF_8) }
+                }
+                text?.let { wishlist.importText(it) }
+            }.getOrNull()
+            if (added == null) com.cortinadev.dogmatix.util.ToastUtil.showError(app, app.getString(R.string.wishlist_import_failed))
+            else if (added == 0) com.cortinadev.dogmatix.util.ToastUtil.showInfo(app, app.getString(R.string.wishlist_import_nothing))
+            else com.cortinadev.dogmatix.util.ToastUtil.showSuccess(app, app.resources.getQuantityString(R.plurals.wishlist_imported, added, added))
+        }
+    }
+
     /** Opens the library with this title already searched. */
     fun show(status: WishlistStatus) {
         pendingFilters.submit(LibraryFilterRequest(consoles = setOfNotNull(status.item.consoleId), query = status.item.title))
@@ -108,6 +139,12 @@ fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = 
             ) notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
         }, onDismiss = { showAdd = false })
     }
+    val exportLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.CreateDocument("application/json")
+    ) { uri -> uri?.let { viewModel.export(context, it.toString()) } }
+    val importLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+    ) { uri -> uri?.let { viewModel.import(context, it.toString()) } }
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         withFrameNanos { }
@@ -126,6 +163,16 @@ fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = 
                     listOf(if (ui.loading) stringResource(R.string.tools_scanning) else if (ui.items.isEmpty()) stringResource(R.string.wishlist_empty) else stringResource(R.string.wishlist_hint)),
                     { showAdd = true }, Modifier.focusRequester(firstFocus)
                 ) { PillButton(stringResource(R.string.wishlist_add_action)) { showAdd = true } }
+            }
+            item(key = "share") {
+                ToolRow(
+                    stringResource(R.string.wishlist_share),
+                    listOf(stringResource(R.string.wishlist_share_hint)),
+                    { importLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }
+                ) {
+                    PillButton(stringResource(R.string.wishlist_import)) { importLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }
+                    if (ui.items.isNotEmpty()) PillButton(stringResource(R.string.wishlist_export)) { exportLauncher.launch("dogmatix-wishlist.json") }
+                }
             }
             items(ui.items, key = { it.item.id }) { status ->
                 val found = status.matches > 0

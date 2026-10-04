@@ -74,6 +74,15 @@ class WishlistRepository @Inject constructor(
 
     suspend fun remove(id: Long) = dao.delete(id)
 
+    /** The wishlist as a file's text (see [WishlistShare]). */
+    suspend fun exportText(): String = com.cortinadev.dogmatix.util.WishlistShare.export(dao.getAll())
+
+    /** Adds the wishes in [text] that are not on the list yet; null when it is not a wishlist file. */
+    suspend fun importText(text: String): Int? {
+        val wishes = com.cortinadev.dogmatix.util.WishlistShare.parse(text) ?: return null
+        return wishes.count { add(it.title, it.consoleId) }
+    }
+
     suspend fun statuses(): List<WishlistStatus> =
         dao.getAll().sortedByDescending { it.addedAt }.map { status(it) }
 
