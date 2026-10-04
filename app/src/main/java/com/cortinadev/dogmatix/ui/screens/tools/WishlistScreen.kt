@@ -46,10 +46,12 @@ import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.util.ConsoleFormatter
+import com.cortinadev.dogmatix.util.WishlistMatch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -68,7 +70,8 @@ class WishlistViewModel @Inject constructor(
 
     init {
         // Re-read whenever the list changes; the match counts come from the library table.
-        viewModelScope.launch { wishlist.items.collect { reload() } }
+        // …and when the device's or the RomM server's games change ("already have it").
+        viewModelScope.launch { kotlinx.coroutines.flow.merge(wishlist.items, wishlist.haveChanges).conflate().collect { reload() } }
     }
 
     private suspend fun reload() {
@@ -127,11 +130,23 @@ fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = 
             items(ui.items, key = { it.item.id }) { status ->
                 val found = status.matches > 0
                 val console = status.item.consoleId?.let { ConsoleFormatter.getConsoleDisplayName(it) } ?: stringResource(R.string.wishlist_any_console)
+                val where = when (status.state) {
+                    WishlistMatch.State.ON_DEVICE -> stringResource(R.string.wishlist_on_device)
+                    WishlistMatch.State.IN_ROMM -> stringResource(R.string.wishlist_in_romm)
+                    WishlistMatch.State.IN_SOURCES -> pluralStringResource(R.plurals.wishlist_found, status.matches, status.matches)
+                    WishlistMatch.State.WANTED -> stringResource(R.string.wishlist_not_yet)
+                }
+                val badge = when (status.state) {
+                    WishlistMatch.State.ON_DEVICE -> stringResource(R.string.wishlist_badge_have)
+                    WishlistMatch.State.IN_ROMM -> stringResource(R.string.wishlist_badge_romm)
+                    WishlistMatch.State.IN_SOURCES -> stringResource(R.string.wishlist_badge_found)
+                    WishlistMatch.State.WANTED -> null
+                }
                 ToolRow(
                     status.item.title,
-                    listOf(console, if (found) pluralStringResource(R.plurals.wishlist_found, status.matches, status.matches) else stringResource(R.string.wishlist_not_yet)),
+                    listOf(console, where),
                     onClick = { if (found) { viewModel.show(status) } else viewModel.remove(status.item.id) },
-                    badge = if (found) ({ Badge(stringResource(R.string.wishlist_badge_found), warning = false) }) else null
+                    badge = badge?.let { text -> { Badge(text, warning = false) } }
                 ) {
                     if (found) PillButton(stringResource(R.string.wishlist_show)) { viewModel.show(status) }
                     PillButton(stringResource(R.string.wishlist_remove)) { viewModel.remove(status.item.id) }

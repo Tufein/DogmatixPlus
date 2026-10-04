@@ -13,19 +13,25 @@ import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.dao.WishlistDao
 import com.cortinadev.dogmatix.data.local.entity.WishlistEntity
 import com.cortinadev.dogmatix.data.state.RescanStateHolder
+import com.cortinadev.dogmatix.util.WishlistMatch
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** A wishlist entry and how many library rows match it right now. */
-data class WishlistStatus(val item: WishlistEntity, val matches: Int)
+/** A wishlist entry, how many library rows match it right now, and whether the game is already had. */
+data class WishlistStatus(
+    val item: WishlistEntity,
+    val matches: Int,
+    val state: WishlistMatch.State = WishlistMatch.state(false, false, matches)
+)
 
 /**
  * Games the user wants that no source lists yet. After every source scan the library is searched
@@ -40,11 +46,17 @@ class WishlistRepository @Inject constructor(
     private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings,
     private val settingsRepository: SettingsRepository,
     private val downloadService: com.cortinadev.dogmatix.data.service.DownloadService,
-    private val libraryIndex: dagger.Lazy<com.cortinadev.dogmatix.data.service.LibraryIndexService>
+    private val libraryIndex: dagger.Lazy<com.cortinadev.dogmatix.data.service.LibraryIndexService>,
+    private val rommLibrary: dagger.Lazy<com.cortinadev.dogmatix.data.service.RommLibraryService>
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     val items: Flow<List<WishlistEntity>> = dao.observeAll()
+
+    /** Moves when what the device or the RomM server has changes (the "have" part of [status]). */
+    val haveChanges: Flow<Any> = kotlinx.coroutines.flow.flow {
+        emitAll(kotlinx.coroutines.flow.merge(libraryIndex.get().ownedKeys, rommLibrary.get().keys))
+    }
 
     init {
         // A finished source scan (the time moves) may have brought a wanted game into the library.
@@ -63,13 +75,25 @@ class WishlistRepository @Inject constructor(
     suspend fun remove(id: Long) = dao.delete(id)
 
     suspend fun statuses(): List<WishlistStatus> =
-        dao.getAll().sortedByDescending { it.addedAt }.map { WishlistStatus(it, matches(it)) }
+        dao.getAll().sortedByDescending { it.addedAt }.map { status(it) }
+
+    /** Library matches plus whether the device or the RomM server already has the game. */
+    suspend fun status(item: WishlistEntity): WishlistStatus {
+        val matches = matches(item)
+        val owned = libraryIndex.get().ownedKeys.value
+        val scopes = item.consoleId?.let { com.cortinadev.dogmatix.util.LibraryKeys.scopesFor(it) }
+        val onDevice = WishlistMatch.onDevice(item.title, scopes, owned)
+        val inRomm = !onDevice && WishlistMatch.inRomm(item.title, item.consoleId, rommLibrary.get().keys.value)
+        return WishlistStatus(item, matches, WishlistMatch.state(onDevice, inRomm, matches))
+    }
 
     suspend fun matches(item: WishlistEntity): Int = if (item.key.isEmpty()) 0 else fileDao.countMatching(item.key, item.consoleId)
 
     /** Marks and announces wanted games that are in the library now; returns them. */
     suspend fun checkAndNotify(): List<WishlistEntity> {
+        // A game already on the device or on the RomM server is not announced nor downloaded again.
         val found = dao.getAll().filter { it.notifiedAt == null && matches(it) > 0 }
+            .filter { WishlistMatch.stillWanted(status(it).state) }
         if (found.isEmpty()) return emptyList()
         val now = System.currentTimeMillis()
         found.forEach { dao.markNotified(it.id, now) }
