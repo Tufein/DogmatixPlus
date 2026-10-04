@@ -1023,6 +1023,11 @@
     </plurals>
     <string name="settings_esde_artwork">Cover für ES-DE</string>
     <string name="settings_esde_artwork_hint">Nach einem Download: Cover und Beschreibung im ES-DE-Ordner (Cocoons ES-DE-Verknüpfung sieht sie auch)</string>
+    <string name="settings_pegasus_artwork">Cover für Pegasus</string>
+    <string name="settings_pegasus_artwork_hint">Nach einem Download: das Cover in media/&lt;Spiel&gt;/boxFront neben dem Spiel, wo Pegasus sucht</string>
+    <string name="settings_retroarch_artwork">Cover für RetroArch</string>
+    <string name="settings_retroarch_artwork_hint">Nicht gesetzt · wähle RetroArchs thumbnails-Ordner; nach einem Download kommt die Box-Art dorthin für die Playlists</string>
+    <string name="settings_retroarch_artwork_off">Aus</string>
     <string name="settings_profiles">Profile</string>
     <string name="settings_profiles_hint">Konsolen oder Tags ausblenden, für ein Kind oder ein Sofa-Profil</string>
     <string name="settings_profiles_active">Aktiv: %1$s</string>

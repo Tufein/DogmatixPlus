@@ -1028,6 +1028,11 @@
     </plurals>
     <string name="settings_esde_artwork">Jaquettes pour ES-DE</string>
     <string name="settings_esde_artwork_hint">Après un téléchargement : jaquette et description dans le dossier d\'ES-DE (le lien ES-DE de Cocoon les voit aussi)</string>
+    <string name="settings_pegasus_artwork">Jaquettes pour Pegasus</string>
+    <string name="settings_pegasus_artwork_hint">Après un téléchargement : la jaquette dans media/&lt;jeu&gt;/boxFront à côté du jeu, là où Pegasus regarde</string>
+    <string name="settings_retroarch_artwork">Jaquettes pour RetroArch</string>
+    <string name="settings_retroarch_artwork_hint">Non défini · choisissez le dossier thumbnails de RetroArch ; après un téléchargement la jaquette y va pour ses playlists</string>
+    <string name="settings_retroarch_artwork_off">Désactiver</string>
     <string name="settings_profiles">Profils</string>
     <string name="settings_profiles_hint">Masquer des consoles ou des tags, pour un enfant ou un profil canapé</string>
     <string name="settings_profiles_active">Actif : %1$s</string>

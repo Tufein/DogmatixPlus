@@ -3,6 +3,26 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [Unreleased]
+
+### Wishlist
+- **Already have it?** A wanted game that is on the device (in the download folders) or on your
+  RomM server now says so — *Already on this device* / *Already on your RomM server*, with a
+  *Have* / *RomM* badge — instead of "Not in the library yet". Such a game is not announced or
+  downloaded automatically when a source lists it. Every word of the wish must be in the name, and
+  a wish for one console only looks at that console. RomM counts when *Mark games already in RomM*
+  is on (the default once RomM is set up).
+
+### Covers for more frontends
+- **Pegasus** (*Settings → Covers for Pegasus*): after a download the cover goes to
+  `media/<game>/boxFront.<ext>` next to the game, where Pegasus looks when the console's
+  `metadata.pegasus.txt` sits in that folder. A `boxFront` already there is left alone.
+- **RetroArch** (*Settings → Covers for RetroArch*, pick RetroArch's `thumbnails` folder): after a
+  download the libretro-thumbnails box art goes to
+  `<system>/Named_Boxarts/<game>.png`, the names RetroArch's playlists use
+  (`Nintendo - Game Boy Advance/Named_Boxarts/Advance Wars (USA).png`). PNG only, as RetroArch reads
+  it; an existing thumbnail is left alone.
+
 ## [3.1.0] – 2026-10-04 · Dogmatix+
 
 ### Downloads

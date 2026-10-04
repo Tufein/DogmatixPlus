@@ -124,6 +124,7 @@ fun SettingsScreen(
     val v2 by extra.v2.collectAsState()
     val v25 by extra.v25.collectAsState()
     val v30 by extra.v30.collectAsState()
+    val v32 by extra.v32.collectAsState()
     val activeProfileName by extra.activeProfileName.collectAsState()
     val updateOffer by extra.updateOffer.collectAsState()
     val updateProgress by extra.updateProgress.collectAsState()
@@ -132,6 +133,12 @@ fun SettingsScreen(
         uri?.let {
             context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             extra.setAutoBackupDir(context, it.toString())
+        }
+    }
+    val retroArchThumbsLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        uri?.let {
+            context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            extra.setRetroArchThumbnailsDir(context, it.toString())
         }
     }
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -757,6 +764,25 @@ fun SettingsScreen(
                 onClick = { extra.setEsdeArtwork(context, !v30.esdeArtwork) },
                 onAdjust = { extra.setEsdeArtwork(context, it > 0) }
             ) { ThemedSwitch(v30.esdeArtwork) { extra.setEsdeArtwork(context, it) } }
+        },
+        SettingsRow(right = false) {
+            SettingRow(
+                title = stringResource(R.string.settings_pegasus_artwork),
+                hint = stringResource(R.string.settings_pegasus_artwork_hint),
+                onClick = { extra.setPegasusArtwork(context, !v32.pegasusArtwork) },
+                onAdjust = { extra.setPegasusArtwork(context, it > 0) }
+            ) { ThemedSwitch(v32.pegasusArtwork) { extra.setPegasusArtwork(context, it) } }
+        },
+        SettingsRow(right = false) {
+            SettingRow(
+                title = stringResource(R.string.settings_retroarch_artwork),
+                hint = v32.retroArchThumbnailsDir.takeIf { it.isNotBlank() }?.let { com.cortinadev.dogmatix.util.FileParsingUtils.toUserReadablePath(it) }
+                    ?: stringResource(R.string.settings_retroarch_artwork_hint),
+                onClick = { retroArchThumbsLauncher.launch(null) }
+            ) {
+                if (v32.retroArchThumbnailsDir.isNotBlank()) PillButton(stringResource(R.string.settings_retroarch_artwork_off)) { extra.setRetroArchThumbnailsDir(context, "") }
+                PillButton(stringResource(R.string.settings_change)) { retroArchThumbsLauncher.launch(null) }
+            }
         },
         SettingsRow(right = false) {
             SettingRow(

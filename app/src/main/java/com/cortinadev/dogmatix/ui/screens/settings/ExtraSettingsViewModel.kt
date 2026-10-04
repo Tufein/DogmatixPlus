@@ -59,6 +59,9 @@ data class V30SettingsState(
     val queueSummary: Boolean = true
 )
 
+/** The settings added in 3.2. */
+data class V32SettingsState(val pegasusArtwork: Boolean = false, val retroArchThumbnailsDir: String = "")
+
 @HiltViewModel
 class ExtraSettingsViewModel @Inject constructor(
     private val autoBackupScheduler: com.cortinadev.dogmatix.data.service.AutoBackupScheduler,
@@ -99,6 +102,12 @@ class ExtraSettingsViewModel @Inject constructor(
         combine(appSettings.autoM3u, appSettings.queueSummary) { m, s -> m to s }
     ) { (r, q, p), art, wish, (m3u, summary) -> V30SettingsState(r, q, p, art, wish, m3u, summary) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V30SettingsState())
+
+    val v32: StateFlow<V32SettingsState> = combine(appSettings.pegasusArtwork, appSettings.retroArchThumbnailsDir) { p, r -> V32SettingsState(p, r) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), V32SettingsState())
+
+    fun setPegasusArtwork(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setPegasusArtwork(on) }
+    fun setRetroArchThumbnailsDir(context: Context, uri: String) = executeWithToast(context, TAG) { appSettings.setRetroArchThumbnailsDir(uri) }
 
     fun setResume(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setResumeDownloads(on) }
     fun setRequeue(context: Context, on: Boolean) = executeWithToast(context, TAG) { appSettings.setRequeueAfterRestart(on) }

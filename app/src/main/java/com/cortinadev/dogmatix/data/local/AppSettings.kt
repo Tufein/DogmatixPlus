@@ -36,6 +36,8 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
         val REQUEUE_AFTER_RESTART = booleanPreferencesKey("requeue_after_restart")
         val PER_SERVER_LIMIT = intPreferencesKey("per_server_limit")
         val ESDE_ARTWORK = booleanPreferencesKey("esde_artwork")
+        val PEGASUS_ARTWORK = booleanPreferencesKey("pegasus_artwork")
+        val RETROARCH_THUMBNAILS_DIR = androidx.datastore.preferences.core.stringPreferencesKey("retroarch_thumbnails_dir")
         val WISHLIST_AUTO_DOWNLOAD = booleanPreferencesKey("wishlist_auto_download")
         val RA_USER = androidx.datastore.preferences.core.stringPreferencesKey("ra_user")
         val RA_KEY = androidx.datastore.preferences.core.stringPreferencesKey("ra_api_key")
@@ -81,6 +83,10 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
     val perServerLimit: Flow<Int> = context.dataStore.data.map { it[Keys.PER_SERVER_LIMIT] ?: 0 }
     /** After a download, save cover and description where ES-DE (and Cocoon's ES-DE link) read them. */
     val esdeArtwork: Flow<Boolean> = context.dataStore.data.map { it[Keys.ESDE_ARTWORK] ?: false }
+    /** After a download, the cover goes to `media/<game>/boxFront.<ext>` next to the game, where Pegasus looks. */
+    val pegasusArtwork: Flow<Boolean> = context.dataStore.data.map { it[Keys.PEGASUS_ARTWORK] ?: false }
+    /** RetroArch's thumbnails folder; covers for its playlists go there after a download. Empty = off. */
+    val retroArchThumbnailsDir: Flow<String> = context.dataStore.data.map { it[Keys.RETROARCH_THUMBNAILS_DIR] ?: "" }
     /** A wanted game that turns up in a source is downloaded straight away (best version). */
     val wishlistAutoDownload: Flow<Boolean> = context.dataStore.data.map { it[Keys.WISHLIST_AUTO_DOWNLOAD] ?: false }
     val raUser: Flow<String> = context.dataStore.data.map { it[Keys.RA_USER] ?: "" }
@@ -104,6 +110,8 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
     suspend fun setRequeueAfterRestart(on: Boolean) = context.dataStore.edit { it[Keys.REQUEUE_AFTER_RESTART] = on }
     suspend fun setPerServerLimit(n: Int) = context.dataStore.edit { it[Keys.PER_SERVER_LIMIT] = n.coerceIn(0, 10) }
     suspend fun setEsdeArtwork(on: Boolean) = context.dataStore.edit { it[Keys.ESDE_ARTWORK] = on }
+    suspend fun setPegasusArtwork(on: Boolean) = context.dataStore.edit { it[Keys.PEGASUS_ARTWORK] = on }
+    suspend fun setRetroArchThumbnailsDir(uri: String) = context.dataStore.edit { it[Keys.RETROARCH_THUMBNAILS_DIR] = uri }
     suspend fun setWishlistAutoDownload(on: Boolean) = context.dataStore.edit { it[Keys.WISHLIST_AUTO_DOWNLOAD] = on }
     suspend fun setRetroAchievements(user: String, key: String) = context.dataStore.edit { it[Keys.RA_USER] = user.trim(); it[Keys.RA_KEY] = key.trim() }
     suspend fun setAutoM3u(on: Boolean) = context.dataStore.edit { it[Keys.AUTO_M3U] = on }
