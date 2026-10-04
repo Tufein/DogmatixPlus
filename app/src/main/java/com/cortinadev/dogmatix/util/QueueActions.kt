@@ -30,6 +30,14 @@ object QueueActions {
         return Counts(stop, retry, clear)
     }
 
+    /**
+     * A torrent pauses while it transfers; a web download also while it waits in the queue, since
+     * its partial file (if any) stays and *Resume* continues from it. Unpacking or copying never pauses.
+     */
+    fun canPause(status: DownloadStatus, isTorrent: Boolean): Boolean =
+        if (isTorrent) status == DownloadStatus.DOWNLOADING
+        else status == DownloadStatus.DOWNLOADING || status == DownloadStatus.QUEUED
+
     fun stoppable(list: List<DownloadItemModel>): List<String> =
         list.filter { it.status == DownloadStatus.QUEUED || it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.UNZIPPING }.map { it.fileName }
 

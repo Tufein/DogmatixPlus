@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import dagger.hilt.android.qualifiers.ApplicationContext
+import com.cortinadev.dogmatix.util.QueueActions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -294,16 +295,24 @@ class DownloadService @Inject constructor(
         }
     }
 
-    /** Parks a torrent download: cache and handle survive, so retry resumes from disk. */
+    /**
+     * Parks a download. A torrent keeps its cache and handle, so retry resumes from disk. A web
+     * download (queued or running) keeps its partial file, and *Resume* continues it with a `Range`
+     * request (see [PartialDownloads]); a paused download is not put back in the queue after a restart.
+     */
     fun pauseDownload(fileName: String) {
         val entity = downloadEntities[fileName] ?: return
-        if (!entity.isTorrent || !downloadProgressTracker.isActive(fileName)) return
+        val status = downloadProgressTracker.getDownloads().firstOrNull { it.fileName == fileName }?.status ?: return
+        if (!QueueActions.canPause(status, entity.isTorrent)) return
         pausingFiles.add(fileName)
-        downloadJobs.remove(fileName)?.cancel()
-        serviceScope.launch {
+        val job = downloadJobs.remove(fileName)
+        job?.cancel()
+        if (entity.isTorrent) serviceScope.launch {
             torrentDownloadService.pauseDownload(entity)
             updateStatus(fileName, DownloadStatus.PAUSED)
         }
+        // Web: the cancelled job lands on PAUSED itself (see launchJob). No job: nothing runs, so nothing to pause.
+        else if (job == null) pausingFiles.remove(fileName)
     }
 
     fun retryDownload(fileName: String) {

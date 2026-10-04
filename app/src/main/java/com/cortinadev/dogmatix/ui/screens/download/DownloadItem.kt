@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.download
 
+import com.cortinadev.dogmatix.util.QueueActions
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -142,7 +143,7 @@ fun DownloadItem(
     val isTorrent = details?.file?.isTorrent == true
     val primaryAction: () -> Unit = {
         when {
-            status == DownloadStatus.DOWNLOADING && isTorrent -> viewModel.pauseDownload(item.fileName)
+            details != null && QueueActions.canPause(status, isTorrent) -> viewModel.pauseDownload(item.fileName)
             status == DownloadStatus.QUEUED || status == DownloadStatus.DOWNLOADING || status == DownloadStatus.UNZIPPING ->
                 scope.launch { viewModel.cancelDownload(item.fileName) }
             status == DownloadStatus.COMPLETED || status == DownloadStatus.STOPPED ||
@@ -256,7 +257,7 @@ fun DownloadItem(
             }
             when (if (selectionMode) null else status) {
                 DownloadStatus.QUEUED, DownloadStatus.DOWNLOADING, DownloadStatus.UNZIPPING -> {
-                    if (status == DownloadStatus.DOWNLOADING && isTorrent) {
+                    if (details != null && QueueActions.canPause(status, isTorrent)) {
                         ActionButton(R.drawable.ic_pause, stringResource(R.string.download_pause), actionSize, scheme.onSurface) {
                             viewModel.pauseDownload(item.fileName)
                         }
