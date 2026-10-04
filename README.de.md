@@ -31,6 +31,10 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 3.5
+- **Kein „App reagiert nicht“ mehr**, nachdem eine ganze Konsole in die Warteschlange kam, und *Alle herunterladen* nimmt jetzt ein ganzes Konsolen-Set auf einmal.
+- **Einstellungen und Tools in klaren Gruppen**, **Warteschlange anhalten**, die **Restzeit** der Warteschlange und ein kurzes **Was ist neu** nach einem Update.
+
 ### Neu in 3.3
 - **Fehlgeschlagene Downloads starten von selbst neu** und werden **nach dem Download mit deiner DAT verglichen**.
 - **Die ganze Bibliothek auf einen anderen Speicher verschieben** (z. B. die SD-Karte), **hochladen, was RomM fehlt**, **die Wunschliste als Datei teilen** und ein **Frontend-Check** unter Tools.

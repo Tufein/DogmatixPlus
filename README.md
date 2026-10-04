@@ -31,6 +31,10 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
+### New in 3.5
+- **No more "app isn't responding"** after queueing a whole console, and *Download all* now takes a whole console set at once.
+- **Settings and Tools in clear groups**, **hold the queue**, the **time left** for the queue, and a short **what's new** after an update.
+
 ### New in 3.3
 - **Failed downloads retry by themselves** and are **checked against your DAT** as soon as they finish.
 - **Move the whole library** to another storage (for example the SD card), **upload what RomM lacks**, **share the wishlist** as a file, and a **frontend check** in Tools.

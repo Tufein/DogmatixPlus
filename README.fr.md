@@ -31,6 +31,10 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveau dans 3.5
+- **Plus de « l’application ne répond pas »** après avoir mis toute une console en file, et *Tout télécharger* prend maintenant toute une console d’un coup.
+- **Paramètres et Outils en groupes clairs**, **mettre la file en pause**, le **temps restant** de la file, et un court **quoi de neuf** après une mise à jour.
+
 ### Nouveau dans 3.3
 - **Les téléchargements échoués se relancent tout seuls** et sont **comparés à votre DAT** dès qu’ils sont terminés.
 - **Déplacer toute la bibliothèque** vers un autre stockage (par exemple la carte SD), **envoyer ce qui manque à RomM**, **partager la liste de souhaits** en fichier, et un **contrôle des frontends** dans Outils.

@@ -31,6 +31,10 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 3.5
+- **Se acabó el «la aplicación no responde»** tras poner en cola una consola entera, y *Descargar todo* acepta ahora una consola entera de una vez.
+- **Ajustes y Herramientas en grupos claros**, **pausar la cola**, el **tiempo restante** de la cola y un breve **novedades** tras una actualización.
+
 ### Novedades de 3.3
 - **Las descargas fallidas se reintentan solas** y se **comprueban con tu DAT** en cuanto terminan.
 - **Mover toda la biblioteca** a otro almacenamiento (por ejemplo la tarjeta SD), **subir lo que le falta a RomM**, **compartir la lista de deseos** como archivo, y una **comprobación de frontends** en Herramientas.
