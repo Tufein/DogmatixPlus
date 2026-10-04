@@ -373,6 +373,15 @@ Everything is also reachable by touch; the legend only appears while a controlle
 Planned features, in no particular order:
 
 - Try everything in 1.2.0-alpha.1 against real RomM servers and a real handheld, and fix what that shows (certificate trust, resumed uploads, deletion sync, background sync, covers, the schedule and the checksum check have only been covered by unit tests so far).
+- Covers for iiSU and Daijishō. Neither has a known folder where it reads covers; find out on a real device first, then reuse `FrontendArtwork`.
+- Save sync for emulators whose saves are not named after the ROM: DuckStation and PPSSPP (memory cards and `SAVEDATA/<title id>` folders), matched to a game by serial or title id instead of by file name.
+- Move the library to another storage (internal ↔ SD card) from the storage overview, with the free-space check, a progress notification and the library index kept in step.
+- Upload ROMs to RomM: push games that are on the device but not on the server, reusing the resumable chunked upload of save sync.
+- Retry failed downloads by themselves when the network or the schedule allows it again, with a growing wait between attempts and a limit, next to the manual *Retry failed* button.
+- Verify a game right after its download against the DAT set (or RomM's hash) and show the result on the finished download, instead of only in the library tools.
+- Share the wishlist between devices (QR or file), like the sources export already does for favourites.
+- An in-app first-run check of the frontend setup (ES-DE, Pegasus, RetroArch, iiSU, Daijishō): which folders are set, which covers and shortcuts are missing, one tap to fix.
+- Housekeeping: UI tests on an emulator in CI, a lint step (ktlint or detekt) next to the unit tests, and a note in the release notes when a database migration is included.
 - ~~A "wanted" status from the wishlist that also checks RomM's library, and cover art for frontends other than ES-DE~~ — done in 3.2.0 (wishlist: on the device / on RomM; covers for Pegasus and RetroArch).
 - ~~Per-console save folders for standalone emulators~~ — done in 3.1.0 (*Save sync → Add an emulator's saves folder*).
 - ~~Mark games already in RomM as owned in the library~~ — done in 1.2.0-alpha.1.
