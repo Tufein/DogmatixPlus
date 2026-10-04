@@ -31,6 +31,10 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 3.3
+- **Mislukte downloads proberen het vanzelf opnieuw** en worden **met je DAT vergeleken** zodra ze klaar zijn.
+- **De hele bibliotheek verplaatsen** naar een andere opslag (bijvoorbeeld de SD-kaart), **uploaden wat RomM mist**, **de verlanglijst delen** als bestand, en een **frontend-controle** bij Tools.
+
 ### Nieuw in 3.2
 - **De verlanglijst weet wat je al hebt**: games die al op het apparaat of op je RomM-server staan worden gemarkeerd en niet opnieuw gedownload.
 - **Covers voor Pegasus en RetroArch** na elke download, naast die voor ES-DE.

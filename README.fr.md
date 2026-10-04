@@ -31,6 +31,10 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveau dans 3.3
+- **Les téléchargements échoués se relancent tout seuls** et sont **comparés à votre DAT** dès qu’ils sont terminés.
+- **Déplacer toute la bibliothèque** vers un autre stockage (par exemple la carte SD), **envoyer ce qui manque à RomM**, **partager la liste de souhaits** en fichier, et un **contrôle des frontends** dans Outils.
+
 ### Nouveau dans 3.2
 - **La liste de souhaits sait ce que vous avez déjà** : les jeux déjà sur l'appareil ou sur votre serveur RomM sont signalés et ne sont pas retéléchargés.
 - **Jaquettes pour Pegasus et RetroArch** après chaque téléchargement, en plus de celles pour ES-DE.
