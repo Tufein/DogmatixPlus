@@ -176,9 +176,9 @@ class DownloadViewModel @Inject constructor(
 
     fun stopSelected() = runOnSelection({ it.status.canStop }) { repository.cancelDownload(it.fileName) }
 
-    /** Only torrents can be paused; the rest have no resumable session to hold. */
-    fun pauseSelected() = runOnSelection({
-        it.status == DownloadStatus.DOWNLOADING && downloadDetails.value[it.fileName]?.file?.isTorrent == true
+    /** Torrents while they transfer, web downloads also while queued (they keep their partial file). */
+    fun pauseSelected() = runOnSelection({ item ->
+        downloadDetails.value[item.fileName]?.let { QueueActions.canPause(item.status, it.file.isTorrent) } == true
     }) { repository.pauseDownload(it.fileName) }
 
     /**

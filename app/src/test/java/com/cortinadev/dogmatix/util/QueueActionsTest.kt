@@ -34,4 +34,14 @@ class QueueActionsTest {
     @Test fun emptyQueueHasNothingToDo() {
         assertFalse(QueueActions.counts(emptyList()).any)
     }
+
+    @Test fun webDownloadsPauseWhileQueuedTorrentsOnlyWhileTransferring() {
+        assertTrue(QueueActions.canPause(DownloadStatus.DOWNLOADING, isTorrent = false))
+        assertTrue(QueueActions.canPause(DownloadStatus.QUEUED, isTorrent = false))
+        assertTrue(QueueActions.canPause(DownloadStatus.DOWNLOADING, isTorrent = true))
+        assertFalse(QueueActions.canPause(DownloadStatus.QUEUED, isTorrent = true))
+        assertFalse(QueueActions.canPause(DownloadStatus.UNZIPPING, isTorrent = false))
+        assertFalse(QueueActions.canPause(DownloadStatus.COPYING, isTorrent = false))
+        assertFalse(QueueActions.canPause(DownloadStatus.PAUSED, isTorrent = false))
+    }
 }

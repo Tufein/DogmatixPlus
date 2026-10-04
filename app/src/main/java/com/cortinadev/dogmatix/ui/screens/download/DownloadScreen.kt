@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.download
 
+import com.cortinadev.dogmatix.util.QueueActions
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -310,7 +311,7 @@ private fun SelectionBar(
         if (selected.any { it.status.canRetry }) {
             add(BulkAction(R.drawable.ic_retry, stringResource(R.string.download_retry), scheme.onSurface, onRetry))
         }
-        if (selected.any { it.status == DownloadStatus.DOWNLOADING && details[it.fileName]?.file?.isTorrent == true }) {
+        if (selected.any { d -> details[d.fileName]?.let { QueueActions.canPause(d.status, it.file.isTorrent) } == true }) {
             add(BulkAction(R.drawable.ic_pause, stringResource(R.string.download_pause), scheme.onSurface, onPause))
         }
         if (selected.any { it.status.canStop }) {
