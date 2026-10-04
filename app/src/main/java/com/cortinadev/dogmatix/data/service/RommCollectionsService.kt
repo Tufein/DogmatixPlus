@@ -22,7 +22,8 @@ class RommCollectionsService @Inject constructor(
     private val romm: RommClient,
     private val collections: CollectionsRepository,
     private val collectionDao: CollectionDao,
-    private val fileDao: DownloadableFileDao
+    private val fileDao: DownloadableFileDao,
+    private val favouriteDao: com.cortinadev.dogmatix.data.local.dao.FavouriteDao
 ) {
     data class Result(val collections: Int, val games: Int, val skipped: Int)
 
@@ -30,12 +31,26 @@ class RommCollectionsService @Inject constructor(
     private suspend fun rommRows(): Map<Int, Pair<String, String>> =
         fileDao.rommRows().mapNotNull { r -> RommSource.romIdOf(r.downloadUrl)?.let { it to (r.consoleId to r.fileName) } }.toMap()
 
+    private var cachedId: Int? = null
+    private suspend fun myId(): Int? = cachedId ?: romm.myUserId().also { cachedId = it }
+
     suspend fun pull(): Result = withContext(Dispatchers.IO) {
         val rows = rommRows()
         var games = 0
         var skipped = 0
         val remote = romm.collections()
         remote.forEach { c ->
+            if (c.isFavourite) {
+                // RomM's hearts become stars here, not a collection called "Favourites".
+                if (c.userId != null && c.userId != myId()) return@forEach
+                val have = favouriteDao.getAll().map { it.consoleId to it.fileName }.toSet()
+                val items = c.romIds.mapNotNull { rows[it] }
+                skipped += c.romIds.size - items.size
+                val fresh = items.filter { it !in have }
+                favouriteDao.upsertAll(fresh.map { (console, file) -> com.cortinadev.dogmatix.data.local.entity.FavouriteEntity(console, file) })
+                games += fresh.size
+                return@forEach
+            }
             val id = collections.create(c.name) ?: return@forEach
             val have = collectionDao.itemsOf(id).map { it.consoleId to it.fileName }.toSet()
             val items = c.romIds.mapNotNull { rows[it] }
@@ -49,7 +64,12 @@ class RommCollectionsService @Inject constructor(
 
     suspend fun push(): Result = withContext(Dispatchers.IO) {
         val byKey = rommRows().entries.associate { (romId, key) -> key to romId }
-        val remote = romm.collections().associateBy { it.name.lowercase() }
+        // Only the account's own collections can be changed; another user's public one of the
+        // same name gets a twin of ours instead of a permission error.
+        val me = myId()
+        val remote = romm.collections()
+            .filter { !it.isFavourite && (me == null || it.userId == null || it.userId == me) }
+            .associateBy { it.name.lowercase() }
         var games = 0
         var skipped = 0
         val local = collectionDao.getAll()

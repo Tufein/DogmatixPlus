@@ -83,6 +83,16 @@ class DownloadProgressTracker @Inject constructor(
         }
     }
 
+    /** A download started without a known size (a shared link) takes the size the server announces. */
+    fun learnFileSize(fileName: String, size: Long) {
+        if (size <= 0) return
+        var learned = false
+        _downloads.update { list ->
+            list.map { if (it.fileName == fileName && it.fileSize <= 0) it.copy(fileSize = size).also { learned = true } else it }
+        }
+        if (learned) persistScope.launch { runCatching { historyDao.setFileSize(fileName, size) } }
+    }
+
     fun addDownload(downloadItem: DownloadItemModel) {
         _downloads.update { list -> list.filter { it.fileName != downloadItem.fileName } + downloadItem }
     }

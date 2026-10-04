@@ -37,6 +37,7 @@ import com.cortinadev.dogmatix.data.service.BiosReport
 import com.cortinadev.dogmatix.data.service.BiosService
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.util.BiosCatalog
+import com.cortinadev.dogmatix.util.BiosNote
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -132,5 +133,19 @@ private fun fileLine(f: BiosCatalog.FileResult): String {
         BiosCatalog.State.MISSING -> stringResource(if (f.file.required) R.string.bios_file_missing else R.string.bios_file_missing_optional)
         BiosCatalog.State.PRESENT_UNCHECKED -> stringResource(R.string.bios_file_present)
     }
-    return listOfNotNull(f.file.path, state, f.file.note.takeIf { it.isNotBlank() }).joinToString(" · ")
+    val note = f.file.note?.let { stringResource(noteText(it)) }
+    return listOfNotNull(f.file.path, state, note, f.file.label.takeIf { it.isNotBlank() }).joinToString(" · ")
+}
+
+private fun noteText(note: BiosNote): Int = when (note) {
+    BiosNote.JAPAN -> R.string.bios_note_japan
+    BiosNote.USA -> R.string.bios_note_usa
+    BiosNote.EUROPE -> R.string.bios_note_europe
+    BiosNote.USA_OLDER -> R.string.bios_note_usa_older
+    BiosNote.USA_EUROPE -> R.string.bios_note_usa_europe
+    BiosNote.PS2_ANY -> R.string.bios_note_ps2_any
+    BiosNote.GBA_OPTIONAL -> R.string.bios_note_gba_optional
+    BiosNote.BOOT_LOGO -> R.string.bios_note_boot_logo
+    BiosNote.ORIGINAL_BIOS_MODE -> R.string.bios_note_original_bios_mode
+    BiosNote.NEOGEO_SET -> R.string.bios_note_neogeo_set
 }

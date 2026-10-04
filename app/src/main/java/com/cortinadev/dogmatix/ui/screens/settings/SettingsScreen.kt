@@ -592,7 +592,7 @@ fun SettingsScreen(
                 title = stringResource(R.string.settings_auto_backup),
                 hint = when {
                     v25.autoBackup && v25.autoBackupDir.isBlank() -> stringResource(R.string.settings_auto_backup_pick)
-                    v25.autoBackupLast > 0 -> stringResource(R.string.settings_auto_backup_last, android.text.format.DateUtils.getRelativeTimeSpanString(v25.autoBackupLast).toString())
+                    v25.autoBackupLast > 0 -> stringResource(R.string.settings_auto_backup_last, android.text.format.DateUtils.formatDateTime(context, v25.autoBackupLast, android.text.format.DateUtils.FORMAT_SHOW_DATE or android.text.format.DateUtils.FORMAT_SHOW_TIME or android.text.format.DateUtils.FORMAT_ABBREV_MONTH))
                     else -> stringResource(R.string.settings_auto_backup_hint)
                 },
                 onClick = { extra.setAutoBackup(context, !v25.autoBackup) },

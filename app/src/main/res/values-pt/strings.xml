@@ -859,13 +859,12 @@
     <string name="nav_stats">Estatísticas</string>
     <string name="tools_stats_hint">Transferências por mês e consola, e como cresce a biblioteca</string>
     <string name="stats_downloads_total">%1$d transferências · %2$s no total</string>
-    <string name="stats_library">%1$d jogos na biblioteca · %2$d favoritos · %3$d coleções</string>
+    <string name="stats_library">Biblioteca: %1$d jogos · favoritos: %2$d · coleções: %3$d</string>
     <string name="stats_per_month">Transferências por mês</string>
     <string name="stats_per_console">Consolas mais transferidas</string>
     <string name="stats_new_per_week">Jogos novos por semana</string>
     <string name="stats_new_per_week_hint">Encontrados nas novas análises das fontes</string>
     <string name="stats_this_week">Esta semana</string>
-    <string name="stats_weeks_ago">Há %1$d semanas</string>
     <string name="romm_collections_pull">Do RomM</string>
     <string name="romm_collections_push">Para o RomM</string>
     <string name="romm_collections_pulled">%1$d coleções do RomM · %2$d jogos adicionados · %3$d fora da biblioteca</string>
@@ -884,7 +883,7 @@
     <string name="share_add_folder">Adicionar pasta como fonte</string>
     <string name="share_add_source">Adicionar como fonte</string>
     <string name="share_source_added">Fonte adicionada; a analisar</string>
-    <string name="filter_view">Vista guardada</string>
+    <string name="filter_view">Vista</string>
     <string name="view_save">Guardar estes filtros</string>
     <string name="view_save_hint">Dá-lhes um nome; abre-os depois com um toque ou como atalho no ES-DE</string>
     <string name="view_saved">Guardado como %1$s</string>
@@ -893,7 +892,6 @@
     <string name="views_empty">Nenhuma: define filtros na biblioteca e toca na estrela junto ao número de resultados</string>
     <string name="view_shortcut">Atalho</string>
     <string name="view_shortcut_needs_console">Um atalho precisa de pelo menos uma consola</string>
-    <string name="view_shortcut_done">Atalho colocado em %1$d pasta(s) de consola</string>
     <string name="view_shortcut_failed">Não foi possível (a pasta da consola está definida?)</string>
     <string name="second_screen_idle">Percorre a biblioteca: o jogo sob o cursor aparece aqui</string>
     <string name="second_screen_downloads">A transferir (%1$d)</string>
@@ -915,6 +913,16 @@
     <string name="settings_auto_backup_folder">Pasta das cópias</string>
     <string name="settings_second_screen">Segundo ecrã</string>
     <string name="settings_second_screen_hint">Em portáteis de dois ecrãs ou numa TV: detalhes e transferências lá</string>
+    <string name="bios_note_japan">Japão</string>
+    <string name="bios_note_usa">EUA</string>
+    <string name="bios_note_europe">Europa</string>
+    <string name="bios_note_usa_older">EUA (antigo)</string>
+    <string name="bios_note_usa_europe">EUA / Europa</string>
+    <string name="bios_note_ps2_any">Qualquer dump de BIOS PS2 (4 MB), como usam AetherSX2 / NetherSX2</string>
+    <string name="bios_note_gba_optional">a maioria dos jogos funciona sem ela</string>
+    <string name="bios_note_boot_logo">só o logótipo de arranque</string>
+    <string name="bios_note_original_bios_mode">só com o modo BIOS original</string>
+    <string name="bios_note_neogeo_set">o conjunto de BIOS MAME / FBNeo (as versões variam)</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save mudou nos dois lados — abre o Dogmatix para escolher</item>
         <item quantity="other">%d saves mudaram nos dois lados — abre o Dogmatix para escolher</item>
@@ -1038,6 +1046,14 @@
     <plurals name="switch_dlc_missing">
         <item quantity="one">%1$d DLC não está no dispositivo</item>
         <item quantity="other">%1$d DLC não estão no dispositivo</item>
+    </plurals>
+    <plurals name="stats_weeks_ago">
+        <item quantity="one">Há %1$d semana</item>
+        <item quantity="other">Há %1$d semanas</item>
+    </plurals>
+    <plurals name="view_shortcut_done">
+        <item quantity="one">Atalho colocado em %1$d pasta de consola</item>
+        <item quantity="other">Atalho colocado em %1$d pastas de consola</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

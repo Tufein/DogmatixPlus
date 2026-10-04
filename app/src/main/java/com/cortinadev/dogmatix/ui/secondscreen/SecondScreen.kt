@@ -103,7 +103,11 @@ class SecondScreenPresenter(
             val owner = activity as LifecycleOwner
             val saved = activity as SavedStateRegistryOwner
             window?.decorView?.let { it.setViewTreeLifecycleOwner(owner); it.setViewTreeSavedStateRegistryOwner(saved) }
-            setContentView(ComposeView(context).apply {
+            // The display context does not inherit the in-app language; take the activity's.
+            val localized = context.createConfigurationContext(
+                android.content.res.Configuration(context.resources.configuration).apply { setLocales(activity.resources.configuration.locales) }
+            )
+            setContentView(ComposeView(localized).apply {
                 setViewTreeLifecycleOwner(owner)
                 setViewTreeSavedStateRegistryOwner(saved)
                 setContent { MaterialTheme(colorScheme = darkColorScheme()) { Content(downloads, lookup) } }

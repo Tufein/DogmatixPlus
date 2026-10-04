@@ -24,33 +24,135 @@ object DatParser {
 
     // ---- Logiqx XML ----------------------------------------------------------------------------
 
-    private val gameBlock = Regex("""<(game|machine)\b([^>]*?)(/>|>(.*?)</\1\s*>)""", RegexOption.DOT_MATCHES_ALL)
-    private val romTag = Regex("""<rom\b([^>]*?)/?>""", RegexOption.DOT_MATCHES_ALL)
-    private val attribute = Regex("""([A-Za-z_:][-A-Za-z0-9_:.]*)\s*=\s*("([^"]*)"|'([^']*)')""")
-
+    /**
+     * One pass over the tags, without regular expressions: a Redump DAT is 10+ MB, and Android's
+     * regex engine (ICU) needed minutes for what takes the JVM a second.
+     */
     private fun parseXml(text: String): DatFile {
-        val header = Regex("""<header>(.*?)</header>""", RegexOption.DOT_MATCHES_ALL).find(text)?.groupValues?.get(1).orEmpty()
-        fun headerField(tag: String) = Regex("""<$tag>(.*?)</$tag>""", RegexOption.DOT_MATCHES_ALL).find(header)?.groupValues?.get(1)?.let(::unescape)?.trim().orEmpty()
-        val games = gameBlock.findAll(text).mapNotNull { m ->
-            val name = attributes(m.groupValues[2])["name"] ?: return@mapNotNull null
-            val roms = romTag.findAll(m.groupValues[4]).mapNotNull { r -> rom(attributes(r.groupValues[1])) }.toList()
-            if (roms.isEmpty()) null else DatGame(name, roms)
-        }.toList()
-        return DatFile(headerField("name"), headerField("version"), games)
+        var datName = ""
+        var datVersion = ""
+        val games = ArrayList<DatGame>()
+        var gameName: String? = null
+        var roms = ArrayList<DatRom>()
+        var inHeader = false
+        var pos = 0
+        val n = text.length
+        while (true) {
+            val lt = text.indexOf('<', pos)
+            if (lt < 0 || lt + 1 >= n) break
+            when {
+                text.startsWith("<!--", lt) -> { pos = text.indexOf("-->", lt + 4).let { if (it < 0) n else it + 3 }; continue }
+                text.startsWith("<![CDATA[", lt) -> { pos = text.indexOf("]]>", lt + 9).let { if (it < 0) n else it + 3 }; continue }
+                text[lt + 1] == '?' || text[lt + 1] == '!' -> { pos = text.indexOf('>', lt).let { if (it < 0) n else it + 1 }; continue }
+            }
+            val gt = tagEnd(text, lt + 1)
+            if (gt < 0) break
+            val closing = text[lt + 1] == '/'
+            val nameStart = if (closing) lt + 2 else lt + 1
+            var nameEnd = nameStart
+            while (nameEnd < gt && !text[nameEnd].isWhitespace() && text[nameEnd] != '/' && text[nameEnd] != '>') nameEnd++
+            val tag = text.substring(nameStart, nameEnd)
+            val selfClosing = !closing && text[gt - 1] == '/'
+            pos = gt + 1
+            if (closing) {
+                when (tag) {
+                    "game", "machine" -> { gameName?.let { if (roms.isNotEmpty()) games += DatGame(it, roms) }; gameName = null }
+                    "header" -> inHeader = false
+                }
+                continue
+            }
+            when (tag) {
+                "header" -> inHeader = !selfClosing
+                "name", "version" -> if (inHeader && !selfClosing) {
+                    val close = text.indexOf("</$tag", pos)
+                    if (close >= 0) {
+                        val value = unescape(text.substring(pos, close)).trim()
+                        if (tag == "name") datName = value else datVersion = value
+                        pos = close
+                    }
+                }
+                "game", "machine" -> {
+                    val name = attributes(text, nameEnd, gt)["name"]
+                    if (selfClosing || name == null) gameName = null
+                    else { gameName = name; roms = ArrayList() }
+                }
+                "rom" -> if (gameName != null) rom(attributes(text, nameEnd, gt))?.let { roms += it }
+            }
+        }
+        return DatFile(datName, datVersion, games)
     }
 
-    private fun attributes(text: String): Map<String, String> =
-        attribute.findAll(text).associate { it.groupValues[1].lowercase() to unescape(it.groupValues[3].ifEmpty { it.groupValues[4] }) }
+    /** The index of the `>` closing the tag that starts before [from], skipping quoted values. */
+    private fun tagEnd(text: String, from: Int): Int {
+        var i = from
+        var quote = 0.toChar()
+        while (i < text.length) {
+            val c = text[i]
+            if (quote != 0.toChar()) { if (c == quote) quote = 0.toChar() }
+            else if (c == '"' || c == '\'') quote = c
+            else if (c == '>') return i
+            i++
+        }
+        return -1
+    }
+
+    /** The `key="value"` pairs between [from] and [to] (keys lower-case, values unescaped). */
+    private fun attributes(text: String, from: Int, to: Int): Map<String, String> {
+        val out = HashMap<String, String>(8)
+        var i = from
+        while (i < to) {
+            while (i < to && (text[i].isWhitespace() || text[i] == '/')) i++
+            val keyStart = i
+            while (i < to && text[i] != '=' && !text[i].isWhitespace() && text[i] != '/') i++
+            if (i == keyStart) { i++; continue }
+            val key = text.substring(keyStart, i).lowercase()
+            while (i < to && text[i].isWhitespace()) i++
+            if (i >= to || text[i] != '=') continue
+            i++
+            while (i < to && text[i].isWhitespace()) i++
+            if (i >= to) break
+            val q = text[i]
+            if (q == '"' || q == '\'') {
+                val close = text.indexOf(q, i + 1).let { if (it < 0 || it > to) to else it }
+                out[key] = unescape(text.substring(i + 1, close))
+                i = close + 1
+            } else {
+                val valueStart = i
+                while (i < to && !text[i].isWhitespace() && text[i] != '/') i++
+                out[key] = unescape(text.substring(valueStart, i))
+            }
+        }
+        return out
+    }
 
     private fun rom(a: Map<String, String>): DatRom? {
         val name = a["name"] ?: return null
         return DatRom(name, a["size"]?.toLongOrNull() ?: -1L, hex(a["crc"]), hex(a["md5"]), hex(a["sha1"]))
     }
 
-    private fun unescape(s: String): String = s
-        .replace(Regex("""&#x([0-9A-Fa-f]+);""")) { it.groupValues[1].toInt(16).toChar().toString() }
-        .replace(Regex("""&#(\d+);""")) { it.groupValues[1].toInt().toChar().toString() }
-        .replace("&quot;", "\"").replace("&apos;", "'").replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
+    private fun unescape(s: String): String {
+        if (s.indexOf('&') < 0) return s
+        val out = StringBuilder(s.length)
+        var i = 0
+        while (i < s.length) {
+            val c = s[i]
+            val semi = if (c == '&') s.indexOf(';', i) else -1
+            if (semi < 0 || semi - i > 10) { out.append(c); i++; continue }
+            val entity = s.substring(i + 1, semi)
+            val decoded = when {
+                entity == "amp" -> "&"
+                entity == "lt" -> "<"
+                entity == "gt" -> ">"
+                entity == "quot" -> "\""
+                entity == "apos" -> "'"
+                entity.startsWith("#x") || entity.startsWith("#X") -> entity.substring(2).toIntOrNull(16)?.let { String(Character.toChars(it)) }
+                entity.startsWith("#") -> entity.substring(1).toIntOrNull()?.let { String(Character.toChars(it)) }
+                else -> null
+            }
+            if (decoded == null) { out.append(c); i++ } else { out.append(decoded); i = semi + 1 }
+        }
+        return out.toString()
+    }
 
     // ---- ClrMamePro text -------------------------------------------------------------------------
 

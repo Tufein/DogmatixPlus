@@ -83,7 +83,7 @@ class CollectionsViewModel @Inject constructor(
         viewModelScope.launch {
             if (view.consoles.isEmpty()) { com.cortinadev.dogmatix.util.ToastUtil.showError(app, app.getString(R.string.view_shortcut_needs_console)); return@launch }
             val n = runCatching { shortcuts.deployView(view) }.getOrDefault(0)
-            if (n > 0) com.cortinadev.dogmatix.util.ToastUtil.showSuccess(app, app.getString(R.string.view_shortcut_done, n))
+            if (n > 0) com.cortinadev.dogmatix.util.ToastUtil.showSuccess(app, app.resources.getQuantityString(R.plurals.view_shortcut_done, n, n))
             else com.cortinadev.dogmatix.util.ToastUtil.showError(app, app.getString(R.string.view_shortcut_failed))
         }
     }
@@ -170,7 +170,7 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
                 item { SectionHeader(stringResource(R.string.views_title), stringResource(R.string.views_hint)) }
                 if (views.isEmpty()) item { InfoCard(listOf(stringResource(R.string.views_empty)), Modifier.padding(16.dp)) }
                 items(views, key = { "v" + it.id }) { v ->
-                    ToolRow(v.name, listOf(v.consoles.joinToString(", ") { com.cortinadev.dogmatix.util.ConsoleFormatter.getConsoleShortName(it) }.ifEmpty { "—" }), onClick = { viewModel.openView(v) }) {
+                    ToolRow(v.name, listOf((v.consoles.map { com.cortinadev.dogmatix.util.ConsoleFormatter.getConsoleShortName(it) } + v.tags.sorted() + listOfNotNull(v.query.takeIf { it.isNotBlank() }?.let { "“$it”" })).joinToString(" · ").ifEmpty { "—" }), onClick = { viewModel.openView(v) }) {
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             PillButton(stringResource(R.string.view_shortcut)) { viewModel.shortcut(context, v) }
                             PillButton(stringResource(R.string.dialog_delete)) { viewModel.deleteView(v.id) }

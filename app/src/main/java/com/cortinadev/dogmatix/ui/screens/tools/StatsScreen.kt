@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -111,7 +112,7 @@ fun StatsScreen(viewModel: StatsViewModel = hiltViewModel()) {
             val maxNew = ui.newPerWeek.maxOrNull()?.coerceAtLeast(1) ?: 1
             ui.newPerWeek.forEachIndexed { i, n ->
                 item(key = "w$i") {
-                    val label = if (i == ui.newPerWeek.lastIndex) stringResource(R.string.stats_this_week) else stringResource(R.string.stats_weeks_ago, ui.newPerWeek.lastIndex - i)
+                    val label = if (i == ui.newPerWeek.lastIndex) stringResource(R.string.stats_this_week) else (ui.newPerWeek.lastIndex - i).let { w -> pluralStringResource(R.plurals.stats_weeks_ago, w, w) }
                     Bar(label, n.toFloat() / maxNew, n.toString())
                 }
             }

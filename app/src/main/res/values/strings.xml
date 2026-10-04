@@ -909,13 +909,12 @@
     <string name="nav_stats">Statistics</string>
     <string name="tools_stats_hint">Downloads per month and console, and how your library grows</string>
     <string name="stats_downloads_total">%1$d downloads · %2$s in total</string>
-    <string name="stats_library">%1$d games in the library · %2$d favourites · %3$d collections</string>
+    <string name="stats_library">Library: %1$d games · favourites: %2$d · collections: %3$d</string>
     <string name="stats_per_month">Downloads per month</string>
     <string name="stats_per_console">Most downloaded consoles</string>
     <string name="stats_new_per_week">New games per week</string>
     <string name="stats_new_per_week_hint">Found by rescans of your sources</string>
     <string name="stats_this_week">This week</string>
-    <string name="stats_weeks_ago">%1$d weeks ago</string>
     <string name="romm_collections_pull">From RomM</string>
     <string name="romm_collections_push">To RomM</string>
     <string name="romm_collections_pulled">%1$d RomM collections · %2$d games added · %3$d not in your library</string>
@@ -934,7 +933,7 @@
     <string name="share_add_folder">Add folder as source</string>
     <string name="share_add_source">Add as source</string>
     <string name="share_source_added">Source added; scanning it now</string>
-    <string name="filter_view">Saved view</string>
+    <string name="filter_view">View</string>
     <string name="view_save">Save these filters</string>
     <string name="view_save_hint">Give them a name; open them later with one tap, or as a shortcut in ES-DE</string>
     <string name="view_saved">Saved as %1$s</string>
@@ -943,7 +942,6 @@
     <string name="views_empty">None yet: set filters in the library and tap the star next to the result count</string>
     <string name="view_shortcut">Shortcut</string>
     <string name="view_shortcut_needs_console">A shortcut needs a view with at least one console</string>
-    <string name="view_shortcut_done">Shortcut placed in %1$d console folder(s)</string>
     <string name="view_shortcut_failed">Could not place the shortcut (is the console\'s folder set?)</string>
     <string name="second_screen_idle">Move through the library: the game under the cursor shows up here</string>
     <string name="second_screen_downloads">Downloading (%1$d)</string>
@@ -965,6 +963,16 @@
     <string name="settings_auto_backup_folder">Backup folder</string>
     <string name="settings_second_screen">Second screen</string>
     <string name="settings_second_screen_hint">On a dual-screen handheld or a TV: game details and downloads there</string>
+    <string name="bios_note_japan">Japan</string>
+    <string name="bios_note_usa">USA</string>
+    <string name="bios_note_europe">Europe</string>
+    <string name="bios_note_usa_older">USA (older)</string>
+    <string name="bios_note_usa_europe">USA / Europe</string>
+    <string name="bios_note_ps2_any">Any PS2 BIOS dump (4 MB), as AetherSX2 / NetherSX2 use</string>
+    <string name="bios_note_gba_optional">most games run without it</string>
+    <string name="bios_note_boot_logo">boot logo only</string>
+    <string name="bios_note_original_bios_mode">only with the original BIOS mode</string>
+    <string name="bios_note_neogeo_set">the MAME / FBNeo BIOS set (versions differ)</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d save changed on both sides — open Dogmatix to choose</item>
         <item quantity="other">%d saves changed on both sides — open Dogmatix to choose</item>
@@ -1088,6 +1096,14 @@
     <plurals name="switch_dlc_missing">
         <item quantity="one">%1$d DLC not on this device</item>
         <item quantity="other">%1$d DLC not on this device</item>
+    </plurals>
+    <plurals name="stats_weeks_ago">
+        <item quantity="one">%1$d week ago</item>
+        <item quantity="other">%1$d weeks ago</item>
+    </plurals>
+    <plurals name="view_shortcut_done">
+        <item quantity="one">Shortcut placed in %1$d console folder</item>
+        <item quantity="other">Shortcut placed in %1$d console folders</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

@@ -31,6 +31,14 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 2.5
+- **Comprobación de BIOS**: mira por consola si los archivos BIOS de tu emulador están y son los volcados correctos (unos veinte sistemas).
+- **Aplicar parches IPS / UPS / BPS** desde el explorador de archivos; el juego parcheado es una copia nueva y el original se queda igual.
+- **Compartir enlaces con la app**: un enlace de descarga o un magnet del navegador va directo a la carpeta de una consola, o se convierte en fuente.
+- **Reordenar la cola de descargas** (▲ ▼, o **Y** para ponerla primera), **reservar espacio libre** para que las descargas se paren antes de llenar el almacenamiento, y descargas que recurren a las **direcciones de reserva** de una fuente.
+- **Vistas guardadas**: guarda tus filtros con un nombre y pon un acceso directo en ES-DE; los **favoritos de ES-DE** reciben aquí una estrella.
+- **Estadísticas**, **colecciones de RomM** en ambos sentidos, **DAT directamente de Redump**, una **segunda pantalla** para portátiles de doble pantalla y teles, y una **copia de seguridad automática** semanal.
+
 ### Novedades de 2.0
 - **Reescaneos más rápidos**: se omiten las fuentes cuya lista no cambió (6 fuentes de 4000 juegos: de 18 s a 2 s). Una fuente que falla conserva sus juegos, y una fuente web puede tener **direcciones de reserva**.
 - **Escaneo en segundo plano** (cada día, con wifi, mientras carga, de noche) con un aviso cuando aparecen juegos nuevos; los juegos nuevos llevan la etiqueta **Nuevo**, un filtro y el orden *Más recientes primero*.

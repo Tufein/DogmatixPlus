@@ -31,6 +31,14 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
+### New in 2.5
+- **BIOS check**: see per console whether your emulator's BIOS files are there and are the right dumps (about twenty systems).
+- **Apply IPS / UPS / BPS patches** from the file explorer; the patched game is a new copy, the original stays.
+- **Share links to the app**: a download link or magnet from the browser goes straight into a console's folder, or becomes a source.
+- **Reorder the download queue** (▲ ▼, or **Y** to put one first), **keep free space** so downloads stop before the storage is full, and downloads that fall back to a source's **reserve addresses**.
+- **Saved views**: save your filters under a name and put a shortcut to them in ES-DE; **ES-DE favourites** become stars here.
+- **Statistics**, **RomM collections** both ways, **DAT straight from Redump**, a **second screen** for dual-screen handhelds and TVs, and a weekly **automatic backup**.
+
 ### New in 2.0
 - **Faster rescans**: sources whose list did not change are skipped (6 sources of 4,000 games: from 18 s to 2 s). A source that fails keeps its games, and a web source can have **reserve addresses**.
 - **Scan in the background** (daily, on Wi-Fi, while charging, at night) with a notification when new games turn up; new games get a **New** badge, a filter and a *Newest first* sort.

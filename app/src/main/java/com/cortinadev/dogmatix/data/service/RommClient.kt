@@ -84,7 +84,21 @@ class RommClient @Inject constructor(
     }
 
     /** A RomM collection: its id, name and the ROMs in it. */
-    data class RommCollection(val id: Int, val name: String, val romIds: List<Int>)
+    data class RommCollection(
+        val id: Int, val name: String, val romIds: List<Int>,
+        /** Owner; null when the server does not say. Other users' public collections cannot be changed. */
+        val userId: Int? = null,
+        /** RomM's built-in favourites collection (the heart). */
+        val isFavourite: Boolean = false
+    )
+
+    /** The id of the account the token belongs to (`GET /api/users/me`), or null when unknown. */
+    suspend fun myUserId(): Int? = withContext(Dispatchers.IO) {
+        runCatching {
+            JsonHttp.requireOk(JsonHttp.request("GET", "${baseUrl()}/api/users/me", headers())).json
+                ?.takeIf { it.isJsonObject }?.asJsonObject?.get("id")?.takeUnless { it.isJsonNull }?.asInt
+        }.getOrNull()
+    }
 
     /** The user's collections (`GET /api/collections`). */
     suspend fun collections(): List<RommCollection> = withContext(Dispatchers.IO) {
@@ -101,7 +115,11 @@ class RommClient @Inject constructor(
             val ids = (o.get("rom_ids") as? com.google.gson.JsonArray)?.mapNotNull { runCatching { it.asInt }.getOrNull() }
                 ?: (o.get("roms") as? com.google.gson.JsonArray)?.mapNotNull { r -> (r as? JsonObject)?.get("id")?.asInt }
                 ?: emptyList()
-            RommCollection(id, o.str("name"), ids)
+            RommCollection(
+                id, o.str("name"), ids,
+                userId = o.get("user_id")?.takeUnless { it.isJsonNull }?.let { runCatching { it.asInt }.getOrNull() },
+                isFavourite = o.get("is_favorite")?.takeUnless { it.isJsonNull }?.let { runCatching { it.asBoolean }.getOrNull() } == true
+            )
         }
     }
 

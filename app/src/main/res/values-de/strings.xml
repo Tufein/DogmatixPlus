@@ -908,13 +908,12 @@
     <string name="nav_stats">Statistiken</string>
     <string name="tools_stats_hint">Downloads pro Monat und Konsole, Wachstum der Bibliothek</string>
     <string name="stats_downloads_total">%1$d Downloads · insgesamt %2$s</string>
-    <string name="stats_library">%1$d Spiele in der Bibliothek · %2$d Favoriten · %3$d Sammlungen</string>
+    <string name="stats_library">Bibliothek: %1$d Spiele · Favoriten: %2$d · Sammlungen: %3$d</string>
     <string name="stats_per_month">Downloads pro Monat</string>
     <string name="stats_per_console">Meistgeladene Konsolen</string>
     <string name="stats_new_per_week">Neue Spiele pro Woche</string>
     <string name="stats_new_per_week_hint">Von Scans deiner Quellen gefunden</string>
     <string name="stats_this_week">Diese Woche</string>
-    <string name="stats_weeks_ago">Vor %1$d Wochen</string>
     <string name="romm_collections_pull">Von RomM</string>
     <string name="romm_collections_push">Zu RomM</string>
     <string name="romm_collections_pulled">%1$d RomM-Sammlungen · %2$d Spiele hinzugefügt · %3$d nicht in der Bibliothek</string>
@@ -933,7 +932,7 @@
     <string name="share_add_folder">Ordner als Quelle</string>
     <string name="share_add_source">Als Quelle hinzufügen</string>
     <string name="share_source_added">Quelle hinzugefügt; wird jetzt gescannt</string>
-    <string name="filter_view">Gespeicherte Ansicht</string>
+    <string name="filter_view">Ansicht</string>
     <string name="view_save">Diese Filter speichern</string>
     <string name="view_save_hint">Gib ihnen einen Namen; später mit einem Tipp oder als ES-DE-Verknüpfung öffnen</string>
     <string name="view_saved">Gespeichert als %1$s</string>
@@ -942,7 +941,6 @@
     <string name="views_empty">Noch keine: Filter in der Bibliothek setzen und auf den Stern neben der Trefferzahl tippen</string>
     <string name="view_shortcut">Verknüpfung</string>
     <string name="view_shortcut_needs_console">Eine Verknüpfung braucht mindestens eine Konsole</string>
-    <string name="view_shortcut_done">Verknüpfung in %1$d Konsolenordner gelegt</string>
     <string name="view_shortcut_failed">Verknüpfung nicht möglich (ist der Konsolenordner gesetzt?)</string>
     <string name="second_screen_idle">Blättere durch die Bibliothek: das Spiel unter dem Cursor erscheint hier</string>
     <string name="second_screen_downloads">Lädt herunter (%1$d)</string>
@@ -964,6 +962,16 @@
     <string name="settings_auto_backup_folder">Sicherungsordner</string>
     <string name="settings_second_screen">Zweiter Bildschirm</string>
     <string name="settings_second_screen_hint">Auf Doppelbildschirm-Handhelds oder dem TV: Details und Downloads dort</string>
+    <string name="bios_note_japan">Japan</string>
+    <string name="bios_note_usa">USA</string>
+    <string name="bios_note_europe">Europa</string>
+    <string name="bios_note_usa_older">USA (älter)</string>
+    <string name="bios_note_usa_europe">USA / Europa</string>
+    <string name="bios_note_ps2_any">Jeder PS2-BIOS-Dump (4 MB), wie AetherSX2 / NetherSX2 ihn nutzen</string>
+    <string name="bios_note_gba_optional">die meisten Spiele laufen ohne</string>
+    <string name="bios_note_boot_logo">nur das Startlogo</string>
+    <string name="bios_note_original_bios_mode">nur im Original-BIOS-Modus</string>
+    <string name="bios_note_neogeo_set">das BIOS-Set von MAME / FBNeo (Versionen unterscheiden sich)</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d Spielstand wurde auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
         <item quantity="other">%d Spielstände wurden auf beiden Seiten geändert — öffne Dogmatix zum Auswählen</item>
@@ -1087,6 +1095,14 @@
     <plurals name="switch_dlc_missing">
         <item quantity="one">%1$d DLC nicht auf dem Gerät</item>
         <item quantity="other">%1$d DLC nicht auf dem Gerät</item>
+    </plurals>
+    <plurals name="stats_weeks_ago">
+        <item quantity="one">Vor %1$d Woche</item>
+        <item quantity="other">Vor %1$d Wochen</item>
+    </plurals>
+    <plurals name="view_shortcut_done">
+        <item quantity="one">Verknüpfung in %1$d Konsolenordner gelegt</item>
+        <item quantity="other">Verknüpfung in %1$d Konsolenordner gelegt</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

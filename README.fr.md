@@ -31,6 +31,14 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveau dans 2.5
+- **Vérification des BIOS** : voyez par console si les fichiers BIOS de votre émulateur sont là et sont les bons dumps (une vingtaine de systèmes).
+- **Appliquer des patchs IPS / UPS / BPS** depuis l'explorateur de fichiers ; le jeu patché est une nouvelle copie, l'original reste intact.
+- **Partager des liens avec l'app** : un lien de téléchargement ou un magnet du navigateur va directement dans le dossier d'une console, ou devient une source.
+- **Réordonner la file de téléchargement** (▲ ▼, ou **Y** pour en mettre un en tête), **garder de l'espace libre** pour que les téléchargements s'arrêtent avant que le stockage soit plein, et des téléchargements qui passent aux **adresses de secours** d'une source.
+- **Vues enregistrées** : enregistrez vos filtres sous un nom et placez-en un raccourci dans ES-DE ; les **favoris ES-DE** deviennent des étoiles ici.
+- **Statistiques**, **collections RomM** dans les deux sens, **DAT directement depuis Redump**, un **second écran** pour les consoles à deux écrans et les télés, et une **sauvegarde automatique** hebdomadaire.
+
 ### Nouveau dans 2.0
 - **Réanalyses plus rapides** : les sources dont la liste n'a pas changé sont ignorées (6 sources de 4 000 jeux : de 18 s à 2 s). Une source en échec garde ses jeux, et une source web peut avoir des **adresses de secours**.
 - **Analyse en arrière-plan** (chaque jour, en Wi-Fi, en charge, la nuit) avec une notification quand de nouveaux jeux apparaissent ; les nouveaux jeux ont un badge **Nouveau**, un filtre et un tri *Plus récents d'abord*.

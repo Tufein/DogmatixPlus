@@ -624,6 +624,7 @@ class DownloadService @Inject constructor(
                 startOffset = 0L
             }
             val contentLength = connection.contentLengthLong.let { if (it > 0) it + startOffset else it }
+            if (file.fileSize <= 0) downloadProgressTracker.learnFileSize(file.fileName, contentLength)
             // A server that announces the hash of the whole body lets the finished file be checked.
             if (startOffset == 0L) {
                 (Checksums.fromContentMd5(connection.getHeaderField("Content-MD5")) ?: Checksums.fromDigestHeader(connection.getHeaderField("Digest")))

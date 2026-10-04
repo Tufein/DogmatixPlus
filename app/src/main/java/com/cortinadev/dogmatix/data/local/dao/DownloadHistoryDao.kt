@@ -25,6 +25,9 @@ interface DownloadHistoryDao {
     @Query("UPDATE download_history SET status = :status, startedAt = :startedAt, finishedAt = NULL WHERE fileName = :fileName")
     suspend fun markRestarted(fileName: String, status: String, startedAt: Long)
 
+    @Query("UPDATE download_history SET fileSize = :size WHERE fileName = :fileName")
+    suspend fun setFileSize(fileName: String, size: Long)
+
     @Query("SELECT * FROM download_history WHERE fileName = :fileName LIMIT 1")
     suspend fun getByFileName(fileName: String): DownloadHistoryEntity?
 

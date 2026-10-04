@@ -44,7 +44,7 @@ class BiosService @Inject constructor(
             if (entry.size > 64L * 1024 * 1024) return@getOrPut null
             runCatching { context.contentResolver.openInputStream(entry.uri)?.use { Checksums.hexOf(it, HashAlgo.MD5) } }.getOrNull()
         }
-        BiosReport(true, systems.map { BiosCatalog.check(it, present, ::md5) })
+        BiosReport(true, systems.map { BiosCatalog.check(it, present, { files[it]?.size }, ::md5) })
     }
 
     private fun collect(dir: DiskDir, prefix: String, depth: Int, into: MutableMap<String, DiskEntry>) {

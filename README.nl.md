@@ -31,6 +31,14 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 2.5
+- **BIOS-controle**: zie per console of de BIOS-bestanden van je emulator er staan en de juiste dumps zijn (zo'n twintig systemen).
+- **IPS- / UPS- / BPS-patches toepassen** vanuit de bestandsverkenner; de gepatchte game is een nieuwe kopie, het origineel blijft.
+- **Links delen met de app**: een downloadlink of magnet uit de browser gaat meteen naar de map van een console, of wordt een bron.
+- **De downloadwachtrij herschikken** (▲ ▼, of **Y** om er een vooraan te zetten), **vrije ruimte bewaren** zodat downloads stoppen voordat de opslag vol is, en downloads die terugvallen op de **reserve-adressen** van een bron.
+- **Opgeslagen weergaven**: bewaar je filters onder een naam en zet er een snelkoppeling naar in ES-DE; **ES-DE-favorieten** krijgen hier een ster.
+- **Statistieken**, **RomM-collecties** heen en terug, **DAT rechtstreeks van Redump**, een **tweede scherm** voor handhelds met twee schermen en tv's, en een wekelijkse **automatische back-up**.
+
 ### Nieuw in 2.0
 - **Snellere herscans**: bronnen waarvan de lijst niet veranderde, worden overgeslagen (6 bronnen van 4.000 games: van 18 naar 2 seconden). Een bron die faalt, houdt zijn games, en een webbron kan **reserve-adressen** hebben.
 - **Scannen op de achtergrond** (dagelijks, via wifi, tijdens het laden, 's nachts) met een melding als er nieuwe games opduiken; nieuwe games krijgen een badge **Nieuw**, een filter en de sortering *Nieuwste eerst*.

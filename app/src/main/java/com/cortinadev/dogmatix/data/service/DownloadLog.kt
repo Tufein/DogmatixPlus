@@ -29,7 +29,9 @@ class DownloadLog @Inject constructor(
         scope.launch {
             downloadService.finished.collect { name ->
                 val entity = downloadService.entityFor(name) ?: return@collect
-                append(DownloadLogEntry(System.currentTimeMillis(), entity.consoleId, entity.fileSize))
+                val size = entity.fileSize.takeIf { it > 0 }
+                    ?: downloadService.downloads.value.firstOrNull { it.fileName == name }?.fileSize ?: 0L
+                append(DownloadLogEntry(System.currentTimeMillis(), entity.consoleId, size))
             }
         }
     }

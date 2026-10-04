@@ -859,13 +859,12 @@
     <string name="nav_stats">Statistiche</string>
     <string name="tools_stats_hint">Download per mese e console, e crescita della libreria</string>
     <string name="stats_downloads_total">%1$d download · %2$s in totale</string>
-    <string name="stats_library">%1$d giochi in libreria · %2$d preferiti · %3$d collezioni</string>
+    <string name="stats_library">Libreria: %1$d giochi · preferiti: %2$d · collezioni: %3$d</string>
     <string name="stats_per_month">Download al mese</string>
     <string name="stats_per_console">Console più scaricate</string>
     <string name="stats_new_per_week">Nuovi giochi a settimana</string>
     <string name="stats_new_per_week_hint">Trovati dalle scansioni delle fonti</string>
     <string name="stats_this_week">Questa settimana</string>
-    <string name="stats_weeks_ago">%1$d settimane fa</string>
     <string name="romm_collections_pull">Da RomM</string>
     <string name="romm_collections_push">A RomM</string>
     <string name="romm_collections_pulled">%1$d collezioni RomM · %2$d giochi aggiunti · %3$d non in libreria</string>
@@ -884,7 +883,7 @@
     <string name="share_add_folder">Aggiungi cartella come fonte</string>
     <string name="share_add_source">Aggiungi come fonte</string>
     <string name="share_source_added">Fonte aggiunta; scansione in corso</string>
-    <string name="filter_view">Vista salvata</string>
+    <string name="filter_view">Vista</string>
     <string name="view_save">Salva questi filtri</string>
     <string name="view_save_hint">Dagli un nome; riaprili con un tocco o come scorciatoia in ES-DE</string>
     <string name="view_saved">Salvato come %1$s</string>
@@ -893,7 +892,6 @@
     <string name="views_empty">Nessuna: imposta i filtri in libreria e tocca la stella accanto al numero di risultati</string>
     <string name="view_shortcut">Scorciatoia</string>
     <string name="view_shortcut_needs_console">Una scorciatoia richiede almeno una console</string>
-    <string name="view_shortcut_done">Scorciatoia in %1$d cartella/e console</string>
     <string name="view_shortcut_failed">Impossibile creare (la cartella della console è impostata?)</string>
     <string name="second_screen_idle">Scorri la libreria: il gioco sotto il cursore appare qui</string>
     <string name="second_screen_downloads">In download (%1$d)</string>
@@ -915,6 +913,16 @@
     <string name="settings_auto_backup_folder">Cartella backup</string>
     <string name="settings_second_screen">Secondo schermo</string>
     <string name="settings_second_screen_hint">Su handheld a doppio schermo o TV: dettagli e download lì</string>
+    <string name="bios_note_japan">Giappone</string>
+    <string name="bios_note_usa">USA</string>
+    <string name="bios_note_europe">Europa</string>
+    <string name="bios_note_usa_older">USA (vecchio)</string>
+    <string name="bios_note_usa_europe">USA / Europa</string>
+    <string name="bios_note_ps2_any">Qualsiasi dump BIOS PS2 (4 MB), come usano AetherSX2 / NetherSX2</string>
+    <string name="bios_note_gba_optional">la maggior parte dei giochi funziona senza</string>
+    <string name="bios_note_boot_logo">solo il logo di avvio</string>
+    <string name="bios_note_original_bios_mode">solo con la modalità BIOS originale</string>
+    <string name="bios_note_neogeo_set">il set BIOS MAME / FBNeo (le versioni variano)</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d salvataggio è cambiato su entrambi i lati — apri Dogmatix per scegliere</item>
         <item quantity="other">%d salvataggi sono cambiati su entrambi i lati — apri Dogmatix per scegliere</item>
@@ -1038,6 +1046,14 @@
     <plurals name="switch_dlc_missing">
         <item quantity="one">%1$d DLC non sul dispositivo</item>
         <item quantity="other">%1$d DLC non sul dispositivo</item>
+    </plurals>
+    <plurals name="stats_weeks_ago">
+        <item quantity="one">%1$d settimana fa</item>
+        <item quantity="other">%1$d settimane fa</item>
+    </plurals>
+    <plurals name="view_shortcut_done">
+        <item quantity="one">Collegamento messo in %1$d cartella console</item>
+        <item quantity="other">Collegamento messo in %1$d cartelle console</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

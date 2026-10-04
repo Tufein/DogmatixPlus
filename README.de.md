@@ -31,6 +31,14 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 2.5
+- **BIOS-Prüfung**: sieh pro Konsole, ob die BIOS-Dateien deines Emulators da sind und die richtigen Dumps sind (rund zwanzig Systeme).
+- **IPS- / UPS- / BPS-Patches anwenden** aus dem Dateimanager; das gepatchte Spiel ist eine neue Kopie, das Original bleibt.
+- **Links an die App teilen**: ein Download-Link oder Magnet aus dem Browser landet direkt im Ordner einer Konsole oder wird eine Quelle.
+- **Die Download-Warteschlange umsortieren** (▲ ▼, oder **Y**, um einen nach vorn zu holen), **freien Speicher behalten**, damit Downloads stoppen, bevor der Speicher voll ist, und Downloads, die auf die **Ausweichadressen** einer Quelle ausweichen.
+- **Gespeicherte Ansichten**: speichere deine Filter unter einem Namen und lege eine Verknüpfung dazu in ES-DE ab; **ES-DE-Favoriten** bekommen hier einen Stern.
+- **Statistiken**, **RomM-Sammlungen** in beide Richtungen, **DAT direkt von Redump**, ein **zweiter Bildschirm** für Doppelbildschirm-Handhelds und Fernseher und eine wöchentliche **automatische Sicherung**.
+
 ### Neu in 2.0
 - **Schnellere Scans**: Quellen, deren Liste sich nicht geändert hat, werden übersprungen (6 Quellen mit 4.000 Spielen: von 18 s auf 2 s). Eine Quelle, die scheitert, behält ihre Spiele, und eine Webquelle kann **Ausweichadressen** haben.
 - **Scannen im Hintergrund** (täglich, über WLAN, beim Laden, nachts) mit einer Meldung, wenn neue Spiele auftauchen; neue Spiele bekommen ein **Neu**-Abzeichen, einen Filter und die Sortierung *Neueste zuerst*.

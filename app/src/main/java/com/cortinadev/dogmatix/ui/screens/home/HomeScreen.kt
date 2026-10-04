@@ -172,6 +172,8 @@ fun HomeScreen(
     val focusManager = LocalFocusManager.current
     // The game under the cursor also goes to a second screen, when there is one.
     LaunchedEffect(focusedItem) { com.cortinadev.dogmatix.ui.secondscreen.SecondScreenState.focus(focusedItem) }
+    // With touch there is no cursor: the game whose details are open goes to the second screen.
+    LaunchedEffect(detailsState?.item) { detailsState?.item?.let { com.cortinadev.dogmatix.ui.secondscreen.SecondScreenState.focus(it) } }
     // Folding hides whichever side holds the focus, so it is handed over explicitly
     // (two frames later when expanding: the panel has to be laid out first).
     val collapseFilters = {

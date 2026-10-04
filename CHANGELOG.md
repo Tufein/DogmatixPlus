@@ -3,6 +3,72 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [2.5.0] – 2026-10-04 · Dogmatix+
+
+### Emulators
+- **BIOS check** (*Library tools → BIOS check*): pick the emulator's BIOS folder (RetroArch's
+  `system`, or the BIOS folder of a standalone emulator) and see per console whether the files it
+  needs are there and are the known good dumps (MD5, as libretro lists them). About twenty systems:
+  PlayStation, PS2, Saturn, Sega CD, PC Engine CD, PC-FX, Dreamcast, DS, GBA, Game Boy, Famicom Disk
+  System, 3DO, Lynx, Atari 5200 / 7800, ColecoVision, Intellivision, Odyssey², Neo Geo and Pokémon
+  mini. Names are matched without case and one sub-folder deep (`dc/dc_boot.bin`); a file with
+  another checksum is reported as *another dump*, not as wrong. *My consoles* shows only the systems
+  in Sources, *All systems* the whole list.
+- **Apply a patch** (*File explorer → a game → Apply patch*): IPS (with run-length records and
+  truncation), UPS and BPS. The result is a new file next to the game, `Game [patch name].ext`;
+  the original is not touched. UPS and BPS refuse a game whose checksum is not the one the patch was
+  made for, which is the usual reason a patched game does not start. Games up to 256 MB.
+- **Second screen**: on a dual-screen handheld or with a TV connected, the second display shows the
+  game under the cursor (cover, title, tags, description) and the downloads in progress. With touch,
+  the game whose details are open is shown. *Settings → Second screen* turns it off.
+
+### Downloads
+- **Share a link to the app**: share a download link, a magnet or a `.torrent` link from the browser
+  (or open a magnet) and pick the console: download it straight into the console's folder, or add it
+  (or the folder the file is in) as a source. A link without a known size takes the size the server
+  announces.
+- **Queue order**: waiting downloads show their place (*In queue · #2*) and can be moved up or down
+  (▲ ▼, or **Y** to put one first). The queue serves strictly in that order.
+- **Keep free space** (*Settings → Keep free space*: off, 1, 2, 5, 10, 20 or 50 GB): no new download
+  starts below that, and a running one stops (its partial file removed) before the space runs out;
+  a notification says why, and *Retry* starts it again once there is room. The waiting row reads *waiting for free space*.
+- **Reserve addresses for downloads**: a file whose source address fails three times is fetched from
+  the source's reserve addresses (2.0 used them for scans only).
+
+### Library
+- **Saved views**: save the current filters under a name (★ next to the result count, or *Save these
+  filters*), apply them from the new *View* filter row, and manage them in *Library tools →
+  Collections*. *Shortcut* puts a `★ name.dgmtx` file in the view's console folders, so ES-DE (or a
+  file manager) opens Dogmatix+ on exactly that view.
+- **Favourites from ES-DE** (*Library tools*): stars every game you marked as favourite in ES-DE
+  (`gamelists/<system>/gamelist.xml`), matched by file name; says how many were found, how many stars
+  are new and how many games are not in the library.
+- **Statistics** (*Library tools → Statistics*): downloads and data per month (last 12 months), the
+  consoles you download most for, and how many new games your sources brought per week (last 8).
+- **RomM collections** (*Library tools → Collections → From RomM / To RomM*): pull the server's
+  collections into your own (games that are not in the library are counted, not added), or send
+  yours to the server (new ones are created, existing ones of your account get the missing games).
+  RomM's favourites collection becomes stars instead of a collection; another user's public
+  collection is never changed.
+- **DAT from Redump** (*DAT check → a console → From Redump*): fetches the newest Redump DAT for
+  disc systems (PlayStation 1–3, PSP, Saturn, Sega CD, Dreamcast, GameCube, Wii, PC Engine CD, PC-FX,
+  3DO, Neo Geo CD, Xbox, CD-i, Jaguar CD) without leaving the app.
+
+### Settings
+- **Automatic backup** (*Settings → Automatic backup*): once a week, while the device charges, the
+  backup file (the same as *Create backup*) is written to a folder you pick; the newest five are
+  kept, and *Back up now* makes one at once. One file per day: backing up twice on a day replaces it.
+
+### Fixed
+- Reading a large DAT (a 12 MB Redump DAT of 10,900 games) took minutes on Android, whose regex
+  engine is far slower than the JVM's for this; the XML reader no longer uses regular expressions.
+  The Redump PlayStation DAT now downloads and imports in about 20 seconds on an emulator.
+- The BIOS check counted a 512 KB PlayStation BIOS (`scph5501.bin`) as the PS2 BIOS; PS2 now needs
+  a 4 MB file.
+- The second screen ignored the app's language and stayed in the system language.
+- Small wording: plural forms for "weeks ago" and shortcut messages, the stats line, a shorter *View*
+  label so the chosen view fits.
+
 ## [2.0.0] – 2026-10-03 · Dogmatix+
 
 ### Scanning

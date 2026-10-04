@@ -913,13 +913,12 @@
     <string name="nav_stats">Statistiques</string>
     <string name="tools_stats_hint">Téléchargements par mois et console, croissance de la bibliothèque</string>
     <string name="stats_downloads_total">%1$d téléchargements · %2$s au total</string>
-    <string name="stats_library">%1$d jeux dans la bibliothèque · %2$d favoris · %3$d collections</string>
+    <string name="stats_library">Bibliothèque : %1$d jeux · favoris : %2$d · collections : %3$d</string>
     <string name="stats_per_month">Téléchargements par mois</string>
     <string name="stats_per_console">Consoles les plus téléchargées</string>
     <string name="stats_new_per_week">Nouveaux jeux par semaine</string>
     <string name="stats_new_per_week_hint">Trouvés par les réanalyses de vos sources</string>
     <string name="stats_this_week">Cette semaine</string>
-    <string name="stats_weeks_ago">Il y a %1$d semaines</string>
     <string name="romm_collections_pull">Depuis RomM</string>
     <string name="romm_collections_push">Vers RomM</string>
     <string name="romm_collections_pulled">%1$d collections RomM · %2$d jeux ajoutés · %3$d absents de la bibliothèque</string>
@@ -938,7 +937,7 @@
     <string name="share_add_folder">Ajouter le dossier comme source</string>
     <string name="share_add_source">Ajouter comme source</string>
     <string name="share_source_added">Source ajoutée ; analyse en cours</string>
-    <string name="filter_view">Vue enregistrée</string>
+    <string name="filter_view">Vue</string>
     <string name="view_save">Enregistrer ces filtres</string>
     <string name="view_save_hint">Donnez-leur un nom ; rouvrez-les d\'une touche ou comme raccourci dans ES-DE</string>
     <string name="view_saved">Enregistré sous %1$s</string>
@@ -947,7 +946,6 @@
     <string name="views_empty">Aucune : réglez des filtres dans la bibliothèque et touchez l\'étoile près du nombre de résultats</string>
     <string name="view_shortcut">Raccourci</string>
     <string name="view_shortcut_needs_console">Un raccourci exige une vue avec au moins une console</string>
-    <string name="view_shortcut_done">Raccourci placé dans %1$d dossier(s) de console</string>
     <string name="view_shortcut_failed">Raccourci impossible (le dossier de la console est-il défini ?)</string>
     <string name="second_screen_idle">Parcourez la bibliothèque : le jeu sous le curseur s\'affiche ici</string>
     <string name="second_screen_downloads">En téléchargement (%1$d)</string>
@@ -969,6 +967,16 @@
     <string name="settings_auto_backup_folder">Dossier des sauvegardes</string>
     <string name="settings_second_screen">Second écran</string>
     <string name="settings_second_screen_hint">Sur une console à deux écrans ou une télé : détails et téléchargements</string>
+    <string name="bios_note_japan">Japon</string>
+    <string name="bios_note_usa">États-Unis</string>
+    <string name="bios_note_europe">Europe</string>
+    <string name="bios_note_usa_older">États-Unis (ancien)</string>
+    <string name="bios_note_usa_europe">États-Unis / Europe</string>
+    <string name="bios_note_ps2_any">Tout dump de BIOS PS2 (4 Mo), comme AetherSX2 / NetherSX2</string>
+    <string name="bios_note_gba_optional">la plupart des jeux s\'en passent</string>
+    <string name="bios_note_boot_logo">logo de démarrage seulement</string>
+    <string name="bios_note_original_bios_mode">seulement en mode BIOS d\'origine</string>
+    <string name="bios_note_neogeo_set">le jeu de BIOS MAME / FBNeo (versions variables)</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d sauvegarde modifiée des deux côtés — ouvrez Dogmatix pour choisir</item>
         <item quantity="other">%d sauvegardes modifiées des deux côtés — ouvrez Dogmatix pour choisir</item>
@@ -1092,6 +1100,14 @@
     <plurals name="switch_dlc_missing">
         <item quantity="one">%1$d DLC absent de l\'appareil</item>
         <item quantity="other">%1$d DLC absents de l\'appareil</item>
+    </plurals>
+    <plurals name="stats_weeks_ago">
+        <item quantity="one">Il y a %1$d semaine</item>
+        <item quantity="other">Il y a %1$d semaines</item>
+    </plurals>
+    <plurals name="view_shortcut_done">
+        <item quantity="one">Raccourci placé dans %1$d dossier de console</item>
+        <item quantity="other">Raccourci placé dans %1$d dossiers de console</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

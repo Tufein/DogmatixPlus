@@ -83,13 +83,19 @@ class DatViewModel @Inject constructor(
         }
     }
 
+    /** The console whose DAT is being fetched from Redump (a 10+ MB download, then parsed), or null. */
+    private val _fetching = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    val fetching: StateFlow<String?> = _fetching
+
     fun fetchRedump(context: Context, consoleId: String) {
+        if (_fetching.value != null) return
         val app = context.applicationContext
-        ToastUtil.showInfo(app, app.getString(R.string.dat_redump_fetching))
+        _fetching.value = consoleId
         viewModelScope.launch {
             runCatching { dat.importFromRedump(consoleId) }
                 .onSuccess { if (it != null) ToastUtil.showSuccess(app, app.getString(R.string.dat_imported, it)) }
                 .onFailure { ToastUtil.showError(app, app.getString(R.string.dat_import_failed, it.message ?: "")) }
+            _fetching.value = null
         }
     }
 
@@ -135,6 +141,7 @@ fun DatScreen(viewModel: DatViewModel = hiltViewModel()) {
     val sets by viewModel.sets.collectAsState()
     val reports by viewModel.reports.collectAsState()
     val progress by viewModel.progress.collectAsState()
+    val fetching by viewModel.fetching.collectAsState()
     val context = LocalContext.current
     var selected by rememberSaveable { mutableStateOf<String?>(null) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -175,7 +182,7 @@ fun DatScreen(viewModel: DatViewModel = hiltViewModel()) {
             PillButton(stringResource(if (set == null) R.string.dat_import else R.string.dat_replace)) {
                 picker.launch(arrayOf("application/xml", "text/xml", "application/zip", "application/octet-stream", "text/plain", "*/*"))
             }
-            if (com.cortinadev.dogmatix.util.RedumpSystems.systemFor(consoleId) != null) {
+            if (com.cortinadev.dogmatix.util.RedumpSystems.systemFor(consoleId) != null && fetching == null) {
                 PillButton(stringResource(R.string.dat_redump)) { viewModel.fetchRedump(context, consoleId) }
             }
             if (set != null) {
@@ -189,6 +196,12 @@ fun DatScreen(viewModel: DatViewModel = hiltViewModel()) {
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
+        if (fetching == consoleId) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                Text(stringResource(R.string.dat_redump_fetching), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
         running?.let {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 LinearProgressIndicator(progress = { if (it.total == 0) 0f else it.done.toFloat() / it.total }, modifier = Modifier.fillMaxWidth())

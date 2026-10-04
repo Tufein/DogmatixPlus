@@ -882,13 +882,12 @@
     <string name="nav_stats">Estadísticas</string>
     <string name="tools_stats_hint">Descargas por mes y consola, y cómo crece tu biblioteca</string>
     <string name="stats_downloads_total">%1$d descargas · %2$s en total</string>
-    <string name="stats_library">%1$d juegos en la biblioteca · %2$d favoritos · %3$d colecciones</string>
+    <string name="stats_library">Biblioteca: %1$d juegos · favoritos: %2$d · colecciones: %3$d</string>
     <string name="stats_per_month">Descargas por mes</string>
     <string name="stats_per_console">Consolas más descargadas</string>
     <string name="stats_new_per_week">Juegos nuevos por semana</string>
     <string name="stats_new_per_week_hint">Encontrados al reescanear tus fuentes</string>
     <string name="stats_this_week">Esta semana</string>
-    <string name="stats_weeks_ago">Hace %1$d semanas</string>
     <string name="romm_collections_pull">Desde RomM</string>
     <string name="romm_collections_push">A RomM</string>
     <string name="romm_collections_pulled">%1$d colecciones de RomM · %2$d juegos añadidos · %3$d no están en tu biblioteca</string>
@@ -907,7 +906,7 @@
     <string name="share_add_folder">Añadir carpeta como fuente</string>
     <string name="share_add_source">Añadir como fuente</string>
     <string name="share_source_added">Fuente añadida; escaneándola</string>
-    <string name="filter_view">Vista guardada</string>
+    <string name="filter_view">Vista</string>
     <string name="view_save">Guardar estos filtros</string>
     <string name="view_save_hint">Ponles nombre; ábrelos luego con un toque o como acceso directo en ES-DE</string>
     <string name="view_saved">Guardado como %1$s</string>
@@ -916,7 +915,6 @@
     <string name="views_empty">Ninguna: pon filtros en la biblioteca y toca la estrella junto al número de resultados</string>
     <string name="view_shortcut">Acceso directo</string>
     <string name="view_shortcut_needs_console">Un acceso directo necesita al menos una consola</string>
-    <string name="view_shortcut_done">Acceso directo en %1$d carpeta(s) de consola</string>
     <string name="view_shortcut_failed">No se pudo crear (¿tiene carpeta la consola?)</string>
     <string name="second_screen_idle">Recorre la biblioteca: el juego bajo el cursor aparece aquí</string>
     <string name="second_screen_downloads">Descargando (%1$d)</string>
@@ -938,6 +936,16 @@
     <string name="settings_auto_backup_folder">Carpeta de copias</string>
     <string name="settings_second_screen">Segunda pantalla</string>
     <string name="settings_second_screen_hint">En portátiles de doble pantalla o una tele: detalles y descargas allí</string>
+    <string name="bios_note_japan">Japón</string>
+    <string name="bios_note_usa">EE. UU.</string>
+    <string name="bios_note_europe">Europa</string>
+    <string name="bios_note_usa_older">EE. UU. (antiguo)</string>
+    <string name="bios_note_usa_europe">EE. UU. / Europa</string>
+    <string name="bios_note_ps2_any">Cualquier volcado de BIOS de PS2 (4 MB), como usan AetherSX2 / NetherSX2</string>
+    <string name="bios_note_gba_optional">la mayoría de juegos funcionan sin ella</string>
+    <string name="bios_note_boot_logo">solo el logo de arranque</string>
+    <string name="bios_note_original_bios_mode">solo con el modo BIOS original</string>
+    <string name="bios_note_neogeo_set">el set de BIOS de MAME / FBNeo (las versiones varían)</string>
     <plurals name="save_sync_bg_conflicts">
         <item quantity="one">%d partida cambió en ambos lados — abre Dogmatix para elegir</item>
         <item quantity="other">%d partidas cambiaron en ambos lados — abre Dogmatix para elegir</item>
@@ -1061,6 +1069,14 @@
     <plurals name="switch_dlc_missing">
         <item quantity="one">%1$d DLC no está en el dispositivo</item>
         <item quantity="other">%1$d DLC no están en el dispositivo</item>
+    </plurals>
+    <plurals name="stats_weeks_ago">
+        <item quantity="one">Hace %1$d semana</item>
+        <item quantity="other">Hace %1$d semanas</item>
+    </plurals>
+    <plurals name="view_shortcut_done">
+        <item quantity="one">Acceso directo puesto en %1$d carpeta de consola</item>
+        <item quantity="other">Acceso directo puesto en %1$d carpetas de consola</item>
     </plurals>
     <!-- end 1.2.0-alpha.1 strings -->
 </resources>

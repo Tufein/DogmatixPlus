@@ -53,9 +53,10 @@ class ShareTargetViewModel @Inject constructor(
     private val scanService: SourceScanService,
     private val downloadService: DownloadService
 ) : ViewModel() {
-    val consoles: StateFlow<List<ConsoleEntity>> = consoleRepository.getAllConsoles()
+    /** Null until the database has answered, so a cold start does not flash "add a console first". */
+    val consoles: StateFlow<List<ConsoleEntity>?> = consoleRepository.getAllConsoles()
         .map { list -> list.sortedBy { ConsoleFormatter.getConsoleDisplayName(it.id) } }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     /** Downloads a shared file straight into [consoleId]'s folder. */
     fun download(context: Context, link: SharedLink, consoleId: String) {
@@ -88,7 +89,8 @@ class ShareTargetViewModel @Inject constructor(
  */
 @Composable
 fun ShareTargetDialog(link: SharedLink, onDismiss: () -> Unit, viewModel: ShareTargetViewModel = hiltViewModel()) {
-    val consoles by viewModel.consoles.collectAsState()
+    val loaded by viewModel.consoles.collectAsState()
+    val consoles = loaded.orEmpty()
     val context = LocalContext.current
     var consoleId by remember { mutableStateOf<String?>(null) }
     val cancelFocus = rememberInitialFocus()
@@ -108,7 +110,9 @@ fun ShareTargetDialog(link: SharedLink, onDismiss: () -> Unit, viewModel: ShareT
                     }),
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                if (consoles.isEmpty()) {
+                if (loaded == null) {
+                    Unit
+                } else if (consoles.isEmpty()) {
                     Text(stringResource(R.string.share_no_consoles), color = MaterialTheme.colorScheme.error)
                 } else {
                     Text(stringResource(R.string.share_pick_console), style = MaterialTheme.typography.titleSmall)
