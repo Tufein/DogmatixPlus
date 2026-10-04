@@ -112,23 +112,27 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             contentPadding = PaddingValues(bottom = 12.dp),
             modifier = Modifier.fillMaxSize()
         ) {
+            item { ToolsGroup(stringResource(R.string.tools_group_library)) }
             item { ToolRow(stringResource(R.string.settings_overview), listOf(stringResource(R.string.settings_overview_hint)), { go(NavRoutes.Overview) }, Modifier.focusRequester(firstFocus), trailing = chevron) }
             item { ToolRow(stringResource(R.string.settings_duplicates), listOf(stringResource(R.string.settings_duplicates_hint)), { go(NavRoutes.Duplicates) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_sets), listOf(stringResource(R.string.tools_sets_hint)), { go(NavRoutes.Sets) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_storage), listOf(stringResource(R.string.tools_storage_hint)), { go(NavRoutes.Storage) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_wishlist), listOf(stringResource(R.string.tools_wishlist_hint)), { go(NavRoutes.Wishlist) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_frontends), listOf(stringResource(R.string.tools_frontends_hint)), { go(NavRoutes.Frontends) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_files), listOf(stringResource(R.string.tools_files_hint)), { go(NavRoutes.Files) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_collections), listOf(stringResource(R.string.tools_collections_hint)), { go(NavRoutes.Collections) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_switch), listOf(stringResource(R.string.tools_switch_hint)), { go(NavRoutes.Switch) }, trailing = chevron) }
+            item { ToolRow(stringResource(R.string.nav_files), listOf(stringResource(R.string.tools_files_hint)), { go(NavRoutes.Files) }, trailing = chevron) }
+            item { ToolRow(stringResource(R.string.nav_storage), listOf(stringResource(R.string.tools_storage_hint)), { go(NavRoutes.Storage) }, trailing = chevron) }
+            item { ToolRow(stringResource(R.string.nav_stats), listOf(stringResource(R.string.tools_stats_hint)), { go(NavRoutes.Stats) }, trailing = chevron) }
+            item { ToolsGroup(stringResource(R.string.tools_group_games)) }
+            item { ToolRow(stringResource(R.string.nav_wishlist), listOf(stringResource(R.string.tools_wishlist_hint)), { go(NavRoutes.Wishlist) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_dat), listOf(stringResource(R.string.tools_dat_hint)), { go(NavRoutes.Dat) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_bios), listOf(stringResource(R.string.tools_bios_hint)), { go(NavRoutes.Bios) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_stats), listOf(stringResource(R.string.tools_stats_hint)), { go(NavRoutes.Stats) }, trailing = chevron) }
+            item { ToolRow(stringResource(R.string.nav_switch), listOf(stringResource(R.string.tools_switch_hint)), { go(NavRoutes.Switch) }, trailing = chevron) }
             item { ToolRow(stringResource(R.string.nav_ra), listOf(stringResource(R.string.tools_ra_hint)), { go(NavRoutes.RetroAchievements) }, trailing = chevron) }
+            item { ToolsGroup(stringResource(R.string.settings_section_frontends)) }
+            item { ToolRow(stringResource(R.string.nav_frontends), listOf(stringResource(R.string.tools_frontends_hint)), { go(NavRoutes.Frontends) }, trailing = chevron) }
             item {
                 val run = { viewModel.importEsdeFavourites(context) }
                 ToolRow(stringResource(R.string.esde_favs), listOf(stringResource(R.string.esde_favs_hint)), run) { PillButton(stringResource(R.string.esde_favs_action), run) }
             }
+            item { ToolsGroup(stringResource(R.string.tools_group_export)) }
             item {
                 val launch = { csvLauncher.launch("dogmatixplus-collection-${LocalDate.now()}.csv") }
                 ToolRow(stringResource(R.string.tools_export_csv), listOf(stringResource(R.string.tools_export_csv_hint)), launch) { PillButton(stringResource(R.string.tools_export_action), launch) }

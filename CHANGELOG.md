@@ -5,6 +5,15 @@ All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 
 ## [Unreleased]
 
+### Settings and Tools, tidied up
+- **Settings in groups**: *Look and controls*, *Downloads*, *When to download*, *After a download*,
+  *Torrents and debrid*, *Library and sources*, *Frontends*, *RomM and saves*, *Profiles*, *Backup*
+  and *App and updates*, each with a heading, instead of one long list split over two columns at
+  random. The way into *Tools* is now the first row. In portrait **LB / RB** jump to the previous or
+  next group; in landscape they still hop between the two columns.
+- *Library overview* and *Duplicates* are no longer listed twice: they live in *Tools*.
+- **Tools in groups** as well: *Library*, *Games and checks*, *Frontends* and *Export*.
+
 ### Fixed
 - **"App isn't responding" after queueing a whole console.** Every time a download finished, the
   library looked up *every* finished download again in the database, by file name, and that column
