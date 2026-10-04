@@ -181,6 +181,9 @@ class DownloadProgressTracker @Inject constructor(
     fun isActive(fileName: String): Boolean =
         _downloads.value.any { it.fileName == fileName && !it.isFinished }
 
+    /** Names of the rows that are queued, downloading, copying or extracting, in one pass over the list. */
+    fun activeNames(): Set<String> = _downloads.value.filterNot { it.isFinished }.mapTo(HashSet()) { it.fileName }
+
     fun hasActiveDownloads(): Boolean {
         return _downloads.value.any {
             it.status == DownloadStatus.QUEUED ||

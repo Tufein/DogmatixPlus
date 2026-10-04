@@ -44,6 +44,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
@@ -168,17 +169,19 @@ class HomeViewModel @Inject constructor(
         val owned = ownedKeys.value
         val active = activeDownloads.value
         val languages = settingsRepository.favoriteLanguages.first()
-        return com.cortinadev.dogmatix.util.BulkPlanner.plan(
+        val whitespace = Regex("\\s+")
+        // Thousands of rows for a whole console: plan them off the UI thread (the dialog asks from it).
+        return kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { com.cortinadev.dogmatix.util.BulkPlanner.plan(
             rows.map {
                 com.cortinadev.dogmatix.util.BulkCandidate(
                     // The cleaned title itself (tags are already stripped from it): the search key folds
                     // repeated characters, so "Game 001" and "Game 011" would count as one game.
-                    it.file.id, it.file.consoleId, it.file.name.lowercase().replace(Regex("\\s+"), " ").trim(),
+                    it.file.id, it.file.consoleId, it.file.name.lowercase().replace(whitespace, " ").trim(),
                     it.file.fileName, it.file.fileSize, it.tags, isOwned(it.file, owned), isDownloading(it.file, active)
                 )
             },
             bestOnly, VersionPicker.regionPreference(languages), languages, libraryIndex.freeBytes.value
-        ).also { lastBulkRows = rows.associateBy { it.file.id } }
+        ) }.also { lastBulkRows = rows.associateBy { it.file.id } }
     }
 
     private var lastBulkRows: Map<Long, DownloadableFileWithTags> = emptyMap()
@@ -283,6 +286,7 @@ class HomeViewModel @Inject constructor(
     /** File names with a download in flight (queued, downloading, copying or extracting). */
     val activeDownloads: StateFlow<Set<String>> = downloadService.downloads
         .map { list -> list.filter { !it.isFinished }.map { it.fileName }.toSet() }
+        .flowOn(kotlinx.coroutines.Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     fun isDownloading(file: DownloadableFileEntity, active: Set<String>): Boolean = file.fileName in active
