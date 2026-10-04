@@ -31,6 +31,10 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
+### New in 3.3
+- **Failed downloads retry by themselves** and are **checked against your DAT** as soon as they finish.
+- **Move the whole library** to another storage (for example the SD card), **upload what RomM lacks**, **share the wishlist** as a file, and a **frontend check** in Tools.
+
 ### New in 3.2
 - **The wishlist knows what you already have**: games already on the device or on your RomM server are marked and not downloaded again.
 - **Covers for Pegasus and RetroArch** after every download, next to the ones for ES-DE.

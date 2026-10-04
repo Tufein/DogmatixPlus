@@ -31,6 +31,10 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 3.3
+- **Las descargas fallidas se reintentan solas** y se **comprueban con tu DAT** en cuanto terminan.
+- **Mover toda la biblioteca** a otro almacenamiento (por ejemplo la tarjeta SD), **subir lo que le falta a RomM**, **compartir la lista de deseos** como archivo, y una **comprobación de frontends** en Herramientas.
+
 ### Novedades de 3.2
 - **La lista de deseos sabe lo que ya tienes**: los juegos que ya están en el dispositivo o en tu servidor RomM se marcan y no se vuelven a descargar.
 - **Carátulas para Pegasus y RetroArch** tras cada descarga, además de las de ES-DE.

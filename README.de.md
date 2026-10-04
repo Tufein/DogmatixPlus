@@ -31,6 +31,10 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 3.3
+- **Fehlgeschlagene Downloads starten von selbst neu** und werden **nach dem Download mit deiner DAT verglichen**.
+- **Die ganze Bibliothek auf einen anderen Speicher verschieben** (z. B. die SD-Karte), **hochladen, was RomM fehlt**, **die Wunschliste als Datei teilen** und ein **Frontend-Check** unter Tools.
+
 ### Neu in 3.2
 - **Die Wunschliste weiß, was du schon hast**: Spiele, die schon auf dem Gerät oder auf deinem RomM-Server sind, werden markiert und nicht noch einmal heruntergeladen.
 - **Cover für Pegasus und RetroArch** nach jedem Download, neben denen für ES-DE.

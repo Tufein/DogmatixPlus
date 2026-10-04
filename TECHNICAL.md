@@ -94,6 +94,15 @@ Everything below came with the alpha and is part of 1.2.0; the RomM parts have n
 - **Diagnostics**: `DiagnosticsService` builds the report; `DiagnosticsRedactor` removes tokens, URLs, magnet links, IP addresses, e-mail addresses and the saved secrets before it is shared.
 - **Italian and Portuguese** (European) join the other languages.
 
+### What 3.3.0 adds
+- **Automatic retry**: `AutoRetry` (pure) holds the waits (1, 5, 15 minutes), `temporaryStatus` (408, 425, 429, 5xx) and `isTemporary`; `DownloadHttpClient` throws `HttpStatusException(code)`, and `DownloadService.launchJob` calls `scheduleAutoRetry` after a FAILED from such an error (counter per file in `autoRetries`, cleared by a manual retry, a delete, or a success). Setting `auto_retry_failed` (default on).
+- **DAT check after download**: `verifyInBackground` falls back to `checkAgainstDat` when the source has no hash; `DatService.checkDownloaded` reuses the DAT tables, the hash cache and `DatMatcher` and returns null without a DAT, without hashes or for skipped formats. `VerifyState` gained `DAT_OK` / `DAT_UNKNOWN`.
+- **Wishlist share**: `WishlistShare` (pure, format `dogmatix-wishlist`, version 1) over the `BackupJson` wishlist helpers; an imported wish is "wanted" again.
+- **Frontend check**: `FrontendCheck` (pure) turns the settings into READY / TODO / MANUAL rows per frontend; `FrontendCheckScreen` (route `frontends`) navigates to Settings.
+- **Upload what RomM lacks**: `RommUploadPlan.missing` picks COMPLETED history rows that are still owned (`LibraryKeys.isOwned`), for a console mapped to RomM and not yet on the server; `RommUploadService.uploadMissing` enqueues them on the existing chunked upload. Needs the RomM key set (*Mark games already in RomM*).
+- **Move the library**: `LibraryMove` (pure: reserve of 100 MB, size and overlap checks) and `LibraryMoveService` (singleton, state flow): walks the library with `DiskScanner`, copies each file below the chosen folder, compares sizes, deletes the original only after that, and only with zero failures switches the download folder and refreshes the index. A file already at the target with the same size counts as copied.
+- **CI**: `.github/workflows/test.yml` runs the unit tests, a debug build and a non-blocking `lintDebug` on pull requests and branch pushes.
+
 ### What 3.2.0 adds
 - **Wishlist status**: `WishlistMatch` (pure) — `onDevice` over `LibraryIndexService.ownedKeys` (scopes of the wish's console, `LibraryKeys.scopesFor`), `inRomm` over `RommLibraryService.keys`, both with `GameTitleCleaner.containsAllWords`; `state` puts ON_DEVICE before IN_ROMM before IN_SOURCES. `WishlistRepository.checkAndNotify` skips games that are already had; the screen reloads when either key set changes.
 - **Frontend covers**: `FrontendArtwork` (pure) gives the paths; `PostDownloadService` writes Pegasus' `media/<base name>/boxFront.<ext>` in the game's folder (cover from `GameMetadataService`) and RetroArch's `<libretro system>/Named_Boxarts/<thumbnail name>.png` under the picked thumbnails folder (box art from `ThumbnailService`, PNG). Existing covers are never replaced.
@@ -166,7 +175,7 @@ Everything below came with the alpha and is part of 1.2.0; the RomM parts have n
 - **Colours.** Twelve accent presets and Material You (`AccentPresets.dynamic`, stored as `dynamic`): on Android 12+ the theme uses `dynamicLight/DarkColorScheme` (pure black keeps a black background) and derives the Dogmatix tokens from it; the theme is built at one call site so switching never resets the screen.
 
 ### Smaller changes
-- The app version is **3.2.0** (3.1.0, 3.0.0, 2.6.0, 2.5.0, 2.0.0, 1.3.0, 1.2.0, 1.2.0-alpha.1 and 1.1.0-beta.1 before it) (DogmatixPlus numbers its own releases; 1.0.0 was the first); the Credits screen shows the whole lineage, and the update check reads this repository's releases instead of the original project's. It skips pre-releases, and a beta counts as older than its final release.
+- The app version is **3.3.0** (3.2.0, 3.1.0, 3.0.0, 2.6.0, 2.5.0, 2.0.0, 1.3.0, 1.2.0, 1.2.0-alpha.1 and 1.1.0-beta.1 before it) (DogmatixPlus numbers its own releases; 1.0.0 was the first); the Credits screen shows the whole lineage, and the update check reads this repository's releases instead of the original project's. It skips pre-releases, and a beta counts as older than its final release.
 - The `.md` extension counts as a Mega Drive ROM inside console folders (but not `README.md`).
 - 332 unit tests (254 more than Dogmatix 1.2) cover the new logic. One of them runs the save sync of two devices against a real RomM server when `ROMM_TEST_URL` and `ROMM_TEST_TOKEN` are set (it is skipped otherwise); it passed against RomM 3.10.3, 4.0.0 and 5.3.1. The 1.0.0 screens were tried on an emulator, in portrait and landscape, in the debug and in the minified release build; the 1.1.0 beta screens were not (see the release notes).
 
@@ -372,16 +381,16 @@ Everything is also reachable by touch; the legend only appears while a controlle
 
 Planned features, in no particular order:
 
-- Try everything in 1.2.0-alpha.1 against real RomM servers and a real handheld, and fix what that shows (certificate trust, resumed uploads, deletion sync, background sync, covers, the schedule and the checksum check have only been covered by unit tests so far).
+- Try everything from 1.2.0-alpha.1 up to 3.3.0 (move library and RomM upload especially) against real RomM servers and a real handheld, and fix what that shows (certificate trust, resumed uploads, deletion sync, background sync, covers, the schedule and the checksum check have only been covered by unit tests so far).
 - Covers for iiSU and Daijishō. Neither has a known folder where it reads covers; find out on a real device first, then reuse `FrontendArtwork`.
 - Save sync for emulators whose saves are not named after the ROM: DuckStation and PPSSPP (memory cards and `SAVEDATA/<title id>` folders), matched to a game by serial or title id instead of by file name.
-- Move the library to another storage (internal ↔ SD card) from the storage overview, with the free-space check, a progress notification and the library index kept in step.
-- Upload ROMs to RomM: push games that are on the device but not on the server, reusing the resumable chunked upload of save sync.
-- Retry failed downloads by themselves when the network or the schedule allows it again, with a growing wait between attempts and a limit, next to the manual *Retry failed* button.
-- Verify a game right after its download against the DAT set (or RomM's hash) and show the result on the finished download, instead of only in the library tools.
-- Share the wishlist between devices (QR or file), like the sources export already does for favourites.
-- An in-app first-run check of the frontend setup (ES-DE, Pegasus, RetroArch, iiSU, Daijishō): which folders are set, which covers and shortcuts are missing, one tap to fix.
-- Housekeeping: UI tests on an emulator in CI, a lint step (ktlint or detekt) next to the unit tests, and a note in the release notes when a database migration is included.
+- ~~Move the library to another storage (internal ↔ SD card) from the storage overview, with the free-space check, a progress notification and the library index kept in step.~~ — done in 3.3.0 (*Tools → Storage → Move the library*).
+- ~~Upload ROMs to RomM: push games that are on the device but not on the server, reusing the resumable chunked upload of save sync.~~ — done in 3.3.0 (*Settings → RomM → Upload what the server lacks*).
+- ~~Retry failed downloads by themselves when the network or the schedule allows it again, with a growing wait between attempts and a limit, next to the manual *Retry failed* button.~~ — done in 3.3.0 (*Settings → Retry failed downloads by itself*).
+- ~~Verify a game right after its download against the DAT set (or RomM's hash) and show the result on the finished download, instead of only in the library tools.~~ — done in 3.3.0 (against the DAT, when the source has no checksum).
+- ~~Share the wishlist between devices (QR or file), like the sources export already does for favourites.~~ — done in 3.3.0 as a file (export / import); no QR code.
+- ~~An in-app first-run check of the frontend setup (ES-DE, Pegasus, RetroArch, iiSU, Daijishō): which folders are set, which covers and shortcuts are missing, one tap to fix.~~ — done in 3.3.0 as *Tools → Frontend check* (it reads Dogmatix's settings, not the frontends' folders).
+- Housekeeping: UI tests on an emulator in CI, and a note in the release notes when a database migration is included. (The unit tests and a lint run now run in CI on every branch and pull request, since 3.3.0.)
 - ~~A "wanted" status from the wishlist that also checks RomM's library, and cover art for frontends other than ES-DE~~ — done in 3.2.0 (wishlist: on the device / on RomM; covers for Pegasus and RetroArch).
 - ~~Per-console save folders for standalone emulators~~ — done in 3.1.0 (*Save sync → Add an emulator's saves folder*).
 - ~~Mark games already in RomM as owned in the library~~ — done in 1.2.0-alpha.1.
