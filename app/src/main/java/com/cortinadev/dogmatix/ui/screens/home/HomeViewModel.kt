@@ -5,7 +5,13 @@ import com.cortinadev.dogmatix.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.data.local.AppSettings
+import com.cortinadev.dogmatix.BuildConfig
 import com.cortinadev.dogmatix.data.local.LookSettings
+import com.cortinadev.dogmatix.data.local.dao.GameMetadataDao
+import com.cortinadev.dogmatix.util.GameTitleCleaner
+import com.cortinadev.dogmatix.util.LibraryDiscovery
+import com.cortinadev.dogmatix.util.SimilarGames
+import kotlinx.coroutines.delay
 import com.cortinadev.dogmatix.data.local.dao.CollectionWithCount
 import com.cortinadev.dogmatix.data.local.entity.ConsoleEntity
 import com.cortinadev.dogmatix.data.local.dao.ConsoleWithFileCount
@@ -93,12 +99,111 @@ class HomeViewModel @Inject constructor(
     private val profiles: ProfileService,
     private val retroAchievements: RetroAchievementsService,
     private val libraryTools: LibraryToolsService,
+    private val metadataDao: GameMetadataDao,
     lookSettings: LookSettings
 ) : ViewModel() {
 
     /** 5.0: small covers in front of the games in the list (Settings → Look). */
     val listCovers: StateFlow<Boolean> = lookSettings.listCovers
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    /** 6.0: tighter rows (Settings → Look → compact lists). */
+    val compactLists: StateFlow<Boolean> = lookSettings.compactLists
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    // ---- 6.0: search by feel (genre / decade from the cached game details) ----------------------
+
+    private val _genres = MutableStateFlow<Set<String>>(emptySet())
+    val genres: StateFlow<Set<String>> = _genres.asStateFlow()
+    private val _decades = MutableStateFlow<Set<Int>>(emptySet())
+    val decades: StateFlow<Set<Int>> = _decades.asStateFlow()
+
+    fun setGenres(selection: Set<String>) { _genres.value = selection }
+    fun setDecades(selection: Set<Int>) { _decades.value = selection }
+
+    /**
+     * What the cached details know (genre / year per title), built off the main thread and rebuilt
+     * when the cache grows. Each build is a new object, so a change always re-runs an active filter.
+     */
+    val discoverIndex: StateFlow<LibraryDiscovery.Index> = metadataDao.observeKnown()
+        .map { rows -> LibraryDiscovery.buildIndex(rows.map { LibraryDiscovery.RawRow(it.lookupKey, it.genres, it.released, it.developer) }) }
+        .flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, LibraryDiscovery.Index.EMPTY)
+
+    /** State of "Fetch details for the shown games". */
+    sealed interface FetchState {
+        object Idle : FetchState
+        object NoKeys : FetchState
+        data class Running(val done: Int, val total: Int) : FetchState
+        data class Done(val found: Int, val total: Int) : FetchState
+    }
+
+    private val _fetchState = MutableStateFlow<FetchState>(FetchState.Idle)
+    val fetchState: StateFlow<FetchState> = _fetchState.asStateFlow()
+    private var fetchJob: Job? = null
+    private val triedKeys = HashSet<String>()
+
+    /** Whether any metadata database is configured in this build (RAWG / TheGamesDB keys). */
+    private val hasMetadataKeys: Boolean get() = BuildConfig.RAWG_API_KEY.isNotEmpty() || BuildConfig.THEGAMESDB_API_KEY.isNotEmpty()
+
+    /**
+     * Opt-in: looks up the details of the games now in the list that are not cached yet, at most
+     * [FETCH_CAP] titles, one every [FETCH_GAP_MS] ms (RAWG / TheGamesDB have quotas). Pressing it
+     * again while it runs stops it. Nothing runs in the background by itself.
+     */
+    fun fetchDetailsForShown() {
+        if (fetchJob?.isActive == true) { fetchJob?.cancel(); _fetchState.value = FetchState.Idle; return }
+        if (!hasMetadataKeys) { _fetchState.value = FetchState.NoKeys; return }
+        val shown = _results.value
+        fetchJob = viewModelScope.launch {
+            val targets = withContext(Dispatchers.Default) {
+                LibraryDiscovery.fetchTargets(
+                    shown.map { LibraryDiscovery.Target(LibraryDiscovery.lookupKey(it.file.consoleId, it.file.name), it.file.name, it.file.consoleId) },
+                    discoverIndex.value.byKey.keys, triedKeys, FETCH_CAP
+                )
+            }
+            if (targets.isEmpty()) { _fetchState.value = FetchState.Done(0, 0); return@launch }
+            var found = 0
+            targets.forEachIndexed { i, t ->
+                _fetchState.value = FetchState.Running(i, targets.size)
+                triedKeys.add(t.key)
+                val details = runCatching { metadataService.lookup(t.name, t.consoleId) }.getOrNull()
+                if (details != null && (details.genres.isNotEmpty() || details.released.isNotBlank())) found++
+                if (i < targets.lastIndex) delay(FETCH_GAP_MS)
+            }
+            _fetchState.value = FetchState.Done(found, targets.size)
+        }
+    }
+
+    /** The details dialog's "More like this": local data only, off the main thread. */
+    private suspend fun similarTo(item: DownloadableFileWithTags, extra: GameDetails?): List<DownloadableFileWithTags> = runCatching {
+        withContext(Dispatchers.Default) {
+            val index = discoverIndex.value
+            val file = item.file
+            val own = index.metaFor(file.consoleId, file.name)
+            val genres = own?.genres ?: LibraryDiscovery.parseGenres(extra?.genres?.joinToString("|").orEmpty())
+            val developer = own?.developer?.takeIf { it.isNotBlank() } ?: extra?.developer.orEmpty()
+            val target = SimilarGames.Candidate(file.id, file.consoleId, file.name, genres, developer)
+            val family = SimilarGames.familyQuery(file.name)
+            val pool = HashMap<Long, DownloadableFileWithTags>()
+            if (family.isNotBlank()) {
+                repository.searchFilesWithTags(query = family, limit = 80, offset = 0).forEach { pool[it.file.id] = it }
+            }
+            // Same console and a shared genre: cheap thanks to the cached index (no network).
+            if (genres.isNotEmpty()) {
+                repository.filesOf(file.consoleId).asSequence()
+                    .filter { f -> index.metaFor(f.consoleId, f.name)?.genres?.any { it in genres } == true }
+                    .take(400)
+                    .forEach { pool.putIfAbsent(it.id, DownloadableFileWithTags(it, emptyList())) }
+            }
+            val candidates = pool.values.map {
+                val meta = index.metaFor(it.file.consoleId, it.file.name)
+                SimilarGames.Candidate(it.file.id, it.file.consoleId, it.file.name, meta?.genres.orEmpty(), meta?.developer.orEmpty())
+            }
+            val byId = pool
+            SimilarGames.rank(target, candidates, SIMILAR_LIMIT).mapNotNull { byId[it.id] }
+        }
+    }.getOrDefault(emptyList())
 
     /** Bytes that removing duplicate games (keeping the biggest copy of each) would free; null on failure. */
     suspend fun reclaimableBytes(): Long? = runCatching {
@@ -121,7 +226,7 @@ class HomeViewModel @Inject constructor(
     private fun currentView(id: String = "", name: String = "") = LibraryView(
         id = id, name = name, query = _searchQuery.value, consoles = _selectedConsoles.value, tags = _activeTags.value,
         favouritesOnly = _favouritesOnly.value, newOnly = _newOnly.value, collectionId = _collectionId.value,
-        source = _source.value.name, sort = _sort.value.name
+        source = _source.value.name, sort = _sort.value.name, genres = _genres.value, decades = _decades.value
     )
 
     /** The saved view whose filters are exactly the current ones, if any. */
@@ -145,6 +250,8 @@ class HomeViewModel @Inject constructor(
         _collectionId.value = view.collectionId
         _source.value = runCatching { SourceFilter.valueOf(view.source) }.getOrDefault(SourceFilter.ALL)
         _sort.value = runCatching { SortOption.valueOf(view.sort) }.getOrDefault(SortOption.NAME_ASC)
+        _genres.value = view.genres
+        _decades.value = view.decades
     }
 
     // ---- 2.0: new games, collections, bulk download, Switch updates / DLC ----------------------
@@ -189,11 +296,7 @@ class HomeViewModel @Inject constructor(
 
     /** What "Download all" would queue for the current filters ([bestOnly]: one version per game). */
     suspend fun planBulk(bestOnly: Boolean): BulkPlan {
-        val rows = repository.searchFilesWithTags(
-            query = _searchQuery.value, consoleIds = _selectedConsoles.value, tags = _activeTags.value,
-            favouritesOnly = _favouritesOnly.value, newSince = newSince(), collectionId = _collectionId.value,
-            source = _source.value, sort = _sort.value, limit = BulkPlanner.MAX_FILES * 4, offset = 0
-        )
+        val rows = fetchFiltered(currentParams(), 0, BulkPlanner.MAX_FILES * 4).rows
         val owned = ownedKeys.value
         val active = activeDownloads.value
         val languages = settingsRepository.favoriteLanguages.first()
@@ -296,8 +399,16 @@ class HomeViewModel @Inject constructor(
                     .firstOrNull { it.baseId == title.baseId }
                 if (_details.value?.item == item) _details.value = _details.value!!.copy(switchTitle = title, switch = status)
             }
+            // "More like this" from what is cached: shown before the (slower) online lookup returns.
+            val similar = similarTo(item, null)
+            if (_details.value?.item == item && similar.isNotEmpty()) _details.value = _details.value!!.copy(similar = similar)
             val found = metadataService.lookup(item.file.name, item.file.consoleId, item.file.fileName)
             if (_details.value?.item == item) _details.value = _details.value!!.copy(loading = false, details = found)
+            // The lookup may have brought genres / developer the first pass did not have.
+            if (found != null && (found.genres.isNotEmpty() || found.developer.isNotBlank())) {
+                val better = similarTo(item, found)
+                if (_details.value?.item == item && better.isNotEmpty()) _details.value = _details.value!!.copy(similar = better)
+            }
         }
     }
 
@@ -419,19 +530,23 @@ class HomeViewModel @Inject constructor(
                 // Re-query when a star changes while "Favourites only" is on, else the row would linger.
                 // …and when the active profile changes what is hidden.
                 combine(_favouritesOnly, favourites.keys, profiles.restrictions) { only, keys, r -> (if (only) keys else emptySet()) to r }.distinctUntilChanged(),
-                pageSize
-            ) { (query, consoles, tags), extra, _, limit ->
+                pageSize,
+                // 6.0: genre / decade; the index only matters (and re-runs the search) while one is active.
+                combine(_genres, _decades, discoverIndex) { g, d, idx -> Triple(g, d, if (g.isNotEmpty() || d.isNotEmpty()) idx else null) }
+            ) { (query, consoles, tags), extra, _, limit, (genres, decades, _) ->
                 FilterParams(
                     query = query, consoles = consoles, tags = tags, sort = extra.sort, favouritesOnly = extra.favouritesOnly, source = extra.source, limit = limit,
-                    newSince = if (extra.newOnly) NewGames.since(System.currentTimeMillis()) else 0L, collectionId = extra.collectionId
+                    newSince = if (extra.newOnly) NewGames.since(System.currentTimeMillis()) else 0L, collectionId = extra.collectionId,
+                    genres = genres, decades = decades
                 )
             }.collect { params ->
                 currentOffset = 0
                 _isSearching.value = true
                 try {
-                    val initialResults = performSearch(params)
-                    _results.value = initialResults
-                    _hasMoreResults.value = initialResults.size >= params.limit
+                    val page = fetchFiltered(params, 0, params.limit)
+                    currentOffset = page.nextOffset
+                    _results.value = page.rows
+                    _hasMoreResults.value = !page.exhausted
                     // Before the flag drops: an empty list must already know whether the library is empty.
                     loadConsoles()
                 } finally {
@@ -526,22 +641,54 @@ class HomeViewModel @Inject constructor(
         _source.value = SourceFilter.ALL
         _newOnly.value = false
         _collectionId.value = 0L
+        _genres.value = emptySet()
+        _decades.value = emptySet()
     }
 
-    private suspend fun performSearch(params: FilterParams): List<DownloadableFileWithTags> {
-        currentOffset = 0
-        return repository.searchFilesWithTags(
-            query = params.query,
-            consoleIds = params.consoles,
-            tags = params.tags,
-            favouritesOnly = params.favouritesOnly,
-            newSince = params.newSince,
-            collectionId = params.collectionId,
-            source = params.source,
-            sort = params.sort,
-            limit = params.limit,
-            offset = 0
+    private fun currentParams() = FilterParams(
+        query = _searchQuery.value, consoles = _selectedConsoles.value, tags = _activeTags.value, sort = _sort.value,
+        favouritesOnly = _favouritesOnly.value, source = _source.value, limit = pageSize.value, newSince = newSince(),
+        collectionId = _collectionId.value, genres = _genres.value, decades = _decades.value
+    )
+
+    /** A page of results: where the next one starts (in database rows) and whether nothing is left. */
+    private class Page(val rows: List<DownloadableFileWithTags>, val nextOffset: Int, val exhausted: Boolean)
+
+    /**
+     * [want] rows of the filtered list from database row [offset] on. Without a genre / decade
+     * filter that is one query. With one, the database filters cannot know the cached details, so
+     * rows are read in batches of [SCAN_BATCH] and matched against [discoverIndex] on a background
+     * thread until [want] are found, the list ends, or [SCAN_CAP] rows were looked at (the next
+     * page then simply continues from there).
+     */
+    private suspend fun fetchFiltered(params: FilterParams, offset: Int, want: Int): Page {
+        val filter = LibraryDiscovery.Filter(params.genres, params.decades)
+        suspend fun query(limit: Int, from: Int) = repository.searchFilesWithTags(
+            query = params.query, consoleIds = params.consoles, tags = params.tags, favouritesOnly = params.favouritesOnly,
+            newSince = params.newSince, collectionId = params.collectionId, source = params.source, sort = params.sort,
+            limit = limit, offset = from
         )
+        if (!filter.isActive) {
+            val rows = query(want, offset)
+            return Page(rows, offset + rows.size, rows.size < want)
+        }
+        val index = discoverIndex.value
+        val out = ArrayList<DownloadableFileWithTags>()
+        var next = offset
+        var scanned = 0
+        var exhausted = false
+        while (out.size < want && scanned < SCAN_CAP) {
+            val batch = query(SCAN_BATCH, next)
+            if (batch.isEmpty()) { exhausted = true; break }
+            val matched = withContext(Dispatchers.Default) {
+                LibraryDiscovery.match(batch, index, filter, want - out.size) { LibraryDiscovery.lookupKey(it.file.consoleId, it.file.name) }
+            }
+            out.addAll(matched.rows)
+            next += matched.consumed
+            scanned += matched.consumed
+            if (matched.consumed == batch.size && batch.size < SCAN_BATCH) { exhausted = true; break }
+        }
+        return Page(out, next, exhausted)
     }
 
     private suspend fun loadConsoles() {
@@ -574,27 +721,11 @@ class HomeViewModel @Inject constructor(
 
         val limit = pageSize.value
         _isLoadingMore.value = true
-        currentOffset += limit
 
-        val newResults = repository.searchFilesWithTags(
-            query = _searchQuery.value,
-            consoleIds = _selectedConsoles.value,
-            tags = _activeTags.value,
-            favouritesOnly = _favouritesOnly.value,
-            newSince = newSince(),
-            collectionId = _collectionId.value,
-            source = _source.value,
-            sort = _sort.value,
-            limit = limit,
-            offset = currentOffset
-        )
-
-        if (newResults.isEmpty()) {
-            _hasMoreResults.value = false
-        } else {
-            _results.value += newResults
-            if (newResults.size < limit) _hasMoreResults.value = false
-        }
+        val page = fetchFiltered(currentParams(), currentOffset, limit)
+        currentOffset = page.nextOffset
+        if (page.rows.isNotEmpty()) _results.value += page.rows
+        _hasMoreResults.value = !page.exhausted
 
         _isLoadingMore.value = false
     }
@@ -624,8 +755,16 @@ data class FilterParams(
     val source: SourceFilter = SourceFilter.ALL,
     val limit: Int = Constants.DEFAULT_MAX_SEARCH_RESULTS,
     val newSince: Long = 0L,
-    val collectionId: Long = 0L
+    val collectionId: Long = 0L,
+    val genres: Set<String> = emptySet(),
+    val decades: Set<Int> = emptySet()
 )
+
+private const val SCAN_BATCH = 1500
+private const val SCAN_CAP = 60_000
+internal const val FETCH_CAP = 40
+private const val FETCH_GAP_MS = 800L
+private const val SIMILAR_LIMIT = 6
 
 private data class FilterExtra(val sort: SortOption, val favouritesOnly: Boolean, val source: SourceFilter, val newOnly: Boolean, val collectionId: Long)
 
@@ -643,5 +782,7 @@ data class DetailsState(
     val switchTitle: SwitchTitles.Title? = null,
     val switch: SwitchTitles.GameStatus<DownloadableFileEntity>? = null,
     /** RetroAchievements game and whether it was matched by hash (true) or only by title (false). */
-    val achievements: Pair<RaGame, Boolean>? = null
+    val achievements: Pair<RaGame, Boolean>? = null,
+    /** 6.0: "More like this", ranked from local data; empty hides the section. */
+    val similar: List<DownloadableFileWithTags> = emptyList()
 )

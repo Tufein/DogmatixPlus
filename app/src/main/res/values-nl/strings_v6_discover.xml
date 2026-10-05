@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="disc6_filter_genre">Genre</string>
+    <string name="disc6_filter_decade">Tijdperk</string>
+    <string name="disc6_decade_label">jaren %1$d</string>
+    <string name="disc6_known_none">Er zijn nog geen speldetails opgeslagen; Genre en Tijdperk verschijnen zodra er details bekend zijn.</string>
+    <string name="disc6_fetch">Details ophalen voor getoonde spellen</string>
+    <string name="disc6_fetch_running">Ophalen %1$d van %2$d · kies om te stoppen</string>
+    <string name="disc6_fetch_nothing">Niets nieuws om op te halen in deze lijst.</string>
+    <string name="disc6_fetch_nokeys">Deze versie heeft geen spellendatabase-sleutel, dus details kunnen niet worden opgehaald.</string>
+    <string name="disc6_pad_surprise">Verras me</string>
+    <string name="disc6_similar_title">Meer zoals dit</string>
+    <string name="disc6_similar_open">Open %1$s</string>
+    <string name="disc6_compact_title">Compacte lijsten</string>
+    <string name="disc6_compact_hint">Smallere rijen zodat er meer spellen op een klein scherm passen</string>
+    <string name="disc6_fetch_hint">Zoekt maximaal %1$d nog onbekende titels op, ongeveer één per seconde.</string>
+    <plurals name="disc6_known">
+        <item quantity="one">Details bekend voor %1$s titel · bibliotheek totaal %2$s</item>
+        <item quantity="other">Details bekend voor %1$s titels · bibliotheek totaal %2$s</item>
+    </plurals>
+    <plurals name="disc6_fetch_done">
+        <item quantity="one">Details gevonden voor %1$d van %2$d titel</item>
+        <item quantity="other">Details gevonden voor %1$d van %2$d titels</item>
+    </plurals>
+</resources>

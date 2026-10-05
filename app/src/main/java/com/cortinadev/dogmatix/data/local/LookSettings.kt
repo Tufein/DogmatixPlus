@@ -17,6 +17,7 @@ class LookSettings @Inject constructor(@param:ApplicationContext private val con
         val ANIMATIONS = booleanPreferencesKey("look_animations")
         val GLOW = booleanPreferencesKey("look_glow")
         val LIST_COVERS = booleanPreferencesKey("look_list_covers")
+        val COMPACT_LISTS = booleanPreferencesKey("look_compact_lists")
     }
 
     /** Off = every animation snaps (also follows the system's "remove animations"). */
@@ -26,7 +27,11 @@ class LookSettings @Inject constructor(@param:ApplicationContext private val con
     /** Small covers in front of the games in the library list. */
     val listCovers: Flow<Boolean> = context.dataStore.data.map { it[Keys.LIST_COVERS] ?: true }
 
+    /** 6.0: tighter library rows (less height and padding, smaller covers) so more games fit on a small screen. */
+    val compactLists: Flow<Boolean> = context.dataStore.data.map { it[Keys.COMPACT_LISTS] ?: false }
+
     suspend fun setAnimations(on: Boolean) = context.dataStore.edit { it[Keys.ANIMATIONS] = on }
     suspend fun setGlow(on: Boolean) = context.dataStore.edit { it[Keys.GLOW] = on }
     suspend fun setListCovers(on: Boolean) = context.dataStore.edit { it[Keys.LIST_COVERS] = on }
+    suspend fun setCompactLists(on: Boolean) = context.dataStore.edit { it[Keys.COMPACT_LISTS] = on }
 }

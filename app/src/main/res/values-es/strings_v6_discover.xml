@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="disc6_filter_genre">Género</string>
+    <string name="disc6_filter_decade">Década</string>
+    <string name="disc6_decade_label">años %1$d</string>
+    <string name="disc6_known_none">Aún no hay detalles de juegos en caché; Género y Década aparecerán cuando se conozcan algunos.</string>
+    <string name="disc6_fetch">Obtener detalles de los juegos mostrados</string>
+    <string name="disc6_fetch_running">Obteniendo %1$d de %2$d · selecciona para detener</string>
+    <string name="disc6_fetch_nothing">No hay nada nuevo que obtener en esta lista.</string>
+    <string name="disc6_fetch_nokeys">Esta versión no tiene clave de base de datos de juegos, así que no se pueden obtener detalles.</string>
+    <string name="disc6_pad_surprise">Sorpréndeme</string>
+    <string name="disc6_similar_title">Más como este</string>
+    <string name="disc6_similar_open">Abrir %1$s</string>
+    <string name="disc6_compact_title">Listas compactas</string>
+    <string name="disc6_compact_hint">Filas más ajustadas para que quepan más juegos en una pantalla pequeña</string>
+    <string name="disc6_fetch_hint">Busca como máximo %1$d títulos aún desconocidos, aproximadamente uno por segundo.</string>
+    <plurals name="disc6_known">
+        <item quantity="one">Detalles conocidos de %1$s título · total de la biblioteca %2$s</item>
+        <item quantity="other">Detalles conocidos de %1$s títulos · total de la biblioteca %2$s</item>
+    </plurals>
+    <plurals name="disc6_fetch_done">
+        <item quantity="one">Detalles encontrados de %1$d de %2$d título</item>
+        <item quantity="other">Detalles encontrados de %1$d de %2$d títulos</item>
+    </plurals>
+</resources>

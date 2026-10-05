@@ -93,9 +93,11 @@ import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.components.stripExtension
 import com.cortinadev.dogmatix.ui.components.swapFaceButtons
+import com.cortinadev.dogmatix.data.model.DownloadableFileWithTags
 import com.cortinadev.dogmatix.ui.screens.home.DetailsState
 import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
 import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
+import com.cortinadev.dogmatix.ui.theme.accentInk
 import com.cortinadev.dogmatix.ui.theme.consoleColor
 import com.cortinadev.dogmatix.ui.theme.tabular
 import com.cortinadev.dogmatix.util.ConsoleFormatter
@@ -142,7 +144,10 @@ fun GameDetailsDialog(
      * saves and states, RetroAchievements progress, RomM play status / rating). They live inside the
      * scrolling column, so ▲ ▼ reach them; keep each one a self-contained block.
      */
-    extraSections: @Composable ColumnScope.() -> Unit = {}
+    extraSections: @Composable ColumnScope.() -> Unit = {},
+    /** 6.0: "More like this" (cover cards); [onOpenSimilar] opens that game's details. Empty hides the section. */
+    similar: List<DownloadableFileWithTags> = emptyList(),
+    onOpenSimilar: ((DownloadableFileWithTags) -> Unit)? = null
 ) {
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val scheme = MaterialTheme.colorScheme
@@ -152,6 +157,11 @@ fun GameDetailsDialog(
     val focusManager = LocalFocusManager.current
     val downloadFocus = remember { FocusRequester() }
     val rom = state.item.file
+    // Opening a similar game swaps the card's content: start at the top again.
+    LaunchedEffect(rom.id) { scroll.scrollTo(0) }
+    val similarSection: @Composable ColumnScope.() -> Unit = {
+        if (onOpenSimilar != null) SimilarSection(similar, onOpenSimilar)
+    }
 
     // The cover from the shared repository (RomM, libretro box art, cached metadata); the metadata
     // image (often a screenshot) is the better backdrop, the box art the better front cover.
@@ -214,7 +224,7 @@ fun GameDetailsDialog(
                             .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 6.dp)
                     ) {
                         HeroCover(frontUrl, rom.consoleId, height = 186.dp, maxRatio = 1.45f)
-                        Body(state, title, scroll, Modifier.weight(1f), header = pills, extraSections = extraSections)
+                        Body(state, title, scroll, Modifier.weight(1f), header = pills, extraSections = extraSections, similarSection = similarSection)
                     }
                 }
             } else {
@@ -231,7 +241,7 @@ fun GameDetailsDialog(
                         }
                     }
                 }
-                Body(state, title, scroll, Modifier.padding(horizontal = 16.dp).heightIn(max = 300.dp), header = null, extraSections = extraSections)
+                Body(state, title, scroll, Modifier.padding(horizontal = 16.dp).heightIn(max = 300.dp), header = null, extraSections = extraSections, similarSection = similarSection)
             }
 
             @OptIn(ExperimentalLayoutApi::class)
@@ -263,6 +273,7 @@ fun GameDetailsDialog(
                     icon = R.drawable.ic_star,
                     tone = if (favourite) ActionTone.Accent else ActionTone.Neutral
                 )
+                // 6.0 SLOT: the sharing worker's "Share" ActionPill (GameShare) goes here, before Close.
                 ActionPill(stringResource(R.string.details_close), onDismiss, icon = R.drawable.ic_close)
                 if (onDownloadBest != null && state.best != null) {
                     ActionPill(stringResource(R.string.details_download_best), onDownloadBest, icon = R.drawable.ic_award)
@@ -436,7 +447,8 @@ private fun Body(
     modifier: Modifier,
     /** Title and pills on top (landscape); null when the hero already shows them (portrait). */
     header: (@Composable () -> Unit)?,
-    extraSections: @Composable ColumnScope.() -> Unit
+    extraSections: @Composable ColumnScope.() -> Unit,
+    similarSection: @Composable ColumnScope.() -> Unit = {}
 ) {
     val scheme = MaterialTheme.colorScheme
     val details = state.details
@@ -457,7 +469,7 @@ private fun Body(
             details?.developer?.takeIf { it.isNotBlank() },
             details?.genres?.takeIf { it.isNotEmpty() }?.joinToString(", ")
         ).joinToString("  ·  ")
-        if (meta.isNotEmpty()) Text(meta, style = MaterialTheme.typography.labelLarge, color = scheme.primary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        if (meta.isNotEmpty()) Text(meta, style = MaterialTheme.typography.labelLarge, color = accentInk(), maxLines = 2, overflow = TextOverflow.Ellipsis)
         if (state.versionCount > 1) {
             val best = state.best
             InfoLine(
@@ -492,6 +504,7 @@ private fun Body(
                 }
                 // ---- 5.0 extension point: cloud sections (see GameDetailsDialog.extraSections) ----
                 extraSections()
+                similarSection()
                 if (details != null) {
                     Text(stringResource(R.string.details_source, details.source), style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
                 }
@@ -504,7 +517,7 @@ private fun Body(
 @Composable
 private fun InfoLine(icon: Int, text: String, accent: Boolean = false) {
     val scheme = MaterialTheme.colorScheme
-    val color = if (accent) scheme.primary else scheme.onSurfaceVariant
+    val color = if (accent) accentInk() else scheme.onSurfaceVariant
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         Icon(painterResource(icon), contentDescription = null, tint = color, modifier = Modifier.size(15.dp))
         Text(text, style = MaterialTheme.typography.labelMedium, color = color, maxLines = 2, overflow = TextOverflow.Ellipsis)

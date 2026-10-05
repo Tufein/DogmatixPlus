@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="disc6_filter_genre">Genre</string>
+    <string name="disc6_filter_decade">Decade</string>
+    <string name="disc6_decade_label">%1$ds</string>
+    <string name="disc6_known_none">No game details are cached yet, so Genre and Decade appear once some are known.</string>
+    <string name="disc6_fetch">Fetch details for shown games</string>
+    <string name="disc6_fetch_running">Fetching %1$d of %2$d · select to stop</string>
+    <string name="disc6_fetch_nothing">Nothing new to fetch in this list.</string>
+    <string name="disc6_fetch_nokeys">This build has no game database key, so details cannot be fetched.</string>
+    <string name="disc6_pad_surprise">Surprise</string>
+    <string name="disc6_similar_title">More like this</string>
+    <string name="disc6_similar_open">Open %1$s</string>
+    <string name="disc6_compact_title">Compact lists</string>
+    <string name="disc6_compact_hint">Tighter rows so more games fit on a small screen</string>
+    <string name="disc6_fetch_hint">Looks up at most %1$d titles that are not known yet, about one per second.</string>
+    <plurals name="disc6_known">
+        <item quantity="one">Details known for %1$s title · library total %2$s</item>
+        <item quantity="other">Details known for %1$s titles · library total %2$s</item>
+    </plurals>
+    <plurals name="disc6_fetch_done">
+        <item quantity="one">Found details for %1$d of %2$d title</item>
+        <item quantity="other">Found details for %1$d of %2$d titles</item>
+    </plurals>
+</resources>
