@@ -1319,11 +1319,11 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Lijst importeren (Tools): de games van een tekstbestand of het klembord in één keer downloaden.</item>
-        <item>Hele consolesets in één keer, zonder \"app reageert niet\".</item>
-        <item>Recente zoekopdrachten, Verras me en een instelling voor de tekstgrootte.</item>
-        <item>Mislukte downloads proberen het zelf opnieuw; pauzeer de wachtrij of één download.</item>
-        <item>Instellingen en Tools in duidelijke groepen.</item>
+        <item>Een nieuw uiterlijk: diepte, kleur, covers, grafieken en rustige beweging. Indeling en knoppen blijven hetzelfde.</item>
+        <item>Het cloud-overzicht (Instellingen → Cloud) en een wolkje in de bovenbalk.</item>
+        <item>RomM bij elke game: details, je speelstatus, saves per game en BIOS van je server.</item>
+        <item>Een versleutelde back-up en apparaten synchroniseren via je eigen WebDAV-server.</item>
+        <item>RetroAchievements-voortgang per game.</item>
     </string-array>
 
     <!-- 4.0 -->

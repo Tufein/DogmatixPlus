@@ -1320,11 +1320,11 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Import a list (Tools): download the games of a text file or the clipboard in one go.</item>
-        <item>Whole console sets in one go, without \"app isn’t responding\".</item>
-        <item>Recent searches, Surprise me and a text size setting.</item>
-        <item>Failed downloads retry by themselves; hold the queue or pause a download.</item>
-        <item>Settings and Tools sorted into clear groups.</item>
+        <item>A new look: depth, colour, covers, charts and calm motion. Layout and buttons stay the same.</item>
+        <item>The Cloud hub (Settings → Cloud) and a cloud icon in the top bar.</item>
+        <item>RomM on every game: details, your play status, saves per game and BIOS from your server.</item>
+        <item>An encrypted backup and device sync through your own WebDAV server.</item>
+        <item>RetroAchievements progress per game.</item>
     </string-array>
 
     <!-- 4.0 -->

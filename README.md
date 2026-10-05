@@ -31,6 +31,15 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
+### New in 5.0
+- **A new look**: panels with depth, a soft glow of your accent colour, console colours, a focus you can see from the couch, **covers** (RomM, libretro box art or a coloured tile), charts, new icons and calm motion. Switches for animations, glow and covers in the list sit in *Settings → Look and controls*. Layout and buttons are unchanged.
+- **Cloud hub** (*Settings → Cloud*): RomM, save sync, cloud backup, device sync, RetroAchievements and Debrid on one screen, and a small **cloud icon in the top bar** that shows idle, syncing or "needs you".
+- **RomM on every game**: summary, genres, rating and screenshots in the details card, your **play status and rating** written back to RomM, **favourites in step with RomM**, and **BIOS files fetched from RomM** (checked by MD5).
+- **Cloud saves per game**: the saves and states on the server (with the state's screenshot) next to the safety copies on the device, with **Restore**, and a **Continue playing** row on Home.
+- **Your own cloud (WebDAV)**: an **encrypted backup** (AES-256-GCM, your passphrase) to Nextcloud, ownCloud or any WebDAV server, automatic and with restore, and **device sync** of favourites, wishlist and collections between your handhelds.
+- **RetroAchievements progress** per game (ring and badges) and your profile in the hub.
+- Not tried yet on a real device or against a real RomM, WebDAV or RetroAchievements server.
+
 ### New in 4.0
 - **Whole console sets in one go**: *Download all* takes up to 3000 games, without "app isn't responding" during or after the batch. Big queues stay smooth, can be **held**, show the **time left**, and have whole-queue buttons (*Stop all*, *Retry failed*, *Clear finished*).
 - **Downloads look after themselves**: failed downloads **retry by themselves**, web downloads can be **paused**, a finished file is **checked against your DAT**, and you get **a notification when the queue is done**.

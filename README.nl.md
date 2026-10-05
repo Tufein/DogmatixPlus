@@ -31,6 +31,15 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 5.0
+- **Een nieuw uiterlijk**: panelen met diepte, een zachte gloed in je accentkleur, consolekleuren, een focus die je vanaf de bank ziet, **covers** (RomM, libretro-boxart of een gekleurde tegel), grafieken, nieuwe pictogrammen en rustige beweging. Schakelaars voor animaties, gloed en covers in de lijst staan in *Instellingen → Uiterlijk en bediening*. Indeling en knoppen zijn niet veranderd.
+- **Cloud-overzicht** (*Instellingen → Cloud*): RomM, save-sync, cloud-back-up, apparaten synchroniseren, RetroAchievements en Debrid op één scherm, en een klein **wolkje in de bovenbalk** dat rust, synchroniseren of "heeft jou nodig" toont.
+- **RomM bij elke game**: samenvatting, genres, beoordeling en screenshots in de detailkaart, je **speelstatus en cijfer** teruggeschreven naar RomM, **favorieten gelijk met RomM** en **BIOS-bestanden uit RomM** (gecontroleerd met MD5).
+- **Cloudsaves per game**: de saves en states op de server (met de screenshot van de state) naast de veiligheidskopieën op het apparaat, met **Terugzetten**, en een rij **Verder spelen** op Home.
+- **Je eigen cloud (WebDAV)**: een **versleutelde back-up** (AES-256-GCM, jouw wachtwoordzin) naar Nextcloud, ownCloud of elke WebDAV-server, automatisch en met herstel, en **apparaten synchroniseren** voor favorieten, verlanglijst en collecties tussen je handhelds.
+- **RetroAchievements-voortgang** per game (ring en badges) en je profiel in het overzicht.
+- Nog niet getest op een echt apparaat of tegen een echte RomM-, WebDAV- of RetroAchievements-server.
+
 ### Nieuw in 4.0
 - **Hele consolesets in één keer**: *Alles downloaden* neemt tot 3000 games, zonder "app reageert niet" tijdens of na de batch. Grote wachtrijen blijven vlot, kunnen **gepauzeerd** worden, tonen de **resterende tijd** en hebben knoppen voor de hele wachtrij (alles stoppen, mislukte opnieuw, voltooide wissen).
 - **Downloads zorgen voor zichzelf**: mislukte downloads **proberen het zelf opnieuw**, webdownloads kun je **pauzeren**, een klaar bestand wordt **met je DAT vergeleken**, en je krijgt **een melding als de wachtrij klaar is**.

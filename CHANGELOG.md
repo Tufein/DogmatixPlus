@@ -3,6 +3,73 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [5.0.0] – 2026-10-05 · Dogmatix+
+
+The look and the cloud. Layout, navigation and key bindings stay as they were; everything is
+restyled, and RomM, a WebDAV server and RetroAchievements now show up where you play.
+
+### A new look
+- **Depth and colour**: content sits on panels with a soft top light and a hairline edge, a faint
+  glow of the accent colour lights the background, and every colour role of the theme is filled in
+  (light, dark and true black, all accents and Material You). Console colours (Nintendo red, PlayStation
+  blue, Sega blue, Game Boy green…) tint chips, cover placeholders and charts.
+- **Focus is the hero**: a tonal fill, a ring and a soft halo that animate in the draw phase only;
+  touch gets press feedback everywhere. Switches, steppers and rows share one set of parts.
+- **Covers**: in the library list (optional), the details card, Downloads, the wishlist, the duplicates and
+  statistics tools, and the second screen. Source order: RomM cover, libretro box art, a stored metadata image, then a gradient tile with the
+  console name. One shared image cache; RomM images are fetched with the RomM login and trust.
+- **Typography and icons**: screen titles, section headers with icons, large tabular figures, and
+  about 80 Material Symbols icons in place of text glyphs.
+- **Charts**: donut rings, a segmented storage bar, column charts and sparklines in the Downloads header and
+  in *Tools* (Storage, Statistics, Library overview), the second screen and the achievements.
+- **Motion with restraint**: screen changes fade and slide, rows expand and collapse, the queue animates
+  its placement. *Settings → Look and controls* has **Animations** (everything snaps when off),
+  **Background glow**, and **Covers in the library list**, with a preview.
+- **Empty states** with a picture, one line and a button; a new **Downloads header** (speed, time
+  left, space needed against free space) and **source cards** with health.
+- **Second screen, widget and shortcut picker** use the app's theme.
+
+### Cloud hub
+- **Settings → Cloud** shows each cloud feature at a glance: RomM (reachable, version, user, games,
+  platforms), Save sync, Cloud backup, Device sync, RetroAchievements and Debrid, each with its main
+  action. A small **cloud icon in the top bar** shows idle, syncing (with progress) or "needs you"
+  with a count.
+
+### RomM in the app
+- **Details card, "On RomM"**: summary, genres, year, rating and screenshots from the server, your
+  **play status** (backlog, playing, finished, retired…) and your **rating**, written back to RomM.
+- **Favourites in step with RomM** (two ways, optional): stars go to RomM's Favourites collection and
+  back.
+- **BIOS from RomM**: *Tools → BIOS check* fetches the missing files from the server's firmware, checks
+  each file's MD5 and never replaces a file that is there.
+- **Server status**: version, user and counts, shown in the hub.
+
+### Cloud saves
+- **Per game** (details card): the saves and states on the server, with the state screenshot, next to
+  the safety copies on the device, each with **Restore**; **Upload now** sends this device's newer file.
+- **Continue playing** on Home: the games last saved on any device, or last played in ES-DE
+  (*Settings*, on by default).
+- Safety copies stay for 30 days; a restore keeps the file it replaces.
+
+### Your own cloud (WebDAV)
+- **Encrypted backup** to Nextcloud, ownCloud, Synology, Koofr or any WebDAV server: AES-256-GCM with a key
+  from your passphrase (PBKDF2), automatic (daily, on Wi-Fi, while charging), a list of backups with
+  restore, and a number to keep. The password and passphrase stay on the device: they are not in
+  backups or diagnostics.
+- **Device sync**: favourites, wishlist and collections are merged between your handhelds
+  with timestamps and tombstones; a sync that would remove many items waits for your OK.
+- A server with a self-signed certificate can be trusted after you have seen its fingerprint.
+
+### RetroAchievements
+- **Per game**: a progress ring and a grid of badges (earned, hardcore, missable) in the details card.
+- **Profile** in the hub and in *Tools → RetroAchievements*: points, rank, recently played.
+
+### Good to know
+- Updating from 4.0.0 keeps everything. The database gets one small table for found covers (version 13).
+- Everything here is covered by unit tests and a debug build in CI. **None of it has been tried on a
+  real device, nor against a real RomM, WebDAV or RetroAchievements server.** Try *Cloud backup* with
+  a test folder first, and read the hub's messages if something does not connect.
+
 ## [4.0.0] – 2026-10-04 · Dogmatix+
 
 The first full release since 3.0.0: it carries everything of 3.1 to 3.5 below, plus the following.

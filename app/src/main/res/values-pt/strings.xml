@@ -1270,11 +1270,11 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Importar uma lista (Ferramentas): transfere de uma vez os jogos de um ficheiro de texto ou da área de transferência.</item>
-        <item>Sets de consola inteiros de uma vez, sem «a app não responde».</item>
-        <item>Pesquisas recentes, Surpreende-me e uma definição do tamanho do texto.</item>
-        <item>As transferências falhadas tentam de novo sozinhas; pausa a fila ou uma transferência.</item>
-        <item>Definições e Ferramentas em grupos claros.</item>
+        <item>Um novo aspeto: profundidade, cor, capas, gráficos e movimento calmo. O esquema e os botões mantêm-se.</item>
+        <item>O resumo da nuvem (Definições → Nuvem) e uma nuvem na barra de cima.</item>
+        <item>RomM em cada jogo: detalhes, o teu estado de jogo, gravações por jogo e BIOS do teu servidor.</item>
+        <item>Uma cópia cifrada e a sincronização de dispositivos através do teu próprio servidor WebDAV.</item>
+        <item>O progresso do RetroAchievements por jogo.</item>
     </string-array>
 
     <!-- 4.0 -->

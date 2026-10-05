@@ -1324,11 +1324,11 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Importer une liste (Outils) : télécharger d’un coup les jeux d’un fichier texte ou du presse-papiers.</item>
-        <item>Des sets de console entiers en une fois, sans « l’application ne répond pas ».</item>
-        <item>Recherches récentes, Surprenez-moi et un réglage de la taille du texte.</item>
-        <item>Les téléchargements échoués réessaient d’eux-mêmes ; mettez la file ou un téléchargement en pause.</item>
-        <item>Paramètres et Outils rangés en groupes clairs.</item>
+        <item>Un nouveau visuel : profondeur, couleur, jaquettes, graphiques et animations calmes. La disposition et les boutons ne changent pas.</item>
+        <item>La vue d\'ensemble du cloud (Paramètres → Cloud) et un nuage dans la barre du haut.</item>
+        <item>RomM sur chaque jeu : détails, votre statut de jeu, sauvegardes par jeu et BIOS depuis votre serveur.</item>
+        <item>Une sauvegarde chiffrée et la synchro des appareils via votre propre serveur WebDAV.</item>
+        <item>La progression RetroAchievements par jeu.</item>
     </string-array>
 
     <!-- 4.0 -->

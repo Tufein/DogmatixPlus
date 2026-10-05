@@ -31,6 +31,15 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveau dans 5.0
+- **Un nouveau visuel** : des panneaux avec de la profondeur, une douce lueur dans votre couleur d'accent, des couleurs par console, un focus visible depuis le canapé, des **jaquettes** (RomM, boxart libretro ou une tuile colorée), des graphiques, de nouvelles icônes et des animations calmes. Les réglages des animations, de la lueur et des jaquettes dans la liste sont dans *Paramètres → Apparence et commandes*. La disposition et les boutons ne changent pas.
+- **Vue d'ensemble du cloud** (*Paramètres → Cloud*) : RomM, synchro des sauvegardes, sauvegarde cloud, synchro des appareils, RetroAchievements et Debrid sur un seul écran, avec un petit **nuage dans la barre du haut** qui indique repos, synchro en cours ou « a besoin de vous ».
+- **RomM sur chaque jeu** : résumé, genres, note et captures dans la fiche, votre **statut de jeu et votre note** renvoyés à RomM, **favoris synchronisés avec RomM** et **fichiers BIOS récupérés sur RomM** (vérifiés par MD5).
+- **Sauvegardes cloud par jeu** : les sauvegardes et états du serveur (avec la capture de l'état) à côté des copies de sécurité de l'appareil, avec **Restaurer**, et une rangée **Reprendre** sur l'accueil.
+- **Votre propre cloud (WebDAV)** : une **sauvegarde chiffrée** (AES-256-GCM, votre phrase secrète) vers Nextcloud, ownCloud ou tout serveur WebDAV, automatique et avec restauration, et la **synchro des appareils** pour favoris, liste de souhaits et collections entre vos consoles.
+- **Progression RetroAchievements** par jeu (anneau et badges) et votre profil dans la vue d'ensemble.
+- Pas encore testé sur un vrai appareil ni avec un vrai serveur RomM, WebDAV ou RetroAchievements.
+
 ### Nouveau dans 4.0
 - **Des sets de console entiers en une fois** : *Tout télécharger* prend jusqu’à 3000 jeux, sans « l’application ne répond pas » pendant ou après le lot. Les grandes files restent fluides, peuvent être **mises en pause**, affichent le **temps restant** et ont des boutons pour toute la file (tout arrêter, relancer les échecs, effacer les terminés).
 - **Les téléchargements se gèrent tout seuls** : un téléchargement échoué **réessaie de lui-même**, les téléchargements web peuvent être **mis en pause**, un fichier terminé est **comparé à votre DAT**, et vous recevez **une notification quand la file est terminée**.

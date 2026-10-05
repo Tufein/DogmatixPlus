@@ -31,6 +31,15 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 5.0
+- **Un aspecto nuevo**: paneles con profundidad, un suave brillo de tu color de acento, colores por consola, un foco que se ve desde el sofá, **carátulas** (RomM, boxart de libretro o una ficha de color), gráficos, iconos nuevos y movimiento tranquilo. Los interruptores de animaciones, brillo y carátulas en la lista están en *Ajustes → Aspecto y controles*. La distribución y los botones no cambian.
+- **Resumen de la nube** (*Ajustes → Nube*): RomM, sincronización de partidas, copia en la nube, sincronización de dispositivos, RetroAchievements y Debrid en una pantalla, con una pequeña **nube en la barra superior** que muestra reposo, sincronizando o «te necesita».
+- **RomM en cada juego**: resumen, géneros, valoración y capturas en la ficha, tu **estado de juego y tu nota** se escriben de vuelta en RomM, **favoritos al día con RomM** y **archivos BIOS desde RomM** (comprobados con MD5).
+- **Partidas en la nube por juego**: las partidas y estados del servidor (con la captura del estado) junto a las copias de seguridad del dispositivo, con **Restaurar**, y una fila **Continuar jugando** en Inicio.
+- **Tu propia nube (WebDAV)**: una **copia cifrada** (AES-256-GCM, tu frase de contraseña) en Nextcloud, ownCloud o cualquier servidor WebDAV, automática y con restauración, y **sincronización de dispositivos** de favoritos, lista de deseos y colecciones entre tus consolas.
+- **Progreso de RetroAchievements** por juego (anillo e insignias) y tu perfil en el resumen.
+- Aún sin probar en un dispositivo real ni con un servidor RomM, WebDAV o RetroAchievements real.
+
 ### Novedades de 4.0
 - **Sets de consola enteros de una vez**: *Descargar todo* admite hasta 3000 juegos, sin «la app no responde» durante o después del lote. Las colas grandes siguen fluidas, se pueden **pausar**, muestran el **tiempo restante** y tienen botones para toda la cola (detener todo, reintentar las fallidas, quitar las terminadas).
 - **Las descargas se cuidan solas**: una descarga fallida **se reintenta sola**, las descargas web se pueden **pausar**, un archivo terminado se **compara con tu DAT**, y recibes **una notificación cuando la cola termina**.

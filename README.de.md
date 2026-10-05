@@ -31,6 +31,15 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 5.0
+- **Ein neues Aussehen**: Panels mit Tiefe, ein sanftes Leuchten in deiner Akzentfarbe, Konsolenfarben, ein Fokus, den man vom Sofa aus sieht, **Cover** (RomM, libretro-Boxart oder eine farbige Kachel), Diagramme, neue Symbole und ruhige Bewegung. Schalter für Animationen, Leuchten und Cover in der Liste stehen unter *Einstellungen → Aussehen und Bedienung*. Aufbau und Tasten sind unverändert.
+- **Cloud-Übersicht** (*Einstellungen → Cloud*): RomM, Savesync, Cloud-Backup, Geräteabgleich, RetroAchievements und Debrid auf einem Bildschirm, dazu eine kleine **Wolke in der Leiste oben**, die Ruhe, Abgleich oder „braucht dich“ zeigt.
+- **RomM bei jedem Spiel**: Zusammenfassung, Genres, Bewertung und Screenshots in der Detailkarte, dein **Spielstatus und deine Bewertung** werden zu RomM zurückgeschrieben, **Favoriten im Gleichschritt mit RomM** und **BIOS-Dateien aus RomM** (per MD5 geprüft).
+- **Cloud-Saves pro Spiel**: die Saves und States auf dem Server (mit dem Screenshot des States) neben den Sicherheitskopien auf dem Gerät, mit **Wiederherstellen**, und eine Reihe **Weiterspielen** auf Home.
+- **Deine eigene Cloud (WebDAV)**: ein **verschlüsseltes Backup** (AES-256-GCM, deine Passphrase) auf Nextcloud, ownCloud oder jeden WebDAV-Server, automatisch und mit Wiederherstellung, und **Geräteabgleich** für Favoriten, Wunschliste und Sammlungen zwischen deinen Handhelds.
+- **RetroAchievements-Fortschritt** pro Spiel (Ring und Abzeichen) und dein Profil in der Übersicht.
+- Noch nicht auf einem echten Gerät oder gegen einen echten RomM-, WebDAV- oder RetroAchievements-Server getestet.
+
 ### Neu in 4.0
 - **Ganze Konsolen-Sets auf einmal**: *Alle laden* nimmt bis zu 3000 Spiele, ohne „App reagiert nicht“ während oder nach dem Stapel. Große Warteschlangen bleiben flüssig, lassen sich **anhalten**, zeigen die **Restzeit** und haben Knöpfe für die ganze Warteschlange (alle stoppen, fehlgeschlagene wiederholen, fertige entfernen).
 - **Downloads kümmern sich selbst**: Fehlgeschlagene Downloads **versuchen es von selbst erneut**, Web-Downloads lassen sich **pausieren**, eine fertige Datei wird **mit deiner DAT verglichen**, und du bekommst **eine Benachrichtigung, wenn die Warteschlange fertig ist**.

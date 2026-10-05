@@ -1319,11 +1319,11 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Liste importieren (Tools): die Spiele einer Textdatei oder der Zwischenablage auf einmal laden.</item>
-        <item>Ganze Konsolen-Sets auf einmal, ohne „App reagiert nicht“.</item>
-        <item>Letzte Suchen, Überrasch mich und eine Einstellung für die Textgröße.</item>
-        <item>Fehlgeschlagene Downloads versuchen es von selbst erneut; halte die Warteschlange oder einen Download an.</item>
-        <item>Einstellungen und Tools in klaren Gruppen.</item>
+        <item>Ein neues Aussehen: Tiefe, Farbe, Cover, Diagramme und ruhige Bewegung. Aufbau und Tasten bleiben gleich.</item>
+        <item>Die Cloud-Übersicht (Einstellungen → Cloud) und eine Wolke in der Leiste oben.</item>
+        <item>RomM bei jedem Spiel: Details, dein Spielstatus, Saves pro Spiel und BIOS von deinem Server.</item>
+        <item>Ein verschlüsseltes Backup und Geräteabgleich über deinen eigenen WebDAV-Server.</item>
+        <item>RetroAchievements-Fortschritt pro Spiel.</item>
     </string-array>
 
     <!-- 4.0 -->
