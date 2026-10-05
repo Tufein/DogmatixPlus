@@ -3,8 +3,16 @@ package com.cortinadev.dogmatix.data.service
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.Checksums
 import com.cortinadev.dogmatix.util.RemoteSaveFile
+import com.cortinadev.dogmatix.util.RommFirmware
+import com.cortinadev.dogmatix.util.RommFirmwareMatcher
+import com.cortinadev.dogmatix.util.RommGameDetails
+import com.cortinadev.dogmatix.util.RommGameInfo
+import com.cortinadev.dogmatix.util.RommProps
+import com.cortinadev.dogmatix.util.RommServerParser
+import com.cortinadev.dogmatix.util.RommUserProps
 import com.cortinadev.dogmatix.util.SaveKind
 import com.cortinadev.dogmatix.util.SaveSyncPlanner.RomCandidate
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import java.util.Base64
 import kotlinx.coroutines.Dispatchers
@@ -90,7 +98,9 @@ class RommClient @Inject constructor(
         /** Owner; null when the server does not say. Other users' public collections cannot be changed. */
         val userId: Int? = null,
         /** RomM's built-in favourites collection (the heart). */
-        val isFavourite: Boolean = false
+        val isFavourite: Boolean = false,
+        /** How many ROMs the server says the collection holds (`rom_count`); null when it does not say. */
+        val romCount: Int? = null
     )
 
     /** The id of the account the token belongs to (`GET /api/users/me`), or null when unknown. */
@@ -119,15 +129,20 @@ class RommClient @Inject constructor(
             RommCollection(
                 id, o.str("name"), ids,
                 userId = o.get("user_id")?.takeUnless { it.isJsonNull }?.let { runCatching { it.asInt }.getOrNull() },
-                isFavourite = o.get("is_favorite")?.takeUnless { it.isJsonNull }?.let { runCatching { it.asBoolean }.getOrNull() } == true
+                isFavourite = o.get("is_favorite")?.takeUnless { it.isJsonNull }?.let { runCatching { it.asBoolean }.getOrNull() } == true,
+                romCount = o.get("rom_count")?.takeUnless { it.isJsonNull }?.let { runCatching { it.asInt }.getOrNull() }
             )
         }
     }
 
-    /** Creates a collection named [name]; returns its id. */
-    suspend fun createCollection(name: String): Int = withContext(Dispatchers.IO) {
+    /**
+     * Creates a collection named [name]; returns its id. [favourite] asks for RomM's favourites
+     * collection (`is_favorite=true`; servers that do not know the flag ignore it and go by the name).
+     */
+    suspend fun createCollection(name: String, favourite: Boolean = false): Int = withContext(Dispatchers.IO) {
         val (body, type) = JsonHttp.multipartBody(mapOf("name" to name, "description" to "Dogmatix+"))
-        val obj = JsonHttp.requireOk(JsonHttp.request("POST", "${baseUrl()}/api/collections", headers(), body = body, contentType = type)).json
+        val query = if (favourite) "?is_favorite=true&is_public=false" else ""
+        val obj = JsonHttp.requireOk(JsonHttp.request("POST", "${baseUrl()}/api/collections$query", headers(), body = body, contentType = type)).json
             ?.takeIf { it.isJsonObject }?.asJsonObject ?: throw RommException("RomM did not return the new collection")
         obj.get("id").asInt
     }
@@ -268,8 +283,14 @@ class RommClient @Inject constructor(
             val (body, contentType) = JsonHttp.multipartFileBody(field, fileName, bytes)
             return JsonHttp.request("POST", url, auth, body = body, contentType = contentType, readTimeoutMs = 120_000)
         }
-        var response = post(kind.fileField)
-        if (response.code == 400 || response.code == 422) response = post(kind.legacyFileField)
+        // A server that refused the newer form once (same address and version) gets the older one at once.
+        val memo = "upload:${kind.apiPath}"
+        var response = post(if (remembers(memo)) kind.legacyFileField else kind.fileField)
+        if (response.code == 400 || response.code == 422) {
+            val other = if (remembers(memo)) kind.fileField else kind.legacyFileField
+            response = post(other)
+            if (response.ok) remember(memo, other == kind.legacyFileField)
+        }
         val obj = JsonHttp.requireOk(response).json?.takeIf { it.isJsonObject }?.asJsonObject ?: return@withContext null
         remoteSave(kind, obj)
             ?: obj.getAsJsonArray(kind.apiPath)?.mapNotNull { (it as? JsonObject)?.let { o -> remoteSave(kind, o) } }
@@ -286,9 +307,17 @@ class RommClient @Inject constructor(
         val body = com.google.gson.JsonObject().apply {
             add(save.kind.apiPath, com.google.gson.JsonArray().apply { add(save.id) })
         }.toString().toByteArray(Charsets.UTF_8)
+        val memo = "delete:${save.kind.apiPath}"
+        if (remembers(memo)) {
+            // This server (address and version) had no bulk route last time: go straight to DELETE.
+            val single = JsonHttp.request("DELETE", "$base/api/${save.kind.apiPath}/${save.id}", auth)
+            if (single.ok) return@withContext Unit
+            remember(memo, false)
+        }
         val bulk = JsonHttp.request("POST", "$base/api/${save.kind.apiPath}/delete", auth, body = body, contentType = JsonHttp.JSON)
         if (bulk.code == 404 || bulk.code == 405) {
             JsonHttp.requireOk(JsonHttp.request("DELETE", "$base/api/${save.kind.apiPath}/${save.id}", auth))
+            remember(memo, true)
         } else JsonHttp.requireOk(bulk)
         Unit
     }
@@ -314,6 +343,81 @@ class RommClient @Inject constructor(
                 platformFsSlug = r.str("platform_fs_slug")
             )
         }
+    }
+
+    // ---- 5.0: server info, game details and play status, firmware ------------------------------
+
+    /**
+     * The version the server reported last (`/api/heartbeat`, kept by RommServerService); null
+     * until known. The fallbacks learned below are remembered per server address and version.
+     */
+    @Volatile var serverVersion: String? = null
+        set(value) { if (field != value) { field = value; learned.clear() } }
+
+    private val learned = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
+
+    private suspend fun memoKey(what: String): String = configuredBaseUrl() + "|" + (serverVersion ?: "?") + "|" + what
+
+    private suspend fun remembers(what: String): Boolean = learned[memoKey(what)] == true
+
+    private suspend fun remember(what: String, value: Boolean) { learned[memoKey(what)] = value }
+
+    /**
+     * `GET /api/heartbeat` (public on every RomM): the raw answer, for the version and feature
+     * flags. Asked with the credentials (a proxy in front may want them) and, when those are
+     * refused, without (the route needs none), so a wrong token still leaves the version known.
+     */
+    suspend fun heartbeat(): JsonElement? = withContext(Dispatchers.IO) {
+        val url = "${baseUrl()}/api/heartbeat"
+        val signed = JsonHttp.request("GET", url, headers())
+        val response = if (signed.code == 401 || signed.code == 403) JsonHttp.request("GET", url) else signed
+        JsonHttp.requireOk(response).json
+    }
+
+    /** The account the token belongs to (`GET /api/users/me`); throws on 401/403 so a bad token shows. */
+    suspend fun currentUser(): RommServerParser.User? = withContext(Dispatchers.IO) {
+        RommServerParser.user(JsonHttp.requireOk(JsonHttp.request("GET", "${baseUrl()}/api/users/me", headers())).json)
+    }
+
+    /** Library counts (`GET /api/stats`); fields the server does not send stay null. */
+    suspend fun stats(): RommServerParser.Stats = withContext(Dispatchers.IO) {
+        RommServerParser.stats(JsonHttp.requireOk(JsonHttp.request("GET", "${baseUrl()}/api/stats", headers())).json)
+    }
+
+    /** One ROM with its metadata and the account's play data (`GET /api/roms/{id}`). */
+    suspend fun rom(romId: Int): RommGameInfo = withContext(Dispatchers.IO) {
+        val base = baseUrl()
+        val json = JsonHttp.requireOk(JsonHttp.request("GET", "$base/api/roms/$romId", headers(), readTimeoutMs = 45_000)).json
+        RommGameDetails.parse(json, base, fallbackId = romId) ?: throw RommException("Unexpected /api/roms/$romId payload")
+    }
+
+    /**
+     * Writes the account's play data of ROM [romId] (`PUT /api/roms/{id}/props` with
+     * `{"data": {...}}`). Returns what the server now holds, or null when its answer could not
+     * be read (the write itself succeeded).
+     */
+    suspend fun updateRomProps(romId: Int, changes: Map<String, Any?>): RommUserProps? = withContext(Dispatchers.IO) {
+        if (changes.isEmpty()) return@withContext null
+        val body = RommProps.body(changes).toByteArray(Charsets.UTF_8)
+        val response = JsonHttp.requireOk(
+            JsonHttp.request("PUT", "${baseUrl()}/api/roms/$romId/props", headers(), body = body, contentType = JsonHttp.JSON)
+        )
+        RommGameDetails.parseProps(response.json)
+    }
+
+    /**
+     * The firmware files of [platformId] (`GET /api/firmware?platform_id=`), or of every platform
+     * when null. Entries the server lost from its disk are left out.
+     */
+    suspend fun firmware(platformId: Int?): List<RommFirmware> = withContext(Dispatchers.IO) {
+        val query = platformId?.let { "?platform_id=$it" }.orEmpty()
+        val json = JsonHttp.requireOk(JsonHttp.request("GET", "${baseUrl()}/api/firmware$query", headers(), readTimeoutMs = 60_000)).json
+        RommFirmwareMatcher.parseList(json, platformId)
+    }
+
+    /** The bytes of a firmware file (`GET /api/firmware/{id}/content/{file_name}`), at most [maxBytes]. */
+    suspend fun downloadFirmware(firmware: RommFirmware, maxBytes: Long): ByteArray = withContext(Dispatchers.IO) {
+        JsonHttp.download(baseUrl() + RommFirmwareMatcher.contentPath(firmware), headers(), maxBytes, readTimeoutMs = 120_000)
     }
 
     private fun JsonObject.str(name: String): String = get(name)?.takeUnless { it.isJsonNull }?.asString.orEmpty()

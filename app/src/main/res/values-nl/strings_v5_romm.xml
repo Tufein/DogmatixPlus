@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: RomM goes deep (game details and play status, favourites both ways, BIOS from RomM) -->
+<resources>
+    <string name="romm5_section_title">Op RomM</string>
+    <string name="romm5_loading">Game op RomM lezen…</string>
+    <string name="romm5_load_failed">RomM kon niet gelezen worden: %1$s</string>
+    <string name="romm5_retry">Opnieuw proberen</string>
+    <string name="romm5_rating_value">%1$s / 10</string>
+    <string name="romm5_screenshots">Schermafbeeldingen</string>
+    <string name="romm5_play_status">Je speelstatus</string>
+    <string name="romm5_status_now_playing">Speel ik nu</string>
+    <string name="romm5_status_backlog">Backlog</string>
+    <string name="romm5_status_incomplete">Niet uitgespeeld</string>
+    <string name="romm5_status_finished">Uitgespeeld</string>
+    <string name="romm5_status_completed" formatted="false">100 % voltooid</string>
+    <string name="romm5_status_retired">Gestopt</string>
+    <string name="romm5_status_never">Ga ik niet spelen</string>
+    <string name="romm5_your_rating">Je beoordeling</string>
+    <string name="romm5_rating_none">Geen cijfer</string>
+    <string name="romm5_your_rating_value">%1$d / 10</string>
+    <string name="romm5_props_unsupported">Deze RomM-server houdt nog geen speelstatus bij: werk RomM bij om dit te gebruiken.</string>
+    <string name="romm5_save_failed">RomM heeft de wijziging niet bewaard (%1$s)</string>
+    <string name="romm5_last_played">Laatst gespeeld (RomM): %1$s</string>
+    <string name="romm5_err_not_set_up">RomM is niet ingesteld</string>
+    <string name="romm5_err_unreachable">de server is niet bereikbaar</string>
+    <string name="romm5_err_tls">het servercertificaat wordt niet vertrouwd</string>
+    <string name="romm5_err_auth">de token of het wachtwoord wordt niet geaccepteerd</string>
+    <string name="romm5_err_forbidden">de token mag dit niet (controleer de scopes)</string>
+    <string name="romm5_err_not_found">deze RomM-versie biedt dit niet</string>
+    <string name="romm5_err_server">de server gaf een foutmelding</string>
+    <string name="romm5_fw_title">BIOS van RomM</string>
+    <string name="romm5_fw_pitch">Haalt de BIOS-bestanden die hier ontbreken uit de firmware op je RomM-server. Elk bestand wordt gecontroleerd (MD5) voordat het wordt opgeslagen; niets in de map wordt vervangen.</string>
+    <string name="romm5_fw_action">Ontbrekende BIOS van RomM halen</string>
+    <string name="romm5_fw_checking">Ontbrekende bestanden op RomM zoeken…</string>
+    <string name="romm5_fw_running">%1$d van %2$d ophalen…</string>
+    <string name="romm5_fw_no_folder">Kies eerst de BIOS-map.</string>
+    <string name="romm5_fw_no_write">Dogmatix+ mag de BIOS-map alleen lezen. Kies hem opnieuw om schrijven toe te staan.</string>
+    <string name="romm5_fw_pick_folder">Map kiezen</string>
+    <string name="romm5_fw_nothing_missing">Er ontbreekt niets: elk BIOS-bestand is er.</string>
+    <string name="romm5_fw_server_problem">RomM kon niet gevraagd worden: %1$s</string>
+    <string name="romm5_fw_all_done">Alles wat ontbrak, kwam van RomM.</string>
+    <string name="romm5_fw_fetched_title">Opgehaald</string>
+    <string name="romm5_fw_failed_title">Gevonden maar niet opgeslagen</string>
+    <string name="romm5_fw_not_on_server_title">Niet op RomM</string>
+    <string name="romm5_fw_required">nodig</string>
+    <string name="romm5_fw_more">+ nog %1$d</string>
+    <string name="romm5_fw_fail_wrong_dump">een andere dump dan de bekende goede</string>
+    <string name="romm5_fw_fail_corrupt">de download is beschadigd</string>
+    <string name="romm5_fw_fail_too_large">te groot</string>
+    <string name="romm5_fw_fail_download">de download is mislukt</string>
+    <string name="romm5_fw_fail_write">kon niet in de map worden geschreven</string>
+    <string name="romm5_fav_two_way">Favorieten gelijk houden met RomM</string>
+    <string name="romm5_fav_two_way_hint">Sterren gaan naar de favorieten van RomM, hartjes komen terug als sterren</string>
+    <string name="romm5_fav_syncing">Favorieten synchroniseren…</string>
+    <string name="romm5_fav_synced">Favorieten gelijk · %1$s</string>
+    <string name="romm5_fav_failed">Favorieten niet gesynchroniseerd: %1$s</string>
+    <plurals name="romm5_fw_fetched_count">
+        <item quantity="one">%1$d opgehaald</item>
+        <item quantity="other">%1$d opgehaald</item>
+    </plurals>
+    <plurals name="romm5_fw_not_on_server_count">
+        <item quantity="one">%1$d niet op RomM</item>
+        <item quantity="other">%1$d niet op RomM</item>
+    </plurals>
+    <plurals name="romm5_fw_failed_count">
+        <item quantity="one">%1$d niet opgeslagen</item>
+        <item quantity="other">%1$d niet opgeslagen</item>
+    </plurals>
+</resources>
