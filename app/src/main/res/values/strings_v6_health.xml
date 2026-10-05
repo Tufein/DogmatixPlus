@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="health6_title">Check everything</string>
+    <string name="health6_group_library">Library</string>
+    <string name="health6_group_cloud">Cloud</string>
+    <string name="health6_group_device">Device and app</string>
+    <string name="health6_check_sources">Sources</string>
+    <string name="health6_check_storage">Storage</string>
+    <string name="health6_check_bios">BIOS files</string>
+    <string name="health6_check_covers">Covers</string>
+    <string name="health6_check_save_sync">Save sync</string>
+    <string name="health6_check_romm">RomM server</string>
+    <string name="health6_check_webdav">WebDAV cloud</string>
+    <string name="health6_check_ra">RetroAchievements</string>
+    <string name="health6_check_frontends">Frontend setup</string>
+    <string name="health6_check_notifications">Notifications</string>
+    <string name="health6_check_battery">Battery optimisation</string>
+    <string name="health6_check_update">App update</string>
+    <string name="health6_status_ok">OK</string>
+    <string name="health6_status_look">Look at this</string>
+    <string name="health6_status_problem">Problem</string>
+    <string name="health6_status_not_set_up">Not set up</string>
+    <string name="health6_status_hint">Tip</string>
+    <string name="health6_summary_fine">%1$d of %2$d fine</string>
+    <string name="health6_summary_checking">Checking… %1$d of %2$d</string>
+    <string name="health6_summary_none">Nothing is set up yet</string>
+    <string name="health6_sub_all_good">Everything that is set up looks fine.</string>
+    <string name="health6_check_again">Check again</string>
+    <string name="health6_share">Share report</string>
+    <string name="health6_share_chooser">Share health report</string>
+    <string name="health6_report_title">Dogmatix+ health report</string>
+    <string name="health6_report_app">App version %1$s</string>
+    <string name="health6_row_checking">Checking…</string>
+    <string name="health6_covers_cleared">Looking for covers again</string>
+    <string name="health6_no_settings">Could not open the settings</string>
+    <string name="health6_fix_setup">Set up</string>
+    <string name="health6_fix_retry_covers">Look again</string>
+    <string name="health6_fix_refresh">Ask again</string>
+    <string name="health6_fix_notifications">Notification settings</string>
+    <string name="health6_fix_battery">Battery settings</string>
+    <string name="health6_fix_sources">Open Sources</string>
+    <string name="health6_fix_bios">Open BIOS</string>
+    <string name="health6_fix_save_sync">Open Save sync</string>
+    <string name="health6_fix_romm">RomM settings</string>
+    <string name="health6_fix_cloud">Cloud backup</string>
+    <string name="health6_fix_storage">Open Storage</string>
+    <string name="health6_fix_frontends">Frontend check</string>
+    <string name="health6_fix_ra">RetroAchievements</string>
+    <string name="health6_fix_updates">Updates</string>
+    <string name="health6_age_today">today</string>
+    <string name="health6_d_sources_none">No sources added yet.</string>
+    <string name="health6_d_sources_not_scanned">Sources are not scanned yet. Run a rescan to check them.</string>
+    <string name="health6_d_storage_no_folder">No download folder picked yet.</string>
+    <string name="health6_d_storage_ok">%1$s free. The library takes %2$s.</string>
+    <string name="health6_d_storage_free_unknown">The library takes %1$s. Free space could not be read.</string>
+    <string name="health6_d_storage_low">Only %1$s free. Free up space before downloading more.</string>
+    <string name="health6_d_storage_queue_short">The queue needs %1$s more than is free.</string>
+    <string name="health6_d_bios_no_folder">No BIOS folder picked yet.</string>
+    <string name="health6_d_bios_none_needed">None of your consoles needs BIOS files.</string>
+    <string name="health6_d_covers_ok">Every game that was looked up has a cover.</string>
+    <string name="health6_d_save_not_set_up">No save folders picked yet.</string>
+    <string name="health6_d_save_no_romm">Save folders are set, but RomM is not. Saves cannot sync.</string>
+    <string name="health6_d_save_error">The last sync stopped: %1$s</string>
+    <string name="health6_d_save_never">Not synced yet. Run a first sync.</string>
+    <string name="health6_d_save_stale">Last synced %1$s. That is a while ago.</string>
+    <string name="health6_d_save_ok">Last synced %1$s.</string>
+    <string name="health6_d_romm_not_set_up">No RomM server set up.</string>
+    <string name="health6_d_romm_ok">Reachable. Server version %1$s.</string>
+    <string name="health6_d_romm_ok_plain">Reachable.</string>
+    <string name="health6_d_romm_auth">The server rejected the token. Check it in the RomM settings.</string>
+    <string name="health6_d_romm_forbidden">The token lacks a permission. Create it again with all scopes.</string>
+    <string name="health6_d_romm_tls">The server certificate is not trusted.</string>
+    <string name="health6_d_romm_unreachable">No answer from the server. Check the address and your connection.</string>
+    <string name="health6_d_romm_server">The server answered with an error.</string>
+    <string name="health6_d_dav_not_set_up">No WebDAV cloud set up.</string>
+    <string name="health6_d_dav_not_connected">The last connection test failed. Check the address and login.</string>
+    <string name="health6_d_dav_no_backup">Automatic backup is on, but no backup was made yet.</string>
+    <string name="health6_d_dav_ok_backup">Connected. Last backup %1$s.</string>
+    <string name="health6_d_dav_ok_no_backup">Connected. No cloud backup made yet.</string>
+    <string name="health6_d_ra_not_set_up">No RetroAchievements account set up.</string>
+    <string name="health6_d_ra_incomplete">The user name or the API key is missing.</string>
+    <string name="health6_d_ra_ok">Account and API key are set.</string>
+    <string name="health6_d_front_not_set_up">No frontend is set up (optional).</string>
+    <string name="health6_d_front_partial">ES-DE is set up, but its covers are off.</string>
+    <string name="health6_d_notif_ok">Alerts for finished queues and wishlist hits can show.</string>
+    <string name="health6_d_notif_off">Notifications are off, so queue-done and wishlist alerts cannot show.</string>
+    <string name="health6_d_battery_ok">Background jobs can run without limits.</string>
+    <string name="health6_d_battery_hint">Android may delay scans, backups and sync in the background. Optional: exempt Dogmatix+.</string>
+    <string name="health6_d_update_ok">Up to date. Newest release: %1$s.</string>
+    <string name="health6_d_update_available">Version %1$s is available.</string>
+    <string name="health6_d_update_unknown">Could not look for updates (offline?).</string>
+    <string name="health6_d_timeout">No answer within 10 seconds.</string>
+    <string name="health6_d_error">The check failed: %1$s</string>
+    <plurals name="health6_sub_problems">
+        <item quantity="one">%1$d problem</item>
+        <item quantity="other">%1$d problems</item>
+    </plurals>
+    <plurals name="health6_sub_looks">
+        <item quantity="one">%1$d thing to look at</item>
+        <item quantity="other">%1$d things to look at</item>
+    </plurals>
+    <plurals name="health6_age_days">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+    <plurals name="health6_d_sources_ok">
+        <item quantity="one">%1$d source answered. Last scan %2$s.</item>
+        <item quantity="other">%1$d sources answered. Last scan %2$s.</item>
+    </plurals>
+    <plurals name="health6_d_sources_partial">
+        <item quantity="one">%1$d of %2$d sources failed its last scan.</item>
+        <item quantity="other">%1$d of %2$d sources failed their last scan.</item>
+    </plurals>
+    <plurals name="health6_d_sources_failed">
+        <item quantity="one">The last scan of this source failed. Check your connection or its address.</item>
+        <item quantity="other">The last scan of all %1$d sources failed. Check your connection or the addresses.</item>
+    </plurals>
+    <plurals name="health6_d_bios_ok">
+        <item quantity="one">BIOS files for %1$d system are complete.</item>
+        <item quantity="other">BIOS files for all %1$d systems are complete.</item>
+    </plurals>
+    <plurals name="health6_d_bios_incomplete">
+        <item quantity="one">%1$d of %2$d systems is missing a BIOS file.</item>
+        <item quantity="other">%1$d of %2$d systems are missing BIOS files.</item>
+    </plurals>
+    <plurals name="health6_d_covers_misses">
+        <item quantity="one">%1$d game has no cover. Look again to retry.</item>
+        <item quantity="other">%1$d games have no cover. Look again to retry.</item>
+    </plurals>
+    <plurals name="health6_d_save_conflicts">
+        <item quantity="one">%1$d save differs on the device and the server.</item>
+        <item quantity="other">%1$d saves differ on the device and the server.</item>
+    </plurals>
+    <plurals name="health6_d_save_failed">
+        <item quantity="one">%1$d file failed in the last sync.</item>
+        <item quantity="other">%1$d files failed in the last sync.</item>
+    </plurals>
+    <plurals name="health6_d_dav_attention">
+        <item quantity="one">%1$d thing needs a look in Cloud backup.</item>
+        <item quantity="other">%1$d things need a look in Cloud backup.</item>
+    </plurals>
+    <plurals name="health6_d_dav_overdue">
+        <item quantity="one">The last cloud backup is %1$d day old.</item>
+        <item quantity="other">The last cloud backup is %1$d days old.</item>
+    </plurals>
+    <plurals name="health6_d_front_ok">
+        <item quantity="one">%1$d frontend is ready.</item>
+        <item quantity="other">%1$d frontends are ready.</item>
+    </plurals>
+</resources>

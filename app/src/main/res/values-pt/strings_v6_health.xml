@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="health6_title">Verificar tudo</string>
+    <string name="health6_group_library">Biblioteca</string>
+    <string name="health6_group_cloud">Nuvem</string>
+    <string name="health6_group_device">Dispositivo e app</string>
+    <string name="health6_check_sources">Fontes</string>
+    <string name="health6_check_storage">Armazenamento</string>
+    <string name="health6_check_bios">Arquivos BIOS</string>
+    <string name="health6_check_covers">Capas</string>
+    <string name="health6_check_save_sync">Sincronização de saves</string>
+    <string name="health6_check_romm">Servidor RomM</string>
+    <string name="health6_check_webdav">Nuvem WebDAV</string>
+    <string name="health6_check_ra">RetroAchievements</string>
+    <string name="health6_check_frontends">Configuração de frontends</string>
+    <string name="health6_check_notifications">Notificações</string>
+    <string name="health6_check_battery">Otimização de bateria</string>
+    <string name="health6_check_update">Atualização da app</string>
+    <string name="health6_status_ok">OK</string>
+    <string name="health6_status_look">Verificar</string>
+    <string name="health6_status_problem">Problema</string>
+    <string name="health6_status_not_set_up">Não configurado</string>
+    <string name="health6_status_hint">Dica</string>
+    <string name="health6_summary_fine">%1$d de %2$d em ordem</string>
+    <string name="health6_summary_checking">Verificando… %1$d de %2$d</string>
+    <string name="health6_summary_none">Ainda nada está configurado</string>
+    <string name="health6_sub_all_good">Tudo o que está configurado parece bem.</string>
+    <string name="health6_check_again">Verificar de novo</string>
+    <string name="health6_share">Partilhar relatório</string>
+    <string name="health6_share_chooser">Partilhar relatório de estado</string>
+    <string name="health6_report_title">Relatório de estado do Dogmatix+</string>
+    <string name="health6_report_app">Versão da app %1$s</string>
+    <string name="health6_row_checking">Verificando…</string>
+    <string name="health6_covers_cleared">A procurar capas de novo</string>
+    <string name="health6_no_settings">Não foi possível abrir as definições</string>
+    <string name="health6_fix_setup">Configurar</string>
+    <string name="health6_fix_retry_covers">Procurar de novo</string>
+    <string name="health6_fix_refresh">Perguntar de novo</string>
+    <string name="health6_fix_notifications">Definições de notificações</string>
+    <string name="health6_fix_battery">Definições de bateria</string>
+    <string name="health6_fix_sources">Abrir fontes</string>
+    <string name="health6_fix_bios">Abrir BIOS</string>
+    <string name="health6_fix_save_sync">Abrir sincronização</string>
+    <string name="health6_fix_romm">Definições do RomM</string>
+    <string name="health6_fix_cloud">Cópia na nuvem</string>
+    <string name="health6_fix_storage">Abrir armazenamento</string>
+    <string name="health6_fix_frontends">Verificação de frontends</string>
+    <string name="health6_fix_ra">RetroAchievements</string>
+    <string name="health6_fix_updates">Atualizações</string>
+    <string name="health6_age_today">hoje</string>
+    <string name="health6_d_sources_none">Ainda não foram adicionadas fontes.</string>
+    <string name="health6_d_sources_not_scanned">As fontes ainda não foram analisadas. Faça uma nova análise para as verificar.</string>
+    <string name="health6_d_storage_no_folder">Ainda não foi escolhida a pasta de transferências.</string>
+    <string name="health6_d_storage_ok">%1$s livres. A biblioteca ocupa %2$s.</string>
+    <string name="health6_d_storage_free_unknown">A biblioteca ocupa %1$s. Não foi possível ler o espaço livre.</string>
+    <string name="health6_d_storage_low">Apenas %1$s livres. Liberte espaço antes de transferir mais.</string>
+    <string name="health6_d_storage_queue_short">A fila precisa de mais %1$s do que o espaço livre.</string>
+    <string name="health6_d_bios_no_folder">Ainda não foi escolhida a pasta BIOS.</string>
+    <string name="health6_d_bios_none_needed">Nenhuma das suas consolas precisa de arquivos BIOS.</string>
+    <string name="health6_d_covers_ok">Todos os jogos procurados têm capa.</string>
+    <string name="health6_d_save_not_set_up">Ainda não foram escolhidas pastas de saves.</string>
+    <string name="health6_d_save_no_romm">As pastas estão definidas, mas o RomM não. Os saves não podem sincronizar.</string>
+    <string name="health6_d_save_error">A última sincronização parou: %1$s</string>
+    <string name="health6_d_save_never">Ainda não sincronizado. Faça uma primeira sincronização.</string>
+    <string name="health6_d_save_stale">Última sincronização: %1$s. Já foi há algum tempo.</string>
+    <string name="health6_d_save_ok">Última sincronização: %1$s.</string>
+    <string name="health6_d_romm_not_set_up">Nenhum servidor RomM configurado.</string>
+    <string name="health6_d_romm_ok">Acessível. Versão do servidor %1$s.</string>
+    <string name="health6_d_romm_ok_plain">Acessível.</string>
+    <string name="health6_d_romm_auth">O servidor recusou o token. Verifique-o nas definições do RomM.</string>
+    <string name="health6_d_romm_forbidden">O token não tem uma permissão. Crie-o de novo com todos os âmbitos.</string>
+    <string name="health6_d_romm_tls">O certificado do servidor não é de confiança.</string>
+    <string name="health6_d_romm_unreachable">O servidor não responde. Verifique o endereço e a ligação.</string>
+    <string name="health6_d_romm_server">O servidor respondeu com um erro.</string>
+    <string name="health6_d_dav_not_set_up">Nenhuma nuvem WebDAV configurada.</string>
+    <string name="health6_d_dav_not_connected">O último teste de ligação falhou. Verifique o endereço e o acesso.</string>
+    <string name="health6_d_dav_no_backup">A cópia automática está ativa, mas ainda não foi feita nenhuma.</string>
+    <string name="health6_d_dav_ok_backup">Ligado. Última cópia %1$s.</string>
+    <string name="health6_d_dav_ok_no_backup">Ligado. Ainda sem cópia na nuvem.</string>
+    <string name="health6_d_ra_not_set_up">Nenhuma conta RetroAchievements configurada.</string>
+    <string name="health6_d_ra_incomplete">Falta o nome de utilizador ou a chave API.</string>
+    <string name="health6_d_ra_ok">A conta e a chave API estão definidas.</string>
+    <string name="health6_d_front_not_set_up">Nenhum frontend configurado (opcional).</string>
+    <string name="health6_d_front_partial">O ES-DE está configurado, mas as capas estão desativadas.</string>
+    <string name="health6_d_notif_ok">Podem aparecer avisos de fila concluída e da lista de desejos.</string>
+    <string name="health6_d_notif_off">As notificações estão desativadas: não aparecem avisos de fila nem da lista de desejos.</string>
+    <string name="health6_d_battery_ok">As tarefas em segundo plano não têm limites.</string>
+    <string name="health6_d_battery_hint">O Android pode atrasar análises, cópias e sincronização em segundo plano. Opcional: excluir o Dogmatix+.</string>
+    <string name="health6_d_update_ok">Atualizado. Versão mais recente: %1$s.</string>
+    <string name="health6_d_update_available">A versão %1$s está disponível.</string>
+    <string name="health6_d_update_unknown">Não foi possível procurar atualizações (offline?).</string>
+    <string name="health6_d_timeout">Sem resposta em 10 segundos.</string>
+    <string name="health6_d_error">A verificação falhou: %1$s</string>
+    <plurals name="health6_sub_problems">
+        <item quantity="one">%1$d problema</item>
+        <item quantity="other">%1$d problemas</item>
+    </plurals>
+    <plurals name="health6_sub_looks">
+        <item quantity="one">%1$d item para verificar</item>
+        <item quantity="other">%1$d itens para verificar</item>
+    </plurals>
+    <plurals name="health6_age_days">
+        <item quantity="one">há %1$d dia</item>
+        <item quantity="other">há %1$d dias</item>
+    </plurals>
+    <plurals name="health6_d_sources_ok">
+        <item quantity="one">%1$d fonte respondeu. Última análise %2$s.</item>
+        <item quantity="other">%1$d fontes responderam. Última análise %2$s.</item>
+    </plurals>
+    <plurals name="health6_d_sources_partial">
+        <item quantity="one">%1$d de %2$d fontes falhou na última análise.</item>
+        <item quantity="other">%1$d de %2$d fontes falharam na última análise.</item>
+    </plurals>
+    <plurals name="health6_d_sources_failed">
+        <item quantity="one">A última análise desta fonte falhou. Verifique a ligação ou o endereço.</item>
+        <item quantity="other">A última análise de todas as %1$d fontes falhou. Verifique a ligação ou os endereços.</item>
+    </plurals>
+    <plurals name="health6_d_bios_ok">
+        <item quantity="one">Os arquivos BIOS de %1$d sistema estão completos.</item>
+        <item quantity="other">Os arquivos BIOS de todos os %1$d sistemas estão completos.</item>
+    </plurals>
+    <plurals name="health6_d_bios_incomplete">
+        <item quantity="one">Falta um arquivo BIOS em %1$d de %2$d sistemas.</item>
+        <item quantity="other">Faltam arquivos BIOS em %1$d de %2$d sistemas.</item>
+    </plurals>
+    <plurals name="health6_d_covers_misses">
+        <item quantity="one">%1$d jogo não tem capa. Procure de novo para tentar outra vez.</item>
+        <item quantity="other">%1$d jogos não têm capa. Procure de novo para tentar outra vez.</item>
+    </plurals>
+    <plurals name="health6_d_save_conflicts">
+        <item quantity="one">%1$d save difere entre o dispositivo e o servidor.</item>
+        <item quantity="other">%1$d saves diferem entre o dispositivo e o servidor.</item>
+    </plurals>
+    <plurals name="health6_d_save_failed">
+        <item quantity="one">%1$d arquivo falhou na última sincronização.</item>
+        <item quantity="other">%1$d arquivos falharam na última sincronização.</item>
+    </plurals>
+    <plurals name="health6_d_dav_attention">
+        <item quantity="one">%1$d item precisa de atenção na cópia na nuvem.</item>
+        <item quantity="other">%1$d itens precisam de atenção na cópia na nuvem.</item>
+    </plurals>
+    <plurals name="health6_d_dav_overdue">
+        <item quantity="one">A última cópia na nuvem tem %1$d dia.</item>
+        <item quantity="other">A última cópia na nuvem tem %1$d dias.</item>
+    </plurals>
+    <plurals name="health6_d_front_ok">
+        <item quantity="one">%1$d frontend está pronto.</item>
+        <item quantity="other">%1$d frontends estão prontos.</item>
+    </plurals>
+</resources>

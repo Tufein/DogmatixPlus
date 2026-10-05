@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="health6_title">Alles controleren</string>
+    <string name="health6_group_library">Bibliotheek</string>
+    <string name="health6_group_cloud">Cloud</string>
+    <string name="health6_group_device">Apparaat en app</string>
+    <string name="health6_check_sources">Bronnen</string>
+    <string name="health6_check_storage">Opslag</string>
+    <string name="health6_check_bios">BIOS-bestanden</string>
+    <string name="health6_check_covers">Covers</string>
+    <string name="health6_check_save_sync">Savesynchronisatie</string>
+    <string name="health6_check_romm">RomM-server</string>
+    <string name="health6_check_webdav">WebDAV-cloud</string>
+    <string name="health6_check_ra">RetroAchievements</string>
+    <string name="health6_check_frontends">Frontend-instelling</string>
+    <string name="health6_check_notifications">Meldingen</string>
+    <string name="health6_check_battery">Batterijoptimalisatie</string>
+    <string name="health6_check_update">App-update</string>
+    <string name="health6_status_ok">OK</string>
+    <string name="health6_status_look">Even kijken</string>
+    <string name="health6_status_problem">Probleem</string>
+    <string name="health6_status_not_set_up">Niet ingesteld</string>
+    <string name="health6_status_hint">Tip</string>
+    <string name="health6_summary_fine">%1$d van %2$d in orde</string>
+    <string name="health6_summary_checking">Controleren… %1$d van %2$d</string>
+    <string name="health6_summary_none">Er is nog niets ingesteld</string>
+    <string name="health6_sub_all_good">Alles wat is ingesteld ziet er goed uit.</string>
+    <string name="health6_check_again">Opnieuw controleren</string>
+    <string name="health6_share">Rapport delen</string>
+    <string name="health6_share_chooser">Gezondheidsrapport delen</string>
+    <string name="health6_report_title">Dogmatix+ gezondheidsrapport</string>
+    <string name="health6_report_app">App-versie %1$s</string>
+    <string name="health6_row_checking">Controleren…</string>
+    <string name="health6_covers_cleared">Covers worden opnieuw gezocht</string>
+    <string name="health6_no_settings">Instellingen konden niet worden geopend</string>
+    <string name="health6_fix_setup">Instellen</string>
+    <string name="health6_fix_retry_covers">Opnieuw zoeken</string>
+    <string name="health6_fix_refresh">Opnieuw vragen</string>
+    <string name="health6_fix_notifications">Meldingsinstellingen</string>
+    <string name="health6_fix_battery">Batterij-instellingen</string>
+    <string name="health6_fix_sources">Bronnen openen</string>
+    <string name="health6_fix_bios">BIOS openen</string>
+    <string name="health6_fix_save_sync">Savesync openen</string>
+    <string name="health6_fix_romm">RomM-instellingen</string>
+    <string name="health6_fix_cloud">Cloudback-up</string>
+    <string name="health6_fix_storage">Opslag openen</string>
+    <string name="health6_fix_frontends">Frontend-check</string>
+    <string name="health6_fix_ra">RetroAchievements</string>
+    <string name="health6_fix_updates">Updates</string>
+    <string name="health6_age_today">vandaag</string>
+    <string name="health6_d_sources_none">Nog geen bronnen toegevoegd.</string>
+    <string name="health6_d_sources_not_scanned">Bronnen zijn nog niet gescand. Start een nieuwe scan om ze te controleren.</string>
+    <string name="health6_d_storage_no_folder">Nog geen downloadmap gekozen.</string>
+    <string name="health6_d_storage_ok">%1$s vrij. De bibliotheek neemt %2$s in.</string>
+    <string name="health6_d_storage_free_unknown">De bibliotheek neemt %1$s in. Vrije ruimte kon niet worden gelezen.</string>
+    <string name="health6_d_storage_low">Nog maar %1$s vrij. Maak ruimte vrij voordat je meer downloadt.</string>
+    <string name="health6_d_storage_queue_short">De wachtrij heeft %1$s meer nodig dan er vrij is.</string>
+    <string name="health6_d_bios_no_folder">Nog geen BIOS-map gekozen.</string>
+    <string name="health6_d_bios_none_needed">Geen van je consoles heeft BIOS-bestanden nodig.</string>
+    <string name="health6_d_covers_ok">Elk opgezocht spel heeft een cover.</string>
+    <string name="health6_d_save_not_set_up">Nog geen savemappen gekozen.</string>
+    <string name="health6_d_save_no_romm">Savemappen zijn ingesteld, maar RomM niet. Saves kunnen niet synchroniseren.</string>
+    <string name="health6_d_save_error">De laatste synchronisatie stopte: %1$s</string>
+    <string name="health6_d_save_never">Nog niet gesynchroniseerd. Start een eerste synchronisatie.</string>
+    <string name="health6_d_save_stale">Laatst gesynchroniseerd: %1$s. Dat is een tijd geleden.</string>
+    <string name="health6_d_save_ok">Laatst gesynchroniseerd: %1$s.</string>
+    <string name="health6_d_romm_not_set_up">Geen RomM-server ingesteld.</string>
+    <string name="health6_d_romm_ok">Bereikbaar. Serverversie %1$s.</string>
+    <string name="health6_d_romm_ok_plain">Bereikbaar.</string>
+    <string name="health6_d_romm_auth">De server weigerde het token. Controleer het in de RomM-instellingen.</string>
+    <string name="health6_d_romm_forbidden">Het token mist een toestemming. Maak het opnieuw aan met alle rechten.</string>
+    <string name="health6_d_romm_tls">Het servercertificaat wordt niet vertrouwd.</string>
+    <string name="health6_d_romm_unreachable">Geen antwoord van de server. Controleer het adres en je verbinding.</string>
+    <string name="health6_d_romm_server">De server antwoordde met een fout.</string>
+    <string name="health6_d_dav_not_set_up">Geen WebDAV-cloud ingesteld.</string>
+    <string name="health6_d_dav_not_connected">De laatste verbindingstest mislukte. Controleer het adres en de login.</string>
+    <string name="health6_d_dav_no_backup">Automatische back-up staat aan, maar er is nog geen back-up gemaakt.</string>
+    <string name="health6_d_dav_ok_backup">Verbonden. Laatste back-up %1$s.</string>
+    <string name="health6_d_dav_ok_no_backup">Verbonden. Nog geen cloudback-up gemaakt.</string>
+    <string name="health6_d_ra_not_set_up">Geen RetroAchievements-account ingesteld.</string>
+    <string name="health6_d_ra_incomplete">De gebruikersnaam of de API-sleutel ontbreekt.</string>
+    <string name="health6_d_ra_ok">Account en API-sleutel zijn ingesteld.</string>
+    <string name="health6_d_front_not_set_up">Geen frontend ingesteld (optioneel).</string>
+    <string name="health6_d_front_partial">ES-DE is ingesteld, maar de covers staan uit.</string>
+    <string name="health6_d_notif_ok">Meldingen voor afgeronde wachtrijen en verlanglijsttreffers kunnen verschijnen.</string>
+    <string name="health6_d_notif_off">Meldingen staan uit, dus wachtrij- en verlanglijstmeldingen kunnen niet verschijnen.</string>
+    <string name="health6_d_battery_ok">Achtergrondtaken kunnen zonder beperking draaien.</string>
+    <string name="health6_d_battery_hint">Android kan scans, back-ups en synchronisatie op de achtergrond uitstellen. Optioneel: Dogmatix+ uitzonderen.</string>
+    <string name="health6_d_update_ok">Bijgewerkt. Nieuwste release: %1$s.</string>
+    <string name="health6_d_update_available">Versie %1$s is beschikbaar.</string>
+    <string name="health6_d_update_unknown">Kon niet naar updates zoeken (offline?).</string>
+    <string name="health6_d_timeout">Geen antwoord binnen 10 seconden.</string>
+    <string name="health6_d_error">De controle mislukte: %1$s</string>
+    <plurals name="health6_sub_problems">
+        <item quantity="one">%1$d probleem</item>
+        <item quantity="other">%1$d problemen</item>
+    </plurals>
+    <plurals name="health6_sub_looks">
+        <item quantity="one">%1$d om naar te kijken</item>
+        <item quantity="other">%1$d om naar te kijken</item>
+    </plurals>
+    <plurals name="health6_age_days">
+        <item quantity="one">%1$d dag geleden</item>
+        <item quantity="other">%1$d dagen geleden</item>
+    </plurals>
+    <plurals name="health6_d_sources_ok">
+        <item quantity="one">%1$d bron antwoordde. Laatste scan %2$s.</item>
+        <item quantity="other">%1$d bronnen antwoordden. Laatste scan %2$s.</item>
+    </plurals>
+    <plurals name="health6_d_sources_partial">
+        <item quantity="one">%1$d van %2$d bronnen mislukte bij de laatste scan.</item>
+        <item quantity="other">%1$d van %2$d bronnen mislukten bij de laatste scan.</item>
+    </plurals>
+    <plurals name="health6_d_sources_failed">
+        <item quantity="one">De laatste scan van deze bron mislukte. Controleer je verbinding of het adres.</item>
+        <item quantity="other">De laatste scan van alle %1$d bronnen mislukte. Controleer je verbinding of de adressen.</item>
+    </plurals>
+    <plurals name="health6_d_bios_ok">
+        <item quantity="one">BIOS-bestanden voor %1$d systeem zijn compleet.</item>
+        <item quantity="other">BIOS-bestanden voor alle %1$d systemen zijn compleet.</item>
+    </plurals>
+    <plurals name="health6_d_bios_incomplete">
+        <item quantity="one">Bij %1$d van %2$d systemen ontbreekt een BIOS-bestand.</item>
+        <item quantity="other">Bij %1$d van %2$d systemen ontbreken BIOS-bestanden.</item>
+    </plurals>
+    <plurals name="health6_d_covers_misses">
+        <item quantity="one">%1$d spel heeft geen cover. Zoek opnieuw om het nog eens te proberen.</item>
+        <item quantity="other">%1$d spellen hebben geen cover. Zoek opnieuw om het nog eens te proberen.</item>
+    </plurals>
+    <plurals name="health6_d_save_conflicts">
+        <item quantity="one">%1$d save verschilt op het apparaat en de server.</item>
+        <item quantity="other">%1$d saves verschillen op het apparaat en de server.</item>
+    </plurals>
+    <plurals name="health6_d_save_failed">
+        <item quantity="one">%1$d bestand mislukte bij de laatste synchronisatie.</item>
+        <item quantity="other">%1$d bestanden mislukten bij de laatste synchronisatie.</item>
+    </plurals>
+    <plurals name="health6_d_dav_attention">
+        <item quantity="one">%1$d ding vraagt aandacht in Cloudback-up.</item>
+        <item quantity="other">%1$d dingen vragen aandacht in Cloudback-up.</item>
+    </plurals>
+    <plurals name="health6_d_dav_overdue">
+        <item quantity="one">De laatste cloudback-up is %1$d dag oud.</item>
+        <item quantity="other">De laatste cloudback-up is %1$d dagen oud.</item>
+    </plurals>
+    <plurals name="health6_d_front_ok">
+        <item quantity="one">%1$d frontend is klaar.</item>
+        <item quantity="other">%1$d frontends zijn klaar.</item>
+    </plurals>
+</resources>
