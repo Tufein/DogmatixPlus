@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: RomM goes deep (game details and play status, favourites both ways, BIOS from RomM) -->
+<resources>
+    <string name="romm5_section_title">No RomM</string>
+    <string name="romm5_loading">A ler o jogo no RomM…</string>
+    <string name="romm5_load_failed">Não foi possível ler o RomM: %1$s</string>
+    <string name="romm5_retry">Tentar de novo</string>
+    <string name="romm5_rating_value">%1$s / 10</string>
+    <string name="romm5_screenshots">Capturas de ecrã</string>
+    <string name="romm5_play_status">O teu estado de jogo</string>
+    <string name="romm5_status_now_playing">A jogar agora</string>
+    <string name="romm5_status_backlog">Por jogar</string>
+    <string name="romm5_status_incomplete">Por acabar</string>
+    <string name="romm5_status_finished">Terminado</string>
+    <string name="romm5_status_completed" formatted="false">Concluído a 100 %</string>
+    <string name="romm5_status_retired">Abandonado</string>
+    <string name="romm5_status_never">Não vou jogar</string>
+    <string name="romm5_your_rating">A tua avaliação</string>
+    <string name="romm5_rating_none">Sem avaliação</string>
+    <string name="romm5_your_rating_value">%1$d / 10</string>
+    <string name="romm5_props_unsupported">Este servidor RomM ainda não guarda o estado de jogo: atualiza o RomM para o usar.</string>
+    <string name="romm5_save_failed">O RomM não guardou a alteração (%1$s)</string>
+    <string name="romm5_last_played">Última vez jogado (RomM): %1$s</string>
+    <string name="romm5_err_not_set_up">O RomM não está configurado</string>
+    <string name="romm5_err_unreachable">não é possível contactar o servidor</string>
+    <string name="romm5_err_tls">o certificado do servidor não é de confiança</string>
+    <string name="romm5_err_auth">o token ou a palavra-passe não são aceites</string>
+    <string name="romm5_err_forbidden">o token não tem permissão para isto (verifica os âmbitos)</string>
+    <string name="romm5_err_not_found">esta versão do RomM não o oferece</string>
+    <string name="romm5_err_server">o servidor respondeu com um erro</string>
+    <string name="romm5_fw_title">BIOS do RomM</string>
+    <string name="romm5_fw_pitch">Vai buscar ao firmware do teu servidor RomM os ficheiros BIOS que faltam aqui. Cada ficheiro é verificado (MD5) antes de ser guardado; nada na pasta é substituído.</string>
+    <string name="romm5_fw_action">Buscar ao RomM as BIOS em falta</string>
+    <string name="romm5_fw_checking">A procurar no RomM os ficheiros em falta…</string>
+    <string name="romm5_fw_running">A buscar %1$d de %2$d…</string>
+    <string name="romm5_fw_no_folder">Escolhe primeiro a pasta de BIOS.</string>
+    <string name="romm5_fw_no_write">O Dogmatix+ só pode ler a pasta de BIOS. Escolhe-a de novo para permitir a escrita.</string>
+    <string name="romm5_fw_pick_folder">Escolher pasta</string>
+    <string name="romm5_fw_nothing_missing">Não falta nada: todos os ficheiros BIOS estão lá.</string>
+    <string name="romm5_fw_server_problem">Não foi possível consultar o RomM: %1$s</string>
+    <string name="romm5_fw_all_done">Tudo o que faltava veio do RomM.</string>
+    <string name="romm5_fw_fetched_title">Obtidos</string>
+    <string name="romm5_fw_failed_title">Encontrados mas não guardados</string>
+    <string name="romm5_fw_not_on_server_title">Não estão no RomM</string>
+    <string name="romm5_fw_required">necessário</string>
+    <string name="romm5_fw_more">+ mais %1$d</string>
+    <string name="romm5_fw_fail_wrong_dump">outro dump que não os bons conhecidos</string>
+    <string name="romm5_fw_fail_corrupt">a transferência está danificada</string>
+    <string name="romm5_fw_fail_too_large">demasiado grande</string>
+    <string name="romm5_fw_fail_download">a transferência falhou</string>
+    <string name="romm5_fw_fail_write">não foi possível escrever na pasta</string>
+    <string name="romm5_fav_two_way">Manter os favoritos em sintonia com o RomM</string>
+    <string name="romm5_fav_two_way_hint">As estrelas vão para os favoritos do RomM e os corações voltam como estrelas</string>
+    <string name="romm5_fav_syncing">A sincronizar favoritos…</string>
+    <string name="romm5_fav_synced">Favoritos em sintonia · %1$s</string>
+    <string name="romm5_fav_failed">Favoritos não sincronizados: %1$s</string>
+    <plurals name="romm5_fw_fetched_count">
+        <item quantity="one">%1$d obtido</item>
+        <item quantity="many">%1$d obtidos</item>
+        <item quantity="other">%1$d obtidos</item>
+    </plurals>
+    <plurals name="romm5_fw_not_on_server_count">
+        <item quantity="one">%1$d não está no RomM</item>
+        <item quantity="many">%1$d não estão no RomM</item>
+        <item quantity="other">%1$d não estão no RomM</item>
+    </plurals>
+    <plurals name="romm5_fw_failed_count">
+        <item quantity="one">%1$d não guardado</item>
+        <item quantity="many">%1$d não guardados</item>
+        <item quantity="other">%1$d não guardados</item>
+    </plurals>
+</resources>
