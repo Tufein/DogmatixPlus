@@ -1,7 +1,17 @@
 package com.cortinadev.dogmatix.ui.screens.home.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
@@ -28,10 +39,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -43,11 +55,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.ui.components.ActionPill
+import com.cortinadev.dogmatix.ui.components.SectionTitle
 import com.cortinadev.dogmatix.ui.components.focusRing
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
+import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
+import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
+import com.cortinadev.dogmatix.ui.theme.Motion
+import com.cortinadev.dogmatix.ui.theme.tabular
 
-/** [label] is shown in the option list; [shortLabel] (defaults to [label]) in compact places like the collapsed summary and chips. */
-data class FilterOption(val id: String, val label: String, val shortLabel: String = label)
+/**
+ * [label] is shown in the option list; [shortLabel] (defaults to [label]) in compact places like the
+ * collapsed summary and chips. 5.0: [count] (games behind the option) and [color] (a console's
+ * colour, shown as a dot) when known.
+ */
+data class FilterOption(
+    val id: String,
+    val label: String,
+    val shortLabel: String = label,
+    val count: Int? = null,
+    val color: Color? = null
+)
 
 /**
  * One row of the filter panel. Multi-select unless [single]; the empty selection means "any".
@@ -82,26 +110,12 @@ fun FilterPanel(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 14.dp, end = 14.dp, bottom = 10.dp),
+                .padding(start = 14.dp, end = 4.dp, bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                stringResource(R.string.filters).uppercase(),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            val clearSource = rememberFocusSource()
-            Text(
-                stringResource(R.string.clear),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp))
-                    .focusRing(clearSource, 6.dp)
-                    .clickable(interactionSource = clearSource, indication = null, onClick = onClear)
-                    .padding(horizontal = 6.dp, vertical = 4.dp)
-            )
+            SectionTitle(stringResource(R.string.filters), icon = R.drawable.ic_filter, modifier = Modifier.weight(1f, fill = false))
+            ActionPill(stringResource(R.string.clear), onClick = onClear, icon = R.drawable.ic_clear_filter)
         }
         rows.forEachIndexed { index, row ->
             FilterRow(
@@ -131,12 +145,20 @@ private fun FilterRow(
     val source = rememberFocusSource()
     val rowHeight = if (compact) 40.dp else 48.dp
     val rowFocus = remember { FocusRequester() }
+    val reduce = LocalReduceMotion.current
 
     // When the option list closes, the focused option disappears; put focus back on the row.
     var wasExpanded by remember { mutableStateOf(expanded) }
     LaunchedEffect(expanded) {
         if (wasExpanded && !expanded) runCatching { rowFocus.requestFocus() }
         wasExpanded = expanded
+    }
+
+    // The chevron turns in the draw phase (graphicsLayer lambda); snaps when motion is reduced.
+    val turn = remember { Animatable(if (expanded) 1f else 0f) }
+    LaunchedEffect(expanded, reduce) {
+        val target = if (expanded) 1f else 0f
+        if (reduce) turn.snapTo(target) else turn.animateTo(target, Motion.spec(false, Motion.MEDIUM))
     }
 
     // Long lists (languages) start folded to the featured ids; "Show more" reveals the rest.
@@ -164,12 +186,17 @@ private fun FilterRow(
         }
     }
 
+    val singlePick = spec.selected.singleOrNull()?.let { id -> spec.options.firstOrNull { it.id == id } }
     val valueText = when {
         spec.selected.isEmpty() -> stringResource(if (spec.single) R.string.filter_all else R.string.filter_any)
-        spec.selected.size == 1 -> spec.options.firstOrNull { it.id == spec.selected.first() }?.shortLabel ?: spec.selected.first()
+        spec.selected.size == 1 -> singlePick?.shortLabel ?: spec.selected.first()
         else -> stringResource(R.string.filter_selected_count, spec.selected.size)
     }
-    val active = spec.selected.isNotEmpty() && !spec.single
+    // A row that narrows the list: a multi-select with a pick, or a single choice off its first (default) option.
+    val active = if (spec.single) {
+        spec.selected.isNotEmpty() && spec.options.isNotEmpty() && spec.selected.first() != spec.options.first().id
+    } else spec.selected.isNotEmpty()
+    val activeFill = scheme.primary.copy(alpha = if (LocalDogmatixTokens.current.isDark) 0.10f else 0.08f)
 
     Column(modifier = modifier) {
         Row(
@@ -177,8 +204,7 @@ private fun FilterRow(
                 .fillMaxWidth()
                 .height(rowHeight)
                 .focusRequester(rowFocus)
-                .clip(RoundedCornerShape(8.dp))
-                .background(if (active) scheme.surfaceContainer else scheme.surface.copy(alpha = 0f))
+                .background(if (active) activeFill else Color.Transparent, RoundedCornerShape(8.dp))
                 .focusRing(source)
                 .onPreviewKeyEvent { event ->
                     if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
@@ -189,67 +215,98 @@ private fun FilterRow(
                     }
                 }
                 .clickable(interactionSource = source, indication = null) { onExpandedChange(!expanded) }
-                .padding(start = 14.dp, end = 8.dp),
+                .padding(start = 8.dp, end = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // A thin accent mark at the start of a row that is filtering.
+            Box(
+                modifier = Modifier
+                    .width(3.dp)
+                    .height(16.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(if (active) scheme.primary else Color.Transparent)
+            )
+            Spacer(Modifier.width(5.dp))
             Text(
                 spec.label,
                 style = MaterialTheme.typography.bodyMedium,
-                color = scheme.onSurfaceVariant,
+                color = if (active) scheme.onSurface else scheme.onSurfaceVariant,
                 maxLines = 1,
                 softWrap = false
             )
-            Spacer(Modifier.width(8.dp))
-            ArrowButton("‹") { cycle(-1) }
-            Text(
-                valueText,
-                style = MaterialTheme.typography.labelLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 2.dp)
-            )
-            ArrowButton("›") { cycle(1) }
+            Spacer(Modifier.width(6.dp))
+            ArrowButton(R.drawable.ic_chevron_left) { cycle(-1) }
+            Row(
+                modifier = Modifier.weight(1f).padding(horizontal = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
+            ) {
+                singlePick?.color?.let { ColorDot(it) }
+                Text(
+                    valueText,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = if (active) scheme.primary else scheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1f, fill = false)
+                )
+            }
+            ArrowButton(R.drawable.ic_chevron_right) { cycle(1) }
             Icon(
-                painterResource(R.drawable.ic_arrow_down),
+                painterResource(R.drawable.ic_chevron_right),
                 contentDescription = null,
-                tint = scheme.onSurfaceVariant,
+                tint = if (expanded) scheme.primary else scheme.onSurfaceVariant,
                 modifier = Modifier
-                    .size(16.dp)
-                    .rotate(if (expanded) 180f else 0f)
+                    .size(18.dp)
+                    .graphicsLayer { rotationZ = 90f + 180f * turn.value }
             )
         }
         fun close() {
             runCatching { rowFocus.requestFocus() }
             onExpandedChange(false)
         }
-        AnimatedVisibility(visible = expanded) {
+        AnimatedVisibility(
+            visible = expanded,
+            enter = if (reduce) EnterTransition.None
+                else fadeIn(tween(Motion.MEDIUM, easing = FastOutSlowInEasing)) + expandVertically(tween(Motion.MEDIUM, easing = FastOutSlowInEasing)),
+            exit = if (reduce) ExitTransition.None
+                else fadeOut(tween(Motion.FAST, easing = FastOutSlowInEasing)) + shrinkVertically(tween(Motion.MEDIUM, easing = FastOutSlowInEasing))
+        ) {
+            val shape = RoundedCornerShape(10.dp)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 6.dp, vertical = 4.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(shape)
                     .background(scheme.surfaceContainer)
+                    .border(1.dp, LocalDogmatixTokens.current.hairline, shape)
                     .onPreviewKeyEvent { event ->
                         if (event.type == KeyEventType.KeyDown && (event.key == Key.Back || event.key == Key.ButtonB || event.key == Key.Escape)) {
                             close(); true
                         } else false
                     }
-                    .padding(6.dp)
+                    .padding(5.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 if (!spec.single) {
                     OptionRow(
                         label = stringResource(R.string.filter_any),
                         checked = spec.selected.isEmpty(),
                         compact = compact,
-                        showBox = false
+                        mark = OptionMark.RADIO
                     ) { spec.onSelectionChange(emptySet()); close() }
                 }
                 visibleOptions.forEach { option ->
                     val checked = option.id in spec.selected
-                    OptionRow(label = option.label, checked = checked, compact = compact, showBox = !spec.single) {
+                    OptionRow(
+                        label = option.label,
+                        checked = checked,
+                        compact = compact,
+                        mark = if (spec.single) OptionMark.RADIO else OptionMark.CHECKBOX,
+                        count = option.count,
+                        dot = option.color
+                    ) {
                         if (spec.single) {
                             spec.onSelectionChange(setOf(option.id)); close()
                         } else {
@@ -262,7 +319,7 @@ private fun FilterRow(
                         label = stringResource(if (showAll) R.string.filter_show_less else R.string.filter_show_more),
                         checked = false,
                         compact = compact,
-                        showBox = false,
+                        mark = if (showAll) OptionMark.LESS else OptionMark.MORE,
                         accent = true
                     ) { showAll = !showAll }
                 }
@@ -271,63 +328,91 @@ private fun FilterRow(
     }
 }
 
+/** The ‹ › of a filter row. Touch-only: the D-pad cycles the row itself, so these must not take focus. */
 @Composable
-private fun ArrowButton(glyph: String, onClick: () -> Unit) {
+private fun ArrowButton(icon: Int, onClick: () -> Unit) {
     val source = rememberFocusSource()
-    // Touch-only: the D-pad cycles the row itself, so these must not take focus.
     Box(
         modifier = Modifier
-            .size(28.dp)
+            .size(26.dp)
             .clip(RoundedCornerShape(6.dp))
             .focusProperties { canFocus = false }
+            .focusRing(source, 6.dp)
             .clickable(interactionSource = source, indication = null, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Text(glyph, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Icon(painterResource(icon), contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
     }
 }
+
+@Composable
+private fun ColorDot(color: Color) {
+    Box(
+        modifier = Modifier
+            .size(8.dp)
+            .clip(CircleShape)
+            .background(color)
+    )
+}
+
+/** What leads an option: a checkbox (multi-select), a radio (single choice) or a plus / minus ("Show more"). */
+private enum class OptionMark { CHECKBOX, RADIO, MORE, LESS }
 
 @Composable
 private fun OptionRow(
     label: String,
     checked: Boolean,
     compact: Boolean,
-    showBox: Boolean,
+    mark: OptionMark,
     accent: Boolean = false,
+    count: Int? = null,
+    dot: Color? = null,
     onClick: () -> Unit
 ) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
+    val icon = when (mark) {
+        OptionMark.CHECKBOX -> if (checked) R.drawable.ic_checkbox_on else R.drawable.ic_checkbox_off
+        OptionMark.RADIO -> if (checked) R.drawable.ic_radio_on else R.drawable.ic_radio_off
+        OptionMark.MORE -> R.drawable.ic_plus
+        OptionMark.LESS -> R.drawable.ic_remove
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(if (compact) 32.dp else 44.dp)
-            .clip(RoundedCornerShape(6.dp))
-            .background(if (checked && !showBox) scheme.primary else scheme.surfaceContainer)
-            .focusRing(source, 6.dp)
+            .height(if (compact) 34.dp else 44.dp)
+            .background(
+                if (checked) scheme.primary.copy(alpha = if (LocalDogmatixTokens.current.isDark) 0.14f else 0.10f) else Color.Transparent,
+                RoundedCornerShape(7.dp)
+            )
+            .focusRing(source, 7.dp)
             .clickable(interactionSource = source, indication = null, onClick = onClick)
-            .padding(horizontal = 10.dp),
+            .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        if (showBox) {
-            Box(
-                modifier = Modifier
-                    .size(14.dp)
-                    .clip(RoundedCornerShape(3.dp))
-                    .background(if (checked) scheme.primary else scheme.surfaceContainerHighest)
-            )
-        }
+        Icon(
+            painterResource(icon),
+            contentDescription = null,
+            tint = if (checked || accent) scheme.primary else scheme.onSurfaceVariant,
+            modifier = Modifier.size(18.dp)
+        )
+        dot?.let { ColorDot(it) }
         Text(
             label,
             style = if (checked || accent) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodyMedium,
-            color = when {
-                checked && !showBox -> scheme.onPrimary
-                accent -> scheme.primary
-                else -> scheme.onSurface
-            },
+            color = if (accent) scheme.primary else scheme.onSurface,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f)
         )
+        count?.let {
+            Text(
+                it.toString(),
+                style = MaterialTheme.typography.labelSmall.tabular(),
+                color = scheme.onSurfaceVariant,
+                maxLines = 1
+            )
+        }
     }
 }

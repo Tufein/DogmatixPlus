@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: library (Home) -->
+<resources>
+    <string name="home_ra_badge">RA</string>
+    <string name="home_details_favourite">Favourite</string>
+    <string name="home_details_unfavourite">Unfavourite</string>
+    <string name="home_pill_on_device">On device</string>
+    <string name="home_pill_on_romm">On RomM</string>
+    <string name="home_pill_verified">Verified</string>
+    <string name="home_pill_found">Found %1$s</string>
+    <string name="home_empty_library_title">Your library is empty</string>
+    <string name="home_empty_library_message">Add a source (a website, a torrent or your RomM server) and scan it: its games show up here.</string>
+    <string name="home_go_to_sources">Go to Sources</string>
+    <string name="home_no_results_message">Try other words, or loosen the filters.</string>
+    <string name="home_clear_filters">Clear filters</string>
+    <string name="home_recent">Recent</string>
+    <plurals name="home_load_more">
+        <item quantity="one">Load %1$d more</item>
+        <item quantity="other">Load %1$d more</item>
+    </plurals>
+</resources>

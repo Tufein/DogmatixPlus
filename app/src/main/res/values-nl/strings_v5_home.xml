@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: library (Home) -->
+<resources>
+    <string name="home_ra_badge">RA</string>
+    <string name="home_details_favourite">Favoriet</string>
+    <string name="home_details_unfavourite">Geen favoriet meer</string>
+    <string name="home_pill_on_device">Op het apparaat</string>
+    <string name="home_pill_on_romm">Op RomM</string>
+    <string name="home_pill_verified">Geverifieerd</string>
+    <string name="home_pill_found">Gevonden op %1$s</string>
+    <string name="home_empty_library_title">Je bibliotheek is leeg</string>
+    <string name="home_empty_library_message">Voeg een bron toe (een website, een torrent of je RomM-server) en scan die: de games verschijnen dan hier.</string>
+    <string name="home_go_to_sources">Naar Bronnen</string>
+    <string name="home_no_results_message">Probeer andere woorden of maak de filters ruimer.</string>
+    <string name="home_clear_filters">Filters wissen</string>
+    <string name="home_recent">Recent</string>
+    <plurals name="home_load_more">
+        <item quantity="one">Nog %1$d laden</item>
+        <item quantity="other">Nog %1$d laden</item>
+    </plurals>
+</resources>

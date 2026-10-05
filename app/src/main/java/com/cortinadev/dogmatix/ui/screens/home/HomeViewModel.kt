@@ -5,6 +5,7 @@ import com.cortinadev.dogmatix.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.data.local.AppSettings
+import com.cortinadev.dogmatix.data.local.LookSettings
 import com.cortinadev.dogmatix.data.local.dao.CollectionWithCount
 import com.cortinadev.dogmatix.data.local.entity.ConsoleEntity
 import com.cortinadev.dogmatix.data.local.dao.ConsoleWithFileCount
@@ -65,6 +66,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -90,8 +92,13 @@ class HomeViewModel @Inject constructor(
     private val appSettings: AppSettings,
     private val profiles: ProfileService,
     private val retroAchievements: RetroAchievementsService,
-    private val libraryTools: LibraryToolsService
+    private val libraryTools: LibraryToolsService,
+    lookSettings: LookSettings
 ) : ViewModel() {
+
+    /** 5.0: small covers in front of the games in the list (Settings → Look). */
+    val listCovers: StateFlow<Boolean> = lookSettings.listCovers
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     /** Bytes that removing duplicate games (keeping the biggest copy of each) would free; null on failure. */
     suspend fun reclaimableBytes(): Long? = runCatching {
@@ -310,6 +317,19 @@ class HomeViewModel @Inject constructor(
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
+    /**
+     * 5.0: progress (0..1) of every download in flight, by file name, sampled twice a second for
+     * the ring on the row badge. The screen reads it only while drawing that ring, so a progress
+     * tick never recomposes the list; [activeDownloads] (which changes rarely) decides which rows
+     * show the badge at all.
+     */
+    @OptIn(FlowPreview::class)
+    val downloadProgress: StateFlow<Map<String, Float>> = downloadService.downloads
+        .sample(500L)
+        .map { list -> list.filter { !it.isFinished }.associate { it.fileName to it.progress.coerceIn(0f, 1f) } }
+        .flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
     fun isDownloading(file: DownloadableFileEntity, active: Set<String>): Boolean = file.fileName in active
 
     /** Remove an owned game from the download folder. Returns true if something was deleted. */
@@ -366,11 +386,25 @@ class HomeViewModel @Inject constructor(
     private val _isLoadingMore = MutableStateFlow(false)
     val isLoadingMore: StateFlow<Boolean> = _isLoadingMore
 
+    /** 5.0: a new search (filters / query changed) is running; the list shows placeholder rows meanwhile. */
+    private val _isSearching = MutableStateFlow(true)
+    val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
+
+    /**
+     * 5.0: nothing is indexed at all (no sources yet, or none scanned): the empty list then points
+     * to Sources instead of saying that nothing matches the filters.
+     */
+    private val _libraryEmpty = MutableStateFlow(false)
+    val libraryEmpty: StateFlow<Boolean> = _libraryEmpty.asStateFlow()
+
     private var currentOffset = 0
     /** Rows per search ("Maximum search results" in Settings); [Int.MAX_VALUE] when unlimited. */
     private val pageSize: StateFlow<Int> = settingsRepository.maxSearchResults
         .map { if (it <= 0) Int.MAX_VALUE else it }
         .stateIn(viewModelScope, SharingStarted.Eagerly, Constants.DEFAULT_MAX_SEARCH_RESULTS)
+
+    /** How many rows "Load more" adds (the label used to say 100 whatever the setting). */
+    val loadMoreSize: StateFlow<Int> = pageSize
 
     init {
         rememberSearches()
@@ -393,10 +427,16 @@ class HomeViewModel @Inject constructor(
                 )
             }.collect { params ->
                 currentOffset = 0
-                val initialResults = performSearch(params)
-                _results.value = initialResults
-                _hasMoreResults.value = initialResults.size >= params.limit
-                loadConsoles()
+                _isSearching.value = true
+                try {
+                    val initialResults = performSearch(params)
+                    _results.value = initialResults
+                    _hasMoreResults.value = initialResults.size >= params.limit
+                    // Before the flag drops: an empty list must already know whether the library is empty.
+                    loadConsoles()
+                } finally {
+                    _isSearching.value = false
+                }
                 loadAvailableTags(params.query, params.consoles)
             }
         }
@@ -513,6 +553,9 @@ class HomeViewModel @Inject constructor(
             manufacturer = null
         )
         _consolesWithFiles.value = consolesWithFiles.sortedBy { ConsoleFormatter.getConsoleDisplayName(it.id) }
+        // The file counts follow the search text, so only an empty search can tell an empty library.
+        _libraryEmpty.value = allConsoles.isEmpty() ||
+            (consolesWithFiles.isEmpty() && (_searchQuery.value.isBlank() || _libraryEmpty.value))
     }
 
     private suspend fun loadAvailableTags(query: String, consoleIds: Set<String>) {

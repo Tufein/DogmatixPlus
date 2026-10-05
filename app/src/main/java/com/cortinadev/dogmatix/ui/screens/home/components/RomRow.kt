@@ -1,40 +1,72 @@
 package com.cortinadev.dogmatix.ui.screens.home.components
 
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import com.cortinadev.dogmatix.R
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.model.DownloadableFileWithTags
+import com.cortinadev.dogmatix.ui.components.GameCover
+import com.cortinadev.dogmatix.ui.components.Pill
+import com.cortinadev.dogmatix.ui.components.PillTone
 import com.cortinadev.dogmatix.ui.components.TagRow
 import com.cortinadev.dogmatix.ui.components.focusRing
 import com.cortinadev.dogmatix.ui.components.formatBytes
+import com.cortinadev.dogmatix.ui.components.pillColors
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.stripExtension
+import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
+import com.cortinadev.dogmatix.ui.theme.tabular
+import kotlinx.coroutines.flow.collectLatest
+
+/** Size of the cover thumbnail in the one-line table row (portrait box art, 3:4). */
+val TableCoverWidth: Dp = 30.dp
+private val TableCoverHeight: Dp = 40.dp
+private val StackedCoverWidth: Dp = 42.dp
+private val StackedCoverHeight: Dp = 56.dp
+/** Space between the cover and the badges / name. */
+val CoverGap: Dp = 10.dp
 
 /**
  * One library result. [compact] is the landscape table row; otherwise name and tags stack.
@@ -62,21 +94,34 @@ fun RomRow(
      * Horizontal shift (px) of the left-anchored content, read at placement time so the filter
      * panel animation can slide names along without re-measuring the row. 0 when idle.
      */
-    contentShift: () -> Int = { 0 }
+    contentShift: () -> Int = { 0 },
+    /** 5.0: how many achievements RetroAchievements lists for the game (0 = unknown). */
+    achievementCount: Int = 0,
+    /** 5.0: a small cover in front of the name (Settings → Look). */
+    showCover: Boolean = false,
+    /**
+     * 5.0: progress (0..1) of this game's download while [downloading]. Only read while drawing
+     * the badge's ring, so progress ticks never recompose the row.
+     */
+    downloadProgress: () -> Float = { 0f }
 ) {
     val source = rememberFocusSource()
     val rom = item.file
+    // No clip: the focus halo is drawn just outside the row, and a clip would also cost a layer per row.
     val base = modifier
         .fillMaxWidth()
-        .clip(RoundedCornerShape(8.dp))
-        .focusRing(source, startShift = contentShift)
+        .focusRing(source, cornerRadius = 10.dp, startShift = contentShift)
         .combinedClickable(interactionSource = source, indication = null, onClick = onClick, onLongClick = onLongClick)
+    val nameColor = if (owned) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
+    val badges: @Composable () -> Unit = {
+        Badges(owned, onRomm, favourite, downloading, isNew, achievements, achievementCount, downloadProgress)
+    }
 
     if (compact) {
         Row(
             modifier = base
                 .defaultMinSize(minHeight = 46.dp)
-                .padding(horizontal = 14.dp, vertical = 6.dp),
+                .padding(horizontal = 14.dp, vertical = if (showCover) 4.dp else 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -85,15 +130,22 @@ fun RomRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                if (favourite) FavouriteBadge()
-                if (downloading) DownloadingBadge() else if (owned) OwnedBadge()
-                if (onRomm) RommBadge()
-                if (isNew) NewBadge()
-                if (achievements) RaBadge()
+                if (showCover) {
+                    GameCover(
+                        consoleId = rom.consoleId,
+                        fileName = rom.fileName,
+                        title = rom.name,
+                        // The extra end padding plus the row's 8 dp spacing make CoverGap, as in the table header.
+                        modifier = Modifier.padding(end = CoverGap - 8.dp).size(TableCoverWidth, TableCoverHeight),
+                        shape = RoundedCornerShape(5.dp),
+                        showLabel = false
+                    )
+                }
+                badges()
                 Text(
                     stripExtension(rom.name),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = if (owned) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                    color = nameColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -103,6 +155,7 @@ fun RomRow(
                 tags = item.tags,
                 extension = rom.fileExtension,
                 maxLines = 1,
+                consoleId = rom.consoleId,
                 modifier = Modifier.width(300.dp)
             )
             SizeText(rom.fileSize, Modifier.width(64.dp))
@@ -111,29 +164,37 @@ fun RomRow(
         Row(
             modifier = base
                 .defaultMinSize(minHeight = 64.dp)
-                .padding(horizontal = 14.dp, vertical = 10.dp),
+                .padding(horizontal = 12.dp, vertical = if (showCover) 8.dp else 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Column(
+            Row(
                 modifier = Modifier.weight(1f).slidingCell(contentShift),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(CoverGap + 2.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (favourite) FavouriteBadge()
-                    if (downloading) DownloadingBadge() else if (owned) OwnedBadge()
-                    if (onRomm) RommBadge()
-                    if (isNew) NewBadge()
-                    if (achievements) RaBadge()
-                    Text(
-                        stripExtension(rom.name),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = if (owned) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                if (showCover) {
+                    GameCover(
+                        consoleId = rom.consoleId,
+                        fileName = rom.fileName,
+                        title = rom.name,
+                        modifier = Modifier.size(StackedCoverWidth, StackedCoverHeight),
+                        shape = RoundedCornerShape(7.dp)
                     )
                 }
-                TagRow(console = consoleName, tags = item.tags, extension = rom.fileExtension)
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        badges()
+                        Text(
+                            stripExtension(rom.name),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = nameColor,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    TagRow(console = consoleName, tags = item.tags, extension = rom.fileExtension, consoleId = rom.consoleId)
+                }
             }
             SizeText(rom.fileSize, Modifier.width(64.dp))
         }
@@ -158,103 +219,84 @@ private fun Modifier.slidingCell(shift: () -> Int): Modifier = clipToBounds().la
     layout(constraints.maxWidth, placeable.height) { placeable.placeRelative(dx, 0) }
 }
 
-/** Small check inside a tinted circle: this file is already in the download folder. */
+/** The marks in front of a name, in a fixed order: favourite, on device / downloading, RomM, new, RA. */
 @Composable
-private fun OwnedBadge() {
+private fun Badges(
+    owned: Boolean,
+    onRomm: Boolean,
+    favourite: Boolean,
+    downloading: Boolean,
+    isNew: Boolean,
+    achievements: Boolean,
+    achievementCount: Int,
+    downloadProgress: () -> Float
+) {
+    if (favourite) IconBadge(R.drawable.ic_star, PillTone.Accent, stringResource(R.string.favourite))
+    if (downloading) DownloadingBadge(downloadProgress)
+    else if (owned) IconBadge(R.drawable.ic_check, PillTone.Success, stringResource(R.string.owned))
+    if (onRomm) Pill(stringResource(R.string.romm_badge), tone = PillTone.Info)
+    if (isNew) Pill(stringResource(R.string.new_badge), tone = PillTone.Accent)
+    if (achievements) Pill(
+        if (achievementCount > 0) achievementCount.toString() else stringResource(R.string.home_ra_badge),
+        tone = PillTone.Warning,
+        icon = R.drawable.ic_trophy
+    )
+}
+
+/** A round 18 dp mark with an icon in a [PillTone]'s colours (owned, favourite). */
+@Composable
+private fun IconBadge(icon: Int, tone: PillTone, description: String) {
+    val (bg, fg) = pillColors(tone)
     Box(
         modifier = Modifier
             .size(18.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.tertiary),
+            .background(bg),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            painterResource(R.drawable.ic_check),
-            contentDescription = stringResource(R.string.owned),
-            tint = MaterialTheme.colorScheme.onTertiary,
-            modifier = Modifier.size(11.dp)
-        )
+        Icon(painterResource(icon), contentDescription = description, tint = fg, modifier = Modifier.size(11.dp))
     }
 }
 
-/** Small "RomM" pill: the server already has this game. */
+/**
+ * Down arrow in an accent circle whose rim fills with the download's progress. The progress is
+ * animated between the twice-a-second samples and drawn in the draw phase only.
+ */
 @Composable
-private fun RommBadge() {
-    Text(
-        stringResource(R.string.romm_badge),
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.onSecondaryContainer,
-        maxLines = 1,
-        modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-            .padding(horizontal = 6.dp, vertical = 1.dp)
-    )
-}
-
-/** Small "RA" pill: RetroAchievements has achievements for this game. */
-@Composable
-private fun RaBadge() {
-    Text(
-        "RA",
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.onPrimary,
-        maxLines = 1,
-        modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
-            .background(MaterialTheme.colorScheme.primary)
-            .padding(horizontal = 6.dp, vertical = 1.dp)
-    )
-}
-
-/** Small "New" pill: a recent rescan found this file. */
-@Composable
-private fun NewBadge() {
-    Text(
-        stringResource(R.string.new_badge),
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.onTertiaryContainer,
-        maxLines = 1,
-        modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
-            .background(MaterialTheme.colorScheme.tertiaryContainer)
-            .padding(horizontal = 6.dp, vertical = 1.dp)
-    )
-}
-
-/** Star inside an accent circle: the user marked this game as a favourite. */
-@Composable
-private fun FavouriteBadge() {
-    Box(
-        modifier = Modifier
-            .size(18.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primary),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            painterResource(R.drawable.ic_star),
-            contentDescription = stringResource(R.string.favourite),
-            tint = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.size(11.dp)
-        )
+private fun DownloadingBadge(progress: () -> Float) {
+    val scheme = MaterialTheme.colorScheme
+    val reduce = LocalReduceMotion.current
+    val current by rememberUpdatedState(progress)
+    // Read without observation: the first value must not subscribe the composition to progress.
+    val shown = remember { Animatable(Snapshot.withoutReadObservation { progress() }.coerceIn(0f, 1f)) }
+    LaunchedEffect(reduce) {
+        snapshotFlow { current().coerceIn(0f, 1f) }.collectLatest { target ->
+            if (reduce) shown.snapTo(target) else shown.animateTo(target, tween(450, easing = LinearEasing))
+        }
     }
-}
-
-/** Down arrow inside an accent circle: a download for this file is in flight. */
-@Composable
-private fun DownloadingBadge() {
+    val fill = scheme.primaryContainer
+    val track = scheme.primary.copy(alpha = 0.25f)
+    val arc = scheme.primary
+    val label = stringResource(R.string.downloading_badge)
     Box(
         modifier = Modifier
-            .size(18.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primary),
+            .size(20.dp)
+            .semantics { contentDescription = label }
+            .drawBehind {
+                val stroke = 2.dp.toPx()
+                val inset = stroke / 2
+                val arcSize = Size(size.width - stroke, size.height - stroke)
+                drawCircle(fill)
+                drawArc(track, 0f, 360f, false, Offset(inset, inset), arcSize, style = Stroke(stroke))
+                val sweep = 360f * shown.value
+                if (sweep > 0f) drawArc(arc, -90f, sweep, false, Offset(inset, inset), arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
+            },
         contentAlignment = Alignment.Center
     ) {
         Icon(
             painterResource(R.drawable.ic_arrow_down),
-            contentDescription = stringResource(R.string.downloading_badge),
-            tint = MaterialTheme.colorScheme.onPrimary,
+            contentDescription = null,
+            tint = scheme.onPrimaryContainer,
             modifier = Modifier.size(11.dp)
         )
     }
@@ -264,7 +306,7 @@ private fun DownloadingBadge() {
 private fun SizeText(bytes: Long, modifier: Modifier) {
     Text(
         if (bytes > 0) formatBytes(bytes) else "",
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.bodySmall.tabular(),
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         textAlign = TextAlign.End,
         maxLines = 1,

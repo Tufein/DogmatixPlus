@@ -3,6 +3,31 @@ package com.cortinadev.dogmatix.ui.screens.home
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.cortinadev.dogmatix.ui.components.ActionPill
+import com.cortinadev.dogmatix.ui.components.EmptyState
+import com.cortinadev.dogmatix.ui.components.Pill
+import com.cortinadev.dogmatix.ui.components.PillTone
+import com.cortinadev.dogmatix.ui.components.PrimaryButton
+import com.cortinadev.dogmatix.ui.components.pillColors
+import com.cortinadev.dogmatix.ui.screens.home.components.CoverGap
+import com.cortinadev.dogmatix.ui.screens.home.components.TableCoverWidth
+import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
+import com.cortinadev.dogmatix.ui.theme.consoleColor
+import com.cortinadev.dogmatix.ui.theme.tabular
+import com.cortinadev.dogmatix.util.Constants
+import java.text.NumberFormat
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -20,14 +45,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -151,6 +174,17 @@ fun HomeScreen(
     val newOnly by viewModel.newOnly.collectAsState()
     val collectionId by viewModel.collectionId.collectAsState()
     val collections by viewModel.collections.collectAsState()
+    // 5.0: covers in the rows, the live download ring, placeholder rows and the empty-library state.
+    val listCovers by viewModel.listCovers.collectAsState()
+    val loadMoreSize by viewModel.loadMoreSize.collectAsState()
+    // These three change often (or only matter in one corner): they are read where they are drawn
+    // or in ResultList's empty branch, never here, so a change does not recompose this screen.
+    val downloadProgressState = viewModel.downloadProgress.collectAsState()
+    val isSearchingState = viewModel.isSearching.collectAsState()
+    val libraryEmptyState = viewModel.libraryEmpty.collectAsState()
+    val progressOf: (String) -> Float = remember(downloadProgressState) { { name: String -> downloadProgressState.value[name] ?: 0f } }
+    val isSearching: () -> Boolean = remember(isSearchingState) { { isSearchingState.value } }
+    val libraryEmpty: () -> Boolean = remember(libraryEmptyState) { { libraryEmptyState.value } }
     var showBulk by remember { mutableStateOf(false) }
     val views by viewModel.views.collectAsState()
     var savingView by remember { mutableStateOf(false) }
@@ -196,7 +230,12 @@ fun HomeScreen(
     }
 
     val consoleOptions = remember(consolesWithFiles) {
-        consolesWithFiles.map { FilterOption(it.id, ConsoleFormatter.getConsoleFolderName(it.id), ConsoleFormatter.getConsoleShortName(it.id)) }
+        consolesWithFiles.map {
+            FilterOption(
+                it.id, ConsoleFormatter.getConsoleFolderName(it.id), ConsoleFormatter.getConsoleShortName(it.id),
+                count = it.fileCount, color = consoleColor(it.id)
+            )
+        }
     }
     fun tagRow(label: String, tags: List<String>, featured: Set<String>? = null) = FilterRowSpec(
         label = label,
@@ -277,6 +316,17 @@ fun HomeScreen(
     )
     val activeFilterCount = selectedConsoles.size + activeTags.size + (if (favouritesOnly) 1 else 0) + (if (sourceFilter != SourceFilter.ALL) 1 else 0) +
         (if (newOnly) 1 else 0) + (if (collectionId != 0L) 1 else 0)
+    // 5.0 empty states: the library has nothing yet → Sources (as a tab switch, like the top tabs do);
+    // nothing matches → clear what narrows the list.
+    val goToSources: () -> Unit = {
+        navController.navigate(NavRoutes.Sources.route) {
+            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+    val clearFilters: (() -> Unit)? =
+        if (activeFilterCount > 0 || query.isNotEmpty() || sort != SortOption.NAME_ASC) viewModel::clearAllFilters else null
 
     val startedMessage = stringResource(R.string.download_started, "%s")
     val favouriteAddedMessage = stringResource(R.string.favourite_added, "%s")
@@ -388,7 +438,9 @@ fun HomeScreen(
             onDownload = { viewModel.closeDetails(); onFileClick(state.item) },
             onDismiss = viewModel::closeDetails,
             onRomm = viewModel.isOnRomm(state.item.file, rommKeys, rommBase),
-            onDownloadBest = state.best?.let { best -> { viewModel.closeDetails(); onFileClick(best) } }
+            onDownloadBest = state.best?.let { best -> { viewModel.closeDetails(); onFileClick(best) } },
+            owned = viewModel.isOwned(state.item.file, ownedKeys),
+            downloading = viewModel.isDownloading(state.item.file, activeDownloads)
         )
     }
 
@@ -506,10 +558,14 @@ fun HomeScreen(
                     // refuses focus: onEnter is evaluated per focus query, no recomposition.
                     val fadeSpan = (panelWidth - railWidth) * 0.4f
                     val panelAlpha = { ((currentWidth.value - railWidth) / fadeSpan).coerceIn(0f, 1f) }
+                    // 5.0: panel and rail sit on a translucent panel tone (the glow still shows through);
+                    // a plain rect drawn in the draw phase, inside the ModulateAlpha layer.
+                    val sideFill = MaterialTheme.colorScheme.surfaceContainerLow.copy(alpha = if (LocalDogmatixTokens.current.isDark) 0.55f else 0.65f)
                     Box(
                         modifier = Modifier
                             .layoutId("rail")
                             .graphicsLayer { alpha = 1f - panelAlpha(); compositingStrategy = CompositingStrategy.ModulateAlpha }
+                            .drawBehind { drawRect(sideFill) }
                             .focusProperties { onEnter = { if (!filtersCollapsed) cancelFocusChange() } }
                             .onFocusChanged { railHasFocus = it.hasFocus }
                             .focusGroup()
@@ -520,6 +576,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .layoutId("panel")
                             .graphicsLayer { alpha = panelAlpha(); compositingStrategy = CompositingStrategy.ModulateAlpha }
+                            .drawBehind { drawRect(sideFill) }
                             .focusProperties { onEnter = { if (filtersCollapsed) cancelFocusChange() } }
                             .focusGroup()
                     ) {
@@ -542,7 +599,7 @@ fun HomeScreen(
                     ) {
                         Text(
                             resultsLabel(results.size, hasMoreResults),
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.labelMedium.tabular(),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             modifier = Modifier.weight(1f)
@@ -553,7 +610,7 @@ fun HomeScreen(
                         PanelArrow(R.drawable.ic_arrow_left, stringResource(R.string.collapse_filters)) { collapseFilters() }
                     }
                 }
-                    VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant, modifier = Modifier.layoutId("divider"))
+                    VerticalDivider(color = LocalDogmatixTokens.current.hairline, modifier = Modifier.layoutId("divider"))
                     Box(modifier = Modifier.layoutId("list").then(listClip)) {
                     Column(
                         modifier = Modifier
@@ -571,13 +628,13 @@ fun HomeScreen(
                         )
                         if (query.isEmpty() && recentSearches.isNotEmpty()) RecentSearchesRow(
                             recentSearches, onPick = viewModel::setSearch, onClear = viewModel::clearRecentSearches,
-                            modifier = Modifier.padding(start = 6.dp, top = 6.dp)
+                            modifier = Modifier.padding(start = 6.dp, top = 8.dp)
                         )
-                        if (tableRows) TableHeader(contentShift) else Text(
+                        if (tableRows) TableHeader(contentShift, showCover = listCovers) else Text(
                             resultsLabel(results.size, hasMoreResults),
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.labelMedium.tabular(),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(start = 14.dp, top = 8.dp, bottom = 6.dp)
+                            modifier = Modifier.padding(start = 14.dp, top = 10.dp, bottom = 6.dp)
                         )
                         ResultList(
                             results = results,
@@ -593,6 +650,7 @@ fun HomeScreen(
                             isDownloading = { viewModel.isDownloading(it.file, activeDownloads) },
                             isNew = { viewModel.isNew(it.file) },
                             hasAchievements = { raMarks.gameFor(it.file.consoleId, it.file.fileName) != null },
+                            achievementCount = { raMarks.gameFor(it.file.consoleId, it.file.fileName)?.achievements ?: 0 },
                             onRowFocused = { focusedItem = it },
                             onRowLongClick = viewModel::openDetails,
                             query = query,
@@ -603,7 +661,15 @@ fun HomeScreen(
                                 .onFocusChanged { listHasFocus = it.hasFocus }
                                 .focusGroup(),
                             firstRowFocus = listFocus,
-                            contentShift = contentShift
+                            contentShift = contentShift,
+                            showCover = listCovers,
+                            downloadProgress = progressOf,
+                            isSearching = isSearching,
+                            libraryEmpty = libraryEmpty,
+                            onGoToSources = goToSources,
+                            onClearFilters = clearFilters,
+                            loadMoreSize = loadMoreSize,
+                            illustrated = false
                         )
                     }
                     }
@@ -653,18 +719,24 @@ fun HomeScreen(
                     modifier = Modifier.padding(vertical = 10.dp)
                 )
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 30.dp, end = 20.dp, bottom = 6.dp),
+                    modifier = Modifier.fillMaxWidth().padding(start = 28.dp, end = 16.dp, bottom = 6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         resultsLabel(results.size, hasMoreResults),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.labelMedium.tabular(),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f)
+                        maxLines = 1
                     )
-                    if (activeFilterCount > 0 || query.isNotBlank()) BulkLink(stringResource(R.string.view_save)) { savingView = true }
-                    if (results.isNotEmpty()) BulkLink(stringResource(R.string.bulk_link)) { showBulk = true }
-                    if (results.isNotEmpty()) BulkLink(stringResource(R.string.surprise_me)) { results.randomOrNull()?.let(viewModel::openDetails) }
+                    Spacer(Modifier.width(8.dp))
+                    // The links keep their full labels; on a narrow screen they scroll instead of squeezing.
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+                        Row(modifier = Modifier.horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically) {
+                            if (activeFilterCount > 0 || query.isNotBlank()) BulkLink(stringResource(R.string.view_save), R.drawable.ic_star) { savingView = true }
+                            if (results.isNotEmpty()) BulkLink(stringResource(R.string.bulk_link), R.drawable.ic_download) { showBulk = true }
+                            if (results.isNotEmpty()) BulkLink(stringResource(R.string.surprise_me), R.drawable.ic_shuffle) { results.randomOrNull()?.let(viewModel::openDetails) }
+                        }
+                    }
                 }
                 ResultList(
                     results = results,
@@ -680,6 +752,7 @@ fun HomeScreen(
                     isDownloading = { viewModel.isDownloading(it.file, activeDownloads) },
                     isNew = { viewModel.isNew(it.file) },
                     hasAchievements = { raMarks.gameFor(it.file.consoleId, it.file.fileName) != null },
+                    achievementCount = { raMarks.gameFor(it.file.consoleId, it.file.fileName)?.achievements ?: 0 },
                     onRowFocused = { focusedItem = it },
                     onRowLongClick = viewModel::openDetails,
                     query = query,
@@ -689,7 +762,15 @@ fun HomeScreen(
                         .weight(1f)
                         .padding(horizontal = 12.dp)
                         .onFocusChanged { listHasFocus = it.hasFocus },
-                    firstRowFocus = listFocus
+                    firstRowFocus = listFocus,
+                    showCover = listCovers,
+                    downloadProgress = progressOf,
+                    isSearching = isSearching,
+                    libraryEmpty = libraryEmpty,
+                    onGoToSources = goToSources,
+                    onClearFilters = clearFilters,
+                    loadMoreSize = loadMoreSize,
+                    illustrated = true
                 )
             }
 
@@ -733,15 +814,15 @@ fun HomeScreen(
                         expandedRow = expandedFilter,
                         onExpandedRowChange = { expandedFilter = it },
                         footer = {
-                            Button(
+                            PrimaryButton(
+                                stringResource(R.string.show_results),
                                 onClick = { showFilterSheet = false },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 8.dp)
-                                    .height(46.dp)
-                            ) {
-                                Text(stringResource(R.string.show_results))
-                            }
+                                    .height(46.dp),
+                                icon = R.drawable.ic_check
+                            )
                         }
                     )
                     }
@@ -758,26 +839,37 @@ fun HomeScreen(
     }
 }
 
+
 @Composable
 private fun resultsLabel(count: Int, hasMore: Boolean): String =
     stringResource(if (hasMore) R.string.results_count_more else R.string.results_count, count)
 
+/** Column titles of the landscape table, over a hairline; the name column follows the panel slide. */
 @Composable
-private fun TableHeader(contentShift: () -> Int = { 0 }) {
+private fun TableHeader(contentShift: () -> Int = { 0 }, showCover: Boolean = false) {
     val color = MaterialTheme.colorScheme.onSurfaceVariant
     val style = MaterialTheme.typography.labelMedium
+    val hairline = LocalDogmatixTokens.current.hairline
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(30.dp)
+            .drawBehind {
+                val y = size.height - 0.5.dp.toPx()
+                drawLine(hairline, Offset(0f, y), Offset(size.width, y), strokeWidth = 1.dp.toPx())
+            }
             .padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(
-            stringResource(R.string.column_name), style = style, color = color,
-            modifier = Modifier.weight(1f).clipToBounds().offset { IntOffset(contentShift(), 0) }
-        )
+        Row(
+            modifier = Modifier.weight(1f).clipToBounds().offset { IntOffset(contentShift(), 0) },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // The cover column of the rows (cover + its gap), so "Name" stands over the names.
+            if (showCover) Spacer(Modifier.width(TableCoverWidth + CoverGap))
+            Text(stringResource(R.string.column_name), style = style, color = color, maxLines = 1)
+        }
         Text(stringResource(R.string.column_tags), style = style, color = color, modifier = Modifier.width(300.dp))
         Text(stringResource(R.string.column_size), style = style, color = color, textAlign = TextAlign.End, modifier = Modifier.width(64.dp))
     }
@@ -807,18 +899,59 @@ private fun ResultList(
     /** The list is sorted by name, so ◀ ▶ jumps by first letter (otherwise by ten rows). */
     byName: Boolean = true,
     firstRowFocus: FocusRequester? = null,
-    contentShift: () -> Int = { 0 }
+    contentShift: () -> Int = { 0 },
+    /** 5.0: RA achievement count for the badge (0 = unknown). */
+    achievementCount: (DownloadableFileWithTags) -> Int = { 0 },
+    /** 5.0: cover thumbnails in front of the names. */
+    showCover: Boolean = false,
+    /** 5.0: download progress by file name, read while drawing the badge ring only. */
+    downloadProgress: (String) -> Float = { 0f },
+    /** 5.0: a search is running (placeholder rows instead of "nothing matches"). */
+    isSearching: () -> Boolean = { false },
+    /** 5.0: nothing is indexed at all (the empty state then points to Sources). */
+    libraryEmpty: () -> Boolean = { false },
+    onGoToSources: (() -> Unit)? = null,
+    /** Clears filters and search; null when nothing narrows the list. */
+    onClearFilters: (() -> Unit)? = null,
+    /** How many rows "Load more" adds. */
+    loadMoreSize: Int = Constants.DEFAULT_MAX_SEARCH_RESULTS,
+    /** Room for the Milou illustration in the empty library state (portrait). */
+    illustrated: Boolean = false
 ) {
     if (results.isEmpty()) {
-        Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(
-                    stringResource(R.string.no_results),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+        // The flags are read only here: while the list has rows, a new search or a library change
+        // does not recompose it.
+        when {
+            isSearching() -> SkeletonRows(compact, showCover, modifier.fillMaxWidth())
+            libraryEmpty() -> EmptyBox(modifier) {
+                EmptyState(
+                    title = stringResource(R.string.home_empty_library_title),
+                    message = stringResource(R.string.home_empty_library_message),
+                    icon = if (illustrated) null else R.drawable.ic_library,
+                    illustration = if (illustrated) R.drawable.milou else null,
+                    actionLabel = if (onGoToSources != null) stringResource(R.string.home_go_to_sources) else null,
+                    onAction = onGoToSources,
+                    actionFocus = firstRowFocus
                 )
-                if (onAddWish != null && query.trim().length >= 2) {
-                    Button(onClick = onAddWish) { Text(stringResource(R.string.wishlist_add_query, query.trim())) }
+            }
+            else -> EmptyBox(modifier) {
+                val wish = onAddWish != null && query.trim().length >= 2
+                EmptyState(
+                    title = stringResource(R.string.no_results),
+                    message = stringResource(R.string.home_no_results_message),
+                    icon = R.drawable.ic_search_off,
+                    actionLabel = if (wish) stringResource(R.string.wishlist_add_query, query.trim()) else null,
+                    onAction = if (wish) onAddWish else null,
+                    actionFocus = if (wish) firstRowFocus else null
+                )
+                if (onClearFilters != null) {
+                    ActionPill(
+                        stringResource(R.string.home_clear_filters),
+                        onClick = onClearFilters,
+                        icon = R.drawable.ic_clear_filter,
+                        // RB from the filters lands here when there is no wishlist button.
+                        modifier = if (!wish && firstRowFocus != null) Modifier.focusRequester(firstRowFocus) else Modifier
+                    )
                 }
             }
         }
@@ -873,7 +1006,7 @@ private fun ResultList(
             }
             true
         },
-        contentPadding = PaddingValues(bottom = 12.dp),
+        contentPadding = PaddingValues(top = 2.dp, bottom = 12.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         itemsIndexed(results, key = { _, it -> it.file.id }) { index, item ->
@@ -890,6 +1023,9 @@ private fun ResultList(
                 isNew = isNew(item),
                 achievements = hasAchievements(item),
                 contentShift = contentShift,
+                achievementCount = achievementCount(item),
+                showCover = showCover,
+                downloadProgress = { downloadProgress(item.file.fileName) },
                 // RB from the filters lands on the first row currently on screen.
                 modifier = when {
                     index == pendingFocusIndex -> Modifier.focusRequester(newPageFocus)
@@ -904,18 +1040,13 @@ private fun ResultList(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(horizontal = 4.dp, vertical = 14.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     if (isLoadingMore) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(modifier = Modifier.size(30.dp), strokeWidth = 3.dp)
                     } else {
-                        Button(
-                            onClick = { pendingFocusIndex = results.size; onLoadMore() },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(stringResource(R.string.load_more))
-                        }
+                        LoadMoreButton(loadMoreSize) { pendingFocusIndex = results.size; onLoadMore() }
                     }
                 }
             }
@@ -923,38 +1054,170 @@ private fun ResultList(
     }
 }
 
-/** "Download all" next to the result count (portrait). */
+/** Centres an empty state in the list's place, scrolling it when the screen is too short for it. */
+@Composable
+private fun EmptyBox(modifier: Modifier, content: @Composable ColumnScope.() -> Unit) {
+    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()).padding(bottom = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            content = content
+        )
+    }
+}
+
+/** Widths of the name bars of [SkeletonRows]: varied, so the placeholder reads as a list of names. */
+private val SkeletonWidths = listOf(0.62f, 0.44f, 0.71f, 0.52f, 0.58f, 0.38f, 0.66f, 0.49f, 0.6f, 0.42f)
+
+/**
+ * Placeholder rows while the first page of a search loads: static bars in the panel tones, laid out
+ * like the real rows (no shimmer: nothing animates, nothing recomposes).
+ */
+@Composable
+private fun SkeletonRows(compact: Boolean, showCover: Boolean, modifier: Modifier) {
+    val strong = MaterialTheme.colorScheme.surfaceContainerHigh
+    val soft = MaterialTheme.colorScheme.surfaceContainer
+    val bar = RoundedCornerShape(6.dp)
+    val chip = RoundedCornerShape(4.dp)
+    val rowHeight = when {
+        compact && showCover -> 48.dp
+        compact -> 46.dp
+        showCover -> 72.dp
+        else -> 64.dp
+    }
+    Column(modifier = modifier.clipToBounds().padding(top = 2.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        SkeletonWidths.forEach { w ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(rowHeight)
+                    .padding(horizontal = if (compact) 14.dp else 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                if (showCover) {
+                    Box(
+                        Modifier
+                            .size(if (compact) TableCoverWidth else 42.dp, if (compact) 40.dp else 56.dp)
+                            .background(strong, RoundedCornerShape(if (compact) 5.dp else 7.dp))
+                    )
+                }
+                if (compact) {
+                    Box(Modifier.weight(1f)) { Box(Modifier.fillMaxWidth(w).height(12.dp).background(strong, bar)) }
+                    Row(Modifier.width(300.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Box(Modifier.width(34.dp).height(18.dp).background(strong, chip))
+                        Box(Modifier.width(42.dp).height(18.dp).background(soft, chip))
+                        Box(Modifier.width(28.dp).height(18.dp).background(soft, chip))
+                    }
+                    Box(Modifier.width(64.dp), contentAlignment = Alignment.CenterEnd) {
+                        Box(Modifier.width(40.dp).height(10.dp).background(soft, bar))
+                    }
+                } else {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                        Box(Modifier.fillMaxWidth(w).height(13.dp).background(strong, bar))
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Box(Modifier.width(34.dp).height(18.dp).background(strong, chip))
+                            Box(Modifier.width(42.dp).height(18.dp).background(soft, chip))
+                            Box(Modifier.width(28.dp).height(18.dp).background(soft, chip))
+                        }
+                    }
+                    Box(Modifier.width(40.dp).height(10.dp).background(soft, bar))
+                }
+            }
+        }
+    }
+}
+
+/** "Load N more" at the end of a page: a tonal accent bar, full width. */
+@Composable
+private fun LoadMoreButton(count: Int, onClick: () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    val source = rememberFocusSource()
+    val shape = RoundedCornerShape(12.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 44.dp)
+            .background(scheme.primaryContainer, shape)
+            .border(1.dp, scheme.primary.copy(alpha = 0.30f), shape)
+            .focusRing(source, 12.dp)
+            .clickable(interactionSource = source, indication = null, onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+    ) {
+        Icon(painterResource(R.drawable.ic_arrow_down), contentDescription = null, tint = scheme.onPrimaryContainer, modifier = Modifier.size(18.dp))
+        Text(
+            if (count in 1 until Int.MAX_VALUE) pluralStringResource(R.plurals.home_load_more, count, count) else stringResource(R.string.load_more),
+            style = MaterialTheme.typography.labelLarge,
+            color = scheme.onPrimaryContainer,
+            maxLines = 1
+        )
+    }
+}
+
 /** The last searches under the search field, while nothing is typed: a tap searches again. */
 @Composable
 private fun RecentSearchesRow(searches: List<String>, onPick: (String) -> Unit, onClear: () -> Unit, modifier: Modifier = Modifier) {
-    Row(modifier = modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically) {
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    Row(
+        modifier = modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Icon(painterResource(R.drawable.ic_history), contentDescription = null, tint = muted, modifier = Modifier.size(16.dp))
         Text(
-            stringResource(R.string.recent_searches),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(end = 4.dp)
+            stringResource(R.string.home_recent),
+            style = MaterialTheme.typography.labelMedium,
+            color = muted,
+            modifier = Modifier.padding(end = 2.dp)
         )
-        searches.forEach { search -> BulkLink(search) { onPick(search) } }
+        searches.forEach { search -> RecentPill(search) { onPick(search) } }
         PanelArrow(R.drawable.ic_close, stringResource(R.string.recent_searches_clear), onClear)
     }
 }
 
+/** One recent search as a neutral pill (focus ring, press flash). */
 @Composable
-private fun BulkLink(label: String, onClick: () -> Unit) {
+private fun RecentPill(label: String, onClick: () -> Unit) {
     val source = rememberFocusSource()
+    val (bg, fg) = pillColors(PillTone.Neutral)
+    val shape = RoundedCornerShape(50)
     Text(
         label,
         style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.primary,
+        color = fg,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .focusRing(source, 8.dp)
+            .widthIn(max = 200.dp)
+            .background(bg, shape)
+            .border(1.dp, LocalDogmatixTokens.current.hairline, shape)
+            .focusRing(source, 14.dp)
             .clickable(interactionSource = source, indication = null, onClick = onClick)
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .padding(horizontal = 12.dp, vertical = 5.dp)
     )
 }
 
-/** Plain arrow (same tint and size as the filter dropdown arrows) that folds / unfolds the filter panel. */
+/** An accent text link with an optional icon: "Save these filters", "Download all", "Surprise me" (portrait). */
+@Composable
+private fun BulkLink(label: String, icon: Int? = null, onClick: () -> Unit) {
+    val source = rememberFocusSource()
+    val color = MaterialTheme.colorScheme.primary
+    Row(
+        modifier = Modifier
+            .focusRing(source, 8.dp)
+            .clickable(interactionSource = source, indication = null, onClick = onClick)
+            .padding(horizontal = 8.dp, vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        icon?.let { Icon(painterResource(it), contentDescription = null, tint = color, modifier = Modifier.size(15.dp)) }
+        Text(label, style = MaterialTheme.typography.labelLarge, color = color, maxLines = 1)
+    }
+}
+
+/** A small icon button (same tint and size as the filter dropdown arrows): fold / unfold, save view, bulk, surprise. */
 @Composable
 private fun PanelArrow(icon: Int, description: String, onClick: () -> Unit) {
     val source = rememberFocusSource()
@@ -963,11 +1226,10 @@ private fun PanelArrow(icon: Int, description: String, onClick: () -> Unit) {
         contentDescription = description,
         tint = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier
-            .clip(RoundedCornerShape(6.dp))
-            .focusRing(source, 6.dp)
+            .focusRing(source, 8.dp)
             .clickable(interactionSource = source, indication = null, onClick = onClick)
-            .padding(6.dp)
-            .size(16.dp)
+            .padding(7.dp)
+            .size(17.dp)
     )
 }
 
@@ -979,19 +1241,18 @@ private fun FilterRail(count: Int, onExpand: () -> Unit) {
         modifier = Modifier
             .fillMaxHeight()
             .requiredWidth(48.dp)
-            .padding(top = 12.dp, bottom = 8.dp),
+            .padding(top = 16.dp, bottom = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Icon(
+            painterResource(R.drawable.ic_filter),
+            contentDescription = null,
+            tint = if (count > 0) scheme.primary else scheme.onSurfaceVariant,
+            modifier = Modifier.size(18.dp)
+        )
         if (count > 0) {
-            Text(
-                count.toString(),
-                style = MaterialTheme.typography.labelSmall,
-                color = scheme.onPrimary,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(scheme.primary)
-                    .padding(horizontal = 6.dp, vertical = 1.dp)
-            )
+            Spacer(Modifier.height(8.dp))
+            Pill(count.toString(), tone = PillTone.Strong)
         }
         Spacer(Modifier.weight(1f))
         PanelArrow(R.drawable.ic_arrow_right, stringResource(R.string.expand_filters), onExpand)
@@ -1003,28 +1264,28 @@ private fun FilterButton(count: Int, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
     val active = count > 0
+    val shape = RoundedCornerShape(12.dp)
     Row(
         modifier = Modifier
             .height(44.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(if (active) scheme.primary else scheme.surfaceContainerHigh)
-            .focusRing(source, 10.dp)
+            .background(if (active) scheme.primary else scheme.surfaceContainer, shape)
+            .border(1.dp, if (active) Color.Transparent else LocalDogmatixTokens.current.hairline, shape)
+            .focusRing(source, 12.dp, onAccent = active)
             .clickable(interactionSource = source, indication = null, onClick = onClick)
             .padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         val fg = if (active) scheme.onPrimary else scheme.onSurface
-        Icon(painterResource(R.drawable.ic_filter), contentDescription = null, tint = fg, modifier = Modifier.width(16.dp))
+        Icon(painterResource(R.drawable.ic_filter), contentDescription = null, tint = fg, modifier = Modifier.size(18.dp))
         Text(stringResource(R.string.filters), style = MaterialTheme.typography.labelLarge, color = fg)
         if (active) {
             Text(
                 count.toString(),
-                style = MaterialTheme.typography.labelSmall,
-                color = scheme.onSurface,
+                style = MaterialTheme.typography.labelSmall.tabular(),
+                color = scheme.primary,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(scheme.surface)
+                    .background(scheme.onPrimary, RoundedCornerShape(50))
                     .padding(horizontal = 6.dp, vertical = 1.dp)
             )
         }
@@ -1038,34 +1299,53 @@ private fun ConsoleChips(
     onSelect: (Set<String>) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val total = remember(options) { options.sumOf { it.count ?: 0 } }
     LazyRow(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        item { ConsoleChip(stringResource(R.string.filter_all), selected.isEmpty()) { onSelect(emptySet()) } }
+        item { ConsoleChip(stringResource(R.string.filter_all), selected.isEmpty(), color = null, count = total.takeIf { it > 0 }) { onSelect(emptySet()) } }
         items(options, key = { it.id }) { option ->
             val isOnly = selected.size == 1 && option.id in selected
-            ConsoleChip(option.shortLabel, isOnly) { onSelect(if (isOnly) emptySet() else setOf(option.id)) }
+            ConsoleChip(option.shortLabel, isOnly, color = option.color, count = option.count) { onSelect(if (isOnly) emptySet() else setOf(option.id)) }
         }
     }
 }
 
+/** A console chip (portrait): its colour as a dot, the short name and how many games match. */
 @Composable
-private fun ConsoleChip(label: String, selected: Boolean, onClick: () -> Unit) {
+private fun ConsoleChip(label: String, selected: Boolean, color: Color?, count: Int?, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
-    Text(
-        label,
-        style = MaterialTheme.typography.labelLarge,
-        color = if (selected) scheme.onPrimary else scheme.secondary,
+    val shape = RoundedCornerShape(20.dp)
+    Row(
         modifier = Modifier
             .height(40.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(if (selected) scheme.primary else scheme.surfaceContainer)
-            .focusRing(source, 20.dp)
+            .background(if (selected) scheme.primary else scheme.surfaceContainer, shape)
+            .border(1.dp, if (selected) Color.Transparent else LocalDogmatixTokens.current.hairline, shape)
+            .focusRing(source, 20.dp, onAccent = selected)
             .clickable(interactionSource = source, indication = null, onClick = onClick)
-            .padding(horizontal = 14.dp)
-            .wrapContentHeight()
-    )
+            .padding(horizontal = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(7.dp)
+    ) {
+        if (color != null) {
+            Box(
+                Modifier
+                    .size(8.dp)
+                    .background(if (selected) scheme.onPrimary else color, CircleShape)
+            )
+        }
+        Text(label, style = MaterialTheme.typography.labelLarge, color = if (selected) scheme.onPrimary else scheme.onSurface, maxLines = 1)
+        if (count != null) {
+            val shown = remember(count) { NumberFormat.getIntegerInstance().format(count) }
+            Text(
+                shown,
+                style = MaterialTheme.typography.labelSmall.tabular(),
+                color = if (selected) scheme.onPrimary.copy(alpha = 0.75f) else scheme.onSurfaceVariant,
+                maxLines = 1
+            )
+        }
+    }
 }
