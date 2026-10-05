@@ -9,12 +9,14 @@ import android.os.Process
 import androidx.core.content.FileProvider
 import com.cortinadev.dogmatix.BuildConfig
 import com.cortinadev.dogmatix.data.local.AppSettings
+import com.cortinadev.dogmatix.data.local.CloudSettings
 import com.cortinadev.dogmatix.data.local.dao.ConsoleDao
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.CertTrust
 import com.cortinadev.dogmatix.util.CrashLog
 import com.cortinadev.dogmatix.util.DiagnosticsRedactor
+import com.cortinadev.dogmatix.util.WebDavPaths
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -40,7 +42,8 @@ class DiagnosticsService @Inject constructor(
     private val fileDao: DownloadableFileDao,
     private val downloadService: DownloadService,
     private val rommLibraryService: RommLibraryService,
-    private val appSettings: AppSettings
+    private val appSettings: AppSettings,
+    private val cloudSettings: CloudSettings
 ) {
 
     suspend fun buildReport(): String = withContext(Dispatchers.IO) {
@@ -54,6 +57,13 @@ class DiagnosticsService @Inject constructor(
             add(s.torboxApiKey.first())
             add(s.realDebridApiKey.first())
             add(appSettings.raKey.first())
+            // The WebDAV cloud: password, backup passphrase, user name and server address.
+            val cloud = cloudSettings.config.first()
+            add(cloud.password)
+            add(cloudSettings.passphrase.first())
+            add(cloud.user)
+            add(WebDavPaths.normalizeServer(cloud.server)?.let { WebDavPaths.hostOf(it) }.orEmpty())
+            add(cloud.server.trim())
         }.filter { it.isNotBlank() }
 
         val downloads = downloadService.getDownloads().groupingBy { it.status.name }.eachCount()
@@ -73,6 +83,7 @@ class DiagnosticsService @Inject constructor(
             appendLine("  RomM: url set=${rommUrl.isNotBlank()} (https=${CertTrust.isHttps(rommUrl)}), token set=${rommToken.isNotBlank()}, pinned certificate=${s.rommTrustFingerprint.first().isNotBlank()}, mapped platforms=${s.rommPlatformMap.first().size}, auto upload=${s.rommAutoUpload.first()}, mark games=${s.rommMarkGames.first()}")
             appendLine("  save sync: saves folder=${s.saveSyncSavesDir.first().isNotBlank()} states folder=${s.saveSyncStatesDir.first().isNotBlank()} auto=${s.saveSyncAuto.first()} background=${s.saveSyncBackground.first()} deletions=${s.saveSyncDeletions.first()}")
             appendLine("  3.0: resume=${appSettings.resumeDownloads.first()} requeue=${appSettings.requeueAfterRestart.first()} per server=${appSettings.perServerLimit.first()} m3u=${appSettings.autoM3u.first()} esde covers=${appSettings.esdeArtwork.first()} wishlist auto=${appSettings.wishlistAutoDownload.first()} RA key set=${appSettings.raKey.first().isNotBlank()} profile active=${appSettings.activeProfile.first().isNotBlank()}")
+            appendLine("  WebDAV cloud: ${cloudSummary()}")
             appendLine("  update channel: ${if (s.updatePreReleases.first()) "pre-releases" else "releases"}")
             appendLine()
             appendLine("Library")
@@ -91,6 +102,17 @@ class DiagnosticsService @Inject constructor(
             appendLine(recentLog())
         }
         DiagnosticsRedactor.redact(report, secrets)
+    }
+
+    /** What is set up for the WebDAV cloud, never the values themselves. */
+    private suspend fun cloudSummary(): String {
+        val config = cloudSettings.config.first()
+        val records = cloudSettings.records.first()
+        return "server set=${config.server.isNotBlank()} (https=${CertTrust.isHttps(config.server.ifBlank { "" })}), user set=${config.user.isNotBlank()}, password set=${config.password.isNotBlank()}, " +
+            "passphrase set=${cloudSettings.hasPassphrase.first()}, pinned certificate=${config.trustFingerprint.isNotBlank()}, auto backup=${cloudSettings.autoBackup.first()}, device sync=${cloudSettings.deviceSync.first()}, " +
+            "last backup=${if (records.lastBackupAt > 0) Date(records.lastBackupAt) else "never"}${if (records.lastBackupError.isNotBlank()) " (failed: ${records.lastBackupError})" else ""}, " +
+            "last test=${if (records.lastTestAt > 0) (if (records.lastTestError.isBlank()) "ok" else records.lastTestError) else "never"}, " +
+            "last sync=${if (records.lastSyncAt > 0) Date(records.lastSyncAt) else "never"}${if (records.lastSyncError.isNotBlank()) " (failed: ${records.lastSyncError})" else ""}"
     }
 
     /**

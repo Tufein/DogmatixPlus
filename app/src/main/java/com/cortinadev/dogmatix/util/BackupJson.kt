@@ -50,6 +50,7 @@ object BackupJson {
             SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES, SettingsKeys.FAVORITE_LANGUAGES,
             SettingsKeys.ROMM_PLATFORM_MAP, SettingsKeys.CONSOLE_SCANNED_AT
         ).forEach { put(it.name, "ss") }
+        putAll(CloudSettingKeys.TYPES)
     }
 
     /** Sets whose entries are `id:value`; their readers split on ':' and fail on anything else. */
@@ -79,6 +80,8 @@ object BackupJson {
      * holds a value its reader could not cope with. Numbers are kept within what Settings offers.
      */
     fun decodeSetting(name: String, element: JsonElement?): Any? {
+        // A secret that backups never carry (the WebDAV password) is ignored even when a file has it.
+        if (CloudSettingKeys.isSecret(name)) return null
         val obj = element as? JsonObject ?: return null
         val type = (obj.get("t") as? JsonPrimitive)?.takeIf { it.isString }?.asString ?: return null
         expectedTypes[name]?.let { if (it != type) return null }
@@ -108,6 +111,7 @@ object BackupJson {
         name == SettingsKeys.LIMIT_SPEED.name -> (value as Float).let { if (it.isNaN() || it <= 0f) Float.POSITIVE_INFINITY else it }
         name in pairSets -> (value as Set<*>).filterIsInstance<String>()
             .filter { it.indexOf(':') > 0 && it.substringAfter(':').isNotEmpty() }.toSet()
+        name in CloudSettingKeys.TYPES -> CloudSettingKeys.sanitize(name, value)
         else -> value
     }
 

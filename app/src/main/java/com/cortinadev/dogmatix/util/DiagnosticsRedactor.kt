@@ -7,7 +7,8 @@ package com.cortinadev.dogmatix.util
 object DiagnosticsRedactor {
     private val bearer = Regex("""(?i)(bearer|basic)\s+[A-Za-z0-9._~+/=-]{6,}""")
     private val rommToken = Regex("""rmm_[A-Za-z0-9_-]+""")
-    private val keyValue = Regex("""(?i)\b(api[_-]?key|apikey|token|password|passwd|secret|authorization|auth)\b(["']?\s*[:=]\s*["']?)[^\s&"',;]+""")
+    // `(?<![A-Za-z0-9])` instead of `\b`: a prefixed name such as `dav_password=…` or `dav_passphrase=…` is caught too.
+    private val keyValue = Regex("""(?i)(?<![A-Za-z0-9])(api[_-]?key|apikey|token|password|passwd|passphrase|secret|authorization|auth)\b(["']?\s*[:=]\s*["']?)[^\s&"',;]+""")
     private val url = Regex("""(?i)\b(?:https?|ftp|romm)://[^\s"')<>]+""")
     private val magnet = Regex("""(?i)magnet:\?[^\s"')<>]+""")
     private val contentUri = Regex("""content://[^\s"')<>]+""")

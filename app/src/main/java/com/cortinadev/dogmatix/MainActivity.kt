@@ -125,6 +125,7 @@ import com.cortinadev.dogmatix.data.local.LookSettings
 import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
 import com.cortinadev.dogmatix.ui.theme.Motion
 import com.cortinadev.dogmatix.ui.theme.dogmatixBackground
+import com.cortinadev.dogmatix.ui.screens.cloud.CloudBackupScreen
 import com.cortinadev.dogmatix.ui.screens.cloud.CloudScreen
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -505,6 +506,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.Profiles.route) { ProfilesScreen() }
                     composable(NavRoutes.RetroAchievements.route) { RetroAchievementsScreen() }
                     composable(NavRoutes.Cloud.route) { CloudScreen(navController) }
+                    composable(NavRoutes.CloudBackup.route) { CloudBackupScreen() }
                 }
             }
 

@@ -20,6 +20,7 @@ import com.cortinadev.dogmatix.data.local.dataStore
 import com.cortinadev.dogmatix.data.repository.CollectionsRepository
 import com.cortinadev.dogmatix.data.repository.SourcesRepository
 import com.cortinadev.dogmatix.util.BackupJson
+import com.cortinadev.dogmatix.util.CloudSettingKeys
 import com.cortinadev.dogmatix.util.SourcesJson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
@@ -75,7 +76,10 @@ class BackupService @Inject constructor(
     suspend fun export(): Pair<String, Summary> = withContext(Dispatchers.IO) {
         val prefs = context.dataStore.data.first().asMap()
         val settings = JsonObject()
-        prefs.forEach { (key, value) -> BackupJson.encodeSetting(value)?.let { settings.add(key.name, it) } }
+        // The WebDAV password is the one secret that stays out of every backup file (CloudSettingKeys).
+        prefs.forEach { (key, value) ->
+            if (!CloudSettingKeys.isSecret(key.name)) BackupJson.encodeSetting(value)?.let { settings.add(key.name, it) }
+        }
 
         val sources = JsonParser.parseString(sourcesRepository.exportDocument()).asJsonObject
         val favourites = favouriteDao.getAll()
@@ -116,13 +120,21 @@ class BackupService @Inject constructor(
             }
             out.toByteArray()
         } ?: throw IllegalStateException("Cannot open $uri")
-        val text = bytes.toString(Charsets.UTF_8)
+        parse(bytes.toString(Charsets.UTF_8))
+    }
+
+    /**
+     * Checks that [text] is a backup this version understands and returns it; nothing is changed.
+     * [read] uses it for a picked file, the cloud backup for the decrypted contents of a `.dgxb`.
+     */
+    fun parse(text: String): JsonObject {
+        if (text.length > MAX_BACKUP_BYTES) throw InvalidBackupException()
         val root = runCatching { JsonParser.parseString(text).asJsonObject }.getOrNull()
         val format = runCatching { root?.get("format")?.asString }.getOrNull()
         if (root == null || format != BackupJson.FORMAT) throw InvalidBackupException()
         val version = runCatching { root.get("version").asInt }.getOrDefault(0)
         if (version > BackupJson.VERSION) throw NewerBackupException(version)
-        root
+        return root
     }
 
     /**
@@ -170,6 +182,12 @@ class BackupService @Inject constructor(
             // A folder the backup cannot bring back keeps whatever this install already had.
             val currentFolders = FOLDER_KEYS.associateWith { prefs[stringPreferencesKey(it)] }
             val currentConsoleDirs = prefs[SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES].orEmpty()
+            // The WebDAV password is not in backups: keep it when the restore leaves the same server and user.
+            val davPassword = stringPreferencesKey(CloudSettingKeys.PASSWORD)
+            val davUrl = stringPreferencesKey(CloudSettingKeys.URL)
+            val davUser = stringPreferencesKey(CloudSettingKeys.USER)
+            val currentDavPassword = prefs[davPassword]
+            val currentDavLogin = prefs[davUrl] to prefs[davUser]
             prefs.clear()
             settings.forEach { (name, value) ->
                 when (name) {
@@ -205,6 +223,9 @@ class BackupService @Inject constructor(
             if (prefs[SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES] == null && currentConsoleDirs.isNotEmpty()) {
                 prefs[SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES] = currentConsoleDirs
             }
+            if (!currentDavPassword.isNullOrEmpty() &&
+                CloudSettingKeys.keepsPassword(currentDavLogin.first, currentDavLogin.second, prefs[davUrl], prefs[davUser])
+            ) prefs[davPassword] = currentDavPassword
             // Restoring must never send the user back through the first-run tour.
             prefs[SettingsKeys.ONBOARDING_DONE] = true
         }

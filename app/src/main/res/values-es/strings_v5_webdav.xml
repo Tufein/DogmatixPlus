@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: WebDAV cloud (Nextcloud, ownCloud, Synology…): encrypted backup and device sync -->
+<resources>
+    <!-- Screen -->
+    <string name="dav_title">Copia en la nube</string>
+    <string name="dav_subtitle">Tu propio servidor: Nextcloud, ownCloud, Synology o cualquier WebDAV</string>
+    <string name="dav_status_ok">Conectado</string>
+    <string name="dav_status_problem">Problema</string>
+    <string name="dav_status_untested">Sin probar</string>
+    <string name="dav_status_not_set">Sin configurar</string>
+    <!-- Server -->
+    <string name="dav_section_server">Servidor</string>
+    <string name="dav_server">Dirección del servidor</string>
+    <string name="dav_server_dialog_hint">La dirección de tu servidor WebDAV, por ejemplo https://nube.ejemplo.es. Nextcloud y ownCloud se reconocen: Dogmatix encuentra solo la dirección de los archivos (…/remote.php/dav/files/tu-nombre/). Un enlace pegado desde la interfaz web también sirve.</string>
+    <string name="dav_user">Nombre de usuario</string>
+    <string name="dav_user_dialog_hint">El nombre de la cuenta en el servidor.</string>
+    <string name="dav_password">Contraseña de aplicación</string>
+    <string name="dav_password_dialog_hint">Usa una contraseña de aplicación, no tu contraseña principal: Nextcloud y ownCloud crean una en Ajustes → Seguridad. Se queda en este dispositivo y nunca va a un archivo de copia.</string>
+    <string name="dav_folder">Carpeta</string>
+    <string name="dav_folder_dialog_hint">La carpeta del servidor donde Dogmatix guarda sus archivos (se crea si falta), por ejemplo Dogmatix o Juegos/Dogmatix.</string>
+    <string name="dav_test">Probar conexión</string>
+    <string name="dav_test_action">Probar</string>
+    <string name="dav_test_busy">Probando…</string>
+    <string name="dav_test_never">Aún sin probar</string>
+    <string name="dav_test_needs_server">Indica primero la dirección del servidor</string>
+    <string name="dav_test_ok">Conectado · probado %1$s</string>
+    <string name="dav_test_done">Conectado: la carpeta está lista</string>
+    <string name="dav_test_failed">Falló la conexión: %1$s</string>
+    <!-- Certificate -->
+    <string name="dav_cert">Certificado del servidor</string>
+    <string name="dav_cert_hint">Solo hace falta para un servidor con certificado autofirmado</string>
+    <string name="dav_cert_trusted_hint">De confianza: %1$s</string>
+    <string name="dav_cert_check">Comprobar</string>
+    <string name="dav_cert_forget">Olvidar</string>
+    <string name="dav_cert_dialog_title">¿Confiar en este certificado?</string>
+    <string name="dav_cert_dialog_message">%1$s presenta un certificado en el que Android no confía. Si reconoces esta huella, Dogmatix aceptará exactamente este certificado para este servidor y ningún otro.</string>
+    <string name="dav_cert_dialog_details">%1$s · válido hasta %2$s</string>
+    <string name="dav_cert_trust">Confiar</string>
+    <string name="dav_cert_none">No se pudo leer un certificado de esta dirección</string>
+    <string name="dav_cert_system">Android ya confía en el certificado de este servidor</string>
+    <!-- Encrypted backup -->
+    <string name="dav_section_backup">Copia cifrada</string>
+    <string name="dav_passphrase">Frase de contraseña de la copia</string>
+    <string name="dav_passphrase_set">Definida · solo se guarda en este dispositivo</string>
+    <string name="dav_passphrase_unset">Sin definir · hace falta para cifrar las copias</string>
+    <string name="dav_set">Definir</string>
+    <string name="dav_passphrase_warning">Si pierdes esta frase de contraseña, tus copias en la nube no se podrán volver a leer jamás, ni siquiera tú. Anótala en un lugar seguro. Se queda solo en este dispositivo: ni en el servidor ni en los archivos de copia.</string>
+    <string name="dav_passphrase_dialog_title">Frase de contraseña de la copia</string>
+    <string name="dav_passphrase_dialog_message">Las copias se cifran en este dispositivo con esta frase de contraseña antes de enviarse. Elige algo largo que puedas recordar o anotar.</string>
+    <string name="dav_passphrase_change_note">Las copias que ya están en la nube conservan la frase con la que se hicieron; necesitas la antigua para restaurarlas.</string>
+    <string name="dav_passphrase_label">Frase de contraseña</string>
+    <string name="dav_passphrase_repeat">Repite la frase de contraseña</string>
+    <string name="dav_passphrase_short">Al menos %1$d caracteres</string>
+    <string name="dav_passphrase_mismatch">Las dos frases de contraseña no coinciden</string>
+    <string name="dav_auto">Copia automática</string>
+    <string name="dav_auto_hint">Cada día, con Wi-Fi y cargando</string>
+    <string name="dav_auto_needs_passphrase">Define primero una frase de contraseña para las copias</string>
+    <string name="dav_keep">Copias que conservar</string>
+    <string name="dav_keep_hint">Por dispositivo; las más antiguas se borran del servidor</string>
+    <string name="dav_backup_now">Copiar ahora</string>
+    <string name="dav_backup_action">Copiar</string>
+    <string name="dav_backup_busy">Copiando…</string>
+    <string name="dav_backup_never">Aún no hay copia en la nube de este dispositivo</string>
+    <string name="dav_backup_last">Última copia %1$s · %2$s</string>
+    <string name="dav_backup_failed_row">Falló la última copia: %1$s</string>
+    <string name="dav_backup_done">Copia enviada: %1$s</string>
+    <string name="dav_backup_failed">Falló la copia: %1$s</string>
+    <!-- Backups in the cloud -->
+    <string name="dav_section_list">Copias en la nube</string>
+    <string name="dav_list_refresh">Actualizar</string>
+    <string name="dav_list_retry">Reintentar</string>
+    <string name="dav_list_idle">Mostrar las copias del servidor</string>
+    <string name="dav_list_needs_setup">Configura primero el servidor</string>
+    <string name="dav_list_loading">Leyendo la carpeta…</string>
+    <string name="dav_list_empty">Aún no hay copias en la nube. Usa «Copiar ahora».</string>
+    <string name="dav_list_failed_title">No se pudo leer la lista</string>
+    <string name="dav_list_this_device">Este dispositivo</string>
+    <string name="dav_list_unknown_device">Dispositivo desconocido</string>
+    <string name="dav_list_more">%1$d copias más</string>
+    <string name="dav_list_show">Mostrar más</string>
+    <string name="dav_restore">Restaurar</string>
+    <string name="dav_restore_reading">Leyendo…</string>
+    <string name="dav_restore_note">Este dispositivo conserva su acceso al servidor, su frase de contraseña y sus ajustes de la nube.</string>
+    <string name="dav_restore_failed">Falló la restauración: %1$s</string>
+    <!-- Device sync -->
+    <string name="dav_section_sync">Sincronización de dispositivos</string>
+    <string name="dav_device_name">Nombre de este dispositivo</string>
+    <string name="dav_device_name_dialog_hint">Se muestra en la lista de copias y en tus otros dispositivos.</string>
+    <string name="dav_device_sync">Sincronizar favoritos, lista de deseos y colecciones</string>
+    <string name="dav_device_sync_hint">Los mantiene al día con tus otras consolas portátiles mediante la misma carpeta del servidor</string>
+    <string name="dav_sync_now">Sincronizar ahora</string>
+    <string name="dav_sync_action">Sincronizar</string>
+    <string name="dav_sync_busy">Sincronizando…</string>
+    <string name="dav_sync_never">Aún sin sincronizar</string>
+    <string name="dav_sync_last">Última sincronización %1$s · %2$d añadidos, %3$d quitados aquí</string>
+    <string name="dav_sync_sent">enviada al servidor</string>
+    <string name="dav_sync_failed_row">Falló la última sincronización: %1$s</string>
+    <string name="dav_sync_done">Sincronizado: %1$d añadidos, %2$d quitados</string>
+    <string name="dav_sync_nothing">Todo está ya al día</string>
+    <string name="dav_sync_failed">Falló la sincronización: %1$s</string>
+    <plurals name="dav_sync_held_title">
+        <item quantity="one">%1$d eliminación en espera</item>
+        <item quantity="many">%1$d eliminaciones en espera</item>
+        <item quantity="other">%1$d eliminaciones en espera</item>
+    </plurals>
+    <string name="dav_sync_held_hint">La sincronización quitaría de golpe una cantidad inusual de elementos. Revisa tus otros dispositivos y luego aplica.</string>
+    <string name="dav_sync_held_apply">Aplicar</string>
+    <!-- Errors -->
+    <string name="dav_err_auth">El servidor no aceptó el nombre de usuario o la contraseña. Con Nextcloud u ownCloud usa una contraseña de aplicación (Ajustes → Seguridad).</string>
+    <string name="dav_err_digest">Este servidor solo ofrece inicio de sesión Digest, que Dogmatix no admite. Activa la autenticación Basic en el servidor o usa una contraseña de aplicación.</string>
+    <string name="dav_err_forbidden">Has iniciado sesión, pero esta cuenta no puede usar esa carpeta (recurso de solo lectura o carpeta de otra cuenta).</string>
+    <string name="dav_err_not_found">No encontrado (404). Revisa la dirección del servidor y la carpeta. Con Nextcloud y ownCloud la dirección termina en /remote.php/dav/files/tu-nombre/.</string>
+    <string name="dav_err_not_webdav">Esa dirección no responde como WebDAV (parece una página web normal). Con Nextcloud u ownCloud usa https://tu-servidor/remote.php/dav/files/tu-nombre/.</string>
+    <string name="dav_err_conflict">Falta una carpeta de la ruta y no se pudo crear (409).</string>
+    <string name="dav_err_precondition">El archivo cambió en el servidor mientras se escribía (412). Inténtalo de nuevo.</string>
+    <string name="dav_err_too_large">El servidor rechaza archivos tan grandes (413). Aumenta su límite de subida.</string>
+    <string name="dav_err_locked">El archivo está bloqueado por otro programa en el servidor (423). Inténtalo de nuevo en un momento.</string>
+    <string name="dav_err_no_space">El servidor no tiene espacio para esta cuenta (507).</string>
+    <string name="dav_err_server">El servidor informa de un error (%1$d). Inténtalo más tarde.</string>
+    <string name="dav_err_http">Respuesta inesperada del servidor (%1$d).</string>
+    <string name="dav_err_redirect">El servidor te lleva a otra dirección (%1$s). Usa esa dirección.</string>
+    <string name="dav_err_network">No se puede conectar con el servidor. Revisa la dirección y tu conexión.</string>
+    <string name="dav_err_timeout">El servidor tardó demasiado en responder.</string>
+    <string name="dav_err_tls">Falló la conexión segura. El certificado del servidor no es de confianza o no coincide con su dirección, o la dirección debería empezar por http://.</string>
+    <string name="dav_err_bad_url">Eso no es una dirección web válida.</string>
+    <string name="dav_err_bad_response">La respuesta del servidor no se pudo leer o el archivo llegó incompleto.</string>
+    <string name="dav_err_passphrase">Frase de contraseña incorrecta o copia dañada. Define la frase con la que se hizo la copia (Frase de contraseña de la copia) e inténtalo de nuevo.</string>
+    <string name="dav_err_not_backup">Este archivo no es una copia cifrada de Dogmatix.</string>
+    <string name="dav_err_sync_newer">El archivo de sincronización del servidor lo escribió una versión más nueva de Dogmatix. Actualiza la app para sincronizar.</string>
+    <string name="dav_err_sync_unreadable">El archivo de sincronización del servidor no se puede leer; se dejó intacto.</string>
+    <string name="dav_err_not_configured">Todavía no hay ningún servidor WebDAV configurado.</string>
+    <string name="dav_err_no_passphrase">Define primero una frase de contraseña para las copias (mínimo 8 caracteres).</string>
+    <string name="dav_err_other">Algo salió mal: %1$s</string>
+</resources>
