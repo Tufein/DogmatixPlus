@@ -25,7 +25,9 @@ import com.cortinadev.dogmatix.util.AutoRetry
 import com.cortinadev.dogmatix.util.DatStatus
 import com.cortinadev.dogmatix.util.ArchiveExtractionUtils
 import com.cortinadev.dogmatix.util.Constants
+import com.cortinadev.dogmatix.util.DownloadCondition
 import com.cortinadev.dogmatix.util.DownloadQueue
+import com.cortinadev.dogmatix.util.WaitInfo
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.MirrorUrls
 import com.cortinadev.dogmatix.util.ResumePlan
@@ -94,6 +96,7 @@ class DownloadService @Inject constructor(
     private val realDebridClient: RealDebridClient,
     private val rommClient: RommClient,
     private val downloadGate: DownloadGate,
+    private val conditionGate: ItemConditionGate,
     private val consoleDao: ConsoleDao,
     private val appSettings: AppSettings,
     private val partials: PartialDownloads,
@@ -115,6 +118,25 @@ class DownloadService @Inject constructor(
     /** Downloads held back by the schedule (Wi-Fi / charger / night); see [DownloadGate]. */
     val waitingFiles: StateFlow<Set<String>> = _waiting.asStateFlow()
     val gate: DownloadGate get() = downloadGate
+
+    /** Per-download conditions ("Download when...") set right now, by file name. */
+    val itemConditions: StateFlow<Map<String, DownloadCondition>> get() = conditionGate.conditions
+    /** The per-download conditions that are not met yet and what is missing. */
+    val itemWaits: StateFlow<Map<String, WaitInfo>> get() = conditionGate.unmet
+
+    /** Downloads that passed their condition and are about to run or running: a new condition would be meaningless. */
+    private val proceeding = ConcurrentHashMap.newKeySet<String>()
+
+    /**
+     * Gives downloads that have not started yet (waiting for a slot, for the global rules or for a
+     * condition) their own condition, or with null removes it ("Start now": a waiting download goes
+     * on at once). Downloads already transferring are left alone. Cheap enough for the UI thread;
+     * the persisting happens in the background.
+     */
+    fun setCondition(fileNames: Collection<String>, condition: DownloadCondition?) {
+        val eligible = fileNames.filter { downloadEntities.containsKey(it) && it !in proceeding }
+        conditionGate.setAll(eligible, condition)
+    }
 
     private val _verification = MutableStateFlow<Map<String, VerifyState>>(emptyMap())
     /** Result of checking a finished download against the hash its source published. */
@@ -190,6 +212,8 @@ class DownloadService @Inject constructor(
                     historyDao.updateStatus(item.fileName, item.status.name, item.finishedAt)
                 }
             }
+            // Conditions of downloads that are gone (removed while the app was closed) are dropped.
+            conditionGate.prune { downloadEntities.containsKey(it) }
             Log.d(TAG, "Restored ${rows.size} download(s) from history")
         } catch (e: Exception) {
             Log.e(TAG, "Could not restore download history: ${e.message}")
@@ -200,15 +224,20 @@ class DownloadService @Inject constructor(
 
     private val startLock = Any()
 
-    fun startDownload(file: DownloadableFileEntity) = startDownloads(listOf(file))
+    fun startDownload(file: DownloadableFileEntity, condition: DownloadCondition? = null) = startDownloads(listOf(file), condition)
 
     /**
      * Queues [files] in one go: one list update, one history write and one service start, then a
      * job per file. A bulk start of hundreds of games used to do all of that once per game on the
      * UI thread, long enough for Android to report the app as not responding. Files already
      * queued or running are skipped (repeated taps, or a bulk start racing a tap).
+     *
+     * [condition] (optional) is the "Download when..." of the whole batch: each file waits for it
+     * without holding a slot, so the rest of the queue is never blocked. Example, tonight for a
+     * whole console: `downloadService.startDownloads(files, DownloadCondition(ConditionKind.TONIGHT))`;
+     * at 14:30: `DownloadConditions.atTime(14 * 60 + 30, System.currentTimeMillis())`.
      */
-    fun startDownloads(files: List<DownloadableFileEntity>) {
+    fun startDownloads(files: List<DownloadableFileEntity>, condition: DownloadCondition? = null) {
         val fresh = synchronized(startLock) {
             // One set of the active names instead of a walk over the whole list per file.
             val active = downloadProgressTracker.activeNames()
@@ -220,6 +249,8 @@ class DownloadService @Inject constructor(
         }
         if (fresh.isEmpty()) return
         fresh.forEach { (file, _) -> downloadEntities[file.fileName] = file }
+        // Before the jobs start, so none of them runs unconditioned for a moment.
+        if (condition != null) conditionGate.setAll(fresh.map { it.first.fileName }, condition)
         serviceScope.launch { historyDao.upsertAll(fresh.map { (file, item) -> DownloadHistoryEntity.from(file, item) }) }
         startForegroundService()
         fresh.forEach { (file, _) -> launchJob(file) }
@@ -229,12 +260,22 @@ class DownloadService @Inject constructor(
         // Registered before it starts, so a download that ends at once cannot leave a stale entry.
         val job = serviceScope.launch(start = CoroutineStart.LAZY) {
             try {
-                withSlot(file) {
-                    awaitSchedule(file.fileName)
-                    // Brief delay to allow the foreground service and initial UI state to settle
-                    // before network/torrent activity begins.
-                    delay(1000L)
-                    perform(file)
+                var ran = false
+                while (!ran) {
+                    // The download's own condition is waited for outside a slot: it never blocks others.
+                    conditionGate.awaitReady(file.fileName)
+                    withSlot(file) {
+                        // A condition set while it stood in line: give the slot back and wait outside.
+                        if (conditionGate.isBlocked(file.fileName)) return@withSlot
+                        proceeding += file.fileName
+                        conditionGate.clear(file.fileName)
+                        awaitSchedule(file.fileName)
+                        // Brief delay to allow the foreground service and initial UI state to settle
+                        // before network/torrent activity begins.
+                        delay(1000L)
+                        perform(file)
+                        ran = true
+                    }
                 }
                 autoRetries.remove(file.fileName)
             } catch (e: kotlinx.coroutines.CancellationException) {
@@ -248,6 +289,8 @@ class DownloadService @Inject constructor(
                 updateStatus(file.fileName, DownloadStatus.FAILED)
                 scheduleAutoRetry(file.fileName, e)
             } finally {
+                proceeding.remove(file.fileName)
+                conditionGate.clear(file.fileName)
                 downloadJobs.remove(file.fileName, coroutineContext[Job]!!)
             }
         }
@@ -405,6 +448,7 @@ class DownloadService @Inject constructor(
     fun deleteDownload(fileName: String, deleteFile: Boolean = false) {
         downloadJobs.remove(fileName)?.cancel()
         autoRetries.remove(fileName)
+        conditionGate.clear(fileName)
         val entity = downloadEntities.remove(fileName)
         val extracted = extractedFilesMap.remove(fileName) ?: emptyList()
         val debrid = debridTorrents.remove(fileName)

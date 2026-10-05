@@ -29,14 +29,14 @@ class BackgroundSyncPolicyTest {
 }
 
 class DownloadPolicyTest {
-    private val night = DownloadConditions(nightOnly = true, nightStart = 23 * 60, nightEnd = 7 * 60)
+    private val night = DownloadRules(nightOnly = true, nightStart = 23 * 60, nightEnd = 7 * 60)
 
     @Test fun `no conditions means start at once`() {
-        assertTrue(DownloadPolicy.waitingFor(DownloadConditions(), DeviceConditions(false, false, 600)).isEmpty())
+        assertTrue(DownloadPolicy.waitingFor(DownloadRules(), DeviceConditions(false, false, 600)).isEmpty())
     }
 
     @Test fun `waits for wifi and the charger`() {
-        val c = DownloadConditions(wifiOnly = true, chargingOnly = true)
+        val c = DownloadRules(wifiOnly = true, chargingOnly = true)
         assertEquals(listOf(WaitReason.WIFI, WaitReason.CHARGER), DownloadPolicy.waitingFor(c, DeviceConditions(false, false, 0)))
         assertEquals(listOf(WaitReason.CHARGER), DownloadPolicy.waitingFor(c, DeviceConditions(true, false, 0)))
         assertTrue(DownloadPolicy.waitingFor(c, DeviceConditions(true, true, 0)).isEmpty())

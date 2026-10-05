@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 6.0: per-download conditions ("Download when...") -->
+<resources>
+    <string name="plan6_when_title">Descargar cuando…</string>
+    <string name="plan6_when_now">De inmediato</string>
+    <string name="plan6_when_wifi">Cuando esté en Wi-Fi</string>
+    <string name="plan6_when_charging">Mientras se carga</string>
+    <string name="plan6_when_both">Con Wi-Fi y cargando</string>
+    <string name="plan6_when_tonight">Esta noche (23:00–07:00)</string>
+    <string name="plan6_when_time">A la hora que elija</string>
+    <string name="plan6_when_time_hint">Empieza a las %1$s</string>
+    <string name="plan6_pill_wifi">Espera Wi-Fi</string>
+    <string name="plan6_pill_charger">Espera cargador</string>
+    <string name="plan6_pill_both">Espera Wi-Fi + cargador</string>
+    <string name="plan6_pill_tonight">Esta noche</string>
+    <string name="plan6_pill_time">Desde las %1$s</string>
+    <string name="plan6_wait_for">Esperar a…</string>
+    <string name="plan6_start_now">Empezar ahora</string>
+    <plurals name="plan6_when_for">
+        <item quantity="one">Para %1$d descarga</item>
+        <item quantity="other">Para %1$d descargas</item>
+    </plurals>
+</resources>

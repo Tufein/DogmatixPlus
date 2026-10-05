@@ -1,7 +1,7 @@
 package com.cortinadev.dogmatix.util
 
 /** Conditions the user can put on starting downloads (Settings → Downloads). */
-data class DownloadConditions(
+data class DownloadRules(
     val wifiOnly: Boolean = false,
     val chargingOnly: Boolean = false,
     val nightOnly: Boolean = false,
@@ -27,7 +27,7 @@ enum class WaitReason { WIFI, CHARGER, NIGHT, STORAGE, /** The user put the queu
 object DownloadPolicy {
 
     /** What a download still has to wait for; empty means it may start. */
-    fun waitingFor(conditions: DownloadConditions, device: DeviceConditions): List<WaitReason> = buildList {
+    fun waitingFor(conditions: DownloadRules, device: DeviceConditions): List<WaitReason> = buildList {
         if (conditions.wifiOnly && !device.onUnmeteredNetwork) add(WaitReason.WIFI)
         if (conditions.chargingOnly && !device.charging) add(WaitReason.CHARGER)
         if (conditions.nightOnly && !inWindow(device.minuteOfDay, conditions.nightStart, conditions.nightEnd)) add(WaitReason.NIGHT)

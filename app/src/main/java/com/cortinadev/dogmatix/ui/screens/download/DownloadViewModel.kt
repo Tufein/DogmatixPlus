@@ -11,7 +11,9 @@ import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.service.RommUploadService
 import com.cortinadev.dogmatix.data.service.DownloadService
 import com.cortinadev.dogmatix.data.service.LibraryIndexService
+import com.cortinadev.dogmatix.util.DownloadCondition
 import com.cortinadev.dogmatix.util.QueueActions
+import com.cortinadev.dogmatix.util.WaitInfo
 import com.cortinadev.dogmatix.util.QueueEta
 import com.cortinadev.dogmatix.util.QueueProgress
 import com.cortinadev.dogmatix.util.StorageInsights
@@ -66,6 +68,16 @@ class DownloadViewModel @Inject constructor(
     /** Downloads held back by the schedule (Wi-Fi / charger / night) and why. */
     val waitingFiles: StateFlow<Set<String>> = downloadService.waitingFiles
     val waitingReasons: StateFlow<List<WaitReason>> = downloadService.gate.waiting
+    /** Per-download conditions ("Download when...") that are not met yet, by file name. */
+    val itemWaits: StateFlow<Map<String, WaitInfo>> = downloadService.itemWaits
+    /** Every per-download condition that is set, by file name (to preselect it in the dialog). */
+    val itemConditions: StateFlow<Map<String, DownloadCondition>> = downloadService.itemConditions
+
+    /** Sets the condition of downloads that have not started; null lifts it and lets them start now. Off the UI thread. */
+    fun setCondition(fileNames: List<String>, condition: DownloadCondition?) {
+        viewModelScope.launch(Dispatchers.Default) { downloadService.setCondition(fileNames, condition) }
+    }
+
     /** Checksum check per finished download. */
     val verification: StateFlow<Map<String, VerifyState>> = downloadService.verification
 
