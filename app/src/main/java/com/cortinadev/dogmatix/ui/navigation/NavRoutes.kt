@@ -31,9 +31,16 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     /** 5.0: encrypted backup and device sync on the user's own WebDAV server (Nextcloud, ownCloud, Synology…). */
     object CloudBackup : NavRoutes("cloud_backup", R.string.dav_title, R.drawable.ic_cloud_upload)
 
+    /** 6.0: how complete each console's collection is. */
+    object CollectionGoals : NavRoutes("collection_goals", R.string.coll6_goals_title, R.drawable.ic_collection_goals)
+    /** 6.0: what was downloaded and played, by day. */
+    object History : NavRoutes("play_history", R.string.coll6_history_title, R.drawable.ic_history)
+    /** 6.0: every health check in one report, with a fix per problem. */
+    object Health : NavRoutes("health", R.string.health6_title, R.drawable.ic_health)
+
     companion object {
         /** The four sections shown as tabs; Contact, RomM and the library tools are reached from Settings. */
         val tabs by lazy { listOf(Home, Downloads, Sources, Settings) }
-        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup }
+        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health }
     }
 }

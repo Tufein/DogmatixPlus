@@ -160,6 +160,13 @@ fun GameDetailsDialog(
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val downloadFocus = remember { FocusRequester() }
+    var showWhen by remember { mutableStateOf(false) }
+    if (showWhen && onDownloadWhen != null) {
+        com.cortinadev.dogmatix.ui.screens.download.DownloadWhenDialog(
+            onDismiss = { showWhen = false },
+            onConfirm = { condition -> showWhen = false; onDownloadWhen(condition) }
+        )
+    }
     val rom = state.item.file
     // Opening a similar game swaps the card's content: start at the top again.
     LaunchedEffect(rom.id) { scroll.scrollTo(0) }

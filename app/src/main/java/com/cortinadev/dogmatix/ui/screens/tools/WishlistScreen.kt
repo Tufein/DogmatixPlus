@@ -69,6 +69,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.first
@@ -83,8 +84,15 @@ data class WishlistUiState(val loading: Boolean = true, val items: List<Wishlist
 class WishlistViewModel @Inject constructor(
     private val wishlist: WishlistRepository,
     consoleRepository: ConsoleRepository,
-    private val pendingFilters: PendingLibraryFilters
+    private val pendingFilters: PendingLibraryFilters,
+    sharedWishlist: com.cortinadev.dogmatix.data.service.SharedWishlistService
 ) : ViewModel() {
+    /** Who added / who found each wish on the shared family list (empty when it is off). */
+    val authors: StateFlow<Map<String, String>> = sharedWishlist.authors
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000), emptyMap())
+    val doneBy: StateFlow<Map<String, String>> = sharedWishlist.doneBy
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000), emptyMap())
+
     private val consolesFlow = consoleRepository.getAllConsoles()
     private val _ui = MutableStateFlow(WishlistUiState())
     val ui: StateFlow<WishlistUiState> = _ui.asStateFlow()
@@ -146,7 +154,10 @@ class WishlistViewModel @Inject constructor(
 @Composable
 fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = hiltViewModel()) {
     val ui by viewModel.ui.collectAsState()
+    val authors by viewModel.authors.collectAsState()
+    val doneBy by viewModel.doneBy.collectAsState()
     val context = LocalContext.current
+    val shareScope = androidx.compose.runtime.rememberCoroutineScope()
     var showAdd by remember { mutableStateOf(false) }
     // Android 13+ asks before the "a wanted game turned up" notification may be shown.
     val notificationPermission = rememberLauncherForActivityResult(
@@ -216,6 +227,9 @@ fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = 
                     icon = R.drawable.ic_share
                 ) {
                     ToolAction(stringResource(R.string.wishlist_import)) { importLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }
+                    if (ui.items.isNotEmpty()) ToolAction(stringResource(R.string.share6_chooser_wishlist)) {
+                        shareScope.launch { com.cortinadev.dogmatix.data.service.GameShare.shareWishlist(context) }
+                    }
                     if (ui.items.isNotEmpty()) ToolAction(stringResource(R.string.wishlist_export)) { exportLauncher.launch("dogmatix-wishlist.json") }
                 }
             }
@@ -258,9 +272,12 @@ fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = 
                     WishlistMatch.State.IN_ROMM -> R.drawable.ic_server
                     else -> R.drawable.ic_sparkle
                 }
+                val wishKey = com.cortinadev.dogmatix.util.DeviceSyncMerge.wishKey(status.item.title, consoleId)
+                val byLine = doneBy[wishKey]?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.sync6_wish_found_by, it) }
+                    ?: authors[wishKey]?.takeIf { it.isNotBlank() }?.let { stringResource(R.string.sync6_wish_added_by, it) }
                 ToolRow(
                     status.item.title,
-                    listOf(console, where),
+                    listOfNotNull(console, where, byLine),
                     onClick = { viewModel.show(status) },
                     modifier = Modifier.onFocusChanged {
                         if (it.isFocused) focusedWish = wishId else if (focusedWish == wishId) focusedWish = null

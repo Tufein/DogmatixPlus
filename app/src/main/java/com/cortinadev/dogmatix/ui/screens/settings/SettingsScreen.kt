@@ -471,6 +471,14 @@ fun SettingsScreen(
         },
         SettingsRow(SettingsSection.LOOK) {
             SettingRow(
+                title = stringResource(R.string.disc6_compact_title),
+                hint = stringResource(R.string.disc6_compact_hint),
+                onClick = { extra.setCompactLists(context, !look.compactLists) },
+                onAdjust = { extra.setCompactLists(context, it > 0) }
+            ) { ThemedSwitch(look.compactLists) { extra.setCompactLists(context, it) } }
+        },
+        SettingsRow(SettingsSection.LOOK) {
+            SettingRow(
                 title = stringResource(R.string.settings_v5_covers_retry),
                 hint = coversReset?.let { pluralStringResource(R.plurals.settings_v5_covers_reset_done, it, it) }
                     ?: stringResource(R.string.settings_v5_covers_retry_hint),

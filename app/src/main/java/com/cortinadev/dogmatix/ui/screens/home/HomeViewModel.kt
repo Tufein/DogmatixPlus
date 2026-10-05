@@ -331,6 +331,11 @@ class HomeViewModel @Inject constructor(
     }
 
     /** Starts the download of a library row found by the Switch section (an update or a DLC). */
+    /** 6.0: queues [file] with a condition (Wi-Fi, charging, tonight, at a time); null = right away. */
+    fun downloadWhen(file: DownloadableFileEntity, condition: com.cortinadev.dogmatix.util.DownloadCondition?) {
+        viewModelScope.launch { downloadService.startDownload(file, condition) }
+    }
+
     fun downloadRow(file: DownloadableFileEntity) {
         viewModelScope.launch { downloadService.startDownload(file) }
     }

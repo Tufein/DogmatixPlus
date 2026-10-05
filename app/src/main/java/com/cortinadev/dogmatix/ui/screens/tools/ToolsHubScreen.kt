@@ -137,6 +137,9 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { Tool(go, NavRoutes.Files, R.string.nav_files, R.string.tools_files_hint) }
             item { Tool(go, NavRoutes.Storage, R.string.nav_storage, R.string.tools_storage_hint) }
             item { Tool(go, NavRoutes.Stats, R.string.nav_stats, R.string.tools_stats_hint) }
+            item { Tool(go, NavRoutes.CollectionGoals, R.string.coll6_goals_title, R.string.lead6_goals_hint) }
+            item { Tool(go, NavRoutes.History, R.string.coll6_history_title, R.string.lead6_history_hint) }
+            item { Tool(go, NavRoutes.Health, R.string.health6_title, R.string.lead6_health_hint) }
             item { ToolsGroup(stringResource(R.string.tools_group_games), icon = R.drawable.ic_gamepad) }
             item { Tool(go, NavRoutes.ImportList, R.string.nav_import_list, R.string.tools_import_list_hint) }
             item { Tool(go, NavRoutes.Wishlist, R.string.nav_wishlist, R.string.tools_wishlist_hint, count = wishCount) }

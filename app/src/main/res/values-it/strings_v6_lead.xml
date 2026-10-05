@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 6.0: wiring strings -->
+<resources>
+    <string name="lead6_share">Condividi</string>
+    <string name="lead6_goals_hint">Guarda quanto è completa ogni console e cosa manca</string>
+    <string name="lead6_history_hint">Guarda giorno per giorno cosa hai scaricato e giocato</string>
+    <string name="lead6_health_hint">Controlla fonti, spazio, RomM, backup e altro in un solo rapporto, con una soluzione per ogni problema</string>
+</resources>

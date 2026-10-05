@@ -483,6 +483,15 @@ fun HomeScreen(
             onRomm = viewModel.isOnRomm(state.item.file, rommKeys, rommBase),
             similar = state.similar,
             onOpenSimilar = viewModel::openDetails,
+            onShare = {
+                val file = state.item.file
+                scope.launch { com.cortinadev.dogmatix.data.service.GameShare.share(context, file.consoleId, file.fileName, file.name) }
+            },
+            onDownloadWhen = { condition ->
+                viewModel.closeDetails()
+                viewModel.downloadWhen(state.item.file, condition)
+                showMessage(updateQueuedMessage.format(state.item.file.name))
+            },
             onDownloadBest = state.best?.let { best -> { viewModel.closeDetails(); onFileClick(best) } },
             owned = viewModel.isOwned(state.item.file, ownedKeys),
             downloading = viewModel.isDownloading(state.item.file, activeDownloads),

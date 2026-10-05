@@ -69,7 +69,8 @@ data class AfterDownloadSettings(
 data class LookPrefs(
     val animations: Boolean = true,
     val glow: Boolean = true,
-    val listCovers: Boolean = true
+    val listCovers: Boolean = true,
+    val compactLists: Boolean = false
 )
 
 /** Look, backup and update settings. */
@@ -96,12 +97,14 @@ class ExtraSettingsViewModel @Inject constructor(
     private val covers: CoverRepository
 ) : ViewModel() {
 
-    val look: StateFlow<LookPrefs> = combine(lookSettings.animations, lookSettings.glow, lookSettings.listCovers) { animations, glow, listCovers ->
-        LookPrefs(animations, glow, listCovers)
+    val look: StateFlow<LookPrefs> = combine(lookSettings.animations, lookSettings.glow, lookSettings.listCovers, lookSettings.compactLists) { animations, glow, listCovers, compact ->
+        LookPrefs(animations, glow, listCovers, compact)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), LookPrefs())
 
     fun setAnimations(context: Context, on: Boolean) = executeWithToast(context, TAG) { lookSettings.setAnimations(on) }
     fun setGlow(context: Context, on: Boolean) = executeWithToast(context, TAG) { lookSettings.setGlow(on) }
+    fun setCompactLists(context: Context, on: Boolean) = executeWithToast(context, TAG) { lookSettings.setCompactLists(on) }
+
     fun setListCovers(context: Context, on: Boolean) = executeWithToast(context, TAG) { lookSettings.setListCovers(on) }
 
     private val _coversReset = MutableStateFlow<Int?>(null)

@@ -291,7 +291,7 @@ fun legendFor(route: String): List<LegendEntry> {
         NavRoutes.Sets.route -> listOf(LegendEntry("A", stringResource(R.string.pad_apply)), back, section)
         NavRoutes.Storage.route -> listOf(LegendEntry("A", stringResource(R.string.pad_delete)), back, section)
         NavRoutes.Wishlist.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
-        NavRoutes.Collections.route, NavRoutes.Switch.route, NavRoutes.Dat.route, NavRoutes.Bios.route, NavRoutes.Stats.route, NavRoutes.RetroAchievements.route, NavRoutes.Profiles.route, NavRoutes.Frontends.route, NavRoutes.Cloud.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
+        NavRoutes.Collections.route, NavRoutes.Switch.route, NavRoutes.Dat.route, NavRoutes.Bios.route, NavRoutes.Stats.route, NavRoutes.RetroAchievements.route, NavRoutes.Profiles.route, NavRoutes.Frontends.route, NavRoutes.Cloud.route, NavRoutes.CollectionGoals.route, NavRoutes.History.route, NavRoutes.Health.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
         NavRoutes.Files.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), LegendEntry("B", stringResource(R.string.files_up)), section)
         NavRoutes.Settings.route, NavRoutes.Romm.route, NavRoutes.SaveSync.route, NavRoutes.CloudBackup.route -> listOf(
             LegendEntry("A", stringResource(R.string.pad_change)),

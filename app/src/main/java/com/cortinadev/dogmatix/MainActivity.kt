@@ -65,6 +65,11 @@ import com.cortinadev.dogmatix.ui.screens.share.ShareTargetDialog
 import com.cortinadev.dogmatix.ui.screens.sources.components.ScanReportDialog
 import com.cortinadev.dogmatix.ui.screens.tools.BiosScreen
 import com.cortinadev.dogmatix.ui.screens.tools.CollectionsScreen
+import com.cortinadev.dogmatix.ui.screens.tools.CollectionGoalsScreen
+import com.cortinadev.dogmatix.ui.screens.tools.HealthScreen
+import com.cortinadev.dogmatix.ui.screens.tools.HistoryScreen
+import com.cortinadev.dogmatix.util.HealthFix
+import com.cortinadev.dogmatix.data.state.LibraryFilterRequest
 import com.cortinadev.dogmatix.ui.screens.tools.DatScreen
 import com.cortinadev.dogmatix.ui.screens.tools.ImportListScreen
 import com.cortinadev.dogmatix.ui.screens.tools.FileExplorerScreen
@@ -514,6 +519,14 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.RetroAchievements.route) { RetroAchievementsScreen() }
                     composable(NavRoutes.Cloud.route) { CloudScreen(navController) }
                     composable(NavRoutes.CloudBackup.route) { CloudBackupScreen() }
+                    composable(NavRoutes.CollectionGoals.route) { CollectionGoalsScreen(onOpenImportList = { navController.navigate(NavRoutes.ImportList.route) }) }
+                    composable(NavRoutes.History.route) {
+                        HistoryScreen(onOpenGame = { consoleId, fileName ->
+                            pendingFilters.submit(LibraryFilterRequest(consoles = setOf(consoleId), query = fileName.substringBeforeLast('.')))
+                            navController.switchTo(NavRoutes.Home)
+                        })
+                    }
+                    composable(NavRoutes.Health.route) { HealthScreen(onFix = { fix -> navController.healthFix(fix) }) }
                 }
             }
 
@@ -553,6 +566,23 @@ private fun travelDirection(from: String?, to: String?): Int {
 /** The Cloud hub on top of whatever is open, so back returns to it. */
 private fun NavController.openCloud() {
     if (currentDestination?.route != NavRoutes.Cloud.route) navigate(NavRoutes.Cloud.route) { launchSingleTop = true }
+}
+
+/** Where a health row's fix goes; the inline fixes never reach here. */
+private fun NavController.healthFix(fix: HealthFix) {
+    val route = when (fix) {
+        HealthFix.OPEN_SOURCES -> NavRoutes.Sources
+        HealthFix.OPEN_BIOS -> NavRoutes.Bios
+        HealthFix.OPEN_SAVE_SYNC -> NavRoutes.SaveSync
+        HealthFix.OPEN_ROMM -> NavRoutes.Romm
+        HealthFix.OPEN_CLOUD_BACKUP -> NavRoutes.CloudBackup
+        HealthFix.OPEN_STORAGE -> NavRoutes.Storage
+        HealthFix.OPEN_FRONTENDS -> NavRoutes.Frontends
+        HealthFix.OPEN_RETROACHIEVEMENTS -> NavRoutes.RetroAchievements
+        HealthFix.OPEN_UPDATES -> NavRoutes.Settings
+        else -> return
+    }
+    navigate(route.route) { launchSingleTop = true }
 }
 
 private fun NavController.switchTo(route: NavRoutes) {
