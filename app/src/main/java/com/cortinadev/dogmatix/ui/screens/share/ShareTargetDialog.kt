@@ -1,12 +1,21 @@
 package com.cortinadev.dogmatix.ui.screens.share
 
 import android.content.Context
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,9 +24,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -31,9 +45,14 @@ import com.cortinadev.dogmatix.data.repository.ConsoleRepository
 import com.cortinadev.dogmatix.data.repository.SourcesRepository
 import com.cortinadev.dogmatix.data.service.DownloadService
 import com.cortinadev.dogmatix.data.service.SourceScanService
-import com.cortinadev.dogmatix.ui.components.DialogButton
+import com.cortinadev.dogmatix.ui.components.ActionPill
+import com.cortinadev.dogmatix.ui.components.IconTile
+import com.cortinadev.dogmatix.ui.components.PrimaryButton
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
+import com.cortinadev.dogmatix.ui.components.focusRing
+import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
+import com.cortinadev.dogmatix.ui.theme.consoleColor
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.SharedLink
@@ -87,6 +106,7 @@ class ShareTargetViewModel @Inject constructor(
  * What to do with a link shared to the app: pick the console it belongs to, then download the file
  * into that console's folder, or add the link (or the folder the file is in) as a source.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ShareTargetDialog(link: SharedLink, onDismiss: () -> Unit, viewModel: ShareTargetViewModel = hiltViewModel()) {
     val loaded by viewModel.consoles.collectAsState()
@@ -95,10 +115,20 @@ fun ShareTargetDialog(link: SharedLink, onDismiss: () -> Unit, viewModel: ShareT
     var consoleId by remember { mutableStateOf<String?>(null) }
     val cancelFocus = rememberInitialFocus()
     val folderUrl = if (link.kind == SharedLink.Kind.FILE) link.url.substringBeforeLast('/') + "/" else null
+    val kindIcon = when (link.kind) {
+        SharedLink.Kind.FILE -> R.drawable.ic_download
+        SharedLink.Kind.MAGNET, SharedLink.Kind.TORRENT -> R.drawable.ic_hub
+        SharedLink.Kind.DIRECTORY -> R.drawable.ic_folder_open
+    }
     AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.share_title)) },
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                IconTile(kindIcon, size = 36.dp)
+                Text(stringResource(R.string.share_title))
+            }
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(link.fileName ?: link.url, style = MaterialTheme.typography.bodyMedium, maxLines = 3, overflow = TextOverflow.Ellipsis)
@@ -116,12 +146,17 @@ fun ShareTargetDialog(link: SharedLink, onDismiss: () -> Unit, viewModel: ShareT
                     Text(stringResource(R.string.share_no_consoles), color = MaterialTheme.colorScheme.error)
                 } else {
                     Text(stringResource(R.string.share_pick_console), style = MaterialTheme.typography.titleSmall)
+                    // The consoles as a wrapped set of chips: one is picked (radio), the rest stay quiet.
                     Column(Modifier.heightIn(max = 260.dp).verticalScroll(rememberScrollState())) {
-                        consoles.forEach { c ->
-                            DialogButton(
-                                text = (if (consoleId == c.id) "● " else "") + ConsoleFormatter.getConsoleDisplayName(c.id),
-                                onClick = { consoleId = c.id }
-                            )
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            consoles.forEach { c ->
+                                ConsoleChoice(
+                                    label = ConsoleFormatter.getConsoleDisplayName(c.id),
+                                    consoleId = c.id,
+                                    selected = consoleId == c.id,
+                                    onClick = { consoleId = c.id }
+                                )
+                            }
                         }
                     }
                 }
@@ -130,12 +165,60 @@ fun ShareTargetDialog(link: SharedLink, onDismiss: () -> Unit, viewModel: ShareT
         confirmButton = {
             val id = consoleId
             if (link.kind == SharedLink.Kind.FILE) {
-                DialogButton(stringResource(R.string.share_download), onClick = { id?.let { viewModel.download(context, link, it); onDismiss() } }, enabled = id != null)
-                DialogButton(stringResource(R.string.share_add_folder), onClick = { id?.let { viewModel.addSource(context, folderUrl!!, it); onDismiss() } }, enabled = id != null)
+                PrimaryButton(
+                    stringResource(R.string.share_download),
+                    { id?.let { viewModel.download(context, link, it); onDismiss() } },
+                    icon = R.drawable.ic_download,
+                    enabled = id != null
+                )
+                ActionPill(
+                    stringResource(R.string.share_add_folder),
+                    { id?.let { viewModel.addSource(context, folderUrl!!, it); onDismiss() } },
+                    icon = R.drawable.ic_folder_open,
+                    enabled = id != null
+                )
             } else {
-                DialogButton(stringResource(R.string.share_add_source), onClick = { id?.let { viewModel.addSource(context, link.url, it); onDismiss() } }, enabled = id != null)
+                PrimaryButton(
+                    stringResource(R.string.share_add_source),
+                    { id?.let { viewModel.addSource(context, link.url, it); onDismiss() } },
+                    icon = R.drawable.ic_add,
+                    enabled = id != null
+                )
             }
         },
-        dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), onClick = onDismiss, initialFocus = cancelFocus) }
+        dismissButton = {
+            ActionPill(stringResource(R.string.dialog_cancel), onDismiss, modifier = Modifier.focusRequester(cancelFocus))
+        }
     )
+}
+
+/** One console to pick: a radio mark (in the console's colour until picked), its name, accent fill when picked. */
+@Composable
+private fun ConsoleChoice(label: String, consoleId: String, selected: Boolean, onClick: () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    val source = rememberFocusSource()
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (selected) scheme.primaryContainer else scheme.surfaceContainerHigh)
+            .focusRing(source, cornerRadius = 10.dp)
+            .clickable(interactionSource = source, indication = null, role = Role.RadioButton, onClick = onClick)
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Icon(
+            painterResource(if (selected) R.drawable.ic_radio_on else R.drawable.ic_radio_off),
+            contentDescription = null,
+            tint = if (selected) scheme.primary else consoleColor(consoleId),
+            modifier = Modifier.size(18.dp)
+        )
+        Text(
+            label,
+            style = if (selected) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodyMedium,
+            color = if (selected) scheme.onPrimaryContainer else scheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }

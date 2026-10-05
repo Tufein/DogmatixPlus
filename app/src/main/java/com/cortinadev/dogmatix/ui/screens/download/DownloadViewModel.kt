@@ -13,6 +13,7 @@ import com.cortinadev.dogmatix.data.service.DownloadService
 import com.cortinadev.dogmatix.data.service.LibraryIndexService
 import com.cortinadev.dogmatix.util.QueueActions
 import com.cortinadev.dogmatix.util.QueueEta
+import com.cortinadev.dogmatix.util.QueueProgress
 import com.cortinadev.dogmatix.util.StorageInsights
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
@@ -88,14 +89,25 @@ class DownloadViewModel @Inject constructor(
     fun moveDown(fileName: String) = downloadService.moveDown(fileName)
     fun moveToFront(fileName: String) = downloadService.moveToFront(fileName)
 
-    /** Bytes the queue is short of the free space; 0 when it fits or the space is unknown. */
-    val queueShortfall: StateFlow<Long> = combine(downloadService.downloads, libraryIndexService.freeBytes) { list, free ->
-        val need = StorageInsights.queueNeed(
+    /** What the downloads still in the queue need on disk: bytes left, plus room to unpack archives. */
+    val queueNeed: StateFlow<StorageInsights.QueueNeed> = downloadService.downloads.map { list ->
+        StorageInsights.queueNeed(
             list.filter { it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.QUEUED }
                 .map { StorageInsights.QueueItem((it.fileSize - it.downloadedBytes).coerceAtLeast(0), StorageInsights.isExtractable(it.fileName.substringAfterLast('.', ""))) }
         )
+    }.distinctUntilChanged().flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), StorageInsights.QueueNeed(0, 0))
+
+    /** Free bytes where the downloads land; null while unknown. */
+    val freeBytes: StateFlow<Long?> = libraryIndexService.freeBytes
+
+    /** Bytes the queue is short of the free space; 0 when it fits or the space is unknown. */
+    val queueShortfall: StateFlow<Long> = combine(queueNeed, libraryIndexService.freeBytes) { need, free ->
         StorageInsights.shortfall(need, free) ?: 0L
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
+
+    /** The whole queue in bytes (the ring of the Downloads header) and how many rows are in each state. */
+    val queueProgress: StateFlow<QueueProgress.Summary> = downloadService.downloads.map { QueueProgress.of(it) }
+        .distinctUntilChanged().flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), QueueProgress.Summary())
 
     /** Opens a finished download in whichever app handles the file. */
     fun openDownload(context: Context, fileName: String) {
