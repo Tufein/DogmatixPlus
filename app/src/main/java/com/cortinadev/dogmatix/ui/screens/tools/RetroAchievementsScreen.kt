@@ -36,7 +36,11 @@ import com.cortinadev.dogmatix.data.service.RetroAchievementsService
 import com.cortinadev.dogmatix.ui.components.DialogButton
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
+import com.cortinadev.dogmatix.ui.components.ActionTone
+import com.cortinadev.dogmatix.ui.components.MeterBar
+import com.cortinadev.dogmatix.ui.components.PillTone
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
+import com.cortinadev.dogmatix.ui.theme.consoleColor
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.RetroAchievements
 import com.cortinadev.dogmatix.util.ToastUtil
@@ -108,15 +112,19 @@ fun RetroAchievementsScreen(viewModel: RetroAchievementsViewModel = hiltViewMode
     if (editing) CredentialsDialog(user, onSave = { u, k -> viewModel.saveCredentials(u, k); editing = false }, onDismiss = { editing = false })
 
     Column(Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        ToolsTitle(stringResource(R.string.nav_ra))
-        InfoCard(listOf(stringResource(R.string.ra_intro)), Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 12.dp)) {
+        ToolsTitle(stringResource(R.string.nav_ra), icon = NavRoutes.RetroAchievements.icon)
+        InfoCard(listOf(stringResource(R.string.ra_intro)), icon = R.drawable.ic_trophy)
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
             item(key = "account") {
+                val signedIn = user.isNotBlank() && hasKey
                 ToolRow(stringResource(R.string.ra_account),
-                    listOf(if (user.isNotBlank() && hasKey) stringResource(R.string.ra_account_set, user) else stringResource(R.string.ra_account_hint)),
-                    onClick = { editing = true }) { PillButton(stringResource(R.string.ra_account_action)) { editing = true } }
+                    listOf(if (signedIn) stringResource(R.string.ra_account_set, user) else stringResource(R.string.ra_account_hint)),
+                    onClick = { editing = true },
+                    badge = if (signedIn) ({ Badge(user, warning = false, tone = PillTone.Success, icon = R.drawable.ic_check_circle) }) else null,
+                    icon = R.drawable.ic_account
+                ) { ToolAction(stringResource(R.string.ra_account_action), tone = if (signedIn) ActionTone.Neutral else ActionTone.Accent) { editing = true } }
             }
-            if (consoles.isEmpty()) item(key = "none") { InfoCard(listOf(stringResource(R.string.ra_no_consoles)), Modifier.padding(16.dp)) }
+            if (consoles.isEmpty()) item(key = "none") { InfoCard(listOf(stringResource(R.string.ra_no_consoles)), icon = R.drawable.ic_info) }
             items(consoles, key = { it }) { id ->
                 val r = results[id]
                 val lines = buildList {
@@ -128,8 +136,18 @@ fun RetroAchievementsScreen(viewModel: RetroAchievementsViewModel = hiltViewMode
                         else -> add(stringResource(R.string.ra_not_checked))
                     }
                 }
-                ToolRow(ConsoleFormatter.getConsoleDisplayName(id), lines, onClick = { viewModel.check(context, id) }) {
-                    if (busy == null) PillButton(stringResource(R.string.ra_check)) { viewModel.check(context, id) }
+                ToolRow(
+                    ConsoleFormatter.getConsoleDisplayName(id), lines,
+                    onClick = { viewModel.check(context, id) },
+                    leading = { ConsoleTile(id) },
+                    below = if (r != null && r.onDevice > 0) ({
+                        MeterBar(
+                            (r.supportedOnDevice.toFloat() / r.onDevice).coerceIn(0f, 1f),
+                            modifier = Modifier.padding(top = 6.dp), height = 6.dp, color = consoleColor(id)
+                        )
+                    }) else null
+                ) {
+                    if (busy == null) ToolAction(stringResource(R.string.ra_check), icon = R.drawable.ic_retry) { viewModel.check(context, id) }
                 }
             }
         }

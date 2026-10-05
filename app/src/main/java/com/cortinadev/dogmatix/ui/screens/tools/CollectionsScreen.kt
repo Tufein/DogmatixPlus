@@ -46,7 +46,9 @@ import com.cortinadev.dogmatix.data.state.PendingLibraryFilters
 import com.cortinadev.dogmatix.ui.components.DialogButton
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
+import com.cortinadev.dogmatix.ui.components.ActionTone
+import com.cortinadev.dogmatix.ui.components.EmptyState
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.ui.screens.sources.components.ConfirmDialog
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.DeepLinkParser
@@ -150,41 +152,56 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        Row(modifier = Modifier.fillMaxWidth().padding(end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) { ToolsTitle(stringResource(R.string.nav_collections)) }
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                if (rommReady) {
-                    PillButton(stringResource(R.string.romm_collections_pull)) { viewModel.syncRomm(context, push = false) }
-                    PillButton(stringResource(R.string.romm_collections_push)) { viewModel.syncRomm(context, push = true) }
-                }
-                PillButton(stringResource(R.string.collections_new)) { creating = true }
+        ToolsTitle(stringResource(R.string.nav_collections), icon = NavRoutes.Collections.icon)
+        ToolsActions {
+            if (rommReady) {
+                ToolAction(stringResource(R.string.romm_collections_pull), icon = R.drawable.ic_cloud_download) { viewModel.syncRomm(context, push = false) }
+                ToolAction(stringResource(R.string.romm_collections_push), icon = R.drawable.ic_cloud_upload) { viewModel.syncRomm(context, push = true) }
             }
+            ToolAction(stringResource(R.string.collections_new), icon = R.drawable.ic_plus, tone = ActionTone.Accent) { creating = true }
         }
         val list = collections
         when {
             list == null -> Unit
-            else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 12.dp)) {
-                if (list.isEmpty()) item { InfoCard(listOf(stringResource(R.string.collections_empty)), Modifier.padding(16.dp)) }
+            else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
+                if (list.isEmpty()) item {
+                    EmptyState(
+                        title = stringResource(R.string.tools5_collections_empty_title),
+                        message = stringResource(R.string.tools5_collections_empty_message),
+                        modifier = Modifier.fillMaxWidth(),
+                        illustration = R.drawable.milou,
+                        actionLabel = stringResource(R.string.collections_new),
+                        onAction = { creating = true },
+                        actionFocus = firstFocus
+                    )
+                }
                 items(list, key = { it.id }) { c ->
                     ToolRow(
                         title = c.name,
                         lines = listOf(pluralStringResource(R.plurals.collections_games, c.count, c.count)),
                         onClick = { viewModel.open(c.id) },
-                        modifier = if (c == list.first()) Modifier.focusRequester(firstFocus) else Modifier
+                        modifier = if (c == list.first()) Modifier.focusRequester(firstFocus) else Modifier,
+                        icon = R.drawable.ic_collections,
+                        chevron = true
                     ) {
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            PillButton(stringResource(R.string.collections_rename)) { naming = c }
-                            PillButton(stringResource(R.string.dialog_delete)) { deleting = c }
+                            ToolAction(stringResource(R.string.collections_rename)) { naming = c }
+                            ToolAction(stringResource(R.string.dialog_delete), tone = ActionTone.Danger) { deleting = c }
                         }
                     }
                 }
-                item { SectionHeader(stringResource(R.string.views_title), stringResource(R.string.views_hint)) }
-                if (views.isEmpty()) item { InfoCard(listOf(stringResource(R.string.views_empty)), Modifier.padding(16.dp)) }
+                item { SectionHeader(stringResource(R.string.views_title), stringResource(R.string.views_hint), icon = R.drawable.ic_bookmark) }
+                if (views.isEmpty()) item { InfoCard(listOf(stringResource(R.string.views_empty)), icon = R.drawable.ic_filter) }
                 items(views, key = { "v" + it.id }) { v ->
-                    ToolRow(v.name, listOf((v.consoles.map { ConsoleFormatter.getConsoleShortName(it) } + v.tags.sorted() + listOfNotNull(v.query.takeIf { it.isNotBlank() }?.let { "“$it”" })).joinToString(" · ").ifEmpty { "—" }), onClick = { viewModel.openView(v) }) {
+                    ToolRow(
+                        v.name,
+                        listOf((v.consoles.map { ConsoleFormatter.getConsoleShortName(it) } + v.tags.sorted() + listOfNotNull(v.query.takeIf { it.isNotBlank() }?.let { "“$it”" })).joinToString(" · ").ifEmpty { "—" }),
+                        onClick = { viewModel.openView(v) },
+                        icon = R.drawable.ic_filter
+                    ) {
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            PillButton(stringResource(R.string.view_shortcut)) { viewModel.shortcut(context, v) }
-                            PillButton(stringResource(R.string.dialog_delete)) { viewModel.deleteView(v.id) }
+                            ToolAction(stringResource(R.string.view_shortcut)) { viewModel.shortcut(context, v) }
+                            ToolAction(stringResource(R.string.dialog_delete), tone = ActionTone.Danger) { viewModel.deleteView(v.id) }
                         }
                     }
                 }

@@ -15,11 +15,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -44,12 +51,19 @@ import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.service.ArchiveExtractorService
+import com.cortinadev.dogmatix.ui.components.ActionTone
 import com.cortinadev.dogmatix.ui.components.DialogButton
+import com.cortinadev.dogmatix.ui.components.IconTile
+import com.cortinadev.dogmatix.ui.components.MeterBar
+import com.cortinadev.dogmatix.ui.components.Panel
+import com.cortinadev.dogmatix.ui.components.Pill
+import com.cortinadev.dogmatix.ui.components.PillTone
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.formatBytes
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.ui.screens.sources.components.ConfirmDialog
+import com.cortinadev.dogmatix.ui.theme.tabular
 import com.cortinadev.dogmatix.util.ArchiveUtils
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.DatMatcher
@@ -356,47 +370,56 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
         withFrameNanos { }
         runCatching { firstFocus.requestFocus() }
     }
-    val title = if (ui.atRoots) stringResource(R.string.nav_files) else ui.path.joinToString(" / ") { it.first }
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        ToolsTitle(title)
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 12.dp), modifier = Modifier.fillMaxSize()) {
+        if (ui.atRoots) ToolsTitle(stringResource(R.string.nav_files), icon = NavRoutes.Files.icon)
+        else {
+            ToolsTitle(ui.path.last().first, icon = R.drawable.ic_folder_open)
+            Breadcrumb(ui.path.map { it.first })
+        }
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 16.dp), modifier = Modifier.fillMaxSize()) {
             if (ui.atRoots) {
-                if (ui.roots.isEmpty()) item { InfoCard(listOf(stringResource(R.string.tools_no_folder))) }
+                if (ui.roots.isEmpty()) item { InfoCard(listOf(stringResource(R.string.tools_no_folder)), icon = R.drawable.ic_folder_open) }
                 items(ui.roots, key = { "root:" + it.label }) { root ->
                     val index = ui.roots.indexOf(root)
                     ToolRow(root.label, listOf(stringResource(R.string.files_root_hint)), { viewModel.openRoot(root) },
-                        modifier = if (index == 0) Modifier.focusRequester(firstFocus) else Modifier) {
-                        Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+                        modifier = if (index == 0) Modifier.focusRequester(firstFocus) else Modifier,
+                        icon = R.drawable.ic_folder, chevron = true)
                 }
             } else {
                 ui.moving?.let { (entry, _) ->
                     item(key = "moving") {
-                        ToolRow(stringResource(R.string.files_move_pending, entry.name), listOf(stringResource(R.string.files_move_hint)), { viewModel.moveHere(context) }) {
+                        ToolRow(
+                            stringResource(R.string.files_move_pending, entry.name), listOf(stringResource(R.string.files_move_hint)), { viewModel.moveHere(context) },
+                            icon = R.drawable.ic_drive_file_move
+                        ) {
                             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                PillButton(stringResource(R.string.files_move_here)) { viewModel.moveHere(context) }
-                                PillButton(stringResource(R.string.dialog_cancel)) { viewModel.cancelMove() }
+                                ToolAction(stringResource(R.string.files_move_here), tone = ActionTone.Accent) { viewModel.moveHere(context) }
+                                ToolAction(stringResource(R.string.dialog_cancel)) { viewModel.cancelMove() }
                             }
                         }
                     }
                 }
-                ui.busy?.let { item(key = "busy") { InfoCard(listOf(it), accent = true) } }
+                ui.busy?.let { item(key = "busy") { InfoCard(listOf(it), accent = true, icon = R.drawable.ic_hourglass) } }
                 item(key = "tools") {
                     val folders = ui.entries.count { it.isDirectory }
                     val files = ui.entries.size - folders
                     val summary = if (ui.loading) stringResource(R.string.tools_scanning)
                     else stringResource(R.string.files_summary, folders, files, formatBytes(ui.entries.filter { !it.isDirectory }.sumOf { it.size }))
-                    val lines = listOfNotNull(
-                        ui.folderSize?.let { (bytes, count) -> stringResource(R.string.files_size_result, formatBytes(bytes), count) },
-                        if (ui.sizing) stringResource(R.string.files_sizing) else null
-                    )
-                    ToolRow(summary, lines, viewModel::up, Modifier.focusRequester(firstFocus)) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            PillButton(stringResource(R.string.files_up), { viewModel.up() })
-                            PillButton(stringResource(if (ui.bySize) R.string.files_sort_name else R.string.files_sort_size), viewModel::toggleSort)
-                            PillButton(stringResource(R.string.files_measure), viewModel::measure)
-                            PillButton(stringResource(R.string.files_check), viewModel::checkSets)
-                        }
+                    ToolRow(summary, emptyList(), viewModel::up, Modifier.focusRequester(firstFocus), icon = R.drawable.ic_arrow_up)
+                }
+                item(key = "actions") {
+                    ToolsActions {
+                        ToolAction(stringResource(R.string.files_up), icon = R.drawable.ic_arrow_up, onClick = viewModel::up)
+                        ToolAction(stringResource(if (ui.bySize) R.string.files_sort_name else R.string.files_sort_size), icon = R.drawable.ic_sort, onClick = viewModel::toggleSort)
+                        ToolAction(stringResource(R.string.files_measure), icon = R.drawable.ic_storage, onClick = viewModel::measure)
+                        ToolAction(stringResource(R.string.files_check), icon = R.drawable.ic_check_circle, onClick = viewModel::checkSets)
+                    }
+                }
+                if (ui.sizing) item(key = "sizing") { InfoCard(listOf(stringResource(R.string.files_sizing)), accent = true, icon = R.drawable.ic_hourglass) }
+                ui.folderSize?.let { (bytes, count) ->
+                    item(key = "size") {
+                        val here = ui.entries.filter { !it.isDirectory }.sumOf { it.size }
+                        SizeCard(bytes, count, here)
                     }
                 }
                 ui.problems?.let { problems ->
@@ -409,18 +432,18 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
                                     SetProblem.Kind.MISSING_DISCS -> context.getString(R.string.sets_missing_discs, p.missing.joinToString(", "))
                                     SetProblem.Kind.MISSING_TRACKS -> context.getString(R.string.sets_missing_tracks, p.missing.joinToString(", "))
                                 } },
-                            accent = problems.isNotEmpty()
+                            icon = if (problems.isEmpty()) R.drawable.ic_check_circle else R.drawable.ic_warning,
+                            danger = problems.isNotEmpty()
                         )
                     }
                 }
-                if (!ui.loading && ui.entries.isEmpty()) item(key = "empty") { InfoCard(listOf(stringResource(R.string.files_empty))) }
+                if (!ui.loading && ui.entries.isEmpty()) item(key = "empty") { InfoCard(listOf(stringResource(R.string.files_empty)), icon = R.drawable.ic_folder_open) }
                 items(ui.sorted, key = { it.documentId }) { entry ->
                     if (entry.isDirectory) {
-                        ToolRow("📁 " + entry.name, emptyList(), { viewModel.openFolder(entry) }) {
+                        ToolRow(entry.name, emptyList(), { viewModel.openFolder(entry) }, icon = R.drawable.ic_folder, chevron = true) {
                             Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                PillButton(stringResource(R.string.files_rename)) { renaming = entry }
-                                PillButton(stringResource(R.string.files_move)) { viewModel.startMove(entry) }
-                                Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                ToolAction(stringResource(R.string.files_rename)) { renaming = entry }
+                                ToolAction(stringResource(R.string.files_move)) { viewModel.startMove(entry) }
                             }
                         }
                     } else {
@@ -429,11 +452,78 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
                             entry.name,
                             listOf(formatBytes(entry.size)),
                             { selected = entry },
-                            badge = if (game) ({ Badge(stringResource(R.string.files_badge_game), warning = false) }) else null
+                            badge = if (game) ({ Badge(stringResource(R.string.files_badge_game), warning = false, tone = PillTone.Accent) }) else null,
+                            icon = fileIcon(entry.name, game)
                         )
                     }
                 }
             }
+        }
+    }
+}
+
+private val IMAGE_EXTENSIONS = setOf("png", "jpg", "jpeg", "gif", "webp", "bmp")
+
+/** The icon of a file by what it is: archive, picture, game or anything else. */
+private fun fileIcon(name: String, isGame: Boolean): Int {
+    val ext = name.substringAfterLast('.', "").lowercase()
+    return when {
+        ArchiveUtils.isExtractable(ext) -> R.drawable.ic_archive
+        ext in IMAGE_EXTENSIONS -> R.drawable.ic_image
+        isGame -> R.drawable.ic_gamepad
+        else -> R.drawable.ic_description
+    }
+}
+
+/** The folders opened so far as pills, the last one highlighted; scrolls sideways when long. */
+@Composable
+private fun Breadcrumb(parts: List<String>) {
+    val scroll = rememberScrollState()
+    LaunchedEffect(parts) {
+        withFrameNanos { }
+        scroll.scrollTo(scroll.maxValue)
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth().horizontalScroll(scroll).padding(horizontal = 12.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        parts.forEachIndexed { i, name ->
+            if (i > 0) Icon(
+                painterResource(R.drawable.ic_chevron_right), contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp)
+            )
+            Pill(name, tone = if (i == parts.lastIndex) PillTone.Accent else PillTone.Neutral)
+        }
+    }
+}
+
+/** The result of "Folder size": the total, and how much of it lies directly in the open folder. */
+@Composable
+private fun SizeCard(bytes: Long, files: Int, directBytes: Long) {
+    val scheme = MaterialTheme.colorScheme
+    Panel(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 3.dp),
+        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            IconTile(R.drawable.ic_storage, size = 36.dp)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(formatBytes(bytes), style = MaterialTheme.typography.headlineSmall.tabular(), color = scheme.onSurface, maxLines = 1)
+                Text(
+                    stringResource(R.string.files_size_result, formatBytes(bytes), files),
+                    style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant
+                )
+            }
+        }
+        if (bytes > 0) {
+            Spacer(Modifier.height(10.dp))
+            MeterBar(directBytes.toFloat() / bytes, height = 6.dp)
+            Text(
+                stringResource(R.string.tools5_files_direct, formatBytes(directBytes)),
+                style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
         }
     }
 }
@@ -475,11 +565,11 @@ private fun FileDetailsDialog(
                 Text(stringResource(R.string.files_info_type, ext.ifEmpty { "—" }))
                 Text(stringResource(if (DuplicateFinder.isGameFile(entry.name)) R.string.files_info_game else R.string.files_info_not_game),
                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 8.dp)) {
-                    PillButton(stringResource(R.string.files_rename), onRename)
-                    PillButton(stringResource(R.string.files_move), onMove)
-                    onExtract?.let { PillButton(stringResource(R.string.files_extract), it) }
-                    if (DuplicateFinder.isGameFile(entry.name) && onExtract == null) PillButton(stringResource(R.string.patch_apply), onPatch)
+                ToolsActions(modifier = Modifier.padding(top = 8.dp), horizontalPadding = 0.dp) {
+                    ToolAction(stringResource(R.string.files_rename), onClick = onRename)
+                    ToolAction(stringResource(R.string.files_move), onClick = onMove)
+                    onExtract?.let { ToolAction(stringResource(R.string.files_extract), onClick = it) }
+                    if (DuplicateFinder.isGameFile(entry.name) && onExtract == null) ToolAction(stringResource(R.string.patch_apply), onClick = onPatch)
                 }
             }
         },

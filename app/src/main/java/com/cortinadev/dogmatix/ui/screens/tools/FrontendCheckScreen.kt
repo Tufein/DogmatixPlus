@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.ui.components.PillTone
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.util.FrontendCheck
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -59,10 +60,10 @@ fun FrontendCheckScreen(navController: NavController, viewModel: FrontendCheckVi
         runCatching { firstFocus.requestFocus() }
     }
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        ToolsTitle(stringResource(R.string.nav_frontends))
+        ToolsTitle(stringResource(R.string.nav_frontends), icon = NavRoutes.Frontends.icon)
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
-            contentPadding = PaddingValues(bottom = 12.dp),
+            contentPadding = PaddingValues(bottom = 16.dp),
             modifier = Modifier.fillMaxSize()
         ) {
             itemsIndexed(findings, key = { _, f -> f.frontend.name }) { index, f ->
@@ -95,10 +96,22 @@ fun FrontendCheckScreen(navController: NavController, viewModel: FrontendCheckVi
                         FrontendCheck.Status.MANUAL -> R.string.frontend_status_manual
                     }
                 )
+                val tone = when (f.status) {
+                    FrontendCheck.Status.READY -> PillTone.Success
+                    FrontendCheck.Status.TODO -> PillTone.Warning
+                    FrontendCheck.Status.MANUAL -> PillTone.Info
+                }
+                val icon = when (f.status) {
+                    FrontendCheck.Status.READY -> R.drawable.ic_check_circle
+                    FrontendCheck.Status.TODO -> R.drawable.ic_warning
+                    FrontendCheck.Status.MANUAL -> R.drawable.ic_info
+                }
                 ToolRow(
                     name, listOf(text), { navController.navigate(NavRoutes.Settings.route) },
                     if (index == 0) Modifier.focusRequester(firstFocus) else Modifier,
-                    badge = { Badge(badge, warning = f.status == FrontendCheck.Status.TODO) }
+                    badge = { Badge(badge, warning = f.status == FrontendCheck.Status.TODO, tone = tone, icon = icon) },
+                    icon = R.drawable.ic_frontends,
+                    chevron = true
                 )
             }
         }

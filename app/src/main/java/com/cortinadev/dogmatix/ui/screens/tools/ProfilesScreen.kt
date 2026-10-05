@@ -42,7 +42,9 @@ import com.cortinadev.dogmatix.data.service.ProfileService
 import com.cortinadev.dogmatix.ui.components.DialogButton
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
+import com.cortinadev.dogmatix.ui.components.ActionTone
+import com.cortinadev.dogmatix.ui.components.PillTone
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.Profile
 import com.cortinadev.dogmatix.util.Profiles
@@ -119,13 +121,14 @@ fun ProfilesScreen(viewModel: ProfilesViewModel = hiltViewModel()) {
     if (settingPin) PinDialog(stringResource(R.string.profiles_set_pin_title), allowEmpty = true, onOk = { viewModel.setPin(context, it); settingPin = false }, onDismiss = { settingPin = false })
 
     Column(Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        ToolsTitle(stringResource(R.string.settings_profiles))
-        InfoCard(listOf(stringResource(R.string.profiles_intro)), Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 12.dp)) {
+        ToolsTitle(stringResource(R.string.settings_profiles), icon = NavRoutes.Profiles.icon)
+        InfoCard(listOf(stringResource(R.string.profiles_intro)), icon = R.drawable.ic_info)
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
             item(key = "all") {
                 ToolRow(stringResource(R.string.profiles_everything), listOf(stringResource(R.string.profiles_everything_hint)), onClick = { switch("") },
-                    badge = if (activeId.isEmpty()) ({ Badge(stringResource(R.string.profiles_active_badge), warning = false) }) else null) {
-                    if (activeId.isNotEmpty()) PillButton(stringResource(R.string.profiles_use)) { switch("") }
+                    badge = if (activeId.isEmpty()) ({ Badge(stringResource(R.string.profiles_active_badge), warning = false, tone = PillTone.Success, icon = R.drawable.ic_check_circle) }) else null,
+                    icon = R.drawable.ic_group) {
+                    if (activeId.isNotEmpty()) ToolAction(stringResource(R.string.profiles_use), tone = ActionTone.Accent) { switch("") }
                 }
             }
             items(profiles.sortedBy { it.name.lowercase() }, key = { it.id }) { p ->
@@ -135,11 +138,12 @@ fun ProfilesScreen(viewModel: ProfilesViewModel = hiltViewModel()) {
                     if (isEmpty()) add(stringResource(R.string.profiles_hides_nothing))
                 }
                 ToolRow(p.name, summary, onClick = { switch(p.id) },
-                    badge = if (activeId == p.id) ({ Badge(stringResource(R.string.profiles_active_badge), warning = false) }) else null) {
-                    if (activeId != p.id) PillButton(stringResource(R.string.profiles_use)) { switch(p.id) }
+                    badge = if (activeId == p.id) ({ Badge(stringResource(R.string.profiles_active_badge), warning = false, tone = PillTone.Success, icon = R.drawable.ic_check_circle) }) else null,
+                    icon = R.drawable.ic_account) {
+                    if (activeId != p.id) ToolAction(stringResource(R.string.profiles_use), tone = ActionTone.Accent) { switch(p.id) }
                     if (!locked) {
-                        PillButton(stringResource(R.string.profiles_edit)) { editing = p }
-                        PillButton(stringResource(R.string.profiles_delete)) { viewModel.delete(p.id) }
+                        ToolAction(stringResource(R.string.profiles_edit)) { editing = p }
+                        ToolAction(stringResource(R.string.profiles_delete), tone = ActionTone.Danger) { viewModel.delete(p.id) }
                     }
                 }
             }
@@ -147,11 +151,12 @@ fun ProfilesScreen(viewModel: ProfilesViewModel = hiltViewModel()) {
                 item(key = "add") {
                     ToolRow(stringResource(R.string.profiles_add), listOf(stringResource(R.string.profiles_add_hint)), onClick = {
                         editing = Profile(UUID.randomUUID().toString(), "")
-                    }) { PillButton(stringResource(R.string.profiles_add_action)) { editing = Profile(UUID.randomUUID().toString(), "") } }
+                    }, icon = R.drawable.ic_plus) { ToolAction(stringResource(R.string.profiles_add_action), icon = R.drawable.ic_plus, tone = ActionTone.Accent) { editing = Profile(UUID.randomUUID().toString(), "") } }
                 }
                 item(key = "pin") {
-                    ToolRow(stringResource(R.string.profiles_pin), listOf(stringResource(if (pinSet) R.string.profiles_pin_on else R.string.profiles_pin_off)), onClick = { settingPin = true }) {
-                        PillButton(stringResource(R.string.profiles_pin_action)) { settingPin = true }
+                    ToolRow(stringResource(R.string.profiles_pin), listOf(stringResource(if (pinSet) R.string.profiles_pin_on else R.string.profiles_pin_off)), onClick = { settingPin = true },
+                        icon = R.drawable.ic_lock) {
+                        ToolAction(stringResource(R.string.profiles_pin_action)) { settingPin = true }
                     }
                 }
             }

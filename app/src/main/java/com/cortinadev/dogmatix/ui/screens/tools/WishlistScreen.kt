@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
@@ -31,6 +32,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -47,12 +49,19 @@ import com.cortinadev.dogmatix.data.repository.WishlistRepository
 import com.cortinadev.dogmatix.data.repository.WishlistStatus
 import com.cortinadev.dogmatix.data.state.LibraryFilterRequest
 import com.cortinadev.dogmatix.data.state.PendingLibraryFilters
+import com.cortinadev.dogmatix.ui.common.Gamepad
+import com.cortinadev.dogmatix.ui.common.GamepadButton
+import com.cortinadev.dogmatix.ui.components.ActionTone
 import com.cortinadev.dogmatix.ui.components.DialogButton
+import com.cortinadev.dogmatix.ui.components.EmptyState
+import com.cortinadev.dogmatix.ui.components.GameCover
+import com.cortinadev.dogmatix.ui.components.IconTile
+import com.cortinadev.dogmatix.ui.components.LegendEntry
+import com.cortinadev.dogmatix.ui.components.PillTone
 import com.cortinadev.dogmatix.ui.components.Stepper
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.WishlistMatch
@@ -162,53 +171,109 @@ fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = 
         withFrameNanos { }
         runCatching { firstFocus.requestFocus() }
     }
+    // X removes the wish under the cursor; A opens the library on it (the tap on a row does the same).
+    var focusedWish by remember { mutableStateOf<Long?>(null) }
+    LaunchedEffect(showAdd) {
+        Gamepad.presses.collect { button ->
+            if (button == GamepadButton.X && !showAdd) {
+                focusedWish?.let {
+                    viewModel.remove(it)
+                    focusedWish = null
+                    withFrameNanos { }
+                    runCatching { firstFocus.requestFocus() }
+                }
+            }
+        }
+    }
+    PublishLegend(
+        if (focusedWish == null) null else listOf(
+            LegendEntry("A", stringResource(R.string.pad_open)),
+            LegendEntry("X", stringResource(R.string.wishlist_remove)),
+            LegendEntry("B", stringResource(R.string.pad_back)),
+            LegendEntry("ZL · ZR", stringResource(R.string.pad_section))
+        )
+    )
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        ToolsTitle(stringResource(R.string.nav_wishlist))
+        ToolsTitle(stringResource(R.string.nav_wishlist), icon = NavRoutes.Wishlist.icon)
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
-            contentPadding = PaddingValues(bottom = 12.dp),
+            contentPadding = PaddingValues(bottom = 16.dp),
             modifier = Modifier.fillMaxSize()
         ) {
             item(key = "add") {
                 ToolRow(
                     stringResource(R.string.wishlist_add),
                     listOf(if (ui.loading) stringResource(R.string.tools_scanning) else if (ui.items.isEmpty()) stringResource(R.string.wishlist_empty) else stringResource(R.string.wishlist_hint)),
-                    { showAdd = true }, Modifier.focusRequester(firstFocus)
-                ) { PillButton(stringResource(R.string.wishlist_add_action)) { showAdd = true } }
+                    { showAdd = true }, Modifier.focusRequester(firstFocus),
+                    icon = R.drawable.ic_wishlist
+                ) { ToolAction(stringResource(R.string.wishlist_add_action), icon = R.drawable.ic_plus, tone = ActionTone.Accent) { showAdd = true } }
             }
             item(key = "share") {
                 ToolRow(
                     stringResource(R.string.wishlist_share),
                     listOf(stringResource(R.string.wishlist_share_hint)),
-                    { importLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }
+                    { importLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) },
+                    icon = R.drawable.ic_share
                 ) {
-                    PillButton(stringResource(R.string.wishlist_import)) { importLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }
-                    if (ui.items.isNotEmpty()) PillButton(stringResource(R.string.wishlist_export)) { exportLauncher.launch("dogmatix-wishlist.json") }
+                    ToolAction(stringResource(R.string.wishlist_import)) { importLauncher.launch(arrayOf("application/json", "text/plain", "application/octet-stream")) }
+                    if (ui.items.isNotEmpty()) ToolAction(stringResource(R.string.wishlist_export)) { exportLauncher.launch("dogmatix-wishlist.json") }
+                }
+            }
+            if (!ui.loading && ui.items.isEmpty()) {
+                item(key = "empty") {
+                    EmptyState(
+                        title = stringResource(R.string.wishlist_empty),
+                        message = stringResource(R.string.wishlist_add_hint),
+                        modifier = Modifier.fillMaxWidth(),
+                        icon = R.drawable.ic_wishlist,
+                        actionLabel = stringResource(R.string.wishlist_add),
+                        onAction = { showAdd = true }
+                    )
                 }
             }
             items(ui.items, key = { it.item.id }) { status ->
                 val found = status.matches > 0
-                val console = status.item.consoleId?.let { ConsoleFormatter.getConsoleDisplayName(it) } ?: stringResource(R.string.wishlist_any_console)
+                val wishId = status.item.id
+                val consoleId = status.item.consoleId
+                val console = consoleId?.let { ConsoleFormatter.getConsoleDisplayName(it) } ?: stringResource(R.string.wishlist_any_console)
                 val where = when (status.state) {
                     WishlistMatch.State.ON_DEVICE -> stringResource(R.string.wishlist_on_device)
                     WishlistMatch.State.IN_ROMM -> stringResource(R.string.wishlist_in_romm)
                     WishlistMatch.State.IN_SOURCES -> pluralStringResource(R.plurals.wishlist_found, status.matches, status.matches)
                     WishlistMatch.State.WANTED -> stringResource(R.string.wishlist_not_yet)
                 }
-                val badge = when (status.state) {
+                val badgeText = when (status.state) {
                     WishlistMatch.State.ON_DEVICE -> stringResource(R.string.wishlist_badge_have)
                     WishlistMatch.State.IN_ROMM -> stringResource(R.string.wishlist_badge_romm)
                     WishlistMatch.State.IN_SOURCES -> stringResource(R.string.wishlist_badge_found)
                     WishlistMatch.State.WANTED -> null
                 }
+                val badgeTone = when (status.state) {
+                    WishlistMatch.State.ON_DEVICE -> PillTone.Success
+                    WishlistMatch.State.IN_ROMM -> PillTone.Info
+                    else -> PillTone.Accent
+                }
+                val badgeIcon = when (status.state) {
+                    WishlistMatch.State.ON_DEVICE -> R.drawable.ic_check_circle
+                    WishlistMatch.State.IN_ROMM -> R.drawable.ic_server
+                    else -> R.drawable.ic_sparkle
+                }
                 ToolRow(
                     status.item.title,
                     listOf(console, where),
-                    onClick = { if (found) { viewModel.show(status) } else viewModel.remove(status.item.id) },
-                    badge = badge?.let { text -> { Badge(text, warning = false) } }
+                    onClick = { viewModel.show(status) },
+                    modifier = Modifier.onFocusChanged {
+                        if (it.isFocused) focusedWish = wishId else if (focusedWish == wishId) focusedWish = null
+                    },
+                    badge = badgeText?.let { text -> { Badge(text, warning = false, tone = badgeTone, icon = badgeIcon) } },
+                    leading = {
+                        if (consoleId != null) {
+                            GameCover(consoleId, titleCoverFileName(status.item.title), status.item.title, Modifier.size(width = 42.dp, height = 56.dp))
+                        } else IconTile(R.drawable.ic_wishlist, size = 40.dp)
+                    }
                 ) {
-                    if (found) PillButton(stringResource(R.string.wishlist_show)) { viewModel.show(status) }
-                    PillButton(stringResource(R.string.wishlist_remove)) { viewModel.remove(status.item.id) }
+                    if (found) ToolAction(stringResource(R.string.wishlist_show), tone = ActionTone.Accent) { viewModel.show(status) }
+                    ToolAction(stringResource(R.string.wishlist_remove), icon = R.drawable.ic_trash, tone = ActionTone.Danger) { viewModel.remove(wishId) }
                 }
             }
         }

@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -35,7 +36,8 @@ import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.service.BiosReport
 import com.cortinadev.dogmatix.data.service.BiosService
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
+import com.cortinadev.dogmatix.ui.components.PillTone
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.util.BiosCatalog
 import com.cortinadev.dogmatix.util.BiosNote
 import com.cortinadev.dogmatix.util.FileParsingUtils
@@ -87,25 +89,26 @@ fun BiosScreen(viewModel: BiosViewModel = hiltViewModel()) {
     LaunchedEffect(ui.loading) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        ToolsTitle(stringResource(R.string.nav_bios))
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 12.dp)) {
+        ToolsTitle(stringResource(R.string.nav_bios), icon = NavRoutes.Bios.icon)
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
             item {
                 ToolRow(
                     stringResource(R.string.bios_folder),
                     listOf(if (folder.isBlank()) stringResource(R.string.bios_folder_hint) else FileParsingUtils.toUserReadablePath(folder)),
                     onClick = { picker.launch(null) },
-                    modifier = Modifier.focusRequester(firstFocus)
+                    modifier = Modifier.focusRequester(firstFocus),
+                    icon = R.drawable.ic_folder_open
                 ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        PillButton(stringResource(R.string.settings_change)) { picker.launch(null) }
-                        PillButton(stringResource(if (ui.allSystems) R.string.bios_show_mine else R.string.bios_show_all)) { viewModel.refresh(!ui.allSystems) }
+                        ToolAction(stringResource(R.string.settings_change)) { picker.launch(null) }
+                        ToolAction(stringResource(if (ui.allSystems) R.string.bios_show_mine else R.string.bios_show_all)) { viewModel.refresh(!ui.allSystems) }
                     }
                 }
             }
             val report = ui.report
             when {
-                ui.loading -> item { Row(Modifier.padding(16.dp)) { CircularProgressIndicator() } }
-                report == null || report.results.isEmpty() -> item { InfoCard(listOf(stringResource(R.string.bios_none_needed)), Modifier.padding(16.dp)) }
+                ui.loading -> item { Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() } }
+                report == null || report.results.isEmpty() -> item { InfoCard(listOf(stringResource(R.string.bios_none_needed)), icon = R.drawable.ic_memory) }
                 else -> items(report.results, key = { it.system.name }) { r ->
                     val badge = when {
                         !report.folderSet -> null
@@ -113,11 +116,22 @@ fun BiosScreen(viewModel: BiosViewModel = hiltViewModel()) {
                         r.ready -> stringResource(R.string.bios_ready_other)
                         else -> stringResource(R.string.bios_missing)
                     }
+                    val tone = when {
+                        r.allGood -> PillTone.Success
+                        r.ready -> PillTone.Info
+                        else -> PillTone.Danger
+                    }
+                    val icon = when {
+                        r.allGood -> R.drawable.ic_check_circle
+                        r.ready -> R.drawable.ic_info
+                        else -> R.drawable.ic_warning
+                    }
                     ToolRow(
                         r.system.name,
                         r.files.map { f -> fileLine(f) },
                         onClick = { },
-                        badge = badge?.let { b -> { Badge(b, warning = !r.ready) } }
+                        badge = badge?.let { b -> { Badge(b, warning = !r.ready, tone = tone, icon = icon) } },
+                        icon = R.drawable.ic_memory
                     )
                 }
             }

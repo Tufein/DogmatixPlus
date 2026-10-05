@@ -2,12 +2,14 @@ package com.cortinadev.dogmatix.ui.screens.tools
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,7 +35,11 @@ import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.service.DownloadService
 import com.cortinadev.dogmatix.data.service.LibraryIndexService
 import com.cortinadev.dogmatix.ui.components.stripExtension
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
+import com.cortinadev.dogmatix.ui.components.ActionTone
+import com.cortinadev.dogmatix.ui.components.GameCover
+import com.cortinadev.dogmatix.ui.components.Pill
+import com.cortinadev.dogmatix.ui.components.PillTone
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.LibraryKeys
 import com.cortinadev.dogmatix.util.SwitchTitles
@@ -102,18 +108,18 @@ fun SwitchScreen(viewModel: SwitchViewModel = hiltViewModel()) {
     val firstFocus = androidx.compose.runtime.remember { FocusRequester() }
     LaunchedEffect(ui.loading) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        Row(modifier = Modifier.fillMaxWidth().padding(end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) { ToolsTitle(stringResource(R.string.nav_switch)) }
-            val all = ui.rows.flatMap { it.toFetch }
-            if (all.isNotEmpty()) PillButton(stringResource(R.string.switch_fetch_all, all.size)) { viewModel.fetch(context, all) }
+        ToolsTitle(stringResource(R.string.nav_switch), icon = NavRoutes.Switch.icon)
+        val all = ui.rows.flatMap { it.toFetch }
+        if (all.isNotEmpty()) ToolsActions {
+            ToolAction(stringResource(R.string.switch_fetch_all, all.size), icon = R.drawable.ic_download, tone = ActionTone.Accent) { viewModel.fetch(context, all) }
         }
         when {
-            ui.loading -> Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) { CircularProgressIndicator() }
+            ui.loading -> Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
             ui.rows.isEmpty() -> InfoCard(
                 listOf(if (ui.gamesOnDisk == 0) stringResource(R.string.switch_none_on_disk) else stringResource(R.string.switch_all_current, ui.gamesOnDisk)),
-                Modifier.padding(16.dp)
+                icon = if (ui.gamesOnDisk == 0) R.drawable.ic_joystick else R.drawable.ic_check_circle
             )
-            else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 12.dp)) {
+            else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
                 items(ui.rows, key = { it.consoleId + it.status.baseId }) { row ->
                     val s = row.status
                     val lines = buildList {
@@ -124,8 +130,22 @@ fun SwitchScreen(viewModel: SwitchViewModel = hiltViewModel()) {
                         if (s.missingDlc.isNotEmpty()) add(pluralStringResource(R.plurals.switch_dlc_missing, s.missingDlc.size, s.missingDlc.size))
                         add(ConsoleFormatter.getConsoleShortName(row.consoleId) + " · " + s.baseId)
                     }
-                    ToolRow(row.title, lines, onClick = { viewModel.fetch(context, row.toFetch) }, modifier = if (row == ui.rows.first()) Modifier.focusRequester(firstFocus) else Modifier) {
-                        PillButton(stringResource(R.string.switch_fetch, row.toFetch.size)) { viewModel.fetch(context, row.toFetch) }
+                    val cover = s.base ?: s.newestUpdate?.first ?: s.missingDlc.firstOrNull()
+                    ToolRow(
+                        row.title, lines, onClick = { viewModel.fetch(context, row.toFetch) },
+                        modifier = if (row == ui.rows.first()) Modifier.focusRequester(firstFocus) else Modifier,
+                        badge = {
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                if (s.updateAvailable) Pill(stringResource(R.string.tools5_update), tone = PillTone.Accent, icon = R.drawable.ic_download)
+                                if (s.missingDlc.isNotEmpty()) Pill(stringResource(R.string.switch_kind_dlc), tone = PillTone.Info)
+                            }
+                        },
+                        leading = {
+                            if (cover != null) GameCover(row.consoleId, cover.fileName, row.title, Modifier.size(width = 42.dp, height = 56.dp))
+                            else ConsoleTile(row.consoleId)
+                        }
+                    ) {
+                        ToolAction(stringResource(R.string.switch_fetch, row.toFetch.size), tone = ActionTone.Accent) { viewModel.fetch(context, row.toFetch) }
                     }
                 }
             }
