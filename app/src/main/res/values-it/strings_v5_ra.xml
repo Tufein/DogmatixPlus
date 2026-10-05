@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: RetroAchievements profile and per-game progress -->
+<resources>
+    <string name="ra5_section_title">Obiettivi</string>
+    <string name="ra5_loading">Caricamento degli obiettivi…</string>
+    <string name="ra5_probable">Trovato dal titolo</string>
+    <string name="ra5_hardcore_count">%1$d in hardcore</string>
+    <string name="ra5_award_mastered">Padroneggiato</string>
+    <string name="ra5_award_completed">Completato</string>
+    <string name="ra5_award_beaten">Finito</string>
+    <string name="ra5_award_beaten_softcore">Finito (softcore)</string>
+    <string name="ra5_show_all">Mostra tutti (%1$d)</string>
+    <string name="ra5_show_fewer">Mostra meno</string>
+    <string name="ra5_more_count">+%1$d</string>
+    <string name="ra5_earned_at">Ottenuto %1$s</string>
+    <string name="ra5_earned_hardcore_at">Ottenuto in hardcore %1$s</string>
+    <string name="ra5_earned">Ottenuto</string>
+    <string name="ra5_earned_hardcore">Ottenuto in hardcore</string>
+    <string name="ra5_rarity">Ce l\'ha il %1$s dei giocatori</string>
+    <string name="ra5_missable">Mancabile</string>
+    <string name="ra5_retry">Riprova</string>
+    <string name="ra5_error_no_account">Imposta prima il nome RetroAchievements e la chiave API web</string>
+    <string name="ra5_error_bad_key">RetroAchievements non ha accettato il nome o la chiave API web</string>
+    <string name="ra5_error_not_found">RetroAchievements non conosce questo utente o gioco</string>
+    <string name="ra5_error_rate_limited">RetroAchievements è sovraccarico. Riprova tra qualche minuto.</string>
+    <string name="ra5_error_offline">Impossibile raggiungere RetroAchievements. Controlla la connessione.</string>
+    <string name="ra5_error_server">RetroAchievements ha un problema in questo momento. Riprova più tardi.</string>
+    <string name="ra5_error_bad_response">RetroAchievements ha inviato una risposta illeggibile</string>
+    <string name="ra5_just_now">proprio ora</string>
+    <string name="ra5_pitch">Qui vedi i tuoi punti, la tua posizione e i giochi recenti. Imposta il nome RetroAchievements e la chiave API web per iniziare.</string>
+    <string name="ra5_set_up">Configura</string>
+    <string name="ra5_open">Apri</string>
+    <string name="ra5_refresh">Aggiorna</string>
+    <string name="ra5_profile_loading">Caricamento del profilo…</string>
+    <string name="ra5_points">Punti</string>
+    <string name="ra5_retropoints">RetroPoints</string>
+    <string name="ra5_rank">Posizione</string>
+    <string name="ra5_rank_value">#%1$s</string>
+    <string name="ra5_top_percent">Top %1$d%%</string>
+    <string name="ra5_not_ranked">Non in classifica</string>
+    <string name="ra5_softcore_points">%1$s in softcore</string>
+    <string name="ra5_recently_played">Giocati di recente</string>
+    <string name="ra5_recent_unlocks">Ottenuti di recente</string>
+    <string name="ra5_no_recent">Nessun gioco ancora giocato con RetroAchievements</string>
+    <string name="ra5_progress_count">%1$d / %2$d</string>
+    <string name="ra5_no_achievements">Nessun obiettivo</string>
+    <string name="ra5_member_since">Membro dal %1$s</string>
+    <string name="ra5_updated">Aggiornato %1$s</string>
+    <string name="ra5_status_not_set_up">Non configurato</string>
+    <string name="ra5_status_updating">Aggiornamento…</string>
+    <string name="ra5_status_problem">Problema</string>
+    <string name="ra5_status_connected">Connesso</string>
+    <string name="ra5_avatar">Avatar di %1$s</string>
+    <plurals name="ra5_earned_of">
+        <item quantity="one">%1$d di %2$d obiettivo</item>
+        <item quantity="other">%1$d di %2$d obiettivi</item>
+    </plurals>
+    <plurals name="ra5_points_of">
+        <item quantity="one">%1$s di %2$s punto</item>
+        <item quantity="other">%1$s di %2$s punti</item>
+    </plurals>
+</resources>

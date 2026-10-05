@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: RetroAchievements profile and per-game progress -->
+<resources>
+    <string name="ra5_section_title">Achievements</string>
+    <string name="ra5_loading">Loading achievements…</string>
+    <string name="ra5_probable">Matched by title</string>
+    <string name="ra5_hardcore_count">%1$d in hardcore</string>
+    <string name="ra5_award_mastered">Mastered</string>
+    <string name="ra5_award_completed">Completed</string>
+    <string name="ra5_award_beaten">Beaten</string>
+    <string name="ra5_award_beaten_softcore">Beaten (softcore)</string>
+    <string name="ra5_show_all">Show all (%1$d)</string>
+    <string name="ra5_show_fewer">Show fewer</string>
+    <string name="ra5_more_count">+%1$d</string>
+    <string name="ra5_earned_at">Earned %1$s</string>
+    <string name="ra5_earned_hardcore_at">Earned in hardcore %1$s</string>
+    <string name="ra5_earned">Earned</string>
+    <string name="ra5_earned_hardcore">Earned in hardcore</string>
+    <string name="ra5_rarity">%1$s of players have it</string>
+    <string name="ra5_missable">Missable</string>
+    <string name="ra5_retry">Retry</string>
+    <string name="ra5_error_no_account">Add your RetroAchievements name and web API key first</string>
+    <string name="ra5_error_bad_key">RetroAchievements did not accept your name or web API key</string>
+    <string name="ra5_error_not_found">RetroAchievements does not know this user or game</string>
+    <string name="ra5_error_rate_limited">RetroAchievements is busy. Try again in a few minutes.</string>
+    <string name="ra5_error_offline">RetroAchievements could not be reached. Check the connection.</string>
+    <string name="ra5_error_server">RetroAchievements has a problem right now. Try again later.</string>
+    <string name="ra5_error_bad_response">RetroAchievements sent an answer that could not be read</string>
+    <string name="ra5_just_now">just now</string>
+    <string name="ra5_pitch">See your points, rank and recently played games here. Add your RetroAchievements name and web API key to start.</string>
+    <string name="ra5_set_up">Set up</string>
+    <string name="ra5_open">Open</string>
+    <string name="ra5_refresh">Refresh</string>
+    <string name="ra5_profile_loading">Loading your profile…</string>
+    <string name="ra5_points">Points</string>
+    <string name="ra5_retropoints">RetroPoints</string>
+    <string name="ra5_rank">Rank</string>
+    <string name="ra5_rank_value">#%1$s</string>
+    <string name="ra5_top_percent">Top %1$d%%</string>
+    <string name="ra5_not_ranked">Not ranked</string>
+    <string name="ra5_softcore_points">%1$s softcore</string>
+    <string name="ra5_recently_played">Recently played</string>
+    <string name="ra5_recent_unlocks">Recent unlocks</string>
+    <string name="ra5_no_recent">No games played with RetroAchievements yet</string>
+    <string name="ra5_progress_count">%1$d / %2$d</string>
+    <string name="ra5_no_achievements">No achievements</string>
+    <string name="ra5_member_since">Member since %1$s</string>
+    <string name="ra5_updated">Updated %1$s</string>
+    <string name="ra5_status_not_set_up">Not set up</string>
+    <string name="ra5_status_updating">Updating…</string>
+    <string name="ra5_status_problem">Problem</string>
+    <string name="ra5_status_connected">Connected</string>
+    <string name="ra5_avatar">Avatar of %1$s</string>
+    <plurals name="ra5_earned_of">
+        <item quantity="one">%1$d of %2$d achievement</item>
+        <item quantity="other">%1$d of %2$d achievements</item>
+    </plurals>
+    <plurals name="ra5_points_of">
+        <item quantity="one">%1$s of %2$s point</item>
+        <item quantity="other">%1$s of %2$s points</item>
+    </plurals>
+</resources>
