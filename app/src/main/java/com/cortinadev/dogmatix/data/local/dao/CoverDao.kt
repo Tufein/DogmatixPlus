@@ -18,4 +18,8 @@ interface CoverDao {
     /** Forget the misses, so the next look tries again (Settings → Look → covers, "look again"). */
     @Query("DELETE FROM covers WHERE url = ''")
     suspend fun clearMisses(): Int
+
+    /** How many games have no cover (the health check counts them; "look again" clears them). */
+    @Query("SELECT COUNT(*) FROM covers WHERE url = ''")
+    suspend fun countMisses(): Int
 }

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="health6_title">Controlla tutto</string>
+    <string name="health6_group_library">Libreria</string>
+    <string name="health6_group_cloud">Cloud</string>
+    <string name="health6_group_device">Dispositivo e app</string>
+    <string name="health6_check_sources">Fonti</string>
+    <string name="health6_check_storage">Spazio</string>
+    <string name="health6_check_bios">File BIOS</string>
+    <string name="health6_check_covers">Copertine</string>
+    <string name="health6_check_save_sync">Sincronizzazione salvataggi</string>
+    <string name="health6_check_romm">Server RomM</string>
+    <string name="health6_check_webdav">Cloud WebDAV</string>
+    <string name="health6_check_ra">RetroAchievements</string>
+    <string name="health6_check_frontends">Configurazione frontend</string>
+    <string name="health6_check_notifications">Notifiche</string>
+    <string name="health6_check_battery">Ottimizzazione batteria</string>
+    <string name="health6_check_update">Aggiornamento app</string>
+    <string name="health6_status_ok">OK</string>
+    <string name="health6_status_look">Da controllare</string>
+    <string name="health6_status_problem">Problema</string>
+    <string name="health6_status_not_set_up">Non configurato</string>
+    <string name="health6_status_hint">Suggerimento</string>
+    <string name="health6_summary_fine">%1$d su %2$d a posto</string>
+    <string name="health6_summary_checking">Controllo… %1$d su %2$d</string>
+    <string name="health6_summary_none">Non è ancora configurato nulla</string>
+    <string name="health6_sub_all_good">Tutto ciò che è configurato sembra a posto.</string>
+    <string name="health6_check_again">Controlla di nuovo</string>
+    <string name="health6_share">Condividi rapporto</string>
+    <string name="health6_share_chooser">Condividi rapporto di stato</string>
+    <string name="health6_report_title">Rapporto di stato di Dogmatix+</string>
+    <string name="health6_report_app">Versione app %1$s</string>
+    <string name="health6_row_checking">Controllo…</string>
+    <string name="health6_covers_cleared">Nuova ricerca delle copertine</string>
+    <string name="health6_no_settings">Impossibile aprire le impostazioni</string>
+    <string name="health6_fix_setup">Configura</string>
+    <string name="health6_fix_retry_covers">Cerca di nuovo</string>
+    <string name="health6_fix_refresh">Richiedi di nuovo</string>
+    <string name="health6_fix_notifications">Impostazioni notifiche</string>
+    <string name="health6_fix_battery">Impostazioni batteria</string>
+    <string name="health6_fix_sources">Apri fonti</string>
+    <string name="health6_fix_bios">Apri BIOS</string>
+    <string name="health6_fix_save_sync">Apri sincronizzazione</string>
+    <string name="health6_fix_romm">Impostazioni RomM</string>
+    <string name="health6_fix_cloud">Backup cloud</string>
+    <string name="health6_fix_storage">Apri spazio</string>
+    <string name="health6_fix_frontends">Controllo frontend</string>
+    <string name="health6_fix_ra">RetroAchievements</string>
+    <string name="health6_fix_updates">Aggiornamenti</string>
+    <string name="health6_age_today">oggi</string>
+    <string name="health6_d_sources_none">Nessuna fonte aggiunta.</string>
+    <string name="health6_d_sources_not_scanned">Le fonti non sono ancora state scansionate. Avvia una scansione per controllarle.</string>
+    <string name="health6_d_storage_no_folder">Nessuna cartella di download scelta.</string>
+    <string name="health6_d_storage_ok">%1$s liberi. La libreria occupa %2$s.</string>
+    <string name="health6_d_storage_free_unknown">La libreria occupa %1$s. Impossibile leggere lo spazio libero.</string>
+    <string name="health6_d_storage_low">Solo %1$s liberi. Libera spazio prima di scaricare altro.</string>
+    <string name="health6_d_storage_queue_short">La coda richiede %1$s in più di quelli liberi.</string>
+    <string name="health6_d_bios_no_folder">Nessuna cartella BIOS scelta.</string>
+    <string name="health6_d_bios_none_needed">Nessuna delle tue console richiede file BIOS.</string>
+    <string name="health6_d_covers_ok">Ogni gioco cercato ha una copertina.</string>
+    <string name="health6_d_save_not_set_up">Nessuna cartella di salvataggi scelta.</string>
+    <string name="health6_d_save_no_romm">Le cartelle sono impostate, ma RomM no. I salvataggi non possono sincronizzarsi.</string>
+    <string name="health6_d_save_error">L\'ultima sincronizzazione si è fermata: %1$s</string>
+    <string name="health6_d_save_never">Non ancora sincronizzato. Avvia una prima sincronizzazione.</string>
+    <string name="health6_d_save_stale">Ultima sincronizzazione: %1$s. È passato un po\' di tempo.</string>
+    <string name="health6_d_save_ok">Ultima sincronizzazione: %1$s.</string>
+    <string name="health6_d_romm_not_set_up">Nessun server RomM configurato.</string>
+    <string name="health6_d_romm_ok">Raggiungibile. Versione server %1$s.</string>
+    <string name="health6_d_romm_ok_plain">Raggiungibile.</string>
+    <string name="health6_d_romm_auth">Il server ha rifiutato il token. Controllalo nelle impostazioni RomM.</string>
+    <string name="health6_d_romm_forbidden">Al token manca un permesso. Ricrealo con tutti gli ambiti.</string>
+    <string name="health6_d_romm_tls">Il certificato del server non è attendibile.</string>
+    <string name="health6_d_romm_unreachable">Nessuna risposta dal server. Controlla l\'indirizzo e la connessione.</string>
+    <string name="health6_d_romm_server">Il server ha risposto con un errore.</string>
+    <string name="health6_d_dav_not_set_up">Nessun cloud WebDAV configurato.</string>
+    <string name="health6_d_dav_not_connected">L\'ultimo test di connessione non è riuscito. Controlla indirizzo e accesso.</string>
+    <string name="health6_d_dav_no_backup">Il backup automatico è attivo, ma non ne è stato ancora fatto nessuno.</string>
+    <string name="health6_d_dav_ok_backup">Connesso. Ultimo backup %1$s.</string>
+    <string name="health6_d_dav_ok_no_backup">Connesso. Nessun backup cloud ancora.</string>
+    <string name="health6_d_ra_not_set_up">Nessun account RetroAchievements configurato.</string>
+    <string name="health6_d_ra_incomplete">Manca il nome utente o la chiave API.</string>
+    <string name="health6_d_ra_ok">Account e chiave API sono impostati.</string>
+    <string name="health6_d_front_not_set_up">Nessun frontend configurato (facoltativo).</string>
+    <string name="health6_d_front_partial">ES-DE è configurato, ma le copertine sono disattivate.</string>
+    <string name="health6_d_notif_ok">Possono comparire avvisi di coda completata e della lista dei desideri.</string>
+    <string name="health6_d_notif_off">Le notifiche sono disattivate: nessun avviso di coda o lista dei desideri.</string>
+    <string name="health6_d_battery_ok">Le attività in background non hanno limiti.</string>
+    <string name="health6_d_battery_hint">Android può ritardare scansioni, backup e sincronizzazione in background. Facoltativo: escludi Dogmatix+.</string>
+    <string name="health6_d_update_ok">Aggiornato. Ultima versione: %1$s.</string>
+    <string name="health6_d_update_available">È disponibile la versione %1$s.</string>
+    <string name="health6_d_update_unknown">Impossibile cercare aggiornamenti (offline?).</string>
+    <string name="health6_d_timeout">Nessuna risposta entro 10 secondi.</string>
+    <string name="health6_d_error">Il controllo non è riuscito: %1$s</string>
+    <plurals name="health6_sub_problems">
+        <item quantity="one">%1$d problema</item>
+        <item quantity="other">%1$d problemi</item>
+    </plurals>
+    <plurals name="health6_sub_looks">
+        <item quantity="one">%1$d cosa da controllare</item>
+        <item quantity="other">%1$d cose da controllare</item>
+    </plurals>
+    <plurals name="health6_age_days">
+        <item quantity="one">%1$d giorno fa</item>
+        <item quantity="other">%1$d giorni fa</item>
+    </plurals>
+    <plurals name="health6_d_sources_ok">
+        <item quantity="one">%1$d fonte ha risposto. Ultima scansione %2$s.</item>
+        <item quantity="other">%1$d fonti hanno risposto. Ultima scansione %2$s.</item>
+    </plurals>
+    <plurals name="health6_d_sources_partial">
+        <item quantity="one">%1$d fonte su %2$d non ha superato l\'ultima scansione.</item>
+        <item quantity="other">%1$d fonti su %2$d non hanno superato l\'ultima scansione.</item>
+    </plurals>
+    <plurals name="health6_d_sources_failed">
+        <item quantity="one">L\'ultima scansione di questa fonte non è riuscita. Controlla la connessione o l\'indirizzo.</item>
+        <item quantity="other">L\'ultima scansione di tutte le %1$d fonti non è riuscita. Controlla la connessione o gli indirizzi.</item>
+    </plurals>
+    <plurals name="health6_d_bios_ok">
+        <item quantity="one">I file BIOS di %1$d sistema sono completi.</item>
+        <item quantity="other">I file BIOS di tutti i %1$d sistemi sono completi.</item>
+    </plurals>
+    <plurals name="health6_d_bios_incomplete">
+        <item quantity="one">Manca un file BIOS per %1$d sistema su %2$d.</item>
+        <item quantity="other">Mancano file BIOS per %1$d sistemi su %2$d.</item>
+    </plurals>
+    <plurals name="health6_d_covers_misses">
+        <item quantity="one">%1$d gioco non ha la copertina. Cerca di nuovo per riprovare.</item>
+        <item quantity="other">%1$d giochi non hanno la copertina. Cerca di nuovo per riprovare.</item>
+    </plurals>
+    <plurals name="health6_d_save_conflicts">
+        <item quantity="one">%1$d salvataggio differisce tra dispositivo e server.</item>
+        <item quantity="other">%1$d salvataggi differiscono tra dispositivo e server.</item>
+    </plurals>
+    <plurals name="health6_d_save_failed">
+        <item quantity="one">%1$d file non è riuscito nell\'ultima sincronizzazione.</item>
+        <item quantity="other">%1$d file non sono riusciti nell\'ultima sincronizzazione.</item>
+    </plurals>
+    <plurals name="health6_d_dav_attention">
+        <item quantity="one">%1$d cosa richiede attenzione nel backup cloud.</item>
+        <item quantity="other">%1$d cose richiedono attenzione nel backup cloud.</item>
+    </plurals>
+    <plurals name="health6_d_dav_overdue">
+        <item quantity="one">L\'ultimo backup cloud risale a %1$d giorno fa.</item>
+        <item quantity="other">L\'ultimo backup cloud risale a %1$d giorni fa.</item>
+    </plurals>
+    <plurals name="health6_d_front_ok">
+        <item quantity="one">%1$d frontend è pronto.</item>
+        <item quantity="other">%1$d frontend sono pronti.</item>
+    </plurals>
+</resources>
