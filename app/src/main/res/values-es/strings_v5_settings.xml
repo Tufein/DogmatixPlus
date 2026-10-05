@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: Settings, RomM, Save sync and About -->
+<resources>
+    <string name="settings_v5_animations">Animaciones</string>
+    <string name="settings_v5_animations_hint">Movimiento suave entre pantallas, filas y gráficos; desactivado, todo es instantáneo</string>
+    <string name="settings_v5_glow">Brillo de fondo</string>
+    <string name="settings_v5_glow_hint">Un brillo suave del color de acento detrás de cada pantalla</string>
+    <string name="settings_v5_list_covers">Portadas en la lista de la biblioteca</string>
+    <string name="settings_v5_list_covers_hint">Una portada pequeña delante de cada juego de la lista</string>
+    <string name="settings_v5_covers_retry">Volver a buscar las portadas que faltan</string>
+    <string name="settings_v5_covers_retry_hint">Los juegos sin portada se vuelven a buscar la próxima vez que aparezcan</string>
+    <string name="settings_v5_covers_retry_action">Buscar de nuevo</string>
+    <string name="settings_v5_covers_retry_failed">No se pudieron restablecer las portadas que faltan</string>
+    <string name="settings_v5_preview">Vista previa</string>
+    <string name="settings_v5_preview_owned">Lo tienes</string>
+    <string name="settings_v5_cloud_hint">Servidor, partidas, copia de seguridad y dispositivos de un vistazo</string>
+    <string name="settings_v5_pill_set_up">Configurado</string>
+    <string name="settings_v5_pill_not_set_up">Sin configurar</string>
+    <string name="settings_v5_pill_pick_folder">Elige una carpeta</string>
+    <string name="settings_v5_accent_orange">Naranja</string>
+    <string name="settings_v5_accent_amber">Ámbar</string>
+    <string name="settings_v5_accent_lime">Lima</string>
+    <string name="settings_v5_accent_green">Verde</string>
+    <string name="settings_v5_accent_teal">Verde azulado</string>
+    <string name="settings_v5_accent_cyan">Cian</string>
+    <string name="settings_v5_accent_blue">Azul</string>
+    <string name="settings_v5_accent_indigo">Índigo</string>
+    <string name="settings_v5_accent_lilac">Lila</string>
+    <string name="settings_v5_accent_magenta">Magenta</string>
+    <string name="settings_v5_accent_pink">Rosa</string>
+    <string name="settings_v5_accent_coral">Coral</string>
+    <string name="settings_v5_accent_custom">Personalizado</string>
+    <string name="romm_v5_connected">Conectado</string>
+    <string name="romm_v5_not_connected">Sin conexión</string>
+    <string name="romm_v5_cert_trusted">Certificado de confianza</string>
+    <string name="romm_v5_mapped">Asignada</string>
+    <string name="romm_v5_suggested">Sugerida</string>
+    <string name="save_sync_v5_section_folders">Carpetas</string>
+    <string name="save_sync_v5_section_auto">Sincronización automática</string>
+    <string name="save_sync_v5_section_sync">Sincronizar</string>
+    <string name="save_sync_v5_section_conflicts">Conflictos</string>
+    <string name="save_sync_v5_pill_failed">Error</string>
+    <string name="save_sync_v5_pill_synced">Sincronizado</string>
+    <string name="save_sync_v5_side_device">Este dispositivo</string>
+    <string name="save_sync_v5_side_server">Servidor RomM</string>
+    <string name="save_sync_v5_newer">Más reciente</string>
+    <string name="about_v5_subtitle">Quién hizo Dogmatix+ y en qué se basa</string>
+    <plurals name="settings_v5_covers_reset_done">
+        <item quantity="one">Se volverá a buscar %1$d juego</item>
+        <item quantity="other">Se volverán a buscar %1$d juegos</item>
+    </plurals>
+    <plurals name="romm_v5_platforms">
+        <item quantity="one">%1$d plataforma</item>
+        <item quantity="other">%1$d plataformas</item>
+    </plurals>
+    <plurals name="romm_v5_games">
+        <item quantity="one">%1$d juego en RomM</item>
+        <item quantity="other">%1$d juegos en RomM</item>
+    </plurals>
+    <plurals name="save_sync_v5_conflicts">
+        <item quantity="one">%1$d conflicto</item>
+        <item quantity="other">%1$d conflictos</item>
+    </plurals>
+</resources>

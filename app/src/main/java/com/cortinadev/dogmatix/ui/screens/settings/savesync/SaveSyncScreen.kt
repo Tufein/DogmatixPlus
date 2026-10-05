@@ -1,76 +1,112 @@
 package com.cortinadev.dogmatix.ui.screens.settings.savesync
 
+import android.Manifest
 import android.content.Intent
-import androidx.compose.material3.AlertDialog
-import androidx.compose.ui.res.pluralStringResource
-import com.cortinadev.dogmatix.ui.components.DialogButton
-import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
-import com.cortinadev.dogmatix.util.EmulatorSaveFolders
-import com.cortinadev.dogmatix.ui.components.rememberFocusSource
-import com.cortinadev.dogmatix.ui.components.focusRing
-import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
-import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.clickable
-import androidx.compose.runtime.mutableStateOf
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.DocumentsContract
 import android.text.format.DateUtils
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.cortinadev.dogmatix.R
-import com.cortinadev.dogmatix.util.SaveConflict
-import com.cortinadev.dogmatix.util.SaveSyncResult
-import com.cortinadev.dogmatix.ui.components.formatBytes
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
-import com.cortinadev.dogmatix.ui.screens.settings.SettingRow
-import com.cortinadev.dogmatix.ui.screens.settings.ThemedSwitch
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.data.service.SaveSyncState
+import com.cortinadev.dogmatix.ui.components.ActionPill
+import com.cortinadev.dogmatix.ui.components.ActionTone
+import com.cortinadev.dogmatix.ui.components.DialogButton
+import com.cortinadev.dogmatix.ui.components.IconTile
+import com.cortinadev.dogmatix.ui.components.MeterBar
+import com.cortinadev.dogmatix.ui.components.Panel
+import com.cortinadev.dogmatix.ui.components.PanelTone
+import com.cortinadev.dogmatix.ui.components.Pill
+import com.cortinadev.dogmatix.ui.components.PillTone
+import com.cortinadev.dogmatix.ui.components.ScreenTitle
 import com.cortinadev.dogmatix.ui.components.Stepper
-import com.cortinadev.dogmatix.ui.screens.tools.ToolRow
+import com.cortinadev.dogmatix.ui.components.TruncatedText
+import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
+import com.cortinadev.dogmatix.ui.components.focusRing
+import com.cortinadev.dogmatix.ui.components.formatBytes
+import com.cortinadev.dogmatix.ui.components.rememberFocusSource
+import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
+import com.cortinadev.dogmatix.ui.screens.settings.CardCell
+import com.cortinadev.dogmatix.ui.screens.settings.SettingRow
+import com.cortinadev.dogmatix.ui.screens.settings.SettingsCardHeader
+import com.cortinadev.dogmatix.ui.screens.settings.ThemedSwitch
+import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
+import com.cortinadev.dogmatix.ui.theme.Motion
+import com.cortinadev.dogmatix.ui.theme.tabular
 import com.cortinadev.dogmatix.util.BackgroundSyncPolicy
+import com.cortinadev.dogmatix.util.CardGrid
+import com.cortinadev.dogmatix.util.EmulatorSaveFolders
 import com.cortinadev.dogmatix.util.NewerSide
+import com.cortinadev.dogmatix.util.ProgressText
+import com.cortinadev.dogmatix.util.SaveConflict
 import com.cortinadev.dogmatix.util.SaveConflictInfo
 import com.cortinadev.dogmatix.util.SaveKind
-import com.cortinadev.dogmatix.util.SaveSyncPlanner
+import com.cortinadev.dogmatix.util.SaveSyncResult
 
 /**
  * Settings → Save sync: which emulator folders hold the saves and the save states, "Sync now",
@@ -118,43 +154,58 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
 
     val notSet = stringResource(R.string.settings_not_set)
     val ready = ui.rommUrl.isNotBlank() && (ui.savesDir.isNotBlank() || ui.statesDir.isNotBlank() || emulatorFolders.isNotEmpty())
-    val rows: List<@Composable () -> Unit> = buildList {
+    // Four cards: the folders, the automatic sync, "Sync now" with its outcome, the conflicts.
+    val folderRows: List<@Composable () -> Unit> = buildList {
         add {
             SettingRow(
                 title = stringResource(R.string.save_sync_saves_folder),
                 hint = folderLabel(ui.savesDir) ?: stringResource(R.string.save_sync_saves_folder_hint),
-                onClick = { savesPicker.launch(null) }
-            ) { PillButton(stringResource(R.string.settings_change)) { savesPicker.launch(null) } }
+                onClick = { savesPicker.launch(null) },
+                icon = R.drawable.ic_save
+            ) { ActionPill(stringResource(R.string.settings_change), { savesPicker.launch(null) }, icon = R.drawable.ic_folder_open) }
         }
         add {
             SettingRow(
                 title = stringResource(R.string.save_sync_states_folder),
                 hint = folderLabel(ui.statesDir) ?: stringResource(R.string.save_sync_states_folder_hint),
-                onClick = { statesPicker.launch(null) }
-            ) { PillButton(stringResource(R.string.settings_change)) { statesPicker.launch(null) } }
+                onClick = { statesPicker.launch(null) },
+                icon = R.drawable.ic_history
+            ) { ActionPill(stringResource(R.string.settings_change), { statesPicker.launch(null) }, icon = R.drawable.ic_folder_open) }
         }
         emulatorFolders.forEach { folder ->
             add {
                 SettingRow(
                     title = folder.label,
                     hint = folderLabel(folder.uri) ?: folder.uri,
-                    onClick = { viewModel.removeEmulatorFolder(context, folder.label) }
-                ) { PillButton(stringResource(R.string.save_sync_emulator_remove)) { viewModel.removeEmulatorFolder(context, folder.label) } }
+                    onClick = { viewModel.removeEmulatorFolder(context, folder.label) },
+                    icon = R.drawable.ic_folder
+                ) {
+                    ActionPill(
+                        stringResource(R.string.save_sync_emulator_remove),
+                        { viewModel.removeEmulatorFolder(context, folder.label) },
+                        icon = R.drawable.ic_trash,
+                        tone = ActionTone.Danger
+                    )
+                }
             }
         }
         add {
             SettingRow(
                 title = stringResource(R.string.save_sync_emulator_add),
                 hint = stringResource(R.string.save_sync_emulator_add_hint),
-                onClick = { emulatorPicker.launch(null) }
-            ) { PillButton(stringResource(R.string.save_sync_emulator_add_action)) { emulatorPicker.launch(null) } }
+                onClick = { emulatorPicker.launch(null) },
+                icon = R.drawable.ic_add
+            ) { ActionPill(stringResource(R.string.save_sync_emulator_add_action), { emulatorPicker.launch(null) }, icon = R.drawable.ic_folder_open) }
         }
+    }
+    val autoRows: List<@Composable () -> Unit> = buildList {
         add {
             SettingRow(
                 title = stringResource(R.string.save_sync_auto),
                 hint = stringResource(R.string.save_sync_auto_hint),
                 onClick = { viewModel.setAuto(context, !ui.auto) },
-                onAdjust = { viewModel.setAuto(context, it > 0) }
+                onAdjust = { viewModel.setAuto(context, it > 0) },
+                icon = R.drawable.ic_play_circle
             ) { ThemedSwitch(ui.auto) { viewModel.setAuto(context, it) } }
         }
         add {
@@ -162,7 +213,8 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
                 title = stringResource(R.string.save_sync_deletions),
                 hint = stringResource(R.string.save_sync_deletions_hint),
                 onClick = { viewModel.setDeletions(context, !ui.deletions) },
-                onAdjust = { viewModel.setDeletions(context, it > 0) }
+                onAdjust = { viewModel.setDeletions(context, it > 0) },
+                icon = R.drawable.ic_trash
             ) { ThemedSwitch(ui.deletions) { viewModel.setDeletions(context, it) } }
         }
         add {
@@ -170,7 +222,8 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
                 title = stringResource(R.string.save_sync_bg),
                 hint = stringResource(R.string.save_sync_bg_hint),
                 onClick = { setBackground(!ui.background) },
-                onAdjust = { setBackground(it > 0) }
+                onAdjust = { setBackground(it > 0) },
+                icon = R.drawable.ic_schedule
             ) { ThemedSwitch(ui.background) { setBackground(it) } }
         }
         if (ui.background) {
@@ -179,7 +232,8 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
                     title = stringResource(R.string.save_sync_bg_interval),
                     hint = null,
                     onClick = { adjustInterval(1) },
-                    onAdjust = ::adjustInterval
+                    onAdjust = ::adjustInterval,
+                    icon = R.drawable.ic_timer
                 ) {
                     Stepper(stringResource(R.string.save_sync_hours_short, ui.intervalHours), onDecrement = { adjustInterval(-1) }, onIncrement = { adjustInterval(1) }, valueWidth = 64.dp)
                 }
@@ -187,16 +241,20 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
             add {
                 SettingRow(
                     title = stringResource(R.string.save_sync_bg_wifi), hint = null,
-                    onClick = { viewModel.setWifiOnly(context, !ui.wifiOnly) }, onAdjust = { viewModel.setWifiOnly(context, it > 0) }
+                    onClick = { viewModel.setWifiOnly(context, !ui.wifiOnly) }, onAdjust = { viewModel.setWifiOnly(context, it > 0) },
+                    icon = R.drawable.ic_wifi
                 ) { ThemedSwitch(ui.wifiOnly) { viewModel.setWifiOnly(context, it) } }
             }
             add {
                 SettingRow(
                     title = stringResource(R.string.save_sync_bg_charging), hint = null,
-                    onClick = { viewModel.setCharging(context, !ui.charging) }, onAdjust = { viewModel.setCharging(context, it > 0) }
+                    onClick = { viewModel.setCharging(context, !ui.charging) }, onAdjust = { viewModel.setCharging(context, it > 0) },
+                    icon = R.drawable.ic_charging
                 ) { ThemedSwitch(ui.charging) { viewModel.setCharging(context, it) } }
             }
         }
+    }
+    val syncRows: List<@Composable () -> Unit> = buildList {
         add {
             val hint = when {
                 ui.rommUrl.isBlank() -> stringResource(R.string.save_sync_needs_romm)
@@ -209,11 +267,20 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
             SettingRow(
                 title = stringResource(R.string.save_sync_now),
                 hint = hint,
-                onClick = { if (ready) viewModel.syncNow() }
+                onClick = { if (ready) viewModel.syncNow() },
+                icon = R.drawable.ic_cloud_sync,
+                iconTile = true,
+                hintColor = if (sync.error != null && !sync.running) MaterialTheme.colorScheme.error else null,
+                below = if (sync.running) {
+                    { SyncMeter(ProgressText.fraction(sync.progress), modifier = Modifier.padding(top = 6.dp)) }
+                } else null
             ) {
-                PillButton(stringResource(if (sync.running) R.string.save_sync_busy else R.string.save_sync_action)) {
-                    if (ready) viewModel.syncNow()
-                }
+                ActionPill(
+                    stringResource(if (sync.running) R.string.save_sync_busy else R.string.save_sync_action),
+                    { if (ready) viewModel.syncNow() },
+                    icon = R.drawable.ic_sync,
+                    tone = if (ready && !sync.running) ActionTone.Accent else ActionTone.Neutral
+                )
             }
         }
         sync.last?.takeIf { it.deletionsHeld > 0 }?.let { held ->
@@ -221,64 +288,190 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
                 SettingRow(
                     title = pluralStringResource(R.plurals.save_sync_held_title, held.deletionsHeld, held.deletionsHeld),
                     hint = stringResource(R.string.save_sync_held_hint),
-                    onClick = viewModel::applyHeldDeletions
-                ) { PillButton(stringResource(R.string.save_sync_held_apply), viewModel::applyHeldDeletions) }
+                    onClick = viewModel::applyHeldDeletions,
+                    icon = R.drawable.ic_warning,
+                    iconTint = MaterialTheme.colorScheme.error
+                ) { ActionPill(stringResource(R.string.save_sync_held_apply), viewModel::applyHeldDeletions, tone = ActionTone.Danger) }
             }
         }
         sync.last?.errors?.forEach { error ->
-            add { SettingRow(title = stringResource(R.string.save_sync_error_title), hint = error, onClick = {}) {} }
-        }
-        if (sync.conflicts.isNotEmpty()) {
-            add {
-                Text(
-                    stringResource(R.string.save_sync_conflicts_header, sync.conflicts.size),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-            }
-            sync.conflicts.forEach { conflict -> add { ConflictRow(conflict, notSet, viewModel) } }
+            add { SyncErrorRow(error) }
         }
     }
+    val conflictRows: List<@Composable () -> Unit> = buildList {
+        sync.conflicts.forEach { conflict -> add { ConflictRow(conflict, notSet, viewModel) } }
+    }
 
-    val rowFocus = remember(rows.size) { List(rows.size) { FocusRequester() } }
+    val cells = CardGrid.layout(
+        listOf(
+            CardGrid.Section(header = true, items = folderRows.size),
+            CardGrid.Section(header = true, items = autoRows.size),
+            CardGrid.Section(header = true, items = syncRows.size),
+            CardGrid.Section(header = true, items = conflictRows.size)
+        ),
+        columns = 1
+    )
+    val rowLists = listOf(folderRows, autoRows, syncRows, conflictRows)
+
+    val rowFocus = remember(cells.size) { List(cells.size) { FocusRequester() } }
     var focusedIndex by remember { mutableIntStateOf(-1) }
-    LaunchedEffect(rows.size) { if (focusedIndex < 0 && rows.isNotEmpty()) runCatching { rowFocus[0].requestFocus() } }
+    LaunchedEffect(cells.size) {
+        val first = cells.indexOfFirst { it.kind == CardGrid.Kind.ITEM }
+        if (focusedIndex < 0 && first >= 0) runCatching { rowFocus[first].requestFocus() }
+    }
 
-    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        Text(
-            stringResource(R.string.settings_save_sync),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-        )
-        Text(
-            stringResource(R.string.save_sync_intro),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-        )
+    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
+        Column(
+            modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 12.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            ScreenTitle(
+                text = stringResource(R.string.settings_save_sync),
+                icon = R.drawable.ic_cloud_sync,
+                trailing = { SyncStatusPills(ui.rommUrl.isNotBlank(), sync) }
+            )
+            Text(
+                stringResource(R.string.save_sync_intro),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            contentPadding = PaddingValues(bottom = 12.dp),
+            contentPadding = PaddingValues(bottom = 16.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            items(rows.size) { index ->
-                Box(
-                    modifier = Modifier
-                        .focusRequester(rowFocus[index])
-                        .onFocusChanged { if (it.hasFocus) focusedIndex = index }
-                ) { rows[index]() }
+            items(cells.size) { index ->
+                val cell = cells[index]
+                CardCell(cell, gapAbove = if (index == 0) 0.dp else 14.dp) {
+                    if (cell.kind == CardGrid.Kind.HEADER) {
+                        SyncCardHeader(cell.section, sync.conflicts.size)
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .focusRequester(rowFocus[index])
+                                .onFocusChanged { if (it.hasFocus) focusedIndex = index }
+                        ) { rowLists[cell.section][cell.item]() }
+                    }
+                }
             }
         }
     }
 }
 
+/** The header of each Save sync card (0 folders, 1 automatic, 2 sync, 3 conflicts). */
+@Composable
+private fun SyncCardHeader(section: Int, conflicts: Int) {
+    when (section) {
+        0 -> SettingsCardHeader(stringResource(R.string.save_sync_v5_section_folders), R.drawable.ic_folder)
+        1 -> SettingsCardHeader(stringResource(R.string.save_sync_v5_section_auto), R.drawable.ic_schedule)
+        2 -> SettingsCardHeader(stringResource(R.string.save_sync_v5_section_sync), R.drawable.ic_cloud_sync)
+        else -> Column {
+            SettingsCardHeader(stringResource(R.string.save_sync_v5_section_conflicts), R.drawable.ic_warning) {
+                Pill(conflicts.toString(), tone = PillTone.Warning)
+            }
+            Text(
+                stringResource(R.string.save_sync_conflicts_header, conflicts),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 8.dp)
+            )
+        }
+    }
+}
+
+/** Where the sync stands, next to the title: not set up, running, failed or when it last ran. */
+@Composable
+private fun SyncStatusPills(configured: Boolean, sync: SaveSyncState) {
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+        val last = sync.last
+        when {
+            !configured -> Pill(stringResource(R.string.settings_v5_pill_not_set_up), tone = PillTone.Neutral, icon = R.drawable.ic_cloud_off)
+            sync.running -> Pill(sync.progress ?: stringResource(R.string.save_sync_busy), tone = PillTone.Info, icon = R.drawable.ic_sync)
+            sync.error != null -> Pill(stringResource(R.string.save_sync_v5_pill_failed), tone = PillTone.Danger, icon = R.drawable.ic_error_circle)
+            last != null -> Pill(relative(last.finishedAt) ?: stringResource(R.string.save_sync_v5_pill_synced), tone = PillTone.Success, icon = R.drawable.ic_check_circle)
+            else -> Pill(stringResource(R.string.save_sync_never), tone = PillTone.Neutral)
+        }
+        if (sync.conflicts.isNotEmpty()) {
+            Pill(
+                pluralStringResource(R.plurals.save_sync_v5_conflicts, sync.conflicts.size, sync.conflicts.size),
+                tone = PillTone.Warning,
+                icon = R.drawable.ic_warning
+            )
+        }
+    }
+}
+
+/** The progress of a running sync: a bar when the file count is known, a gliding segment before. */
+@Composable
+private fun SyncMeter(fraction: Float?, modifier: Modifier = Modifier) {
+    if (fraction != null) {
+        MeterBar(fraction, modifier = modifier, height = 6.dp)
+        return
+    }
+    val reduce = LocalReduceMotion.current
+    val color = MaterialTheme.colorScheme.primary
+    val track = MaterialTheme.colorScheme.surfaceContainerHighest
+    // Read only while drawing: the segment glides without recomposing anything.
+    val phase: State<Float>? = if (reduce) null else rememberInfiniteTransition(label = "syncMeter").animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(1400, easing = LinearEasing)),
+        label = "syncPhase"
+    )
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(6.dp)
+            .drawBehind {
+                val radius = CornerRadius(size.height / 2)
+                drawRoundRect(track, cornerRadius = radius)
+                val segment = size.width * 0.3f
+                val p = phase?.value ?: 0.35f
+                val x = (size.width + segment) * p - segment
+                clipRect {
+                    drawRoundRect(color, topLeft = Offset(x, 0f), size = Size(segment, size.height), cornerRadius = radius)
+                }
+            }
+    )
+}
+
+/** A file that did not sync: two lines of the reason, the whole of it on A / tap. */
+@Composable
+private fun SyncErrorRow(error: String) {
+    var expanded by remember(error) { mutableStateOf(false) }
+    val reduce = LocalReduceMotion.current
+    val turn by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = Motion.spec(reduce, Motion.MEDIUM),
+        label = "errorChevron"
+    )
+    SettingRow(
+        title = stringResource(R.string.save_sync_error_title),
+        hint = error,
+        onClick = { expanded = !expanded },
+        modifier = if (reduce) Modifier else Modifier.animateContentSize(animationSpec = tween<IntSize>(Motion.MEDIUM)),
+        icon = R.drawable.ic_error_circle,
+        iconTint = MaterialTheme.colorScheme.error,
+        hintMaxLines = if (expanded) Int.MAX_VALUE else 2
+    ) {
+        Icon(
+            painterResource(R.drawable.ic_expand_more),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .size(22.dp)
+                .graphicsLayer { rotationZ = turn }
+        )
+    }
+}
+
+/**
+ * A save changed on both sides: the device's copy and RomM's side by side, each with its size,
+ * time and a "newer" mark, and the button that keeps it. ◀ keeps the device's, ▶ the server's.
+ */
 @Composable
 private fun ConflictRow(conflict: SaveConflict, notSet: String, viewModel: SaveSyncViewModel) {
     val info = SaveConflictInfo.of(conflict)
-    val device = stringResource(R.string.save_sync_side, formatBytes(info.deviceSize), relative(info.deviceModified) ?: notSet)
-    val server = stringResource(R.string.save_sync_side, formatBytes(info.serverSize), relative(info.serverModified) ?: notSet)
     val kind = stringResource(if (conflict.local.kind == SaveKind.STATE) R.string.save_sync_kind_state else R.string.save_sync_kind_save)
     val newer = when (info.newer) {
         NewerSide.DEVICE -> stringResource(R.string.save_sync_newer_device)
@@ -286,28 +479,101 @@ private fun ConflictRow(conflict: SaveConflict, notSet: String, viewModel: SaveS
         NewerSide.SAME -> stringResource(R.string.save_sync_newer_same)
         NewerSide.UNKNOWN -> null
     }
-    val size = when {
+    val sizeNote = when {
         info.sameSize -> stringResource(R.string.save_sync_size_same)
         info.sizeDelta < 0 -> stringResource(R.string.save_sync_size_smaller, formatBytes(-info.sizeDelta))
         else -> stringResource(R.string.save_sync_size_bigger, formatBytes(info.sizeDelta))
     }
-    ToolRow(
-        title = "$kind · ${conflict.local.path}",
-        lines = listOf(stringResource(R.string.save_sync_conflict_hint, device, server), listOfNotNull(newer, size).joinToString(" · ")),
-        onClick = {},
-        modifier = Modifier.onPreviewKeyEvent { event ->
-            if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
-            when (event.key) {
-                Key.DirectionLeft -> { viewModel.resolve(conflict, keepDevice = true); true }
-                Key.DirectionRight -> { viewModel.resolve(conflict, keepDevice = false); true }
-                else -> false
+    val source = rememberFocusSource()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .focusRing(source)
+            .clip(RoundedCornerShape(8.dp))
+            .onPreviewKeyEvent { event ->
+                if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                when (event.key) {
+                    Key.DirectionLeft -> { viewModel.resolve(conflict, keepDevice = true); true }
+                    Key.DirectionRight -> { viewModel.resolve(conflict, keepDevice = false); true }
+                    else -> false
+                }
+            }
+            .clickable(interactionSource = source, indication = null, onClick = {})
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            IconTile(if (conflict.local.kind == SaveKind.STATE) R.drawable.ic_history else R.drawable.ic_save, size = 30.dp)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(kind, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                TruncatedText(conflict.local.path, style = MaterialTheme.typography.bodyLarge)
             }
         }
-    ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            PillButton(stringResource(R.string.save_sync_keep_device)) { viewModel.resolve(conflict, keepDevice = true) }
-            PillButton(stringResource(R.string.save_sync_keep_server)) { viewModel.resolve(conflict, keepDevice = false) }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ConflictSide(
+                label = stringResource(R.string.save_sync_v5_side_device),
+                icon = R.drawable.ic_controller,
+                sizeText = formatBytes(info.deviceSize),
+                time = relative(info.deviceModified) ?: notSet,
+                newer = info.newer == NewerSide.DEVICE,
+                keepLabel = stringResource(R.string.save_sync_keep_device),
+                onKeep = { viewModel.resolve(conflict, keepDevice = true) },
+                modifier = Modifier.weight(1f)
+            )
+            ConflictSide(
+                label = stringResource(R.string.save_sync_v5_side_server),
+                icon = R.drawable.ic_server,
+                sizeText = formatBytes(info.serverSize),
+                time = relative(info.serverModified) ?: notSet,
+                newer = info.newer == NewerSide.SERVER,
+                keepLabel = stringResource(R.string.save_sync_keep_server),
+                onKeep = { viewModel.resolve(conflict, keepDevice = false) },
+                modifier = Modifier.weight(1f)
+            )
         }
+        Text(
+            listOfNotNull(newer, sizeNote).joinToString(" · "),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+/** One side of a conflict: where the copy lives, its size and time, and the button that keeps it. */
+@Composable
+private fun ConflictSide(
+    label: String,
+    icon: Int,
+    sizeText: String,
+    time: String,
+    newer: Boolean,
+    keepLabel: String,
+    onKeep: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val scheme = MaterialTheme.colorScheme
+    Panel(
+        modifier = modifier,
+        tone = if (newer) PanelTone.Accent else PanelTone.Raised,
+        shape = RoundedCornerShape(10.dp),
+        contentPadding = PaddingValues(10.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Icon(painterResource(icon), contentDescription = null, tint = if (newer) scheme.primary else scheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+            Text(label, style = MaterialTheme.typography.labelLarge, color = scheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+            if (newer) Pill(stringResource(R.string.save_sync_v5_newer), tone = PillTone.Success)
+        }
+        Text(
+            "$sizeText · $time",
+            style = MaterialTheme.typography.bodySmall.tabular(),
+            color = scheme.onSurfaceVariant,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+        ActionPill(keepLabel, onKeep, tone = if (newer) ActionTone.Accent else ActionTone.Neutral)
     }
 }
 

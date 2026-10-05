@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: Settings, RomM, Save sync and About -->
+<resources>
+    <string name="settings_v5_animations">Animazioni</string>
+    <string name="settings_v5_animations_hint">Movimento fluido tra schermate, righe e grafici; disattivato, tutto è istantaneo</string>
+    <string name="settings_v5_glow">Bagliore di sfondo</string>
+    <string name="settings_v5_glow_hint">Un bagliore leggero del colore d\'accento dietro ogni schermata</string>
+    <string name="settings_v5_list_covers">Copertine nell\'elenco della libreria</string>
+    <string name="settings_v5_list_covers_hint">Una piccola copertina davanti a ogni gioco dell\'elenco</string>
+    <string name="settings_v5_covers_retry">Cerca di nuovo le copertine mancanti</string>
+    <string name="settings_v5_covers_retry_hint">I giochi senza copertina vengono cercati di nuovo quando ricompaiono</string>
+    <string name="settings_v5_covers_retry_action">Cerca di nuovo</string>
+    <string name="settings_v5_covers_retry_failed">Impossibile reimpostare le copertine mancanti</string>
+    <string name="settings_v5_preview">Anteprima</string>
+    <string name="settings_v5_preview_owned">Già tuo</string>
+    <string name="settings_v5_cloud_hint">Server, salvataggi, backup e dispositivi a colpo d\'occhio</string>
+    <string name="settings_v5_pill_set_up">Configurato</string>
+    <string name="settings_v5_pill_not_set_up">Non configurato</string>
+    <string name="settings_v5_pill_pick_folder">Scegli una cartella</string>
+    <string name="settings_v5_accent_orange">Arancione</string>
+    <string name="settings_v5_accent_amber">Ambra</string>
+    <string name="settings_v5_accent_lime">Lime</string>
+    <string name="settings_v5_accent_green">Verde</string>
+    <string name="settings_v5_accent_teal">Verde acqua</string>
+    <string name="settings_v5_accent_cyan">Ciano</string>
+    <string name="settings_v5_accent_blue">Blu</string>
+    <string name="settings_v5_accent_indigo">Indaco</string>
+    <string name="settings_v5_accent_lilac">Lilla</string>
+    <string name="settings_v5_accent_magenta">Magenta</string>
+    <string name="settings_v5_accent_pink">Rosa</string>
+    <string name="settings_v5_accent_coral">Corallo</string>
+    <string name="settings_v5_accent_custom">Personalizzato</string>
+    <string name="romm_v5_connected">Connesso</string>
+    <string name="romm_v5_not_connected">Non connesso</string>
+    <string name="romm_v5_cert_trusted">Certificato attendibile</string>
+    <string name="romm_v5_mapped">Associata</string>
+    <string name="romm_v5_suggested">Suggerita</string>
+    <string name="save_sync_v5_section_folders">Cartelle</string>
+    <string name="save_sync_v5_section_auto">Sincronizzazione automatica</string>
+    <string name="save_sync_v5_section_sync">Sincronizzazione</string>
+    <string name="save_sync_v5_section_conflicts">Conflitti</string>
+    <string name="save_sync_v5_pill_failed">Non riuscita</string>
+    <string name="save_sync_v5_pill_synced">Sincronizzato</string>
+    <string name="save_sync_v5_side_device">Questo dispositivo</string>
+    <string name="save_sync_v5_side_server">Server RomM</string>
+    <string name="save_sync_v5_newer">Più recente</string>
+    <string name="about_v5_subtitle">Chi ha creato Dogmatix+ e su cosa si basa</string>
+    <plurals name="settings_v5_covers_reset_done">
+        <item quantity="one">%1$d gioco verrà cercato di nuovo</item>
+        <item quantity="other">%1$d giochi verranno cercati di nuovo</item>
+    </plurals>
+    <plurals name="romm_v5_platforms">
+        <item quantity="one">%1$d piattaforma</item>
+        <item quantity="other">%1$d piattaforme</item>
+    </plurals>
+    <plurals name="romm_v5_games">
+        <item quantity="one">%1$d gioco su RomM</item>
+        <item quantity="other">%1$d giochi su RomM</item>
+    </plurals>
+    <plurals name="save_sync_v5_conflicts">
+        <item quantity="one">%1$d conflitto</item>
+        <item quantity="other">%1$d conflitti</item>
+    </plurals>
+</resources>

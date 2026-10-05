@@ -2,15 +2,21 @@ package com.cortinadev.dogmatix.ui.screens.settings.romm
 
 import android.content.res.Configuration
 import android.text.format.DateUtils
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,10 +25,14 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -31,27 +41,37 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.data.service.CoverRunState
 import com.cortinadev.dogmatix.ui.common.Gamepad
 import com.cortinadev.dogmatix.ui.common.GamepadButton
 import com.cortinadev.dogmatix.ui.common.Legend
+import com.cortinadev.dogmatix.ui.components.ActionPill
+import com.cortinadev.dogmatix.ui.components.ActionTone
 import com.cortinadev.dogmatix.ui.components.DialogButton
 import com.cortinadev.dogmatix.ui.components.LegendEntry
+import com.cortinadev.dogmatix.ui.components.MeterBar
+import com.cortinadev.dogmatix.ui.components.Pill
+import com.cortinadev.dogmatix.ui.components.PillTone
+import com.cortinadev.dogmatix.ui.components.ScreenTitle
 import com.cortinadev.dogmatix.ui.components.Stepper
+import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.legendFor
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
+import com.cortinadev.dogmatix.ui.screens.settings.CardCell
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.ui.screens.settings.SettingRow
 import com.cortinadev.dogmatix.ui.screens.settings.ThemedSwitch
 import com.cortinadev.dogmatix.ui.screens.settings.components.ApiKeyDialog
 import com.cortinadev.dogmatix.ui.screens.settings.components.maskedSecret
-import com.cortinadev.dogmatix.util.ConsoleFormatter
-import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
+import com.cortinadev.dogmatix.ui.theme.consoleColor
+import com.cortinadev.dogmatix.util.CardGrid
 import com.cortinadev.dogmatix.util.CertTrust
-import com.cortinadev.dogmatix.data.service.CoverRunState
+import com.cortinadev.dogmatix.util.ConsoleFormatter
 import java.text.DateFormat
 import java.util.Date
 
@@ -78,6 +98,7 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
             hint = stringResource(R.string.romm_url_dialog_hint),
             value = ui.url,
             label = stringResource(R.string.romm_server_url),
+            icon = R.drawable.ic_link,
             onTest = { viewModel.testConnection(context, it, ui.token) },
             onSave = { viewModel.setUrl(context, it) },
             onDismiss = { showUrlDialog = false }
@@ -102,25 +123,41 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
     }
 
     val notMapped = stringResource(R.string.romm_not_mapped)
-    var headerIndex = 0
-    val rows: List<@Composable () -> Unit> = buildList {
+    // The server card: address, token, connection and what Dogmatix does with the server.
+    val serverRows: List<@Composable () -> Unit> = buildList {
         add {
-            SettingRow(title = stringResource(R.string.romm_server_url), hint = ui.url.ifBlank { stringResource(R.string.settings_not_set) }, onClick = { showUrlDialog = true }) {
-                PillButton(stringResource(R.string.settings_change)) { showUrlDialog = true }
+            SettingRow(
+                title = stringResource(R.string.romm_server_url),
+                hint = ui.url.ifBlank { stringResource(R.string.settings_not_set) },
+                onClick = { showUrlDialog = true },
+                icon = R.drawable.ic_link
+            ) {
+                ActionPill(stringResource(R.string.settings_change), { showUrlDialog = true }, icon = R.drawable.ic_edit)
             }
         }
         add {
-            SettingRow(title = stringResource(R.string.romm_token), hint = maskedSecret(ui.token), onClick = { showTokenDialog = true }) {
-                PillButton(stringResource(R.string.settings_change)) { showTokenDialog = true }
+            SettingRow(
+                title = stringResource(R.string.romm_token),
+                hint = maskedSecret(ui.token),
+                onClick = { showTokenDialog = true },
+                icon = R.drawable.ic_key
+            ) {
+                ActionPill(stringResource(R.string.settings_change), { showTokenDialog = true }, icon = R.drawable.ic_edit)
             }
         }
         add {
             SettingRow(
                 title = stringResource(R.string.romm_test_connection),
                 hint = if (platforms.isEmpty()) stringResource(R.string.romm_platforms_none) else stringResource(R.string.romm_platforms_count, platforms.size),
-                onClick = { viewModel.loadPlatforms(context, announce = true) }
+                onClick = { viewModel.loadPlatforms(context, announce = true) },
+                icon = R.drawable.ic_network_check
             ) {
-                PillButton(stringResource(if (loading) R.string.romm_testing else R.string.settings_test)) { viewModel.loadPlatforms(context, announce = true) }
+                ActionPill(
+                    stringResource(if (loading) R.string.romm_testing else R.string.settings_test),
+                    { viewModel.loadPlatforms(context, announce = true) },
+                    icon = R.drawable.ic_sync,
+                    tone = if (platforms.isEmpty() && ui.url.isNotBlank()) ActionTone.Accent else ActionTone.Neutral
+                )
             }
         }
         add {
@@ -128,7 +165,8 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                 title = stringResource(R.string.romm_auto_upload),
                 hint = stringResource(R.string.romm_auto_upload_hint),
                 onClick = { viewModel.setAutoUpload(context, !ui.autoUpload) },
-                onAdjust = { viewModel.setAutoUpload(context, it > 0) }
+                onAdjust = { viewModel.setAutoUpload(context, it > 0) },
+                icon = R.drawable.ic_cloud_upload
             ) {
                 ThemedSwitch(ui.autoUpload) { viewModel.setAutoUpload(context, it) }
             }
@@ -137,7 +175,8 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
             SettingRow(
                 title = stringResource(R.string.romm_upload_missing),
                 hint = stringResource(R.string.romm_upload_missing_hint),
-                onClick = { viewModel.uploadMissing(context) }
+                onClick = { viewModel.uploadMissing(context) },
+                icon = R.drawable.ic_cloud_sync
             ) { PillButton(stringResource(R.string.romm_upload_missing_action)) { viewModel.uploadMissing(context) } }
         }
         if (ui.url.startsWith("https://", ignoreCase = true)) add {
@@ -145,11 +184,15 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
             SettingRow(
                 title = stringResource(R.string.romm_cert),
                 hint = if (pinned) stringResource(R.string.romm_cert_trusted_hint, CertTrust.format(ui.trustFingerprint).take(23) + "…") else stringResource(R.string.romm_cert_hint),
-                onClick = { if (pinned) viewModel.forgetTrust(context) else viewModel.checkCertificate(context, ui.url) }
+                onClick = { if (pinned) viewModel.forgetTrust(context) else viewModel.checkCertificate(context, ui.url) },
+                icon = R.drawable.ic_lock,
+                iconTint = if (pinned) MaterialTheme.colorScheme.primary else null
             ) {
-                PillButton(stringResource(if (pinned) R.string.romm_cert_forget else R.string.romm_cert_check)) {
-                    if (pinned) viewModel.forgetTrust(context) else viewModel.checkCertificate(context, ui.url)
-                }
+                ActionPill(
+                    stringResource(if (pinned) R.string.romm_cert_forget else R.string.romm_cert_check),
+                    { if (pinned) viewModel.forgetTrust(context) else viewModel.checkCertificate(context, ui.url) },
+                    tone = if (pinned) ActionTone.Danger else ActionTone.Neutral
+                )
             }
         }
         add {
@@ -157,7 +200,8 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                 title = stringResource(R.string.romm_mark_games),
                 hint = stringResource(R.string.romm_mark_games_hint),
                 onClick = { viewModel.setMarkGames(context, !ui.markGames) },
-                onAdjust = { viewModel.setMarkGames(context, it > 0) }
+                onAdjust = { viewModel.setMarkGames(context, it > 0) },
+                icon = R.drawable.ic_label
             ) { ThemedSwitch(ui.markGames) { viewModel.setMarkGames(context, it) } }
         }
         if (ui.markGames) add {
@@ -167,8 +211,14 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                 libraryState.updatedAt > 0 -> stringResource(R.string.romm_marks_known, libraryState.games, DateUtils.getRelativeTimeSpanString(libraryState.updatedAt).toString())
                 else -> stringResource(R.string.romm_marks_never)
             }
-            SettingRow(title = stringResource(R.string.romm_marks), hint = hint, onClick = viewModel::refreshMarks) {
-                PillButton(stringResource(R.string.romm_marks_refresh), viewModel::refreshMarks)
+            SettingRow(
+                title = stringResource(R.string.romm_marks),
+                hint = hint,
+                onClick = viewModel::refreshMarks,
+                icon = R.drawable.ic_library,
+                hintColor = if (libraryState.error != null) MaterialTheme.colorScheme.error else null
+            ) {
+                ActionPill(stringResource(R.string.romm_marks_refresh), viewModel::refreshMarks, icon = R.drawable.ic_sync)
             }
         }
         add {
@@ -181,75 +231,124 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                 coverState.fetched != null -> pluralStringResource(R.plurals.romm_covers_done, coverState.fetched ?: 0, coverState.fetched ?: 0) + if (coverState.failed > 0) " · " + stringResource(R.string.romm_covers_some_failed, coverState.failed) else ""
                 else -> stringResource(R.string.romm_covers_hint)
             }
-            SettingRow(title = stringResource(R.string.romm_covers), hint = hint, onClick = viewModel::startCovers) {
+            SettingRow(
+                title = stringResource(R.string.romm_covers),
+                hint = hint,
+                onClick = viewModel::startCovers,
+                icon = R.drawable.ic_image,
+                below = if (coverState.running && coverState.total > 0) {
+                    { MeterBar(coverState.done.toFloat() / coverState.total.coerceAtLeast(1), modifier = Modifier.padding(top = 6.dp), height = 6.dp) }
+                } else null
+            ) {
                 PillButton(stringResource(if (coverState.running) R.string.romm_covers_busy else R.string.romm_covers_action), viewModel::startCovers)
             }
         }
-        headerIndex = size
-        add {
+    }
+    // The mapping card: its header (with "Apply suggestions"), then one stepper per console.
+    val platformHeader: @Composable () -> Unit = {
+        SettingRow(
+            title = stringResource(R.string.romm_platforms_header),
+            hint = stringResource(R.string.romm_platforms_hint),
+            onClick = { viewModel.applySuggestions(context) },
+            icon = R.drawable.ic_tune,
+            iconTile = true
+        ) {
+            ActionPill(stringResource(R.string.romm_apply_suggestions), { viewModel.applySuggestions(context) }, icon = R.drawable.ic_sparkle, tone = ActionTone.Accent)
+        }
+    }
+    val consoleRows: List<@Composable () -> Unit> = buildList {
+        ui.consoles.forEach { console -> add {
+            val mappedId = ui.platformMap[console.id]
+            val mapped = platforms.firstOrNull { it.id == mappedId }
+            val suggestion = if (mappedId == null) viewModel.suggestionFor(console.id) else null
+            // Stepper positions: 0 = not mapped, 1..n = platforms (in the server's order).
+            val index = if (mapped != null) platforms.indexOf(mapped) + 1 else 0
+            fun step(delta: Int) {
+                if (platforms.isEmpty()) return
+                val next = ((index + delta) % (platforms.size + 1) + platforms.size + 1) % (platforms.size + 1)
+                viewModel.setPlatform(context, console.id, if (next == 0) null else platforms[next - 1].id)
+            }
+            val value = when {
+                mapped != null -> mapped.label
+                mappedId != null -> "#$mappedId"
+                suggestion != null -> suggestion.label
+                else -> notMapped
+            }
             SettingRow(
-                title = stringResource(R.string.romm_platforms_header),
-                hint = stringResource(R.string.romm_platforms_hint),
-                onClick = { viewModel.applySuggestions(context) }
+                title = ConsoleFormatter.getConsoleDisplayName(console.id),
+                hint = null,
+                onClick = { if (mappedId == null && suggestion != null) viewModel.setPlatform(context, console.id, suggestion.id) else step(1) },
+                onAdjust = ::step,
+                below = {
+                    Row(
+                        modifier = Modifier.padding(top = 3.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(consoleColor(console.id))
+                        )
+                        Text(
+                            ConsoleFormatter.getConsoleShortName(console.id),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+                        when {
+                            mappedId != null -> Pill(stringResource(R.string.romm_v5_mapped), tone = PillTone.Success, icon = R.drawable.ic_check)
+                            suggestion != null -> Pill(stringResource(R.string.romm_v5_suggested), tone = PillTone.Info, icon = R.drawable.ic_sparkle)
+                            else -> Pill(notMapped, tone = PillTone.Neutral)
+                        }
+                    }
+                }
             ) {
-                PillButton(stringResource(R.string.romm_apply_suggestions)) { viewModel.applySuggestions(context) }
+                Stepper(value, onDecrement = { step(-1) }, onIncrement = { step(1) }, valueWidth = 140.dp)
             }
-        }
-        ui.consoles.forEach { console ->
-            add {
-                val mappedId = ui.platformMap[console.id]
-                val mapped = platforms.firstOrNull { it.id == mappedId }
-                val suggestion = if (mappedId == null) viewModel.suggestionFor(console.id) else null
-                // Stepper positions: 0 = not mapped, 1..n = platforms (in the server's order).
-                val index = if (mapped != null) platforms.indexOf(mapped) + 1 else 0
-                fun step(delta: Int) {
-                    if (platforms.isEmpty()) return
-                    val next = ((index + delta) % (platforms.size + 1) + platforms.size + 1) % (platforms.size + 1)
-                    viewModel.setPlatform(context, console.id, if (next == 0) null else platforms[next - 1].id)
-                }
-                val value = when {
-                    mapped != null -> mapped.label
-                    mappedId != null -> "#$mappedId"
-                    suggestion != null -> stringResource(R.string.romm_suggested, suggestion.label)
-                    else -> notMapped
-                }
-                SettingRow(
-                    title = ConsoleFormatter.getConsoleDisplayName(console.id),
-                    hint = ConsoleFormatter.getConsoleShortName(console.id),
-                    onClick = { if (mappedId == null && suggestion != null) viewModel.setPlatform(context, console.id, suggestion.id) else step(1) },
-                    onAdjust = ::step
-                ) {
-                    Stepper(value, onDecrement = { step(-1) }, onIncrement = { step(1) }, valueWidth = 140.dp)
-                }
-            }
-        }
+        } }
     }
 
-    // LB / RB (landscape): hop between the two columns, staying on the same grid row. The
-    // "Console → platform" header spans both columns, so parity flips after it.
+    // Two cards on a grid: two columns in landscape. The mapping card keeps its header even
+    // before the consoles are known.
     val columns = if (isLandscape) 2 else 1
-    val rowFocus = remember(rows.size) { List(rows.size) { FocusRequester() } }
-    var focusedIndex by remember { mutableStateOf(-1) }
-    fun columnOf(index: Int) = when {
-        index < headerIndex -> index % 2
-        index == headerIndex -> -1
-        else -> (index - headerIndex - 1) % 2
+    val cells = CardGrid.layout(
+        listOf(
+            CardGrid.Section(header = false, items = serverRows.size),
+            CardGrid.Section(header = true, items = consoleRows.size, keepIfEmpty = true)
+        ),
+        columns
+    )
+    fun contentOf(cell: CardGrid.Cell): @Composable () -> Unit = when {
+        cell.kind == CardGrid.Kind.HEADER -> platformHeader
+        cell.section == 0 -> serverRows[cell.item]
+        else -> consoleRows[cell.item]
     }
-    LaunchedEffect(isLandscape, rows.size) {
+    val currentCells by rememberUpdatedState(cells)
+
+    // LB / RB (landscape): hop between the two columns, staying on the same line of the card.
+    val rowFocus = remember(cells.size) { List(cells.size) { FocusRequester() } }
+    val currentFocus by rememberUpdatedState(rowFocus)
+    var focusedIndex by remember { mutableIntStateOf(-1) }
+    LaunchedEffect(isLandscape, cells.size) {
         if (!isLandscape) return@LaunchedEffect
         Gamepad.presses.collect { button ->
             if (button != GamepadButton.PREV_PANEL && button != GamepadButton.NEXT_PANEL) return@collect
-            val current = focusedIndex
-            val target = when (columnOf(current)) {
-                0 -> current + 1                // left column → right
-                1 -> current - 1                // right column → left
-                else -> if (current < 0) 0 else current   // nothing / header: stay
-            }.coerceIn(0, rows.lastIndex)
-            runCatching { rowFocus[target].requestFocus() }
+            val list = currentCells
+            val current = focusedIndex.takeIf { it in list.indices }
+            val target = when {
+                current == null -> 0                                  // nothing yet: the first row
+                list[current].kind == CardGrid.Kind.HEADER -> current // the header: stay
+                else -> CardGrid.hop(list, current) ?: current
+            }
+            runCatching { currentFocus[target.coerceIn(0, currentFocus.lastIndex)].requestFocus() }
         }
     }
     // Land on the first row so the screen is usable from the D-pad without a "wake-up" press.
-    LaunchedEffect(rows.size) { if (focusedIndex < 0 && rows.isNotEmpty()) runCatching { rowFocus[0].requestFocus() } }
+    LaunchedEffect(cells.size) { if (focusedIndex < 0 && cells.isNotEmpty()) runCatching { rowFocus[0].requestFocus() } }
     if (isLandscape) {
         val base = legendFor(NavRoutes.Romm.route)
         val column = LegendEntry("LB · RB", stringResource(R.string.pad_column))
@@ -259,27 +358,59 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
         DisposableEffect(legend) { onDispose { if (Gamepad.legendOverride.value === legend) Gamepad.legendOverride.value = null } }
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        Text(
-            stringResource(R.string.settings_romm),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
+        RommHeader(
+            url = ui.url,
+            loading = loading,
+            platformCount = platforms.size,
+            games = if (ui.markGames) libraryState.games else 0,
+            trusted = ui.trustFingerprint.isNotBlank(),
+            modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 12.dp, bottom = 8.dp)
         )
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            contentPadding = PaddingValues(bottom = 12.dp),
+            contentPadding = PaddingValues(bottom = 16.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            items(rows.size, span = { index -> GridItemSpan(if (index == headerIndex) columns else 1) }) { index ->
-                Box(
-                    modifier = Modifier
-                        .focusRequester(rowFocus[index])
-                        .onFocusChanged { if (it.hasFocus) focusedIndex = index }
-                ) { rows[index]() }
+            items(cells.size, span = { index -> GridItemSpan(cells[index].span) }) { index ->
+                val cell = cells[index]
+                CardCell(cell, gapAbove = if (index == 0) 0.dp else 14.dp) {
+                    Box(
+                        modifier = Modifier
+                            .focusRequester(rowFocus[index])
+                            .onFocusChanged { if (it.hasFocus) focusedIndex = index }
+                    ) { contentOf(cell)() }
+                }
             }
+        }
+    }
+}
+
+/** The screen title with the server's address and its state at a glance. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RommHeader(url: String, loading: Boolean, platformCount: Int, games: Int, trusted: Boolean, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        ScreenTitle(
+            text = stringResource(R.string.settings_romm),
+            subtitle = url.ifBlank { stringResource(R.string.settings_romm_hint) },
+            icon = R.drawable.ic_server
+        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            when {
+                url.isBlank() -> Pill(stringResource(R.string.settings_v5_pill_not_set_up), tone = PillTone.Neutral, icon = R.drawable.ic_cloud_off)
+                loading -> Pill(stringResource(R.string.romm_testing), tone = PillTone.Info, icon = R.drawable.ic_sync)
+                platformCount > 0 -> {
+                    Pill(stringResource(R.string.romm_v5_connected), tone = PillTone.Success, icon = R.drawable.ic_cloud_done)
+                    Pill(pluralStringResource(R.plurals.romm_v5_platforms, platformCount, platformCount), tone = PillTone.Neutral, icon = R.drawable.ic_grid)
+                }
+                else -> Pill(stringResource(R.string.romm_v5_not_connected), tone = PillTone.Warning, icon = R.drawable.ic_cloud_off)
+            }
+            if (games > 0) Pill(pluralStringResource(R.plurals.romm_v5_games, games, games), tone = PillTone.Info, icon = R.drawable.ic_library)
+            if (trusted) Pill(stringResource(R.string.romm_v5_cert_trusted), tone = PillTone.Accent, icon = R.drawable.ic_lock)
         }
     }
 }
