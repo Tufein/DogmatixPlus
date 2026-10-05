@@ -46,4 +46,24 @@
         <item quantity="one">%d conflict</item>
         <item quantity="other">%d conflicten</item>
     </plurals>
+    <string name="hub_dav_title">Je eigen cloud</string>
+    <string name="hub_dav_pitch">Maak versleutelde back-ups naar Nextcloud, ownCloud of elke WebDAV-server en houd je favorieten, verlanglijst en collecties op elk apparaat gelijk.</string>
+    <string name="hub_conn_failed">Verbinding mislukt</string>
+    <string name="hub_conn_untested">Nog niet getest</string>
+    <string name="hub_backup_title">Cloud-back-up</string>
+    <string name="hub_backup_auto">Automatisch</string>
+    <string name="hub_backup_overdue">Back-up verouderd</string>
+    <string name="hub_backup_now">Nu back-uppen</string>
+    <string name="hub_backup_running">Back-up maken…</string>
+    <string name="hub_backup_last">Laatste back-up %1$s · %2$s</string>
+    <string name="hub_backup_never">Nog geen back-up. Maak er één om zeker te zijn dat het werkt.</string>
+    <string name="hub_devsync_title">Apparaten synchroniseren</string>
+    <string name="hub_off">Uit</string>
+    <string name="hub_turn_on">Aanzetten</string>
+    <string name="hub_devsync_pitch">Houd favorieten, verlanglijst en collecties gelijk op al je handhelds.</string>
+    <string name="hub_devsync_changes">%1$d toegevoegd · %2$d verwijderd</string>
+    <plurals name="hub_devsync_held">
+        <item quantity="one">%d verwijdering wacht op jou</item>
+        <item quantity="other">%d verwijderingen wachten op jou</item>
+    </plurals>
 </resources>

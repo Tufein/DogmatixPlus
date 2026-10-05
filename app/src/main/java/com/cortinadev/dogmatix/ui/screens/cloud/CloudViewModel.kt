@@ -5,7 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.model.DebridProvider
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.data.service.CloudBackupService
 import com.cortinadev.dogmatix.data.service.CloudStatusService
+import com.cortinadev.dogmatix.data.service.DavStatus
+import com.cortinadev.dogmatix.data.service.DavStatusService
+import com.cortinadev.dogmatix.data.service.DeviceSyncService
 import com.cortinadev.dogmatix.data.service.RommServerInfo
 import com.cortinadev.dogmatix.data.service.RommServerService
 import com.cortinadev.dogmatix.data.service.SaveSyncService
@@ -17,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /** What the Debrid card shows: which service resolves torrent links, and whether it has a key. */
@@ -34,10 +39,17 @@ data class SaveSyncCard(val configured: Boolean = false, val rommConfigured: Boo
 class CloudViewModel @Inject constructor(
     private val romm: RommServerService,
     private val saveSync: SaveSyncService,
+    private val cloudBackup: CloudBackupService,
+    private val deviceSync: DeviceSyncService,
     settingsRepository: SettingsRepository,
     appSettings: AppSettings,
-    cloudStatus: CloudStatusService
+    cloudStatus: CloudStatusService,
+    davStatus: DavStatusService
 ) : ViewModel() {
+
+    /** The WebDAV cloud: encrypted backup and device sync. */
+    val dav: StateFlow<DavStatus> = davStatus.status
+
 
     val rommInfo: StateFlow<RommServerInfo> = romm.info
 
@@ -84,4 +96,14 @@ class CloudViewModel @Inject constructor(
     fun refreshRomm() = romm.refresh(force = true)
 
     fun syncSaves() = saveSync.syncNow()
+
+    /** One encrypted backup to the WebDAV server, now. The result lands in [dav] (last backup or error). */
+    fun backupNow() {
+        viewModelScope.launch { cloudBackup.backupNow() }
+    }
+
+    /** One device sync, now. Removals that look like too many wait for the user in the backup screen. */
+    fun syncDevices() {
+        viewModelScope.launch { deviceSync.syncNow() }
+    }
 }

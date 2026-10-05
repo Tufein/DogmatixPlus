@@ -46,4 +46,24 @@
         <item quantity="one">%d conflito</item>
         <item quantity="other">%d conflitos</item>
     </plurals>
+    <string name="hub_dav_title">A tua própria nuvem</string>
+    <string name="hub_dav_pitch">Faz cópias cifradas para o Nextcloud, o ownCloud ou qualquer servidor WebDAV e mantém favoritos, lista de desejos e coleções iguais em cada dispositivo.</string>
+    <string name="hub_conn_failed">Falha na ligação</string>
+    <string name="hub_conn_untested">Ainda não testado</string>
+    <string name="hub_backup_title">Cópia na nuvem</string>
+    <string name="hub_backup_auto">Automática</string>
+    <string name="hub_backup_overdue">Cópia em atraso</string>
+    <string name="hub_backup_now">Copiar agora</string>
+    <string name="hub_backup_running">A copiar…</string>
+    <string name="hub_backup_last">Última cópia %1$s · %2$s</string>
+    <string name="hub_backup_never">Ainda não há cópia. Faz uma para confirmar que funciona.</string>
+    <string name="hub_devsync_title">Sincronizar dispositivos</string>
+    <string name="hub_off">Desativado</string>
+    <string name="hub_turn_on">Ativar</string>
+    <string name="hub_devsync_pitch">Mantém favoritos, lista de desejos e coleções iguais em todas as tuas consolas portáteis.</string>
+    <string name="hub_devsync_changes">%1$d adicionados · %2$d removidos</string>
+    <plurals name="hub_devsync_held">
+        <item quantity="one">%d remoção espera por ti</item>
+        <item quantity="other">%d remoções esperam por ti</item>
+    </plurals>
 </resources>

@@ -46,4 +46,24 @@
         <item quantity="one">%d Konflikt</item>
         <item quantity="other">%d Konflikte</item>
     </plurals>
+    <string name="hub_dav_title">Deine eigene Cloud</string>
+    <string name="hub_dav_pitch">Sichere verschlüsselt auf Nextcloud, ownCloud oder jeden WebDAV-Server und halte Favoriten, Wunschliste und Sammlungen auf jedem Gerät gleich.</string>
+    <string name="hub_conn_failed">Verbindung fehlgeschlagen</string>
+    <string name="hub_conn_untested">Noch nicht getestet</string>
+    <string name="hub_backup_title">Cloud-Backup</string>
+    <string name="hub_backup_auto">Automatisch</string>
+    <string name="hub_backup_overdue">Backup überfällig</string>
+    <string name="hub_backup_now">Jetzt sichern</string>
+    <string name="hub_backup_running">Sichere …</string>
+    <string name="hub_backup_last">Letztes Backup %1$s · %2$s</string>
+    <string name="hub_backup_never">Noch kein Backup. Sichere einmal, um sicherzugehen, dass es funktioniert.</string>
+    <string name="hub_devsync_title">Geräte abgleichen</string>
+    <string name="hub_off">Aus</string>
+    <string name="hub_turn_on">Einschalten</string>
+    <string name="hub_devsync_pitch">Halte Favoriten, Wunschliste und Sammlungen auf allen deinen Handhelds gleich.</string>
+    <string name="hub_devsync_changes">%1$d hinzugefügt · %2$d entfernt</string>
+    <plurals name="hub_devsync_held">
+        <item quantity="one">%d Entfernung wartet auf dich</item>
+        <item quantity="other">%d Entfernungen warten auf dich</item>
+    </plurals>
 </resources>

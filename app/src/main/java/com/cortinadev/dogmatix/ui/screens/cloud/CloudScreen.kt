@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,6 +37,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.model.DebridProvider
+import com.cortinadev.dogmatix.data.service.CloudMessages
+import com.cortinadev.dogmatix.data.service.DavStatus
 import com.cortinadev.dogmatix.data.service.RommErrorKind
 import com.cortinadev.dogmatix.data.service.RommServerInfo
 import com.cortinadev.dogmatix.data.service.SaveSyncState
@@ -73,13 +76,14 @@ fun CloudScreen(navController: NavController, viewModel: CloudViewModel = hiltVi
     val saveCard by viewModel.saveSyncCard.collectAsState()
     val debrid by viewModel.debrid.collectAsState()
     val overall by viewModel.overall.collectAsState()
+    val dav by viewModel.dav.collectAsState()
     val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val firstFocus = rememberInitialFocus()
     val open: (NavRoutes) -> Unit = { route -> navController.navigate(route.route) { launchSingleTop = true } }
 
-    val cards: List<@Composable (Modifier) -> Unit> = listOf(
-        { m -> RommCard(romm, m, firstFocus, onRefresh = viewModel::refreshRomm, onOpen = { open(NavRoutes.Romm) }) },
-        { m ->
+    val cards: List<@Composable (Modifier) -> Unit> = buildList {
+        add { m -> RommCard(romm, m, firstFocus, onRefresh = viewModel::refreshRomm, onOpen = { open(NavRoutes.Romm) }) }
+        add { m ->
             SaveSyncCard(
                 state = saves,
                 configured = saveCard.configured,
@@ -88,8 +92,14 @@ fun CloudScreen(navController: NavController, viewModel: CloudViewModel = hiltVi
                 onSync = viewModel::syncSaves,
                 onOpen = { open(if (saveCard.rommConfigured) NavRoutes.SaveSync else NavRoutes.Romm) }
             )
-        },
-        { m ->
+        }
+        if (dav.configured) {
+            add { m -> BackupCard(dav, m, onBackup = viewModel::backupNow, onOpen = { open(NavRoutes.CloudBackup) }) }
+            add { m -> DeviceSyncCard(dav, m, onSync = viewModel::syncDevices, onOpen = { open(NavRoutes.CloudBackup) }) }
+        } else {
+            add { m -> DavPitchCard(m) { open(NavRoutes.CloudBackup) } }
+        }
+        add { m ->
             RaUserSummaryCard(
                 modifier = m,
                 title = stringResource(R.string.nav_ra),
@@ -97,16 +107,9 @@ fun CloudScreen(navController: NavController, viewModel: CloudViewModel = hiltVi
                 onOpen = { open(NavRoutes.RetroAchievements) },
                 onSetUp = { open(NavRoutes.RetroAchievements) }
             )
-        },
-        { m ->
-            DebridCard(
-                provider = debrid.provider,
-                hasKey = debrid.hasKey,
-                modifier = m,
-                onOpen = { open(NavRoutes.Settings) }
-            )
         }
-    )
+        add { m -> DebridCard(provider = debrid.provider, hasKey = debrid.hasKey, modifier = m, onOpen = { open(NavRoutes.Settings) }) }
+    }
 
     Column(
         modifier = Modifier
@@ -346,6 +349,100 @@ fun DebridCard(provider: DebridProvider, hasKey: Boolean, modifier: Modifier, on
         }
     ) {
         Pitch(stringResource(if (on) R.string.hub_debrid_on_hint else R.string.hub_debrid_pitch))
+    }
+}
+
+// ---- WebDAV: your own cloud ---------------------------------------------------------------------
+
+/** Nothing set up yet: one card that sells both features and opens the setup screen. */
+@Composable
+fun DavPitchCard(modifier: Modifier, onOpen: () -> Unit) {
+    CloudCard(
+        icon = R.drawable.ic_cloud_upload,
+        title = stringResource(R.string.hub_dav_title),
+        modifier = modifier,
+        pills = { Pill(stringResource(R.string.hub_not_set_up), icon = R.drawable.ic_cloud_off) },
+        actions = { ActionPill(stringResource(R.string.hub_set_up), onOpen, icon = R.drawable.ic_link, tone = ActionTone.Accent) }
+    ) { Pitch(stringResource(R.string.hub_dav_pitch)) }
+}
+
+/** The connection pill both WebDAV cards start with. */
+@Composable
+private fun ConnectionPill(dav: DavStatus) {
+    when (dav.connected) {
+        true -> Pill(stringResource(R.string.hub_connected), tone = PillTone.Success, icon = R.drawable.ic_check_circle)
+        false -> Pill(stringResource(R.string.hub_conn_failed), tone = PillTone.Danger, icon = R.drawable.ic_error_circle)
+        null -> Pill(stringResource(R.string.hub_conn_untested), icon = R.drawable.ic_schedule)
+    }
+}
+
+@Composable
+fun BackupCard(dav: DavStatus, modifier: Modifier, onBackup: () -> Unit, onOpen: () -> Unit) {
+    val context = LocalContext.current
+    CloudCard(
+        icon = R.drawable.ic_backup,
+        title = stringResource(R.string.hub_backup_title),
+        modifier = modifier,
+        pills = {
+            if (dav.backupRunning) Pill(stringResource(R.string.hub_syncing), tone = PillTone.Accent, icon = R.drawable.ic_cloud_sync)
+            else ConnectionPill(dav)
+            if (dav.autoBackup) Pill(stringResource(R.string.hub_backup_auto), tone = PillTone.Info, icon = R.drawable.ic_schedule)
+            if (dav.backupStale) Pill(stringResource(R.string.hub_backup_overdue), tone = PillTone.Warning, icon = R.drawable.ic_warning)
+        },
+        actions = {
+            ActionPill(stringResource(R.string.hub_backup_now), onBackup, icon = R.drawable.ic_cloud_upload, tone = ActionTone.Accent, enabled = !dav.busy)
+            ActionPill(stringResource(R.string.hub_open), onOpen, icon = R.drawable.ic_tune)
+        }
+    ) {
+        if (dav.backupRunning) {
+            Pitch(stringResource(R.string.hub_backup_running))
+        } else if (dav.lastBackupAt > 0) {
+            FactLine(stringResource(R.string.hub_backup_last, relativeTime(dav.lastBackupAt), formatBytes(dav.lastBackupBytes)))
+        } else {
+            Pitch(stringResource(R.string.hub_backup_never))
+        }
+        val error = dav.lastBackupError.ifBlank { dav.lastTestError }
+        if (error.isNotBlank()) FactLine(CloudMessages.render(context, error), MaterialTheme.colorScheme.error)
+    }
+}
+
+@Composable
+fun DeviceSyncCard(dav: DavStatus, modifier: Modifier, onSync: () -> Unit, onOpen: () -> Unit) {
+    val context = LocalContext.current
+    CloudCard(
+        icon = R.drawable.ic_devices,
+        title = stringResource(R.string.hub_devsync_title),
+        modifier = modifier,
+        pills = {
+            when {
+                dav.syncRunning -> Pill(stringResource(R.string.hub_syncing), tone = PillTone.Accent, icon = R.drawable.ic_cloud_sync)
+                !dav.deviceSync -> Pill(stringResource(R.string.hub_off), icon = R.drawable.ic_cloud_off)
+                dav.lastSyncError.isNotBlank() -> Pill(stringResource(R.string.hub_sync_failed), tone = PillTone.Danger, icon = R.drawable.ic_error_circle)
+                dav.lastSyncAt == 0L -> Pill(stringResource(R.string.hub_not_synced_yet), icon = R.drawable.ic_schedule)
+                else -> Pill(stringResource(R.string.hub_in_sync), tone = PillTone.Success, icon = R.drawable.ic_check_circle)
+            }
+            if (dav.syncHeldBack > 0) {
+                Pill(pluralStringResource(R.plurals.hub_devsync_held, dav.syncHeldBack, dav.syncHeldBack), tone = PillTone.Warning, icon = R.drawable.ic_warning)
+            }
+        },
+        actions = {
+            if (dav.deviceSync) {
+                ActionPill(stringResource(R.string.hub_sync_now), onSync, icon = R.drawable.ic_sync, tone = ActionTone.Accent, enabled = !dav.busy)
+            }
+            ActionPill(stringResource(if (dav.deviceSync) R.string.hub_open else R.string.hub_turn_on), onOpen, icon = R.drawable.ic_tune)
+        }
+    ) {
+        if (!dav.deviceSync) {
+            Pitch(stringResource(R.string.hub_devsync_pitch))
+        } else {
+            if (dav.lastSyncAt > 0) {
+                FactLine(stringResource(R.string.hub_last_sync, relativeTime(dav.lastSyncAt)))
+                FactLine(stringResource(R.string.hub_devsync_changes, dav.lastSyncAdded, dav.lastSyncRemoved))
+            } else {
+                Pitch(stringResource(R.string.hub_devsync_pitch))
+            }
+            if (dav.lastSyncError.isNotBlank()) FactLine(CloudMessages.render(context, dav.lastSyncError), MaterialTheme.colorScheme.error)
+        }
     }
 }
 

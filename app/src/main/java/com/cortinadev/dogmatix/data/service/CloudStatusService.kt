@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -38,7 +39,8 @@ class CloudStatusService @Inject constructor(
     settingsRepository: SettingsRepository,
     appSettings: AppSettings,
     saveSync: SaveSyncService,
-    rommLibrary: RommLibraryService
+    rommLibrary: RommLibraryService,
+    davStatus: DavStatusService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -72,9 +74,14 @@ class CloudStatusService @Inject constructor(
         )
     }
 
+    /** The WebDAV cloud (encrypted backup, device sync): configured, busy, and what needs a look. */
+    private val davPart: Flow<CloudStatusPart> = davStatus.status.map { dav ->
+        CloudStatusPart(configured = dav.configured, syncing = dav.busy, attention = dav.attention)
+    }
+
     /** What the top-bar icon shows. */
-    val status: StateFlow<CloudStatus> = combine(rommPart, saveSyncPart, external) { romm, sync, others ->
-        CloudStatusModel.merge(listOf(romm, sync) + others.values)
+    val status: StateFlow<CloudStatus> = combine(rommPart, saveSyncPart, davPart, external) { romm, sync, dav, others ->
+        CloudStatusModel.merge(listOf(romm, sync, dav) + others.values)
     }
         .catch { emit(CloudStatus.Hidden) }
         .distinctUntilChanged()
