@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hub_subtitle">Tu servidor, tus partidas, tus copias</string>
+    <string name="hub_overall_none">Aún no hay nada configurado</string>
+    <string name="hub_overall_ok">Todo sincronizado</string>
+    <string name="hub_overall_syncing">Sincronizando…</string>
+    <string name="hub_not_set_up">Sin configurar</string>
+    <string name="hub_checking">Comprobando…</string>
+    <string name="hub_connected">Conectado</string>
+    <string name="hub_unreachable">Sin conexión</string>
+    <string name="hub_romm_version">RomM %1$s</string>
+    <string name="hub_set_up">Configurar</string>
+    <string name="hub_refresh">Actualizar</string>
+    <string name="hub_romm_settings">Ajustes de RomM</string>
+    <string name="hub_romm_pitch">Conecta tu servidor RomM para carátulas, partidas guardadas y tu colección en cada dispositivo.</string>
+    <string name="hub_stat_games">Juegos</string>
+    <string name="hub_stat_platforms">Plataformas</string>
+    <string name="hub_stat_size">Tamaño</string>
+    <string name="hub_checked">Comprobado %1$s</string>
+    <string name="hub_syncing">Sincronizando</string>
+    <string name="hub_sync_failed">Error al sincronizar</string>
+    <string name="hub_not_synced_yet">Aún sin sincronizar</string>
+    <string name="hub_in_sync">Sincronizado</string>
+    <string name="hub_set_up_romm_first">Configura primero RomM</string>
+    <string name="hub_sync_now">Sincronizar ahora</string>
+    <string name="hub_open">Abrir</string>
+    <string name="hub_saves_pitch">Mantén las partidas y estados de los emuladores iguales en cada dispositivo con RomM.</string>
+    <string name="hub_saves_needs_romm">La sincronización de partidas necesita tu servidor RomM. Conéctalo primero.</string>
+    <string name="hub_last_sync">Última sincronización %1$s</string>
+    <string name="hub_saves_result">%1$d enviados · %2$d recibidos</string>
+    <string name="hub_debrid_title">Debrid</string>
+    <string name="hub_debrid_ready">Clave guardada</string>
+    <string name="hub_debrid_no_key">Sin clave de API</string>
+    <string name="hub_open_settings">Abrir ajustes</string>
+    <string name="hub_debrid_on_hint">Este servicio resuelve los enlaces torrent para descargas directas rápidas.</string>
+    <string name="hub_debrid_pitch">Resuelve enlaces torrent con TorBox o Real-Debrid para descargas directas rápidas.</string>
+    <plurals name="hub_overall_attention">
+        <item quantity="one">%d te necesita</item>
+        <item quantity="other">%d te necesitan</item>
+    </plurals>
+    <plurals name="hub_romm_saves">
+        <item quantity="one">%d partida o estado en el servidor</item>
+        <item quantity="other">%d partidas y estados en el servidor</item>
+    </plurals>
+    <plurals name="hub_conflicts">
+        <item quantity="one">%d conflicto</item>
+        <item quantity="other">%d conflictos</item>
+    </plurals>
+</resources>

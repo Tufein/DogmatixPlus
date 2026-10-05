@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hub_subtitle">Your server, your saves, your backups</string>
+    <string name="hub_overall_none">Nothing set up yet</string>
+    <string name="hub_overall_ok">All in sync</string>
+    <string name="hub_overall_syncing">Syncing…</string>
+    <string name="hub_not_set_up">Not set up</string>
+    <string name="hub_checking">Checking…</string>
+    <string name="hub_connected">Connected</string>
+    <string name="hub_unreachable">Unreachable</string>
+    <string name="hub_romm_version">RomM %1$s</string>
+    <string name="hub_set_up">Set up</string>
+    <string name="hub_refresh">Refresh</string>
+    <string name="hub_romm_settings">RomM settings</string>
+    <string name="hub_romm_pitch">Connect your RomM server for covers, saves and your collection on every device.</string>
+    <string name="hub_stat_games">Games</string>
+    <string name="hub_stat_platforms">Platforms</string>
+    <string name="hub_stat_size">Size</string>
+    <string name="hub_checked">Checked %1$s</string>
+    <string name="hub_syncing">Syncing</string>
+    <string name="hub_sync_failed">Sync failed</string>
+    <string name="hub_not_synced_yet">Not synced yet</string>
+    <string name="hub_in_sync">In sync</string>
+    <string name="hub_set_up_romm_first">Set up RomM first</string>
+    <string name="hub_sync_now">Sync now</string>
+    <string name="hub_open">Open</string>
+    <string name="hub_saves_pitch">Keep emulator saves and states the same on every device through RomM.</string>
+    <string name="hub_saves_needs_romm">Save sync needs your RomM server. Connect it first.</string>
+    <string name="hub_last_sync">Last sync %1$s</string>
+    <string name="hub_saves_result">%1$d sent · %2$d received</string>
+    <string name="hub_debrid_title">Debrid</string>
+    <string name="hub_debrid_ready">Key saved</string>
+    <string name="hub_debrid_no_key">No API key</string>
+    <string name="hub_open_settings">Open settings</string>
+    <string name="hub_debrid_on_hint">Torrent links are resolved by this service for fast direct downloads.</string>
+    <string name="hub_debrid_pitch">Resolve torrent links through TorBox or Real-Debrid for fast direct downloads.</string>
+    <plurals name="hub_overall_attention">
+        <item quantity="one">%d needs you</item>
+        <item quantity="other">%d need you</item>
+    </plurals>
+    <plurals name="hub_romm_saves">
+        <item quantity="one">%d save or state on the server</item>
+        <item quantity="other">%d saves and states on the server</item>
+    </plurals>
+    <plurals name="hub_conflicts">
+        <item quantity="one">%d conflict</item>
+        <item quantity="other">%d conflicts</item>
+    </plurals>
+</resources>

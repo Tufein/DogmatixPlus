@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hub_subtitle">Jouw server, je saves, je back-ups</string>
+    <string name="hub_overall_none">Nog niets ingesteld</string>
+    <string name="hub_overall_ok">Alles gelijk</string>
+    <string name="hub_overall_syncing">Synchroniseren…</string>
+    <string name="hub_not_set_up">Niet ingesteld</string>
+    <string name="hub_checking">Controleren…</string>
+    <string name="hub_connected">Verbonden</string>
+    <string name="hub_unreachable">Niet bereikbaar</string>
+    <string name="hub_romm_version">RomM %1$s</string>
+    <string name="hub_set_up">Instellen</string>
+    <string name="hub_refresh">Vernieuwen</string>
+    <string name="hub_romm_settings">RomM-instellingen</string>
+    <string name="hub_romm_pitch">Koppel je RomM-server voor covers, saves en je collectie op elk apparaat.</string>
+    <string name="hub_stat_games">Games</string>
+    <string name="hub_stat_platforms">Platforms</string>
+    <string name="hub_stat_size">Grootte</string>
+    <string name="hub_checked">Gecontroleerd %1$s</string>
+    <string name="hub_syncing">Synchroniseren</string>
+    <string name="hub_sync_failed">Synchronisatie mislukt</string>
+    <string name="hub_not_synced_yet">Nog niet gesynchroniseerd</string>
+    <string name="hub_in_sync">Gelijk</string>
+    <string name="hub_set_up_romm_first">Stel eerst RomM in</string>
+    <string name="hub_sync_now">Nu synchroniseren</string>
+    <string name="hub_open">Openen</string>
+    <string name="hub_saves_pitch">Houd emulator-saves en -states op elk apparaat gelijk via RomM.</string>
+    <string name="hub_saves_needs_romm">Save-synchronisatie heeft je RomM-server nodig. Koppel die eerst.</string>
+    <string name="hub_last_sync">Laatste sync %1$s</string>
+    <string name="hub_saves_result">%1$d verstuurd · %2$d ontvangen</string>
+    <string name="hub_debrid_title">Debrid</string>
+    <string name="hub_debrid_ready">Sleutel opgeslagen</string>
+    <string name="hub_debrid_no_key">Geen API-sleutel</string>
+    <string name="hub_open_settings">Instellingen openen</string>
+    <string name="hub_debrid_on_hint">Torrentlinks worden door deze dienst omgezet naar snelle directe downloads.</string>
+    <string name="hub_debrid_pitch">Zet torrentlinks om via TorBox of Real-Debrid voor snelle directe downloads.</string>
+    <plurals name="hub_overall_attention">
+        <item quantity="one">%d heeft je nodig</item>
+        <item quantity="other">%d hebben je nodig</item>
+    </plurals>
+    <plurals name="hub_romm_saves">
+        <item quantity="one">%d save of state op de server</item>
+        <item quantity="other">%d saves en states op de server</item>
+    </plurals>
+    <plurals name="hub_conflicts">
+        <item quantity="one">%d conflict</item>
+        <item quantity="other">%d conflicten</item>
+    </plurals>
+</resources>
