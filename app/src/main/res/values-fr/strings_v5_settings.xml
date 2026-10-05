@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: Settings, RomM, Save sync and About -->
+<resources>
+    <string name="settings_v5_animations">Animations</string>
+    <string name="settings_v5_animations_hint">Mouvements fluides entre écrans, lignes et graphiques ; désactivé, tout est instantané</string>
+    <string name="settings_v5_glow">Halo d\'arrière-plan</string>
+    <string name="settings_v5_glow_hint">Une lueur douce de la couleur d\'accent derrière chaque écran</string>
+    <string name="settings_v5_list_covers">Jaquettes dans la liste</string>
+    <string name="settings_v5_list_covers_hint">Une petite jaquette devant chaque jeu de la liste</string>
+    <string name="settings_v5_covers_retry">Rechercher à nouveau les jaquettes manquantes</string>
+    <string name="settings_v5_covers_retry_hint">Les jeux sans jaquette sont recherchés à nouveau à leur prochain affichage</string>
+    <string name="settings_v5_covers_retry_action">Relancer</string>
+    <string name="settings_v5_covers_retry_failed">Impossible de réinitialiser les jaquettes manquantes</string>
+    <string name="settings_v5_preview">Aperçu</string>
+    <string name="settings_v5_preview_owned">Possédé</string>
+    <string name="settings_v5_cloud_hint">Serveur, sauvegardes, copie de secours et appareils en un coup d\'œil</string>
+    <string name="settings_v5_pill_set_up">Configuré</string>
+    <string name="settings_v5_pill_not_set_up">Non configuré</string>
+    <string name="settings_v5_pill_pick_folder">Choisir un dossier</string>
+    <string name="settings_v5_accent_orange">Orange</string>
+    <string name="settings_v5_accent_amber">Ambre</string>
+    <string name="settings_v5_accent_lime">Citron vert</string>
+    <string name="settings_v5_accent_green">Vert</string>
+    <string name="settings_v5_accent_teal">Sarcelle</string>
+    <string name="settings_v5_accent_cyan">Cyan</string>
+    <string name="settings_v5_accent_blue">Bleu</string>
+    <string name="settings_v5_accent_indigo">Indigo</string>
+    <string name="settings_v5_accent_lilac">Lilas</string>
+    <string name="settings_v5_accent_magenta">Magenta</string>
+    <string name="settings_v5_accent_pink">Rose</string>
+    <string name="settings_v5_accent_coral">Corail</string>
+    <string name="settings_v5_accent_custom">Personnalisée</string>
+    <string name="romm_v5_connected">Connecté</string>
+    <string name="romm_v5_not_connected">Non connecté</string>
+    <string name="romm_v5_cert_trusted">Certificat approuvé</string>
+    <string name="romm_v5_mapped">Associé</string>
+    <string name="romm_v5_suggested">Suggérée</string>
+    <string name="save_sync_v5_section_folders">Dossiers</string>
+    <string name="save_sync_v5_section_auto">Synchronisation automatique</string>
+    <string name="save_sync_v5_section_sync">Synchronisation</string>
+    <string name="save_sync_v5_section_conflicts">Conflits</string>
+    <string name="save_sync_v5_pill_failed">Échec</string>
+    <string name="save_sync_v5_pill_synced">Synchronisé</string>
+    <string name="save_sync_v5_side_device">Cet appareil</string>
+    <string name="save_sync_v5_side_server">Serveur RomM</string>
+    <string name="save_sync_v5_newer">Plus récent</string>
+    <string name="about_v5_subtitle">Qui a créé Dogmatix+ et sur quoi il repose</string>
+    <plurals name="settings_v5_covers_reset_done">
+        <item quantity="one">%1$d jeu sera recherché à nouveau</item>
+        <item quantity="other">%1$d jeux seront recherchés à nouveau</item>
+    </plurals>
+    <plurals name="romm_v5_platforms">
+        <item quantity="one">%1$d plateforme</item>
+        <item quantity="other">%1$d plateformes</item>
+    </plurals>
+    <plurals name="romm_v5_games">
+        <item quantity="one">%1$d jeu sur RomM</item>
+        <item quantity="other">%1$d jeux sur RomM</item>
+    </plurals>
+    <plurals name="save_sync_v5_conflicts">
+        <item quantity="one">%1$d conflit</item>
+        <item quantity="other">%1$d conflits</item>
+    </plurals>
+</resources>

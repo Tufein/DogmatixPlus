@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.local.AppSettings
+import com.cortinadev.dogmatix.data.local.LookSettings
+import com.cortinadev.dogmatix.data.service.CoverRepository
 import com.cortinadev.dogmatix.data.service.AutoBackupScheduler
 import com.cortinadev.dogmatix.data.service.DiagnosticsService
 import com.cortinadev.dogmatix.data.service.ProfileService
@@ -63,6 +65,13 @@ data class AfterDownloadSettings(
     val wishlistAuto: Boolean = false
 )
 
+/** 5.0 look: animations, the background glow and covers in the library list. */
+data class LookPrefs(
+    val animations: Boolean = true,
+    val glow: Boolean = true,
+    val listCovers: Boolean = true
+)
+
 /** Look, backup and update settings. */
 data class AppPrefs(
     val preReleases: Boolean = false,
@@ -82,8 +91,37 @@ class ExtraSettingsViewModel @Inject constructor(
     private val updateInstaller: UpdateInstaller,
     private val versionChecker: VersionCheckerService,
     private val diagnostics: DiagnosticsService,
-    private val profiles: ProfileService
+    private val profiles: ProfileService,
+    private val lookSettings: LookSettings,
+    private val covers: CoverRepository
 ) : ViewModel() {
+
+    val look: StateFlow<LookPrefs> = combine(lookSettings.animations, lookSettings.glow, lookSettings.listCovers) { animations, glow, listCovers ->
+        LookPrefs(animations, glow, listCovers)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), LookPrefs())
+
+    fun setAnimations(context: Context, on: Boolean) = executeWithToast(context, TAG) { lookSettings.setAnimations(on) }
+    fun setGlow(context: Context, on: Boolean) = executeWithToast(context, TAG) { lookSettings.setGlow(on) }
+    fun setListCovers(context: Context, on: Boolean) = executeWithToast(context, TAG) { lookSettings.setListCovers(on) }
+
+    private val _coversReset = MutableStateFlow<Int?>(null)
+    /** How many games without a cover the last "find missing covers again" sent back to the lookup. */
+    val coversReset: StateFlow<Int?> = _coversReset
+
+    /** Forgets the covers that were not found, so they are looked up again; says how many. */
+    fun findMissingCovers(context: Context) {
+        val app = context.applicationContext
+        val texts = context.resources
+        viewModelScope.launch {
+            val count = runCatching { covers.retryMisses() }.getOrNull()
+            if (count == null) {
+                ToastUtil.showError(app, texts.getString(R.string.settings_v5_covers_retry_failed))
+            } else {
+                _coversReset.value = count
+                ToastUtil.showSuccess(app, texts.getQuantityString(R.plurals.settings_v5_covers_reset_done, count, count))
+            }
+        }
+    }
 
     /** Name of the active profile, or null when everything is shown. */
     val activeProfileName: StateFlow<String?> = combine(profiles.profiles, profiles.activeId) { list, id -> list.firstOrNull { it.id == id }?.name }

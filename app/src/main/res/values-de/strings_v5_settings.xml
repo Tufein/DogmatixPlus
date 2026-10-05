@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: Settings, RomM, Save sync and About -->
+<resources>
+    <string name="settings_v5_animations">Animationen</string>
+    <string name="settings_v5_animations_hint">Weiche Übergänge zwischen Bildschirmen, Zeilen und Diagrammen; aus macht alles sofort</string>
+    <string name="settings_v5_glow">Hintergrundleuchten</string>
+    <string name="settings_v5_glow_hint">Ein sanftes Leuchten in der Akzentfarbe hinter jedem Bildschirm</string>
+    <string name="settings_v5_list_covers">Cover in der Bibliotheksliste</string>
+    <string name="settings_v5_list_covers_hint">Ein kleines Cover vor jedem Spiel in der Liste</string>
+    <string name="settings_v5_covers_retry">Fehlende Cover erneut suchen</string>
+    <string name="settings_v5_covers_retry_hint">Spiele ohne Cover werden erneut gesucht, sobald sie wieder angezeigt werden</string>
+    <string name="settings_v5_covers_retry_action">Erneut suchen</string>
+    <string name="settings_v5_covers_retry_failed">Die fehlenden Cover konnten nicht zurückgesetzt werden</string>
+    <string name="settings_v5_preview">Vorschau</string>
+    <string name="settings_v5_preview_owned">Vorhanden</string>
+    <string name="settings_v5_cloud_hint">Server, Spielstände, Sicherung und Geräte auf einen Blick</string>
+    <string name="settings_v5_pill_set_up">Eingerichtet</string>
+    <string name="settings_v5_pill_not_set_up">Nicht eingerichtet</string>
+    <string name="settings_v5_pill_pick_folder">Ordner wählen</string>
+    <string name="settings_v5_accent_orange">Orange</string>
+    <string name="settings_v5_accent_amber">Bernstein</string>
+    <string name="settings_v5_accent_lime">Limette</string>
+    <string name="settings_v5_accent_green">Grün</string>
+    <string name="settings_v5_accent_teal">Petrol</string>
+    <string name="settings_v5_accent_cyan">Cyan</string>
+    <string name="settings_v5_accent_blue">Blau</string>
+    <string name="settings_v5_accent_indigo">Indigo</string>
+    <string name="settings_v5_accent_lilac">Flieder</string>
+    <string name="settings_v5_accent_magenta">Magenta</string>
+    <string name="settings_v5_accent_pink">Pink</string>
+    <string name="settings_v5_accent_coral">Koralle</string>
+    <string name="settings_v5_accent_custom">Eigene</string>
+    <string name="romm_v5_connected">Verbunden</string>
+    <string name="romm_v5_not_connected">Nicht verbunden</string>
+    <string name="romm_v5_cert_trusted">Zertifikat vertraut</string>
+    <string name="romm_v5_mapped">Zugeordnet</string>
+    <string name="romm_v5_suggested">Vorgeschlagen</string>
+    <string name="save_sync_v5_section_folders">Ordner</string>
+    <string name="save_sync_v5_section_auto">Automatische Synchronisierung</string>
+    <string name="save_sync_v5_section_sync">Synchronisieren</string>
+    <string name="save_sync_v5_section_conflicts">Konflikte</string>
+    <string name="save_sync_v5_pill_failed">Fehlgeschlagen</string>
+    <string name="save_sync_v5_pill_synced">Synchronisiert</string>
+    <string name="save_sync_v5_side_device">Dieses Gerät</string>
+    <string name="save_sync_v5_side_server">RomM-Server</string>
+    <string name="save_sync_v5_newer">Neuer</string>
+    <string name="about_v5_subtitle">Wer Dogmatix+ gemacht hat und worauf es aufbaut</string>
+    <plurals name="settings_v5_covers_reset_done">
+        <item quantity="one">%1$d Spiel wird erneut gesucht</item>
+        <item quantity="other">%1$d Spiele werden erneut gesucht</item>
+    </plurals>
+    <plurals name="romm_v5_platforms">
+        <item quantity="one">%1$d Plattform</item>
+        <item quantity="other">%1$d Plattformen</item>
+    </plurals>
+    <plurals name="romm_v5_games">
+        <item quantity="one">%1$d Spiel auf RomM</item>
+        <item quantity="other">%1$d Spiele auf RomM</item>
+    </plurals>
+    <plurals name="save_sync_v5_conflicts">
+        <item quantity="one">%1$d Konflikt</item>
+        <item quantity="other">%1$d Konflikte</item>
+    </plurals>
+</resources>

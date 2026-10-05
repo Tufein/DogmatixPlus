@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: Settings, RomM, Save sync and About -->
+<resources>
+    <string name="settings_v5_animations">Animaties</string>
+    <string name="settings_v5_animations_hint">Vloeiende beweging tussen schermen, rijen en grafieken; uit maakt alles direct</string>
+    <string name="settings_v5_glow">Achtergrondgloed</string>
+    <string name="settings_v5_glow_hint">Een zachte gloed in de accentkleur achter elk scherm</string>
+    <string name="settings_v5_list_covers">Covers in de bibliotheeklijst</string>
+    <string name="settings_v5_list_covers_hint">Een kleine cover vóór elke game in de lijst</string>
+    <string name="settings_v5_covers_retry">Ontbrekende covers opnieuw zoeken</string>
+    <string name="settings_v5_covers_retry_hint">Games zonder cover worden opnieuw opgezocht zodra ze weer in beeld komen</string>
+    <string name="settings_v5_covers_retry_action">Opnieuw zoeken</string>
+    <string name="settings_v5_covers_retry_failed">Kon de ontbrekende covers niet terugzetten</string>
+    <string name="settings_v5_preview">Voorbeeld</string>
+    <string name="settings_v5_preview_owned">In bezit</string>
+    <string name="settings_v5_cloud_hint">Server, saves, back-up en apparaten in één oogopslag</string>
+    <string name="settings_v5_pill_set_up">Ingesteld</string>
+    <string name="settings_v5_pill_not_set_up">Niet ingesteld</string>
+    <string name="settings_v5_pill_pick_folder">Kies een map</string>
+    <string name="settings_v5_accent_orange">Oranje</string>
+    <string name="settings_v5_accent_amber">Amber</string>
+    <string name="settings_v5_accent_lime">Limoen</string>
+    <string name="settings_v5_accent_green">Groen</string>
+    <string name="settings_v5_accent_teal">Groenblauw</string>
+    <string name="settings_v5_accent_cyan">Cyaan</string>
+    <string name="settings_v5_accent_blue">Blauw</string>
+    <string name="settings_v5_accent_indigo">Indigo</string>
+    <string name="settings_v5_accent_lilac">Lila</string>
+    <string name="settings_v5_accent_magenta">Magenta</string>
+    <string name="settings_v5_accent_pink">Roze</string>
+    <string name="settings_v5_accent_coral">Koraal</string>
+    <string name="settings_v5_accent_custom">Eigen</string>
+    <string name="romm_v5_connected">Verbonden</string>
+    <string name="romm_v5_not_connected">Niet verbonden</string>
+    <string name="romm_v5_cert_trusted">Certificaat vertrouwd</string>
+    <string name="romm_v5_mapped">Gekoppeld</string>
+    <string name="romm_v5_suggested">Voorgesteld</string>
+    <string name="save_sync_v5_section_folders">Mappen</string>
+    <string name="save_sync_v5_section_auto">Automatisch synchroniseren</string>
+    <string name="save_sync_v5_section_sync">Synchroniseren</string>
+    <string name="save_sync_v5_section_conflicts">Conflicten</string>
+    <string name="save_sync_v5_pill_failed">Mislukt</string>
+    <string name="save_sync_v5_pill_synced">Gesynchroniseerd</string>
+    <string name="save_sync_v5_side_device">Dit apparaat</string>
+    <string name="save_sync_v5_side_server">RomM-server</string>
+    <string name="save_sync_v5_newer">Nieuwer</string>
+    <string name="about_v5_subtitle">Wie Dogmatix+ maakte en waarop het gebouwd is</string>
+    <plurals name="settings_v5_covers_reset_done">
+        <item quantity="one">%1$d game wordt opnieuw opgezocht</item>
+        <item quantity="other">%1$d games worden opnieuw opgezocht</item>
+    </plurals>
+    <plurals name="romm_v5_platforms">
+        <item quantity="one">%1$d platform</item>
+        <item quantity="other">%1$d platforms</item>
+    </plurals>
+    <plurals name="romm_v5_games">
+        <item quantity="one">%1$d game op RomM</item>
+        <item quantity="other">%1$d games op RomM</item>
+    </plurals>
+    <plurals name="save_sync_v5_conflicts">
+        <item quantity="one">%1$d conflict</item>
+        <item quantity="other">%1$d conflicten</item>
+    </plurals>
+</resources>

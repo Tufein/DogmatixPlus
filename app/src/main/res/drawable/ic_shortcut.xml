@@ -1,0 +1,12 @@
+<!-- Material Symbols Rounded "switch_access_shortcut", Apache License 2.0 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+  <group android:translateY="960">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M538-783q-71 54-110.5 132.5T388-483q0 99 47.5 184T568-163q11 7 16.5 19.5T583-120q-7 11-20 14t-25-4q-98-60-154-158.5T328-482q0-99 42-187.5T489-820H352q-13 0-21.5-8.5T322-850q0-13 8.5-21.5T352-880h216q13 0 21.5 8.5T598-850v216q0 13-8.5 21.5T568-604q-13 0-21.5-8.5T538-634v-149Z"/>
+  </group>
+</vector>

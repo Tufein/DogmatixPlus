@@ -3,101 +3,130 @@ package com.cortinadev.dogmatix.ui.screens.settings
 import android.content.Intent
 import android.content.res.Configuration
 import android.text.format.DateUtils
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.unit.Dp
-import com.cortinadev.dogmatix.ui.common.Gamepad
-import com.cortinadev.dogmatix.ui.common.GamepadButton
-import com.cortinadev.dogmatix.ui.common.Legend
-import com.cortinadev.dogmatix.ui.components.LegendEntry
-import com.cortinadev.dogmatix.ui.components.TruncatedText
-import com.cortinadev.dogmatix.ui.components.legendFor
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.cortinadev.dogmatix.BuildConfig
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.data.model.DebridProvider
+import com.cortinadev.dogmatix.ui.common.Gamepad
+import com.cortinadev.dogmatix.ui.common.GamepadButton
+import com.cortinadev.dogmatix.ui.common.GamepadLayout
+import com.cortinadev.dogmatix.ui.common.Legend
+import com.cortinadev.dogmatix.ui.components.ActionPill
+import com.cortinadev.dogmatix.ui.components.ActionTone
+import com.cortinadev.dogmatix.ui.components.DialogButton
+import com.cortinadev.dogmatix.ui.components.LegendEntry
+import com.cortinadev.dogmatix.ui.components.LocalBoldFocus
+import com.cortinadev.dogmatix.ui.components.MeterBar
+import com.cortinadev.dogmatix.ui.components.NavChevron
+import com.cortinadev.dogmatix.ui.components.Pill
+import com.cortinadev.dogmatix.ui.components.PillTone
 import com.cortinadev.dogmatix.ui.components.Stepper
+import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
+import com.cortinadev.dogmatix.ui.components.coverPlaceholder
+import com.cortinadev.dogmatix.ui.components.focusRing
+import com.cortinadev.dogmatix.ui.components.focusScale
+import com.cortinadev.dogmatix.ui.components.formatBytes
+import com.cortinadev.dogmatix.ui.components.legendFor
+import com.cortinadev.dogmatix.ui.components.pillColors
+import com.cortinadev.dogmatix.ui.components.rememberFocusSource
+import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.ui.screens.settings.components.ApiKeyDialog
 import com.cortinadev.dogmatix.ui.screens.settings.components.DaijishoSetupDialog
 import com.cortinadev.dogmatix.ui.screens.settings.components.FavoriteLanguagesDialog
 import com.cortinadev.dogmatix.ui.screens.settings.components.maskedSecret
-import com.cortinadev.dogmatix.ui.components.focusRing
-import com.cortinadev.dogmatix.ui.components.ActionPill
-import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
-import com.cortinadev.dogmatix.ui.components.DialogButton
-import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
-import com.cortinadev.dogmatix.ui.components.rememberFocusSource
-import com.cortinadev.dogmatix.ui.navigation.NavRoutes
-import com.cortinadev.dogmatix.data.model.DebridProvider
-import com.cortinadev.dogmatix.ui.common.GamepadLayout
+import com.cortinadev.dogmatix.ui.screens.sources.SourcesViewModel
+import com.cortinadev.dogmatix.ui.screens.sources.components.ConfirmDialog
 import com.cortinadev.dogmatix.ui.theme.AccentPresets
+import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
+import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
+import com.cortinadev.dogmatix.ui.theme.Motion
+import com.cortinadev.dogmatix.ui.theme.ThemeMode
+import com.cortinadev.dogmatix.ui.theme.consoleColor
+import com.cortinadev.dogmatix.ui.theme.tabular
+import com.cortinadev.dogmatix.util.CardGrid
+import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.Constants
 import com.cortinadev.dogmatix.util.DownloadPolicy
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.TorrentConstants
-import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
-import com.cortinadev.dogmatix.ui.theme.ThemeMode
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalActivity
-import com.cortinadev.dogmatix.ui.screens.sources.SourcesViewModel
-import com.cortinadev.dogmatix.ui.screens.sources.components.ConfirmDialog
-import androidx.compose.ui.res.pluralStringResource
 import java.text.DateFormat
 import java.time.LocalDate
 import java.util.Date
@@ -139,6 +168,8 @@ fun SettingsScreen(
     val activeProfileName by extra.activeProfileName.collectAsState()
     val updateOffer by extra.updateOffer.collectAsState()
     val updateProgress by extra.updateProgress.collectAsState()
+    val look by extra.look.collectAsState()
+    val coversReset by extra.coversReset.collectAsState()
     val context = LocalContext.current
     val backupDirLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let {
@@ -366,8 +397,8 @@ fun SettingsScreen(
                 onAdjust = ::cycleAccent
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    AccentSwatch(ui.accent, if (isLandscape) 24.dp else 32.dp, selected = true, onClick = { showAccentDialog = true })
-                    PillButton(stringResource(R.string.settings_change)) { showAccentDialog = true }
+                    AccentSwatch(ui.accent, if (isLandscape) 24.dp else 32.dp, onClick = { showAccentDialog = true })
+                    ActionPill(stringResource(R.string.settings_change), { showAccentDialog = true }, icon = R.drawable.ic_edit)
                 }
             }
         },
@@ -412,13 +443,47 @@ fun SettingsScreen(
                 onAdjust = { extra.setBoldFocus(context, it > 0) }
             ) { ThemedSwitch(appPrefs.boldFocus) { extra.setBoldFocus(context, it) } }
         },
+        SettingsRow(SettingsSection.LOOK) {
+            SettingRow(
+                title = stringResource(R.string.settings_v5_animations),
+                hint = stringResource(R.string.settings_v5_animations_hint),
+                onClick = { extra.setAnimations(context, !look.animations) },
+                onAdjust = { extra.setAnimations(context, it > 0) }
+            ) { ThemedSwitch(look.animations) { extra.setAnimations(context, it) } }
+        },
+        SettingsRow(SettingsSection.LOOK) {
+            SettingRow(
+                title = stringResource(R.string.settings_v5_glow),
+                hint = stringResource(R.string.settings_v5_glow_hint),
+                onClick = { extra.setGlow(context, !look.glow) },
+                onAdjust = { extra.setGlow(context, it > 0) }
+            ) { ThemedSwitch(look.glow) { extra.setGlow(context, it) } }
+        },
+        SettingsRow(SettingsSection.LOOK) {
+            SettingRow(
+                title = stringResource(R.string.settings_v5_list_covers),
+                hint = stringResource(R.string.settings_v5_list_covers_hint),
+                onClick = { extra.setListCovers(context, !look.listCovers) },
+                onAdjust = { extra.setListCovers(context, it > 0) }
+            ) { ThemedSwitch(look.listCovers) { extra.setListCovers(context, it) } }
+        },
+        SettingsRow(SettingsSection.LOOK) {
+            SettingRow(
+                title = stringResource(R.string.settings_v5_covers_retry),
+                hint = coversReset?.let { pluralStringResource(R.plurals.settings_v5_covers_reset_done, it, it) }
+                    ?: stringResource(R.string.settings_v5_covers_retry_hint),
+                onClick = { extra.findMissingCovers(context) }
+            ) {
+                ActionPill(stringResource(R.string.settings_v5_covers_retry_action), { extra.findMissingCovers(context) }, icon = R.drawable.ic_retry)
+            }
+        },
         SettingsRow(SettingsSection.DOWNLOADS) {
             SettingRow(
                 title = stringResource(R.string.settings_download_directory),
                 hint = ui.downloadDirectory.ifBlank { stringResource(R.string.settings_not_set) },
                 onClick = { launcher.launch(null) }
             ) {
-                PillButton(stringResource(R.string.settings_change)) { launcher.launch(null) }
+                ActionPill(stringResource(R.string.settings_change), { launcher.launch(null) }, icon = R.drawable.ic_folder_open)
             }
         },
         SettingsRow(SettingsSection.DOWNLOADS) {
@@ -600,7 +665,7 @@ fun SettingsScreen(
                 onClick = { retroArchThumbsLauncher.launch(null) }
             ) {
                 if (afterDownload.retroArchThumbnailsDir.isNotBlank()) PillButton(stringResource(R.string.settings_retroarch_artwork_off)) { extra.setRetroArchThumbnailsDir(context, "") }
-                PillButton(stringResource(R.string.settings_change)) { retroArchThumbsLauncher.launch(null) }
+                ActionPill(stringResource(R.string.settings_change), { retroArchThumbsLauncher.launch(null) }, icon = R.drawable.ic_folder_open)
             }
         },
         SettingsRow(SettingsSection.TORRENTS) {
@@ -619,7 +684,7 @@ fun SettingsScreen(
                 hint = maskedSecret(debridKey),
                 onClick = { showDebridKeyDialog = true }
             ) {
-                PillButton(stringResource(R.string.settings_change)) { showDebridKeyDialog = true }
+                ActionPill(stringResource(R.string.settings_change), { showDebridKeyDialog = true }, icon = R.drawable.ic_key)
             }
         },
         SettingsRow(SettingsSection.TORRENTS) {
@@ -694,7 +759,7 @@ fun SettingsScreen(
                     .ifBlank { stringResource(R.string.settings_favorite_languages_hint) },
                 onClick = { showLanguagesDialog = true }
             ) {
-                PillButton(stringResource(R.string.settings_change)) { showLanguagesDialog = true }
+                ActionPill(stringResource(R.string.settings_change), { showLanguagesDialog = true }, icon = R.drawable.ic_edit)
             }
         },
         SettingsRow(SettingsSection.LIBRARY) {
@@ -709,16 +774,17 @@ fun SettingsScreen(
             SettingRow(
                 title = stringResource(R.string.settings_tools),
                 hint = stringResource(R.string.settings_tools_hint),
-                onClick = { navController.navigate(NavRoutes.Tools.route) }
-            ) {
-                Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+                onClick = { navController.navigate(NavRoutes.Tools.route) },
+                icon = R.drawable.ic_build,
+                iconTile = true
+            ) { NavChevron() }
         },
         SettingsRow(SettingsSection.FRONTENDS) {
             SettingRow(
                 title = stringResource(R.string.settings_frontend_shortcuts),
                 hint = stringResource(R.string.settings_frontend_shortcuts_hint),
-                onClick = { viewModel.onDeployFrontendShortcuts(context) }
+                onClick = { viewModel.onDeployFrontendShortcuts(context) },
+                icon = R.drawable.ic_shortcut
             ) {
                 PillButton(stringResource(R.string.settings_frontend_shortcuts_action)) {
                     viewModel.onDeployFrontendShortcuts(context)
@@ -729,7 +795,8 @@ fun SettingsScreen(
             SettingRow(
                 title = stringResource(R.string.settings_esde),
                 hint = ui.esdeDirectory.ifBlank { stringResource(R.string.settings_esde_hint) },
-                onClick = ::runEsdeSetup
+                onClick = ::runEsdeSetup,
+                icon = R.drawable.ic_frontends
             ) {
                 PillButton(stringResource(R.string.settings_esde_action), ::runEsdeSetup)
             }
@@ -738,7 +805,8 @@ fun SettingsScreen(
             SettingRow(
                 title = stringResource(R.string.settings_iisu),
                 hint = ui.iisuDirectory.ifBlank { stringResource(R.string.settings_iisu_hint) },
-                onClick = ::runIisuSetup
+                onClick = ::runIisuSetup,
+                icon = R.drawable.ic_grid
             ) {
                 PillButton(stringResource(R.string.settings_iisu_action), ::runIisuSetup)
             }
@@ -747,43 +815,54 @@ fun SettingsScreen(
             SettingRow(
                 title = stringResource(R.string.settings_daijisho),
                 hint = stringResource(R.string.settings_daijisho_hint),
-                onClick = { viewModel.onPrepareDaijisho(context) }
+                onClick = { viewModel.onPrepareDaijisho(context) },
+                icon = R.drawable.ic_dashboard
             ) {
                 PillButton(stringResource(R.string.settings_daijisho_action)) { viewModel.onPrepareDaijisho(context) }
             }
         },
         SettingsRow(SettingsSection.ROMM) {
             SettingRow(
+                title = stringResource(R.string.nav_cloud),
+                hint = stringResource(R.string.settings_v5_cloud_hint),
+                onClick = { navController.navigate(NavRoutes.Cloud.route) },
+                icon = R.drawable.ic_cloud,
+                iconTile = true
+            ) { NavChevron() }
+        },
+        SettingsRow(SettingsSection.ROMM) {
+            SettingRow(
                 title = stringResource(R.string.settings_romm),
                 hint = ui.rommUrl.ifBlank { stringResource(R.string.settings_romm_hint) },
-                onClick = { navController.navigate(NavRoutes.Romm.route) }
-            ) {
-                Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+                onClick = { navController.navigate(NavRoutes.Romm.route) },
+                icon = R.drawable.ic_server,
+                iconTile = true
+            ) { NavChevron() }
         },
         SettingsRow(SettingsSection.ROMM) {
             SettingRow(
                 title = stringResource(R.string.settings_save_sync),
                 hint = stringResource(R.string.settings_save_sync_hint),
-                onClick = { navController.navigate(NavRoutes.SaveSync.route) }
-            ) {
-                Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+                onClick = { navController.navigate(NavRoutes.SaveSync.route) },
+                icon = R.drawable.ic_cloud_sync,
+                iconTile = true
+            ) { NavChevron() }
         },
         SettingsRow(SettingsSection.PROFILES) {
             SettingRow(
                 title = stringResource(R.string.settings_profiles),
                 hint = activeProfileName?.let { stringResource(R.string.settings_profiles_active, it) } ?: stringResource(R.string.settings_profiles_hint),
-                onClick = { navController.navigate(NavRoutes.Profiles.route) }
-            ) {
-                Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+                onClick = { navController.navigate(NavRoutes.Profiles.route) },
+                icon = R.drawable.ic_account,
+                iconTile = true
+            ) { NavChevron() }
         },
         SettingsRow(SettingsSection.PROFILES) {
             SettingRow(
                 title = stringResource(R.string.settings_cocoon),
                 hint = stringResource(R.string.settings_cocoon_hint),
-                onClick = { showCocoonHelp = true }
+                onClick = { showCocoonHelp = true },
+                icon = R.drawable.ic_help
             ) {
                 PillButton(stringResource(R.string.settings_daijisho_action)) { showCocoonHelp = true }
             }
@@ -792,9 +871,10 @@ fun SettingsScreen(
             SettingRow(
                 title = stringResource(R.string.settings_backup_export),
                 hint = stringResource(R.string.settings_backup_export_hint),
-                onClick = ::exportBackup
+                onClick = ::exportBackup,
+                icon = R.drawable.ic_file_export
             ) {
-                PillButton(stringResource(R.string.settings_backup_export_action), ::exportBackup)
+                ActionPill(stringResource(R.string.settings_backup_export_action), ::exportBackup, icon = R.drawable.ic_file_export)
             }
         },
         SettingsRow(SettingsSection.BACKUP) {
@@ -806,18 +886,22 @@ fun SettingsScreen(
                     else -> stringResource(R.string.settings_auto_backup_hint)
                 },
                 onClick = { extra.setAutoBackup(context, !appPrefs.autoBackup) },
-                onAdjust = { extra.setAutoBackup(context, it > 0) }
+                onAdjust = { extra.setAutoBackup(context, it > 0) },
+                icon = R.drawable.ic_backup
             ) { ThemedSwitch(appPrefs.autoBackup) { extra.setAutoBackup(context, it) } }
         },
         SettingsRow(SettingsSection.BACKUP, visible = appPrefs.autoBackup) {
             SettingRow(
                 title = stringResource(R.string.settings_auto_backup_folder),
                 hint = appPrefs.autoBackupDir.ifBlank { stringResource(R.string.settings_not_set) }.let { if (it.startsWith("content://")) FileParsingUtils.toUserReadablePath(it) else it },
-                onClick = { backupDirLauncher.launch(null) }
+                onClick = { backupDirLauncher.launch(null) },
+                icon = R.drawable.ic_folder
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    PillButton(stringResource(R.string.settings_change)) { backupDirLauncher.launch(null) }
-                    if (appPrefs.autoBackupDir.isNotBlank()) PillButton(stringResource(R.string.auto_backup_now)) { extra.backupNow(context) }
+                    ActionPill(stringResource(R.string.settings_change), { backupDirLauncher.launch(null) }, icon = R.drawable.ic_folder_open)
+                    if (appPrefs.autoBackupDir.isNotBlank()) {
+                        ActionPill(stringResource(R.string.auto_backup_now), { extra.backupNow(context) }, icon = R.drawable.ic_backup, tone = ActionTone.Accent)
+                    }
                 }
             }
         },
@@ -825,9 +909,10 @@ fun SettingsScreen(
             SettingRow(
                 title = stringResource(R.string.settings_backup_import),
                 hint = stringResource(R.string.settings_backup_import_hint),
-                onClick = ::importBackup
+                onClick = ::importBackup,
+                icon = R.drawable.ic_import
             ) {
-                PillButton(stringResource(R.string.settings_backup_import_action), ::importBackup)
+                ActionPill(stringResource(R.string.settings_backup_import_action), ::importBackup, icon = R.drawable.ic_restore)
             }
         },
         SettingsRow(SettingsSection.APP) {
@@ -835,74 +920,78 @@ fun SettingsScreen(
                 title = stringResource(R.string.settings_prereleases),
                 hint = stringResource(R.string.settings_prereleases_hint),
                 onClick = { extra.setPreReleases(context, !appPrefs.preReleases) },
-                onAdjust = { extra.setPreReleases(context, it > 0) }
+                onAdjust = { extra.setPreReleases(context, it > 0) },
+                icon = R.drawable.ic_science
             ) { ThemedSwitch(appPrefs.preReleases) { extra.setPreReleases(context, it) } }
         },
         SettingsRow(SettingsSection.APP) {
             SettingRow(
                 title = stringResource(R.string.settings_update_check),
                 hint = updateProgress?.let { stringResource(R.string.update_downloading, (it * 100).toInt()) } ?: stringResource(R.string.settings_update_check_hint),
-                onClick = { extra.checkForUpdates(context) }
-            ) { PillButton(stringResource(R.string.settings_update_check_action)) { extra.checkForUpdates(context) } }
+                onClick = { extra.checkForUpdates(context) },
+                icon = R.drawable.ic_rocket,
+                below = if (updateProgress != null) {
+                    { MeterBar(updateProgress ?: 0f, modifier = Modifier.padding(top = 6.dp), height = 6.dp) }
+                } else null
+            ) { ActionPill(stringResource(R.string.settings_update_check_action), { extra.checkForUpdates(context) }, icon = R.drawable.ic_sync) }
         },
         SettingsRow(SettingsSection.APP) {
             SettingRow(
                 title = stringResource(R.string.settings_diagnostics),
                 hint = stringResource(R.string.settings_diagnostics_hint),
-                onClick = { extra.shareDiagnostics(context) }
-            ) { PillButton(stringResource(R.string.settings_diagnostics_action)) { extra.shareDiagnostics(context) } }
+                onClick = { extra.shareDiagnostics(context) },
+                icon = R.drawable.ic_bug
+            ) { ActionPill(stringResource(R.string.settings_diagnostics_action), { extra.shareDiagnostics(context) }, icon = R.drawable.ic_share) }
         },
         SettingsRow(SettingsSection.APP) {
             SettingRow(
                 title = stringResource(R.string.settings_about),
                 hint = stringResource(R.string.credits_fork_name) + " · " + stringResource(R.string.credits_original_name),
-                onClick = { navController.navigate(NavRoutes.Contact.route) }
-            ) {
-                Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+                onClick = { navController.navigate(NavRoutes.Contact.route) },
+                icon = R.drawable.ic_heart,
+                iconTile = true
+            ) { NavChevron() }
         }
     )
-    // Rows that do not apply right now are left out; every group starts with its heading over the
-    // full width, and in landscape its rows fill two columns.
-    val shown = ordered.filter { it.visible }
+    // Rows that do not apply right now are left out (sliding in and out as they change). Every
+    // group is a card: its header over the full width, then its rows, in two columns in landscape.
     val columns = if (isLandscape) 2 else 1
-    val cells = SettingsSection.entries.flatMap { section ->
-        val inSection = shown.filter { it.section == section }
-        if (inSection.isEmpty()) emptyList()
-        else listOfNotNull(section.title?.let { SettingsCell(section, null, 0) }) + inSection.mapIndexed { i, row -> SettingsCell(section, row, i % columns) }
+    val shownBySection: List<List<ShownRow>> = SettingsSection.entries.map { section ->
+        ordered.withIndex().filter { (_, row) -> row.section == section && row.visible }.map { (i, row) -> ShownRow(i, row) }
     }
+    val cells = CardGrid.layout(
+        SettingsSection.entries.mapIndexed { i, section -> CardGrid.Section(header = section.title != null, items = shownBySection[i].size) },
+        columns
+    )
     val currentCells by rememberUpdatedState(cells)
+    val currentShown by rememberUpdatedState(shownBySection)
 
-    // LB / RB: in landscape hop between the two columns (same grid row of the group); in portrait
-    // jump to the first row of the previous / next group.
-    val rowFocus = remember(cells.size) { List(cells.size) { FocusRequester() } }
+    // LB / RB: in landscape hop between the two columns (same line of the card); in portrait
+    // jump to the first row of the previous / next card. Focus requesters belong to the rows
+    // (by their place in [ordered]), so a row appearing above does not move them.
+    val rowFocus = remember(ordered.size) { List(ordered.size) { FocusRequester() } }
     val currentFocus by rememberUpdatedState(rowFocus)
-    var focusedIndex by remember { mutableStateOf(-1) }
+    var focusedRow by remember { mutableIntStateOf(-1) }
     val gridState = rememberLazyGridState()
     LaunchedEffect(isLandscape) {
         Gamepad.presses.collect { button ->
             if (button != GamepadButton.PREV_PANEL && button != GamepadButton.NEXT_PANEL) return@collect
             val list = currentCells
-            val current = focusedIndex.takeIf { it in list.indices && list[it].row != null }
+            val shown = currentShown
+            fun rowIndexOf(cell: Int): Int? = list.getOrNull(cell)
+                ?.takeIf { it.kind == CardGrid.Kind.ITEM }
+                ?.let { shown.getOrNull(it.section)?.getOrNull(it.item)?.index }
+            val current = list.indices.firstOrNull { rowIndexOf(it) == focusedRow }
             if (isLandscape) {
-                val target = when {
-                    current == null -> list.indexOfFirst { it.row != null }
-                    list[current].column == 0 -> current + 1   // left column → right
-                    else -> current - 1                         // right column → left
-                }
-                val ok = target in list.indices && list[target].row != null && (current == null || list[target].section == list[current].section)
-                if (ok) runCatching { currentFocus[target].requestFocus() }
+                val target = CardGrid.hop(list, current) ?: return@collect
+                rowIndexOf(target)?.let { row -> runCatching { currentFocus[row].requestFocus() } }
             } else {
-                val headings = list.indices.filter { list[it].row == null }
-                val here = current?.let { c -> headings.lastOrNull { it < c } } ?: -1
-                val heading = if (button == GamepadButton.NEXT_PANEL) headings.firstOrNull { it > here }
-                    else headings.lastOrNull { it < here } ?: headings.firstOrNull()
-                if (heading != null && heading + 1 in list.indices) {
-                    // The row may be off screen (not composed yet): scroll the group in first.
-                    gridState.scrollToItem(heading)
-                    withFrameNanos { }
-                    runCatching { currentFocus[heading + 1].requestFocus() }
-                }
+                val (header, first) = CardGrid.groupJump(list, current, forward = button == GamepadButton.NEXT_PANEL) ?: return@collect
+                val row = rowIndexOf(first) ?: return@collect
+                // The row may be off screen (not composed yet): scroll the card in first.
+                gridState.scrollToItem(header)
+                withFrameNanos { }
+                runCatching { currentFocus[row].requestFocus() }
             }
         }
     }
@@ -915,32 +1004,68 @@ fun SettingsScreen(
         DisposableEffect(legend) { onDispose { if (Gamepad.legendOverride.value === legend) Gamepad.legendOverride.value = null } }
     }
 
+    val pills = SectionPillState(
+        limitKb = limitKb,
+        schedule = schedule,
+        rommConfigured = ui.rommUrl.isNotBlank(),
+        profile = activeProfileName,
+        autoBackup = appPrefs.autoBackup,
+        autoBackupDirSet = appPrefs.autoBackupDir.isNotBlank(),
+        autoBackupLast = appPrefs.autoBackupLast,
+        updateProgress = updateProgress
+    )
+    // Rows slide to their new place and fade in / out when a setting shows or hides others.
+    val reduceMotion = LocalReduceMotion.current
+    val fadeSpec: FiniteAnimationSpec<Float>? = if (reduceMotion) null else tween(Motion.MEDIUM)
+    val moveSpec: FiniteAnimationSpec<IntOffset>? = if (reduceMotion) null else tween(Motion.MEDIUM, easing = FastOutSlowInEasing)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 4.dp, vertical = 12.dp)
+            .padding(horizontal = 8.dp)
     ) {
         LazyVerticalGrid(
             state = gridState,
             columns = GridCells.Fixed(columns),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-            contentPadding = PaddingValues(bottom = 12.dp),
+            contentPadding = PaddingValues(top = 12.dp, bottom = 16.dp),
             modifier = Modifier.fillMaxSize()
         ) {
             cells.forEachIndexed { index, cell ->
-                val row = cell.row
-                if (row == null) {
-                    item(key = "section-${cell.section.name}", span = { GridItemSpan(maxLineSpan) }) {
-                        SettingsHeading(stringResource(cell.section.title ?: return@item), first = index == 0)
+                val section = SettingsSection.entries[cell.section]
+                val gap = if (index == 0) 0.dp else 14.dp
+                if (cell.kind == CardGrid.Kind.HEADER) {
+                    item(key = "section-${section.name}", span = { GridItemSpan(maxLineSpan) }) {
+                        CardCell(cell, modifier = Modifier.animateItem(fadeSpec, moveSpec, fadeSpec), gapAbove = gap) {
+                            Column {
+                                SettingsCardHeader(stringResource(section.title ?: R.string.settings_tools), section.icon) {
+                                    SectionPills(section, pills)
+                                }
+                                if (section == SettingsSection.LOOK) {
+                                    LookPreview(
+                                        listCovers = look.listCovers,
+                                        modifier = Modifier
+                                            .padding(start = 14.dp, end = 14.dp, bottom = 10.dp)
+                                            .widthIn(max = 560.dp)
+                                    )
+                                }
+                            }
+                        }
                     }
                 } else {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .focusRequester(rowFocus[index])
-                                .onFocusChanged { if (it.hasFocus) focusedIndex = index }
-                        ) { row.content() }
+                    val shown = shownBySection[cell.section][cell.item]
+                    item(key = "row-${shown.index}", span = { GridItemSpan(cell.span) }) {
+                        CardCell(
+                            cell,
+                            modifier = Modifier.animateItem(fadeSpec, moveSpec, fadeSpec),
+                            gapAbove = gap,
+                            accent = section == SettingsSection.TOOLS
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .focusRequester(rowFocus[shown.index])
+                                    .onFocusChanged { if (it.hasFocus) focusedRow = shown.index }
+                            ) { shown.row.content() }
+                        }
                     }
                 }
             }
@@ -948,132 +1073,268 @@ fun SettingsScreen(
     }
 }
 
-/** The groups of the Settings screen, in the order they are shown. */
-private enum class SettingsSection(@StringRes val title: Int?) {
+/** The groups of the Settings screen, in the order they are shown, with the icon of their card. */
+private enum class SettingsSection(@StringRes val title: Int?, @DrawableRes val icon: Int) {
     /** The way into Tools, first and without a heading. */
-    TOOLS(null),
-    LOOK(R.string.settings_section_look),
-    DOWNLOADS(R.string.settings_section_downloads),
-    SCHEDULE(R.string.settings_section_schedule),
-    AFTER(R.string.settings_section_after),
-    TORRENTS(R.string.settings_section_torrents),
-    LIBRARY(R.string.settings_section_library),
-    FRONTENDS(R.string.settings_section_frontends),
-    ROMM(R.string.settings_section_romm),
-    PROFILES(R.string.settings_section_profiles),
-    BACKUP(R.string.settings_section_backup),
-    APP(R.string.settings_section_app)
+    TOOLS(null, R.drawable.ic_build),
+    LOOK(R.string.settings_section_look, R.drawable.ic_palette),
+    DOWNLOADS(R.string.settings_section_downloads, R.drawable.ic_download),
+    SCHEDULE(R.string.settings_section_schedule, R.drawable.ic_schedule),
+    AFTER(R.string.settings_section_after, R.drawable.ic_archive),
+    TORRENTS(R.string.settings_section_torrents, R.drawable.ic_bolt),
+    LIBRARY(R.string.settings_section_library, R.drawable.ic_library),
+    FRONTENDS(R.string.settings_section_frontends, R.drawable.ic_frontends),
+    ROMM(R.string.settings_section_romm, R.drawable.ic_cloud),
+    PROFILES(R.string.settings_section_profiles, R.drawable.ic_group),
+    BACKUP(R.string.settings_section_backup, R.drawable.ic_backup),
+    APP(R.string.settings_section_app, R.drawable.ic_info)
 }
 
 /** One Settings entry and the group it belongs to; [visible] false leaves it out. */
 private class SettingsRow(val section: SettingsSection, val visible: Boolean = true, val content: @Composable () -> Unit)
 
-/** A grid cell: a group heading ([row] null) or a row in [column] (0 = left). */
-private class SettingsCell(val section: SettingsSection, val row: SettingsRow?, val column: Int)
+/** A row that is shown, with its place in the full list (its focus requester and grid key). */
+private class ShownRow(val index: Int, val row: SettingsRow)
 
-/** Name of a group of settings, over the full width of the list. */
-@Composable
-private fun SettingsHeading(text: String, first: Boolean) {
-    Text(
-        text,
-        style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = if (first) 0.dp else 18.dp, bottom = 4.dp)
-    )
-}
+/** What the card headers summarise at a glance. */
+private class SectionPillState(
+    val limitKb: Int,
+    val schedule: ScheduleSettings,
+    val rommConfigured: Boolean,
+    val profile: String?,
+    val autoBackup: Boolean,
+    val autoBackupDirSet: Boolean,
+    val autoBackupLast: Long,
+    val updateProgress: Float?
+)
 
-/**
- * A focusable settings row. Click / A runs [onClick]; while focused, D-pad left/right
- * calls [onAdjust] with -1 / +1 so steppers, switches and swatches work from a gamepad.
- */
+/** The small status marks at the end of a card header (speed limit, download conditions, RomM…). */
 @Composable
-internal fun SettingRow(
-    title: String,
-    hint: String?,
-    onClick: () -> Unit,
-    onAdjust: ((Int) -> Unit)? = null,
-    modifier: Modifier = Modifier,
-    trailing: @Composable () -> Unit
-) {
-    val source = rememberFocusSource()
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 56.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .focusRing(source)
-            .onPreviewKeyEvent { event ->
-                if (onAdjust == null || event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
-                when (event.key) {
-                    Key.DirectionLeft -> { onAdjust(-1); true }
-                    Key.DirectionRight -> { onAdjust(1); true }
-                    else -> false
-                }
-            }
-            .clickable(interactionSource = source, indication = null, onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            TruncatedText(title, style = MaterialTheme.typography.bodyLarge)
-            hint?.let {
-                Text(
-                    it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(top = 2.dp)
+private fun SectionPills(section: SettingsSection, state: SectionPillState) {
+    when (section) {
+        SettingsSection.DOWNLOADS -> {
+            if (state.limitKb > 0) Pill("${state.limitKb} KB/s", tone = PillTone.Warning, icon = R.drawable.ic_speed)
+        }
+        SettingsSection.SCHEDULE -> {
+            if (state.schedule.wifiOnly) StatusMark(R.drawable.ic_wifi, stringResource(R.string.settings_dl_wifi))
+            if (state.schedule.chargingOnly) StatusMark(R.drawable.ic_charging, stringResource(R.string.settings_dl_charging))
+            if (state.schedule.nightOnly) {
+                Pill(
+                    DownloadPolicy.formatMinutes(state.schedule.nightStart) + "–" + DownloadPolicy.formatMinutes(state.schedule.nightEnd),
+                    tone = PillTone.Info,
+                    icon = R.drawable.ic_night
                 )
             }
         }
-        trailing()
+        SettingsSection.ROMM -> {
+            if (state.rommConfigured) Pill(stringResource(R.string.settings_v5_pill_set_up), tone = PillTone.Success, icon = R.drawable.ic_cloud_done)
+            else Pill(stringResource(R.string.settings_v5_pill_not_set_up), tone = PillTone.Neutral, icon = R.drawable.ic_cloud_off)
+        }
+        SettingsSection.PROFILES -> {
+            state.profile?.let { Pill(it, modifier = Modifier.widthIn(max = 160.dp), tone = PillTone.Accent, icon = R.drawable.ic_account) }
+        }
+        SettingsSection.BACKUP -> {
+            if (state.autoBackup && !state.autoBackupDirSet) {
+                Pill(stringResource(R.string.settings_v5_pill_pick_folder), tone = PillTone.Warning, icon = R.drawable.ic_warning)
+            } else if (state.autoBackup && state.autoBackupLast > 0) {
+                Pill(DateUtils.getRelativeTimeSpanString(state.autoBackupLast).toString(), tone = PillTone.Success, icon = R.drawable.ic_check_circle)
+            }
+        }
+        SettingsSection.APP -> {
+            state.updateProgress?.let { Pill("${(it * 100).toInt()} %", tone = PillTone.Info, icon = R.drawable.ic_download) }
+            Pill("v" + BuildConfig.VERSION_NAME, tone = PillTone.Neutral)
+        }
+        else -> Unit
     }
 }
 
+/** A round status mark with an icon only (narrow card headers); [label] is read out by TalkBack. */
 @Composable
-internal fun PillButton(label: String, onClick: () -> Unit) {
-    ActionPill(label, onClick)
+private fun StatusMark(@DrawableRes icon: Int, label: String) {
+    val (bg, fg) = pillColors(PillTone.Info)
+    Box(
+        modifier = Modifier
+            .size(22.dp)
+            .clip(CircleShape)
+            .background(bg),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(painterResource(icon), contentDescription = label, tint = fg, modifier = Modifier.size(13.dp))
+    }
 }
 
-/** One accent colour as a circle; Material You shows as a four-colour wheel. */
+/** A sample game for the Look preview (a Nintendo console, so the placeholder shows its colour). */
+private const val PREVIEW_CONSOLE = "nintendo_super_nintendo_entertainment_system"
+
+/**
+ * A live sample of the look: a library row as it appears focused, in the current theme, accent,
+ * text size and focus style, with or without its cover. Drawn once; it never animates.
+ */
 @Composable
-private fun AccentSwatch(color: Color, size: Dp, selected: Boolean, onClick: () -> Unit) {
+private fun LookPreview(listCovers: Boolean, modifier: Modifier = Modifier) {
     val scheme = MaterialTheme.colorScheme
-    val source = rememberFocusSource()
-    val fill = if (color == AccentPresets.dynamic) Modifier.background(
+    val dark = LocalDogmatixTokens.current.isDark
+    val bold = LocalBoldFocus.current
+    val ring = scheme.primary
+    val tonal = scheme.primary.copy(alpha = if (dark) 0.14f else 0.12f)
+    val edge = scheme.scrim
+    val chipColor = consoleColor(PREVIEW_CONSOLE)
+    val shortName = ConsoleFormatter.getConsoleShortName(PREVIEW_CONSOLE)
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            stringResource(R.string.settings_v5_preview),
+            style = MaterialTheme.typography.labelSmall,
+            color = scheme.onSurfaceVariant
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .drawWithCache {
+                    val radius = 10.dp.toPx()
+                    val stroke = (if (bold) 3.5.dp else 2.dp).toPx()
+                    val halo = 3.dp.toPx()
+                    onDrawBehind {
+                        drawRoundRect(tonal, cornerRadius = CornerRadius(radius))
+                        if (bold) {
+                            drawRoundRect(
+                                edge,
+                                topLeft = Offset(stroke * 1.5f, stroke * 1.5f),
+                                size = Size(size.width - stroke * 3, size.height - stroke * 3),
+                                cornerRadius = CornerRadius((radius - stroke).coerceAtLeast(0f)),
+                                style = Stroke(stroke / 2)
+                            )
+                        } else {
+                            drawRoundRect(
+                                ring.copy(alpha = 0.22f),
+                                topLeft = Offset(-halo / 2, -halo / 2),
+                                size = Size(size.width + halo, size.height + halo),
+                                cornerRadius = CornerRadius(radius + halo / 2),
+                                style = Stroke(halo)
+                            )
+                        }
+                        drawRoundRect(
+                            ring,
+                            topLeft = Offset(stroke / 2, stroke / 2),
+                            size = Size(size.width - stroke, size.height - stroke),
+                            cornerRadius = CornerRadius(radius),
+                            style = Stroke(stroke)
+                        )
+                    }
+                }
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            if (listCovers) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 30.dp, height = 40.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .coverPlaceholder(PREVIEW_CONSOLE),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(shortName, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.ExtraBold, color = Color.White.copy(alpha = 0.85f), maxLines = 1)
+                }
+            }
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    stringResource(R.string.settings_v5_preview_game),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = scheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Pill(shortName, tone = PillTone.Tint(chipColor))
+                    Pill(stringResource(R.string.settings_v5_preview_owned), tone = PillTone.Success, icon = R.drawable.ic_check)
+                    Pill(stringResource(R.string.new_badge), tone = PillTone.Accent)
+                }
+            }
+            Text(
+                formatBytes(PREVIEW_SIZE),
+                style = MaterialTheme.typography.bodySmall.tabular(),
+                color = scheme.onSurfaceVariant,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+private const val PREVIEW_SIZE = 4L * 1024 * 1024
+
+/** The accent colours' names, in the order of [AccentPresets.all]. */
+private val accentNames = listOf(
+    R.string.settings_v5_accent_orange,
+    R.string.settings_v5_accent_amber,
+    R.string.settings_v5_accent_lime,
+    R.string.settings_v5_accent_green,
+    R.string.settings_v5_accent_teal,
+    R.string.settings_v5_accent_cyan,
+    R.string.settings_v5_accent_blue,
+    R.string.settings_v5_accent_indigo,
+    R.string.settings_v5_accent_lilac,
+    R.string.settings_v5_accent_magenta,
+    R.string.settings_v5_accent_pink,
+    R.string.settings_v5_accent_coral
+)
+
+@StringRes
+private fun accentName(color: Color): Int {
+    if (color == AccentPresets.dynamic) return R.string.settings_v5_accent_dynamic
+    return accentNames.getOrNull(AccentPresets.all.indexOf(color)) ?: R.string.settings_v5_accent_custom
+}
+
+/** The fill of an accent swatch; Material You shows as a four-colour wheel. */
+private fun swatchFill(color: Color): Modifier =
+    if (color == AccentPresets.dynamic) Modifier.background(
         Brush.sweepGradient(listOf(Color(0xFFFF7F00), Color(0xFFD4E157), Color(0xFF3CC8FF), Color(0xFFE57BFF), Color(0xFFFF7F00)))
     ) else Modifier.background(color)
+
+/** The current accent as a small circle at the end of its row; tapping it opens the choices. */
+@Composable
+private fun AccentSwatch(color: Color, size: Dp, onClick: () -> Unit) {
+    val source = rememberFocusSource()
     Box(
         modifier = Modifier
             .size(size)
+            .focusRing(source, size / 2, onAccent = true, fill = false)
             .clip(CircleShape)
-            .then(fill)
-            .border(width = if (selected) 2.dp else 0.dp, color = if (selected) scheme.onSurface else Color.Transparent, shape = CircleShape)
-            .focusRing(source, size / 2)
+            .then(swatchFill(color))
+            .border(width = 2.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f), shape = CircleShape)
             .clickable(interactionSource = source, indication = null, onClick = onClick)
     )
 }
 
-/** Every accent colour, plus Material You where the system has it. */
+/** Every accent colour (plus Material You where the system has it), each with its name. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun AccentDialog(selected: Color, onPick: (Color) -> Unit, onDismiss: () -> Unit) {
     val choices = AccentPresets.choices
     val firstFocus = rememberInitialFocus()
+    // Focus starts on the colour in use, so ◀ ▶ moves from where the user is.
+    val start = choices.indexOf(selected).coerceAtLeast(0)
     AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.accent_dialog_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                choices.chunked(7).forEachIndexed { rowIndex, row ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        row.forEachIndexed { i, color ->
-                            Box(modifier = if (rowIndex == 0 && i == 0) Modifier.focusRequester(firstFocus) else Modifier) {
-                                AccentSwatch(color, 40.dp, selected = color == selected, onClick = { onPick(color) })
-                            }
-                        }
+            Column(
+                modifier = Modifier
+                    .heightIn(max = 420.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    choices.forEachIndexed { i, color ->
+                        AccentChoice(
+                            color = color,
+                            selected = color == selected,
+                            onClick = { onPick(color) },
+                            modifier = if (i == start) Modifier.focusRequester(firstFocus) else Modifier
+                        )
                     }
                 }
                 if (AccentPresets.dynamicAvailable) Text(
@@ -1087,19 +1348,52 @@ private fun AccentDialog(selected: Color, onPick: (Color) -> Unit, onDismiss: ()
     )
 }
 
+/** One choice of the accent dialog: a 48 dp swatch (a check on the one in use) and its name. */
 @Composable
-internal fun ThemedSwitch(checked: Boolean, onChange: (Boolean) -> Unit) {
+private fun AccentChoice(color: Color, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val scheme = MaterialTheme.colorScheme
-    Switch(
-        checked = checked,
-        onCheckedChange = onChange,
-        colors = SwitchDefaults.colors(
-            checkedThumbColor = scheme.surface,
-            checkedTrackColor = scheme.primary,
-            checkedBorderColor = Color.Transparent,
-            uncheckedThumbColor = scheme.surface,
-            uncheckedTrackColor = LocalDogmatixTokens.current.knobOff,
-            uncheckedBorderColor = Color.Transparent
+    val source = rememberFocusSource()
+    Column(
+        modifier = modifier
+            .width(68.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .clickable(interactionSource = source, indication = null, onClick = onClick)
+            .padding(vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .focusScale(source, 1.08f)
+                .focusRing(source, 28.dp, onAccent = true, fill = false),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .then(swatchFill(color)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (selected) {
+                    Icon(
+                        painterResource(R.drawable.ic_check),
+                        contentDescription = null,
+                        tint = Color.Black.copy(alpha = 0.8f),
+                        modifier = Modifier.size(26.dp)
+                    )
+                }
+            }
+        }
+        Text(
+            stringResource(accentName(color)),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = if (selected) scheme.onSurface else scheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
-    )
+    }
 }
