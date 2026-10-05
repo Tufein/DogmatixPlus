@@ -6,17 +6,14 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.RemoteViews
-import androidx.compose.ui.graphics.toArgb
 import com.cortinadev.dogmatix.MainActivity
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.SettingsDataStore
@@ -24,10 +21,6 @@ import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.service.DownloadService
 import com.cortinadev.dogmatix.data.state.PendingLibraryFilters
 import com.cortinadev.dogmatix.data.state.RescanStateHolder
-import com.cortinadev.dogmatix.ui.theme.AccentPresets
-import com.cortinadev.dogmatix.ui.theme.DogmatixDark
-import com.cortinadev.dogmatix.ui.theme.DogmatixLight
-import com.cortinadev.dogmatix.ui.theme.ThemeMode
 import com.cortinadev.dogmatix.util.NewGames
 import com.cortinadev.dogmatix.util.QueueGlance
 import com.cortinadev.dogmatix.util.WidgetLayout
@@ -70,22 +63,12 @@ class WidgetUpdater @Inject constructor(
     downloadService: DownloadService,
     rescanStateHolder: RescanStateHolder,
     private val fileDao: DownloadableFileDao,
-    private val settings: SettingsDataStore
+    private val settings: SettingsDataStore,
+    private val continueWidget: ContinueWidgetUpdater
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private data class Downloads(val active: Int, val percent: Int)
-
-    /** Colours and the panel drawable for one update. */
-    private class Look(
-        val background: Int,
-        val dark: Boolean,
-        val accent: Int,
-        val accentText: Int,
-        val text: Int,
-        val muted: Int,
-        val track: Int
-    )
 
     init {
         scope.launch {
@@ -104,6 +87,7 @@ class WidgetUpdater @Inject constructor(
 
     /** Called by the widget itself (placed, resized, after a reboot). */
     fun refresh() {
+        continueWidget.refresh()
         scope.launch { push(null) }
     }
 
@@ -128,39 +112,9 @@ class WidgetUpdater @Inject constructor(
         }
     }
 
-    /** The app's theme and accent as the widget's colours. */
-    private suspend fun look(): Look {
-        val mode = ThemeMode.fromName(settings.themeMode.first())
-        val systemDark = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-        val dark = when (mode) {
-            ThemeMode.SYSTEM -> systemDark
-            ThemeMode.LIGHT -> false
-            ThemeMode.DARK, ThemeMode.TRUE_BLACK -> true
-        }
-        val preset = AccentPresets.fromHex(settings.accentColor.first())
-        val accent = when {
-            // Material You: the wallpaper's accent, as the app's own scheme takes it (tone 80 dark, 40 light).
-            preset == AccentPresets.dynamic && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
-                context.getColor(if (dark) android.R.color.system_accent1_200 else android.R.color.system_accent1_600)
-            preset == AccentPresets.dynamic -> AccentPresets.default.toArgb()
-            else -> preset.toArgb()
-        }
-        return Look(
-            background = when {
-                mode == ThemeMode.TRUE_BLACK -> R.drawable.widget_bg_black
-                dark -> R.drawable.widget_bg_dark
-                else -> R.drawable.widget_bg_light
-            },
-            dark = dark,
-            accent = accent,
-            accentText = WidgetLayout.accentTextOn(accent, darkPanel = dark),
-            text = (if (dark) DogmatixDark.text else DogmatixLight.text).toArgb(),
-            muted = (if (dark) DogmatixDark.muted2 else DogmatixLight.muted).toArgb(),
-            track = if (dark) 0x33FFFFFF else 0x1F000000
-        )
-    }
+    private suspend fun look(): WidgetLook = WidgetLook.resolve(context, settings)
 
-    private fun views(state: WidgetState, look: Look, titleLines: Int): RemoteViews =
+    private fun views(state: WidgetState, look: WidgetLook, titleLines: Int): RemoteViews =
         RemoteViews(context.packageName, R.layout.widget_dogmatix).apply {
             val res = context.resources
             setInt(R.id.widget_root, "setBackgroundResource", look.background)
@@ -213,7 +167,7 @@ class WidgetUpdater @Inject constructor(
      * The progress line as a picture: a rounded track with the accent filling it. A bar made by
      * RemoteViews could only take the accent on Android 12 and later; a bitmap works everywhere.
      */
-    private fun progressLine(percent: Int, look: Look): Bitmap {
+    private fun progressLine(percent: Int, look: WidgetLook): Bitmap {
         val w = 600
         val h = 16
         val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)

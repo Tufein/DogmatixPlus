@@ -10,6 +10,7 @@ import com.cortinadev.dogmatix.DogmatixApplication
 import com.cortinadev.dogmatix.MainActivity
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.AppSettings
+import com.cortinadev.dogmatix.data.local.WishlistAlertSettings
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.dao.WishlistDao
 import com.cortinadev.dogmatix.data.local.entity.WishlistEntity
@@ -21,6 +22,7 @@ import com.cortinadev.dogmatix.util.GameTitleCleaner
 import com.cortinadev.dogmatix.util.LibraryKeys
 import com.cortinadev.dogmatix.util.VersionPicker
 import com.cortinadev.dogmatix.util.WishlistMatch
+import com.cortinadev.dogmatix.util.WishlistRommAlerts
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,9 +30,12 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -55,7 +60,8 @@ class WishlistRepository @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val downloadService: DownloadService,
     private val libraryIndex: dagger.Lazy<LibraryIndexService>,
-    private val rommLibrary: dagger.Lazy<RommLibraryService>
+    private val rommLibrary: dagger.Lazy<RommLibraryService>,
+    private val alertSettings: WishlistAlertSettings
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -69,6 +75,36 @@ class WishlistRepository @Inject constructor(
     init {
         // A finished source scan (the time moves) may have brought a wanted game into the library.
         scope.launch { rescanStateHolder.lastRescanTime.drop(1).collect { checkAndNotify() } }
+        // 6.0: the RomM game list changed (a library refresh): a wish may be on the server now.
+        scope.launch {
+            runCatching {
+                rommLibrary.get().keys.filter { it.isNotEmpty() }.collect { checkRomm(it) }
+            }
+        }
+    }
+
+    private val rommLock = Mutex()
+
+    /**
+     * Announces (once) the wishes that are on the RomM server now and not on the device. The
+     * first check only records what the server already has, so nobody gets a burst of old news.
+     */
+    suspend fun checkRomm(keys: Set<String> = rommLibrary.get().keys.value): List<WishlistEntity> = rommLock.withLock {
+        if (keys.isEmpty()) return emptyList()
+        val wishes = dao.getAll()
+        val announced = alertSettings.announced()
+        val owned = libraryIndex.get().ownedKeys.value
+        val pending = WishlistRommAlerts.pending(wishes, keys, announced.orEmpty()) { wish ->
+            WishlistMatch.onDevice(wish.title, wish.consoleId?.let { LibraryKeys.scopesFor(it) }, owned)
+        }
+        if (announced == null) {
+            alertSettings.add(pending.map { WishlistRommAlerts.announceKey(it) } + "")
+            return emptyList()
+        }
+        if (pending.isEmpty()) return emptyList()
+        alertSettings.add(pending.map { WishlistRommAlerts.announceKey(it) })
+        notifyRomm(pending)
+        pending
     }
 
     suspend fun add(title: String, consoleId: String?): Boolean {
@@ -77,6 +113,12 @@ class WishlistRepository @Inject constructor(
         val entry = WishlistEntity(title = clean, consoleId = consoleId?.takeIf { it.isNotBlank() })
         if (dao.getAll().any { it.key == entry.key && it.consoleId == entry.consoleId }) return false
         dao.upsert(entry)
+        // Already on the server: the list shows it, no alert for it later.
+        runCatching {
+            if (WishlistMatch.inRomm(entry.title, entry.consoleId, rommLibrary.get().keys.value)) {
+                alertSettings.add(listOf(WishlistRommAlerts.announceKey(entry)))
+            }
+        }
         return true
     }
 
@@ -161,5 +203,26 @@ class WishlistRepository @Inject constructor(
         context.getSystemService(NotificationManager::class.java).notify(WISHLIST_NOTIFICATION_ID, notification)
     }
 
-    private companion object { const val WISHLIST_NOTIFICATION_ID = 4203 }
+    private fun notifyRomm(found: List<WishlistEntity>) {
+        if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return
+        val open = PendingIntent.getActivity(
+            context, 2, Intent(context, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP),
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        val titles = found.take(3).joinToString(", ") { it.title } + if (found.size > 3) " …" else ""
+        val notification = NotificationCompat.Builder(context, DogmatixApplication.WISHLIST_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_star)
+            .setContentTitle(context.getString(R.string.share6_romm_now_title))
+            .setContentText(titles)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(titles))
+            .setContentIntent(open)
+            .setAutoCancel(true)
+            .build()
+        context.getSystemService(NotificationManager::class.java).notify(WISHLIST_ROMM_NOTIFICATION_ID, notification)
+    }
+
+    private companion object {
+        const val WISHLIST_NOTIFICATION_ID = 4203
+        const val WISHLIST_ROMM_NOTIFICATION_ID = 4204
+    }
 }

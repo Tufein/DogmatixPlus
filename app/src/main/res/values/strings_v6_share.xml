@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 6.0: sharing, "Continue playing" widget, RomM wishlist alerts -->
+<resources>
+    <string name="share6_card_footer">Found with Dogmatix+</string>
+    <string name="share6_game_message">%1$s (%2$s), found with Dogmatix+</string>
+    <string name="share6_chooser_game">Share game</string>
+    <string name="share6_chooser_wishlist">Share the wishlist</string>
+    <string name="share6_failed">Could not share</string>
+    <string name="share6_wishlist_empty">The wishlist is empty</string>
+    <string name="share6_wishlist_more">+ %1$d more</string>
+    <string name="share6_romm_now_title">Now on your RomM server</string>
+    <string name="share6_widget_title">Continue playing</string>
+    <string name="share6_widget_description">The games you played last, with covers</string>
+    <string name="share6_widget_empty">Nothing played yet</string>
+    <plurals name="share6_wishlist_header">
+        <item quantity="one">My wishlist: %1$d game</item>
+        <item quantity="other">My wishlist: %1$d games</item>
+    </plurals>
+    <string name="share6_widget_preview_sub_1" translatable="false">2 hr. ago · Thor</string>
+    <string name="share6_widget_preview_sub_2" translatable="false">Yesterday · Thor</string>
+    <string name="share6_widget_preview_sub_3" translatable="false">3 days ago · mGBA</string>
+</resources>
