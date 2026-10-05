@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="coll6_goals_title">Collection goals</string>
+    <string name="coll6_goals_subtitle">Do you have the whole set?</string>
+    <string name="coll6_goals_overall">Whole collection</string>
+    <string name="coll6_goals_count">%1$s of %2$s</string>
+    <string name="coll6_goals_percent">%1$d%%</string>
+    <string name="coll6_goals_complete">Complete</string>
+    <string name="coll6_goals_complete_message">Every game of this set is on your device.</string>
+    <string name="coll6_basis_verified">Checked against your DAT</string>
+    <string name="coll6_basis_dat">Compared with your DAT by file name</string>
+    <string name="coll6_basis_sources">Compared with what your sources list</string>
+    <string name="coll6_basis_dat_hint">Run the DAT check for an exact count.</string>
+    <string name="coll6_basis_short_verified">DAT check</string>
+    <string name="coll6_basis_short_dat">DAT names</string>
+    <string name="coll6_basis_short_sources">Sources</string>
+    <string name="coll6_goal_set">Make %1$s a goal</string>
+    <string name="coll6_goal_unset">Remove %1$s from your goals</string>
+    <string name="coll6_section_goals">Your goals</string>
+    <string name="coll6_section_all">All consoles</string>
+    <string name="coll6_loading">Counting your collection…</string>
+    <string name="coll6_empty_title">Nothing to measure yet</string>
+    <string name="coll6_empty_message">Scan your sources or import a DAT file in the DAT check, and every console gets a ring.</string>
+    <string name="coll6_missing_title">Missing in %1$s</string>
+    <string name="coll6_find">Look for them in your sources</string>
+    <string name="coll6_find_hint">Hands this list to Import a list, which searches your sources.</string>
+    <string name="coll6_wish_all">Add shown to wishlist</string>
+    <string name="coll6_wish_none">Already on your wishlist</string>
+    <string name="coll6_wish_row">Add %1$s to the wishlist</string>
+    <string name="coll6_wish_row_done">On the wishlist</string>
+    <string name="coll6_more">Show %1$d more</string>
+    <string name="coll6_showing">Showing %1$s of %2$s</string>
+    <string name="coll6_missing_loading">Reading the list…</string>
+    <string name="coll6_history_title">Play history</string>
+    <string name="coll6_history_subtitle">What happened to your library</string>
+    <string name="coll6_filter_all">All</string>
+    <string name="coll6_filter_downloads">Downloads</string>
+    <string name="coll6_filter_played">Played</string>
+    <string name="coll6_kind_downloaded">Downloaded</string>
+    <string name="coll6_kind_played">Played</string>
+    <string name="coll6_kind_saved">Saved to RomM</string>
+    <string name="coll6_kind_saved_via">Saved to RomM from %1$s</string>
+    <string name="coll6_day_today">Today</string>
+    <string name="coll6_day_yesterday">Yesterday</string>
+    <string name="coll6_chart_days">Last 7 days</string>
+    <string name="coll6_chart_weeks">Last 8 weeks</string>
+    <string name="coll6_chart_title">Activity</string>
+    <string name="coll6_history_empty_title">No history yet</string>
+    <string name="coll6_history_empty_message">Downloads you finish, games you play in ES-DE and saves on RomM show up here.</string>
+    <string name="coll6_history_empty_filter_title">Nothing here</string>
+    <string name="coll6_history_empty_filter_message">Nothing matches this filter yet. Try All.</string>
+    <string name="coll6_history_plays_hint">ES-DE keeps only the last time you played a game, so each game appears once.</string>
+    <string name="coll6_history_loading">Reading your history…</string>
+    <plurals name="coll6_goals_measured">
+        <item quantity="one">%1$d console measured</item>
+        <item quantity="other">%1$d consoles measured</item>
+    </plurals>
+    <plurals name="coll6_missing_summary">
+        <item quantity="one">%1$s game missing</item>
+        <item quantity="other">%1$s games missing</item>
+    </plurals>
+    <plurals name="coll6_wish_added">
+        <item quantity="one">Added %1$d game to the wishlist</item>
+        <item quantity="other">Added %1$d games to the wishlist</item>
+    </plurals>
+    <plurals name="coll6_week_events">
+        <item quantity="one">%1$d event this week</item>
+        <item quantity="other">%1$d events this week</item>
+    </plurals>
+</resources>
