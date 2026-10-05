@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="offline7_switch_title">Keep on this device</string>
+    <string name="offline7_switch_hint">Fetches the games of this collection that your sources list and this device doesn\'t have yet.</string>
+    <string name="offline7_status_running">Looking for games to fetch…</string>
+    <string name="offline7_status_checking">Checking this collection…</string>
+    <string name="offline7_status_count">%1$d of %2$d on this device</string>
+    <string name="offline7_status_queued">%1$d in the queue</string>
+    <string name="offline7_status_fetch">%1$d to fetch now</string>
+    <string name="offline7_status_space">%1$d waiting for space</string>
+    <string name="offline7_status_cap">%1$d on the next run</string>
+    <string name="offline7_status_not_listed">%1$d not in your sources</string>
+    <string name="offline7_section_title">Kept on this device</string>
+    <string name="offline7_section_hint">Games of a collection that is switched on are fetched after each scan, a few at a time. Nothing is ever removed on its own.</string>
+    <string name="offline7_fetch_now">Fetch now</string>
+    <string name="offline7_last_none">Nothing fetched yet. Switch a collection on or tap Fetch now.</string>
+    <string name="offline7_last_line">Last run %1$s · %2$s</string>
+    <string name="offline7_no_folder">No download folder is set, so nothing can be fetched. Choose one in Settings.</string>
+    <string name="offline7_cap_title">Games per run</string>
+    <string name="offline7_cap_hint">The most games queued in one go, so a big collection never floods your queue.</string>
+    <string name="offline7_wifi_title">Only on Wi-Fi</string>
+    <string name="offline7_wifi_hint">Queued games wait for an unmetered network. Your download rules and conditions still apply.</string>
+    <string name="offline7_review_title">No longer in the collection</string>
+    <string name="offline7_review_hint">These games were fetched for a collection and have left it. They are still on this device and stay until you remove them.</string>
+    <string name="offline7_review_from">From %1$s</string>
+    <string name="offline7_review_keep">Keep</string>
+    <string name="offline7_review_remove">Remove</string>
+    <string name="offline7_review_remove_all">Remove all (%1$d)</string>
+    <string name="offline7_review_keep_all">Keep all</string>
+    <string name="offline7_confirm_nothing">These games are no longer on this device, so they only leave this list.</string>
+    <string name="offline7_confirm_drop">Remove from list</string>
+    <string name="offline7_confirm_delete">Delete files</string>
+    <string name="offline7_notify_space_title">Not enough space for your collections</string>
+    <string name="offline7_notify_text">Open Downloads to follow them.</string>
+    <plurals name="offline7_last_queued">
+        <item quantity="one">%1$d game queued</item>
+        <item quantity="other">%1$d games queued</item>
+    </plurals>
+    <plurals name="offline7_notify_queued">
+        <item quantity="one">%1$d game queued for your collections</item>
+        <item quantity="other">%1$d games queued for your collections</item>
+    </plurals>
+    <plurals name="offline7_notify_space">
+        <item quantity="one">%1$d game doesn\'t fit; about %2$s more free space needed</item>
+        <item quantity="other">%1$d games don\'t fit; about %2$s more free space needed</item>
+    </plurals>
+    <plurals name="offline7_notify_more">
+        <item quantity="one">%1$d more game follows on the next run</item>
+        <item quantity="other">%1$d more games follow on the next run</item>
+    </plurals>
+    <plurals name="offline7_confirm_title">
+        <item quantity="one">Remove %1$d game from this device?</item>
+        <item quantity="other">Remove %1$d games from this device?</item>
+    </plurals>
+    <plurals name="offline7_confirm_message">
+        <item quantity="one">This deletes %1$d file from this device (%2$s):</item>
+        <item quantity="other">This deletes %1$d files from this device (%2$s):</item>
+    </plurals>
+    <plurals name="offline7_confirm_more">
+        <item quantity="one">… and %1$d more file</item>
+        <item quantity="other">… and %1$d more files</item>
+    </plurals>
+    <plurals name="offline7_confirm_absent">
+        <item quantity="one">%1$d game is not on this device any more and only leaves this list.</item>
+        <item quantity="other">%1$d games are not on this device any more and only leave this list.</item>
+    </plurals>
+    <plurals name="offline7_removed">
+        <item quantity="one">Removed %1$d game from this device</item>
+        <item quantity="other">Removed %1$d games from this device</item>
+    </plurals>
+</resources>

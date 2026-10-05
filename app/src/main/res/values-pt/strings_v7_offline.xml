@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="offline7_switch_title">Manter neste dispositivo</string>
+    <string name="offline7_switch_hint">Transfere os jogos desta coleção que as tuas fontes listam e que este dispositivo ainda não tem.</string>
+    <string name="offline7_status_running">A procurar jogos para transferir…</string>
+    <string name="offline7_status_checking">A verificar a coleção…</string>
+    <string name="offline7_status_count">%1$d de %2$d neste dispositivo</string>
+    <string name="offline7_status_queued">%1$d na fila</string>
+    <string name="offline7_status_fetch">%1$d a transferir agora</string>
+    <string name="offline7_status_space">%1$d à espera de espaço</string>
+    <string name="offline7_status_cap">%1$d na próxima ronda</string>
+    <string name="offline7_status_not_listed">%1$d fora das tuas fontes</string>
+    <string name="offline7_section_title">Mantidas neste dispositivo</string>
+    <string name="offline7_section_hint">Os jogos de uma coleção ativada são transferidos após cada análise, alguns de cada vez. Nunca se remove nada automaticamente.</string>
+    <string name="offline7_fetch_now">Transferir agora</string>
+    <string name="offline7_last_none">Ainda nada transferido. Ativa uma coleção ou toca em Transferir agora.</string>
+    <string name="offline7_last_line">Última ronda %1$s · %2$s</string>
+    <string name="offline7_no_folder">Não há pasta de transferências definida, por isso não é possível transferir nada. Escolhe uma nas Definições.</string>
+    <string name="offline7_cap_title">Jogos por ronda</string>
+    <string name="offline7_cap_hint">O máximo de jogos colocados na fila de uma só vez, para que uma coleção grande nunca encha a tua fila.</string>
+    <string name="offline7_wifi_title">Só com Wi-Fi</string>
+    <string name="offline7_wifi_hint">Os jogos na fila esperam por uma rede sem limite de dados. As tuas regras e condições de transferência continuam a aplicar-se.</string>
+    <string name="offline7_review_title">Já não estão na coleção</string>
+    <string name="offline7_review_hint">Estes jogos foram transferidos para uma coleção e já não fazem parte dela. Continuam neste dispositivo e ficam até os removeres.</string>
+    <string name="offline7_review_from">De %1$s</string>
+    <string name="offline7_review_keep">Manter</string>
+    <string name="offline7_review_remove">Remover</string>
+    <string name="offline7_review_remove_all">Remover todos (%1$d)</string>
+    <string name="offline7_review_keep_all">Manter todos</string>
+    <string name="offline7_confirm_nothing">Estes jogos já não estão neste dispositivo, só saem desta lista.</string>
+    <string name="offline7_confirm_drop">Tirar da lista</string>
+    <string name="offline7_confirm_delete">Eliminar ficheiros</string>
+    <string name="offline7_notify_space_title">Espaço insuficiente para as tuas coleções</string>
+    <string name="offline7_notify_text">Abre as Transferências para as acompanhar.</string>
+    <plurals name="offline7_last_queued">
+        <item quantity="one">%1$d jogo colocado na fila</item>
+        <item quantity="other">%1$d jogos colocados na fila</item>
+    </plurals>
+    <plurals name="offline7_notify_queued">
+        <item quantity="one">%1$d jogo na fila para as tuas coleções</item>
+        <item quantity="other">%1$d jogos na fila para as tuas coleções</item>
+    </plurals>
+    <plurals name="offline7_notify_space">
+        <item quantity="one">%1$d jogo não cabe; faltam cerca de %2$s de espaço livre</item>
+        <item quantity="other">%1$d jogos não cabem; faltam cerca de %2$s de espaço livre</item>
+    </plurals>
+    <plurals name="offline7_notify_more">
+        <item quantity="one">Mais %1$d jogo na próxima ronda</item>
+        <item quantity="other">Mais %1$d jogos na próxima ronda</item>
+    </plurals>
+    <plurals name="offline7_confirm_title">
+        <item quantity="one">Remover %1$d jogo deste dispositivo?</item>
+        <item quantity="other">Remover %1$d jogos deste dispositivo?</item>
+    </plurals>
+    <plurals name="offline7_confirm_message">
+        <item quantity="one">Isto elimina %1$d ficheiro deste dispositivo (%2$s):</item>
+        <item quantity="other">Isto elimina %1$d ficheiros deste dispositivo (%2$s):</item>
+    </plurals>
+    <plurals name="offline7_confirm_more">
+        <item quantity="one">… e mais %1$d ficheiro</item>
+        <item quantity="other">… e mais %1$d ficheiros</item>
+    </plurals>
+    <plurals name="offline7_confirm_absent">
+        <item quantity="one">%1$d jogo já não está neste dispositivo e só sai desta lista.</item>
+        <item quantity="other">%1$d jogos já não estão neste dispositivo e só saem desta lista.</item>
+    </plurals>
+    <plurals name="offline7_removed">
+        <item quantity="one">%1$d jogo removido deste dispositivo</item>
+        <item quantity="other">%1$d jogos removidos deste dispositivo</item>
+    </plurals>
+</resources>

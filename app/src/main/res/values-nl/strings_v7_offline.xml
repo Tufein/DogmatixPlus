@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="offline7_switch_title">Bewaar op dit apparaat</string>
+    <string name="offline7_switch_hint">Haalt de games van deze collectie op die je bronnen vermelden en dit apparaat nog niet heeft.</string>
+    <string name="offline7_status_running">Zoeken naar games om op te halen…</string>
+    <string name="offline7_status_checking">Collectie controleren…</string>
+    <string name="offline7_status_count">%1$d van %2$d op dit apparaat</string>
+    <string name="offline7_status_queued">%1$d in de wachtrij</string>
+    <string name="offline7_status_fetch">%1$d nu op te halen</string>
+    <string name="offline7_status_space">%1$d wachten op ruimte</string>
+    <string name="offline7_status_cap">%1$d bij de volgende ronde</string>
+    <string name="offline7_status_not_listed">%1$d niet in je bronnen</string>
+    <string name="offline7_section_title">Op dit apparaat bewaard</string>
+    <string name="offline7_section_hint">Games van een collectie die aanstaat worden na elke scan opgehaald, een paar tegelijk. Er wordt nooit iets uit zichzelf verwijderd.</string>
+    <string name="offline7_fetch_now">Nu ophalen</string>
+    <string name="offline7_last_none">Nog niets opgehaald. Zet een collectie aan of tik op Nu ophalen.</string>
+    <string name="offline7_last_line">Laatste ronde %1$s · %2$s</string>
+    <string name="offline7_no_folder">Er is geen downloadmap ingesteld, dus er kan niets worden opgehaald. Kies er een in de instellingen.</string>
+    <string name="offline7_cap_title">Games per ronde</string>
+    <string name="offline7_cap_hint">Het maximale aantal games dat in één keer in de wachtrij komt, zodat een grote collectie je wachtrij nooit overspoelt.</string>
+    <string name="offline7_wifi_title">Alleen via wifi</string>
+    <string name="offline7_wifi_hint">Games in de wachtrij wachten op een niet-getarifeerd netwerk. Je downloadregels en -voorwaarden blijven gelden.</string>
+    <string name="offline7_review_title">Niet meer in de collectie</string>
+    <string name="offline7_review_hint">Deze games zijn voor een collectie opgehaald en zitten er inmiddels niet meer in. Ze staan nog op dit apparaat en blijven staan tot je ze verwijdert.</string>
+    <string name="offline7_review_from">Uit %1$s</string>
+    <string name="offline7_review_keep">Bewaren</string>
+    <string name="offline7_review_remove">Verwijderen</string>
+    <string name="offline7_review_remove_all">Alles verwijderen (%1$d)</string>
+    <string name="offline7_review_keep_all">Alles bewaren</string>
+    <string name="offline7_confirm_nothing">Deze games staan niet meer op dit apparaat, ze verdwijnen alleen uit deze lijst.</string>
+    <string name="offline7_confirm_drop">Uit lijst halen</string>
+    <string name="offline7_confirm_delete">Bestanden verwijderen</string>
+    <string name="offline7_notify_space_title">Te weinig ruimte voor je collecties</string>
+    <string name="offline7_notify_text">Open Downloads om ze te volgen.</string>
+    <plurals name="offline7_last_queued">
+        <item quantity="one">%1$d game in de wachtrij gezet</item>
+        <item quantity="other">%1$d games in de wachtrij gezet</item>
+    </plurals>
+    <plurals name="offline7_notify_queued">
+        <item quantity="one">%1$d game voor je collecties in de wachtrij gezet</item>
+        <item quantity="other">%1$d games voor je collecties in de wachtrij gezet</item>
+    </plurals>
+    <plurals name="offline7_notify_space">
+        <item quantity="one">%1$d game past niet; er is ongeveer %2$s extra vrije ruimte nodig</item>
+        <item quantity="other">%1$d games passen niet; er is ongeveer %2$s extra vrije ruimte nodig</item>
+    </plurals>
+    <plurals name="offline7_notify_more">
+        <item quantity="one">Nog %1$d game volgt bij de volgende ronde</item>
+        <item quantity="other">Nog %1$d games volgen bij de volgende ronde</item>
+    </plurals>
+    <plurals name="offline7_confirm_title">
+        <item quantity="one">%1$d game van dit apparaat verwijderen?</item>
+        <item quantity="other">%1$d games van dit apparaat verwijderen?</item>
+    </plurals>
+    <plurals name="offline7_confirm_message">
+        <item quantity="one">Hiermee wordt %1$d bestand van dit apparaat verwijderd (%2$s):</item>
+        <item quantity="other">Hiermee worden %1$d bestanden van dit apparaat verwijderd (%2$s):</item>
+    </plurals>
+    <plurals name="offline7_confirm_more">
+        <item quantity="one">… en nog %1$d bestand</item>
+        <item quantity="other">… en nog %1$d bestanden</item>
+    </plurals>
+    <plurals name="offline7_confirm_absent">
+        <item quantity="one">%1$d game staat niet meer op dit apparaat en verdwijnt alleen uit deze lijst.</item>
+        <item quantity="other">%1$d games staan niet meer op dit apparaat en verdwijnen alleen uit deze lijst.</item>
+    </plurals>
+    <plurals name="offline7_removed">
+        <item quantity="one">%1$d game van dit apparaat verwijderd</item>
+        <item quantity="other">%1$d games van dit apparaat verwijderd</item>
+    </plurals>
+</resources>
