@@ -147,7 +147,11 @@ fun GameDetailsDialog(
     extraSections: @Composable ColumnScope.() -> Unit = {},
     /** 6.0: "More like this" (cover cards); [onOpenSimilar] opens that game's details. Empty hides the section. */
     similar: List<DownloadableFileWithTags> = emptyList(),
-    onOpenSimilar: ((DownloadableFileWithTags) -> Unit)? = null
+    onOpenSimilar: ((DownloadableFileWithTags) -> Unit)? = null,
+    /** 6.0: shares a card of this game (GameShare). */
+    onShare: (() -> Unit)? = null,
+    /** 6.0: queues this game with a condition (null = right away): Wi-Fi, charging, tonight, at a time. */
+    onDownloadWhen: ((com.cortinadev.dogmatix.util.DownloadCondition?) -> Unit)? = null
 ) {
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val scheme = MaterialTheme.colorScheme
@@ -273,7 +277,12 @@ fun GameDetailsDialog(
                     icon = R.drawable.ic_star,
                     tone = if (favourite) ActionTone.Accent else ActionTone.Neutral
                 )
-                // 6.0 SLOT: the sharing worker's "Share" ActionPill (GameShare) goes here, before Close.
+                if (onShare != null) {
+                    ActionPill(stringResource(R.string.lead6_share), onShare, icon = R.drawable.ic_share)
+                }
+                if (onDownloadWhen != null && !owned && !downloading) {
+                    ActionPill(stringResource(R.string.plan6_wait_for), { showWhen = true }, icon = R.drawable.ic_schedule)
+                }
                 ActionPill(stringResource(R.string.details_close), onDismiss, icon = R.drawable.ic_close)
                 if (onDownloadBest != null && state.best != null) {
                     ActionPill(stringResource(R.string.details_download_best), onDownloadBest, icon = R.drawable.ic_award)
