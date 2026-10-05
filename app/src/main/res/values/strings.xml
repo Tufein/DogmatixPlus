@@ -1320,11 +1320,11 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>A new look: depth, colour, covers, charts and calm motion. Layout and buttons stay the same.</item>
-        <item>The Cloud hub (Settings → Cloud) and a cloud icon in the top bar.</item>
-        <item>RomM on every game: details, your play status, saves per game and BIOS from your server.</item>
-        <item>An encrypted backup and device sync through your own WebDAV server.</item>
-        <item>RetroAchievements progress per game.</item>
+        <item>Search by feel: filters for genre and decade, "More like this" in the details card, Surprise me on the Start button, compact lists.</item>
+        <item>Collection goals and a play history, a share card for games, and a "Continue playing" home-screen widget.</item>
+        <item>Download when it suits: only on Wi-Fi, while charging, tonight or at a set time.</item>
+        <item>A shared wishlist for the family, and a safer WebDAV sync and backup.</item>
+        <item>Check everything: one report on sources, storage, RomM, backups and more, with a fix for each problem.</item>
     </string-array>
 
     <!-- 4.0 -->

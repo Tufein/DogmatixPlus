@@ -3,6 +3,27 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [6.0.0] – 2026-10-05 · Dogmatix+
+
+Finding, collecting and sharing. Layout and key bindings stay as they were.
+
+### Added
+- **Genre and decade filters**, **More like this** in the details card, **Surprise me** on the Start button, **compact lists** (Settings → Look and controls).
+- **Collection goals** and **Play history** in Tools.
+- **Share a game** as a card, **share the wishlist** as text, a **Continue playing** home-screen widget, and a notification when a wanted game appears on RomM.
+- **Download when it suits**: Wi-Fi, charging, both, tonight or at a set time, per game or per selection.
+- **Shared wishlist** on a WebDAV server, with who added and who found each game.
+- **Check everything** in Tools: one health report with a fix per problem.
+
+### Changed
+- WebDAV sync and backup: conditional re-read and read-back writes, a rollback guard, an account-aware sync base, rotating backup names uploaded as `.part` then moved, an 8 MB backup limit, a warning for unencrypted addresses, one export/restore at a time.
+- Cloud-save restore only picks a single same-name file when the folder or RomM id matches, and the dialog names the file it replaces.
+- The old download rules class is now `DownloadRules`; `DownloadConditions` holds the per-item conditions.
+
+### Notes
+- No database change (version 13).
+- Not yet tried on a real device or against a real RomM or WebDAV server.
+
 ## [5.0.0] – 2026-10-05 · Dogmatix+
 
 The look and the cloud. Layout, navigation and key bindings stay as they were; everything is

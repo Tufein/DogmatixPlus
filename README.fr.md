@@ -33,6 +33,15 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveau dans 6.0
+- **Chercher à l'instinct** : filtres de **genre et de décennie** (d'après les infos de jeu déjà là), **Plus comme ça** dans la fiche, **Surprends-moi** sur la touche Start de la manette et une option de **listes compactes**.
+- **Objectifs de collection et historique** (*Outils*) : à quel point chaque console est complète, avec les titres manquants prêts à importer, et une chronologie jour par jour de ce que vous avez téléchargé et joué.
+- **Partager un jeu** en carte avec sa jaquette, partager la liste de souhaits en texte, et un widget **Reprendre** pour l'écran d'accueil. Un jeu souhaité qui apparaît sur votre serveur RomM est annoncé.
+- **Télécharger au bon moment** : seulement en Wi-Fi, en charge, ce soir ou à une heure choisie, par jeu depuis la fiche ou la liste des téléchargements.
+- **Une liste de souhaits partagée en famille** sur votre propre serveur WebDAV, avec qui a ajouté et qui a trouvé chaque jeu ; la synchro et la sauvegarde WebDAV sont plus sûres (pas de fichier à moitié écrit, pas de version plus récente écrasée, avertissement pour les adresses non chiffrées).
+- **Tout vérifier** (*Outils*) : un rapport sur les sources, le stockage, le BIOS, RomM, les sauvegardes, les notifications et la batterie, avec une solution par problème.
+- Pas encore essayé sur un vrai appareil ni sur un vrai serveur RomM ou WebDAV.
+
 ### Nouveau dans 5.0
 - **Un nouveau visuel** : des panneaux avec de la profondeur, une douce lueur dans votre couleur d'accent, des couleurs par console, un focus visible depuis le canapé, des **jaquettes** (RomM, boxart libretro ou une tuile colorée), des graphiques, de nouvelles icônes et des animations calmes. Les réglages des animations, de la lueur et des jaquettes dans la liste sont dans *Paramètres → Apparence et commandes*. La disposition et les boutons ne changent pas.
 - **Vue d'ensemble du cloud** (*Paramètres → Cloud*) : RomM, synchro des sauvegardes, sauvegarde cloud, synchro des appareils, RetroAchievements et Debrid sur un seul écran, avec un petit **nuage dans la barre du haut** qui indique repos, synchro en cours ou « a besoin de vous ».

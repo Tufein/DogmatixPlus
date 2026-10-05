@@ -1324,11 +1324,11 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Un nouveau visuel : profondeur, couleur, jaquettes, graphiques et animations calmes. La disposition et les boutons ne changent pas.</item>
-        <item>La vue d\'ensemble du cloud (Paramètres → Cloud) et un nuage dans la barre du haut.</item>
-        <item>RomM sur chaque jeu : détails, votre statut de jeu, sauvegardes par jeu et BIOS depuis votre serveur.</item>
-        <item>Une sauvegarde chiffrée et la synchro des appareils via votre propre serveur WebDAV.</item>
-        <item>La progression RetroAchievements par jeu.</item>
+        <item>Chercher à l\'instinct : filtres de genre et de décennie, "Plus comme ça" dans la fiche, Surprends-moi sur la touche Start, listes compactes.</item>
+        <item>Objectifs de collection et historique de jeu, une carte à partager et un widget "Reprendre".</item>
+        <item>Télécharger au bon moment : seulement en Wi-Fi, en charge, ce soir ou à une heure choisie.</item>
+        <item>Une liste de souhaits partagée en famille, et une synchro et sauvegarde WebDAV plus sûres.</item>
+        <item>Tout vérifier : un rapport sur les sources, le stockage, RomM, les sauvegardes et plus, avec une solution par problème.</item>
     </string-array>
 
     <!-- 4.0 -->

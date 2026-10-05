@@ -33,6 +33,15 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 6.0
+- **Zoeken op gevoel**: filters voor **genre en decennium** (uit de gameinformatie die je al hebt), **Meer zoals dit** in de detailkaart, **Verras me** op de Start-knop van de controller en een optie voor **compacte lijsten**.
+- **Verzamelingsdoelen en speelgeschiedenis** (*Tools*): hoe compleet elke console is, met de ontbrekende titels klaar om te importeren, en een tijdlijn per dag van wat je downloadde en speelde.
+- **Een game delen** als kaart met cover, de verlanglijst delen als tekst, en een **Verder spelen**-widget voor het startscherm. Een gewenste game die op je RomM-server verschijnt wordt gemeld.
+- **Downloaden wanneer het uitkomt**: alleen via wifi, aan de lader, vanavond of op een vast tijdstip, per game vanuit de detailkaart of de downloadlijst.
+- **Een gedeelde verlanglijst voor het gezin** op je eigen WebDAV-server, met wie een game toevoegde en wie hem vond; de WebDAV-sync en -back-up zijn veiliger (geen half geschreven bestanden, geen nieuwere versie overschrijven, een waarschuwing voor onversleutelde adressen).
+- **Alles controleren** (*Tools*): één rapport over bronnen, opslag, BIOS, RomM, back-ups, meldingen en batterij, met een oplossing per probleem.
+- Nog niet getest op een echt apparaat of tegen een echte RomM- of WebDAV-server.
+
 ### Nieuw in 5.0
 - **Een nieuw uiterlijk**: panelen met diepte, een zachte gloed in je accentkleur, consolekleuren, een focus die je vanaf de bank ziet, **covers** (RomM, libretro-boxart of een gekleurde tegel), grafieken, nieuwe pictogrammen en rustige beweging. Schakelaars voor animaties, gloed en covers in de lijst staan in *Instellingen → Uiterlijk en bediening*. Indeling en knoppen zijn niet veranderd.
 - **Cloud-overzicht** (*Instellingen → Cloud*): RomM, save-sync, cloud-back-up, apparaten synchroniseren, RetroAchievements en Debrid op één scherm, en een klein **wolkje in de bovenbalk** dat rust, synchroniseren of "heeft jou nodig" toont.

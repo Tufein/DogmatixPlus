@@ -1319,11 +1319,11 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Een nieuw uiterlijk: diepte, kleur, covers, grafieken en rustige beweging. Indeling en knoppen blijven hetzelfde.</item>
-        <item>Het cloud-overzicht (Instellingen → Cloud) en een wolkje in de bovenbalk.</item>
-        <item>RomM bij elke game: details, je speelstatus, saves per game en BIOS van je server.</item>
-        <item>Een versleutelde back-up en apparaten synchroniseren via je eigen WebDAV-server.</item>
-        <item>RetroAchievements-voortgang per game.</item>
+        <item>Zoeken op gevoel: filters voor genre en decennium, "Meer zoals dit" in de detailkaart, Verras me op de Start-knop, compacte lijsten.</item>
+        <item>Verzamelingsdoelen en een speelgeschiedenis, een deelkaart voor games en een "Verder spelen"-widget.</item>
+        <item>Downloaden wanneer het uitkomt: alleen via wifi, aan de lader, vanavond of op een vast tijdstip.</item>
+        <item>Een gedeelde verlanglijst voor het gezin, en een veiligere WebDAV-sync en -back-up.</item>
+        <item>Alles controleren: één rapport over bronnen, opslag, RomM, back-ups en meer, met een oplossing per probleem.</item>
     </string-array>
 
     <!-- 4.0 -->

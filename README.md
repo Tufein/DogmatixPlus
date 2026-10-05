@@ -33,6 +33,15 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
+### New in 6.0
+- **Search by feel**: filters for **genre and decade** (from the game information you already have), **More like this** in the details card, **Surprise me** on the controller's Start button and a **compact list** option.
+- **Collection goals and play history** (*Tools*): how complete each console is, with the missing titles ready to import, and a day-by-day timeline of what you downloaded and played.
+- **Share a game** as a card with its cover, share the wishlist as text, and a **Continue playing** widget for the home screen. A wanted game that appears on your RomM server is announced.
+- **Download when it suits**: only on Wi-Fi, while charging, tonight or at a set time, per game from the details card or the Downloads list.
+- **A shared wishlist for the family** on your own WebDAV server, showing who added and who found each game; the WebDAV sync and backup became safer (no half-written files, no overwriting a newer version, a warning for unencrypted addresses).
+- **Check everything** (*Tools*): one report on sources, storage, BIOS, RomM, backups, notifications and battery, with a fix button for each problem.
+- Not tried yet on a real device or against a real RomM or WebDAV server.
+
 ### New in 5.0
 - **A new look**: panels with depth, a soft glow of your accent colour, console colours, a focus you can see from the couch, **covers** (RomM, libretro box art or a coloured tile), charts, new icons and calm motion. Switches for animations, glow and covers in the list sit in *Settings → Look and controls*. Layout and buttons are unchanged.
 - **Cloud hub** (*Settings → Cloud*): RomM, save sync, cloud backup, device sync, RetroAchievements and Debrid on one screen, and a small **cloud icon in the top bar** that shows idle, syncing or "needs you".

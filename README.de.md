@@ -33,6 +33,15 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 6.0
+- **Suchen nach Gefühl**: Filter für **Genre und Jahrzehnt** (aus den vorhandenen Spielinfos), **Mehr davon** in der Detailkarte, **Überrasch mich** auf der Start-Taste des Controllers und **kompakte Listen**.
+- **Sammlungsziele und Spielverlauf** (*Tools*): wie vollständig jede Konsole ist, mit den fehlenden Titeln zum Import, und eine Zeitleiste pro Tag mit Geladenem und Gespieltem.
+- **Spiel teilen** als Karte mit Cover, Wunschliste als Text teilen und ein Widget **Weiterspielen**. Ein gewünschtes Spiel, das auf deinem RomM-Server auftaucht, wird gemeldet.
+- **Laden, wenn es passt**: nur im WLAN, beim Laden, heute Nacht oder zu einer festen Zeit, pro Spiel in der Detailkarte oder der Download-Liste.
+- **Eine gemeinsame Wunschliste für die Familie** auf deinem eigenen WebDAV-Server, mit Angabe, wer ein Spiel hinzugefügt und wer es gefunden hat; WebDAV-Sync und -Backup sind sicherer (keine halb geschriebenen Dateien, keine neuere Version überschrieben, Warnung bei unverschlüsselten Adressen).
+- **Alles prüfen** (*Tools*): ein Bericht zu Quellen, Speicher, BIOS, RomM, Backups, Benachrichtigungen und Akku, mit einer Lösung je Problem.
+- Noch nicht auf einem echten Gerät oder gegen einen echten RomM- oder WebDAV-Server getestet.
+
 ### Neu in 5.0
 - **Ein neues Aussehen**: Panels mit Tiefe, ein sanftes Leuchten in deiner Akzentfarbe, Konsolenfarben, ein Fokus, den man vom Sofa aus sieht, **Cover** (RomM, libretro-Boxart oder eine farbige Kachel), Diagramme, neue Symbole und ruhige Bewegung. Schalter für Animationen, Leuchten und Cover in der Liste stehen unter *Einstellungen → Aussehen und Bedienung*. Aufbau und Tasten sind unverändert.
 - **Cloud-Übersicht** (*Einstellungen → Cloud*): RomM, Savesync, Cloud-Backup, Geräteabgleich, RetroAchievements und Debrid auf einem Bildschirm, dazu eine kleine **Wolke in der Leiste oben**, die Ruhe, Abgleich oder „braucht dich“ zeigt.
