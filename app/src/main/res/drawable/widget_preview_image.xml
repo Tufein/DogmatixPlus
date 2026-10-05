@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Picker thumbnail for Android 10 and 11 (android:previewImage; later versions use widget_preview). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="180dp"
+    android:height="120dp"
+    android:viewportWidth="180"
+    android:viewportHeight="120">
+    <!-- panel -->
+    <path
+        android:fillColor="#1E1B24"
+        android:strokeColor="#2C2834"
+        android:strokeWidth="1"
+        android:pathData="M22,0.5 H158 A21.5,21.5 0 0 1 179.5,22 V98 A21.5,21.5 0 0 1 158,119.5 H22 A21.5,21.5 0 0 1 0.5,98 V22 A21.5,21.5 0 0 1 22,0.5 Z" />
+    <!-- title: "Dogmatix" and the accent "+" -->
+    <path android:fillColor="#ECE8F1" android:pathData="M14,16 h52 a3,3 0 0 1 3,3 v1 a3,3 0 0 1 -3,3 h-52 a3,3 0 0 1 -3,-3 v-1 a3,3 0 0 1 3,-3 Z" />
+    <path android:fillColor="#FF7F00" android:pathData="M76,14.5 h3 v4 h4 v3 h-4 v4 h-3 v-4 h-4 v-3 h4 Z" />
+    <!-- downloads line and its progress bar -->
+    <path android:fillColor="#ECE8F1" android:pathData="M14,34 h54 a2.5,2.5 0 0 1 2.5,2.5 a2.5,2.5 0 0 1 -2.5,2.5 h-54 a2.5,2.5 0 0 1 -2.5,-2.5 a2.5,2.5 0 0 1 2.5,-2.5 Z" />
+    <path android:fillColor="#FF7F00" android:pathData="M146,34 h20 a2.5,2.5 0 0 1 0,5 h-20 a2.5,2.5 0 0 1 0,-5 Z" />
+    <path android:fillColor="#4D808080" android:pathData="M14,45 h152 a3,3 0 0 1 0,6 h-152 a3,3 0 0 1 0,-6 Z" />
+    <path android:fillColor="#FF7F00" android:pathData="M14,45 h68 a3,3 0 0 1 0,6 h-68 a3,3 0 0 1 0,-6 Z" />
+    <!-- new games: marker, count and titles -->
+    <path android:fillColor="#4D808080" android:pathData="M14,62 h22 a4,4 0 0 1 4,4 a4,4 0 0 1 -4,4 h-22 a4,4 0 0 1 -4,-4 a4,4 0 0 1 4,-4 Z" />
+    <path android:fillColor="#ECE8F1" android:pathData="M46,63 h56 a3,3 0 0 1 0,6 h-56 a3,3 0 0 1 0,-6 Z" />
+    <path android:fillColor="#FF7F00" android:pathData="M14,79 a2.5,2.5 0 1 0 5,0 a2.5,2.5 0 1 0 -5,0 Z" />
+    <path android:fillColor="#B8B1C4" android:pathData="M24,77 h66 a2,2 0 0 1 0,4 h-66 a2,2 0 0 1 0,-4 Z" />
+    <path android:fillColor="#FF7F00" android:pathData="M14,93 a2.5,2.5 0 1 0 5,0 a2.5,2.5 0 1 0 -5,0 Z" />
+    <path android:fillColor="#B8B1C4" android:pathData="M24,91 h50 a2,2 0 0 1 0,4 h-50 a2,2 0 0 1 0,-4 Z" />
+</vector>

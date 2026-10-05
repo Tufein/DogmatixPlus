@@ -74,6 +74,7 @@ import com.cortinadev.dogmatix.ui.screens.tools.RetroAchievementsScreen
 import com.cortinadev.dogmatix.ui.screens.tools.StatsScreen
 import com.cortinadev.dogmatix.ui.screens.tools.SwitchScreen
 import com.cortinadev.dogmatix.ui.secondscreen.SecondScreenPresenter
+import com.cortinadev.dogmatix.ui.secondscreen.SecondScreenState
 import com.cortinadev.dogmatix.util.DeepLinkParser
 import com.cortinadev.dogmatix.util.DgmtxFile
 import com.cortinadev.dogmatix.util.SharedLinks
@@ -385,6 +386,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
     val currentRoute = navBackStackEntry?.destination?.route ?: NavRoutes.Home.route
 
     Gamepad.currentRoute = currentRoute
+    SecondScreenState.setRoute(currentRoute)   // the second screen shows its downloads dashboard away from the library
     // A deep link lands on the Library tab; HomeViewModel picks the filters up from the holder.
     val pendingVersion by pendingFilters.version.collectAsState()
     LaunchedEffect(pendingVersion) {

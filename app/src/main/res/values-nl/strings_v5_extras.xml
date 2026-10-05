@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: second screen, home-screen widget, shortcut picker -->
+<resources>
+    <string name="second_screen_speed">%1$s/s</string>
+    <string name="second_screen_more">+%1$d meer</string>
+    <string name="widget_new_marker">NIEUW</string>
+    <plurals name="widget_downloads_count">
+        <item quantity="one">%1$d download</item>
+        <item quantity="other">%1$d downloads</item>
+    </plurals>
+    <string name="widget_progress_description">Voortgang van de downloads: %1$d%%</string>
+    <string name="widget_preview_downloads">2 downloads</string>
+    <string name="widget_preview_new">3 nieuwe games</string>
+    <string name="shortcut_pick_subtitle">Kies wat de snelkoppeling opent</string>
+    <string name="shortcut_group_sections">Onderdelen</string>
+    <string name="shortcut_group_views">Opgeslagen weergaven</string>
+    <string name="shortcut_group_consoles">Consoles</string>
+    <string name="shortcut_loading">Snelkoppelingen laden…</string>
+    <string name="shortcut_empty_title">Geen snelkoppelingen beschikbaar</string>
+    <string name="shortcut_empty_message">Open Dogmatix+ één keer en probeer het opnieuw.</string>
+    <string name="shortcut_close">Sluiten</string>
+</resources>
