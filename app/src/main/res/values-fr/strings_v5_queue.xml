@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: downloads, sources, onboarding, share -->
+<resources>
+    <string name="q5_queue_title">File d\'attente</string>
+    <string name="q5_of">%1$s sur %2$s</string>
+    <string name="q5_idle_title">Aucun téléchargement en cours</string>
+    <string name="q5_free_need">%1$s libres · %2$s nécessaires</string>
+    <string name="q5_short_by">Il manque %1$s</string>
+    <string name="q5_pill_active">%1$d en cours</string>
+    <string name="q5_pill_done">%1$d terminés</string>
+    <string name="q5_pill_failed">%1$d en échec</string>
+    <string name="q5_wait_wifi">Wi-Fi uniquement</string>
+    <string name="q5_wait_charger">Sur secteur uniquement</string>
+    <string name="q5_wait_night">Plage nocturne</string>
+    <string name="q5_wait_storage">Peu d\'espace</string>
+    <string name="q5_wait_held">En pause</string>
+    <string name="q5_per_second">%1$s/s</string>
+    <string name="q5_empty_title">Aucun téléchargement pour l\'instant</string>
+    <string name="q5_empty_message">Choisissez un jeu dans la bibliothèque : il apparaît ici, avec sa jaquette et sa progression.</string>
+    <string name="q5_go_library">Aller à la bibliothèque</string>
+    <string name="q5_romm_uploading">RomM %1$d%%</string>
+    <string name="q5_romm_done">Sur RomM</string>
+    <string name="q5_romm_failed">Échec de l\'envoi vers RomM</string>
+    <string name="q5_verified">Vérifié</string>
+    <string name="q5_verify_mismatch">Somme de contrôle différente : réessayez</string>
+    <string name="q5_verify_checking">Vérification…</string>
+    <string name="q5_dat_ok">Correspond au DAT</string>
+    <string name="q5_dat_unknown">Absent du DAT</string>
+    <string name="q5_health_no_sources">Aucune source</string>
+    <string name="q5_health_not_scanned">Non analysée</string>
+    <string name="q5_health_ok">OK</string>
+    <string name="q5_health_partial">%1$d en échec</string>
+    <string name="q5_health_failed">Échec</string>
+    <string name="q5_kind_romm">RomM</string>
+    <string name="q5_kind_torrent">Torrent</string>
+    <string name="q5_kind_web">Dossier web</string>
+    <string name="q5_kind_other">Autre</string>
+    <string name="q5_type_game">Jeux</string>
+    <string name="q5_type_misc">Divers</string>
+    <string name="q5_type_ra">RetroAchievements</string>
+    <string name="q5_disabled">Désactivée</string>
+    <string name="q5_previous">Précédent</string>
+    <string name="q5_next">Suivant</string>
+    <plurals name="q5_sources_pill">
+        <item quantity="one">%1$d source</item>
+        <item quantity="other">%1$d sources</item>
+    </plurals>
+    <plurals name="q5_games_pill">
+        <item quantity="one">%1$d jeu</item>
+        <item quantity="other">%1$d jeux</item>
+    </plurals>
+    <plurals name="q5_consoles_count">
+        <item quantity="one">%1$d console</item>
+        <item quantity="other">%1$d consoles</item>
+    </plurals>
+    <plurals name="q5_sources_count">
+        <item quantity="one">%1$d source</item>
+        <item quantity="other">%1$d sources</item>
+    </plurals>
+</resources>

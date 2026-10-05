@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: downloads, sources, onboarding, share -->
+<resources>
+    <string name="q5_queue_title">Cola</string>
+    <string name="q5_of">%1$s de %2$s</string>
+    <string name="q5_idle_title">No se está descargando nada</string>
+    <string name="q5_free_need">%1$s libres · %2$s necesarios</string>
+    <string name="q5_short_by">Faltan %1$s</string>
+    <string name="q5_pill_active">%1$d activas</string>
+    <string name="q5_pill_done">%1$d listas</string>
+    <string name="q5_pill_failed">%1$d fallidas</string>
+    <string name="q5_wait_wifi">Solo Wi-Fi</string>
+    <string name="q5_wait_charger">Solo con cargador</string>
+    <string name="q5_wait_night">Ventana nocturna</string>
+    <string name="q5_wait_storage">Poco espacio</string>
+    <string name="q5_wait_held">En pausa</string>
+    <string name="q5_per_second">%1$s/s</string>
+    <string name="q5_empty_title">Aún no hay descargas</string>
+    <string name="q5_empty_message">Elige un juego en la biblioteca y aparecerá aquí, con su carátula y su progreso.</string>
+    <string name="q5_go_library">Ir a la biblioteca</string>
+    <string name="q5_romm_uploading">RomM %1$d%%</string>
+    <string name="q5_romm_done">En RomM</string>
+    <string name="q5_romm_failed">Error al subir a RomM</string>
+    <string name="q5_verified">Verificado</string>
+    <string name="q5_verify_mismatch">La suma de comprobación difiere: reintenta</string>
+    <string name="q5_verify_checking">Comprobando…</string>
+    <string name="q5_dat_ok">Coincide con el DAT</string>
+    <string name="q5_dat_unknown">No está en el DAT</string>
+    <string name="q5_health_no_sources">Sin fuentes</string>
+    <string name="q5_health_not_scanned">Sin analizar</string>
+    <string name="q5_health_ok">OK</string>
+    <string name="q5_health_partial">%1$d con error</string>
+    <string name="q5_health_failed">Error</string>
+    <string name="q5_kind_romm">RomM</string>
+    <string name="q5_kind_torrent">Torrent</string>
+    <string name="q5_kind_web">Carpeta web</string>
+    <string name="q5_kind_other">Otro</string>
+    <string name="q5_type_game">Juegos</string>
+    <string name="q5_type_misc">Varios</string>
+    <string name="q5_type_ra">RetroAchievements</string>
+    <string name="q5_disabled">Desactivada</string>
+    <string name="q5_previous">Anterior</string>
+    <string name="q5_next">Siguiente</string>
+    <plurals name="q5_sources_pill">
+        <item quantity="one">%1$d fuente</item>
+        <item quantity="other">%1$d fuentes</item>
+    </plurals>
+    <plurals name="q5_games_pill">
+        <item quantity="one">%1$d juego</item>
+        <item quantity="other">%1$d juegos</item>
+    </plurals>
+    <plurals name="q5_consoles_count">
+        <item quantity="one">%1$d consola</item>
+        <item quantity="other">%1$d consolas</item>
+    </plurals>
+    <plurals name="q5_sources_count">
+        <item quantity="one">%1$d fuente</item>
+        <item quantity="other">%1$d fuentes</item>
+    </plurals>
+</resources>

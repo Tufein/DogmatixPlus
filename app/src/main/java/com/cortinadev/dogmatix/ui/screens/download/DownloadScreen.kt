@@ -3,7 +3,12 @@ package com.cortinadev.dogmatix.ui.screens.download
 import com.cortinadev.dogmatix.util.QueueActions
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,28 +17,34 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -44,9 +55,15 @@ import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.model.DownloadItemModel
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.model.DownloadableFileWithTags
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
+import com.cortinadev.dogmatix.ui.components.ActionPill
+import com.cortinadev.dogmatix.ui.components.ActionTone
+import com.cortinadev.dogmatix.ui.components.EmptyState
+import com.cortinadev.dogmatix.ui.components.Panel
+import com.cortinadev.dogmatix.ui.components.PanelTone
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
+import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
+import com.cortinadev.dogmatix.ui.theme.Motion
 import com.cortinadev.dogmatix.ui.components.formatBytes
-import com.cortinadev.dogmatix.util.QueueEta
 import com.cortinadev.dogmatix.util.WaitReason
 import com.cortinadev.dogmatix.ui.common.Gamepad
 import com.cortinadev.dogmatix.ui.common.GamepadButton
@@ -72,6 +89,9 @@ fun DownloadScreen(
     val counts by viewModel.queueCounts.collectAsState()
     val eta by viewModel.queueEta.collectAsState()
     val held by viewModel.held.collectAsState()
+    val progress by viewModel.queueProgress.collectAsState()
+    val need by viewModel.queueNeed.collectAsState()
+    val free by viewModel.freeBytes.collectAsState()
     val waitWifi = stringResource(R.string.wait_wifi)
     val waitCharger = stringResource(R.string.wait_charger)
     val waitNight = stringResource(R.string.wait_night)
@@ -86,11 +106,24 @@ fun DownloadScreen(
             WaitReason.HELD -> waitHeld
         }
     }
+    // The same reasons in two or three words, for the pill on a waiting row.
+    val shortWifi = stringResource(R.string.q5_wait_wifi)
+    val shortCharger = stringResource(R.string.q5_wait_charger)
+    val shortNight = stringResource(R.string.q5_wait_night)
+    val shortStorage = stringResource(R.string.q5_wait_storage)
+    val shortHeld = stringResource(R.string.q5_wait_held)
+    val waitingShort = waitingReasons.joinToString(" · ") {
+        when (it) {
+            WaitReason.WIFI -> shortWifi
+            WaitReason.CHARGER -> shortCharger
+            WaitReason.NIGHT -> shortNight
+            WaitReason.STORAGE -> shortStorage
+            WaitReason.HELD -> shortHeld
+        }
+    }
     val selection by viewModel.selection.collectAsState()
     val showDeleteConfirmation by viewModel.showDeleteConfirmation.collectAsState()
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val active = downloads.count { it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.QUEUED }
-    val completed = downloads.count { it.status == DownloadStatus.COMPLETED }
     val selectionMode = selection.isNotEmpty()
     val selected = remember(downloads, selection) { downloads.filter { it.fileName in selection } }
 
@@ -150,13 +183,38 @@ fun DownloadScreen(
     // Only clear our own legend: another screen may already have published its own during the transition.
     DisposableEffect(published) { onDispose { if (Gamepad.legendOverride.value === published) Gamepad.legendOverride.value = null } }
 
+    // One animation for every busy bar of the list (a calm segment sliding along the track); it only
+    // runs while something is actually busy and stands still when motion is reduced.
+    val reduceMotion = LocalReduceMotion.current
+    val anyBusy = downloads.any {
+        it.status == DownloadStatus.QUEUED || it.status == DownloadStatus.DOWNLOADING ||
+            it.status == DownloadStatus.COPYING || it.status == DownloadStatus.UNZIPPING
+    }
+    val sweep: State<Float> = if (anyBusy && !reduceMotion) {
+        rememberInfiniteTransition(label = "queue-sweep").animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(tween(1600, easing = FastOutSlowInEasing), RepeatMode.Restart),
+            label = "queue-sweep"
+        )
+    } else {
+        remember { mutableStateOf(0.5f) }
+    }
+    val goToLibrary: () -> Unit = {
+        navController.navigate(NavRoutes.Home.route) {
+            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 4.dp, vertical = 12.dp)
+            .padding(vertical = 12.dp)
     ) {
-        // The section name already lives in the tabs; only the summary stays — and it gives
-        // way to the bulk actions while rows are ticked.
+        // The section name already lives in the tabs; the queue summary heads the list (it scrolls
+        // away on a short screen) and gives way to the bulk actions while rows are ticked.
         if (selectionMode) {
             SelectionBar(
                 focusRequester = barFocus,
@@ -170,64 +228,69 @@ fun DownloadScreen(
                 onDelete = viewModel::deleteSelected,
                 onClear = viewModel::clearSelection
             )
-        } else {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, bottom = 4.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Text(
-                    stringResource(R.string.downloads_summary, active, completed) + etaText(eta),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-        if (!selectionMode && (counts.any || held)) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                if (held || counts.stoppable > 0) PillButton(stringResource(if (held) R.string.downloads_release else R.string.downloads_hold)) { viewModel.setHeld(!held) }
-                if (counts.stoppable > 0) PillButton(stringResource(R.string.downloads_stop_all, counts.stoppable), viewModel::stopAll)
-                if (counts.retryable > 0) PillButton(stringResource(R.string.downloads_retry_failed, counts.retryable), viewModel::retryFailed)
-                if (counts.clearable > 0) PillButton(stringResource(R.string.downloads_clear_finished, counts.clearable), viewModel::clearFinished)
-            }
-        }
-        if (waitingFiles.isNotEmpty() && waitingText.isNotEmpty()) {
-            // On hold by the user: the button lifts the hold; otherwise it starts the waiting ones anyway.
-            val onHold = WaitReason.HELD in waitingReasons
-            val release: () -> Unit = { if (onHold) viewModel.setHeld(false) else viewModel.startWaitingNow() }
-            NoticeRow(
-                text = pluralStringResource(R.plurals.downloads_waiting, waitingFiles.size, waitingFiles.size, waitingText),
-                action = stringResource(if (onHold) R.string.downloads_release else R.string.downloads_start_now),
-                onAction = release
-            )
-        }
-        if (shortfall > 0) {
-            NoticeRow(text = stringResource(R.string.downloads_low_space, formatBytes(shortfall)), error = true)
         }
         if (downloads.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    stringResource(R.string.downloads_empty),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+            Box(
+                modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+                contentAlignment = Alignment.Center
+            ) {
+                EmptyState(
+                    title = stringResource(R.string.q5_empty_title),
+                    message = stringResource(R.string.q5_empty_message),
+                    icon = R.drawable.ic_download,
+                    actionLabel = stringResource(R.string.q5_go_library),
+                    onAction = goToLibrary
                 )
             }
         } else {
+            val itemPlacement = if (reduceMotion) null else tween<IntOffset>(Motion.MEDIUM, easing = FastOutSlowInEasing)
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(top = 6.dp, bottom = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                if (!selectionMode) {
+                    item(key = "queue-header") {
+                        QueueHeader(
+                            summary = progress,
+                            eta = eta,
+                            need = need,
+                            free = free,
+                            shortfall = shortfall,
+                            waitingReasons = waitingReasons,
+                            held = held,
+                            counts = counts,
+                            onHold = { viewModel.setHeld(!held) },
+                            onStopAll = viewModel::stopAll,
+                            onRetryFailed = viewModel::retryFailed,
+                            onClearFinished = viewModel::clearFinished
+                        )
+                    }
+                }
+                if (waitingFiles.isNotEmpty() && waitingText.isNotEmpty()) {
+                    item(key = "notice-waiting") {
+                        // On hold by the user: the button lifts the hold; otherwise it starts the waiting ones anyway.
+                        val onHold = WaitReason.HELD in waitingReasons
+                        val release: () -> Unit = { if (onHold) viewModel.setHeld(false) else viewModel.startWaitingNow() }
+                        NoticeRow(
+                            text = pluralStringResource(R.plurals.downloads_waiting, waitingFiles.size, waitingFiles.size, waitingText),
+                            icon = R.drawable.ic_hourglass,
+                            action = stringResource(if (onHold) R.string.downloads_release else R.string.downloads_start_now),
+                            onAction = release
+                        )
+                    }
+                }
+                if (shortfall > 0) {
+                    item(key = "notice-space") {
+                        NoticeRow(text = stringResource(R.string.downloads_low_space, formatBytes(shortfall)), icon = R.drawable.ic_warning, error = true)
+                    }
+                }
                 itemsIndexed(downloads, key = { _, it -> it.fileName }) { index, item ->
                     DownloadItem(
                         item = item,
                         details = details[item.fileName],
                         upload = uploads[item.fileName],
-                        waitingReason = waitingText.takeIf { it.isNotEmpty() && item.fileName in waitingFiles },
+                        waitingReason = waitingShort.takeIf { it.isNotEmpty() && item.fileName in waitingFiles },
                         queuePosition = queued.indexOf(item.fileName).takeIf { it >= 0 }?.plus(1),
                         verify = verification[item.fileName],
                         compact = isLandscape,
@@ -236,6 +299,10 @@ fun DownloadScreen(
                         selected = item.fileName in selection,
                         onToggleSelection = { viewModel.toggleSelection(item.fileName) },
                         focusUp = barFocus.takeIf { selectionMode && index == 0 },
+                        sweep = sweep,
+                        // Rows glide to their new place when the queue is reordered or a row goes;
+                        // no fades (they would need an alpha layer per row).
+                        modifier = Modifier.animateItem(fadeInSpec = null, placementSpec = itemPlacement, fadeOutSpec = null),
                         onRowFocused = { row, focused ->
                             if (focused) focusedRow = row else if (focusedRow?.fileName == row.fileName) focusedRow = null
                         }
@@ -273,37 +340,33 @@ fun DownloadScreen(
     }
 }
 
-/** " · 12.4 GB left · about 1 h 20 min" while something is left to download; empty otherwise. */
+/** A line of explanation in the list, with an optional button (e.g. "Start now"). */
 @Composable
-private fun etaText(eta: QueueEta.Eta): String {
-    if (eta.remainingBytes <= 0) return ""
-    val left = " · " + stringResource(R.string.downloads_left, formatBytes(eta.remainingBytes))
-    val seconds = eta.seconds ?: return left
-    val (hours, minutes) = QueueEta.hoursMinutes(seconds)
-    return left + " · " + if (hours > 0) stringResource(R.string.downloads_eta_hours, hours, minutes) else stringResource(R.string.downloads_eta_minutes, minutes)
-}
-
-/** A line of explanation above the list, with an optional button (e.g. "Start now"). */
-@Composable
-private fun NoticeRow(text: String, action: String? = null, onAction: () -> Unit = {}, error: Boolean = false) {
+private fun NoticeRow(text: String, icon: Int, action: String? = null, onAction: () -> Unit = {}, error: Boolean = false) {
     val scheme = MaterialTheme.colorScheme
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 2.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(if (error) scheme.errorContainer else scheme.surfaceContainer)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    Panel(
+        modifier = Modifier.fillMaxWidth(),
+        tone = if (error) PanelTone.Danger else PanelTone.Normal,
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
     ) {
-        Text(
-            text,
-            style = MaterialTheme.typography.bodySmall,
-            color = if (error) scheme.onErrorContainer else scheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f)
-        )
-        if (action != null) PillButton(action, onAction)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Icon(
+                painterResource(icon),
+                contentDescription = null,
+                tint = if (error) scheme.onErrorContainer else scheme.primary,
+                modifier = Modifier.size(18.dp)
+            )
+            Text(
+                text,
+                style = MaterialTheme.typography.bodySmall,
+                color = if (error) scheme.onErrorContainer else scheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f)
+            )
+            if (action != null) ActionPill(action, onAction, tone = ActionTone.Accent)
+        }
     }
 }
 
@@ -342,30 +405,38 @@ private fun SelectionBar(
         }
         add(BulkAction(R.drawable.ic_close, stringResource(R.string.selection_clear), scheme.onSurfaceVariant, onClear))
     }
-    Row(
+    Panel(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 2.dp)
-            .onFocusChanged { onFocusChanged(it.hasFocus) }
-            .clip(RoundedCornerShape(8.dp))
-            .background(scheme.surfaceContainer)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+            .padding(horizontal = 16.dp, vertical = 2.dp)
+            .onFocusChanged { onFocusChanged(it.hasFocus) },
+        tone = PanelTone.Accent,
+        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
     ) {
-        Text(
-            pluralStringResource(R.plurals.downloads_selected, selected.size, selected.size),
-            style = MaterialTheme.typography.bodySmall,
-            color = scheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f).padding(start = 6.dp)
-        )
-        actions.forEachIndexed { index, action ->
-            ActionButton(
-                action.icon, action.description, size, action.tint,
-                // ▲ from the list lands on the first action, never on "clear selection".
-                modifier = if (index == 0) Modifier.focusRequester(focusRequester) else Modifier,
-                onClick = action.onClick
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(
+                painterResource(R.drawable.ic_check_circle),
+                contentDescription = null,
+                tint = scheme.onPrimaryContainer,
+                modifier = Modifier.size(18.dp)
             )
+            Text(
+                pluralStringResource(R.plurals.downloads_selected, selected.size, selected.size),
+                style = MaterialTheme.typography.titleSmall,
+                color = scheme.onPrimaryContainer,
+                modifier = Modifier.weight(1f).padding(start = 2.dp)
+            )
+            actions.forEachIndexed { index, action ->
+                ActionButton(
+                    action.icon, action.description, size, action.tint,
+                    // ▲ from the list lands on the first action, never on "clear selection".
+                    modifier = if (index == 0) Modifier.focusRequester(focusRequester) else Modifier,
+                    onClick = action.onClick
+                )
+            }
         }
     }
 }

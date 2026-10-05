@@ -3,20 +3,18 @@ package com.cortinadev.dogmatix.ui.screens.sources.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,12 +23,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.service.FolderMergeService
+import com.cortinadev.dogmatix.ui.components.ActionPill
+import com.cortinadev.dogmatix.ui.components.IconTile
+import com.cortinadev.dogmatix.ui.components.PrimaryButton
+import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.focusRing
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
+import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 
 /**
  * Offered when several folders in the download directory match the same console.
@@ -47,10 +53,17 @@ fun MergeFoldersDialog(
     onDismiss: () -> Unit
 ) {
     var selected by remember(folders) { mutableStateOf(folders.firstOrNull()) }
+    val primaryFocus = rememberInitialFocus()
 
     AlertDialog(
+        modifier = Modifier.closeOnGamepadB { if (!inProgress) onDismiss() },
         onDismissRequest = { if (!inProgress) onDismiss() },
-        title = { Text(stringResource(R.string.merge_folders_title)) },
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                IconTile(R.drawable.ic_merge, size = 36.dp)
+                Text(stringResource(R.string.merge_folders_title))
+            }
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 when {
@@ -80,16 +93,24 @@ fun MergeFoldersDialog(
         },
         confirmButton = {
             when {
-                result != null -> TextButton(onClick = onDismiss) { Text(stringResource(R.string.merge_folders_done)) }
-                else -> TextButton(
-                    onClick = { selected?.let(onMerge) },
+                result != null -> PrimaryButton(
+                    stringResource(R.string.merge_folders_done),
+                    onDismiss,
+                    modifier = Modifier.focusRequester(primaryFocus),
+                    icon = R.drawable.ic_check
+                )
+                else -> PrimaryButton(
+                    stringResource(R.string.merge_folders_confirm),
+                    { selected?.let(onMerge) },
+                    modifier = Modifier.focusRequester(primaryFocus),
+                    icon = R.drawable.ic_merge,
                     enabled = !inProgress && selected != null
-                ) { Text(stringResource(R.string.merge_folders_confirm)) }
+                )
             }
         },
         dismissButton = {
             if (result == null) {
-                TextButton(onClick = onKeep, enabled = !inProgress) { Text(stringResource(R.string.merge_folders_keep)) }
+                ActionPill(stringResource(R.string.merge_folders_keep), onKeep, enabled = !inProgress)
             }
         }
     )
@@ -103,24 +124,24 @@ private fun FolderRow(label: String, selected: Boolean, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(44.dp)
-            .clip(RoundedCornerShape(6.dp))
-            .background(scheme.surfaceContainer)
-            .focusRing(source, 6.dp)
-            .clickable(interactionSource = source, indication = null, onClick = onClick)
+            .clip(RoundedCornerShape(10.dp))
+            .background(if (selected) scheme.primaryContainer else scheme.surfaceContainerHigh)
+            .focusRing(source, 10.dp)
+            .clickable(interactionSource = source, indication = null, role = Role.RadioButton, onClick = onClick)
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .size(14.dp)
-                .clip(CircleShape)
-                .background(if (selected) scheme.primary else scheme.surfaceContainerHighest)
+        Icon(
+            painterResource(if (selected) R.drawable.ic_radio_on else R.drawable.ic_radio_off),
+            contentDescription = null,
+            tint = if (selected) scheme.primary else scheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp)
         )
         Text(
             label,
             style = if (selected) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodyMedium,
-            color = scheme.onSurface
+            color = if (selected) scheme.onPrimaryContainer else scheme.onSurface
         )
     }
 }

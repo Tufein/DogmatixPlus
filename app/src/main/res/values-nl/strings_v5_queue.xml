@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: downloads, sources, onboarding, share -->
+<resources>
+    <string name="q5_queue_title">Wachtrij</string>
+    <string name="q5_of">%1$s van %2$s</string>
+    <string name="q5_idle_title">Er wordt niets gedownload</string>
+    <string name="q5_free_need">%1$s vrij · %2$s nodig</string>
+    <string name="q5_short_by">%1$s tekort</string>
+    <string name="q5_pill_active">%1$d actief</string>
+    <string name="q5_pill_done">%1$d klaar</string>
+    <string name="q5_pill_failed">%1$d mislukt</string>
+    <string name="q5_wait_wifi">Alleen wifi</string>
+    <string name="q5_wait_charger">Alleen aan de lader</string>
+    <string name="q5_wait_night">Nachtvenster</string>
+    <string name="q5_wait_storage">Weinig ruimte</string>
+    <string name="q5_wait_held">Gepauzeerd</string>
+    <string name="q5_per_second">%1$s/s</string>
+    <string name="q5_empty_title">Nog geen downloads</string>
+    <string name="q5_empty_message">Kies een spel in de bibliotheek en het verschijnt hier, met cover en voortgang.</string>
+    <string name="q5_go_library">Naar de bibliotheek</string>
+    <string name="q5_romm_uploading">RomM %1$d%%</string>
+    <string name="q5_romm_done">Op RomM</string>
+    <string name="q5_romm_failed">RomM-upload mislukt</string>
+    <string name="q5_verified">Geverifieerd</string>
+    <string name="q5_verify_mismatch">Checksum wijkt af: probeer opnieuw</string>
+    <string name="q5_verify_checking">Controleren…</string>
+    <string name="q5_dat_ok">Komt overeen met de DAT</string>
+    <string name="q5_dat_unknown">Niet in de DAT</string>
+    <string name="q5_health_no_sources">Geen bronnen</string>
+    <string name="q5_health_not_scanned">Niet gescand</string>
+    <string name="q5_health_ok">OK</string>
+    <string name="q5_health_partial">%1$d mislukt</string>
+    <string name="q5_health_failed">Mislukt</string>
+    <string name="q5_kind_romm">RomM</string>
+    <string name="q5_kind_torrent">Torrent</string>
+    <string name="q5_kind_web">Webmap</string>
+    <string name="q5_kind_other">Overig</string>
+    <string name="q5_type_game">Spellen</string>
+    <string name="q5_type_misc">Divers</string>
+    <string name="q5_type_ra">RetroAchievements</string>
+    <string name="q5_disabled">Uitgeschakeld</string>
+    <string name="q5_previous">Vorige</string>
+    <string name="q5_next">Volgende</string>
+    <plurals name="q5_sources_pill">
+        <item quantity="one">%1$d bron</item>
+        <item quantity="other">%1$d bronnen</item>
+    </plurals>
+    <plurals name="q5_games_pill">
+        <item quantity="one">%1$d spel</item>
+        <item quantity="other">%1$d spellen</item>
+    </plurals>
+    <plurals name="q5_consoles_count">
+        <item quantity="one">%1$d console</item>
+        <item quantity="other">%1$d consoles</item>
+    </plurals>
+    <plurals name="q5_sources_count">
+        <item quantity="one">%1$d bron</item>
+        <item quantity="other">%1$d bronnen</item>
+    </plurals>
+</resources>

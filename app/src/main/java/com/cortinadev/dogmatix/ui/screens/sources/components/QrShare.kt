@@ -6,12 +6,15 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,17 +25,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.ui.components.ActionPill
 import com.cortinadev.dogmatix.ui.components.DialogButton
+import com.cortinadev.dogmatix.ui.components.IconTile
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
+import com.cortinadev.dogmatix.ui.components.focusRing
+import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.DecodeHintType
@@ -120,7 +129,12 @@ fun QrShowDialog(parts: List<String>, onDismiss: () -> Unit) {
     AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.qr_show_title)) },
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                IconTile(R.drawable.ic_qr_code, size = 36.dp)
+                Text(stringResource(R.string.qr_show_title))
+            }
+        },
         text = {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(stringResource(R.string.qr_show_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -129,9 +143,9 @@ fun QrShowDialog(parts: List<String>, onDismiss: () -> Unit) {
                     Image(bitmap, contentDescription = null, filterQuality = FilterQuality.None, modifier = Modifier.size(with(density) { bitmap.width.toDp() }))
                 }
                 if (parts.size > 1) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    PillButton("‹") { index = (index - 1 + parts.size) % parts.size }
+                    ActionPill(stringResource(R.string.q5_previous), { index = (index - 1 + parts.size) % parts.size }, icon = R.drawable.ic_chevron_left)
                     Text(stringResource(R.string.qr_part, index + 1, parts.size), style = MaterialTheme.typography.titleMedium)
-                    PillButton("›") { index = (index + 1) % parts.size }
+                    ActionPill(stringResource(R.string.q5_next), { index = (index + 1) % parts.size }, icon = R.drawable.ic_chevron_right)
                 }
             }
         },
@@ -150,12 +164,32 @@ fun ShareSourcesDialog(onFile: () -> Unit, onShowQr: () -> Unit, onReadQrCamera:
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(stringResource(R.string.share_sources_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                DialogButton(text = stringResource(R.string.share_sources_file), onClick = onFile, initialFocus = fileFocus)
-                DialogButton(text = stringResource(R.string.share_sources_qr), onClick = onShowQr)
-                DialogButton(text = stringResource(R.string.share_sources_read_camera), onClick = onReadQrCamera)
-                DialogButton(text = stringResource(R.string.share_sources_read_pictures), onClick = onReadQrPictures)
+                ShareOption(R.drawable.ic_share, stringResource(R.string.share_sources_file), onFile, Modifier.focusRequester(fileFocus))
+                ShareOption(R.drawable.ic_qr_code, stringResource(R.string.share_sources_qr), onShowQr)
+                ShareOption(R.drawable.ic_photo_camera, stringResource(R.string.share_sources_read_camera), onReadQrCamera)
+                ShareOption(R.drawable.ic_photos, stringResource(R.string.share_sources_read_pictures), onReadQrPictures)
             }
         },
         confirmButton = { DialogButton(text = stringResource(R.string.dialog_close), onClick = onDismiss) }
     )
+}
+
+/** One way to move the source list: an icon tile and a line, the whole row focusable. */
+@Composable
+private fun ShareOption(icon: Int, label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val source = rememberFocusSource()
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .focusRing(source, cornerRadius = 12.dp)
+            .clickable(interactionSource = source, indication = null, role = Role.Button, onClick = onClick)
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        IconTile(icon, size = 36.dp)
+        Text(label, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+    }
 }

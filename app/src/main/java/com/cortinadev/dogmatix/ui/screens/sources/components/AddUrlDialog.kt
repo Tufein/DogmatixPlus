@@ -17,10 +17,10 @@ import com.cortinadev.dogmatix.data.model.UrlEntry
 import com.cortinadev.dogmatix.data.service.RommPlatform
 import com.cortinadev.dogmatix.util.RommSource
 import com.cortinadev.dogmatix.ui.components.DialogButton
+import com.cortinadev.dogmatix.ui.components.SectionTitle
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
-import com.cortinadev.dogmatix.ui.components.focusRing
-import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
+import com.cortinadev.dogmatix.ui.screens.download.ActionButton
 
 /**
  * Adds a source to a console or, when [existing] is given, edits one in place.
@@ -69,22 +69,18 @@ fun AddUrlDialog(
                         placeholder = { Text(stringResource(R.string.dialog_url_placeholder)) }
                     )
 
-                    val pickSource = rememberFocusSource()
-                    IconButton(
-                        onClick = { filePicker.launch("application/x-bittorrent") },
-                        interactionSource = pickSource,
-                        modifier = Modifier.focusRing(pickSource, 20.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_folder),
-                            contentDescription = stringResource(R.string.dialog_upload_torrent)
-                        )
-                    }
+                    ActionButton(
+                        R.drawable.ic_folder,
+                        stringResource(R.string.dialog_upload_torrent),
+                        48.dp,
+                        MaterialTheme.colorScheme.onSurface,
+                        onClick = { filePicker.launch("application/x-bittorrent") }
+                    )
                 }
 
                 if (rommPlatforms.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(stringResource(R.string.dialog_from_romm), style = MaterialTheme.typography.titleSmall)
+                    SectionTitle(stringResource(R.string.dialog_from_romm), icon = R.drawable.ic_server)
                     Spacer(modifier = Modifier.height(6.dp))
                     RommPlatformChips(platforms = rommPlatforms, selected = RommSource.slugOf(url)) { url = RommSource.sourceFor(it.slug) }
                 }
@@ -104,7 +100,7 @@ fun AddUrlDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(stringResource(R.string.dialog_content_type), style = MaterialTheme.typography.titleSmall)
+                SectionTitle(stringResource(R.string.dialog_content_type), icon = R.drawable.ic_description)
                 Spacer(modifier = Modifier.height(8.dp))
                 ContentTypeSelection(selectedType = contentType, onTypeSelected = { contentType = it })
             }
@@ -134,13 +130,10 @@ private fun RommPlatformChips(platforms: List<RommPlatform>, selected: String?, 
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         platforms.forEach { platform ->
-            val source = rememberFocusSource()
-            FilterChip(
+            ChoiceChip(
+                label = platform.label,
                 selected = selected != null && (platform.slug.equals(selected, true) || platform.fsSlug.equals(selected, true)),
-                onClick = { onPick(platform) },
-                label = { Text(platform.label, maxLines = 1) },
-                interactionSource = source,
-                modifier = Modifier.focusRing(source, 8.dp)
+                onClick = { onPick(platform) }
             )
         }
     }
@@ -158,13 +151,16 @@ private fun ContentTypeSelection(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         ContentType.entries.forEach { type ->
-            val source = rememberFocusSource()
-            FilterChip(
+            ChoiceChip(
+                label = stringResource(
+                    when (type) {
+                        ContentType.GAME -> R.string.q5_type_game
+                        ContentType.MISCELLANEOUS -> R.string.q5_type_misc
+                        ContentType.RETROACHIEVEMENTS -> R.string.q5_type_ra
+                    }
+                ),
                 selected = selectedType == type,
-                onClick = { onTypeSelected(type) },
-                label = { Text(text = type.name.lowercase().replaceFirstChar { it.uppercase() }, maxLines = 1) },
-                interactionSource = source,
-                modifier = Modifier.focusRing(source, 8.dp)
+                onClick = { onTypeSelected(type) }
             )
         }
     }

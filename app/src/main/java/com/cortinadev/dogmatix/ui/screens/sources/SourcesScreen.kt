@@ -1,29 +1,39 @@
 package com.cortinadev.dogmatix.ui.screens.sources
 
-import android.content.res.Configuration
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.size
-
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -41,10 +51,19 @@ import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.screens.sources.SourcesViewModel.Dialog as SourcesDialog
 import com.cortinadev.dogmatix.ui.screens.sources.components.MergeFoldersDialog
-import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
+import com.cortinadev.dogmatix.ui.components.ActionPill
+import com.cortinadev.dogmatix.ui.components.ActionTone
+import com.cortinadev.dogmatix.ui.components.EmptyState
+import com.cortinadev.dogmatix.ui.components.IconTile
+import com.cortinadev.dogmatix.ui.components.Panel
+import com.cortinadev.dogmatix.ui.components.PanelTone
+import com.cortinadev.dogmatix.ui.components.Pill
+import com.cortinadev.dogmatix.ui.components.PillTone
+import com.cortinadev.dogmatix.ui.components.ScreenTitle
+import com.cortinadev.dogmatix.ui.components.focusRing
+import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SourcesScreen(
     viewModel: SourcesViewModel = hiltViewModel()
@@ -55,8 +74,6 @@ fun SourcesScreen(
     val consoleDownloadPaths by viewModel.consoleDownloadPaths.collectAsState()
     val downloadDirectory by viewModel.downloadDirectory.collectAsState()
     val context = LocalContext.current
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val directoryPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree(),
@@ -108,7 +125,8 @@ fun SourcesScreen(
             message = stringResource(R.string.qr_import_message),
             confirmText = stringResource(R.string.sources_import),
             onConfirm = viewModel::confirmQrImport,
-            onDismiss = viewModel::dismissQrImport
+            onDismiss = viewModel::dismissQrImport,
+            icon = R.drawable.ic_qr_code
         )
     }
 
@@ -121,17 +139,22 @@ fun SourcesScreen(
         context.startActivity(Intent.createChooser(send, context.getString(R.string.sources_export_share_title)))
     }
 
+    // Every console is one card; the counts under the title come from the same list.
+    val consoleCount = remember(manufacturers) { manufacturers.sumOf { it.consoles.size } }
+    val sourceCount = remember(manufacturers) { manufacturers.sumOf { m -> m.consoles.sumOf { it.urls.size } } }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         // Padding inside the list: cards scroll edge to edge instead of being clipped 16dp early.
         // Cards sit 20dp from the edge, the same x as the app title and the Settings rows' text.
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         item {
             SourcesHeader(
                 isRescanning = isRescanning,
-                isLandscape = isLandscape,
+                consoleCount = consoleCount,
+                sourceCount = sourceCount,
                 onAddConsole = { viewModel.showAddConsoleDialog() },
                 onRescan = { viewModel.rescanAllSources() },
                 onExport = { showShare = true },
@@ -148,30 +171,19 @@ fun SourcesScreen(
 
         if (manufacturers.isEmpty()) {
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    EmptyState(
+                        title = stringResource(R.string.sources_empty_title),
+                        message = stringResource(R.string.sources_empty_hint),
+                        icon = R.drawable.ic_globe,
+                        actionLabel = stringResource(R.string.sources_add_console),
+                        onAction = { viewModel.showAddConsoleDialog() }
                     )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.sources_empty_title),
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(R.string.sources_empty_hint),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    ActionPill(
+                        stringResource(R.string.sources_import),
+                        onClick = { viewModel.confirmImport() },
+                        icon = R.drawable.ic_import
+                    )
                 }
             }
         } else {
@@ -264,21 +276,26 @@ fun SourcesScreen(
             message = stringResource(R.string.sources_delete_console_message),
             confirmText = stringResource(R.string.dialog_delete),
             onConfirm = { viewModel.deleteConsole(d.consoleId) },
-            onDismiss = { viewModel.dismissDialog() }
+            onDismiss = { viewModel.dismissDialog() },
+            icon = R.drawable.ic_trash,
+            destructive = true
         )
         is SourcesDialog.ConfirmDeleteUrl -> ConfirmDialog(
             title = stringResource(R.string.sources_delete_url_title),
             message = stringResource(R.string.sources_delete_url_message, d.url.take(80)),
             confirmText = stringResource(R.string.dialog_delete),
             onConfirm = { viewModel.deleteUrl(d.consoleId, d.index) },
-            onDismiss = { viewModel.dismissDialog() }
+            onDismiss = { viewModel.dismissDialog() },
+            icon = R.drawable.ic_trash,
+            destructive = true
         )
         SourcesDialog.ConfirmImport -> ConfirmDialog(
             title = stringResource(R.string.sources_import_confirm_title),
             message = stringResource(R.string.sources_import_confirm_message),
             confirmText = stringResource(R.string.sources_import_pick),
             onConfirm = { importPicker.launch(arrayOf("application/json", "application/octet-stream", "text/*")) },
-            onDismiss = { viewModel.dismissDialog() }
+            onDismiss = { viewModel.dismissDialog() },
+            icon = R.drawable.ic_import
         )
     }
 
@@ -305,116 +322,89 @@ private fun DownloadDirectoryCard(
     downloadDirectory: String,
     onChange: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = LocalDogmatixTokens.current.card),
-        onClick = onChange
-    ) {
+    val scheme = MaterialTheme.colorScheme
+    val source = rememberFocusSource()
+    val unset = downloadDirectory.isBlank()
+    Panel(modifier = Modifier.fillMaxWidth(), tone = if (unset) PanelTone.Danger else PanelTone.Normal) {
+        // The whole row is the one control (one focus stop); the pill at its end only says what it does.
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .focusRing(source, cornerRadius = 12.dp)
+                .clickable(interactionSource = source, indication = null, role = Role.Button, onClick = onChange)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_folder),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            IconTile(R.drawable.ic_folder_open)
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = stringResource(R.string.settings_download_directory),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
+                    color = scheme.onSurface
                 )
                 Text(
-                    text = if (downloadDirectory.isBlank()) stringResource(R.string.sources_directory_unset)
+                    text = if (unset) stringResource(R.string.sources_directory_unset)
                            else FileParsingUtils.toUserReadablePath(downloadDirectory),
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (downloadDirectory.isBlank()) MaterialTheme.colorScheme.error
-                            else MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (unset) scheme.onErrorContainer else scheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-            FilledTonalButton(
-                onClick = onChange,
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            ) {
-                Text(
-                    text = stringResource(if (downloadDirectory.isBlank()) R.string.sources_choose else R.string.settings_change),
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
+            Pill(
+                stringResource(if (unset) R.string.sources_choose else R.string.settings_change),
+                tone = if (unset) PillTone.Strong else PillTone.Accent,
+                icon = R.drawable.ic_edit
+            )
         }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SourcesHeader(
     isRescanning: Boolean,
-    isLandscape: Boolean,
+    consoleCount: Int,
+    sourceCount: Int,
     onAddConsole: () -> Unit,
     onRescan: () -> Unit,
     onExport: () -> Unit,
     onImport: () -> Unit
 ) {
-    // The section name already lives in the tabs; only the actions stay, right-aligned.
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        ScreenTitle(
+            text = stringResource(R.string.nav_sources),
+            icon = R.drawable.ic_globe,
+            subtitle = if (consoleCount == 0) null else
+                pluralStringResource(R.plurals.q5_consoles_count, consoleCount, consoleCount) + " · " +
+                    pluralStringResource(R.plurals.q5_sources_count, sourceCount, sourceCount)
+        )
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            itemVerticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onAddConsole) {
-                Icon(painterResource(R.drawable.ic_add), contentDescription = stringResource(R.string.sources_add_console))
-            }
-            IconButton(onClick = onExport) {
-                Icon(painterResource(R.drawable.ic_share), contentDescription = stringResource(R.string.sources_export))
-            }
-            IconButton(onClick = onImport, enabled = !isRescanning) {
-                Icon(painterResource(R.drawable.ic_import), contentDescription = stringResource(R.string.sources_import))
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                if (isRescanning) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp
-                    )
+            ActionPill(stringResource(R.string.sources_add_console), onAddConsole, icon = R.drawable.ic_add, tone = ActionTone.Accent)
+            if (isRescanning) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(horizontal = 6.dp)
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                     Text(
                         text = stringResource(R.string.sources_rescanning),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                } else {
-                    FilledTonalButton(
-                        onClick = onRescan,
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        )
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_retry),
-                            contentDescription = "",
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(text = stringResource(R.string.sources_rescan_all), style = MaterialTheme.typography.labelLarge)
-                    }
                 }
+            } else {
+                ActionPill(stringResource(R.string.sources_rescan_all), onRescan, icon = R.drawable.ic_retry)
             }
+            ActionPill(stringResource(R.string.sources_export), onExport, icon = R.drawable.ic_share)
+            ActionPill(stringResource(R.string.sources_import), onImport, icon = R.drawable.ic_import, enabled = !isRescanning)
         }
     }
 }

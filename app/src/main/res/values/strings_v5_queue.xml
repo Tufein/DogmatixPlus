@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: downloads, sources, onboarding, share -->
+<resources>
+    <string name="q5_queue_title">Queue</string>
+    <string name="q5_of">%1$s of %2$s</string>
+    <string name="q5_idle_title">Nothing is downloading</string>
+    <string name="q5_free_need">%1$s free · %2$s needed</string>
+    <string name="q5_short_by">%1$s short</string>
+    <string name="q5_pill_active">%1$d active</string>
+    <string name="q5_pill_done">%1$d done</string>
+    <string name="q5_pill_failed">%1$d failed</string>
+    <string name="q5_wait_wifi">Wi-Fi only</string>
+    <string name="q5_wait_charger">Charging only</string>
+    <string name="q5_wait_night">Night window</string>
+    <string name="q5_wait_storage">Low space</string>
+    <string name="q5_wait_held">On hold</string>
+    <string name="q5_per_second">%1$s/s</string>
+    <string name="q5_empty_title">No downloads yet</string>
+    <string name="q5_empty_message">Pick a game in the library and it shows up here, with its cover and progress.</string>
+    <string name="q5_go_library">Go to the library</string>
+    <string name="q5_romm_uploading">RomM %1$d%%</string>
+    <string name="q5_romm_done">On RomM</string>
+    <string name="q5_romm_failed">RomM upload failed</string>
+    <string name="q5_verified">Verified</string>
+    <string name="q5_verify_mismatch">Checksum differs: retry</string>
+    <string name="q5_verify_checking">Checking…</string>
+    <string name="q5_dat_ok">Matches the DAT</string>
+    <string name="q5_dat_unknown">Not in the DAT</string>
+    <string name="q5_health_no_sources">No sources</string>
+    <string name="q5_health_not_scanned">Not scanned</string>
+    <string name="q5_health_ok">OK</string>
+    <string name="q5_health_partial">%1$d failing</string>
+    <string name="q5_health_failed">Failed</string>
+    <string name="q5_kind_romm">RomM</string>
+    <string name="q5_kind_torrent">Torrent</string>
+    <string name="q5_kind_web">Web folder</string>
+    <string name="q5_kind_other">Other</string>
+    <string name="q5_type_game">Games</string>
+    <string name="q5_type_misc">Misc</string>
+    <string name="q5_type_ra">RetroAchievements</string>
+    <string name="q5_disabled">Disabled</string>
+    <string name="q5_previous">Previous</string>
+    <string name="q5_next">Next</string>
+    <plurals name="q5_sources_pill">
+        <item quantity="one">%1$d source</item>
+        <item quantity="other">%1$d sources</item>
+    </plurals>
+    <plurals name="q5_games_pill">
+        <item quantity="one">%1$d game</item>
+        <item quantity="other">%1$d games</item>
+    </plurals>
+    <plurals name="q5_consoles_count">
+        <item quantity="one">%1$d console</item>
+        <item quantity="other">%1$d consoles</item>
+    </plurals>
+    <plurals name="q5_sources_count">
+        <item quantity="one">%1$d source</item>
+        <item quantity="other">%1$d sources</item>
+    </plurals>
+</resources>

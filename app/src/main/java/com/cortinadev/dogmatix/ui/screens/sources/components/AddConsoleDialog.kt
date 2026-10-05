@@ -13,9 +13,8 @@ import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.model.Console
 import com.cortinadev.dogmatix.data.model.Manufacturer
 import com.cortinadev.dogmatix.ui.components.DialogButton
+import com.cortinadev.dogmatix.ui.components.SectionTitle
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
-import com.cortinadev.dogmatix.ui.components.focusRing
-import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.util.ConsoleAliasRegistry
 import com.cortinadev.dogmatix.util.ConsoleFolderAliases
@@ -99,7 +98,7 @@ fun AddConsoleDialog(
                 )
                 if (adding) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(stringResource(R.string.dialog_manufacturer), style = MaterialTheme.typography.titleSmall)
+                    SectionTitle(stringResource(R.string.dialog_manufacturer), icon = R.drawable.ic_hub)
                     Spacer(modifier = Modifier.height(8.dp))
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
@@ -107,13 +106,10 @@ fun AddConsoleDialog(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         manufacturers.forEach { m ->
-                            val source = rememberFocusSource()
-                            FilterChip(
+                            ChoiceChip(
+                                label = m.name,
                                 selected = selectedManufacturer == m.id && newManufacturer.isBlank(),
-                                onClick = { selectedManufacturer = m.id; newManufacturer = "" },
-                                label = { Text(m.name, maxLines = 1) },
-                                interactionSource = source,
-                                modifier = Modifier.focusRing(source, 8.dp)
+                                onClick = { selectedManufacturer = m.id; newManufacturer = "" }
                             )
                         }
                     }
