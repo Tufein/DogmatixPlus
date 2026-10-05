@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="coll6_goals_title">Verzameldoelen</string>
+    <string name="coll6_goals_subtitle">Heb je de hele set?</string>
+    <string name="coll6_goals_overall">Hele collectie</string>
+    <string name="coll6_goals_count">%1$s van %2$s</string>
+    <string name="coll6_goals_percent">%1$d%%</string>
+    <string name="coll6_goals_complete">Compleet</string>
+    <string name="coll6_goals_complete_message">Elk spel van deze set staat op je apparaat.</string>
+    <string name="coll6_basis_verified">Gecontroleerd met je DAT</string>
+    <string name="coll6_basis_dat">Vergeleken met je DAT op bestandsnaam</string>
+    <string name="coll6_basis_sources">Vergeleken met wat je bronnen tonen</string>
+    <string name="coll6_basis_dat_hint">Draai de DAT-controle voor een exacte telling.</string>
+    <string name="coll6_basis_short_verified">DAT-controle</string>
+    <string name="coll6_basis_short_dat">DAT-namen</string>
+    <string name="coll6_basis_short_sources">Bronnen</string>
+    <string name="coll6_goal_set">Maak van %1$s een doel</string>
+    <string name="coll6_goal_unset">Haal %1$s uit je doelen</string>
+    <string name="coll6_section_goals">Je doelen</string>
+    <string name="coll6_section_all">Alle consoles</string>
+    <string name="coll6_loading">Je collectie wordt geteld…</string>
+    <string name="coll6_empty_title">Nog niets om te meten</string>
+    <string name="coll6_empty_message">Scan je bronnen of importeer een DAT-bestand in de DAT-controle, en elke console krijgt een ring.</string>
+    <string name="coll6_missing_title">Ontbreekt bij %1$s</string>
+    <string name="coll6_find">Zoek ze in je bronnen</string>
+    <string name="coll6_find_hint">Geeft deze lijst aan Lijst importeren, dat je bronnen doorzoekt.</string>
+    <string name="coll6_wish_all">Toon toevoegen aan verlanglijst</string>
+    <string name="coll6_wish_none">Staat al op je verlanglijst</string>
+    <string name="coll6_wish_row">Voeg %1$s toe aan de verlanglijst</string>
+    <string name="coll6_wish_row_done">Op de verlanglijst</string>
+    <string name="coll6_more">Toon er %1$d meer</string>
+    <string name="coll6_showing">%1$s van %2$s getoond</string>
+    <string name="coll6_missing_loading">Lijst wordt gelezen…</string>
+    <string name="coll6_history_title">Speelgeschiedenis</string>
+    <string name="coll6_history_subtitle">Wat er met je bibliotheek gebeurde</string>
+    <string name="coll6_filter_all">Alles</string>
+    <string name="coll6_filter_downloads">Downloads</string>
+    <string name="coll6_filter_played">Gespeeld</string>
+    <string name="coll6_kind_downloaded">Gedownload</string>
+    <string name="coll6_kind_played">Gespeeld</string>
+    <string name="coll6_kind_saved">Opgeslagen op RomM</string>
+    <string name="coll6_kind_saved_via">Opgeslagen op RomM vanaf %1$s</string>
+    <string name="coll6_day_today">Vandaag</string>
+    <string name="coll6_day_yesterday">Gisteren</string>
+    <string name="coll6_chart_days">Laatste 7 dagen</string>
+    <string name="coll6_chart_weeks">Laatste 8 weken</string>
+    <string name="coll6_chart_title">Activiteit</string>
+    <string name="coll6_history_empty_title">Nog geen geschiedenis</string>
+    <string name="coll6_history_empty_message">Voltooide downloads, spellen die je in ES-DE speelt en opslagen op RomM verschijnen hier.</string>
+    <string name="coll6_history_empty_filter_title">Hier staat niets</string>
+    <string name="coll6_history_empty_filter_message">Hier past nog niets bij dit filter. Probeer Alles.</string>
+    <string name="coll6_history_plays_hint">ES-DE bewaart alleen wanneer je een spel het laatst speelde, dus elk spel staat er één keer in.</string>
+    <string name="coll6_history_loading">Je geschiedenis wordt gelezen…</string>
+    <plurals name="coll6_goals_measured">
+        <item quantity="one">%1$d console gemeten</item>
+        <item quantity="other">%1$d consoles gemeten</item>
+    </plurals>
+    <plurals name="coll6_missing_summary">
+        <item quantity="one">%1$s spel ontbreekt</item>
+        <item quantity="other">%1$s spellen ontbreken</item>
+    </plurals>
+    <plurals name="coll6_wish_added">
+        <item quantity="one">%1$d spel aan de verlanglijst toegevoegd</item>
+        <item quantity="other">%1$d spellen aan de verlanglijst toegevoegd</item>
+    </plurals>
+    <plurals name="coll6_week_events">
+        <item quantity="one">%1$d gebeurtenis deze week</item>
+        <item quantity="other">%1$d gebeurtenissen deze week</item>
+    </plurals>
+</resources>
