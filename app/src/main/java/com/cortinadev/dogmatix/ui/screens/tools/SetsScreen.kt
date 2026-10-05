@@ -28,7 +28,8 @@ import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.service.LibraryToolsService
 import com.cortinadev.dogmatix.data.service.SetsReport
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
+import com.cortinadev.dogmatix.ui.components.ActionTone
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.util.PlaylistPlan
 import com.cortinadev.dogmatix.util.SetProblem
 import com.cortinadev.dogmatix.util.ToastUtil
@@ -111,33 +112,39 @@ fun SetsScreen(viewModel: SetsViewModel = hiltViewModel()) {
         else -> pluralStringResource(R.plurals.sets_problems, report.problems.size, report.problems.size, report.filesChecked)
     }
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        ToolsTitle(stringResource(R.string.nav_sets))
+        ToolsTitle(stringResource(R.string.nav_sets), icon = NavRoutes.Sets.icon)
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
-            contentPadding = PaddingValues(bottom = 12.dp),
+            contentPadding = PaddingValues(bottom = 16.dp),
             modifier = Modifier.fillMaxSize()
         ) {
             item(key = "summary") {
-                ToolRow(summary, emptyList(), viewModel::rescan, Modifier.focusRequester(firstFocus)) {
-                    PillButton(stringResource(R.string.tools_refresh), viewModel::rescan)
+                val ok = !ui.scanning && ui.folderSet && report != null && report.problems.isEmpty()
+                ToolRow(
+                    summary, emptyList(), viewModel::rescan, Modifier.focusRequester(firstFocus),
+                    icon = if (ok) R.drawable.ic_check_circle else R.drawable.ic_stacks
+                ) {
+                    ToolAction(stringResource(R.string.tools_refresh), icon = R.drawable.ic_retry, onClick = viewModel::rescan)
                 }
             }
             if (!ui.scanning && report != null) {
                 items(report.problems, key = { "p:" + it.sheet.fileId }) { problem -> ProblemRow(problem) }
                 if (report.playlists.isNotEmpty()) {
-                    item(key = "plHeader") { SectionHeader(stringResource(R.string.sets_playlists_header, report.playlists.size), stringResource(R.string.sets_playlists_hint)) }
+                    item(key = "plHeader") { SectionHeader(stringResource(R.string.sets_playlists_header, report.playlists.size), stringResource(R.string.sets_playlists_hint), icon = R.drawable.ic_playlist_add) }
                     item(key = "plAll") {
                         ToolRow(
                             stringResource(R.string.sets_playlist_create_all, report.playlists.size), emptyList(),
-                            { viewModel.createAll(context) }
-                        ) { PillButton(stringResource(R.string.sets_playlist_create)) { viewModel.createAll(context) } }
+                            { viewModel.createAll(context) },
+                            icon = R.drawable.ic_sparkle
+                        ) { ToolAction(stringResource(R.string.sets_playlist_create), tone = ActionTone.Accent) { viewModel.createAll(context) } }
                     }
                     items(report.playlists, key = { "l:" + it.id }) { plan ->
                         ToolRow(
                             plan.fileName,
                             listOf(plan.folder, pluralStringResource(R.plurals.sets_discs, plan.discs.size, plan.discs.size)),
-                            { viewModel.createPlaylist(context, plan) }
-                        ) { PillButton(stringResource(R.string.sets_playlist_create)) { viewModel.createPlaylist(context, plan) } }
+                            { viewModel.createPlaylist(context, plan) },
+                            icon = R.drawable.ic_playlist_add
+                        ) { ToolAction(stringResource(R.string.sets_playlist_create)) { viewModel.createPlaylist(context, plan) } }
                     }
                 }
             }
@@ -156,6 +163,7 @@ private fun ProblemRow(problem: SetProblem) {
         problem.sheet.name,
         listOf(problem.sheet.folder, detail),
         onClick = {},
-        badge = { Badge(stringResource(R.string.sets_badge_broken), warning = true) }
+        badge = { Badge(stringResource(R.string.sets_badge_broken), warning = true, icon = R.drawable.ic_warning) },
+        icon = R.drawable.ic_stacks
     )
 }

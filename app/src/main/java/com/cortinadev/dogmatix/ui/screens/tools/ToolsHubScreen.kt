@@ -9,10 +9,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
@@ -27,15 +27,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.data.repository.CollectionsRepository
+import com.cortinadev.dogmatix.data.repository.WishlistRepository
 import com.cortinadev.dogmatix.data.service.EsdeFavouritesService
 import com.cortinadev.dogmatix.data.service.LibraryToolsService
+import com.cortinadev.dogmatix.ui.components.Pill
+import com.cortinadev.dogmatix.ui.components.PillTone
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.util.CollectionExport
 import com.cortinadev.dogmatix.util.ExportLabels
 import com.cortinadev.dogmatix.util.ToastUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -44,8 +51,16 @@ import javax.inject.Inject
 @HiltViewModel
 class ToolsHubViewModel @Inject constructor(
     private val tools: LibraryToolsService,
-    private val esdeFavourites: EsdeFavouritesService
+    private val esdeFavourites: EsdeFavouritesService,
+    wishlist: WishlistRepository,
+    collections: CollectionsRepository
 ) : ViewModel() {
+
+    /** How many games are wished for / how many collections exist: small numbers next to those tools. */
+    val wishCount: StateFlow<Int> = wishlist.items.map { it.size }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+    val collectionCount: StateFlow<Int> = collections.collections.map { it.size }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     /** Stars the games ES-DE has as favourites; says how many. */
     fun importEsdeFavourites(context: Context) {
@@ -98,51 +113,71 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
     val htmlLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/html")) { uri ->
         uri?.let { viewModel.export(context, it.toString(), html = true) }
     }
+    val wishCount by viewModel.wishCount.collectAsState()
+    val collectionCount by viewModel.collectionCount.collectAsState()
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         withFrameNanos { }
         runCatching { firstFocus.requestFocus() }
     }
-    fun go(route: NavRoutes) = navController.navigate(route.route)
-    val chevron: @Composable () -> Unit = { Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+    val go: (NavRoutes) -> Unit = { route -> navController.navigate(route.route) }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        ToolsTitle(stringResource(R.string.settings_tools))
+        ToolsTitle(stringResource(R.string.settings_tools), icon = NavRoutes.Tools.icon)
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
-            contentPadding = PaddingValues(bottom = 12.dp),
+            contentPadding = PaddingValues(bottom = 16.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            item { ToolsGroup(stringResource(R.string.tools_group_library)) }
-            item { ToolRow(stringResource(R.string.settings_overview), listOf(stringResource(R.string.settings_overview_hint)), { go(NavRoutes.Overview) }, Modifier.focusRequester(firstFocus), trailing = chevron) }
-            item { ToolRow(stringResource(R.string.settings_duplicates), listOf(stringResource(R.string.settings_duplicates_hint)), { go(NavRoutes.Duplicates) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_sets), listOf(stringResource(R.string.tools_sets_hint)), { go(NavRoutes.Sets) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_collections), listOf(stringResource(R.string.tools_collections_hint)), { go(NavRoutes.Collections) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_files), listOf(stringResource(R.string.tools_files_hint)), { go(NavRoutes.Files) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_storage), listOf(stringResource(R.string.tools_storage_hint)), { go(NavRoutes.Storage) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_stats), listOf(stringResource(R.string.tools_stats_hint)), { go(NavRoutes.Stats) }, trailing = chevron) }
-            item { ToolsGroup(stringResource(R.string.tools_group_games)) }
-            item { ToolRow(stringResource(R.string.nav_import_list), listOf(stringResource(R.string.tools_import_list_hint)), { go(NavRoutes.ImportList) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_wishlist), listOf(stringResource(R.string.tools_wishlist_hint)), { go(NavRoutes.Wishlist) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_dat), listOf(stringResource(R.string.tools_dat_hint)), { go(NavRoutes.Dat) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_bios), listOf(stringResource(R.string.tools_bios_hint)), { go(NavRoutes.Bios) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_switch), listOf(stringResource(R.string.tools_switch_hint)), { go(NavRoutes.Switch) }, trailing = chevron) }
-            item { ToolRow(stringResource(R.string.nav_ra), listOf(stringResource(R.string.tools_ra_hint)), { go(NavRoutes.RetroAchievements) }, trailing = chevron) }
-            item { ToolsGroup(stringResource(R.string.settings_section_frontends)) }
-            item { ToolRow(stringResource(R.string.nav_frontends), listOf(stringResource(R.string.tools_frontends_hint)), { go(NavRoutes.Frontends) }, trailing = chevron) }
+            item { ToolsGroup(stringResource(R.string.tools_group_library), icon = R.drawable.ic_library) }
+            item { Tool(go, NavRoutes.Overview, R.string.settings_overview, R.string.settings_overview_hint, Modifier.focusRequester(firstFocus)) }
+            item { Tool(go, NavRoutes.Duplicates, R.string.settings_duplicates, R.string.settings_duplicates_hint) }
+            item { Tool(go, NavRoutes.Sets, R.string.nav_sets, R.string.tools_sets_hint) }
+            item { Tool(go, NavRoutes.Collections, R.string.nav_collections, R.string.tools_collections_hint, count = collectionCount) }
+            item { Tool(go, NavRoutes.Files, R.string.nav_files, R.string.tools_files_hint) }
+            item { Tool(go, NavRoutes.Storage, R.string.nav_storage, R.string.tools_storage_hint) }
+            item { Tool(go, NavRoutes.Stats, R.string.nav_stats, R.string.tools_stats_hint) }
+            item { ToolsGroup(stringResource(R.string.tools_group_games), icon = R.drawable.ic_gamepad) }
+            item { Tool(go, NavRoutes.ImportList, R.string.nav_import_list, R.string.tools_import_list_hint) }
+            item { Tool(go, NavRoutes.Wishlist, R.string.nav_wishlist, R.string.tools_wishlist_hint, count = wishCount) }
+            item { Tool(go, NavRoutes.Dat, R.string.nav_dat, R.string.tools_dat_hint) }
+            item { Tool(go, NavRoutes.Bios, R.string.nav_bios, R.string.tools_bios_hint) }
+            item { Tool(go, NavRoutes.Switch, R.string.nav_switch, R.string.tools_switch_hint) }
+            item { Tool(go, NavRoutes.RetroAchievements, R.string.nav_ra, R.string.tools_ra_hint) }
+            item { ToolsGroup(stringResource(R.string.settings_section_frontends), icon = R.drawable.ic_frontends) }
+            item { Tool(go, NavRoutes.Frontends, R.string.nav_frontends, R.string.tools_frontends_hint) }
             item {
                 val run = { viewModel.importEsdeFavourites(context) }
-                ToolRow(stringResource(R.string.esde_favs), listOf(stringResource(R.string.esde_favs_hint)), run) { PillButton(stringResource(R.string.esde_favs_action), run) }
+                ToolRow(
+                    stringResource(R.string.esde_favs), listOf(stringResource(R.string.esde_favs_hint)), run,
+                    icon = R.drawable.ic_star
+                ) { ToolAction(stringResource(R.string.esde_favs_action), onClick = run) }
             }
-            item { ToolsGroup(stringResource(R.string.tools_group_export)) }
+            item { ToolsGroup(stringResource(R.string.tools_group_export), icon = R.drawable.ic_share) }
             item {
                 val launch = { csvLauncher.launch("dogmatixplus-collection-${LocalDate.now()}.csv") }
-                ToolRow(stringResource(R.string.tools_export_csv), listOf(stringResource(R.string.tools_export_csv_hint)), launch) { PillButton(stringResource(R.string.tools_export_action), launch) }
+                ToolRow(
+                    stringResource(R.string.tools_export_csv), listOf(stringResource(R.string.tools_export_csv_hint)), launch,
+                    icon = R.drawable.ic_table_view
+                ) { ToolAction(stringResource(R.string.tools_export_action), onClick = launch) }
             }
             item {
                 val launch = { htmlLauncher.launch("dogmatixplus-collection-${LocalDate.now()}.html") }
-                ToolRow(stringResource(R.string.tools_export_html), listOf(stringResource(R.string.tools_export_html_hint)), launch) { PillButton(stringResource(R.string.tools_export_action), launch) }
+                ToolRow(
+                    stringResource(R.string.tools_export_html), listOf(stringResource(R.string.tools_export_html_hint)), launch,
+                    icon = R.drawable.ic_web
+                ) { ToolAction(stringResource(R.string.tools_export_action), onClick = launch) }
             }
         }
     }
+}
+
+/** One tool: its route's icon, name, hint and the arrow; [count] shows as a pill. */
+@Composable
+private fun Tool(go: (NavRoutes) -> Unit, route: NavRoutes, title: Int, hint: Int, modifier: Modifier = Modifier, count: Int = 0) {
+    ToolRow(
+        stringResource(title), listOf(stringResource(hint)), { go(route) }, modifier,
+        badge = if (count > 0) ({ Pill(count.toString(), tone = PillTone.Accent) }) else null,
+        icon = route.icon, chevron = true
+    )
 }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: library tools (Tools hub and every tool screen) -->
+<resources>
+    <string name="tools5_space_title">Espacio para tus juegos</string>
+    <string name="tools5_games">Juegos</string>
+    <string name="tools5_queue">Cola</string>
+    <string name="tools5_free">Libre</string>
+    <string name="tools5_queue_needs">La cola necesita</string>
+    <string name="tools5_stat_downloads">Descargas</string>
+    <string name="tools5_stat_month">Este mes</string>
+    <string name="tools5_stat_new_week">Nuevos esta semana</string>
+    <string name="tools5_stat_top_console">Consola principal</string>
+    <string name="tools5_in_total">%1$s en total</string>
+    <plurals name="tools5_downloads_count">
+        <item quantity="one">%1$d descarga</item>
+        <item quantity="other">%1$d descargas</item>
+    </plurals>
+    <string name="tools5_consoles">Consolas</string>
+    <string name="tools5_indexed">Indexados</string>
+    <string name="tools5_owned">Tuyos</string>
+    <string name="tools5_owned_of">%1$d de %2$d juegos que tienes</string>
+    <string name="tools5_on_disk">En el disco</string>
+    <string name="tools5_dat_good">%1$d correctos</string>
+    <string name="tools5_dat_renamed">%1$d con otro nombre</string>
+    <string name="tools5_dat_unknown">%1$d desconocidos</string>
+    <string name="tools5_dat_skipped">%1$d sin comprobar</string>
+    <string name="tools5_files_direct">%1$s están directamente en esta carpeta</string>
+    <string name="tools5_collections_empty_title">Aún no hay colecciones</string>
+    <string name="tools5_collections_empty_message">Agrupa los juegos a tu manera: cooperativo en el sofá, por terminar, favoritos de un amigo. Añade un juego desde su ficha o empieza una colección aquí.</string>
+    <string name="tools5_update">Actualización</string>
+</resources>

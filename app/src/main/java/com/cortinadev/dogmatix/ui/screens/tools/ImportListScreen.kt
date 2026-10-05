@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -34,7 +36,9 @@ import com.cortinadev.dogmatix.data.service.ListMatch
 import com.cortinadev.dogmatix.data.state.PendingListImport
 import com.cortinadev.dogmatix.ui.components.Stepper
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
+import com.cortinadev.dogmatix.ui.components.ActionTone
+import com.cortinadev.dogmatix.ui.components.MeterBar
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.util.CollectionExport
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.ListImport
@@ -148,20 +152,29 @@ fun ImportListScreen(viewModel: ImportListViewModel = hiltViewModel()) {
     val pick = { picker.launch(arrayOf("text/plain", "text/csv", "text/*", "application/octet-stream")) }
     val firstFocus = rememberInitialFocus()
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        ToolsTitle(stringResource(R.string.nav_import_list))
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 12.dp), modifier = Modifier.fillMaxSize()) {
+        ToolsTitle(stringResource(R.string.nav_import_list), icon = NavRoutes.ImportList.icon)
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 16.dp), modifier = Modifier.fillMaxSize()) {
             item(key = "file") {
-                ToolRow(stringResource(R.string.import_list_file), listOf(stringResource(R.string.import_list_file_hint)), pick, Modifier.focusRequester(firstFocus)) {
-                    PillButton(stringResource(R.string.import_list_pick), pick)
+                ToolRow(
+                    stringResource(R.string.import_list_file), listOf(stringResource(R.string.import_list_file_hint)), pick,
+                    Modifier.focusRequester(firstFocus), icon = R.drawable.ic_description
+                ) {
+                    ToolAction(stringResource(R.string.import_list_pick), onClick = pick)
                 }
             }
             item(key = "paste") {
-                ToolRow(stringResource(R.string.import_list_paste_title), listOf(stringResource(R.string.import_list_paste_hint)), { viewModel.paste(context) }) {
-                    PillButton(stringResource(R.string.import_list_paste)) { viewModel.paste(context) }
+                ToolRow(
+                    stringResource(R.string.import_list_paste_title), listOf(stringResource(R.string.import_list_paste_hint)), { viewModel.paste(context) },
+                    icon = R.drawable.ic_content_paste
+                ) {
+                    ToolAction(stringResource(R.string.import_list_paste)) { viewModel.paste(context) }
                 }
             }
             item(key = "console") {
-                ToolRow(stringResource(R.string.import_list_console), listOf(stringResource(R.string.import_list_console_hint)), { viewModel.stepConsole(1) }) {
+                ToolRow(
+                    stringResource(R.string.import_list_console), listOf(stringResource(R.string.import_list_console_hint)), { viewModel.stepConsole(1) },
+                    icon = R.drawable.ic_controller
+                ) {
                     Stepper(
                         value = ui.consoleId?.let { ConsoleFormatter.getConsoleDisplayName(it) } ?: stringResource(R.string.wishlist_any_console),
                         onDecrement = { viewModel.stepConsole(-1) }, onIncrement = { viewModel.stepConsole(1) }, valueWidth = 180.dp
@@ -169,7 +182,12 @@ fun ImportListScreen(viewModel: ImportListViewModel = hiltViewModel()) {
                 }
             }
             ui.progress?.let { done ->
-                item(key = "progress") { InfoCard(listOf(stringResource(R.string.import_list_progress, done, ui.titles.size))) }
+                item(key = "progress") {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        InfoCard(listOf(stringResource(R.string.import_list_progress, done, ui.titles.size)), accent = true, icon = R.drawable.ic_hourglass)
+                        MeterBar(if (ui.titles.isEmpty()) 0f else done.toFloat() / ui.titles.size, modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp))
+                    }
+                }
             }
             ui.match?.let { match -> matchItems(match, ui.titles.size, onDownload = { viewModel.download(context) }, onWish = { viewModel.wishMissing(context) }) }
         }
@@ -178,32 +196,37 @@ fun ImportListScreen(viewModel: ImportListViewModel = hiltViewModel()) {
 
 private fun LazyListScope.matchItems(match: ListMatch, total: Int, onDownload: () -> Unit, onWish: () -> Unit) {
     item(key = "summary") {
-        InfoCard(listOf(
-            stringResource(R.string.import_list_found, match.found, total),
-            stringResource(R.string.import_list_have, match.have.size),
-            stringResource(R.string.import_list_missing, match.missing.size)
-        ), accent = match.toDownload.isNotEmpty())
+        InfoCard(
+            listOf(
+                stringResource(R.string.import_list_found, match.found, total),
+                stringResource(R.string.import_list_have, match.have.size),
+                stringResource(R.string.import_list_missing, match.missing.size)
+            ),
+            accent = match.toDownload.isNotEmpty(),
+            icon = R.drawable.ic_check_circle
+        )
     }
     if (match.toDownload.isNotEmpty()) item(key = "download") {
         ToolRow(
             stringResource(R.string.import_list_download),
             listOf(stringResource(R.string.import_list_download_hint, match.toDownload.size, CollectionExport.humanSize(match.totalBytes))),
-            onDownload
-        ) { PillButton(stringResource(R.string.import_list_download_action), onDownload) }
+            onDownload,
+            icon = R.drawable.ic_download
+        ) { ToolAction(stringResource(R.string.import_list_download_action), tone = ActionTone.Accent, onClick = onDownload) }
     }
     if (match.missing.isNotEmpty()) item(key = "wish") {
-        ToolRow(stringResource(R.string.import_list_wish), listOf(stringResource(R.string.import_list_wish_hint)), onWish) {
-            PillButton(stringResource(R.string.import_list_wish_action), onWish)
+        ToolRow(stringResource(R.string.import_list_wish), listOf(stringResource(R.string.import_list_wish_hint)), onWish, icon = R.drawable.ic_wishlist) {
+            ToolAction(stringResource(R.string.import_list_wish_action), onClick = onWish)
         }
     }
     if (match.toDownload.isNotEmpty()) {
-        item(key = "found-header") { SectionHeader(stringResource(R.string.import_list_section_found)) }
+        item(key = "found-header") { SectionHeader(stringResource(R.string.import_list_section_found), icon = R.drawable.ic_check_circle) }
         items(match.toDownload.take(300), key = { "f" + it.id }) { file ->
             ListLine(file.name + " · " + ConsoleFormatter.getConsoleShortName(file.consoleId))
         }
     }
     if (match.missing.isNotEmpty()) {
-        item(key = "missing-header") { SectionHeader(stringResource(R.string.import_list_section_missing)) }
+        item(key = "missing-header") { SectionHeader(stringResource(R.string.import_list_section_missing), icon = R.drawable.ic_search) }
         items(match.missing.take(300), key = { "m$it" }) { ListLine(it) }
     }
 }
@@ -212,6 +235,7 @@ private fun LazyListScope.matchItems(match: ListMatch, total: Int, onDownload: (
 private fun ListLine(text: String) {
     Text(
         text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp)
     )
 }

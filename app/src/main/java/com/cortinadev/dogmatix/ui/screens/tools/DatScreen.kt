@@ -7,10 +7,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -47,7 +52,12 @@ import com.cortinadev.dogmatix.data.service.LibraryIndexService
 import com.cortinadev.dogmatix.data.state.ListImportRequest
 import com.cortinadev.dogmatix.data.state.PendingListImport
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
-import com.cortinadev.dogmatix.ui.screens.settings.PillButton
+import com.cortinadev.dogmatix.ui.components.ActionTone
+import com.cortinadev.dogmatix.ui.components.MeterBar
+import com.cortinadev.dogmatix.ui.components.Panel
+import com.cortinadev.dogmatix.ui.components.PanelTone
+import com.cortinadev.dogmatix.ui.components.Pill
+import com.cortinadev.dogmatix.ui.components.PillTone
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.DatCheck
 import com.cortinadev.dogmatix.util.DatStatus
@@ -165,9 +175,9 @@ fun DatScreen(navController: NavController, viewModel: DatViewModel = hiltViewMo
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         val consoleId = selected
         if (consoleId == null) {
-            ToolsTitle(stringResource(R.string.nav_dat))
-            InfoCard(listOf(stringResource(R.string.dat_intro)), Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 12.dp)) {
+            ToolsTitle(stringResource(R.string.nav_dat), icon = NavRoutes.Dat.icon)
+            InfoCard(listOf(stringResource(R.string.dat_intro)), icon = R.drawable.ic_verified)
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
                 items(consoles, key = { it.id }) { console ->
                     val set = sets[console.id]
                     val report = reports[console.id]
@@ -176,9 +186,9 @@ fun DatScreen(navController: NavController, viewModel: DatViewModel = hiltViewMo
                         report?.let { add(summary(it)) }
                     }
                     ToolRow(ConsoleFormatter.getConsoleDisplayName(console.id), lines, onClick = { selected = console.id },
-                        modifier = if (console == consoles.first()) Modifier.focusRequester(firstFocus) else Modifier) {
-                        Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+                        modifier = if (console == consoles.first()) Modifier.focusRequester(firstFocus) else Modifier,
+                        leading = { ConsoleTile(console.id) },
+                        chevron = true)
                 }
             }
             return@Column
@@ -187,74 +197,107 @@ fun DatScreen(navController: NavController, viewModel: DatViewModel = hiltViewMo
         val set = sets[consoleId]
         val report = reports[consoleId]
         val running = progress?.takeIf { it.consoleId == consoleId }
-        ToolsTitle(ConsoleFormatter.getConsoleDisplayName(consoleId))
-        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            PillButton(stringResource(if (set == null) R.string.dat_import else R.string.dat_replace)) {
+        ToolsTitle(ConsoleFormatter.getConsoleDisplayName(consoleId), icon = NavRoutes.Dat.icon)
+        ToolsActions {
+            ToolAction(
+                stringResource(if (set == null) R.string.dat_import else R.string.dat_replace),
+                icon = R.drawable.ic_import,
+                tone = if (set == null) ActionTone.Accent else ActionTone.Neutral
+            ) {
                 picker.launch(arrayOf("application/xml", "text/xml", "application/zip", "application/octet-stream", "text/plain", "*/*"))
             }
             if (RedumpSystems.systemFor(consoleId) != null && fetching == null) {
-                PillButton(stringResource(R.string.dat_redump)) { viewModel.fetchRedump(context, consoleId) }
+                ToolAction(stringResource(R.string.dat_redump), icon = R.drawable.ic_cloud_download) { viewModel.fetchRedump(context, consoleId) }
             }
             if (set != null) {
-                if (running == null) PillButton(stringResource(R.string.dat_check)) { viewModel.verify(context, consoleId) }
-                else PillButton(stringResource(R.string.dialog_cancel)) { viewModel.cancel() }
-                PillButton(stringResource(R.string.dat_remove)) { viewModel.remove(consoleId) }
+                if (running == null) ToolAction(stringResource(R.string.dat_check), icon = R.drawable.ic_verified, tone = ActionTone.Accent) { viewModel.verify(context, consoleId) }
+                else ToolAction(stringResource(R.string.dialog_cancel), icon = R.drawable.ic_close) { viewModel.cancel() }
+                ToolAction(stringResource(R.string.dat_remove), icon = R.drawable.ic_trash, tone = ActionTone.Danger) { viewModel.remove(consoleId) }
             }
         }
         Text(
             set?.let { stringResource(R.string.dat_set_line, it.name, it.version, it.games) } ?: stringResource(R.string.dat_none_hint),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
         )
         if (fetching == consoleId) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 Text(stringResource(R.string.dat_redump_fetching), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         running?.let {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                LinearProgressIndicator(progress = { if (it.total == 0) 0f else it.done.toFloat() / it.total }, modifier = Modifier.fillMaxWidth())
-                Text(stringResource(R.string.dat_checking, it.done + 1, it.total, it.current), style = MaterialTheme.typography.bodySmall, maxLines = 1)
+            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                MeterBar(if (it.total == 0) 0f else it.done.toFloat() / it.total)
+                Text(stringResource(R.string.dat_checking, it.done + 1, it.total, it.current), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
             }
         }
         if (report != null && running == null) {
             val misnamed = report.checks.filter { it.second.status == DatStatus.MISNAMED }
             val unknown = report.checks.filter { it.second.status == DatStatus.UNKNOWN }
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 12.dp)) {
-                item { InfoCard(listOf(summary(report), stringResource(R.string.dat_missing_line, report.missing.size, report.gameCount)), Modifier.padding(16.dp), accent = misnamed.isNotEmpty()) }
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
+                item { ReportCard(report, attention = misnamed.isNotEmpty()) }
                 if (misnamed.isNotEmpty()) {
                     item {
-                        Row(Modifier.fillMaxWidth().padding(end = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) { SectionHeader(stringResource(R.string.dat_section_misnamed), stringResource(R.string.dat_section_misnamed_hint)) }
-                            PillButton(stringResource(R.string.dat_rename_all, misnamed.size)) { viewModel.renameAll(context, consoleId) }
+                        Row(Modifier.fillMaxWidth().padding(end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) { SectionHeader(stringResource(R.string.dat_section_misnamed), stringResource(R.string.dat_section_misnamed_hint), icon = R.drawable.ic_edit) }
+                            ToolAction(stringResource(R.string.dat_rename_all, misnamed.size), tone = ActionTone.Accent) { viewModel.renameAll(context, consoleId) }
                         }
                     }
                     items(misnamed, key = { "m" + it.first.uri }) { (entry, check) ->
-                        ToolRow(entry.name, listOf("→ " + (check.canonicalName ?: "")), onClick = { viewModel.rename(context, consoleId, entry, check) }) {
-                            PillButton(stringResource(R.string.dat_rename)) { viewModel.rename(context, consoleId, entry, check) }
+                        ToolRow(entry.name, listOf("→ " + (check.canonicalName ?: "")), onClick = { viewModel.rename(context, consoleId, entry, check) }, icon = R.drawable.ic_edit) {
+                            ToolAction(stringResource(R.string.dat_rename)) { viewModel.rename(context, consoleId, entry, check) }
                         }
                     }
                 }
                 if (unknown.isNotEmpty()) {
-                    item { SectionHeader(stringResource(R.string.dat_section_unknown), stringResource(R.string.dat_section_unknown_hint)) }
-                    items(unknown, key = { "u" + it.first.uri }) { (entry, _) -> ToolRow(entry.name, emptyList(), onClick = {}) }
+                    item { SectionHeader(stringResource(R.string.dat_section_unknown), stringResource(R.string.dat_section_unknown_hint), icon = R.drawable.ic_warning) }
+                    items(unknown, key = { "u" + it.first.uri }) { (entry, _) -> ToolRow(entry.name, emptyList(), onClick = {}, icon = R.drawable.ic_description) }
                 }
                 if (report.missing.isNotEmpty()) {
-                    item { SectionHeader(stringResource(R.string.dat_section_missing), stringResource(R.string.dat_section_missing_hint, report.missing.size)) }
+                    item { SectionHeader(stringResource(R.string.dat_section_missing), stringResource(R.string.dat_section_missing_hint, report.missing.size), icon = R.drawable.ic_search) }
                     item {
                         val find = { viewModel.findMissing(consoleId, report.missing); navController.navigate(NavRoutes.ImportList.route) }
-                        ToolRow(stringResource(R.string.dat_find_missing), listOf(stringResource(R.string.dat_find_missing_hint)), find) {
-                            PillButton(stringResource(R.string.dat_find_missing_action), find)
+                        ToolRow(stringResource(R.string.dat_find_missing), listOf(stringResource(R.string.dat_find_missing_hint)), find, icon = R.drawable.ic_search) {
+                            ToolAction(stringResource(R.string.dat_find_missing_action), tone = ActionTone.Accent, onClick = find)
                         }
                     }
                     items(report.missing.take(200), key = { "x$it" }) { name ->
                         Text(name, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 2.dp))
                     }
                 }
             }
         }
+    }
+}
+
+/** The check's result: a pill per outcome and how much of the DAT this folder holds. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ReportCard(report: DatReport, attention: Boolean) {
+    val scheme = MaterialTheme.colorScheme
+    val have = (report.gameCount - report.missing.size).coerceAtLeast(0)
+    Panel(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 3.dp),
+        tone = if (attention) PanelTone.Accent else PanelTone.Normal,
+        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp)
+    ) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Pill(stringResource(R.string.tools5_dat_good, report.count(DatStatus.VERIFIED)), tone = PillTone.Success, icon = R.drawable.ic_check_circle)
+            Pill(stringResource(R.string.tools5_dat_renamed, report.count(DatStatus.MISNAMED)), tone = PillTone.Warning, icon = R.drawable.ic_edit)
+            Pill(stringResource(R.string.tools5_dat_unknown, report.count(DatStatus.UNKNOWN)), tone = PillTone.Neutral)
+            Pill(stringResource(R.string.tools5_dat_skipped, report.count(DatStatus.SKIPPED)), tone = PillTone.Neutral)
+        }
+        Spacer(Modifier.height(10.dp))
+        MeterBar(if (report.gameCount == 0) 0f else have.toFloat() / report.gameCount, height = 6.dp, color = scheme.tertiary)
+        Text(
+            stringResource(R.string.dat_missing_line, report.missing.size, report.gameCount),
+            style = MaterialTheme.typography.bodySmall,
+            color = if (attention) scheme.onPrimaryContainer else scheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 4.dp)
+        )
     }
 }
 
