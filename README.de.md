@@ -25,6 +25,8 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 <p align="center"><img src="docs/screenshots/library-landscape.png" width="720" alt="Die Bibliothek im Querformat auf einem Handheld"></p>
 
+<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="Die neue Cloud-Übersicht (Titel und Zahlen sind erfunden)"><br><sub>Die neue Cloud-Übersicht (Titel und Zahlen sind erfunden)</sub></p>
+
 *Die Screenshots verwenden erfundene Spieltitel und leere Platzhalterdateien und zeigen die App auf Englisch.*
 
 ---

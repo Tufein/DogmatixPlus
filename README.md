@@ -25,6 +25,8 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 <p align="center"><img src="docs/screenshots/library-landscape.png" width="720" alt="The library in landscape on a handheld"></p>
 
+<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="The new Cloud hub (titles and numbers are made up)"><br><sub>The new Cloud hub (titles and numbers are made up)</sub></p>
+
 *The screenshots use made-up game titles and empty placeholder files.*
 
 ---

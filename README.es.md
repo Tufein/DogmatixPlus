@@ -25,6 +25,8 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 <p align="center"><img src="docs/screenshots/library-landscape.png" width="720" alt="La biblioteca en horizontal en una consola portátil"></p>
 
+<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="El nuevo resumen de la nube (títulos y cifras inventados)"><br><sub>El nuevo resumen de la nube (títulos y cifras inventados)</sub></p>
+
 *Las capturas de pantalla usan títulos de juegos inventados y archivos vacíos de relleno. Las capturas muestran la app en inglés.*
 
 ---

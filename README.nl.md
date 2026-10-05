@@ -25,6 +25,8 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 <p align="center"><img src="docs/screenshots/library-landscape.png" width="720" alt="De bibliotheek in liggende stand op een handheld"></p>
 
+<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="Het nieuwe cloud-overzicht (titels en cijfers zijn verzonnen)"><br><sub>Het nieuwe cloud-overzicht (titels en cijfers zijn verzonnen)</sub></p>
+
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
 ---

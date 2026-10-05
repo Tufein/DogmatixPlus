@@ -25,6 +25,8 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 <p align="center"><img src="docs/screenshots/library-landscape.png" width="720" alt="La bibliothèque en mode paysage sur une console portable"></p>
 
+<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="La nouvelle vue d'ensemble du cloud (titres et chiffres inventés)"><br><sub>La nouvelle vue d'ensemble du cloud (titres et chiffres inventés)</sub></p>
+
 *Les captures d’écran utilisent des titres de jeux inventés et des fichiers vides de substitution, et montrent l’application en anglais.*
 
 ---
