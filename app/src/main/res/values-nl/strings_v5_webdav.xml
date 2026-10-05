@@ -120,7 +120,7 @@
     <string name="dav_err_redirect">De server stuurt je door naar een ander adres (%1$s). Gebruik dat adres.</string>
     <string name="dav_err_network">De server is niet bereikbaar. Controleer het adres en je verbinding.</string>
     <string name="dav_err_timeout">De server deed er te lang over om te antwoorden.</string>
-    <string name="dav_err_tls">De beveiligde verbinding mislukte. Het certificaat van de server wordt niet vertrouwd of past niet bij het adres, of het adres moet met http:// beginnen.</string>
+    <string name="dav_err_tls">De beveiligde verbinding mislukte. Het certificaat van de server wordt niet vertrouwd of past niet bij het adres.</string>
     <string name="dav_err_bad_url">Dat is geen geldig webadres.</string>
     <string name="dav_err_bad_response">Het antwoord van de server was onleesbaar of het bestand kwam onvolledig aan.</string>
     <string name="dav_err_passphrase">Verkeerde wachtzin of beschadigde back-up. Stel de wachtzin in waarmee de back-up is gemaakt (Wachtzin voor back-ups) en probeer het opnieuw.</string>

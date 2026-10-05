@@ -34,7 +34,7 @@ object BackupCrypto {
     const val TAG_BITS = 128
     const val KEY_BITS = 256
     /** PBKDF2 rounds; part of the DGXB1 format (a reader must use the same number). */
-    const val ITERATIONS = 150_000
+    const val ITERATIONS = 600_000
     /** Shortest passphrase the app accepts. */
     const val MIN_PASSPHRASE = 8
     /** Largest decompressed backup accepted (backups are far smaller; this stops a "zip bomb"). */

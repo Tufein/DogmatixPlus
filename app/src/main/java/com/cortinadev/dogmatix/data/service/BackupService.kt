@@ -188,6 +188,9 @@ class BackupService @Inject constructor(
             val davUser = stringPreferencesKey(CloudSettingKeys.USER)
             val currentDavPassword = prefs[davPassword]
             val currentDavLogin = prefs[davUrl] to prefs[davUser]
+            // A backup from before the cloud was set up has no cloud settings: those stay as they are.
+            val currentDav = prefs.asMap().filter { it.key.name.startsWith("dav_") }
+            val backupHasDav = settings.any { it.first.startsWith("dav_") }
             prefs.clear()
             settings.forEach { (name, value) ->
                 when (name) {
@@ -223,6 +226,7 @@ class BackupService @Inject constructor(
             if (prefs[SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES] == null && currentConsoleDirs.isNotEmpty()) {
                 prefs[SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES] = currentConsoleDirs
             }
+            if (!backupHasDav) currentDav.forEach { (key, value) -> @Suppress("UNCHECKED_CAST") prefs[key as androidx.datastore.preferences.core.Preferences.Key<Any>] = value }
             if (!currentDavPassword.isNullOrEmpty() &&
                 CloudSettingKeys.keepsPassword(currentDavLogin.first, currentDavLogin.second, prefs[davUrl], prefs[davUser])
             ) prefs[davPassword] = currentDavPassword

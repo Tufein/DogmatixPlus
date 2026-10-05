@@ -120,7 +120,7 @@
     <string name="dav_err_redirect">Il server rimanda a un altro indirizzo (%1$s). Usa invece quell\'indirizzo.</string>
     <string name="dav_err_network">Impossibile raggiungere il server. Controlla l\'indirizzo e la connessione.</string>
     <string name="dav_err_timeout">Il server ha impiegato troppo tempo a rispondere.</string>
-    <string name="dav_err_tls">La connessione sicura non è riuscita. Il certificato del server non è attendibile o non corrisponde al suo indirizzo, oppure l\'indirizzo dovrebbe iniziare con http://.</string>
+    <string name="dav_err_tls">La connessione sicura non è riuscita. Il certificato del server non è attendibile o non corrisponde al suo indirizzo.</string>
     <string name="dav_err_bad_url">Questo non è un indirizzo web valido.</string>
     <string name="dav_err_bad_response">La risposta del server non era leggibile o il file è arrivato incompleto.</string>
     <string name="dav_err_passphrase">Frase segreta errata o backup danneggiato. Imposta la frase segreta con cui è stato creato il backup (Frase segreta del backup) e riprova.</string>

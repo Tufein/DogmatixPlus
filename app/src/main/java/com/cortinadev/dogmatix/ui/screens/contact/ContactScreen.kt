@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.contact
 
+import com.cortinadev.dogmatix.ui.theme.accentInk
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -197,7 +198,7 @@ private fun CreditCard(
                 Text(
                     text = role,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = accentInk(),
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 2.dp)
                 )

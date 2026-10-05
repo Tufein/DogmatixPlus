@@ -126,6 +126,9 @@ class CloudSavesService @Inject constructor(
     suspend fun romIdFor(consoleId: String, fileName: String, records: Map<String, SaveSyncRecord>? = null): Int? {
         if (!rommReady()) return null
         rommLibrary.gameFor(consoleId, fileName)?.romId?.let { return it }
+        // The server's game list knows which games it has: a save of the same name on another console
+        // (a Tetris.srm of the Game Boy for the NES Tetris) must not be taken for this game's.
+        if (rommLibrary.games.value.isNotEmpty()) return null
         val stem = CloudSaves.gameStem(fileName)
         val known = records ?: runCatching { saveSync.syncRecords() }.getOrDefault(emptyMap())
         return known.values.filter { CloudSaves.belongsToGame(it.path.substringAfterLast('/'), stem) }

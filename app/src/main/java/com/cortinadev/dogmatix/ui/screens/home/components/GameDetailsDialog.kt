@@ -1,7 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.home.components
 
 import android.content.res.Configuration
-import android.os.Build
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,7 +37,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -46,7 +44,6 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
@@ -56,6 +53,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -114,7 +112,7 @@ import java.util.Date
  * Card with the online metadata of one library entry. Opens with X, closes with B or X;
  * the D-pad scrolls the synopsis while a button is focused, so nothing needs the touch screen.
  *
- * 5.0: a hero header — the game's art blurred and dimmed behind the card's top, the cover in front,
+ * 5.0: a hero header — the game's art softened and dimmed behind the card's top, the cover in front,
  * the title in large type and a row of info pills (console, size, region, source, on device, on
  * RomM, verified, found date) — then the description and [extraSections].
  */
@@ -158,8 +156,9 @@ fun GameDetailsDialog(
     // The cover from the shared repository (RomM, libretro box art, cached metadata); the metadata
     // image (often a screenshot) is the better backdrop, the box art the better front cover.
     val covers = rememberCoverRepository()
-    val coverUrl by produceState(initialValue = covers.cached(rom.consoleId, rom.fileName), rom.consoleId, rom.fileName) {
-        if (value == null) value = runCatching { covers.coverUrl(rom.consoleId, rom.fileName, rom.name) }.getOrNull()
+    var coverUrl by remember(rom.consoleId, rom.fileName) { mutableStateOf(covers.cached(rom.consoleId, rom.fileName)) }
+    LaunchedEffect(rom.consoleId, rom.fileName) {
+        if (coverUrl == null) coverUrl = runCatching { covers.coverUrl(rom.consoleId, rom.fileName, rom.name) }.getOrNull()
     }
     val artUrl = state.details?.imageUrl?.takeIf { it.isNotBlank() }
     val frontUrl = coverUrl ?: artUrl
@@ -280,7 +279,7 @@ fun GameDetailsDialog(
 }
 
 /**
- * The card's top: [url] blurred (Android 12+; just dimmed before that) over the console's colour,
+ * The card's top: [url] decoded small and stretched (soft, no blur effect) over the console's colour,
  * fading into the card colour at the bottom so the text over it stays readable.
  */
 @Composable
@@ -296,21 +295,20 @@ private fun BoxScope.Backdrop(url: String?, consoleId: String) {
     val context = LocalContext.current
     val reduce = LocalReduceMotion.current
     val ground = MaterialTheme.colorScheme.surfaceContainer
-    val canBlur = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     Box(Modifier.matchParentSize().coverPlaceholder(consoleId))
     if (!url.isNullOrBlank()) {
         val request = remember(url, reduce) {
-            ImageRequest.Builder(context).data(url).crossfade(if (reduce) 0 else 300).build()
+            // Decoded tiny and stretched with bilinear filtering: a soft backdrop without a blur
+            // effect, which is a full-screen GPU pass per frame on the weakest handhelds.
+            ImageRequest.Builder(context).data(url).size(coil.size.Size(72, 72)).crossfade(if (reduce) 0 else 300).build()
         }
         AsyncImage(
             model = request,
             contentDescription = null,
             contentScale = ContentScale.Crop,
-            // Painter alpha (no offscreen layer). Unblurred art is kept fainter so it never competes with the text.
-            alpha = if (canBlur) 0.9f else 0.5f,
-            modifier = Modifier
-                .matchParentSize()
-                .then(if (canBlur) Modifier.blur(22.dp) else Modifier)
+            // Painter alpha (no offscreen layer); kept fainter so it never competes with the text.
+            alpha = 0.8f,
+            modifier = Modifier.matchParentSize()
         )
     }
     Box(
@@ -350,7 +348,7 @@ private fun HeroCover(url: String?, consoleId: String, height: Dp, maxRatio: Flo
             ConsoleFormatter.getConsoleShortName(consoleId),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.ExtraBold,
-            color = Color.White.copy(alpha = 0.85f),
+            color = if (LocalDogmatixTokens.current.isDark) Color.White.copy(alpha = 0.85f) else lerp(consoleColor(consoleId), Color.Black, 0.5f),
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,

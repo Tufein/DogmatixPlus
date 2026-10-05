@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.sources.components
 
+import com.cortinadev.dogmatix.ui.theme.inkOf
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -213,13 +214,13 @@ fun ConsoleCard(
                             Icon(
                                 painterResource(R.drawable.ic_merge),
                                 contentDescription = null,
-                                tint = scheme.tertiary,
+                                tint = inkOf(scheme.tertiary),
                                 modifier = Modifier.size(14.dp)
                             )
                             Text(
                                 text = stringResource(R.string.merge_folders_notice, all.size, all.joinToString(", ")),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = scheme.tertiary,
+                                color = inkOf(scheme.tertiary),
                                 modifier = Modifier.weight(1f)
                             )
                             ActionPill(stringResource(R.string.merge_folders_action), onMergeFolders, tone = ActionTone.Accent)
@@ -406,7 +407,7 @@ private fun UrlItem(
                 Text(
                     text = sourceResultText(result),
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (result.failure != null) scheme.error else scheme.tertiary
+                    color = if (result.failure != null) scheme.error else inkOf(scheme.tertiary)
                 )
             }
         }

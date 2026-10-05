@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.home
 
+import com.cortinadev.dogmatix.ui.theme.accentInk
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -1310,7 +1311,7 @@ private fun FilterButton(count: Int, onClick: () -> Unit) {
             Text(
                 count.toString(),
                 style = MaterialTheme.typography.labelSmall.tabular(),
-                color = scheme.primary,
+                color = accentInk(),
                 modifier = Modifier
                     .background(scheme.onPrimary, RoundedCornerShape(50))
                     .padding(horizontal = 6.dp, vertical = 1.dp)

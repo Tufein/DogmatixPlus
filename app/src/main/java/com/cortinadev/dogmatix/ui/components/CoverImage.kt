@@ -9,7 +9,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,8 +69,10 @@ fun GameCover(
     contentScale: ContentScale = ContentScale.Crop
 ) {
     val covers = rememberCoverRepository()
-    val url by produceState(initialValue = covers.cached(consoleId, fileName), consoleId, fileName) {
-        if (value == null) value = covers.coverUrl(consoleId, fileName, title)
+    // Remembered per game: a recycled list slot must not keep the previous game's cover.
+    var url by remember(consoleId, fileName) { mutableStateOf(covers.cached(consoleId, fileName)) }
+    LaunchedEffect(consoleId, fileName) {
+        if (url == null) url = runCatching { covers.coverUrl(consoleId, fileName, title) }.getOrNull()
     }
     CoverImage(url, consoleId, modifier, shape, showLabel, contentScale)
 }
@@ -99,7 +103,7 @@ fun CoverImage(
                     textAlign = TextAlign.Center
                 ),
                 maxLines = if (' ' in label) 2 else 1,
-                autoSize = TextAutoSize.StepBased(minFontSize = 6.sp, maxFontSize = 22.sp, stepSize = 1.sp),
+                autoSize = TextAutoSize.StepBased(minFontSize = 6.sp, maxFontSize = 22.sp, stepSize = 3.sp),
                 modifier = Modifier.padding(4.dp)
             )
         }

@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
+import com.cortinadev.dogmatix.ui.theme.accentInk
 import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
 import com.cortinadev.dogmatix.ui.theme.Motion
 import kotlinx.coroutines.CoroutineScope
@@ -53,7 +54,7 @@ fun Modifier.focusRing(
     val tokens = LocalDogmatixTokens.current
     val bold = LocalBoldFocus.current
     val reduce = LocalReduceMotion.current
-    val ringColor = if (onAccent) scheme.onSurface else scheme.primary
+    val ringColor = if (onAccent) scheme.onSurface else accentInk()
     val fillColor = scheme.primary.copy(alpha = if (tokens.isDark) 0.14f else 0.12f)
     val pressColor = scheme.onSurface.copy(alpha = 0.08f)
     val edge = scheme.scrim

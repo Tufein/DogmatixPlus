@@ -130,18 +130,20 @@ interface AutoBackupEntryPoint {
 
 class AutoBackupJobService : JobService() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private var running: Job? = null
+    /** One job per scheduled job id: the local and the cloud backup can run at the same time. */
+    private val running = java.util.concurrent.ConcurrentHashMap<Int, Job>()
 
     override fun onStartJob(params: JobParameters): Boolean {
         val backup = EntryPointAccessors.fromApplication(applicationContext, AutoBackupEntryPoint::class.java).autoBackup()
         val cloud = params.jobId == CLOUD_JOB_ID
-        running = scope.launch {
+        running[params.jobId] = scope.launch {
             if (cloud) runCatching { backup.runCloud() }.onFailure { Log.w("AutoBackup", "Cloud run failed: ${it.javaClass.simpleName}") }
             else runCatching { backup.runIfDue() }.onFailure { Log.w("AutoBackup", "Backup failed: ${it.message}") }
+            running.remove(params.jobId)
             jobFinished(params, false)
         }
         return true
     }
 
-    override fun onStopJob(params: JobParameters): Boolean { running?.cancel(); return true }
+    override fun onStopJob(params: JobParameters): Boolean { running.remove(params.jobId)?.cancel(); return true }
 }

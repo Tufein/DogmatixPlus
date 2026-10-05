@@ -120,7 +120,7 @@
     <string name="dav_err_redirect">O servidor reencaminha para outro endereço (%1$s). Usa esse endereço.</string>
     <string name="dav_err_network">Não foi possível contactar o servidor. Verifica o endereço e a tua ligação.</string>
     <string name="dav_err_timeout">O servidor demorou demasiado a responder.</string>
-    <string name="dav_err_tls">A ligação segura falhou. O certificado do servidor não é de confiança ou não corresponde ao endereço, ou o endereço deveria começar por http://.</string>
+    <string name="dav_err_tls">A ligação segura falhou. O certificado do servidor não é de confiança ou não corresponde ao endereço.</string>
     <string name="dav_err_bad_url">Isso não é um endereço web válido.</string>
     <string name="dav_err_bad_response">A resposta do servidor não pôde ser lida ou o ficheiro chegou incompleto.</string>
     <string name="dav_err_passphrase">Frase-passe errada ou cópia danificada. Define a frase-passe com que a cópia foi feita (Frase-passe da cópia) e tenta de novo.</string>

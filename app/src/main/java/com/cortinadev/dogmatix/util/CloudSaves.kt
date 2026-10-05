@@ -305,7 +305,8 @@ object CloudSaves {
         entries: List<CloudSaveEntry>
     ): List<DeviceSave> = locals.mapNotNull { local ->
         val record = records[SaveSyncPlanner.key(local.kind, local.path)]
-        val ours = belongsToGame(local.name, gameStem) || (romId != null && record?.romId == romId)
+        // A save an earlier sync tied to another ROM is that game's, whatever it is called.
+        val ours = if (record != null && romId != null) record.romId == romId else belongsToGame(local.name, gameStem)
         if (!ours) return@mapNotNull null
         val paired = record?.let { r -> entries.firstOrNull { it.kind == local.kind && it.id == r.remoteId && it.syncable } }
         val server = paired ?: latest(entries, local.kind, local.name, romId)

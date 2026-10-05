@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.components
 
+import com.cortinadev.dogmatix.ui.theme.accentInk
 import com.cortinadev.dogmatix.R
 
 import androidx.compose.foundation.layout.Row
@@ -50,14 +51,14 @@ fun RescanIndicator(modifier: Modifier = Modifier) {
                 progress = { fraction },
                 modifier = Modifier.size(14.dp),
                 strokeWidth = 2.dp,
-                color = MaterialTheme.colorScheme.primary,
+                color = accentInk(),
                 trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
             )
         } else {
             CircularProgressIndicator(
                 modifier = Modifier.size(14.dp),
                 strokeWidth = 2.dp,
-                color = MaterialTheme.colorScheme.primary
+                color = accentInk()
             )
         }
         Text(

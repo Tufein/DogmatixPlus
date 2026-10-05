@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.components
 
+import com.cortinadev.dogmatix.ui.theme.accentInk
 import androidx.compose.foundation.background
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.heightIn

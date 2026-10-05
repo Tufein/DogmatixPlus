@@ -120,7 +120,7 @@
     <string name="dav_err_redirect">Der Server leitet auf eine andere Adresse um (%1$s). Nutze stattdessen diese Adresse.</string>
     <string name="dav_err_network">Der Server ist nicht erreichbar. Prüfe die Adresse und deine Verbindung.</string>
     <string name="dav_err_timeout">Der Server hat zu lange gebraucht.</string>
-    <string name="dav_err_tls">Die sichere Verbindung ist fehlgeschlagen. Das Zertifikat des Servers wird nicht als vertrauenswürdig eingestuft oder passt nicht zur Adresse, oder die Adresse sollte mit http:// beginnen.</string>
+    <string name="dav_err_tls">Die sichere Verbindung ist fehlgeschlagen. Das Zertifikat des Servers wird nicht als vertrauenswürdig eingestuft oder passt nicht zur Adresse.</string>
     <string name="dav_err_bad_url">Das ist keine gültige Webadresse.</string>
     <string name="dav_err_bad_response">Die Antwort des Servers war nicht lesbar oder die Datei kam unvollständig an.</string>
     <string name="dav_err_passphrase">Falsche Passphrase oder beschädigte Sicherung. Lege die Passphrase fest, mit der die Sicherung erstellt wurde (Sicherungs-Passphrase), und versuche es erneut.</string>

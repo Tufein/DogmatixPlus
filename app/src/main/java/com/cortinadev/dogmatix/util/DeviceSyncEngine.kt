@@ -65,7 +65,8 @@ class DeviceSyncEngine(
         var firstRejected: Pair<Boolean, String?>? = null
         while (true) {
             val file = store.get(fileUrl, MAX_FILE_BYTES)
-            val document = file?.let { readDocument(it.bytes) }
+            // An empty file (an upload that was cut off) is no sync file at all: it is replaced, nothing is lost.
+            val document = file?.takeIf { it.bytes.isNotEmpty() }?.let { readDocument(it.bytes) }
             // Without a server file the base says nothing about what the others removed.
             val base = storedBase?.library?.takeIf { document != null }
             val result = DeviceSyncMerge.merge(base, snapshot, document?.library ?: SyncLibrary.EMPTY)

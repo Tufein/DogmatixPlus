@@ -121,7 +121,7 @@
     <string name="dav_err_redirect">El servidor te lleva a otra dirección (%1$s). Usa esa dirección.</string>
     <string name="dav_err_network">No se puede conectar con el servidor. Revisa la dirección y tu conexión.</string>
     <string name="dav_err_timeout">El servidor tardó demasiado en responder.</string>
-    <string name="dav_err_tls">Falló la conexión segura. El certificado del servidor no es de confianza o no coincide con su dirección, o la dirección debería empezar por http://.</string>
+    <string name="dav_err_tls">Falló la conexión segura. El certificado del servidor no es de confianza o no coincide con su dirección.</string>
     <string name="dav_err_bad_url">Eso no es una dirección web válida.</string>
     <string name="dav_err_bad_response">La respuesta del servidor no se pudo leer o el archivo llegó incompleto.</string>
     <string name="dav_err_passphrase">Frase de contraseña incorrecta o copia dañada. Define la frase con la que se hizo la copia (Frase de contraseña de la copia) e inténtalo de nuevo.</string>

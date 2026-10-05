@@ -121,7 +121,7 @@
     <string name="dav_err_redirect">Le serveur renvoie vers une autre adresse (%1$s). Utilisez plutôt celle-ci.</string>
     <string name="dav_err_network">Impossible de joindre le serveur. Vérifiez l\'adresse et votre connexion.</string>
     <string name="dav_err_timeout">Le serveur a mis trop de temps à répondre.</string>
-    <string name="dav_err_tls">La connexion sécurisée a échoué. Le certificat du serveur n\'est pas approuvé ou ne correspond pas à son adresse, ou l\'adresse devrait commencer par http://.</string>
+    <string name="dav_err_tls">La connexion sécurisée a échoué. Le certificat du serveur n\'est pas approuvé ou ne correspond pas à son adresse.</string>
     <string name="dav_err_bad_url">Ce n\'est pas une adresse web valide.</string>
     <string name="dav_err_bad_response">La réponse du serveur est illisible ou le fichier est arrivé incomplet.</string>
     <string name="dav_err_passphrase">Phrase secrète incorrecte ou sauvegarde endommagée. Définissez la phrase secrète avec laquelle la sauvegarde a été créée (Phrase secrète de sauvegarde) et réessayez.</string>

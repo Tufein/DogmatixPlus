@@ -65,6 +65,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -1246,7 +1247,7 @@ private fun LookPreview(listCovers: Boolean, modifier: Modifier = Modifier) {
                         .coverPlaceholder(PREVIEW_CONSOLE),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(shortName, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.ExtraBold, color = Color.White.copy(alpha = 0.85f), maxLines = 1)
+                    Text(shortName, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.ExtraBold, color = if (LocalDogmatixTokens.current.isDark) Color.White.copy(alpha = 0.85f) else lerp(consoleColor(PREVIEW_CONSOLE), Color.Black, 0.5f), maxLines = 1)
                 }
             }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {

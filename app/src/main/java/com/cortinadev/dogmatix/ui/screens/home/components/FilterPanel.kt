@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.home.components
 
+import com.cortinadev.dogmatix.ui.theme.accentInk
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -245,7 +246,7 @@ private fun FilterRow(
                 Text(
                     valueText,
                     style = MaterialTheme.typography.labelLarge,
-                    color = if (active) scheme.primary else scheme.onSurface,
+                    color = if (active) accentInk() else scheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
@@ -401,7 +402,7 @@ private fun OptionRow(
         Text(
             label,
             style = if (checked || accent) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodyMedium,
-            color = if (accent) scheme.primary else scheme.onSurface,
+            color = if (accent) accentInk() else scheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f)

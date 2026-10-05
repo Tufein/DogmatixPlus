@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.components
 
+import com.cortinadev.dogmatix.ui.theme.accentInk
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -200,11 +201,11 @@ fun SectionTitle(text: String, modifier: Modifier = Modifier, icon: Int? = null)
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        icon?.let { Icon(painterResource(it), contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp)) }
+        icon?.let { Icon(painterResource(it), contentDescription = null, tint = accentInk(), modifier = Modifier.size(16.dp)) }
         Text(
             text.uppercase(),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
+            color = accentInk(),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )

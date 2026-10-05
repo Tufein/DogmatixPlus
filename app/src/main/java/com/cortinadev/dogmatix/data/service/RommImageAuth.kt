@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
@@ -35,8 +36,16 @@ class RommImageAuth @Inject constructor(settingsRepository: SettingsRepository) 
         val b = base
         val h = header
         val signed = if (h.isNotEmpty() && b.isNotEmpty() && request.header("Authorization") == null &&
-            request.url.toString().startsWith("$b/")
+            sameServer(b, request.url)
         ) request.newBuilder().header("Authorization", h).build() else request
         return chain.proceed(signed)
+    }
+
+    /** Same scheme, host and port as the configured address, and below its path (OkHttp has normalised the request's URL). */
+    private fun sameServer(base: String, url: okhttp3.HttpUrl): Boolean {
+        val configured = base.toHttpUrlOrNull() ?: return false
+        if (configured.scheme != url.scheme || configured.host != url.host || configured.port != url.port) return false
+        val prefix = configured.encodedPath.trimEnd('/')
+        return prefix.isEmpty() || url.encodedPath == prefix || url.encodedPath.startsWith("$prefix/")
     }
 }

@@ -132,6 +132,8 @@ class RommLibraryService @Inject constructor(
                         keys += key
                         games[key] = RommGameRef(rom.id, platformId, rom.coverPath)
                     }
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     failures++
                     lastError = e.message ?: e.javaClass.simpleName
