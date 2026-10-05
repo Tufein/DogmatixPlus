@@ -1,0 +1,117 @@
+package com.cortinadev.dogmatix.ui.screens.cloud.saves
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.cortinadev.dogmatix.data.service.CloudSavesService
+import com.cortinadev.dogmatix.data.service.GameCloudSaves
+import com.cortinadev.dogmatix.util.CloudSaveResult
+import com.cortinadev.dogmatix.util.CloudSaveVersion
+import com.cortinadev.dogmatix.util.DeviceSave
+import com.cortinadev.dogmatix.util.SafetyCopy
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+/** The outcome of the last restore / upload, shown under the section. */
+sealed interface CloudSavesNotice {
+    data class Restored(val path: String) : CloudSavesNotice
+    data class Uploaded(val name: String) : CloudSavesNotice
+    data class Failed(val name: String, val message: String) : CloudSavesNotice
+    data object Busy : CloudSavesNotice
+}
+
+data class CloudSavesUi(
+    val data: GameCloudSaves? = null,
+    /** Id of the row whose action runs (see [CloudSavesViewModel.rowId]); null when idle. */
+    val working: String? = null,
+    val notice: CloudSavesNotice? = null
+)
+
+/**
+ * The "Cloud saves" section of the details dialog. One instance follows whichever game the dialog
+ * shows ([show]), so opening many games does not pile up state.
+ */
+@HiltViewModel
+class CloudSavesViewModel @Inject constructor(
+    private val service: CloudSavesService
+) : ViewModel() {
+
+    private val _ui = MutableStateFlow(CloudSavesUi())
+    val ui: StateFlow<CloudSavesUi> = _ui.asStateFlow()
+
+    private var game: Pair<String, String>? = null
+    private var job: Job? = null
+
+    /** The dialog shows this game: read its cloud saves (unless they are the ones shown). */
+    fun show(consoleId: String, fileName: String) {
+        val g = consoleId to fileName
+        if (game == g) return
+        game = g
+        job?.cancel()
+        _ui.value = CloudSavesUi()
+        job = viewModelScope.launch { load(g, force = false) }
+    }
+
+    /** Read the server and the device again (Retry, after an action). */
+    fun reload() {
+        val g = game ?: return
+        job?.cancel()
+        job = viewModelScope.launch { load(g, force = true) }
+    }
+
+    private suspend fun load(g: Pair<String, String>, force: Boolean) {
+        // Quick part first (RomM id, safety copies): decides whether the section shows at all.
+        val local = runCatching { service.loadLocal(g.first, g.second) }.getOrNull() ?: return
+        if (game != g) return
+        if (!local.visible) {
+            _ui.update { it.copy(data = local) }
+            return
+        }
+        _ui.update { ui ->
+            // A reload keeps the lists on screen while the new ones come.
+            val shown = ui.data?.takeIf { it.consoleId == g.first && it.fileName == g.second }
+            ui.copy(data = (shown ?: local).copy(loadingServer = local.romId != null, loadingDevice = true))
+        }
+        val full = runCatching { service.load(g.first, g.second, force) }.getOrNull()
+        if (game != g) return
+        _ui.update { it.copy(data = full ?: local) }
+    }
+
+    fun restore(version: CloudSaveVersion) =
+        act(rowId(version), version.entry.fileName, upload = false) { service.restore(it, version) }
+
+    fun restore(copy: SafetyCopy) =
+        act(rowId(copy), copy.name, upload = false) { service.restore(it, copy) }
+
+    fun upload(save: DeviceSave) =
+        act(rowId(save), save.local.name, upload = true) { service.upload(it, save) }
+
+    fun dismissNotice() = _ui.update { it.copy(notice = null) }
+
+    private fun act(id: String, name: String, upload: Boolean, block: suspend (GameCloudSaves) -> CloudSaveResult) {
+        val data = _ui.value.data ?: return
+        if (_ui.value.working != null) return
+        _ui.update { it.copy(working = id, notice = null) }
+        viewModelScope.launch {
+            val result = runCatching { block(data) }.getOrElse { CloudSaveResult.Failed(it.message ?: it.javaClass.simpleName) }
+            val notice = when (result) {
+                is CloudSaveResult.Done -> if (upload) CloudSavesNotice.Uploaded(name) else CloudSavesNotice.Restored(result.path)
+                is CloudSaveResult.Failed -> CloudSavesNotice.Failed(name, result.message)
+                CloudSaveResult.Busy -> CloudSavesNotice.Busy
+            }
+            _ui.update { it.copy(working = null, notice = notice) }
+            if (result is CloudSaveResult.Done) reload()
+        }
+    }
+
+    companion object {
+        fun rowId(version: CloudSaveVersion) = "v:${version.entry.kind}:${version.entry.id}"
+        fun rowId(copy: SafetyCopy) = "c:${copy.relative}"
+        fun rowId(save: DeviceSave) = "d:${save.local.kind}:${save.local.path}"
+    }
+}

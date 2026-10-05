@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: cloud saves you can see (per-game cloud saves, Continue playing, top-bar cloud status) -->
+<resources>
+    <string name="csave_section_title">Saves in de cloud</string>
+    <string name="csave_group_server">Op de server</string>
+    <string name="csave_group_device">Op dit apparaat</string>
+    <string name="csave_group_copies">Veiligheidskopieën</string>
+    <string name="csave_copies_hint">30 dagen bewaard op dit apparaat telkens als een synchronisatie of herstel een bestand verving.</string>
+    <string name="csave_loading">Saves op de server zoeken…</string>
+    <string name="csave_server_error">De server kon niet gelezen worden: %1$s</string>
+    <string name="csave_device_error">De savemappen konden niet gelezen worden: %1$s</string>
+    <string name="csave_retry">Opnieuw proberen</string>
+    <string name="csave_none_on_server">Nog geen saves of states van dit spel op de server.</string>
+    <string name="csave_no_folder_hint">Kies je save- en statemappen in Instellingen → Saves synchroniseren om hiervandaan te herstellen.</string>
+    <string name="csave_pill_current">Huidig</string>
+    <string name="csave_pill_on_device">Op dit apparaat</string>
+    <string name="csave_pill_slot">Slot %1$s</string>
+    <string name="csave_pill_missing">Ontbreekt op server</string>
+    <string name="csave_state_in_sync">Gelijk</string>
+    <string name="csave_state_device_newer">Hier nieuwer</string>
+    <string name="csave_state_server_newer">Nieuwer op server</string>
+    <string name="csave_state_both_changed">Aan beide kanten gewijzigd</string>
+    <string name="csave_state_not_on_server">Niet op server</string>
+    <string name="csave_restore">Herstellen</string>
+    <string name="csave_restore_title">Deze versie herstellen?</string>
+    <string name="csave_restore_message">%1$s (opgeslagen %2$s) gaat terug naar zijn map op dit apparaat. Het bestand dat daar nu staat wordt eerst als veiligheidskopie bewaard, en de volgende synchronisatie stuurt deze versie naar de server.</string>
+    <string name="csave_unknown_time">op een onbekend moment</string>
+    <string name="csave_upload_now">Nu uploaden</string>
+    <string name="csave_restored">Hersteld naar %1$s</string>
+    <string name="csave_uploaded">%1$s naar RomM geüpload</string>
+    <string name="csave_failed">%1$s: %2$s</string>
+    <string name="csave_busy">Er loopt een savesynchronisatie. Probeer het zo opnieuw.</string>
+    <string name="csave_just_now">zojuist</string>
+    <string name="csave_side_device">Dit apparaat</string>
+    <string name="csave_side_server">Server</string>
+    <string name="csave_shot_description">Schermafbeelding van de save state</string>
+    <string name="csave_show_all">Alles tonen (%1$d)</string>
+    <string name="csave_show_less">Minder tonen</string>
+    <string name="csave_continue_title">Verder spelen</string>
+    <string name="csave_shelf_setting_title">Verder spelen op Home</string>
+    <string name="csave_shelf_setting_hint">De spellen die je het laatst opsloeg, op elk apparaat, boven de bibliotheek</string>
+    <string name="csave_status_idle">Cloud: alles gesynchroniseerd</string>
+    <string name="csave_status_syncing">Cloud: bezig met synchroniseren</string>
+    <plurals name="csave_status_attention">
+        <item quantity="one">Cloud: %1$d punt heeft je nodig</item>
+        <item quantity="other">Cloud: %1$d punten hebben je nodig</item>
+    </plurals>
+    <string name="csave_error_no_folder">Er is geen map gekozen voor dit soort bestand. Kies er een in Instellingen → Saves synchroniseren.</string>
+    <string name="csave_error_ambiguous">Meerdere bestanden op dit apparaat passen bij deze save, dus er is niets hersteld. Kies in het scherm Saves synchroniseren.</string>
+    <string name="csave_error_gone">%1$s is er niet meer</string>
+    <string name="csave_error_copy">Kon geen veiligheidskopie van %1$s bewaren, dus er is niets gewijzigd</string>
+    <string name="csave_error_not_on_server">RomM heeft dit spel niet</string>
+</resources>

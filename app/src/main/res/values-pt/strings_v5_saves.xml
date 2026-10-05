@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: cloud saves you can see (per-game cloud saves, Continue playing, top-bar cloud status) -->
+<resources>
+    <string name="csave_section_title">Saves na nuvem</string>
+    <string name="csave_group_server">No servidor</string>
+    <string name="csave_group_device">Neste dispositivo</string>
+    <string name="csave_group_copies">Cópias de segurança</string>
+    <string name="csave_copies_hint">Guardadas 30 dias neste dispositivo sempre que uma sincronização ou um restauro substituiu um ficheiro.</string>
+    <string name="csave_loading">A procurar saves no servidor…</string>
+    <string name="csave_server_error">Não foi possível ler o servidor: %1$s</string>
+    <string name="csave_device_error">Não foi possível ler as pastas de saves: %1$s</string>
+    <string name="csave_retry">Tentar de novo</string>
+    <string name="csave_none_on_server">Ainda não há saves nem estados deste jogo no servidor.</string>
+    <string name="csave_no_folder_hint">Escolha as pastas de saves e estados em Definições → Sincronização de saves para restaurar a partir daqui.</string>
+    <string name="csave_pill_current">Atual</string>
+    <string name="csave_pill_on_device">Neste dispositivo</string>
+    <string name="csave_pill_slot">Ranhura %1$s</string>
+    <string name="csave_pill_missing">Em falta no servidor</string>
+    <string name="csave_state_in_sync">Sincronizado</string>
+    <string name="csave_state_device_newer">Mais recente aqui</string>
+    <string name="csave_state_server_newer">Mais recente no servidor</string>
+    <string name="csave_state_both_changed">Alterado nos dois lados</string>
+    <string name="csave_state_not_on_server">Não está no servidor</string>
+    <string name="csave_restore">Restaurar</string>
+    <string name="csave_restore_title">Restaurar esta versão?</string>
+    <string name="csave_restore_message">%1$s (guardado %2$s) volta para a sua pasta neste dispositivo. O ficheiro que lá está agora é guardado primeiro como cópia de segurança, e a próxima sincronização envia esta versão para o servidor.</string>
+    <string name="csave_unknown_time">num momento desconhecido</string>
+    <string name="csave_upload_now">Enviar agora</string>
+    <string name="csave_restored">Restaurado em %1$s</string>
+    <string name="csave_uploaded">%1$s enviado para o RomM</string>
+    <string name="csave_failed">%1$s: %2$s</string>
+    <string name="csave_busy">Está a decorrer uma sincronização de saves. Tente de novo daqui a pouco.</string>
+    <string name="csave_just_now">agora mesmo</string>
+    <string name="csave_side_device">Este dispositivo</string>
+    <string name="csave_side_server">Servidor</string>
+    <string name="csave_shot_description">Captura de ecrã do estado guardado</string>
+    <string name="csave_show_all">Mostrar tudo (%1$d)</string>
+    <string name="csave_show_less">Mostrar menos</string>
+    <string name="csave_continue_title">Continuar a jogar</string>
+    <string name="csave_shelf_setting_title">Continuar a jogar no Início</string>
+    <string name="csave_shelf_setting_hint">Os jogos guardados por último, em qualquer dispositivo, por cima da biblioteca</string>
+    <string name="csave_status_idle">Nuvem: tudo sincronizado</string>
+    <string name="csave_status_syncing">Nuvem: a sincronizar</string>
+    <plurals name="csave_status_attention">
+        <item quantity="one">Nuvem: %1$d item precisa de si</item>
+        <item quantity="other">Nuvem: %1$d itens precisam de si</item>
+    </plurals>
+    <string name="csave_error_no_folder">Não há nenhuma pasta escolhida para este tipo de ficheiro. Escolha uma em Definições → Sincronização de saves.</string>
+    <string name="csave_error_ambiguous">Vários ficheiros deste dispositivo correspondem a este save, por isso não foi restaurado. Escolha no ecrã Sincronização de saves.</string>
+    <string name="csave_error_gone">%1$s já não está lá</string>
+    <string name="csave_error_copy">Não foi possível guardar uma cópia de segurança de %1$s, por isso nada foi alterado</string>
+    <string name="csave_error_not_on_server">O RomM não tem este jogo</string>
+</resources>

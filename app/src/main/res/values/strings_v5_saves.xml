@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: cloud saves you can see (per-game cloud saves, Continue playing, top-bar cloud status) -->
+<resources>
+    <string name="csave_section_title">Cloud saves</string>
+    <string name="csave_group_server">On the server</string>
+    <string name="csave_group_device">On this device</string>
+    <string name="csave_group_copies">Safety copies</string>
+    <string name="csave_copies_hint">Kept on this device for 30 days whenever a sync or a restore replaced a file.</string>
+    <string name="csave_loading">Looking for saves on the server…</string>
+    <string name="csave_server_error">The server could not be read: %1$s</string>
+    <string name="csave_device_error">The save folders could not be read: %1$s</string>
+    <string name="csave_retry">Try again</string>
+    <string name="csave_none_on_server">No saves or states of this game on the server yet.</string>
+    <string name="csave_no_folder_hint">Pick your saves and states folders in Settings → Save sync to restore from here.</string>
+    <string name="csave_pill_current">Current</string>
+    <string name="csave_pill_on_device">On this device</string>
+    <string name="csave_pill_slot">Slot %1$s</string>
+    <string name="csave_pill_missing">Missing on server</string>
+    <string name="csave_state_in_sync">In sync</string>
+    <string name="csave_state_device_newer">Newer here</string>
+    <string name="csave_state_server_newer">Newer on server</string>
+    <string name="csave_state_both_changed">Changed on both</string>
+    <string name="csave_state_not_on_server">Not on server</string>
+    <string name="csave_restore">Restore</string>
+    <string name="csave_restore_title">Restore this version?</string>
+    <string name="csave_restore_message">%1$s (saved %2$s) goes back into its folder on this device. The file there now is kept as a safety copy first, and the next sync sends this version to the server.</string>
+    <string name="csave_unknown_time">at an unknown time</string>
+    <string name="csave_upload_now">Upload now</string>
+    <string name="csave_restored">Restored to %1$s</string>
+    <string name="csave_uploaded">%1$s uploaded to RomM</string>
+    <string name="csave_failed">%1$s: %2$s</string>
+    <string name="csave_busy">A save sync is running. Try again in a moment.</string>
+    <string name="csave_just_now">just now</string>
+    <string name="csave_side_device">This device</string>
+    <string name="csave_side_server">Server</string>
+    <string name="csave_shot_description">Screenshot of the save state</string>
+    <string name="csave_show_all">Show all (%1$d)</string>
+    <string name="csave_show_less">Show less</string>
+    <string name="csave_continue_title">Continue playing</string>
+    <string name="csave_shelf_setting_title">Continue playing on Home</string>
+    <string name="csave_shelf_setting_hint">The games you saved last, on any device, above the library</string>
+    <string name="csave_status_idle">Cloud: everything synced</string>
+    <string name="csave_status_syncing">Cloud: syncing</string>
+    <plurals name="csave_status_attention">
+        <item quantity="one">Cloud: %1$d item needs you</item>
+        <item quantity="other">Cloud: %1$d items need you</item>
+    </plurals>
+    <string name="csave_error_no_folder">No folder is picked for this kind of file. Pick one in Settings → Save sync.</string>
+    <string name="csave_error_ambiguous">Several files on this device fit this save, so it was not restored. Choose in the Save sync screen instead.</string>
+    <string name="csave_error_gone">%1$s is no longer there</string>
+    <string name="csave_error_copy">Could not keep a safety copy of %1$s, so nothing was changed</string>
+    <string name="csave_error_not_on_server">RomM does not have this game</string>
+</resources>
