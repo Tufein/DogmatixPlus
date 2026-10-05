@@ -91,6 +91,7 @@ import com.cortinadev.dogmatix.ui.components.focusRing
 import com.cortinadev.dogmatix.ui.components.formatBytes
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
+import com.cortinadev.dogmatix.ui.screens.cloud.saves.StateShotPair
 import com.cortinadev.dogmatix.ui.screens.settings.CardCell
 import com.cortinadev.dogmatix.ui.screens.settings.SettingRow
 import com.cortinadev.dogmatix.ui.screens.settings.SettingsCardHeader
@@ -531,6 +532,7 @@ private fun ConflictRow(conflict: SaveConflict, notSet: String, viewModel: SaveS
                 modifier = Modifier.weight(1f)
             )
         }
+        StateShotPair(conflict)
         Text(
             listOfNotNull(newer, sizeNote).joinToString(" · "),
             style = MaterialTheme.typography.bodySmall,

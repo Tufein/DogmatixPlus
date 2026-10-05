@@ -50,6 +50,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.isSpecified
@@ -62,6 +63,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -149,6 +151,7 @@ fun GameDetailsDialog(
     val tokens = LocalDogmatixTokens.current
     val scroll = rememberScrollState()
     val scope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
     val downloadFocus = remember { FocusRequester() }
     val rom = state.item.file
 
@@ -188,8 +191,13 @@ fun GameDetailsDialog(
                         Key.ButtonX -> { onDismiss(); true }
                         // The dialog is its own window, so Select never reaches the Activity's gamepad bus.
                         Key.ButtonSelect, Key.ButtonThumbLeft -> { onToggleFavourite(); true }
-                        Key.DirectionUp -> scroll.maxValue > 0 && scroll.value > 0 && scope.launch { scroll.animateScrollBy(-SCROLL_STEP) }.let { true }
-                        Key.DirectionDown -> scroll.maxValue > 0 && scroll.value < scroll.maxValue && scope.launch { scroll.animateScrollBy(SCROLL_STEP) }.let { true }
+                        // Focus first (the cloud sections have rows to reach); where it cannot move, ▲ ▼ scroll the text.
+                        Key.DirectionUp ->
+                            focusManager.moveFocus(FocusDirection.Up) ||
+                                (scroll.maxValue > 0 && scroll.value > 0 && scope.launch { scroll.animateScrollBy(-SCROLL_STEP) }.let { true })
+                        Key.DirectionDown ->
+                            focusManager.moveFocus(FocusDirection.Down) ||
+                                (scroll.maxValue > 0 && scroll.value < scroll.maxValue && scope.launch { scroll.animateScrollBy(SCROLL_STEP) }.let { true })
                         else -> false
                     }
                 }

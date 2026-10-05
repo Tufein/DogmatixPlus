@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import com.cortinadev.dogmatix.BuildConfig
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
+import com.cortinadev.dogmatix.ui.screens.cloud.saves.CloudStatusIndicator
 
 /** App title with the version tucked under it: tiny, faint, right-aligned to the wordmark. */
 @Composable
@@ -87,7 +88,7 @@ fun tabRouteFor(route: String): String =
 
 /** Landscape header: title, numbered section tabs (ZL / ZR), rescan status. */
 @Composable
-fun TopTabs(currentRoute: String, onSelect: (NavRoutes) -> Unit, activeDownloads: Int = 0) {
+fun TopTabs(currentRoute: String, onSelect: (NavRoutes) -> Unit, activeDownloads: Int = 0, onOpenCloud: () -> Unit = {}) {
     val scheme = MaterialTheme.colorScheme
     val litRoute = tabRouteFor(currentRoute)
     Row(
@@ -145,6 +146,7 @@ fun TopTabs(currentRoute: String, onSelect: (NavRoutes) -> Unit, activeDownloads
             }
         }
         Spacer(Modifier.weight(1f))
+        CloudStatusIndicator(onClick = onOpenCloud, modifier = Modifier.padding(end = 8.dp))
         RescanIndicator(modifier = Modifier.widthIn(max = 260.dp))
     }
     HorizontalDivider(color = scheme.outlineVariant, thickness = 1.dp)
@@ -179,7 +181,7 @@ private fun CountBadge(count: Int) {
 
 /** Portrait header: title plus rescan status. */
 @Composable
-fun PortraitHeader(trailing: @Composable (() -> Unit)? = null) {
+fun PortraitHeader(trailing: @Composable (() -> Unit)? = null, onOpenCloud: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -189,6 +191,7 @@ fun PortraitHeader(trailing: @Composable (() -> Unit)? = null) {
     ) {
         Wordmark()
         Spacer(Modifier.weight(1f))
+        CloudStatusIndicator(onClick = onOpenCloud, modifier = Modifier.padding(end = 8.dp))
         RescanIndicator(modifier = Modifier.widthIn(max = 200.dp))
         trailing?.let { Spacer(Modifier.padding(start = 12.dp)); it() }
     }

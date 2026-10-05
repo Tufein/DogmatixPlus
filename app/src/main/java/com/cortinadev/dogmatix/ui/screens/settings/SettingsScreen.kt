@@ -107,6 +107,7 @@ import com.cortinadev.dogmatix.ui.components.pillColors
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
+import com.cortinadev.dogmatix.ui.screens.cloud.saves.ContinuePlayingViewModel
 import com.cortinadev.dogmatix.ui.screens.settings.components.ApiKeyDialog
 import com.cortinadev.dogmatix.ui.screens.settings.components.DaijishoSetupDialog
 import com.cortinadev.dogmatix.ui.screens.settings.components.FavoriteLanguagesDialog
@@ -829,6 +830,18 @@ fun SettingsScreen(
                 icon = R.drawable.ic_cloud,
                 iconTile = true
             ) { NavChevron() }
+        },
+        SettingsRow(SettingsSection.ROMM) {
+            val shelf: ContinuePlayingViewModel = hiltViewModel()
+            val shelfOn by shelf.enabled.collectAsState()
+            SettingRow(
+                title = stringResource(R.string.csave_shelf_setting_title),
+                hint = stringResource(R.string.csave_shelf_setting_hint),
+                onClick = { shelf.setEnabled(!shelfOn) },
+                onAdjust = { shelf.setEnabled(it > 0) },
+                icon = R.drawable.ic_play_circle,
+                iconTile = true
+            ) { ThemedSwitch(shelfOn) { shelf.setEnabled(it) } }
         },
         SettingsRow(SettingsSection.ROMM) {
             SettingRow(

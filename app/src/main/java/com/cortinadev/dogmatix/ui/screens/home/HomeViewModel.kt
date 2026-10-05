@@ -109,7 +109,7 @@ class HomeViewModel @Inject constructor(
     val raMarks: StateFlow<RaMarks> = retroAchievements.marks
 
     /** RA game of a row for the details card: (game, true) by hash, (game, false) by title only. */
-    suspend fun achievementsFor(file: DownloadableFileEntity) = runCatching { retroAchievements.lookup(file.consoleId, file.fileName, file.name) }.getOrNull()
+    suspend fun achievementsFor(file: DownloadableFileEntity) = runCatching { retroAchievements.resolveGame(file.consoleId, file.fileName, file.name) }.getOrNull()
 
     // ---- 2.5: saved views ("smart collections") ------------------------------------------------
 

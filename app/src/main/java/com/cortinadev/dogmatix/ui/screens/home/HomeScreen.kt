@@ -15,6 +15,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.cortinadev.dogmatix.ui.screens.cloud.saves.CloudSavesSection
+import com.cortinadev.dogmatix.ui.screens.cloud.saves.ContinuePlayingShelf
+import com.cortinadev.dogmatix.ui.screens.cloud.sections.AchievementsSection
+import com.cortinadev.dogmatix.ui.screens.cloud.sections.RommGameSection
 import com.cortinadev.dogmatix.ui.components.ActionPill
 import com.cortinadev.dogmatix.ui.components.EmptyState
 import com.cortinadev.dogmatix.ui.components.Pill
@@ -440,7 +444,22 @@ fun HomeScreen(
             onRomm = viewModel.isOnRomm(state.item.file, rommKeys, rommBase),
             onDownloadBest = state.best?.let { best -> { viewModel.closeDetails(); onFileClick(best) } },
             owned = viewModel.isOwned(state.item.file, ownedKeys),
-            downloading = viewModel.isDownloading(state.item.file, activeDownloads)
+            downloading = viewModel.isDownloading(state.item.file, activeDownloads),
+            extraSections = {
+                val file = state.item.file
+                RommGameSection(
+                    consoleId = file.consoleId,
+                    fileName = file.fileName,
+                    showSummary = state.details?.description.isNullOrBlank()
+                )
+                CloudSavesSection(consoleId = file.consoleId, fileName = file.fileName)
+                AchievementsSection(
+                    consoleId = file.consoleId,
+                    fileName = file.fileName,
+                    title = file.name,
+                    match = state.achievements
+                )
+            }
         )
     }
 
@@ -630,6 +649,10 @@ fun HomeScreen(
                             recentSearches, onPick = viewModel::setSearch, onClear = viewModel::clearRecentSearches,
                             modifier = Modifier.padding(start = 6.dp, top = 8.dp)
                         )
+                        if (query.isEmpty() && activeFilterCount == 0) ContinuePlayingShelf(
+                            onOpenGame = viewModel::openDetails,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
                         if (tableRows) TableHeader(contentShift, showCover = listCovers) else Text(
                             resultsLabel(results.size, hasMoreResults),
                             style = MaterialTheme.typography.labelMedium.tabular(),
@@ -711,6 +734,10 @@ fun HomeScreen(
                 if (query.isEmpty() && recentSearches.isNotEmpty()) RecentSearchesRow(
                     recentSearches, onPick = viewModel::setSearch, onClear = viewModel::clearRecentSearches,
                     modifier = Modifier.padding(start = 20.dp, end = 16.dp, top = 6.dp)
+                )
+                if (query.isEmpty() && activeFilterCount == 0) ContinuePlayingShelf(
+                    onOpenGame = viewModel::openDetails,
+                    modifier = Modifier.padding(start = 14.dp, end = 10.dp, top = 6.dp)
                 )
                 ConsoleChips(
                     options = consoleOptions,

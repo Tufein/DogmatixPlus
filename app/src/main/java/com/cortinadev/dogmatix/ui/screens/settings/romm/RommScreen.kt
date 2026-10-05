@@ -65,6 +65,8 @@ import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.ui.screens.settings.CardCell
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.ui.screens.settings.SettingRow
+import com.cortinadev.dogmatix.ui.screens.cloud.sections.RommFavouritesViewModel
+import com.cortinadev.dogmatix.ui.screens.cloud.sections.rommFavouritesHint
 import com.cortinadev.dogmatix.ui.screens.settings.ThemedSwitch
 import com.cortinadev.dogmatix.ui.screens.settings.components.ApiKeyDialog
 import com.cortinadev.dogmatix.ui.screens.settings.components.maskedSecret
@@ -220,6 +222,18 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
             ) {
                 ActionPill(stringResource(R.string.romm_marks_refresh), viewModel::refreshMarks, icon = R.drawable.ic_sync)
             }
+        }
+        add {
+            val fav: RommFavouritesViewModel = hiltViewModel()
+            val favOn by fav.enabled.collectAsState()
+            val favState by fav.state.collectAsState()
+            SettingRow(
+                title = stringResource(R.string.romm5_fav_two_way),
+                hint = rommFavouritesHint(favOn, favState),
+                onClick = { fav.setEnabled(!favOn) },
+                onAdjust = { fav.setEnabled(it > 0) },
+                icon = R.drawable.ic_star
+            ) { ThemedSwitch(favOn) { fav.setEnabled(it) } }
         }
         add {
             val hint = when {

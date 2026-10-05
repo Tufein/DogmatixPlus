@@ -16,6 +16,7 @@ import com.cortinadev.dogmatix.data.service.BandwidthLimiter
 import com.cortinadev.dogmatix.data.service.DownloadLog
 import com.cortinadev.dogmatix.data.service.PostDownloadService
 import com.cortinadev.dogmatix.data.service.QueueSummaryService
+import com.cortinadev.dogmatix.data.service.RommCollectionsService
 import com.cortinadev.dogmatix.data.service.RommLibraryService
 import com.cortinadev.dogmatix.data.service.RommTrustService
 import com.cortinadev.dogmatix.data.service.RommUploadService
@@ -63,6 +64,10 @@ class DogmatixApplication : Application(), ImageLoaderFactory {
     /** Injected so the marks of games on the RomM server are read from the first launch. */
     @Inject
     lateinit var rommLibraryService: RommLibraryService
+
+    /** Injected so the favourites kept in step with RomM (when switched on) merge from the start. */
+    @Inject
+    lateinit var rommCollectionsService: RommCollectionsService
 
     /** Injected so the background save sync job follows its settings from the start. */
     @Inject

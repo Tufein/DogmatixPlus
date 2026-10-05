@@ -452,9 +452,14 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                 .windowInsetsPadding(contentInsets())
         ) {
             if (isLandscape) {
-                TopTabs(currentRoute = currentRoute, onSelect = navController::switchTo, activeDownloads = activeDownloadCount)
+                TopTabs(
+                    currentRoute = currentRoute,
+                    onSelect = navController::switchTo,
+                    activeDownloads = activeDownloadCount,
+                    onOpenCloud = { navController.openCloud() }
+                )
             } else {
-                PortraitHeader(trailing = { FreeSpaceText(freeBytes) })
+                PortraitHeader(trailing = { FreeSpaceText(freeBytes) }, onOpenCloud = { navController.openCloud() })
             }
 
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -539,6 +544,11 @@ private fun travelDirection(from: String?, to: String?): Int {
         b < 0 -> 1      // into a screen opened from Settings
         else -> -1      // back out to a tab
     }
+}
+
+/** The Cloud hub on top of whatever is open, so back returns to it. */
+private fun NavController.openCloud() {
+    if (currentDestination?.route != NavRoutes.Cloud.route) navigate(NavRoutes.Cloud.route) { launchSingleTop = true }
 }
 
 private fun NavController.switchTo(route: NavRoutes) {
