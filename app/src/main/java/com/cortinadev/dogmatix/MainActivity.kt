@@ -38,7 +38,6 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -115,6 +114,18 @@ import com.cortinadev.dogmatix.ui.theme.DogmatixTheme
 import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
 import com.cortinadev.dogmatix.data.service.SaveSyncService
 import com.cortinadev.dogmatix.ui.screens.settings.savesync.SaveSyncScreen
+import android.provider.Settings
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import com.cortinadev.dogmatix.data.local.LookSettings
+import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
+import com.cortinadev.dogmatix.ui.theme.Motion
+import com.cortinadev.dogmatix.ui.theme.dogmatixBackground
+import com.cortinadev.dogmatix.ui.screens.cloud.CloudScreen
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -126,6 +137,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var appSettings: AppSettings
     @Inject lateinit var downloadService: DownloadService
     @Inject lateinit var metadataService: GameMetadataService
+    @Inject lateinit var lookSettings: LookSettings
     private var secondScreen: SecondScreenPresenter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -159,10 +171,16 @@ class MainActivity : AppCompatActivity() {
             }
             val boldFocus by appSettings.boldFocus.collectAsState(initial = false)
             val textSize by appSettings.textSizePercent.collectAsState(initial = TextSize.DEFAULT)
+            val animations by lookSettings.animations.collectAsState(initial = true)
+            val glow by lookSettings.glow.collectAsState(initial = true)
+            val systemAnimationsOff = remember {
+                runCatching { Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f }.getOrDefault(false)
+            }
             val density = LocalDensity.current
-            DogmatixTheme(themeMode = settings.themeMode, accent = settings.accent) {
+            DogmatixTheme(themeMode = settings.themeMode, accent = settings.accent, glow = glow) {
                 CompositionLocalProvider(
                     LocalBoldFocus provides boldFocus,
+                    LocalReduceMotion provides (!animations || systemAnimationsOff),
                     LocalDensity provides Density(density.density, density.fontScale * TextSize.factor(textSize))
                 ) {
                     when (onboardingDone) {
@@ -309,7 +327,7 @@ private fun OnboardingHost() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.linearGradient(listOf(tokens.gradientTop, scheme.background, scheme.background)))
+                .dogmatixBackground()
                 .windowInsetsPadding(contentInsets())
         ) {
             OnboardingScreen(
@@ -410,7 +428,6 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
 
     val scheme = MaterialTheme.colorScheme
     val tokens = LocalDogmatixTokens.current
-    val gradientTop = tokens.gradientTop
     val view = LocalView.current
     SideEffect {
         (view.context as? ComponentActivity)?.window?.let { window ->
@@ -421,7 +438,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.linearGradient(listOf(gradientTop, scheme.background, scheme.background)))
+            .dogmatixBackground()
     ) {
         Box(
             modifier = Modifier
@@ -435,16 +452,34 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                 .windowInsetsPadding(contentInsets())
         ) {
             if (isLandscape) {
-                TopTabs(currentRoute = currentRoute, onSelect = navController::switchTo)
+                TopTabs(currentRoute = currentRoute, onSelect = navController::switchTo, activeDownloads = activeDownloadCount)
             } else {
                 PortraitHeader(trailing = { FreeSpaceText(freeBytes) })
             }
 
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                val reduceMotion = LocalReduceMotion.current
                 NavHost(
                     navController = navController,
                     startDestination = NavRoutes.Home.route,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    // 5.0: a quick fade with a short slide in the direction of travel (tabs left/right,
+                    // screens opened from Settings from the right). Short, because a fade costs frames
+                    // on low-end handhelds; nothing at all with animations off.
+                    enterTransition = {
+                        if (reduceMotion) EnterTransition.None
+                        else fadeIn(tween(Motion.MEDIUM)) + slideInHorizontally(tween(Motion.SLOW)) { full ->
+                            travelDirection(initialState.destination.route, targetState.destination.route) * full / 24
+                        }
+                    },
+                    exitTransition = { if (reduceMotion) ExitTransition.None else fadeOut(tween(Motion.FAST)) },
+                    popEnterTransition = {
+                        if (reduceMotion) EnterTransition.None
+                        else fadeIn(tween(Motion.MEDIUM)) + slideInHorizontally(tween(Motion.SLOW)) { full ->
+                            -travelDirection(targetState.destination.route, initialState.destination.route) * full / 24
+                        }
+                    },
+                    popExitTransition = { if (reduceMotion) ExitTransition.None else fadeOut(tween(Motion.FAST)) }
                 ) {
                     composable(NavRoutes.Home.route) { HomeScreen(navController) }
                     composable(NavRoutes.Downloads.route) { DownloadScreen(navController) }
@@ -469,6 +504,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.Stats.route) { StatsScreen() }
                     composable(NavRoutes.Profiles.route) { ProfilesScreen() }
                     composable(NavRoutes.RetroAchievements.route) { RetroAchievementsScreen() }
+                    composable(NavRoutes.Cloud.route) { CloudScreen(navController) }
                 }
             }
 
@@ -487,6 +523,21 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
             }
         }
     }
+    }
+}
+
+/**
+ * +1 when going "right" (a later tab, or deeper from Settings), -1 when going back "left": the
+ * side the new screen slides in from.
+ */
+private fun travelDirection(from: String?, to: String?): Int {
+    val tabs = NavRoutes.tabs.map { it.route }
+    val a = tabs.indexOf(from)
+    val b = tabs.indexOf(to)
+    return when {
+        a >= 0 && b >= 0 -> if (b >= a) 1 else -1
+        b < 0 -> 1      // into a screen opened from Settings
+        else -> -1      // back out to a tab
     }
 }
 

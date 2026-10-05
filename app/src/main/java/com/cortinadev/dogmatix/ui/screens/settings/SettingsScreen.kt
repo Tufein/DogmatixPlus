@@ -75,6 +75,7 @@ import com.cortinadev.dogmatix.ui.screens.settings.components.DaijishoSetupDialo
 import com.cortinadev.dogmatix.ui.screens.settings.components.FavoriteLanguagesDialog
 import com.cortinadev.dogmatix.ui.screens.settings.components.maskedSecret
 import com.cortinadev.dogmatix.ui.components.focusRing
+import com.cortinadev.dogmatix.ui.components.ActionPill
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.DialogButton
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
@@ -1033,19 +1034,7 @@ internal fun SettingRow(
 
 @Composable
 internal fun PillButton(label: String, onClick: () -> Unit) {
-    val source = rememberFocusSource()
-    Box(
-        modifier = Modifier
-            .height(36.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-            .focusRing(source)
-            .clickable(interactionSource = source, indication = null, onClick = onClick)
-            .padding(horizontal = 12.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(label, style = MaterialTheme.typography.labelLarge)
-    }
+    ActionPill(label, onClick)
 }
 
 /** One accent colour as a circle; Material You shows as a four-colour wheel. */

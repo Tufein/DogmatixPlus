@@ -64,6 +64,40 @@ object TlsTrust {
     }
 
     /**
+     * For HTTP clients built once (Coil's OkHttp for cover images): a trust manager that accepts
+     * the certificate pinned at the moment of the handshake and otherwise defers to the system.
+     */
+    val liveTrustManager: X509TrustManager by lazy {
+        val system: X509TrustManager = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).run {
+            init(null as KeyStore?)
+            trustManagers.filterIsInstance<X509TrustManager>().first()
+        }
+        object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<out X509Certificate>, authType: String?) = system.checkClientTrusted(chain, authType)
+            override fun checkServerTrusted(chain: Array<out X509Certificate>, authType: String?) {
+                val fp = pinnedFingerprint
+                val leaf = chain.firstOrNull()
+                if (fp.isNotEmpty() && leaf != null && CertTrust.matches(fp, CertTrust.sha256Hex(leaf.encoded))) return
+                system.checkServerTrusted(chain, authType)
+            }
+            override fun getAcceptedIssuers(): Array<X509Certificate> = system.acceptedIssuers
+        }
+    }
+
+    /** Socket factory for [liveTrustManager]. */
+    val liveSocketFactory: SSLSocketFactory by lazy {
+        SSLContext.getInstance("TLS").apply { init(null, arrayOf<TrustManager>(liveTrustManager), null) }.socketFactory
+    }
+
+    /** Host check that also accepts the pinned certificate on the pinned host. */
+    val liveHostnameVerifier: HostnameVerifier = HostnameVerifier { host, session ->
+        val fp = pinnedFingerprint
+        val leaf = runCatching { session.peerCertificates.firstOrNull() }.getOrNull()
+        (fp.isNotEmpty() && host.equals(pinnedHost, ignoreCase = true) && leaf != null && CertTrust.matches(fp, CertTrust.sha256Hex(leaf.encoded))) ||
+            HttpsURLConnection.getDefaultHostnameVerifier().verify(host, session)
+    }
+
+    /**
      * Opens a TLS connection to [url] only to read the certificate: no HTTP request is sent, so no
      * credentials leave the device. Returns null when the server cannot be reached over HTTPS.
      */

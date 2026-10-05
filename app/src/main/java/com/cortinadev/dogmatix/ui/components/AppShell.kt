@@ -1,6 +1,18 @@
 package com.cortinadev.dogmatix.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
+import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
+import com.cortinadev.dogmatix.ui.theme.Motion
+import com.cortinadev.dogmatix.ui.theme.tabular
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,7 +53,18 @@ import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 @Composable
 private fun Wordmark(modifier: Modifier = Modifier) {
     Column(modifier = modifier, horizontalAlignment = Alignment.End) {
-        Text(stringResource(R.string.topbar_title), style = MaterialTheme.typography.titleLarge)
+        val title = stringResource(R.string.topbar_title)
+        val accent = MaterialTheme.colorScheme.primary
+        // "Dogmatix+": the plus in the accent colour.
+        Text(
+            buildAnnotatedString {
+                if (title.endsWith("+")) {
+                    append(title.dropLast(1))
+                    withStyle(SpanStyle(color = accent)) { append("+") }
+                } else append(title)
+            },
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold)
+        )
         // Zero layout height + unbounded measure: the wordmark keeps its original centering in
         // the row (as if this line did not exist) and the version overflows below it, pulled up
         // 5dp so it hugs the logo.
@@ -58,34 +81,45 @@ private fun Wordmark(modifier: Modifier = Modifier) {
     }
 }
 
+/** The tab a route belongs to: the screens opened from Settings keep Settings lit. */
+fun tabRouteFor(route: String): String =
+    if (NavRoutes.tabs.any { it.route == route }) route else NavRoutes.Settings.route
+
 /** Landscape header: title, numbered section tabs (ZL / ZR), rescan status. */
 @Composable
-fun TopTabs(currentRoute: String, onSelect: (NavRoutes) -> Unit) {
+fun TopTabs(currentRoute: String, onSelect: (NavRoutes) -> Unit, activeDownloads: Int = 0) {
     val scheme = MaterialTheme.colorScheme
+    val litRoute = tabRouteFor(currentRoute)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp)
+            .heightIn(min = 48.dp)
             .padding(start = 20.dp, end = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Wordmark(modifier = Modifier.padding(end = 20.dp))
         NavRoutes.tabs.forEachIndexed { index, route ->
-            val selected = route.route == currentRoute
+            val selected = route.route == litRoute
             val source = rememberFocusSource()
+            val underline = rememberSelectionProgress(selected)
             Box(
                 modifier = Modifier
-                    .fillMaxHeight()
+                    .heightIn(min = 48.dp)
                     .focusRequester(Gamepad.tabFocus.getValue(route.route))
-                    .clip(RoundedCornerShape(6.dp))
-                    .focusRing(source, 6.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .focusRing(source, 8.dp)
                     .clickable(interactionSource = source, indication = null) { onSelect(route) }
                     .drawBehind {
-                        if (selected) {
-                            drawRect(
+                        val p = underline()
+                        if (p > 0f) {
+                            // Grows from the middle when the tab becomes the current one.
+                            val h = 3.dp.toPx()
+                            val w = size.width * 0.7f * p
+                            drawRoundRect(
                                 color = scheme.primary,
-                                topLeft = Offset(0f, size.height - 2.dp.toPx()),
-                                size = Size(size.width, 2.dp.toPx())
+                                topLeft = Offset((size.width - w) / 2, size.height - h),
+                                size = Size(w, h),
+                                cornerRadius = CornerRadius(h / 2)
                             )
                         }
                     }
@@ -99,13 +133,14 @@ fun TopTabs(currentRoute: String, onSelect: (NavRoutes) -> Unit) {
                     Text(
                         "0${index + 1}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = if (selected) scheme.onSurface else scheme.onSurfaceVariant
+                        color = if (selected) scheme.primary else scheme.onSurfaceVariant
                     )
                     Text(
                         stringResource(route.labelRes),
                         style = MaterialTheme.typography.labelLarge,
                         color = if (selected) scheme.onSurface else scheme.onSurfaceVariant
                     )
+                    if (route == NavRoutes.Downloads && activeDownloads > 0) CountBadge(activeDownloads)
                 }
             }
         }
@@ -115,13 +150,40 @@ fun TopTabs(currentRoute: String, onSelect: (NavRoutes) -> Unit) {
     HorizontalDivider(color = scheme.outlineVariant, thickness = 1.dp)
 }
 
+/** 0 → 1 when [selected] turns on (and back), animated and read only while drawing. */
+@Composable
+private fun rememberSelectionProgress(selected: Boolean): () -> Float {
+    val reduce = LocalReduceMotion.current
+    val progress = remember { Animatable(if (selected) 1f else 0f) }
+    LaunchedEffect(selected, reduce) {
+        val target = if (selected) 1f else 0f
+        if (reduce) progress.snapTo(target) else progress.animateTo(target, Motion.spec(false, Motion.MEDIUM))
+    }
+    return { progress.value }
+}
+
+/** The number of running downloads on the Downloads tab. */
+@Composable
+private fun CountBadge(count: Int) {
+    val scheme = MaterialTheme.colorScheme
+    Text(
+        count.toString(),
+        style = MaterialTheme.typography.labelSmall.tabular(),
+        color = scheme.onPrimary,
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(scheme.primary)
+            .padding(horizontal = 6.dp, vertical = 1.dp)
+    )
+}
+
 /** Portrait header: title plus rescan status. */
 @Composable
 fun PortraitHeader(trailing: @Composable (() -> Unit)? = null) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .heightIn(min = 56.dp)
             .padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -144,10 +206,13 @@ fun BottomTabs(currentRoute: String, activeDownloads: Int, onSelect: (NavRoutes)
                 .height(64.dp)
                 .background(scheme.background)
         ) {
+            val litRoute = tabRouteFor(currentRoute)
             NavRoutes.tabs.forEach { route ->
-                val selected = route.route == currentRoute
+                val selected = route.route == litRoute
                 val source = rememberFocusSource()
-                val tint = if (selected) scheme.primary else scheme.onSurfaceVariant
+                val pill = rememberSelectionProgress(selected)
+                val pillColor = scheme.primaryContainer
+                val tint = if (selected) scheme.onPrimaryContainer else scheme.onSurfaceVariant
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -159,8 +224,24 @@ fun BottomTabs(currentRoute: String, activeDownloads: Int, onSelect: (NavRoutes)
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Box {
-                        Icon(painterResource(route.icon), contentDescription = stringResource(route.labelRes), tint = tint, modifier = Modifier.size(22.dp))
+                    Box(
+                        modifier = Modifier.drawBehind {
+                            val p = pill()
+                            if (p > 0f) {
+                                // A pill behind the icon that widens in when the tab becomes current.
+                                val h = 30.dp.toPx()
+                                val w = 56.dp.toPx() * (0.5f + 0.5f * p)
+                                drawRoundRect(
+                                    pillColor.copy(alpha = pillColor.alpha * p),
+                                    topLeft = Offset((size.width - w) / 2, (size.height - h) / 2),
+                                    size = Size(w, h),
+                                    cornerRadius = CornerRadius(h / 2)
+                                )
+                            }
+                        },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(painterResource(route.icon), contentDescription = stringResource(route.labelRes), tint = tint, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp).size(22.dp))
                         if (route == NavRoutes.Downloads && activeDownloads > 0) {
                             Text(
                                 activeDownloads.toString(),
@@ -176,7 +257,7 @@ fun BottomTabs(currentRoute: String, activeDownloads: Int, onSelect: (NavRoutes)
                         }
                     }
                     Spacer(Modifier.height(4.dp))
-                    Text(stringResource(route.labelRes), style = MaterialTheme.typography.labelSmall, color = tint)
+                    Text(stringResource(route.labelRes), style = MaterialTheme.typography.labelSmall, color = if (selected) scheme.onSurface else scheme.onSurfaceVariant)
                 }
             }
         }
@@ -206,7 +287,7 @@ fun legendFor(route: String): List<LegendEntry> {
         NavRoutes.Sets.route -> listOf(LegendEntry("A", stringResource(R.string.pad_apply)), back, section)
         NavRoutes.Storage.route -> listOf(LegendEntry("A", stringResource(R.string.pad_delete)), back, section)
         NavRoutes.Wishlist.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
-        NavRoutes.Collections.route, NavRoutes.Switch.route, NavRoutes.Dat.route, NavRoutes.Bios.route, NavRoutes.Stats.route, NavRoutes.RetroAchievements.route, NavRoutes.Profiles.route, NavRoutes.Frontends.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
+        NavRoutes.Collections.route, NavRoutes.Switch.route, NavRoutes.Dat.route, NavRoutes.Bios.route, NavRoutes.Stats.route, NavRoutes.RetroAchievements.route, NavRoutes.Profiles.route, NavRoutes.Frontends.route, NavRoutes.Cloud.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
         NavRoutes.Files.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), LegendEntry("B", stringResource(R.string.files_up)), section)
         NavRoutes.Settings.route, NavRoutes.Romm.route, NavRoutes.SaveSync.route -> listOf(
             LegendEntry("A", stringResource(R.string.pad_change)),
@@ -222,7 +303,7 @@ fun NoGamepadHint(trailing: @Composable (() -> Unit)? = null) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(30.dp)
+            .heightIn(min = 30.dp)
             .padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

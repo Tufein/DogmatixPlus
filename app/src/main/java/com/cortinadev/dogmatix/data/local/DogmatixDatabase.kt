@@ -18,6 +18,8 @@ import com.cortinadev.dogmatix.data.local.entity.DatRomEntity
 import com.cortinadev.dogmatix.data.local.entity.DatSetEntity
 import com.cortinadev.dogmatix.data.local.dao.CollectionDao
 import com.cortinadev.dogmatix.data.local.dao.DatDao
+import com.cortinadev.dogmatix.data.local.dao.CoverDao
+import com.cortinadev.dogmatix.data.local.entity.CoverEntity
 import com.cortinadev.dogmatix.data.local.entity.ConsoleEntity
 import com.cortinadev.dogmatix.data.local.entity.DownloadHistoryEntity
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
@@ -28,8 +30,8 @@ import com.cortinadev.dogmatix.data.local.entity.ManufacturerEntity
 import com.cortinadev.dogmatix.data.local.queries.DownloadableFileFts
 
 @Database(
-    entities = [ManufacturerEntity::class, ConsoleEntity::class, DownloadableFileEntity::class, FileTagEntity::class, DownloadableFileFts::class, DownloadHistoryEntity::class, GameMetadataEntity::class, FavouriteEntity::class, WishlistEntity::class, CollectionEntity::class, CollectionItemEntity::class, DatSetEntity::class, DatRomEntity::class],
-    version = 12,
+    entities = [ManufacturerEntity::class, ConsoleEntity::class, DownloadableFileEntity::class, FileTagEntity::class, DownloadableFileFts::class, DownloadHistoryEntity::class, GameMetadataEntity::class, FavouriteEntity::class, WishlistEntity::class, CollectionEntity::class, CollectionItemEntity::class, DatSetEntity::class, DatRomEntity::class, CoverEntity::class],
+    version = 13,
     exportSchema = false
 )
 abstract class DogmatixDatabase : RoomDatabase() {
@@ -42,8 +44,22 @@ abstract class DogmatixDatabase : RoomDatabase() {
     abstract fun wishlistDao(): WishlistDao
     abstract fun collectionDao(): CollectionDao
     abstract fun datDao(): DatDao
+    abstract fun coverDao(): CoverDao
 
     companion object {
+        /** 5.0: covers found for library games (see CoverEntity). */
+        val MIGRATION_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS covers (" +
+                        "`key` TEXT NOT NULL PRIMARY KEY, " +
+                        "url TEXT NOT NULL, " +
+                        "source TEXT NOT NULL, " +
+                        "fetchedAt INTEGER NOT NULL)"
+                )
+            }
+        }
+
         /** 4.0: finished downloads are looked up by file name; an index keeps that quick in a big library. */
         val MIGRATION_11_12 = object : Migration(11, 12) {
             override fun migrate(db: SupportSQLiteDatabase) {

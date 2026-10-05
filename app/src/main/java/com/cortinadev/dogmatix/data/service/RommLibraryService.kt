@@ -31,6 +31,9 @@ private const val TAG = "RommLibraryService"
 /** The server's game list is read again when older than this (and whenever the RomM settings change). */
 private const val STALE_AFTER_MS = 6L * 60 * 60 * 1000
 
+/** One game on the server, as the library refresh saw it (5.0: covers, metadata and play status). */
+data class RommGameRef(val romId: Int, val platformId: Int, val coverPath: String = "")
+
 data class RommLibraryState(
     val refreshing: Boolean = false,
     /** When the server's game list was last read; 0 = never. */
@@ -60,11 +63,26 @@ class RommLibraryService @Inject constructor(
     /** `consoleId|name` keys of the games on the server (see [RommMarks]); empty when switched off. */
     val keys: StateFlow<Set<String>> = _keys.asStateFlow()
 
+    private val _games = MutableStateFlow<Map<String, RommGameRef>>(emptyMap())
+    /**
+     * The server's games by the same `consoleId|name` key as [keys], with their RomM id and cover;
+     * empty when switched off.
+     */
+    val games: StateFlow<Map<String, RommGameRef>> = _games.asStateFlow()
+
+    /** The server's copy of a library game, when the last refresh saw one. */
+    fun gameFor(consoleId: String, fileName: String): RommGameRef? = _games.value[RommMarks.key(consoleId, fileName)]
+
     private val _state = MutableStateFlow(RommLibraryState())
     val state: StateFlow<RommLibraryState> = _state.asStateFlow()
 
     /** Fingerprint of the settings the stored list was made with: a change means read again. */
     private var storedConfig = ""
+
+    // Declared before init: loadStored() fills them, and a later initializer would wipe that again.
+    @Volatile private var enabled = false
+    private var stored: Set<String> = emptySet()
+    private var storedGames: Map<String, RommGameRef> = emptyMap()
 
     init {
         loadStored()
@@ -78,9 +96,9 @@ class RommLibraryService @Inject constructor(
                 .collect { config ->
                     enabled = config.on && config.ready
                     when {
-                        !config.on -> _keys.value = emptySet()
-                        !config.ready -> _keys.value = emptySet()
-                        else -> if (config.fingerprint != storedConfig || isStale()) refresh() else restoreKeys()
+                        !config.on, !config.ready -> { _keys.value = emptySet(); _games.value = emptyMap() }
+                        // A list stored by 4.x has no ids or covers yet: read it again once.
+                        else -> if (config.fingerprint != storedConfig || isStale() || (storedGames.isEmpty() && stored.isNotEmpty())) refresh() else restoreKeys()
                     }
                 }
         }
@@ -93,9 +111,7 @@ class RommLibraryService @Inject constructor(
 
     private fun isStale() = System.currentTimeMillis() - _state.value.updatedAt > STALE_AFTER_MS
 
-    @Volatile private var enabled = false
-    private var stored: Set<String> = emptySet()
-    private fun restoreKeys() { _keys.value = stored }
+    private fun restoreKeys() { _keys.value = stored; _games.value = storedGames }
 
     /** Reads the game list of every mapped platform; keeps the old list when the server cannot be reached. */
     suspend fun refresh() {
@@ -103,14 +119,19 @@ class RommLibraryService @Inject constructor(
         lock.withLock {
             val map = settingsRepository.rommPlatformMap.first()
             val url = rommClient.configuredBaseUrl()
-            if (map.isEmpty() || url.isEmpty()) { _keys.value = emptySet(); return }
+            if (map.isEmpty() || url.isEmpty()) { _keys.value = emptySet(); _games.value = emptyMap(); return }
             _state.update { it.copy(refreshing = true, error = null) }
             val keys = HashSet<String>()
+            val games = HashMap<String, RommGameRef>()
             var failures = 0
             var lastError: String? = null
             for ((consoleId, platformId) in map) {
                 try {
-                    keys += RommMarks.keys(consoleId, rommClient.roms(platformId).map { it.fsName })
+                    for (rom in rommClient.roms(platformId)) {
+                        val key = RommMarks.key(consoleId, rom.fsName)
+                        keys += key
+                        games[key] = RommGameRef(rom.id, platformId, rom.coverPath)
+                    }
                 } catch (e: Exception) {
                     failures++
                     lastError = e.message ?: e.javaClass.simpleName
@@ -122,11 +143,13 @@ class RommLibraryService @Inject constructor(
                 return
             }
             stored = keys
+            storedGames = games
             _keys.value = keys
+            _games.value = games
             storedConfig = Config(true, url, true, map).fingerprint
             val now = System.currentTimeMillis()
             _state.value = RommLibraryState(false, now, keys.size, if (failures > 0) lastError else null)
-            persist(now, keys)
+            persist(now, keys, games)
         }
     }
 
@@ -142,16 +165,27 @@ class RommLibraryService @Inject constructor(
             if (!storeFile.exists()) return
             val root = JsonParser.parseString(storeFile.readText()).asJsonObject
             stored = root.getAsJsonArray("keys").mapTo(HashSet()) { it.asString }
+            storedGames = root.getAsJsonArray("games")?.mapNotNull { e ->
+                runCatching {
+                    val o = e.asJsonObject
+                    o.get("k").asString to RommGameRef(o.get("id").asInt, o.get("p")?.asInt ?: 0, o.get("c")?.asString.orEmpty())
+                }.getOrNull()
+            }?.toMap().orEmpty()
             storedConfig = root.get("config")?.asString.orEmpty()
             _state.value = RommLibraryState(updatedAt = root.get("updatedAt")?.asLong ?: 0L, games = stored.size)
         }.onFailure { Log.w(TAG, "Unreadable RomM game list; starting over", it) }
     }
 
-    private fun persist(at: Long, keys: Set<String>) {
+    private fun persist(at: Long, keys: Set<String>, games: Map<String, RommGameRef>) {
         runCatching {
             val array = JsonArray().also { a -> keys.forEach { a.add(it) } }
+            val gameArray = JsonArray().also { a ->
+                games.forEach { (k, g) ->
+                    a.add(JsonObject().apply { addProperty("k", k); addProperty("id", g.romId); addProperty("p", g.platformId); if (g.coverPath.isNotEmpty()) addProperty("c", g.coverPath) })
+                }
+            }
             val tmp = File(storeFile.parentFile, storeFile.name + ".tmp")
-            tmp.writeText(JsonObject().apply { addProperty("updatedAt", at); addProperty("config", storedConfig); add("keys", array) }.toString())
+            tmp.writeText(JsonObject().apply { addProperty("updatedAt", at); addProperty("config", storedConfig); add("keys", array); add("games", gameArray) }.toString())
             if (!tmp.renameTo(storeFile)) { storeFile.delete(); tmp.renameTo(storeFile) }
         }.onFailure { Log.w(TAG, "Could not save the RomM game list", it) }
     }

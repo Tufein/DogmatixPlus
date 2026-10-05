@@ -1,6 +1,8 @@
 package com.cortinadev.dogmatix
 
 import android.app.Application
+import coil.ImageLoader
+import coil.ImageLoaderFactory
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.util.Log
@@ -32,7 +34,14 @@ import java.io.File
 import javax.inject.Inject
 
 @HiltAndroidApp
-class DogmatixApplication : Application() {
+class DogmatixApplication : Application(), ImageLoaderFactory {
+
+    /** 5.0: the shared image loader (covers), handed to Coil for every AsyncImage. */
+    @Inject
+    lateinit var imageLoader: dagger.Lazy<ImageLoader>
+
+    override fun newImageLoader(): ImageLoader = imageLoader.get()
+
     
     @Inject
     lateinit var versionCheckerService: VersionCheckerService

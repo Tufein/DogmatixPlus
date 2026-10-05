@@ -10,6 +10,7 @@ import com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.dao.FavouriteDao
 import com.cortinadev.dogmatix.data.local.dao.GameMetadataDao
+import com.cortinadev.dogmatix.data.local.dao.CoverDao
 import com.cortinadev.dogmatix.data.local.dao.ManufacturerDao
 import com.cortinadev.dogmatix.data.local.dao.WishlistDao
 import com.cortinadev.dogmatix.data.local.SettingsDataStore
@@ -33,7 +34,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): DogmatixDatabase =
         Room.databaseBuilder(context, DogmatixDatabase::class.java, "dogmatix_db")
-            .addMigrations(DogmatixDatabase.MIGRATION_1_2, DogmatixDatabase.MIGRATION_2_3, DogmatixDatabase.MIGRATION_3_4, DogmatixDatabase.MIGRATION_4_5, DogmatixDatabase.MIGRATION_5_6, DogmatixDatabase.MIGRATION_6_7, DogmatixDatabase.MIGRATION_7_8, DogmatixDatabase.MIGRATION_8_9, DogmatixDatabase.MIGRATION_9_10, DogmatixDatabase.MIGRATION_10_11, DogmatixDatabase.MIGRATION_11_12)
+            .addMigrations(DogmatixDatabase.MIGRATION_1_2, DogmatixDatabase.MIGRATION_2_3, DogmatixDatabase.MIGRATION_3_4, DogmatixDatabase.MIGRATION_4_5, DogmatixDatabase.MIGRATION_5_6, DogmatixDatabase.MIGRATION_6_7, DogmatixDatabase.MIGRATION_7_8, DogmatixDatabase.MIGRATION_8_9, DogmatixDatabase.MIGRATION_9_10, DogmatixDatabase.MIGRATION_10_11, DogmatixDatabase.MIGRATION_11_12, DogmatixDatabase.MIGRATION_12_13)
             .build()
 
     @Provides
@@ -62,6 +63,9 @@ object DatabaseModule {
 
     @Provides
     fun provideGameMetadataDao(db: DogmatixDatabase): GameMetadataDao = db.gameMetadataDao()
+
+    @Provides
+    fun provideCoverDao(db: DogmatixDatabase): CoverDao = db.coverDao()
 
     @Provides
     @Singleton
