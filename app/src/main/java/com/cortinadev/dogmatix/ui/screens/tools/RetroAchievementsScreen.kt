@@ -30,6 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.ui.screens.cloud.sections.RaUserSummaryCard
 import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.repository.ConsoleRepository
 import com.cortinadev.dogmatix.data.service.RetroAchievementsService
@@ -123,6 +124,9 @@ fun RetroAchievementsScreen(viewModel: RetroAchievementsViewModel = hiltViewMode
                     badge = if (signedIn) ({ Badge(user, warning = false, tone = PillTone.Success, icon = R.drawable.ic_check_circle) }) else null,
                     icon = R.drawable.ic_account
                 ) { ToolAction(stringResource(R.string.ra_account_action), tone = if (signedIn) ActionTone.Neutral else ActionTone.Accent) { editing = true } }
+            }
+            item(key = "ra5_summary") {
+                RaUserSummaryCard(Modifier.padding(horizontal = 12.dp, vertical = 4.dp), onSetUp = { editing = true })
             }
             if (consoles.isEmpty()) item(key = "none") { InfoCard(listOf(stringResource(R.string.ra_no_consoles)), icon = R.drawable.ic_info) }
             items(consoles, key = { it }) { id ->

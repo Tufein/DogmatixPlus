@@ -33,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.ui.screens.cloud.sections.RommFirmwareCard
 import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.service.BiosReport
 import com.cortinadev.dogmatix.data.service.BiosService
@@ -81,7 +82,10 @@ fun BiosScreen(viewModel: BiosViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let {
-            context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            // Read for the BIOS check; write so the RomM firmware card can put files in the folder.
+            val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            runCatching { context.contentResolver.takePersistableUriPermission(it, flags) }
+                .onFailure { _ -> context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
             viewModel.setFolder(it.toString())
         }
     }
@@ -104,6 +108,14 @@ fun BiosScreen(viewModel: BiosViewModel = hiltViewModel()) {
                         ToolAction(stringResource(if (ui.allSystems) R.string.bios_show_mine else R.string.bios_show_all)) { viewModel.refresh(!ui.allSystems) }
                     }
                 }
+            }
+            item(key = "romm_firmware") {
+                RommFirmwareCard(
+                    allSystems = ui.allSystems,
+                    onFetched = { viewModel.refresh() },
+                    onPickFolder = { picker.launch(null) },
+                    modifier = Modifier.padding(vertical = 2.dp)
+                )
             }
             val report = ui.report
             when {

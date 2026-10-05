@@ -10,6 +10,7 @@ import com.cortinadev.dogmatix.data.model.DebridProvider
 import com.cortinadev.dogmatix.data.service.BackupService
 import com.cortinadev.dogmatix.data.service.DaijishoConfigService
 import com.cortinadev.dogmatix.data.service.DebridClient
+import com.cortinadev.dogmatix.data.service.DeviceSyncService
 import com.cortinadev.dogmatix.data.service.EsdeConfigService
 import com.cortinadev.dogmatix.data.service.FrontendSetupException
 import com.cortinadev.dogmatix.data.service.IisuConfigService
@@ -80,7 +81,8 @@ class SettingsViewModel @Inject constructor(
     private val iisuConfigService: IisuConfigService,
     private val daijishoConfigService: DaijishoConfigService,
     private val backupService: BackupService,
-    private val rescanStateHolder: RescanStateHolder
+    private val rescanStateHolder: RescanStateHolder,
+    private val deviceSync: DeviceSyncService
 ) : ViewModel() {
 
     /** A backup picked for restore, waiting for the user's confirmation. */
@@ -162,6 +164,8 @@ class SettingsViewModel @Inject constructor(
                 rescanStateHolder.setRescanning(true)
                 val result = try {
                     runCatching { backupService.restore(pending.backup) }
+                        // A restored library is not what the last device sync saw: the next sync merges instead of deleting.
+                        .onSuccess { deviceSync.resetBase() }
                 } finally {
                     rescanStateHolder.setRescanning(false)
                 }
