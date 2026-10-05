@@ -479,7 +479,7 @@ private fun DownloadsDashboard(list: List<DownloadItemModel>, glance: QueueGlanc
             EmptyState(
                 title = stringResource(R.string.app_name),
                 message = stringResource(R.string.second_screen_idle),
-                illustration = R.drawable.milou
+                illustration = R.drawable.brand_mark
             )
         }
         return
