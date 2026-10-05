@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: WebDAV cloud (Nextcloud, ownCloud, Synology…): encrypted backup and device sync -->
+<resources>
+    <!-- Screen -->
+    <string name="dav_title">Cloud-Sicherung</string>
+    <string name="dav_subtitle">Dein eigener Server: Nextcloud, ownCloud, Synology oder jedes WebDAV</string>
+    <string name="dav_status_ok">Verbunden</string>
+    <string name="dav_status_problem">Problem</string>
+    <string name="dav_status_untested">Nicht getestet</string>
+    <string name="dav_status_not_set">Nicht eingerichtet</string>
+    <!-- Server -->
+    <string name="dav_section_server">Server</string>
+    <string name="dav_server">Serveradresse</string>
+    <string name="dav_server_dialog_hint">Die Adresse deines WebDAV-Servers, zum Beispiel https://cloud.beispiel.de. Nextcloud und ownCloud werden erkannt: Dogmatix findet die Dateiadresse (…/remote.php/dav/files/dein-name/) selbst. Ein eingefügter Link aus der Weboberfläche funktioniert ebenfalls.</string>
+    <string name="dav_user">Benutzername</string>
+    <string name="dav_user_dialog_hint">Der Kontoname auf dem Server.</string>
+    <string name="dav_password">App-Passwort</string>
+    <string name="dav_password_dialog_hint">Nimm ein App-Passwort, nicht dein Hauptpasswort: Nextcloud und ownCloud erstellen eins unter Einstellungen → Sicherheit. Es bleibt auf diesem Gerät und kommt nie in eine Sicherungsdatei.</string>
+    <string name="dav_folder">Ordner</string>
+    <string name="dav_folder_dialog_hint">Der Ordner auf dem Server, in dem Dogmatix seine Dateien ablegt (wird angelegt, falls er fehlt), zum Beispiel Dogmatix oder Spiele/Dogmatix.</string>
+    <string name="dav_test">Verbindung testen</string>
+    <string name="dav_test_action">Testen</string>
+    <string name="dav_test_busy">Teste …</string>
+    <string name="dav_test_never">Noch nicht getestet</string>
+    <string name="dav_test_needs_server">Lege zuerst die Serveradresse fest</string>
+    <string name="dav_test_ok">Verbunden · getestet %1$s</string>
+    <string name="dav_test_done">Verbunden: der Ordner ist bereit</string>
+    <string name="dav_test_failed">Verbindung fehlgeschlagen: %1$s</string>
+    <!-- Certificate -->
+    <string name="dav_cert">Serverzertifikat</string>
+    <string name="dav_cert_hint">Nur für einen Server mit selbstsigniertem Zertifikat nötig</string>
+    <string name="dav_cert_trusted_hint">Vertraut: %1$s</string>
+    <string name="dav_cert_check">Prüfen</string>
+    <string name="dav_cert_forget">Vergessen</string>
+    <string name="dav_cert_dialog_title">Diesem Zertifikat vertrauen?</string>
+    <string name="dav_cert_dialog_message">%1$s zeigt ein Zertifikat, dem Android nicht vertraut. Wenn du diesen Fingerabdruck erkennst, akzeptiert Dogmatix genau dieses Zertifikat für diesen Server und sonst nichts.</string>
+    <string name="dav_cert_dialog_details">%1$s · gültig bis %2$s</string>
+    <string name="dav_cert_trust">Vertrauen</string>
+    <string name="dav_cert_none">Von dieser Adresse konnte kein Zertifikat gelesen werden</string>
+    <string name="dav_cert_system">Android vertraut dem Zertifikat dieses Servers bereits</string>
+    <!-- Encrypted backup -->
+    <string name="dav_section_backup">Verschlüsselte Sicherung</string>
+    <string name="dav_passphrase">Sicherungs-Passphrase</string>
+    <string name="dav_passphrase_set">Festgelegt · nur auf diesem Gerät gespeichert</string>
+    <string name="dav_passphrase_unset">Nicht festgelegt · nötig zum Verschlüsseln der Sicherungen</string>
+    <string name="dav_set">Festlegen</string>
+    <string name="dav_passphrase_warning">Wenn du diese Passphrase verlierst, können deine Cloud-Sicherungen nie wieder gelesen werden, auch nicht von dir. Schreibe sie an einem sicheren Ort auf. Sie bleibt nur auf diesem Gerät: nicht auf dem Server und nicht in Sicherungsdateien.</string>
+    <string name="dav_passphrase_dialog_title">Sicherungs-Passphrase</string>
+    <string name="dav_passphrase_dialog_message">Sicherungen werden auf diesem Gerät mit dieser Passphrase verschlüsselt, bevor sie gesendet werden. Wähle etwas Langes, das du dir merken oder aufschreiben kannst.</string>
+    <string name="dav_passphrase_change_note">Sicherungen, die schon in der Cloud liegen, behalten die Passphrase, mit der sie erstellt wurden; zum Wiederherstellen brauchst du die alte.</string>
+    <string name="dav_passphrase_label">Passphrase</string>
+    <string name="dav_passphrase_repeat">Passphrase wiederholen</string>
+    <string name="dav_passphrase_short">Mindestens %1$d Zeichen</string>
+    <string name="dav_passphrase_mismatch">Die beiden Passphrasen sind nicht gleich</string>
+    <string name="dav_auto">Automatische Sicherung</string>
+    <string name="dav_auto_hint">Täglich, im WLAN und während des Ladens</string>
+    <string name="dav_auto_needs_passphrase">Lege zuerst eine Sicherungs-Passphrase fest</string>
+    <string name="dav_keep">Aufzubewahrende Sicherungen</string>
+    <string name="dav_keep_hint">Pro Gerät; ältere werden vom Server entfernt</string>
+    <string name="dav_backup_now">Jetzt sichern</string>
+    <string name="dav_backup_action">Sichern</string>
+    <string name="dav_backup_busy">Sichere …</string>
+    <string name="dav_backup_never">Noch keine Cloud-Sicherung von diesem Gerät</string>
+    <string name="dav_backup_last">Letzte Sicherung %1$s · %2$s</string>
+    <string name="dav_backup_failed_row">Letzte Sicherung fehlgeschlagen: %1$s</string>
+    <string name="dav_backup_done">Sicherung gesendet: %1$s</string>
+    <string name="dav_backup_failed">Sicherung fehlgeschlagen: %1$s</string>
+    <!-- Backups in the cloud -->
+    <string name="dav_section_list">Sicherungen in der Cloud</string>
+    <string name="dav_list_refresh">Aktualisieren</string>
+    <string name="dav_list_retry">Erneut versuchen</string>
+    <string name="dav_list_idle">Sicherungen auf dem Server anzeigen</string>
+    <string name="dav_list_needs_setup">Richte zuerst den Server ein</string>
+    <string name="dav_list_loading">Lese den Ordner …</string>
+    <string name="dav_list_empty">Noch keine Sicherungen in der Cloud. Nutze „Jetzt sichern“.</string>
+    <string name="dav_list_failed_title">Die Liste konnte nicht gelesen werden</string>
+    <string name="dav_list_this_device">Dieses Gerät</string>
+    <string name="dav_list_unknown_device">Unbekanntes Gerät</string>
+    <string name="dav_list_more">%1$d weitere Sicherungen</string>
+    <string name="dav_list_show">Mehr anzeigen</string>
+    <string name="dav_restore">Wiederherstellen</string>
+    <string name="dav_restore_reading">Lese …</string>
+    <string name="dav_restore_note">Dieses Gerät behält seine Server-Anmeldung, Passphrase und Cloud-Einstellungen.</string>
+    <string name="dav_restore_failed">Wiederherstellung fehlgeschlagen: %1$s</string>
+    <!-- Device sync -->
+    <string name="dav_section_sync">Geräte-Sync</string>
+    <string name="dav_device_name">Name dieses Geräts</string>
+    <string name="dav_device_name_dialog_hint">Wird in der Sicherungsliste und auf deinen anderen Geräten angezeigt.</string>
+    <string name="dav_device_sync">Favoriten, Wunschliste und Sammlungen abgleichen</string>
+    <string name="dav_device_sync_hint">Hält sie über denselben Serverordner mit deinen anderen Handhelds im Gleichstand</string>
+    <string name="dav_sync_now">Jetzt abgleichen</string>
+    <string name="dav_sync_action">Abgleichen</string>
+    <string name="dav_sync_busy">Gleiche ab …</string>
+    <string name="dav_sync_never">Noch nicht abgeglichen</string>
+    <string name="dav_sync_last">Letzter Abgleich %1$s · %2$d hinzugefügt, %3$d hier entfernt</string>
+    <string name="dav_sync_sent">an den Server gesendet</string>
+    <string name="dav_sync_failed_row">Letzter Abgleich fehlgeschlagen: %1$s</string>
+    <string name="dav_sync_done">Abgeglichen: %1$d hinzugefügt, %2$d entfernt</string>
+    <string name="dav_sync_nothing">Alles ist bereits im Gleichstand</string>
+    <string name="dav_sync_failed">Abgleich fehlgeschlagen: %1$s</string>
+    <plurals name="dav_sync_held_title">
+        <item quantity="one">%1$d Entfernung wartet</item>
+        <item quantity="other">%1$d Entfernungen warten</item>
+    </plurals>
+    <string name="dav_sync_held_hint">Der Abgleich würde ungewöhnlich viel auf einmal entfernen. Prüfe deine anderen Geräte und wende es dann an.</string>
+    <string name="dav_sync_held_apply">Anwenden</string>
+    <!-- Errors -->
+    <string name="dav_err_auth">Der Server hat Benutzername oder Passwort nicht akzeptiert. Nimm bei Nextcloud oder ownCloud ein App-Passwort (Einstellungen → Sicherheit).</string>
+    <string name="dav_err_digest">Dieser Server bietet nur die Digest-Anmeldung an, die Dogmatix nicht unterstützt. Aktiviere auf dem Server die Basic-Authentifizierung oder nimm ein App-Passwort.</string>
+    <string name="dav_err_forbidden">Du bist angemeldet, aber dieses Konto darf diesen Ordner nicht nutzen (schreibgeschützte Freigabe oder der Ordner eines anderen Kontos).</string>
+    <string name="dav_err_not_found">Nicht gefunden (404). Prüfe Serveradresse und Ordner. Bei Nextcloud und ownCloud endet die Adresse auf /remote.php/dav/files/dein-name/.</string>
+    <string name="dav_err_not_webdav">Diese Adresse antwortet nicht als WebDAV (sie sieht nach einer normalen Webseite aus). Nimm bei Nextcloud oder ownCloud https://dein-server/remote.php/dav/files/dein-name/.</string>
+    <string name="dav_err_conflict">Ein Ordner im Pfad fehlt und konnte nicht angelegt werden (409).</string>
+    <string name="dav_err_precondition">Die Datei auf dem Server hat sich beim Schreiben geändert (412). Versuche es erneut.</string>
+    <string name="dav_err_too_large">Der Server lehnt so große Dateien ab (413). Erhöhe sein Upload-Limit.</string>
+    <string name="dav_err_locked">Die Datei ist auf dem Server von einem anderen Programm gesperrt (423). Versuche es gleich noch einmal.</string>
+    <string name="dav_err_no_space">Auf dem Server ist für dieses Konto kein Platz mehr (507).</string>
+    <string name="dav_err_server">Der Server meldet einen Fehler (%1$d). Versuche es später erneut.</string>
+    <string name="dav_err_http">Unerwartete Antwort des Servers (%1$d).</string>
+    <string name="dav_err_redirect">Der Server leitet auf eine andere Adresse um (%1$s). Nutze stattdessen diese Adresse.</string>
+    <string name="dav_err_network">Der Server ist nicht erreichbar. Prüfe die Adresse und deine Verbindung.</string>
+    <string name="dav_err_timeout">Der Server hat zu lange gebraucht.</string>
+    <string name="dav_err_tls">Die sichere Verbindung ist fehlgeschlagen. Das Zertifikat des Servers wird nicht als vertrauenswürdig eingestuft oder passt nicht zur Adresse, oder die Adresse sollte mit http:// beginnen.</string>
+    <string name="dav_err_bad_url">Das ist keine gültige Webadresse.</string>
+    <string name="dav_err_bad_response">Die Antwort des Servers war nicht lesbar oder die Datei kam unvollständig an.</string>
+    <string name="dav_err_passphrase">Falsche Passphrase oder beschädigte Sicherung. Lege die Passphrase fest, mit der die Sicherung erstellt wurde (Sicherungs-Passphrase), und versuche es erneut.</string>
+    <string name="dav_err_not_backup">Das ist keine verschlüsselte Dogmatix-Sicherung.</string>
+    <string name="dav_err_sync_newer">Die Sync-Datei auf dem Server stammt von einer neueren Dogmatix-Version. Aktualisiere die App, um abzugleichen.</string>
+    <string name="dav_err_sync_unreadable">Die Sync-Datei auf dem Server ist nicht lesbar; sie wurde nicht verändert.</string>
+    <string name="dav_err_not_configured">Es ist noch kein WebDAV-Server eingerichtet.</string>
+    <string name="dav_err_no_passphrase">Lege zuerst eine Sicherungs-Passphrase fest (mindestens 8 Zeichen).</string>
+    <string name="dav_err_other">Etwas ist schiefgelaufen: %1$s</string>
+</resources>

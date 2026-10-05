@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: WebDAV cloud (Nextcloud, ownCloud, Synology…): encrypted backup and device sync -->
+<resources>
+    <!-- Screen -->
+    <string name="dav_title">Cloud-back-up</string>
+    <string name="dav_subtitle">Je eigen server: Nextcloud, ownCloud, Synology of elke WebDAV</string>
+    <string name="dav_status_ok">Verbonden</string>
+    <string name="dav_status_problem">Probleem</string>
+    <string name="dav_status_untested">Niet getest</string>
+    <string name="dav_status_not_set">Niet ingesteld</string>
+    <!-- Server -->
+    <string name="dav_section_server">Server</string>
+    <string name="dav_server">Serveradres</string>
+    <string name="dav_server_dialog_hint">Het adres van je WebDAV-server, bijvoorbeeld https://cloud.voorbeeld.nl. Nextcloud en ownCloud worden herkend: Dogmatix zoekt zelf het bestandsadres (…/remote.php/dav/files/jouw-naam/). Een geplakte link uit de webinterface werkt ook.</string>
+    <string name="dav_user">Gebruikersnaam</string>
+    <string name="dav_user_dialog_hint">De accountnaam op de server.</string>
+    <string name="dav_password">App-wachtwoord</string>
+    <string name="dav_password_dialog_hint">Gebruik een app-wachtwoord, niet je hoofdwachtwoord: Nextcloud en ownCloud maken er een onder Instellingen → Beveiliging. Het blijft op dit apparaat en komt nooit in een back-upbestand.</string>
+    <string name="dav_folder">Map</string>
+    <string name="dav_folder_dialog_hint">De map op de server waarin Dogmatix zijn bestanden bewaart (wordt aangemaakt als ze ontbreekt), bijvoorbeeld Dogmatix of Games/Dogmatix.</string>
+    <string name="dav_test">Verbinding testen</string>
+    <string name="dav_test_action">Testen</string>
+    <string name="dav_test_busy">Bezig met testen…</string>
+    <string name="dav_test_never">Nog niet getest</string>
+    <string name="dav_test_needs_server">Stel eerst het serveradres in</string>
+    <string name="dav_test_ok">Verbonden · getest %1$s</string>
+    <string name="dav_test_done">Verbonden: de map is klaar</string>
+    <string name="dav_test_failed">Verbinding mislukt: %1$s</string>
+    <!-- Certificate -->
+    <string name="dav_cert">Servercertificaat</string>
+    <string name="dav_cert_hint">Alleen nodig voor een server met een zelfondertekend certificaat</string>
+    <string name="dav_cert_trusted_hint">Vertrouwd: %1$s</string>
+    <string name="dav_cert_check">Controleren</string>
+    <string name="dav_cert_forget">Vergeten</string>
+    <string name="dav_cert_dialog_title">Dit certificaat vertrouwen?</string>
+    <string name="dav_cert_dialog_message">%1$s toont een certificaat dat Android niet vertrouwt. Als je deze vingerafdruk herkent, accepteert Dogmatix precies dit certificaat voor deze server, en niets anders.</string>
+    <string name="dav_cert_dialog_details">%1$s · geldig tot %2$s</string>
+    <string name="dav_cert_trust">Vertrouwen</string>
+    <string name="dav_cert_none">Kon geen certificaat van dit adres lezen</string>
+    <string name="dav_cert_system">Android vertrouwt het certificaat van deze server al</string>
+    <!-- Encrypted backup -->
+    <string name="dav_section_backup">Versleutelde back-up</string>
+    <string name="dav_passphrase">Wachtzin voor back-ups</string>
+    <string name="dav_passphrase_set">Ingesteld · alleen op dit apparaat bewaard</string>
+    <string name="dav_passphrase_unset">Niet ingesteld · nodig om back-ups te versleutelen</string>
+    <string name="dav_set">Instellen</string>
+    <string name="dav_passphrase_warning">Als je deze wachtzin kwijtraakt, kunnen je cloud-back-ups nooit meer worden gelezen, ook niet door jou. Schrijf hem op een veilige plek op. Hij blijft alleen op dit apparaat: niet op de server en niet in back-upbestanden.</string>
+    <string name="dav_passphrase_dialog_title">Wachtzin voor back-ups</string>
+    <string name="dav_passphrase_dialog_message">Back-ups worden op dit apparaat met deze wachtzin versleuteld voordat ze worden verstuurd. Kies iets langs dat je kunt onthouden of opschrijven.</string>
+    <string name="dav_passphrase_change_note">Back-ups die al in de cloud staan, houden de wachtzin waarmee ze zijn gemaakt; om ze terug te zetten heb je de oude nodig.</string>
+    <string name="dav_passphrase_label">Wachtzin</string>
+    <string name="dav_passphrase_repeat">Herhaal de wachtzin</string>
+    <string name="dav_passphrase_short">Minstens %1$d tekens</string>
+    <string name="dav_passphrase_mismatch">De twee wachtzinnen zijn niet gelijk</string>
+    <string name="dav_auto">Automatische back-up</string>
+    <string name="dav_auto_hint">Elke dag, via wifi en tijdens het opladen</string>
+    <string name="dav_auto_needs_passphrase">Stel eerst een wachtzin voor back-ups in</string>
+    <string name="dav_keep">Te bewaren back-ups</string>
+    <string name="dav_keep_hint">Per apparaat; oudere worden van de server verwijderd</string>
+    <string name="dav_backup_now">Nu back-uppen</string>
+    <string name="dav_backup_action">Back-up</string>
+    <string name="dav_backup_busy">Back-up maken…</string>
+    <string name="dav_backup_never">Nog geen cloud-back-up van dit apparaat</string>
+    <string name="dav_backup_last">Laatste back-up %1$s · %2$s</string>
+    <string name="dav_backup_failed_row">Laatste back-up mislukt: %1$s</string>
+    <string name="dav_backup_done">Back-up verstuurd: %1$s</string>
+    <string name="dav_backup_failed">Back-up mislukt: %1$s</string>
+    <!-- Backups in the cloud -->
+    <string name="dav_section_list">Back-ups in de cloud</string>
+    <string name="dav_list_refresh">Vernieuwen</string>
+    <string name="dav_list_retry">Opnieuw</string>
+    <string name="dav_list_idle">Toon de back-ups op de server</string>
+    <string name="dav_list_needs_setup">Stel eerst de server in</string>
+    <string name="dav_list_loading">Map lezen…</string>
+    <string name="dav_list_empty">Nog geen back-ups in de cloud. Gebruik Nu back-uppen.</string>
+    <string name="dav_list_failed_title">De lijst kon niet worden gelezen</string>
+    <string name="dav_list_this_device">Dit apparaat</string>
+    <string name="dav_list_unknown_device">Onbekend apparaat</string>
+    <string name="dav_list_more">%1$d back-ups meer</string>
+    <string name="dav_list_show">Meer tonen</string>
+    <string name="dav_restore">Terugzetten</string>
+    <string name="dav_restore_reading">Lezen…</string>
+    <string name="dav_restore_note">Dit apparaat houdt zijn serverlogin, wachtzin en cloudinstellingen.</string>
+    <string name="dav_restore_failed">Terugzetten mislukt: %1$s</string>
+    <!-- Device sync -->
+    <string name="dav_section_sync">Apparaten synchroniseren</string>
+    <string name="dav_device_name">Naam van dit apparaat</string>
+    <string name="dav_device_name_dialog_hint">Getoond in de back-uplijst en op je andere apparaten.</string>
+    <string name="dav_device_sync">Favorieten, verlanglijst en collecties synchroniseren</string>
+    <string name="dav_device_sync_hint">Houdt ze gelijk met je andere handhelds via dezelfde servermap</string>
+    <string name="dav_sync_now">Nu synchroniseren</string>
+    <string name="dav_sync_action">Synchroniseren</string>
+    <string name="dav_sync_busy">Synchroniseren…</string>
+    <string name="dav_sync_never">Nog niet gesynchroniseerd</string>
+    <string name="dav_sync_last">Laatste synchronisatie %1$s · %2$d toegevoegd, %3$d hier verwijderd</string>
+    <string name="dav_sync_sent">naar de server gestuurd</string>
+    <string name="dav_sync_failed_row">Laatste synchronisatie mislukt: %1$s</string>
+    <string name="dav_sync_done">Gesynchroniseerd: %1$d toegevoegd, %2$d verwijderd</string>
+    <string name="dav_sync_nothing">Alles loopt al gelijk</string>
+    <string name="dav_sync_failed">Synchroniseren mislukt: %1$s</string>
+    <plurals name="dav_sync_held_title">
+        <item quantity="one">%1$d verwijdering wacht</item>
+        <item quantity="other">%1$d verwijderingen wachten</item>
+    </plurals>
+    <string name="dav_sync_held_hint">De synchronisatie zou in één keer een ongewoon groot aantal dingen verwijderen. Controleer je andere apparaten en pas het dan toe.</string>
+    <string name="dav_sync_held_apply">Toepassen</string>
+    <!-- Errors -->
+    <string name="dav_err_auth">De server accepteerde de gebruikersnaam of het wachtwoord niet. Gebruik bij Nextcloud of ownCloud een app-wachtwoord (Instellingen → Beveiliging).</string>
+    <string name="dav_err_digest">Deze server biedt alleen Digest-inloggen aan, dat Dogmatix niet ondersteunt. Zet Basic-authenticatie aan op de server of gebruik een app-wachtwoord.</string>
+    <string name="dav_err_forbidden">Je bent ingelogd, maar dit account mag die map niet gebruiken (alleen-lezen deling of de map van iemand anders).</string>
+    <string name="dav_err_not_found">Niet gevonden (404). Controleer het serveradres en de map. Bij Nextcloud en ownCloud eindigt het adres op /remote.php/dav/files/jouw-naam/.</string>
+    <string name="dav_err_not_webdav">Dat adres antwoordt niet als WebDAV (het lijkt een gewone webpagina). Gebruik bij Nextcloud of ownCloud https://jouw-server/remote.php/dav/files/jouw-naam/.</string>
+    <string name="dav_err_conflict">Een map in het pad ontbreekt en kon niet worden aangemaakt (409).</string>
+    <string name="dav_err_precondition">Het bestand op de server veranderde tijdens het schrijven (412). Probeer het opnieuw.</string>
+    <string name="dav_err_too_large">De server weigert zulke grote bestanden (413). Verhoog zijn uploadlimiet.</string>
+    <string name="dav_err_locked">Het bestand is op de server vergrendeld door een ander programma (423). Probeer het zo meteen opnieuw.</string>
+    <string name="dav_err_no_space">De server heeft geen ruimte meer voor dit account (507).</string>
+    <string name="dav_err_server">De server meldt een fout (%1$d). Probeer het later opnieuw.</string>
+    <string name="dav_err_http">Onverwacht antwoord van de server (%1$d).</string>
+    <string name="dav_err_redirect">De server stuurt je door naar een ander adres (%1$s). Gebruik dat adres.</string>
+    <string name="dav_err_network">De server is niet bereikbaar. Controleer het adres en je verbinding.</string>
+    <string name="dav_err_timeout">De server deed er te lang over om te antwoorden.</string>
+    <string name="dav_err_tls">De beveiligde verbinding mislukte. Het certificaat van de server wordt niet vertrouwd of past niet bij het adres, of het adres moet met http:// beginnen.</string>
+    <string name="dav_err_bad_url">Dat is geen geldig webadres.</string>
+    <string name="dav_err_bad_response">Het antwoord van de server was onleesbaar of het bestand kwam onvolledig aan.</string>
+    <string name="dav_err_passphrase">Verkeerde wachtzin of beschadigde back-up. Stel de wachtzin in waarmee de back-up is gemaakt (Wachtzin voor back-ups) en probeer het opnieuw.</string>
+    <string name="dav_err_not_backup">Dit is geen versleutelde Dogmatix-back-up.</string>
+    <string name="dav_err_sync_newer">Het synchronisatiebestand op de server is geschreven door een nieuwere Dogmatix. Werk de app bij om te synchroniseren.</string>
+    <string name="dav_err_sync_unreadable">Het synchronisatiebestand op de server is onleesbaar; het is ongemoeid gelaten.</string>
+    <string name="dav_err_not_configured">Er is nog geen WebDAV-server ingesteld.</string>
+    <string name="dav_err_no_passphrase">Stel eerst een wachtzin voor back-ups in (minstens 8 tekens).</string>
+    <string name="dav_err_other">Er ging iets mis: %1$s</string>
+</resources>

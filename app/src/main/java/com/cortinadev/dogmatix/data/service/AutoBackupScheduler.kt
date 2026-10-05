@@ -9,6 +9,7 @@ import android.content.Context
 import android.provider.DocumentsContract
 import android.util.Log
 import com.cortinadev.dogmatix.data.local.AppSettings
+import com.cortinadev.dogmatix.data.local.CloudSettings
 import com.cortinadev.dogmatix.util.BackupRotation
 import com.cortinadev.dogmatix.util.DiskScanner
 import dagger.hilt.EntryPoint
@@ -30,18 +31,28 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val JOB_ID = 4231
+/** The WebDAV cloud job: encrypted backup and device sync, on an unmetered network while charging. */
+private const val CLOUD_JOB_ID = 4232
 private const val INTERVAL_DAYS = 7
 
 /**
  * Weekly backup into a folder the user picked (Settings → Automatic backup): the same file as
  * *Back up*, named by date; the newest five are kept. A daily job (charging, any network not
  * needed) checks whether a week has passed.
+ *
+ * 5.0: it also owns the daily WebDAV cloud job (job 4232, Wi-Fi + charging), which sends an
+ * encrypted backup when automatic cloud backup is on and syncs the library with the other devices
+ * when device sync is on. Both run in [AutoBackupJobService]; the job id tells them apart. It also
+ * keeps [DeviceSyncService] alive from app start (its triggers live there).
  */
 @Singleton
 class AutoBackupScheduler @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val appSettings: AppSettings,
-    private val backupService: BackupService
+    private val backupService: BackupService,
+    private val cloudSettings: CloudSettings,
+    private val cloudBackup: CloudBackupService,
+    private val deviceSync: DeviceSyncService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -51,6 +62,32 @@ class AutoBackupScheduler @Inject constructor(
                 .distinctUntilChanged()
                 .collect { apply(it) }
         }
+        scope.launch {
+            combine(cloudSettings.configured, cloudSettings.autoBackup, cloudSettings.deviceSync) { set, backup, sync -> set && (backup || sync) }
+                .distinctUntilChanged()
+                .collect { applyCloud(it) }
+        }
+    }
+
+    private fun applyCloud(on: Boolean) {
+        val scheduler = context.getSystemService(JobScheduler::class.java) ?: return
+        if (!on) { scheduler.cancel(CLOUD_JOB_ID); return }
+        // Already scheduled: leave it, so starting the app does not push the next run back every time.
+        if (scheduler.getPendingJob(CLOUD_JOB_ID) != null) return
+        scheduler.schedule(
+            JobInfo.Builder(CLOUD_JOB_ID, ComponentName(context, AutoBackupJobService::class.java))
+                .setPeriodic(24L * 3_600_000)
+                .setRequiresCharging(true)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                .setPersisted(true)
+                .build()
+        )
+    }
+
+    /** The daily cloud run: an encrypted backup when one is due, then the device sync (both only when switched on). */
+    suspend fun runCloud() {
+        cloudBackup.runIfDue()
+        deviceSync.syncScheduled()
     }
 
     private fun apply(on: Boolean) {
@@ -97,8 +134,10 @@ class AutoBackupJobService : JobService() {
 
     override fun onStartJob(params: JobParameters): Boolean {
         val backup = EntryPointAccessors.fromApplication(applicationContext, AutoBackupEntryPoint::class.java).autoBackup()
+        val cloud = params.jobId == CLOUD_JOB_ID
         running = scope.launch {
-            runCatching { backup.runIfDue() }.onFailure { Log.w("AutoBackup", "Backup failed: ${it.message}") }
+            if (cloud) runCatching { backup.runCloud() }.onFailure { Log.w("AutoBackup", "Cloud run failed: ${it.javaClass.simpleName}") }
+            else runCatching { backup.runIfDue() }.onFailure { Log.w("AutoBackup", "Backup failed: ${it.message}") }
             jobFinished(params, false)
         }
         return true

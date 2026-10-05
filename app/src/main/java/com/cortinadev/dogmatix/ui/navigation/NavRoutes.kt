@@ -28,10 +28,12 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     object RetroAchievements : NavRoutes("retroachievements", R.string.nav_ra, R.drawable.ic_trophy)
     /** 5.0: everything that lives online in one place (RomM, saves, cloud backup, devices, RetroAchievements). */
     object Cloud : NavRoutes("cloud", R.string.nav_cloud, R.drawable.ic_cloud)
+    /** 5.0: encrypted backup and device sync on the user's own WebDAV server (Nextcloud, ownCloud, Synology…). */
+    object CloudBackup : NavRoutes("cloud_backup", R.string.dav_title, R.drawable.ic_cloud_upload)
 
     companion object {
         /** The four sections shown as tabs; Contact, RomM and the library tools are reached from Settings. */
         val tabs by lazy { listOf(Home, Downloads, Sources, Settings) }
-        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud }
+        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup }
     }
 }

@@ -36,4 +36,35 @@ class DiagnosticsRedactorTest {
     @Test fun `content uris are hidden`() {
         assertEquals("opened content://<uri>", DiagnosticsRedactor.redact("opened content://com.android.externalstorage.documents/tree/primary%3AROMs"))
     }
+
+    @Test fun `webdav passwords and passphrases never survive`() {
+        val out = DiagnosticsRedactor.redact(
+            "dav_password=Tr0ub4dor and dav_passphrase: \"staple\" and \"password\":\"p4ss!w0rd\" and passphrase=horse"
+        )
+        assertFalse(out, out.contains("Tr0ub4dor"))
+        assertFalse(out, out.contains("staple"))
+        assertFalse(out, out.contains("p4ss"))
+        assertFalse(out, out.contains("horse"))
+        assertTrue(out.contains("<redacted>"))
+    }
+
+    @Test fun `a passphrase with spaces is removed as a known secret`() {
+        val out = DiagnosticsRedactor.redact("sealing with correct horse battery staple failed", listOf("correct horse battery staple"))
+        assertEquals("sealing with <redacted> failed", out)
+    }
+
+    @Test fun `a basic authorization header is removed`() {
+        val out = DiagnosticsRedactor.redact("Authorization: Basic c2FtOnNlY3JldA==")
+        assertFalse(out, out.contains("c2FtOnNlY3JldA"))
+    }
+
+    @Test fun `a webdav server and user are removed when passed as known secrets`() {
+        val out = DiagnosticsRedactor.redact(
+            "PROPFIND https://cloud.example.com/remote.php/dav/files/samuel/Dogmatix/ for samuel failed",
+            listOf("cloud.example.com", "samuel")
+        )
+        assertFalse(out, out.contains("cloud.example.com"))
+        assertFalse(out, out.contains("samuel"))
+        assertTrue(out, out.contains("PROPFIND"))
+    }
 }
