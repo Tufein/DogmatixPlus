@@ -9,10 +9,15 @@ import androidx.documentfile.provider.DocumentFile
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.util.CloudSaveEntry
+import com.cortinadev.dogmatix.util.CloudSaveResult
+import com.cortinadev.dogmatix.util.CloudSaves
 import com.cortinadev.dogmatix.util.EmulatorSaveFolder
 import com.cortinadev.dogmatix.util.EmulatorSaveFolders
 import com.cortinadev.dogmatix.util.LocalSaveFile
 import com.cortinadev.dogmatix.util.RemoteSaveFile
+import com.cortinadev.dogmatix.util.RestoreTarget
+import com.cortinadev.dogmatix.util.SafetyCopy
 import com.cortinadev.dogmatix.util.SaveConflict
 import com.cortinadev.dogmatix.util.SaveKind
 import com.cortinadev.dogmatix.util.SaveServer
@@ -366,5 +371,179 @@ class SaveSyncService @Inject constructor(
         val tmp = File(storeFile.parentFile, storeFile.name + ".tmp")
         tmp.writeText(JsonObject().apply { addProperty("version", 1); add("records", array) }.toString())
         if (!tmp.renameTo(storeFile)) { storeFile.delete(); tmp.renameTo(storeFile) }
+    }
+
+    // ---- 5.0: cloud saves per game (used by CloudSavesService; additions only) ----------------
+
+    /** Where the safety copies live: `save-backups/<yyyyMMdd-HHmmss>/<saves|states>/<path>` (kept 30 days). */
+    val safetyCopiesDir: File get() = backupDir
+
+    /** Whether a device folder is picked for [kind] (for saves, an emulator's own folder counts too). */
+    suspend fun hasDeviceFolder(kind: SaveKind): Boolean = when (kind) {
+        SaveKind.SAVE -> settingsRepository.saveSyncSavesDir.first().isNotBlank() || appSettings.saveSyncEmulatorFolders.first().isNotEmpty()
+        SaveKind.STATE -> settingsRepository.saveSyncStatesDir.first().isNotBlank()
+    }
+
+    /** The device's saves and states as a sync lists them (nothing is transferred); null when no folder is picked. */
+    suspend fun deviceListing(): SaveStore.Listing? = withContext(Dispatchers.IO) {
+        if (!hasDeviceFolder(SaveKind.SAVE) && !hasDeviceFolder(SaveKind.STATE)) null else SafSaveStore().list()
+    }
+
+    /** What the last sync recorded per device file, by [SaveSyncPlanner.key] (a copy). */
+    suspend fun syncRecords(): Map<String, SaveSyncRecord> = withContext(Dispatchers.IO) { loadRecords() }
+
+    /**
+     * The screenshot RetroArch keeps next to a save state (`Game.state1.png`): its document URI and
+     * date; null when there is none or the folder cannot be read.
+     */
+    suspend fun deviceStateShot(local: LocalSaveFile): Pair<String, Long>? = withContext(Dispatchers.IO) {
+        if (local.kind != SaveKind.STATE) return@withContext null
+        runCatching {
+            val treeUri = settingsRepository.saveSyncStatesDir.first()
+            val root = if (treeUri.isBlank()) null else StorageHelper.getDocumentFile(context, treeUri)
+            if (root == null) null else listOf("${local.path}.png", "${local.path.substringBeforeLast('.')}.png").distinct()
+                .firstNotNullOfOrNull { candidate -> StorageHelper.findFile(root, candidate)?.takeIf { it.isFile } }
+                ?.let { it.uri.toString() to it.lastModified() }
+        }.getOrNull()
+    }
+
+    /**
+     * "Restore this version": writes [version] (one of the game's server saves or states) into its
+     * device folder. The device file it replaces is kept as a safety copy first, and so is the
+     * server's current version when the device does not hold it already: nothing is lost, nothing is
+     * deleted. The next sync then sends the restored version up as the current one.
+     * [serverFiles] are the game's server entries; [gameStem] is the game's file name without extension.
+     */
+    suspend fun restoreServerVersion(version: CloudSaveEntry, serverFiles: List<CloudSaveEntry>, gameStem: String): CloudSaveResult =
+        restoreInto(version.kind, serverFiles, restored = version, target = { listing, records ->
+            CloudSaves.restoreTarget(version, gameStem, listing.files, records.values, listing.topFolders, listing.noRootFolder)
+        }) { rommClient.downloadSave(version.toRemote(), MAX_FILE_BYTES) }
+
+    /** Puts a safety copy back in its place; the device file there now becomes a safety copy itself first. */
+    suspend fun restoreSafetyCopy(copy: SafetyCopy, serverFiles: List<CloudSaveEntry>): CloudSaveResult =
+        restoreInto(copy.kind, serverFiles, restored = null, target = { _, _ -> RestoreTarget.Path(copy.path) }) {
+            val file = File(backupDir, copy.relative)
+            if (!file.isFile || !file.canonicalPath.startsWith(backupDir.canonicalPath + File.separator)) {
+                throw IOException(context.getString(R.string.csave_error_gone, copy.name))
+            }
+            if (file.length() > MAX_FILE_BYTES) throw IOException("File too large")
+            file.readBytes()
+        }
+
+    private suspend fun restoreInto(
+        kind: SaveKind,
+        serverFiles: List<CloudSaveEntry>,
+        restored: CloudSaveEntry?,
+        target: (SaveStore.Listing, Map<String, SaveSyncRecord>) -> RestoreTarget,
+        bytesOf: suspend () -> ByteArray
+    ): CloudSaveResult {
+        if (!lock.tryLock()) return CloudSaveResult.Busy
+        try {
+            return withContext(Dispatchers.IO) {
+                runCatching<CloudSaveResult> {
+                    if (!hasDeviceFolder(kind)) return@runCatching CloudSaveResult.Failed(context.getString(R.string.csave_error_no_folder))
+                    val store = SafSaveStore()
+                    val listing = store.list()
+                    val records = loadRecords().toMutableMap()
+                    val path = when (val t = target(listing, records)) {
+                        is RestoreTarget.Path -> t.path
+                        RestoreTarget.Ambiguous -> return@runCatching CloudSaveResult.Failed(context.getString(R.string.csave_error_ambiguous))
+                        RestoreTarget.NoFolder -> return@runCatching CloudSaveResult.Failed(context.getString(R.string.csave_error_no_folder))
+                    }
+                    val bytes = bytesOf()
+                    val current = listing.files.firstOrNull { it.kind == kind && it.path.equals(path, ignoreCase = true) }
+                    val targetPath = current?.path ?: path
+                    val latest = CloudSaves.latest(serverFiles, kind, targetPath.substringAfterLast('/'))
+                    val record = current?.let { records[SaveSyncEngine.key(it)] }
+                    // 1. What the device has there now becomes a safety copy (if that fails, nothing is touched).
+                    if (current != null) keepSafetyCopy(kind, current.path, store.read(current))
+                    // 2. So does the server's current version, unless the device held it or it is what comes back.
+                    val restoringLatest = restored != null && latest != null && restored.kind == latest.kind && restored.id == latest.id
+                    if (latest != null && !restoringLatest && !CloudSaves.deviceHolds(latest, record, current)) {
+                        keepSafetyCopy(kind, targetPath, rommClient.downloadSave(latest.toRemote(), MAX_FILE_BYTES))
+                    }
+                    // 3. In place; the record tells the next sync what to do with it.
+                    val written = store.write(kind, targetPath, bytes)
+                    val key = SaveSyncEngine.key(written)
+                    val next = CloudSaves.recordAfterRestore(written, restored, latest, records[key])
+                    if (next != null) records[key] = next else records.remove(key)
+                    saveRecords(records)
+                    dropConflict(kind, written.path)
+                    CloudSaveResult.Done(written.path)
+                }.getOrElse { e ->
+                    Log.w(TAG, "Restore failed", e)
+                    CloudSaveResult.Failed(e.message ?: e.javaClass.simpleName)
+                }
+            }
+        } finally {
+            lock.unlock()
+        }
+    }
+
+    /**
+     * "Upload now": sends the device file [path] of [kind] to RomM as a save of ROM [romId], the way a
+     * sync would. When the server's copy of that name is not what the last sync saw (another device
+     * saved since), it is kept as a safety copy first, so nothing is lost.
+     */
+    suspend fun uploadDeviceSave(kind: SaveKind, path: String, romId: Int, serverFiles: List<CloudSaveEntry>): CloudSaveResult {
+        if (!lock.tryLock()) return CloudSaveResult.Busy
+        try {
+            return withContext(Dispatchers.IO) {
+                runCatching<CloudSaveResult> {
+                    val store = SafSaveStore()
+                    val local = store.list().files.firstOrNull { it.kind == kind && it.path.equals(path, ignoreCase = true) }
+                        ?: return@runCatching CloudSaveResult.Failed(context.getString(R.string.csave_error_gone, path.substringAfterLast('/')))
+                    val records = loadRecords().toMutableMap()
+                    val record = records[SaveSyncEngine.key(local)]
+                    val paired = record?.let { r -> serverFiles.firstOrNull { it.kind == kind && it.id == r.remoteId && it.syncable } }
+                    val latest = paired ?: CloudSaves.latest(serverFiles, kind, local.name, romId)
+                    if (latest != null && !CloudSaves.serverUnchangedSinceSync(latest, record)) {
+                        keepSafetyCopy(kind, local.path, rommClient.downloadSave(latest.toRemote(), MAX_FILE_BYTES))
+                    }
+                    val bytes = store.read(local)
+                    val stored = rommClient.uploadSave(kind, romId, local.name, SaveSyncPlanner.emulatorFor(local), bytes)
+                        ?: rommClient.saves(kind).filter { it.romId == romId && it.fileName.equals(local.name, ignoreCase = true) }
+                            .maxByOrNull { SaveSyncPlanner.epochMillis(it.updatedAt) ?: Long.MIN_VALUE }
+                    if (stored != null) {
+                        records[SaveSyncEngine.key(local)] = SaveSyncEngine.record(local, stored)
+                        saveRecords(records)
+                    }
+                    dropConflict(kind, local.path)
+                    CloudSaveResult.Done(local.name)
+                }.getOrElse { e ->
+                    Log.w(TAG, "Upload of $path failed", e)
+                    CloudSaveResult.Failed(e.message ?: e.javaClass.simpleName)
+                }
+            }
+        } finally {
+            lock.unlock()
+        }
+    }
+
+    /** A conflict the user settled from the game's view leaves the Save sync screen's list. */
+    private fun dropConflict(kind: SaveKind, path: String) {
+        _state.update { s -> s.copy(conflicts = s.conflicts.filterNot { it.local.kind == kind && it.local.path.equals(path, ignoreCase = true) }) }
+    }
+
+    /**
+     * Keeps [bytes] as a safety copy of the device file [path], in the layout the sync's own copies use.
+     * Throws when it cannot (the caller then changes nothing).
+     */
+    private fun keepSafetyCopy(kind: SaveKind, path: String, bytes: ByteArray) {
+        val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.ROOT).format(Date())
+        val root = backupDir.canonicalPath + File.separator
+        // A second copy within the same second gets a folder of its own.
+        val target = generateSequence(1) { it + 1 }
+            .map { n -> File(backupDir, (if (n == 1) stamp else "$stamp-$n") + "/${kind.apiPath}/$path") }
+            .first { !it.exists() }
+        if (!target.canonicalPath.startsWith(root)) throw IOException("Unexpected path $path")
+        val dir = target.parentFile ?: throw IOException("Unexpected path $path")
+        if (!dir.isDirectory && !dir.mkdirs()) throw IOException(context.getString(R.string.csave_error_copy, path.substringAfterLast('/')))
+        val tmp = File(dir, target.name + ".tmp")
+        tmp.writeBytes(bytes)
+        if (!tmp.renameTo(target)) {
+            tmp.delete()
+            throw IOException(context.getString(R.string.csave_error_copy, path.substringAfterLast('/')))
+        }
     }
 }

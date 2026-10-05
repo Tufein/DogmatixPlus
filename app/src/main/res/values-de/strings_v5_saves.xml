@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: cloud saves you can see (per-game cloud saves, Continue playing, top-bar cloud status) -->
+<resources>
+    <string name="csave_section_title">Spielstände in der Cloud</string>
+    <string name="csave_group_server">Auf dem Server</string>
+    <string name="csave_group_device">Auf diesem Gerät</string>
+    <string name="csave_group_copies">Sicherheitskopien</string>
+    <string name="csave_copies_hint">30 Tage auf diesem Gerät aufbewahrt, wann immer eine Synchronisierung oder Wiederherstellung eine Datei ersetzt hat.</string>
+    <string name="csave_loading">Suche Spielstände auf dem Server…</string>
+    <string name="csave_server_error">Der Server konnte nicht gelesen werden: %1$s</string>
+    <string name="csave_device_error">Die Spielstand-Ordner konnten nicht gelesen werden: %1$s</string>
+    <string name="csave_retry">Erneut versuchen</string>
+    <string name="csave_none_on_server">Noch keine Spielstände oder Savestates dieses Spiels auf dem Server.</string>
+    <string name="csave_no_folder_hint">Wähle deine Ordner für Spielstände und Savestates unter Einstellungen → Spielstände synchronisieren, um von hier wiederherzustellen.</string>
+    <string name="csave_pill_current">Aktuell</string>
+    <string name="csave_pill_on_device">Auf diesem Gerät</string>
+    <string name="csave_pill_slot">Slot %1$s</string>
+    <string name="csave_pill_missing">Fehlt auf dem Server</string>
+    <string name="csave_state_in_sync">Synchron</string>
+    <string name="csave_state_device_newer">Hier neuer</string>
+    <string name="csave_state_server_newer">Auf dem Server neuer</string>
+    <string name="csave_state_both_changed">Auf beiden Seiten geändert</string>
+    <string name="csave_state_not_on_server">Nicht auf dem Server</string>
+    <string name="csave_restore">Wiederherstellen</string>
+    <string name="csave_restore_title">Diese Version wiederherstellen?</string>
+    <string name="csave_restore_message">%1$s (gespeichert %2$s) kommt zurück in seinen Ordner auf diesem Gerät. Die Datei, die dort jetzt liegt, wird zuerst als Sicherheitskopie aufbewahrt, und die nächste Synchronisierung schickt diese Version an den Server.</string>
+    <string name="csave_unknown_time">zu unbekannter Zeit</string>
+    <string name="csave_upload_now">Jetzt hochladen</string>
+    <string name="csave_restored">Wiederhergestellt nach %1$s</string>
+    <string name="csave_uploaded">%1$s zu RomM hochgeladen</string>
+    <string name="csave_failed">%1$s: %2$s</string>
+    <string name="csave_busy">Eine Spielstand-Synchronisierung läuft. Versuch es gleich noch einmal.</string>
+    <string name="csave_just_now">gerade eben</string>
+    <string name="csave_side_device">Dieses Gerät</string>
+    <string name="csave_side_server">Server</string>
+    <string name="csave_shot_description">Bildschirmfoto des Savestates</string>
+    <string name="csave_show_all">Alle zeigen (%1$d)</string>
+    <string name="csave_show_less">Weniger zeigen</string>
+    <string name="csave_continue_title">Weiterspielen</string>
+    <string name="csave_shelf_setting_title">Weiterspielen auf Home</string>
+    <string name="csave_shelf_setting_hint">Die zuletzt gespeicherten Spiele, auf jedem Gerät, über der Bibliothek</string>
+    <string name="csave_status_idle">Cloud: alles synchron</string>
+    <string name="csave_status_syncing">Cloud: synchronisiert</string>
+    <plurals name="csave_status_attention">
+        <item quantity="one">Cloud: %1$d Punkt braucht dich</item>
+        <item quantity="other">Cloud: %1$d Punkte brauchen dich</item>
+    </plurals>
+    <string name="csave_error_no_folder">Für diese Art Datei ist kein Ordner gewählt. Wähle einen unter Einstellungen → Spielstände synchronisieren.</string>
+    <string name="csave_error_ambiguous">Mehrere Dateien auf diesem Gerät passen zu diesem Spielstand, daher wurde nichts wiederhergestellt. Entscheide im Bildschirm Spielstände synchronisieren.</string>
+    <string name="csave_error_gone">%1$s ist nicht mehr da</string>
+    <string name="csave_error_copy">Es konnte keine Sicherheitskopie von %1$s angelegt werden, daher wurde nichts geändert</string>
+    <string name="csave_error_not_on_server">RomM hat dieses Spiel nicht</string>
+</resources>
