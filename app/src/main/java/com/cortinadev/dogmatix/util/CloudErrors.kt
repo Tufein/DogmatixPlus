@@ -8,6 +8,9 @@ class CloudNotConfiguredException : IllegalStateException("No WebDAV server is s
 /** A cloud backup needs a passphrase and none (or a too short one) is set on this device. */
 class CloudNoPassphraseException : IllegalStateException("No backup passphrase is set")
 
+/** The backup is larger than a restore accepts ([limit] bytes), so uploading it would only produce a file that cannot be restored. */
+class CloudBackupTooLargeException(val size: Long, val limit: Long) : IllegalStateException("Backup of $size bytes exceeds the restore limit of $limit")
+
 /**
  * Failures of the WebDAV cloud as short codes. The last error of a backup, test or sync is stored
  * on the device as a code, not as a sentence, so it is shown in the language the app has when it is
@@ -19,7 +22,7 @@ object CloudErrors {
 
     /** Problems that are not a WebDAV status. */
     enum class Kind {
-        WRONG_PASSPHRASE, NOT_A_BACKUP, INVALID_BACKUP, NEWER_BACKUP, SYNC_NEWER, SYNC_UNREADABLE, NOT_CONFIGURED, NO_PASSPHRASE
+        WRONG_PASSPHRASE, NOT_A_BACKUP, INVALID_BACKUP, NEWER_BACKUP, SYNC_NEWER, SYNC_UNREADABLE, NOT_CONFIGURED, NO_PASSPHRASE, BACKUP_TOO_LARGE
     }
 
     sealed class Decoded {
@@ -41,6 +44,7 @@ object CloudErrors {
         is DeviceSyncEngine.UnreadableFileException -> "k${SEP}${Kind.SYNC_UNREADABLE.name}"
         is CloudNotConfiguredException -> "k${SEP}${Kind.NOT_CONFIGURED.name}"
         is CloudNoPassphraseException -> "k${SEP}${Kind.NO_PASSPHRASE.name}"
+        is CloudBackupTooLargeException -> "k${SEP}${Kind.BACKUP_TOO_LARGE.name}"
         else -> "other$SEP${(error.message ?: error.javaClass.simpleName).replace('\n', ' ').take(120)}"
     }
 

@@ -33,6 +33,7 @@ object CloudMessages {
             CloudErrors.Kind.SYNC_UNREADABLE -> context.getString(R.string.dav_err_sync_unreadable)
             CloudErrors.Kind.NOT_CONFIGURED -> context.getString(R.string.dav_err_not_configured)
             CloudErrors.Kind.NO_PASSPHRASE -> context.getString(R.string.dav_err_no_passphrase)
+            CloudErrors.Kind.BACKUP_TOO_LARGE -> context.getString(R.string.sync6_err_backup_too_large, BackupService.MAX_BACKUP_BYTES / (1024 * 1024))
         }
         is CloudErrors.Decoded.Other -> context.getString(R.string.dav_err_other, error.text)
     }

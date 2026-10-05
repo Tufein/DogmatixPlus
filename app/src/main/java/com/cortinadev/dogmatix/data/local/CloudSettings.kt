@@ -13,6 +13,8 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.cortinadev.dogmatix.util.CertTrust
 import com.cortinadev.dogmatix.util.CloudBackupNames
 import com.cortinadev.dogmatix.util.CloudSettingKeys
+import com.cortinadev.dogmatix.util.SharedWishlistEngine
+import com.cortinadev.dogmatix.util.SharedWishlistJson
 import com.cortinadev.dogmatix.util.WebDavPaths
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -54,7 +56,9 @@ data class CloudSyncedSettings(
     val autoBackup: Boolean,
     val keep: Int,
     val deviceSync: Boolean,
-    val trustFingerprint: String = ""
+    val trustFingerprint: String = "",
+    val sharedList: String = "",
+    val sharedName: String = ""
 )
 
 /** The outcome of the last backup, connection test or device sync on this device. */
@@ -77,7 +81,14 @@ data class CloudRecords(
     val lastSyncError: String = "",
     val lastSyncErrorAt: Long = 0L,
     /** Removals held back by the last sync until the user confirms (0 = none). */
-    val syncHeldBack: Int = 0
+    val syncHeldBack: Int = 0,
+    /** The last sync of the shared wishlist (6.0). */
+    val lastSharedAt: Long = 0L,
+    val lastSharedAdded: Int = 0,
+    val lastSharedRemoved: Int = 0,
+    val lastSharedSent: Boolean = false,
+    val lastSharedError: String = "",
+    val lastSharedErrorAt: Long = 0L
 )
 
 /**
@@ -102,6 +113,8 @@ class CloudSettings @Inject constructor(@param:ApplicationContext private val co
         val KEEP = intPreferencesKey(CloudSettingKeys.KEEP)
         val DEVICE_SYNC = booleanPreferencesKey(CloudSettingKeys.DEVICE_SYNC)
         val TRUST = stringPreferencesKey(CloudSettingKeys.TRUST_FINGERPRINT)
+        val SHARED_LIST = stringPreferencesKey(CloudSettingKeys.SHARED_LIST)
+        val SHARED_NAME = stringPreferencesKey(CloudSettingKeys.SHARED_NAME)
     }
 
     private object LocalKeys {
@@ -123,6 +136,12 @@ class CloudSettings @Inject constructor(@param:ApplicationContext private val co
         val LAST_SYNC_ERROR = stringPreferencesKey("dav_last_sync_error")
         val LAST_SYNC_ERROR_AT = longPreferencesKey("dav_last_sync_error_at")
         val SYNC_HELD_BACK = intPreferencesKey("dav_sync_held_back")
+        val LAST_SHARED_AT = longPreferencesKey("dav_last_shared_at")
+        val LAST_SHARED_ADDED = intPreferencesKey("dav_last_shared_added")
+        val LAST_SHARED_REMOVED = intPreferencesKey("dav_last_shared_removed")
+        val LAST_SHARED_SENT = booleanPreferencesKey("dav_last_shared_sent")
+        val LAST_SHARED_ERROR = stringPreferencesKey("dav_last_shared_error")
+        val LAST_SHARED_ERROR_AT = longPreferencesKey("dav_last_shared_error_at")
     }
 
     private val local get() = context.davDeviceStore
@@ -140,6 +159,11 @@ class CloudSettings @Inject constructor(@param:ApplicationContext private val co
     val keep: Flow<Int> = context.dataStore.data.map { it[Keys.KEEP] ?: CloudBackupNames.DEFAULT_KEEP }
     /** Keep favourites, wishlist and collections in step with the other devices. */
     val deviceSync: Flow<Boolean> = context.dataStore.data.map { it[Keys.DEVICE_SYNC] ?: false }
+
+    /** Name of the shared family wishlist (6.0); empty = off. */
+    val sharedList: Flow<String> = context.dataStore.data.map { it[Keys.SHARED_LIST] ?: "" }
+    /** The name this person goes by on the shared wishlist; empty = the device name. */
+    val sharedName: Flow<String> = context.dataStore.data.map { it[Keys.SHARED_NAME] ?: "" }
 
     /** The certificate the user confirmed for the server (see [CertTrust]); empty when none. */
     val trustFingerprint: Flow<String> = context.dataStore.data.map { it[Keys.TRUST] ?: "" }
@@ -160,11 +184,18 @@ class CloudSettings @Inject constructor(@param:ApplicationContext private val co
     /** Device sync is switched on and has a server. */
     val deviceSyncActive: Flow<Boolean> = combine(configured, deviceSync) { c, on -> c && on }.distinctUntilChanged()
 
-    /** A new address also forgets the certificate confirmed for the old one. */
+    /** The shared wishlist is switched on (a list name is set) and there is a server. */
+    val sharedActive: Flow<Boolean> = combine(configured, sharedList) { c, name -> c && SharedWishlistEngine.folderName(name) != null }.distinctUntilChanged()
+
+    /**
+     * A new address also forgets the certificate confirmed for the old one. A `user:password@` in
+     * front of the host is dropped (the login has its own fields; the address is logged and backed up).
+     */
     suspend fun setServer(value: String) = context.dataStore.edit {
         val old = it[Keys.URL].orEmpty()
-        it[Keys.URL] = value.trim()
-        if (originOf(old) != originOf(value)) it.remove(Keys.TRUST)
+        val clean = WebDavPaths.stripCredentials(value)
+        it[Keys.URL] = clean
+        if (originOf(old) != originOf(clean)) it.remove(Keys.TRUST)
     }
     suspend fun setUser(value: String) = context.dataStore.edit { it[Keys.USER] = value.trim() }
     suspend fun setPassword(value: String) = context.dataStore.edit { it[Keys.PASSWORD] = value }
@@ -174,6 +205,8 @@ class CloudSettings @Inject constructor(@param:ApplicationContext private val co
     suspend fun setAutoBackup(on: Boolean) = context.dataStore.edit { it[Keys.AUTO_BACKUP] = on }
     suspend fun setKeep(value: Int) = context.dataStore.edit { it[Keys.KEEP] = value.coerceIn(CloudSettingKeys.MIN_KEEP, CloudSettingKeys.MAX_KEEP) }
     suspend fun setDeviceSync(on: Boolean) = context.dataStore.edit { it[Keys.DEVICE_SYNC] = on }
+    suspend fun setSharedList(value: String) = context.dataStore.edit { it[Keys.SHARED_LIST] = value.trim().take(SharedWishlistEngine.MAX_LIST_NAME) }
+    suspend fun setSharedName(value: String) = context.dataStore.edit { it[Keys.SHARED_NAME] = value.trim().take(SharedWishlistJson.MAX_NAME) }
     /** Trusts the server certificate with this SHA-256 fingerprint; empty forgets it. */
     suspend fun setTrustFingerprint(value: String) = context.dataStore.edit {
         if (CertTrust.isValid(value)) it[Keys.TRUST] = CertTrust.normalize(value) else it.remove(Keys.TRUST)
@@ -190,7 +223,9 @@ class CloudSettings @Inject constructor(@param:ApplicationContext private val co
             autoBackup = p[Keys.AUTO_BACKUP] ?: false,
             keep = p[Keys.KEEP] ?: CloudBackupNames.DEFAULT_KEEP,
             deviceSync = p[Keys.DEVICE_SYNC] ?: false,
-            trustFingerprint = p[Keys.TRUST] ?: ""
+            trustFingerprint = p[Keys.TRUST] ?: "",
+            sharedList = p[Keys.SHARED_LIST] ?: "",
+            sharedName = p[Keys.SHARED_NAME] ?: ""
         )
     }
 
@@ -203,6 +238,8 @@ class CloudSettings @Inject constructor(@param:ApplicationContext private val co
         it[Keys.KEEP] = s.keep
         it[Keys.DEVICE_SYNC] = s.deviceSync
         if (s.trustFingerprint.isEmpty()) it.remove(Keys.TRUST) else it[Keys.TRUST] = s.trustFingerprint
+        it[Keys.SHARED_LIST] = s.sharedList
+        it[Keys.SHARED_NAME] = s.sharedName
     }
 
     // ---- This device only (dav_device) --------------------------------------------------------
@@ -265,6 +302,20 @@ class CloudSettings @Inject constructor(@param:ApplicationContext private val co
         it[LocalKeys.LAST_SYNC_ERROR_AT] = at
     }
 
+    suspend fun recordShared(at: Long, added: Int, removed: Int, sent: Boolean) = local.edit {
+        it[LocalKeys.LAST_SHARED_AT] = at
+        it[LocalKeys.LAST_SHARED_ADDED] = added
+        it[LocalKeys.LAST_SHARED_REMOVED] = removed
+        it[LocalKeys.LAST_SHARED_SENT] = sent
+        it[LocalKeys.LAST_SHARED_ERROR] = ""
+        it[LocalKeys.LAST_SHARED_ERROR_AT] = 0L
+    }
+
+    suspend fun recordSharedError(at: Long, message: String) = local.edit {
+        it[LocalKeys.LAST_SHARED_ERROR] = message.take(300)
+        it[LocalKeys.LAST_SHARED_ERROR_AT] = at
+    }
+
     suspend fun recordSyncHeldBack(removals: Int) = local.edit { it[LocalKeys.SYNC_HELD_BACK] = removals }
 
     private fun recordsOf(p: Preferences) = CloudRecords(
@@ -282,7 +333,13 @@ class CloudSettings @Inject constructor(@param:ApplicationContext private val co
         lastSyncSent = p[LocalKeys.LAST_SYNC_SENT] ?: false,
         lastSyncError = p[LocalKeys.LAST_SYNC_ERROR] ?: "",
         lastSyncErrorAt = p[LocalKeys.LAST_SYNC_ERROR_AT] ?: 0L,
-        syncHeldBack = p[LocalKeys.SYNC_HELD_BACK] ?: 0
+        syncHeldBack = p[LocalKeys.SYNC_HELD_BACK] ?: 0,
+        lastSharedAt = p[LocalKeys.LAST_SHARED_AT] ?: 0L,
+        lastSharedAdded = p[LocalKeys.LAST_SHARED_ADDED] ?: 0,
+        lastSharedRemoved = p[LocalKeys.LAST_SHARED_REMOVED] ?: 0,
+        lastSharedSent = p[LocalKeys.LAST_SHARED_SENT] ?: false,
+        lastSharedError = p[LocalKeys.LAST_SHARED_ERROR] ?: "",
+        lastSharedErrorAt = p[LocalKeys.LAST_SHARED_ERROR_AT] ?: 0L
     )
 
     /** `https://host:port` of an address as typed (empty when it is none). */

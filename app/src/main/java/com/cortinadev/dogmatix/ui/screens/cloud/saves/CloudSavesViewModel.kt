@@ -85,6 +85,12 @@ class CloudSavesViewModel @Inject constructor(
     fun restore(version: CloudSaveVersion) =
         act(rowId(version), version.entry.fileName, upload = false) { service.restore(it, version) }
 
+    /** The device path [version] would be restored to (null = unknown), for the confirm dialog. */
+    suspend fun targetFor(version: CloudSaveVersion): String? {
+        val data = _ui.value.data ?: return null
+        return runCatching { service.restoreTargetPath(data, version) }.getOrNull()
+    }
+
     fun restore(copy: SafetyCopy) =
         act(rowId(copy), copy.name, upload = false) { service.restore(it, copy) }
 

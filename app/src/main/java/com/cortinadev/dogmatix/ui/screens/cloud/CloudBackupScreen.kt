@@ -61,7 +61,7 @@ import java.text.DateFormat
 import java.util.Date
 
 /** Which text editor is open. */
-private enum class DavEditor { SERVER, USER, PASSWORD, FOLDER, PASSPHRASE, DEVICE_NAME }
+private enum class DavEditor { SERVER, USER, PASSWORD, FOLDER, PASSPHRASE, DEVICE_NAME, SHARED_LIST, SHARED_NAME }
 
 /**
  * The cloud backup screen: connection to the user's WebDAV server (Nextcloud, ownCloud, Synology,
@@ -74,6 +74,7 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
     val testing by viewModel.testing.collectAsState()
     val backingUp by viewModel.backingUp.collectAsState()
     val syncing by viewModel.syncing.collectAsState()
+    val sharedSyncing by viewModel.sharedSyncing.collectAsState()
     val list by viewModel.list.collectAsState()
     val reading by viewModel.reading.collectAsState()
     val pendingRestore by viewModel.pendingRestore.collectAsState()
@@ -94,6 +95,7 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
             label = stringResource(R.string.dav_server),
             value = ui.server,
             keyboard = KeyboardType.Uri,
+            checkServerText = true,
             onSave = viewModel::setServer,
             onDismiss = { editor = null }
         )
@@ -129,6 +131,24 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
             label = stringResource(R.string.dav_device_name),
             value = ui.deviceName,
             onSave = viewModel::setDeviceName,
+            onDismiss = { editor = null }
+        )
+        DavEditor.SHARED_LIST -> DavTextDialog(
+            title = stringResource(R.string.sync6_shared_list),
+            hint = stringResource(R.string.sync6_shared_list_dialog),
+            label = stringResource(R.string.sync6_shared_list),
+            value = ui.sharedList,
+            allowEmpty = true,
+            onSave = { viewModel.setSharedList(context, it) },
+            onDismiss = { editor = null }
+        )
+        DavEditor.SHARED_NAME -> DavTextDialog(
+            title = stringResource(R.string.sync6_shared_name),
+            hint = stringResource(R.string.sync6_shared_name_dialog),
+            label = stringResource(R.string.sync6_shared_name),
+            value = ui.sharedName,
+            allowEmpty = true,
+            onSave = viewModel::setSharedName,
             onDismiss = { editor = null }
         )
         DavEditor.PASSPHRASE -> DavPassphraseDialog(
@@ -185,6 +205,10 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
                         onClick = { editor = DavEditor.SERVER },
                         modifier = Modifier.focusRequester(firstFocus)
                     ) { ActionPill(change, { editor = DavEditor.SERVER }) }
+                    // The password goes out in clear text: said plainly, not hidden in a hint.
+                    if (WebDavPaths.isCleartextRisk(ui.server)) {
+                        DavNote(stringResource(R.string.sync6_cleartext_warning), R.drawable.ic_warning, tone = PillTone.Danger)
+                    }
                     DavRow(
                         title = stringResource(R.string.dav_user),
                         hint = ui.user.ifBlank { notSet },
@@ -414,6 +438,50 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
                     }
                 }
             }
+
+            // ---- Shared wishlist -----------------------------------------------------------------
+            item(key = "shared") {
+                DavSection(stringResource(R.string.sync6_shared_section), R.drawable.ic_wishlist) {
+                    DavRow(
+                        title = stringResource(R.string.sync6_shared_list),
+                        hint = ui.sharedList.ifBlank { stringResource(R.string.sync6_shared_off) },
+                        onClick = { editor = DavEditor.SHARED_LIST }
+                    ) { ActionPill(change, { editor = DavEditor.SHARED_LIST }) }
+                    DavRow(
+                        title = stringResource(R.string.sync6_shared_name),
+                        hint = ui.sharedName.ifBlank { ui.deviceName.ifBlank { notSet } },
+                        onClick = { editor = DavEditor.SHARED_NAME }
+                    ) { ActionPill(change, { editor = DavEditor.SHARED_NAME }) }
+
+                    val sharedOn = configured && ui.sharedList.isNotBlank()
+                    val sharedRecords = ui.records
+                    val sharedFailed = sharedRecords.lastSharedError.isNotEmpty()
+                    val sharedHint = when {
+                        sharedSyncing -> stringResource(R.string.sync6_shared_busy)
+                        !configured -> stringResource(R.string.dav_test_needs_server)
+                        ui.sharedList.isBlank() -> stringResource(R.string.sync6_shared_needs_list)
+                        sharedFailed -> stringResource(R.string.sync6_shared_failed_row, CloudMessages.render(context, sharedRecords.lastSharedError))
+                        sharedRecords.lastSharedAt > 0 -> stringResource(R.string.sync6_shared_last, relative(sharedRecords.lastSharedAt), sharedRecords.lastSharedAdded, sharedRecords.lastSharedRemoved) +
+                            if (sharedRecords.lastSharedSent) " · " + stringResource(R.string.dav_sync_sent) else ""
+                        else -> stringResource(R.string.sync6_shared_never)
+                    }
+                    DavRow(
+                        title = stringResource(R.string.sync6_shared_now),
+                        hint = sharedHint,
+                        hintColor = if (sharedFailed && !sharedSyncing && sharedOn) errorColor else Color.Unspecified,
+                        onClick = { if (sharedOn && !sharedSyncing) viewModel.syncShared(context) }
+                    ) {
+                        ActionPill(
+                            stringResource(if (sharedSyncing) R.string.sync6_shared_busy else R.string.sync6_shared_action),
+                            { viewModel.syncShared(context) },
+                            icon = R.drawable.ic_sync,
+                            tone = ActionTone.Accent,
+                            enabled = sharedOn && !sharedSyncing
+                        )
+                    }
+                    DavNote(stringResource(R.string.sync6_shared_hint), R.drawable.ic_info)
+                }
+            }
         }
     }
 }
@@ -439,7 +507,9 @@ private fun DavTextDialog(
     onDismiss: () -> Unit,
     masked: Boolean = false,
     allowEmpty: Boolean = false,
-    keyboard: KeyboardType = KeyboardType.Text
+    keyboard: KeyboardType = KeyboardType.Text,
+    /** The server address: warns while typing about plain http:// over the internet and about a login in the address. */
+    checkServerText: Boolean = false
 ) {
     var text by remember { mutableStateOf(value) }
     val fieldFocus = rememberInitialFocus()
@@ -459,6 +529,12 @@ private fun DavTextDialog(
                     keyboardOptions = KeyboardOptions(keyboardType = if (masked) KeyboardType.Password else keyboard),
                     modifier = Modifier.fillMaxWidth().focusRequester(fieldFocus)
                 )
+                if (checkServerText && WebDavPaths.isCleartextRisk(text)) {
+                    Text(stringResource(R.string.sync6_cleartext_warning), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                }
+                if (checkServerText && WebDavPaths.stripCredentials(text) != text.trim()) {
+                    Text(stringResource(R.string.sync6_credentials_removed), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         },
         confirmButton = {

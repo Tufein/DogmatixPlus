@@ -34,6 +34,43 @@ object WebDavPaths {
         return "$scheme://${authority.lowercase()}${if (path.endsWith("/")) path else "$path/"}"
     }
 
+    /**
+     * [input] without a `user:password@` part in front of the host (the login has its own fields,
+     * and an address with a password in it ends up in logs and backups). Everything else as typed.
+     */
+    fun stripCredentials(input: String): String {
+        val trimmed = input.trim()
+        val schemeEnd = trimmed.indexOf("://").let { if (it < 0) 0 else it + 3 }
+        val authorityEnd = trimmed.indexOf('/', schemeEnd).let { if (it < 0) trimmed.length else it }
+        val authority = trimmed.substring(schemeEnd, authorityEnd)
+        val at = authority.lastIndexOf('@')
+        if (at < 0) return trimmed
+        return trimmed.substring(0, schemeEnd) + authority.substring(at + 1) + trimmed.substring(authorityEnd)
+    }
+
+    /**
+     * The password would travel in clear text: [server] starts with `http://` and its host is not
+     * on a private network (localhost, 10.x, 172.16-31.x, 192.168.x, 127.x, link-local 169.254.x,
+     * `*.local`, a name without a dot, `fe80::` / `fc00::/7` / `::1`). Plain http on a home
+     * network is common and fine; over the internet it is not.
+     */
+    fun isCleartextRisk(server: String): Boolean {
+        val url = normalizeServer(stripCredentials(server)) ?: return false
+        if (isHttps(url)) return false
+        val host = hostOf(url).removeSurrounding("[", "]")
+        if (host.isEmpty()) return false
+        if (host == "localhost" || host.endsWith(".local") || host.endsWith(".lan") || host.endsWith(".home.arpa") || !host.contains('.') && !host.contains(':')) return false
+        if (host.contains(':')) return !(host == "::1" || host.startsWith("fe8") || host.startsWith("fe9") || host.startsWith("fea") || host.startsWith("feb") || host.startsWith("fc") || host.startsWith("fd"))
+        val octets = host.split('.').map { it.toIntOrNull() }
+        if (octets.size == 4 && octets.all { it != null && it in 0..255 }) {
+            val a = octets[0]!!
+            val b = octets[1]!!
+            val private = a == 10 || a == 127 || (a == 172 && b in 16..31) || (a == 192 && b == 168) || (a == 169 && b == 254)
+            return !private
+        }
+        return true
+    }
+
     fun isHttps(url: String): Boolean = url.trim().startsWith("https://", ignoreCase = true)
 
     /** `scheme://host[:port]` of a normalized URL. */

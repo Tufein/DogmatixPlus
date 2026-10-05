@@ -122,13 +122,27 @@ class WebDavClient(
         }
     }
 
-    /** Creates the collection [url]; false when it already existed. 409 (parent missing) is thrown. */
+    /**
+     * Creates the collection [url]; false when the server says it already exists (405). 409
+     * (parent missing) is thrown. Whether a 405 really means "exists" is for [ensureCollection] to check.
+     */
     fun mkcol(url: String): Boolean {
         execute("MKCOL", url, EMPTY_BODY, emptyMap()).use { response ->
-            return when (response.code) {
-                201, 200, 204 -> true
-                // 405: "already exists" on most servers; some say it with 301 to the slash form or 409 + exists.
-                405 -> false
+            return when (WebDavStatus.mkcolAnswer(response.code)) {
+                WebDavStatus.MkcolAnswer.CREATED -> true
+                WebDavStatus.MkcolAnswer.NOT_ALLOWED -> false
+                WebDavStatus.MkcolAnswer.FAILED -> throw failure(response)
+            }
+        }
+    }
+
+    /** MOVE [from] to [to], replacing it; false when the server does not do MOVE (405, 501, 403 on the verb). */
+    override fun move(from: String, to: String): Boolean {
+        val headers = mapOf("Destination" to to, "Overwrite" to "T")
+        execute("MOVE", from, EMPTY_BODY, headers).use { response ->
+            return when {
+                response.code in 200..299 -> true
+                response.code == 405 || response.code == 501 || response.code == 403 -> false
                 else -> throw failure(response)
             }
         }
@@ -145,15 +159,26 @@ class WebDavClient(
 
     private fun create(url: String, root: String, depth: Int): Boolean {
         try {
-            return mkcol(url)
+            return mkcolChecked(url)
         } catch (e: DavException) {
             // 409 = a parent is missing (some servers say 404): create the parent first, then retry.
             if (e.problem != DavProblem.CONFLICT && e.problem != DavProblem.NOT_FOUND) throw e
             val parent = WebDavPaths.parentOf(url)
             if (parent == null || parent.length < root.length || depth >= MAX_DEPTH) throw e
             create(parent, root, depth + 1)
-            return mkcol(url)
+            return mkcolChecked(url)
         }
+    }
+
+    /**
+     * [mkcol], where a 405 only counts as "exists" when the folder really is there now: a server
+     * that refuses MKCOL for a folder PROPFIND found missing is refusing to create it (read-only
+     * share, wrong place), which must fail here instead of at the first upload.
+     */
+    private fun mkcolChecked(url: String): Boolean {
+        if (mkcol(url)) return true
+        if (exists(url)) return false
+        throw DavException(DavProblem.FORBIDDEN, 405, "the server will not create the folder")
     }
 
     /** Deletes [url]; a file that is already gone counts as deleted. */

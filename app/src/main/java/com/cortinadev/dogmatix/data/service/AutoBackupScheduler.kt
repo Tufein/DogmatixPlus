@@ -42,7 +42,7 @@ private const val INTERVAL_DAYS = 7
  *
  * 5.0: it also owns the daily WebDAV cloud job (job 4232, Wi-Fi + charging), which sends an
  * encrypted backup when automatic cloud backup is on and syncs the library with the other devices
- * when device sync is on. Both run in [AutoBackupJobService]; the job id tells them apart. It also
+ * when device sync is on, and (6.0) syncs the shared family wishlist when it is on. All run in [AutoBackupJobService]; the job id tells them apart. It also
  * keeps [DeviceSyncService] alive from app start (its triggers live there).
  */
 @Singleton
@@ -52,7 +52,8 @@ class AutoBackupScheduler @Inject constructor(
     private val backupService: BackupService,
     private val cloudSettings: CloudSettings,
     private val cloudBackup: CloudBackupService,
-    private val deviceSync: DeviceSyncService
+    private val deviceSync: DeviceSyncService,
+    private val sharedWishlist: SharedWishlistService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -63,7 +64,7 @@ class AutoBackupScheduler @Inject constructor(
                 .collect { apply(it) }
         }
         scope.launch {
-            combine(cloudSettings.configured, cloudSettings.autoBackup, cloudSettings.deviceSync) { set, backup, sync -> set && (backup || sync) }
+            combine(cloudSettings.configured, cloudSettings.autoBackup, cloudSettings.deviceSync, cloudSettings.sharedActive) { set, backup, sync, shared -> set && (backup || sync || shared) }
                 .distinctUntilChanged()
                 .collect { applyCloud(it) }
         }
@@ -88,6 +89,7 @@ class AutoBackupScheduler @Inject constructor(
     suspend fun runCloud() {
         cloudBackup.runIfDue()
         deviceSync.syncScheduled()
+        sharedWishlist.syncScheduled()
     }
 
     private fun apply(on: Boolean) {

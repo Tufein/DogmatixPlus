@@ -23,13 +23,16 @@ object CloudSettingKeys {
     const val DEVICE_SYNC = "dav_device_sync"
     /** SHA-256 of the WebDAV server certificate the user confirmed (self-signed or private CA). */
     const val TRUST_FINGERPRINT = "dav_trust_fingerprint"
+    /** 6.0 shared wishlist: the name of the list (empty = off) and the name this person goes by in it. */
+    const val SHARED_LIST = "dav_shared_list"
+    const val SHARED_NAME = "dav_shared_name"
 
     const val MIN_KEEP = 1
     const val MAX_KEEP = 100
 
     /** Type tag per key, as in [BackupJson]: `b` boolean, `i` int, `s` string. */
     val TYPES: Map<String, String> = mapOf(
-        URL to "s", USER to "s", PASSWORD to "s", FOLDER to "s", TRUST_FINGERPRINT to "s",
+        URL to "s", USER to "s", PASSWORD to "s", FOLDER to "s", TRUST_FINGERPRINT to "s", SHARED_LIST to "s", SHARED_NAME to "s",
         AUTO_BACKUP to "b", DEVICE_SYNC to "b",
         KEEP to "i"
     )
@@ -43,6 +46,7 @@ object CloudSettingKeys {
     fun sanitize(name: String, value: Any): Any? = when (name) {
         KEEP -> (value as? Int)?.coerceIn(MIN_KEEP, MAX_KEEP)
         URL, USER, FOLDER -> (value as? String)?.takeIf { it.length <= 2000 }
+        SHARED_LIST, SHARED_NAME -> (value as? String)?.takeIf { it.length <= 200 }
         TRUST_FINGERPRINT -> (value as? String)?.takeIf { it.isEmpty() || CertTrust.isValid(it) }
         else -> value
     }

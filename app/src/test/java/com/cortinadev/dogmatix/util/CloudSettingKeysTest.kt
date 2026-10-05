@@ -13,7 +13,8 @@ class CloudSettingKeysTest {
     @Test fun `every key has the dav prefix and a type`() {
         val keys = listOf(
             CloudSettingKeys.URL, CloudSettingKeys.USER, CloudSettingKeys.PASSWORD, CloudSettingKeys.FOLDER,
-            CloudSettingKeys.AUTO_BACKUP, CloudSettingKeys.KEEP, CloudSettingKeys.DEVICE_SYNC, CloudSettingKeys.TRUST_FINGERPRINT
+            CloudSettingKeys.AUTO_BACKUP, CloudSettingKeys.KEEP, CloudSettingKeys.DEVICE_SYNC, CloudSettingKeys.TRUST_FINGERPRINT,
+            CloudSettingKeys.SHARED_LIST, CloudSettingKeys.SHARED_NAME
         )
         keys.forEach {
             assertTrue(it, it.startsWith("dav_"))

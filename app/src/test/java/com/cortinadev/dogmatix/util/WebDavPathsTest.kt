@@ -102,4 +102,41 @@ class WebDavPathsTest {
         assertTrue(WebDavPaths.isHttps(" HTTPS://h/"))
         assertFalse(WebDavPaths.isHttps("http://h/"))
     }
+
+    @Test fun `a login in the address is dropped`() {
+        assertEquals("https://cloud.example.com/dav", WebDavPaths.stripCredentials("https://john:secret@cloud.example.com/dav"))
+        assertEquals("http://nas.local:5005/", WebDavPaths.stripCredentials(" http://john@nas.local:5005/ "))
+        assertEquals("cloud.example.com/dav", WebDavPaths.stripCredentials("john:pw@cloud.example.com/dav"))
+        assertEquals("https://cloud.example.com/a@b", WebDavPaths.stripCredentials("https://cloud.example.com/a@b"))
+        assertEquals("cloud.example.com", WebDavPaths.stripCredentials("cloud.example.com"))
+    }
+
+    @Test fun `plain http is only a risk away from the home network`() {
+        assertTrue(WebDavPaths.isCleartextRisk("http://cloud.example.com/dav"))
+        assertTrue(WebDavPaths.isCleartextRisk("http://8.8.8.8/"))
+        assertTrue(WebDavPaths.isCleartextRisk("http://172.32.0.1/"))
+        assertTrue(WebDavPaths.isCleartextRisk("http://203.0.113.5:8080/dav"))
+        assertTrue(WebDavPaths.isCleartextRisk("http://john:pw@cloud.example.com/"))
+        assertFalse(WebDavPaths.isCleartextRisk("https://cloud.example.com/dav"))
+        assertFalse(WebDavPaths.isCleartextRisk("cloud.example.com"))               // https is assumed
+        assertFalse(WebDavPaths.isCleartextRisk("http://localhost:8080/"))
+        assertFalse(WebDavPaths.isCleartextRisk("http://10.0.0.5/dav"))
+        assertFalse(WebDavPaths.isCleartextRisk("http://172.16.4.1/"))
+        assertFalse(WebDavPaths.isCleartextRisk("http://172.31.255.1/"))
+        assertFalse(WebDavPaths.isCleartextRisk("http://192.168.1.20:8080/dav"))
+        assertFalse(WebDavPaths.isCleartextRisk("http://169.254.10.10/"))
+        assertFalse(WebDavPaths.isCleartextRisk("http://127.0.0.1:5000/"))
+        assertFalse(WebDavPaths.isCleartextRisk("http://nas.local/dav"))
+        assertFalse(WebDavPaths.isCleartextRisk("http://synology/dav"))
+        assertFalse(WebDavPaths.isCleartextRisk("http://[fe80::1]/"))
+        assertFalse(WebDavPaths.isCleartextRisk(""))
+    }
+
+    @Test fun `a refused MKCOL is told from an existing folder`() {
+        assertEquals(WebDavStatus.MkcolAnswer.CREATED, WebDavStatus.mkcolAnswer(201))
+        assertEquals(WebDavStatus.MkcolAnswer.CREATED, WebDavStatus.mkcolAnswer(204))
+        assertEquals(WebDavStatus.MkcolAnswer.NOT_ALLOWED, WebDavStatus.mkcolAnswer(405))
+        assertEquals(WebDavStatus.MkcolAnswer.FAILED, WebDavStatus.mkcolAnswer(409))
+        assertEquals(WebDavStatus.MkcolAnswer.FAILED, WebDavStatus.mkcolAnswer(403))
+    }
 }

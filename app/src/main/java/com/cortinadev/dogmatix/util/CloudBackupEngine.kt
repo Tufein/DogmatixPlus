@@ -65,29 +65,53 @@ object CloudBackupEngine {
     /**
      * Sends [sealed] (a [BackupCrypto.seal]ed backup) as this device's backup of [now], checks the
      * server lists it with the right size, then deletes this device's backups beyond the newest
-     * [keep] (others' are never touched; a failed delete is left for next time).
+     * [keep] (others' are never touched; a failed delete is left for next time). The file is
+     * written as `<name>.part` and moved into place when the server can, so an upload that is cut
+     * off never shows up as the newest backup; otherwise it is written directly. [deviceId] is this
+     * installation's id: backups are told apart (and rotated) by it, not by the device name.
      */
-    fun upload(store: DavStore, serverUrl: String, rootUrl: String, sealed: ByteArray, deviceName: String, keep: Int, now: Instant): Uploaded {
+    fun upload(
+        store: DavStore, serverUrl: String, rootUrl: String, sealed: ByteArray, deviceName: String, keep: Int, now: Instant,
+        deviceId: String = ""
+    ): Uploaded {
         val folder = backupsUrl(rootUrl)
         store.ensureCollection(folder, WebDavPaths.normalizeServer(serverUrl) ?: rootUrl)
-        val name = CloudBackupNames.fileName(now, deviceName)
+        val name = CloudBackupNames.fileName(now, deviceName, deviceId)
         val url = WebDavPaths.child(folder, name)
-        store.put(url, sealed, "application/octet-stream")
+        val partUrl = url + CloudBackupNames.PART_SUFFIX
+        val moved = try {
+            store.put(partUrl, sealed, "application/octet-stream")
+            store.move(partUrl, url)
+        } catch (e: DavException) {
+            // A full disk, a wrong login or a lost connection fail the direct write the same way.
+            if (e.problem in WebDavStatus.FINAL || e.problem == DavProblem.NO_SPACE || e.problem == DavProblem.TOO_LARGE) throw e
+            false
+        }
+        if (!moved) {
+            store.put(url, sealed, "application/octet-stream")
+            runCatching { store.delete(partUrl) }
+        }
         val members = store.list(folder).filter { !it.isCollection }
         val arrived = members.firstOrNull { it.name == name }
         if (arrived?.size != null && arrived.size != sealed.size.toLong()) {
             throw DavException(DavProblem.BAD_RESPONSE, 0, "stored ${arrived.size} of ${sealed.size} bytes")
         }
-        val deleted = CloudBackupNames.toDelete(members.map { it.name }, deviceName, keep)
+        // Leftovers of this device's cut-off uploads go too (a part file is never listed as a backup).
+        members.filter { it.name.endsWith(CloudBackupNames.EXTENSION + CloudBackupNames.PART_SUFFIX, ignoreCase = true) }
+            .filter { part ->
+                CloudBackupNames.parseName(part.name.removeSuffix(CloudBackupNames.PART_SUFFIX))?.let { CloudBackupNames.isMine(it, deviceName, deviceId) } == true
+            }
+            .forEach { part -> runCatching { store.delete(WebDavPaths.child(folder, part.name)) } }
+        val deleted = CloudBackupNames.toDelete(members.map { it.name }, deviceName, keep, deviceId)
             .filter { old -> old != name && runCatching { store.delete(WebDavPaths.child(folder, old)) }.isSuccess }
         return Uploaded(name, url, sealed.size.toLong(), deleted)
     }
 
     /** The backups in the cloud, newest first (empty when the folder does not exist yet). */
-    fun list(store: DavStore, rootUrl: String, deviceName: String): List<CloudBackupNames.Listed> {
+    fun list(store: DavStore, rootUrl: String, deviceName: String, deviceId: String = ""): List<CloudBackupNames.Listed> {
         val folder = backupsUrl(rootUrl)
         val files = store.list(folder).filter { !it.isCollection }
-        return CloudBackupNames.listing(files.map { Triple(it.name, it.size, it.lastModified) }, folder, deviceName)
+        return CloudBackupNames.listing(files.map { Triple(it.name, it.size, it.lastModified) }, folder, deviceName, deviceId)
     }
 
     /**

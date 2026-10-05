@@ -12,6 +12,7 @@ import com.cortinadev.dogmatix.data.service.CloudConnection
 import com.cortinadev.dogmatix.data.service.CloudMessages
 import com.cortinadev.dogmatix.data.service.CloudResult
 import com.cortinadev.dogmatix.data.service.DeviceSyncService
+import com.cortinadev.dogmatix.data.service.SharedWishlistService
 import com.cortinadev.dogmatix.data.service.SourceScanService
 import com.cortinadev.dogmatix.data.service.TlsTrust
 import com.cortinadev.dogmatix.data.state.RescanStateHolder
@@ -50,6 +51,9 @@ data class CloudBackupUi(
     val keep: Int = CloudBackupNames.DEFAULT_KEEP,
     val deviceSync: Boolean = false,
     val deviceName: String = "",
+    /** 6.0 shared wishlist: the list's name (empty = off) and this person's name (empty = the device name). */
+    val sharedList: String = "",
+    val sharedName: String = "",
     val records: CloudRecords = CloudRecords(),
     val connection: DavConnectionState = DavConnectionState.NOT_SET
 )
@@ -77,6 +81,7 @@ class CloudBackupViewModel @Inject constructor(
     private val connection: CloudConnection,
     private val backup: CloudBackupService,
     private val sync: DeviceSyncService,
+    private val shared: SharedWishlistService,
     private val rescanState: RescanStateHolder,
     private val scanService: SourceScanService
 ) : ViewModel() {
@@ -88,7 +93,9 @@ class CloudBackupViewModel @Inject constructor(
     }
     private val device = combine(settings.deviceSync, settings.deviceName, settings.records) { sync, name, records -> Triple(sync, name, records) }
 
-    val ui: StateFlow<CloudBackupUi> = combine(basics, device) { b, d ->
+    private val sharedSettings = combine(settings.sharedList, settings.sharedName) { list, name -> list to name }
+
+    val ui: StateFlow<CloudBackupUi> = combine(basics, device, sharedSettings) { b, d, sh ->
         val config = b.config
         val records = d.third
         CloudBackupUi(
@@ -102,6 +109,8 @@ class CloudBackupViewModel @Inject constructor(
             keep = b.keep,
             deviceSync = d.first,
             deviceName = d.second,
+            sharedList = sh.first,
+            sharedName = sh.second,
             records = records,
             connection = when {
                 !config.isConfigured -> DavConnectionState.NOT_SET
@@ -121,6 +130,9 @@ class CloudBackupViewModel @Inject constructor(
 
     /** A device sync is running. */
     val syncing: StateFlow<Boolean> = sync.running
+
+    /** A shared wishlist sync is running. */
+    val sharedSyncing: StateFlow<Boolean> = shared.running
 
     private val _list = MutableStateFlow<DavListState>(DavListState.Idle)
     val list: StateFlow<DavListState> = _list.asStateFlow()
@@ -144,6 +156,16 @@ class CloudBackupViewModel @Inject constructor(
     fun setFolder(value: String) = viewModelScope.launch { settings.setFolder(value); _list.value = DavListState.Idle }
     fun setDeviceName(value: String) = viewModelScope.launch { settings.setDeviceName(value) }
     fun setPassphrase(value: String) = viewModelScope.launch { settings.setPassphrase(value.trim()) }
+    fun setSharedName(value: String) = viewModelScope.launch { settings.setSharedName(value) }
+
+    /** Setting a list name (empty = off) also runs the first sync of the shared wishlist right away. */
+    fun setSharedList(context: Context, value: String) {
+        viewModelScope.launch {
+            settings.setSharedList(value)
+            if (value.isNotBlank() && settings.configured.first()) syncShared(context, announce = false)
+        }
+    }
+
     fun setKeep(value: Int) = viewModelScope.launch { settings.setKeep(value) }
 
     /** Automatic backup needs a passphrase: without one the switch stays off and the user is told. */
@@ -324,6 +346,29 @@ class CloudBackupViewModel @Inject constructor(
                 is DeviceSyncService.Result.HeldBack -> ToastUtil.showInfo(app, context.resources.getQuantityString(R.plurals.dav_sync_held_title, result.removals, result.removals))
                 is DeviceSyncService.Result.Failed -> ToastUtil.showError(app, context.getString(R.string.dav_sync_failed, CloudMessages.of(context, result.error)))
                 DeviceSyncService.Result.Skipped -> Unit
+            }
+        }
+    }
+
+    // ---- Shared wishlist -----------------------------------------------------------------------
+
+    /** "Sync wishlist": merges the shared family wishlist with this device's wishlist. */
+    fun syncShared(context: Context, announce: Boolean = true) {
+        val app = context.applicationContext
+        viewModelScope.launch {
+            val result = withContext(NonCancellable) { shared.syncNow() }
+            when (result) {
+                is SharedWishlistService.Result.Synced -> {
+                    if (announce || result.added + result.removed > 0) {
+                        ToastUtil.showSuccess(
+                            app,
+                            if (result.added + result.removed == 0 && !result.sent) context.getString(R.string.sync6_shared_nothing)
+                            else context.getString(R.string.sync6_shared_done, result.added, result.removed)
+                        )
+                    }
+                }
+                is SharedWishlistService.Result.Failed -> ToastUtil.showError(app, context.getString(R.string.sync6_shared_failed, CloudMessages.of(context, result.error)))
+                is SharedWishlistService.Result.HeldBack, SharedWishlistService.Result.Skipped -> Unit
             }
         }
     }

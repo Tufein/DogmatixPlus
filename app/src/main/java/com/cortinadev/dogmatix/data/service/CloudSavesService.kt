@@ -9,6 +9,7 @@ import com.cortinadev.dogmatix.util.CloudSaveResult
 import com.cortinadev.dogmatix.util.CloudSaveVersion
 import com.cortinadev.dogmatix.util.CloudSaves
 import com.cortinadev.dogmatix.util.DeviceSave
+import com.cortinadev.dogmatix.util.RestoreTarget
 import com.cortinadev.dogmatix.util.SafetyCopy
 import com.cortinadev.dogmatix.util.SaveConflict
 import com.cortinadev.dogmatix.util.SaveKind
@@ -227,6 +228,19 @@ class CloudSavesService @Inject constructor(
         val result = saveSync.restoreServerVersion(version.entry, entries, CloudSaves.gameStem(state.fileName))
         invalidate()
         return result
+    }
+
+    /**
+     * The device path "Restore this version" would write [version] to (so the confirm dialog can
+     * name the folder); null when it cannot be told or no single file fits.
+     */
+    suspend fun restoreTargetPath(state: GameCloudSaves, version: CloudSaveVersion): String? = withContext(Dispatchers.IO) {
+        val listing = runCatching { deviceListing() }.getOrNull() ?: return@withContext null
+        val records = runCatching { saveSync.syncRecords() }.getOrDefault(emptyMap())
+        val target = CloudSaves.restoreTarget(
+            version.entry, CloudSaves.gameStem(state.fileName), listing.files, records.values, listing.topFolders, listing.noRootFolder
+        )
+        (target as? RestoreTarget.Path)?.path
     }
 
     /** Puts a safety copy back in place. */
