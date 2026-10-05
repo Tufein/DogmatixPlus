@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -24,19 +23,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -49,6 +51,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.ui.components.focusRing
+import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
 
 /**
  * Search box that stays out of the D-pad traversal: it only takes focus while [active]
@@ -88,21 +91,35 @@ fun SearchField(
         if (!focused && active) onDismiss()
     }
 
+    // 5.0: a panel-like well (fill, hairline, a touch of top light in dark themes), drawn with the
+    // panel slide's shift so it costs no relayout.
+    val tokens = LocalDogmatixTokens.current
+    val fill = scheme.surfaceContainer
+    val hairline = if (active) scheme.primary.copy(alpha = 0.55f) else tokens.hairline
+    val highlight = tokens.highlight
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(44.dp)
-            .clip(RoundedCornerShape(10.dp))
             .drawBehind {
                 val shift = contentShift().toFloat()
+                val radius = CornerRadius(12.dp.toPx())
+                val area = Size(size.width - shift, size.height)
+                drawRoundRect(fill, topLeft = Offset(shift, 0f), size = area, cornerRadius = radius)
+                if (highlight.alpha > 0f) drawRoundRect(
+                    Brush.verticalGradient(listOf(highlight, Color.Transparent), endY = size.height),
+                    topLeft = Offset(shift, 0f), size = area, cornerRadius = radius
+                )
+                val stroke = 1.dp.toPx()
                 drawRoundRect(
-                    scheme.surfaceContainer,
-                    topLeft = Offset(shift, 0f),
-                    size = Size(size.width - shift, size.height),
-                    cornerRadius = CornerRadius(10.dp.toPx())
+                    hairline,
+                    topLeft = Offset(shift + stroke / 2, stroke / 2),
+                    size = Size(area.width - stroke, area.height - stroke),
+                    cornerRadius = radius,
+                    style = Stroke(stroke)
                 )
             }
-            .focusRing(source, 10.dp, startShift = contentShift)
+            .focusRing(source, 12.dp, startShift = contentShift)
             // pointerInput (not clickable): no focusable node, so the D-pad never lands on the box
             // and no focusProperties are needed here. A `canFocus = false` on this Row would leak
             // into the text field whenever the Row has no focus target of its own.
@@ -119,15 +136,16 @@ fun SearchField(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Row(
-            modifier = Modifier.weight(1f).offset { IntOffset(contentShift(), 0) },
+            // Clipped here (not on the whole field) so the focus halo outside the field stays visible.
+            modifier = Modifier.weight(1f).clipToBounds().offset { IntOffset(contentShift(), 0) },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
         Icon(
             painterResource(R.drawable.ic_search),
             contentDescription = null,
-            tint = scheme.onSurfaceVariant,
-            modifier = Modifier.size(16.dp)
+            tint = if (active || value.isNotEmpty()) scheme.primary else scheme.onSurfaceVariant,
+            modifier = Modifier.size(18.dp)
         )
         BasicTextField(
             value = value,

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: library (Home) -->
+<resources>
+    <string name="home_ra_badge">RA</string>
+    <string name="home_details_favourite">Favorit</string>
+    <string name="home_details_unfavourite">Kein Favorit mehr</string>
+    <string name="home_pill_on_device">Auf dem Gerät</string>
+    <string name="home_pill_on_romm">Auf RomM</string>
+    <string name="home_pill_verified">Verifiziert</string>
+    <string name="home_pill_found">Gefunden am %1$s</string>
+    <string name="home_empty_library_title">Deine Bibliothek ist leer</string>
+    <string name="home_empty_library_message">Füge eine Quelle hinzu (eine Website, einen Torrent oder deinen RomM-Server) und scanne sie: Ihre Spiele erscheinen dann hier.</string>
+    <string name="home_go_to_sources">Zu den Quellen</string>
+    <string name="home_no_results_message">Versuche andere Wörter oder lockere die Filter.</string>
+    <string name="home_clear_filters">Filter zurücksetzen</string>
+    <string name="home_recent">Zuletzt</string>
+    <plurals name="home_load_more">
+        <item quantity="one">%1$d weiteres laden</item>
+        <item quantity="other">%1$d weitere laden</item>
+    </plurals>
+</resources>
