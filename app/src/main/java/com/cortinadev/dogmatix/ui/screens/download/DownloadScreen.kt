@@ -84,6 +84,14 @@ fun DownloadScreen(
     val waitingFiles by viewModel.waitingFiles.collectAsState()
     val waitingReasons by viewModel.waitingReasons.collectAsState()
     val queued by viewModel.queued.collectAsState()
+    val itemWaits by viewModel.itemWaits.collectAsState()
+    val itemConditions by viewModel.itemConditions.collectAsState()
+    // Names still in line, to offer "Wait for..." on the rows that have not started.
+    val queuedSet = remember(queued) { queued.toHashSet() }
+    // Rows the "Download when..." dialog is open for (one row, or the ticked ones); null = closed.
+    var whenTargets by remember { mutableStateOf<List<String>?>(null) }
+    fun notStarted(row: DownloadItemModel) = row.status == DownloadStatus.DOWNLOADING &&
+        (row.fileName in queuedSet || row.fileName in waitingFiles || row.fileName in itemWaits)
     val verification by viewModel.verification.collectAsState()
     val shortfall by viewModel.queueShortfall.collectAsState()
     val counts by viewModel.queueCounts.collectAsState()
@@ -225,6 +233,10 @@ fun DownloadScreen(
                 onRetry = viewModel::retrySelected,
                 onPause = viewModel::pauseSelected,
                 onStop = viewModel::stopSelected,
+                canWait = selected.any(::notStarted),
+                canStartNow = selected.any { it.fileName in itemWaits },
+                onWaitFor = { whenTargets = selected.filter(::notStarted).map { it.fileName } },
+                onStartNow = { viewModel.setCondition(selected.filter { it.fileName in itemWaits }.map { it.fileName }, null) },
                 onDelete = viewModel::deleteSelected,
                 onClear = viewModel::clearSelection
             )
@@ -290,6 +302,9 @@ fun DownloadScreen(
                         item = item,
                         details = details[item.fileName],
                         upload = uploads[item.fileName],
+                        condition = itemWaits[item.fileName],
+                        canSchedule = notStarted(item),
+                        onWaitFor = { whenTargets = listOf(item.fileName) },
                         waitingReason = waitingShort.takeIf { it.isNotEmpty() && item.fileName in waitingFiles },
                         queuePosition = queued.indexOf(item.fileName).takeIf { it >= 0 }?.plus(1),
                         verify = verification[item.fileName],
@@ -310,6 +325,18 @@ fun DownloadScreen(
                 }
             }
         }
+    }
+
+    whenTargets?.let { names ->
+        DownloadWhenDialog(
+            count = names.size,
+            initial = names.firstNotNullOfOrNull { itemConditions[it] },
+            onDismiss = { whenTargets = null },
+            onConfirm = { condition ->
+                whenTargets = null
+                viewModel.setCondition(names, condition)
+            }
+        )
     }
 
     showDeleteConfirmation?.let { fileNames ->
@@ -384,6 +411,10 @@ private fun SelectionBar(
     onRetry: () -> Unit,
     onPause: () -> Unit,
     onStop: () -> Unit,
+    canWait: Boolean,
+    canStartNow: Boolean,
+    onWaitFor: () -> Unit,
+    onStartNow: () -> Unit,
     onDelete: () -> Unit,
     onClear: () -> Unit
 ) {
@@ -399,6 +430,12 @@ private fun SelectionBar(
         }
         if (selected.any { it.status.canStop }) {
             add(BulkAction(R.drawable.ic_stop, stringResource(R.string.download_cancel), scheme.onSurface, onStop))
+        }
+        if (canStartNow) {
+            add(BulkAction(R.drawable.ic_play_arrow, stringResource(R.string.plan6_start_now), scheme.primary, onStartNow))
+        }
+        if (canWait) {
+            add(BulkAction(R.drawable.ic_schedule, stringResource(R.string.plan6_wait_for), scheme.onSurface, onWaitFor))
         }
         if (selected.any { it.status.canDelete }) {
             add(BulkAction(R.drawable.ic_trash, stringResource(R.string.download_delete), scheme.error, onDelete))

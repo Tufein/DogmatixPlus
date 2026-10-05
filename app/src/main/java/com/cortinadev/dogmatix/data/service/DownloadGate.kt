@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat
 import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.DeviceConditions
-import com.cortinadev.dogmatix.util.DownloadConditions
+import com.cortinadev.dogmatix.util.DownloadRules
 import com.cortinadev.dogmatix.util.DownloadPolicy
 import com.cortinadev.dogmatix.util.StorageHelper
 import com.cortinadev.dogmatix.util.WaitReason
@@ -24,6 +24,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
@@ -47,13 +48,15 @@ class DownloadGate @Inject constructor(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    private val conditions: StateFlow<DownloadConditions> = combine(
+    private val conditions: StateFlow<DownloadRules> = combine(
         combine(settingsRepository.downloadWifiOnly, settingsRepository.downloadChargingOnly, settingsRepository.downloadNightOnly) { w, c, n -> Triple(w, c, n) },
         settingsRepository.downloadNightStart, settingsRepository.downloadNightEnd, appSettings.minFreeGb
-    ) { (wifi, charging, night), start, end, minGb -> DownloadConditions(wifi, charging, night, start, end, minGb * 1_073_741_824L) }
-        .stateIn(scope, SharingStarted.Eagerly, DownloadConditions())
+    ) { (wifi, charging, night), start, end, minGb -> DownloadRules(wifi, charging, night, start, end, minGb * 1_073_741_824L) }
+        .stateIn(scope, SharingStarted.Eagerly, DownloadRules())
 
     private val device = MutableStateFlow(DeviceConditions(onUnmeteredNetwork = true, charging = true, minuteOfDay = minuteOfDay()))
+    /** What the device offers now (read-only), for per-download conditions ([ItemConditionGate]). */
+    val deviceState: StateFlow<DeviceConditions> = device.asStateFlow()
     private val releases = MutableStateFlow(0)
 
     /** The user's hold on the queue (*Downloads → Hold the queue*); kept across restarts. */

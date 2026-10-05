@@ -70,6 +70,7 @@ import com.cortinadev.dogmatix.ui.theme.tabular
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.QueueActions
 import com.cortinadev.dogmatix.util.VerifyState
+import com.cortinadev.dogmatix.util.WaitInfo
 import java.text.DateFormat
 import java.util.Date
 
@@ -86,7 +87,11 @@ class DownloadRowActions(
     val open: (Context) -> Unit = {},
     val retryUpload: () -> Unit = {},
     val moveUp: () -> Unit = {},
-    val moveDown: () -> Unit = {}
+    val moveDown: () -> Unit = {},
+    /** Opens "Download when..." for this row. */
+    val waitFor: () -> Unit = {},
+    /** Lifts the row's own condition: it starts now. */
+    val startNow: () -> Unit = {}
 )
 
 /**
@@ -107,6 +112,11 @@ fun DownloadItem(
     selected: Boolean = false,
     focusUp: FocusRequester? = null,
     sweep: State<Float>? = null,
+    /** The row's own "Download when..." condition while it is not met yet. */
+    condition: WaitInfo? = null,
+    /** Not started yet, so a condition can still be set. */
+    canSchedule: Boolean = false,
+    onWaitFor: () -> Unit = {},
     onToggleSelection: () -> Unit = {},
     onRowFocused: (DownloadItemModel, Boolean) -> Unit = { _, _ -> }
 ) {
@@ -120,14 +130,16 @@ fun DownloadItem(
             open = { context -> viewModel.openDownload(context, fileName) },
             retryUpload = { viewModel.retryUpload(fileName) },
             moveUp = { viewModel.moveUp(fileName) },
-            moveDown = { viewModel.moveDown(fileName) }
+            moveDown = { viewModel.moveDown(fileName) },
+            waitFor = onWaitFor,
+            startNow = { viewModel.setCondition(listOf(fileName), null) }
         )
     }
     // Only rows handed to a debrid service show its name.
     val debridLabel = if (item.status == DownloadStatus.QUEUED) viewModel.debridLabel.collectAsState().value else ""
     DownloadRow(
         item, details, compact, actions, debridLabel, modifier, upload, waitingReason, queuePosition, verify,
-        selectionMode, selected, focusUp, sweep, onToggleSelection, onRowFocused
+        selectionMode, selected, focusUp, sweep, onToggleSelection, onRowFocused, condition, canSchedule
     )
 }
 
@@ -168,7 +180,11 @@ fun DownloadRow(
     focusUp: FocusRequester? = null,
     sweep: State<Float>? = null,
     onToggleSelection: () -> Unit = {},
-    onRowFocused: (DownloadItemModel, Boolean) -> Unit = { _, _ -> }
+    onRowFocused: (DownloadItemModel, Boolean) -> Unit = { _, _ -> },
+    /** The row's own "Download when..." condition while it is not met yet; its pill wins over [waitingReason]. */
+    condition: WaitInfo? = null,
+    /** Not started yet (in line, or waiting): the *Wait for...* button shows. */
+    canSchedule: Boolean = false
 ) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
@@ -189,9 +205,10 @@ fun DownloadRow(
         DownloadStatus.DOWNLOADING -> R.drawable.ic_arrow_down
         DownloadStatus.QUEUED -> R.drawable.ic_cloud_download
     }
-    val waiting = waitingReason != null && status == DownloadStatus.DOWNLOADING
-    val inQueue = queuePosition != null && status == DownloadStatus.DOWNLOADING
-    val statusLabel = if (waiting) waitingReason.orEmpty()
+    val conditionText = condition?.let { conditionPillText(it) }
+    val waiting = (waitingReason != null || condition != null) && status == DownloadStatus.DOWNLOADING
+    val inQueue = queuePosition != null && condition == null && status == DownloadStatus.DOWNLOADING
+    val statusLabel = if (waiting) conditionText ?: waitingReason.orEmpty()
     else if (inQueue) stringResource(R.string.status_in_queue, queuePosition ?: 0)
     else when (status) {
         DownloadStatus.QUEUED -> stringResource(R.string.status_queued_debrid, debridLabel, (item.progress * 100).toInt())
@@ -254,6 +271,16 @@ fun DownloadRow(
             }
             when (if (selectionMode) null else status) {
                 DownloadStatus.QUEUED, DownloadStatus.DOWNLOADING, DownloadStatus.UNZIPPING -> {
+                    if (condition != null) {
+                        ActionButton(R.drawable.ic_play_arrow, stringResource(R.string.plan6_start_now), actionSize, scheme.primary) {
+                            actions.startNow()
+                        }
+                    }
+                    if (canSchedule) {
+                        ActionButton(R.drawable.ic_schedule, stringResource(R.string.plan6_wait_for), actionSize, scheme.onSurface) {
+                            actions.waitFor()
+                        }
+                    }
                     if (details != null && QueueActions.canPause(status, isTorrent)) {
                         ActionButton(R.drawable.ic_pause, stringResource(R.string.download_pause), actionSize, scheme.onSurface) {
                             actions.pause()

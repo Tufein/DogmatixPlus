@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 6.0: per-download conditions ("Download when...") -->
+<resources>
+    <string name="plan6_when_title">Downloaden wanneer…</string>
+    <string name="plan6_when_now">Meteen</string>
+    <string name="plan6_when_wifi">Zodra ik op wifi zit</string>
+    <string name="plan6_when_charging">Tijdens het opladen</string>
+    <string name="plan6_when_both">Op wifi én tijdens het opladen</string>
+    <string name="plan6_when_tonight">Vannacht (23:00–07:00)</string>
+    <string name="plan6_when_time">Op een tijd naar keuze</string>
+    <string name="plan6_when_time_hint">Start om %1$s</string>
+    <string name="plan6_pill_wifi">Wacht op wifi</string>
+    <string name="plan6_pill_charger">Wacht op lader</string>
+    <string name="plan6_pill_both">Wacht op wifi + lader</string>
+    <string name="plan6_pill_tonight">Vannacht</string>
+    <string name="plan6_pill_time">Vanaf %1$s</string>
+    <string name="plan6_wait_for">Wachten op…</string>
+    <string name="plan6_start_now">Nu starten</string>
+    <plurals name="plan6_when_for">
+        <item quantity="one">Voor %1$d download</item>
+        <item quantity="other">Voor %1$d downloads</item>
+    </plurals>
+</resources>
