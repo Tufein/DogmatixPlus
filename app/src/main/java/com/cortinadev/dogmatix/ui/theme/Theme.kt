@@ -199,16 +199,16 @@ fun DogmatixTheme(
             darkTheme -> darkScheme(preset)
             else -> lightScheme(preset)
         }
-        val glow = preset
+        val glowColor = preset
         val glowAlt = hueShift(preset, 48f)
         val strength = if (glow) glowStrength(darkTheme, trueBlack) else 0f
         tokens = when {
             trueBlack -> DogmatixTokens(DogmatixBlack.bg2, DogmatixBlack.knobOff, DogmatixBlack.muted2, DogmatixBlack.card, isDark = true,
-                glow = glow, glowAlt = glowAlt, glowStrength = strength, highlight = Color.White.copy(alpha = 0.035f), hairline = DogmatixBlack.line)
+                glow = glowColor, glowAlt = glowAlt, glowStrength = strength, highlight = Color.White.copy(alpha = 0.035f), hairline = DogmatixBlack.line)
             darkTheme -> DogmatixTokens(DogmatixDark.bg2, DogmatixDark.knobOff, DogmatixDark.muted2, DogmatixDark.card, isDark = true,
-                glow = glow, glowAlt = glowAlt, glowStrength = strength, highlight = Color.White.copy(alpha = 0.045f), hairline = DogmatixDark.line)
+                glow = glowColor, glowAlt = glowAlt, glowStrength = strength, highlight = Color.White.copy(alpha = 0.045f), hairline = DogmatixDark.line)
             else -> DogmatixTokens(DogmatixLight.bg2, DogmatixLight.knobOff, DogmatixLight.muted2, DogmatixLight.card, isDark = false,
-                glow = glow, glowAlt = glowAlt, glowStrength = strength, highlight = Color.Transparent, hairline = DogmatixLight.line)
+                glow = glowColor, glowAlt = glowAlt, glowStrength = strength, highlight = Color.Transparent, hairline = DogmatixLight.line)
         }
     }
     // One call site for both kinds of scheme, so switching never resets what the app shows.

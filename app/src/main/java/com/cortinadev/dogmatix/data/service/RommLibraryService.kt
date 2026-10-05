@@ -96,7 +96,7 @@ class RommLibraryService @Inject constructor(
                 .collect { config ->
                     enabled = config.on && config.ready
                     when {
-                        !config.on, !config.ready -> { _keys.value = emptySet(); _games.value = emptyMap() }
+                        !config.on || !config.ready -> { _keys.value = emptySet(); _games.value = emptyMap() }
                         // A list stored by 4.x has no ids or covers yet: read it again once.
                         else -> if (config.fingerprint != storedConfig || isStale() || (storedGames.isEmpty() && stored.isNotEmpty())) refresh() else restoreKeys()
                     }
