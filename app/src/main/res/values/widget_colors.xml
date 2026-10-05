@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget colours: light by default, dark under values-night. The widget's code
+     overrides them with the app's own theme and accent; these show in the widget picker and
+     before the first update. -->
+<resources>
+    <color name="widget_bg">#F2FBFAFC</color>
+    <color name="widget_stroke">#D9D4DF</color>
+    <color name="widget_text">#17131C</color>
+    <color name="widget_muted">#5E5769</color>
+    <color name="widget_accent">#B85C00</color>
+    <color name="widget_chip">#33808080</color>
+</resources>

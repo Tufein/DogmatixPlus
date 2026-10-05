@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: second screen, home-screen widget, shortcut picker -->
+<resources>
+    <!-- Sample content of the widget preview in the widget picker (names are made up, not translated). -->
+    <string name="widget_brand_name" translatable="false">Dogmatix</string>
+    <string name="widget_brand_plus" translatable="false">+</string>
+    <string name="widget_preview_percent" translatable="false">45%</string>
+    <string name="widget_preview_title_1" translatable="false">Starlight Quest</string>
+    <string name="widget_preview_title_2" translatable="false">Pixel Racer</string>
+    <string name="widget_preview_title_3" translatable="false">Moon Knights</string>
+    <string name="second_screen_speed">%1$s/s</string>
+    <string name="second_screen_more">+%1$d more</string>
+    <string name="widget_new_marker">NEW</string>
+    <plurals name="widget_downloads_count">
+        <item quantity="one">%1$d download</item>
+        <item quantity="other">%1$d downloads</item>
+    </plurals>
+    <string name="widget_progress_description">Download progress: %1$d%%</string>
+    <string name="widget_preview_downloads">2 downloads</string>
+    <string name="widget_preview_new">3 new games</string>
+    <string name="shortcut_pick_subtitle">Choose what the shortcut opens</string>
+    <string name="shortcut_group_sections">Sections</string>
+    <string name="shortcut_group_views">Saved views</string>
+    <string name="shortcut_group_consoles">Consoles</string>
+    <string name="shortcut_loading">Loading shortcuts…</string>
+    <string name="shortcut_empty_title">No shortcuts available</string>
+    <string name="shortcut_empty_message">Open Dogmatix+ once, then try again.</string>
+    <string name="shortcut_close">Close</string>
+</resources>

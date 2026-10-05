@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: second screen, home-screen widget, shortcut picker -->
+<resources>
+    <string name="second_screen_speed">%1$s/s</string>
+    <string name="second_screen_more">+%1$d altri</string>
+    <string name="widget_new_marker">NUOVO</string>
+    <plurals name="widget_downloads_count">
+        <item quantity="one">%1$d download</item>
+        <item quantity="other">%1$d download</item>
+    </plurals>
+    <string name="widget_progress_description">Avanzamento dei download: %1$d%%</string>
+    <string name="widget_preview_downloads">2 download</string>
+    <string name="widget_preview_new">3 nuovi giochi</string>
+    <string name="shortcut_pick_subtitle">Scegli cosa apre la scorciatoia</string>
+    <string name="shortcut_group_sections">Sezioni</string>
+    <string name="shortcut_group_views">Viste salvate</string>
+    <string name="shortcut_group_consoles">Console</string>
+    <string name="shortcut_loading">Caricamento delle scorciatoie…</string>
+    <string name="shortcut_empty_title">Nessuna scorciatoia disponibile</string>
+    <string name="shortcut_empty_message">Apri Dogmatix+ una volta, poi riprova.</string>
+    <string name="shortcut_close">Chiudi</string>
+</resources>
