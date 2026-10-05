@@ -27,6 +27,10 @@ import com.cortinadev.dogmatix.ui.components.PillTone
 import com.cortinadev.dogmatix.ui.components.PrimaryButton
 import com.cortinadev.dogmatix.ui.components.pillColors
 import com.cortinadev.dogmatix.ui.screens.home.components.CoverGap
+import com.cortinadev.dogmatix.ui.screens.home.components.DenseRowGap
+import com.cortinadev.dogmatix.ui.screens.home.components.DiscoverBlock
+import com.cortinadev.dogmatix.ui.screens.home.components.RowGap
+import com.cortinadev.dogmatix.util.LibraryDiscovery
 import com.cortinadev.dogmatix.ui.screens.home.components.TableCoverWidth
 import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
 import com.cortinadev.dogmatix.ui.theme.consoleColor
@@ -182,6 +186,12 @@ fun HomeScreen(
     // 5.0: covers in the rows, the live download ring, placeholder rows and the empty-library state.
     val listCovers by viewModel.listCovers.collectAsState()
     val loadMoreSize by viewModel.loadMoreSize.collectAsState()
+    val compactLists by viewModel.compactLists.collectAsState()
+    // 6.0 search by feel: genre / decade from the cached details, and the opt-in fetch.
+    val genres by viewModel.genres.collectAsState()
+    val decades by viewModel.decades.collectAsState()
+    val discoverIndex by viewModel.discoverIndex.collectAsState()
+    val fetchState by viewModel.fetchState.collectAsState()
     // These three change often (or only matter in one corner): they are read where they are drawn
     // or in ResultList's empty branch, never here, so a change does not recompose this screen.
     val downloadProgressState = viewModel.downloadProgress.collectAsState()
@@ -249,6 +259,23 @@ fun HomeScreen(
         featured = featured,
         onSelectionChange = { viewModel.setTagsInCategory(tags, it) }
     )
+    // 6.0: only listed when at least one title has cached details; the options are what is really known.
+    val genreLabel = stringResource(R.string.disc6_filter_genre)
+    val decadeLabel = stringResource(R.string.disc6_filter_decade)
+    val discoverRows = if (discoverIndex.knownTitles == 0) emptyList() else listOf(
+        FilterRowSpec(
+            label = genreLabel,
+            options = discoverIndex.genres.take(80).map { (g, n) -> FilterOption(g, g, count = n) },
+            selected = genres,
+            onSelectionChange = viewModel::setGenres
+        ),
+        FilterRowSpec(
+            label = decadeLabel,
+            options = discoverIndex.decades.map { (d, n) -> FilterOption(d.toString(), stringResource(R.string.disc6_decade_label, d), count = n) },
+            selected = decades.map { it.toString() }.toSet(),
+            onSelectionChange = { sel -> viewModel.setDecades(sel.mapNotNull { it.toIntOrNull() }.toSet()) }
+        )
+    )
     val filterRows = listOf(
         FilterRowSpec(
             label = stringResource(R.string.filter_console),
@@ -259,6 +286,7 @@ fun HomeScreen(
         tagRow(stringResource(R.string.filter_region), categorizedTags?.regions?.tags.orEmpty()),
         tagRow(stringResource(R.string.filter_language), categorizedTags?.languages?.tags.orEmpty(), featured = favoriteLanguages),
         tagRow(stringResource(R.string.filter_tag), categorizedTags?.contentTypes?.tags.orEmpty()),
+    ) + discoverRows + listOf(
         FilterRowSpec(
             label = stringResource(R.string.filter_favourites),
             options = listOf(
@@ -320,7 +348,8 @@ fun HomeScreen(
         )
     )
     val activeFilterCount = selectedConsoles.size + activeTags.size + (if (favouritesOnly) 1 else 0) + (if (sourceFilter != SourceFilter.ALL) 1 else 0) +
-        (if (newOnly) 1 else 0) + (if (collectionId != 0L) 1 else 0)
+        (if (newOnly) 1 else 0) + (if (collectionId != 0L) 1 else 0) +
+        LibraryDiscovery.Filter(genres, decades).activeCount
     // 5.0 empty states: the library has nothing yet → Sources (as a tab switch, like the top tabs do);
     // nothing matches → clear what narrows the list.
     val goToSources: () -> Unit = {
@@ -329,6 +358,15 @@ fun HomeScreen(
             launchSingleTop = true
             restoreState = true
         }
+    }
+    val discoverBlock: @Composable () -> Unit = {
+        DiscoverBlock(
+            knownTitles = discoverIndex.knownTitles,
+            libraryFiles = consolesWithFiles.sumOf { it.fileCount },
+            fetch = fetchState,
+            canFetch = results.isNotEmpty(),
+            onFetch = viewModel::fetchDetailsForShown
+        )
     }
     val clearFilters: (() -> Unit)? =
         if (activeFilterCount > 0 || query.isNotEmpty() || sort != SortOption.NAME_ASC) viewModel::clearAllFilters else null
@@ -443,6 +481,8 @@ fun HomeScreen(
             onDownload = { viewModel.closeDetails(); onFileClick(state.item) },
             onDismiss = viewModel::closeDetails,
             onRomm = viewModel.isOnRomm(state.item.file, rommKeys, rommBase),
+            similar = state.similar,
+            onOpenSimilar = viewModel::openDetails,
             onDownloadBest = state.best?.let { best -> { viewModel.closeDetails(); onFileClick(best) } },
             owned = viewModel.isOwned(state.item.file, ownedKeys),
             downloading = viewModel.isDownloading(state.item.file, activeDownloads),
@@ -472,7 +512,7 @@ fun HomeScreen(
         LegendEntry("A", stringResource(R.string.pad_download)), LegendEntry("X", stringResource(R.string.pad_details)),
         LegendEntry("Y", stringResource(R.string.pad_search)), LegendEntry("SELECT", stringResource(R.string.pad_favourite)),
         LegendEntry("◀ ▶", stringResource(R.string.pad_letters))
-    ) + filtersKey + section
+    ) + filtersKey + section + LegendEntry("START", stringResource(R.string.disc6_pad_surprise))
     val legendFilters = listOf(
         LegendEntry("A", stringResource(R.string.pad_options)), LegendEntry("◀ ▶", stringResource(R.string.pad_change))
     ) + filtersKey + section
@@ -515,6 +555,8 @@ fun HomeScreen(
                 // Select stars the row under the cursor, or the game whose details card is open.
                 GamepadButton.FAVOURITE -> (viewModel.details.value?.item ?: focusedItem?.takeIf { listHasFocus })?.let(toggleFavourite)
                 GamepadButton.Y -> searchActive = true
+                // 6.0: Start = surprise me (a random game of the current list opens its details card).
+                GamepadButton.START -> if (viewModel.details.value == null && !searchActive) results.randomOrNull()?.let(viewModel::openDetails)
                 GamepadButton.PREV_PANEL -> if (isLandscape) {
                     filtersCollapsed = false
                     scope.launch { withFrameNanos { }; withFrameNanos { }; runCatching { filterFocus.requestFocus() } }
@@ -607,6 +649,7 @@ fun HomeScreen(
                         firstRowFocus = filterFocus,
                         expandedRow = expandedFilter,
                         onExpandedRowChange = { expandedFilter = it },
+                        afterRows = discoverBlock,
                         modifier = Modifier
                             .weight(1f)
                             .onFocusChanged { filtersHaveFocus = it.hasFocus }
@@ -687,6 +730,7 @@ fun HomeScreen(
                             firstRowFocus = listFocus,
                             contentShift = contentShift,
                             showCover = listCovers,
+                            dense = compactLists,
                             downloadProgress = progressOf,
                             isSearching = isSearching,
                             libraryEmpty = libraryEmpty,
@@ -792,6 +836,7 @@ fun HomeScreen(
                         .onFocusChanged { listHasFocus = it.hasFocus },
                     firstRowFocus = listFocus,
                     showCover = listCovers,
+                    dense = compactLists,
                     downloadProgress = progressOf,
                     isSearching = isSearching,
                     libraryEmpty = libraryEmpty,
@@ -841,6 +886,7 @@ fun HomeScreen(
                         firstRowFocus = filterFocus,
                         expandedRow = expandedFilter,
                         onExpandedRowChange = { expandedFilter = it },
+                        afterRows = discoverBlock,
                         footer = {
                             PrimaryButton(
                                 stringResource(R.string.show_results),
@@ -944,7 +990,9 @@ private fun ResultList(
     /** How many rows "Load more" adds. */
     loadMoreSize: Int = Constants.DEFAULT_MAX_SEARCH_RESULTS,
     /** Room for the Milou illustration in the empty library state (portrait). */
-    illustrated: Boolean = false
+    illustrated: Boolean = false,
+    /** 6.0: compact lists (tighter rows). */
+    dense: Boolean = false
 ) {
     if (results.isEmpty()) {
         // The flags are read only here: while the list has rows, a new search or a library change
@@ -1035,7 +1083,7 @@ private fun ResultList(
             true
         },
         contentPadding = PaddingValues(top = 2.dp, bottom = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
+        verticalArrangement = Arrangement.spacedBy(if (dense) DenseRowGap else RowGap)
     ) {
         itemsIndexed(results, key = { _, it -> it.file.id }) { index, item ->
             RomRow(
@@ -1053,6 +1101,7 @@ private fun ResultList(
                 contentShift = contentShift,
                 achievementCount = achievementCount(item),
                 showCover = showCover,
+                dense = dense,
                 downloadProgress = { downloadProgress(item.file.fileName) },
                 // RB from the filters lands on the first row currently on screen.
                 modifier = when {
@@ -1231,7 +1280,7 @@ private fun RecentPill(label: String, onClick: () -> Unit) {
 @Composable
 private fun BulkLink(label: String, icon: Int? = null, onClick: () -> Unit) {
     val source = rememberFocusSource()
-    val color = MaterialTheme.colorScheme.primary
+    val color = accentInk()
     Row(
         modifier = Modifier
             .focusRing(source, 8.dp)

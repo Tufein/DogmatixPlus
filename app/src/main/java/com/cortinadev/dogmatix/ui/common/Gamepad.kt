@@ -15,9 +15,9 @@ import kotlinx.coroutines.flow.asStateFlow
 /**
  * Buttons the app handles itself. A / B / D-pad go through the normal focus system.
  * ZL / ZR switch sections, LB / RB switch panels inside a screen, Select stars a game,
- * R3 collapses / expands the filter panel.
+ * R3 collapses / expands the filter panel, Start (6.0) is a screen's own extra action (Library: surprise me).
  */
-enum class GamepadButton { PREV_TAB, NEXT_TAB, PREV_PANEL, NEXT_PANEL, X, Y, FAVOURITE, TOGGLE_FILTERS, FOCUS_TAB }
+enum class GamepadButton { PREV_TAB, NEXT_TAB, PREV_PANEL, NEXT_PANEL, X, Y, FAVOURITE, TOGGLE_FILTERS, FOCUS_TAB, START }
 
 /**
  * Process-wide gamepad state: whether one is connected (drives the button legend)
@@ -123,6 +123,7 @@ object Gamepad {
             KeyEvent.KEYCODE_BUTTON_Y -> GamepadButton.Y
             KeyEvent.KEYCODE_BUTTON_SELECT, KeyEvent.KEYCODE_BUTTON_THUMBL -> GamepadButton.FAVOURITE
             KeyEvent.KEYCODE_BUTTON_THUMBR -> GamepadButton.TOGGLE_FILTERS
+            KeyEvent.KEYCODE_BUTTON_START -> GamepadButton.START
             else -> null
         }
         if (shortcut != null) {

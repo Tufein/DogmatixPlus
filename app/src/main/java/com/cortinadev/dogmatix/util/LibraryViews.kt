@@ -19,7 +19,10 @@ data class LibraryView(
     val newOnly: Boolean = false,
     val collectionId: Long = 0L,
     val source: String = "ALL",
-    val sort: String = "NAME_ASC"
+    val sort: String = "NAME_ASC",
+    /** 6.0: genres (any of) and decades (1990 = the nineties) from the cached game details. */
+    val genres: Set<String> = emptySet(),
+    val decades: Set<Int> = emptySet()
 ) {
     /** `dogmatix://library?…` that opens this view (what a `.dgmtx` shortcut contains). */
     fun deepLink(): String = buildString {
@@ -47,6 +50,8 @@ object LibraryViews {
                 add("tags", JsonArray().apply { v.tags.forEach { add(it) } })
                 addProperty("fav", v.favouritesOnly); addProperty("new", v.newOnly)
                 addProperty("collection", v.collectionId); addProperty("source", v.source); addProperty("sort", v.sort)
+                if (v.genres.isNotEmpty()) add("genres", JsonArray().apply { v.genres.forEach { add(it) } })
+                if (v.decades.isNotEmpty()) add("decades", JsonArray().apply { v.decades.forEach { add(it) } })
             })
         }
     }.toString()
@@ -60,7 +65,9 @@ object LibraryViews {
                 LibraryView(
                     id = str("id"), name = str("name"), query = str("query"), consoles = set("consoles"), tags = set("tags"),
                     favouritesOnly = o.get("fav")?.asBoolean ?: false, newOnly = o.get("new")?.asBoolean ?: false,
-                    collectionId = o.get("collection")?.asLong ?: 0L, source = str("source", "ALL"), sort = str("sort", "NAME_ASC")
+                    collectionId = o.get("collection")?.asLong ?: 0L, source = str("source", "ALL"), sort = str("sort", "NAME_ASC"),
+                    genres = set("genres"),
+                    decades = (o.get("decades") as? JsonArray)?.mapNotNull { runCatching { it.asInt }.getOrNull() }?.toSet().orEmpty()
                 ).takeIf { it.id.isNotBlank() && it.name.isNotBlank() }
             }.getOrNull()
         }

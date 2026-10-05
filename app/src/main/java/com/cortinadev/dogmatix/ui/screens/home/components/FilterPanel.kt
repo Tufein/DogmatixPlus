@@ -101,7 +101,9 @@ fun FilterPanel(
     firstRowFocus: FocusRequester? = null,
     expandedRow: String? = null,
     onExpandedRowChange: (String?) -> Unit = {},
-    footer: @Composable (() -> Unit)? = null
+    footer: @Composable (() -> Unit)? = null,
+    /** 6.0: block under the rows (what the Genre / Decade filters can know, and the opt-in fetch). */
+    afterRows: @Composable (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier
@@ -127,6 +129,7 @@ fun FilterPanel(
                 modifier = if (index == 0 && firstRowFocus != null) Modifier.focusRequester(firstRowFocus) else Modifier
             )
         }
+        afterRows?.invoke()
         footer?.let {
             Spacer(Modifier.height(10.dp))
             it()
