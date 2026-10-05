@@ -59,6 +59,7 @@ fun Stepper(
             TruncatedText(
                 shown,
                 style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.width(valueWidth)
             )

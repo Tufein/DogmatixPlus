@@ -1,11 +1,12 @@
 package com.cortinadev.dogmatix.ui.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -23,8 +24,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.cortinadev.dogmatix.data.service.CoverRepository
@@ -84,16 +85,21 @@ fun CoverImage(
 ) {
     val context = LocalContext.current
     val reduce = LocalReduceMotion.current
+    val dark = LocalDogmatixTokens.current.isDark
+    val labelColor = if (dark) Color.White.copy(alpha = 0.85f) else lerp(consoleColor(consoleId), Color.Black, 0.5f)
     Box(modifier = modifier.clip(shape).coverPlaceholder(consoleId), contentAlignment = Alignment.Center) {
         if (showLabel) {
-            Text(
-                ConsoleFormatter.getConsoleShortName(consoleId),
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.White.copy(alpha = 0.85f),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Center,
+            val label = ConsoleFormatter.getConsoleShortName(consoleId)
+            // Sized to the cover: big on the details hero, small on a list thumbnail, never broken mid-word.
+            BasicText(
+                label,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = labelColor,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Center
+                ),
+                maxLines = if (' ' in label) 2 else 1,
+                autoSize = TextAutoSize.StepBased(minFontSize = 6.sp, maxFontSize = 22.sp, stepSize = 1.sp),
                 modifier = Modifier.padding(4.dp)
             )
         }
