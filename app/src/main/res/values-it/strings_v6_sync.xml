@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 6.0 sync: hardening of the WebDAV cloud and the shared family wishlist -->
+    <string name="sync6_err_backup_too_large">Questo backup è troppo grande per essere ripristinato (il limite è %1$d MB), quindi non è stato caricato.</string>
+    <string name="sync6_csave_restore_message_target">%1$s (salvato %2$s) viene scritto in %3$s su questo dispositivo. Il file che c\'è ora viene prima conservato come copia di sicurezza, e la prossima sincronizzazione invierà questa versione al server.</string>
+    <string name="sync6_cleartext_warning">Questo indirizzo usa http:// non cifrato fuori dalla tua rete: password e file viaggiano in chiaro e chiunque lungo il percorso può leggerli. Usa https:// se il tuo server lo offre.</string>
+    <string name="sync6_credentials_removed">Un accesso digitato nell\'indirizzo viene rimosso: usa i campi nome utente e password.</string>
+    <string name="sync6_shared_section">Lista desideri condivisa</string>
+    <string name="sync6_shared_list">Nome della lista condivisa</string>
+    <string name="sync6_shared_list_dialog">Tutti quelli che digitano lo stesso nome nella propria app, con la stessa cartella del server, condividono un\'unica lista desideri (famiglia, amici). Lascia vuoto per disattivare la condivisione.</string>
+    <string name="sync6_shared_off">Disattivata</string>
+    <string name="sync6_shared_name">Il mio nome</string>
+    <string name="sync6_shared_name_dialog">Il nome che gli altri vedono accanto ai giochi che aggiungi. Vuoto = il nome di questo dispositivo.</string>
+    <string name="sync6_shared_needs_list">Imposta un nome di lista per condividere la tua lista desideri</string>
+    <string name="sync6_shared_now">Sincronizza lista condivisa</string>
+    <string name="sync6_shared_action">Sincronizza ora</string>
+    <string name="sync6_shared_busy">Sincronizzazione…</string>
+    <string name="sync6_shared_never">Non ancora sincronizzata</string>
+    <string name="sync6_shared_last">Ultima sincronizzazione %1$s · %2$d aggiunti, %3$d rimossi qui</string>
+    <string name="sync6_shared_failed_row">Ultima sincronizzazione non riuscita: %1$s</string>
+    <string name="sync6_shared_hint">I desideri aggiunti dagli altri compaiono nella tua lista con il loro nome; quando qualcuno trova un gioco, la voce condivisa lo indica. La lista si trova nella cartella shared della tua cartella cloud, non serve un altro account. Rimuovere un desiderio lo rimuove per tutti.</string>
+    <string name="sync6_shared_done">Lista condivisa: %1$d aggiunti, %2$d rimossi</string>
+    <string name="sync6_shared_nothing">La lista condivisa è aggiornata</string>
+    <string name="sync6_shared_failed">Lista condivisa non riuscita: %1$s</string>
+    <string name="sync6_wish_added_by">Aggiunto da %1$s</string>
+    <string name="sync6_wish_found_by">Trovato da %1$s</string>
+</resources>

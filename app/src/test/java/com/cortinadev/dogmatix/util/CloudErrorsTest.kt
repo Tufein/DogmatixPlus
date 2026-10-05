@@ -44,7 +44,8 @@ class CloudErrorsTest {
             DeviceSyncEngine.NewerFileException(9) to CloudErrors.Kind.SYNC_NEWER,
             DeviceSyncEngine.UnreadableFileException() to CloudErrors.Kind.SYNC_UNREADABLE,
             CloudNotConfiguredException() to CloudErrors.Kind.NOT_CONFIGURED,
-            CloudNoPassphraseException() to CloudErrors.Kind.NO_PASSPHRASE
+            CloudNoPassphraseException() to CloudErrors.Kind.NO_PASSPHRASE,
+            CloudBackupTooLargeException(9_000_000, 8_388_608) to CloudErrors.Kind.BACKUP_TOO_LARGE
         )
         cases.forEach { (error, kind) ->
             assertEquals(error.javaClass.simpleName, CloudErrors.Decoded.Known(kind), roundTrip(error))

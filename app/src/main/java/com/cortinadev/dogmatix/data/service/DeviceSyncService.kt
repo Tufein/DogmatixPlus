@@ -141,7 +141,10 @@ class DeviceSyncService @Inject constructor(
         val now = System.currentTimeMillis()
         return try {
             val session = connection.open()
-            val engine = DeviceSyncEngine(session.store, session.serverUrl, session.rootUrl, local)
+            val engine = DeviceSyncEngine(
+                session.store, session.serverUrl, session.rootUrl, local,
+                account = DeviceSyncEngine.accountKey(settings.user.first())
+            )
             val device = DeviceSyncEngine.Device(settings.deviceId(), settings.deviceName.first())
             when (val outcome = engine.sync(device, allowMassRemoval, onlyIfLocalChanges)) {
                 is DeviceSyncEngine.Outcome.Synced -> {

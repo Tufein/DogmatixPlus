@@ -201,7 +201,24 @@ class CloudSavesTest {
         assertEquals(RestoreTarget.Path("mGBA/Game.srm"), CloudSaves.restoreTarget(v, "Game", listOf(local("mGBA/Game.srm"), local("Snes9x/Game.srm")), emptyList(), folders))
         val other = v.copy(emulator = "RetroArch")
         assertEquals(RestoreTarget.Ambiguous, CloudSaves.restoreTarget(other, "Game", listOf(local("mGBA/Game.srm"), local("Snes9x/Game.srm")), emptyList(), folders))
-        assertEquals(RestoreTarget.Path("Snes9x/Game.srm"), CloudSaves.restoreTarget(other, "Game", listOf(local("Snes9x/Game.srm")), emptyList(), folders))
+        // A lone file of another folder is not the version's: a new file goes where a sync would put it.
+        assertEquals(RestoreTarget.Path("Game.srm"), CloudSaves.restoreTarget(other, "Game", listOf(local("Snes9x/Game.srm")), emptyList(), folders))
+    }
+
+    @Test fun `a same-named save of another emulator is never overwritten`() {
+        // mGBA's Tetris.srm comes back; the only Tetris.srm on the device is Nestopia's (another game).
+        val tetris = entry(7, "Tetris.srm", "2026-10-03T10:00:00+00:00", romId = 7)
+        val nestopia = local("Nestopia/Tetris.srm")
+        val withNestopia = mapOf(SaveKind.SAVE to setOf("mGBA", "Nestopia"), SaveKind.STATE to emptySet())
+        assertEquals(RestoreTarget.Path("mGBA/Tetris.srm"), CloudSaves.restoreTarget(tetris, "Tetris", listOf(nestopia), emptyList(), withNestopia))
+        // Same stem in both folders: the one in the version's own folder is taken.
+        assertEquals(RestoreTarget.Path("mGBA/Tetris.srm"), CloudSaves.restoreTarget(tetris, "Tetris", listOf(nestopia, local("mGBA/Tetris.srm")), emptyList(), withNestopia))
+        // Tied to the version's ROM by a sync record: taken although the folder differs.
+        val tied = SaveSyncRecord(SaveKind.SAVE, "Nestopia/Tetris.srm", 7, 1, "x", 100, 1_000, 100, null)
+        assertEquals(RestoreTarget.Path("Nestopia/Tetris.srm"), CloudSaves.restoreTarget(tetris, "Tetris", listOf(nestopia), listOf(tied), withNestopia))
+        // A record of another ROM does not tie it.
+        val other = tied.copy(romId = 9)
+        assertEquals(RestoreTarget.Path("mGBA/Tetris.srm"), CloudSaves.restoreTarget(tetris, "Tetris", listOf(nestopia), listOf(other), withNestopia))
     }
 
     @Test fun `a slot save goes over the game's own file of its type`() {

@@ -37,6 +37,11 @@ data class DavStatus(
     val lastSyncAdded: Int = 0,
     val lastSyncRemoved: Int = 0,
     val lastSyncError: String = "",
+    /** The shared family wishlist (6.0) is switched on. */
+    val sharedWishlist: Boolean = false,
+    /** Epoch ms of this device's last shared wishlist sync; 0 = never. */
+    val lastSharedAt: Long = 0L,
+    val lastSharedError: String = "",
     /** Sync removals waiting for the user's confirmation. */
     val syncHeldBack: Int = 0,
     val backupStale: Boolean = false,
@@ -62,15 +67,16 @@ class DavStatusService @Inject constructor(
     val status: StateFlow<DavStatus> = combine(
         combine(settings.configured, settings.autoBackup, settings.deviceSync) { configured, auto, devices -> Triple(configured, auto, devices) },
         settings.records,
-        combine(backup.running, sync.running) { backing, syncing -> backing to syncing }
-    ) { (configured, auto, devices), records, (backing, syncing) ->
-        of(configured, auto, devices, records, backing, syncing, System.currentTimeMillis())
+        combine(backup.running, sync.running) { backing, syncing -> backing to syncing },
+        settings.sharedActive
+    ) { (configured, auto, devices), records, (backing, syncing), shared ->
+        of(configured, auto, devices, records, backing, syncing, System.currentTimeMillis(), shared)
     }.stateIn(scope, SharingStarted.Eagerly, DavStatus())
 
     /** Combines the settings and records into a [DavStatus]. */
     private fun of(
         configured: Boolean, auto: Boolean, devices: Boolean, r: CloudRecords,
-        backing: Boolean, syncing: Boolean, now: Long
+        backing: Boolean, syncing: Boolean, now: Long, shared: Boolean
     ) = DavStatus(
         configured = configured,
         connected = if (!configured || r.lastTestAt == 0L) null else r.lastTestError.isEmpty(),
@@ -86,6 +92,9 @@ class DavStatusService @Inject constructor(
         lastSyncAdded = r.lastSyncAdded,
         lastSyncRemoved = r.lastSyncRemoved,
         lastSyncError = r.lastSyncError,
+        sharedWishlist = shared,
+        lastSharedAt = r.lastSharedAt,
+        lastSharedError = r.lastSharedError,
         syncHeldBack = r.syncHeldBack,
         backupStale = CloudAttention.backupStale(auto, r.lastBackupAt, now),
         attention = CloudAttention.count(configured, r.lastTestError, r.lastBackupError, r.lastSyncError, r.syncHeldBack)

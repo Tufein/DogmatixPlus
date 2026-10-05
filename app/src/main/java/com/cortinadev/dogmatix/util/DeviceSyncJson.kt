@@ -37,10 +37,16 @@ object DeviceSyncJson {
         val library: SyncLibrary,
         val updatedAt: Long = 0L,
         val updatedBy: String = "",
-        val devices: Map<String, Device> = emptyMap()
+        val devices: Map<String, Device> = emptyMap(),
+        /** Random mark of the write that produced this document; lets a writer check its write survived (see [DeviceSyncEngine]). */
+        val rev: String = ""
     )
 
-    data class Base(val remoteUrl: String, val library: SyncLibrary, val savedAt: Long = 0L)
+    /**
+     * The state of this device's last sync. [account] identifies the login it was made with (see
+     * [DeviceSyncEngine.accountKey]); empty for a base written before 6.0, which is trusted as it was.
+     */
+    data class Base(val remoteUrl: String, val library: SyncLibrary, val savedAt: Long = 0L, val account: String = "")
 
     /** Outcome of reading the server's file. */
     sealed class Parsed {
@@ -58,6 +64,7 @@ object DeviceSyncJson {
         addProperty("version", VERSION)
         addProperty("updatedAt", document.updatedAt)
         addProperty("updatedBy", document.updatedBy)
+        if (document.rev.isNotEmpty()) addProperty("rev", document.rev)
         add("devices", JsonObject().apply {
             document.devices.forEach { (id, d) ->
                 add(id, JsonObject().apply { addProperty("name", d.name); addProperty("lastWrite", d.lastWrite) })
@@ -75,7 +82,7 @@ object DeviceSyncJson {
             val o = el as? JsonObject ?: return@mapNotNull null
             id to Device(o.string("name").orEmpty(), o.long("lastWrite") ?: 0L)
         }?.toMap().orEmpty()
-        return Parsed.Ok(Document(readLibrary(root), root.long("updatedAt") ?: 0L, root.string("updatedBy").orEmpty(), devices))
+        return Parsed.Ok(Document(readLibrary(root), root.long("updatedAt") ?: 0L, root.string("updatedBy").orEmpty(), devices, root.string("rev").orEmpty()))
     }
 
     fun writeBase(base: Base): String = gson.toJson(JsonObject().apply {
@@ -83,6 +90,7 @@ object DeviceSyncJson {
         addProperty("version", VERSION)
         addProperty("remote", base.remoteUrl)
         addProperty("savedAt", base.savedAt)
+        if (base.account.isNotEmpty()) addProperty("account", base.account)
         writeLibrary(this, base.library)
     })
 
@@ -91,7 +99,7 @@ object DeviceSyncJson {
         val root = runCatching { JsonParser.parseString(text) }.getOrNull() as? JsonObject ?: return null
         if (root.string("format") != BASE_FORMAT || (root.long("version") ?: 0L) != VERSION.toLong()) return null
         val remote = root.string("remote")?.takeIf { it.isNotBlank() } ?: return null
-        return Base(remote, readLibrary(root), root.long("savedAt") ?: 0L)
+        return Base(remote, readLibrary(root), root.long("savedAt") ?: 0L, root.string("account").orEmpty())
     }
 
     private fun writeLibrary(target: JsonObject, library: SyncLibrary) {

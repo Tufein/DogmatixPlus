@@ -31,6 +31,12 @@ interface DavStore {
     /** Creates the collection [url] and its missing parents below [root]; true when something was created. */
     fun ensureCollection(url: String, root: String): Boolean
 
+    /**
+     * Moves the file [from] to [to] (replacing it). True when done; false when this server cannot
+     * (the caller then writes directly). Other failures throw [DavException].
+     */
+    fun move(from: String, to: String): Boolean = false
+
     /** Deletes [url]; already gone counts as done. */
     fun delete(url: String)
 

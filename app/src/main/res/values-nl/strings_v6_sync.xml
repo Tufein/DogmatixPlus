@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 6.0 sync: hardening of the WebDAV cloud and the shared family wishlist -->
+    <string name="sync6_err_backup_too_large">Deze back-up is te groot om te herstellen (de limiet is %1$d MB), dus hij is niet geüpload.</string>
+    <string name="sync6_csave_restore_message_target">%1$s (opgeslagen %2$s) gaat naar %3$s op dit apparaat. Het bestand dat daar nu staat wordt eerst als veiligheidskopie bewaard en de volgende synchronisatie stuurt deze versie naar de server.</string>
+    <string name="sync6_cleartext_warning">Dit adres gebruikt gewoon http:// buiten je eigen netwerk: je wachtwoord en bestanden gaan onversleuteld over de lijn en iedereen onderweg kan ze lezen. Gebruik https:// als je server dat biedt.</string>
+    <string name="sync6_credentials_removed">Een inlog in het adres wordt verwijderd: gebruik de velden voor gebruikersnaam en wachtwoord.</string>
+    <string name="sync6_shared_section">Gedeelde verlanglijst</string>
+    <string name="sync6_shared_list">Naam van de gedeelde lijst</string>
+    <string name="sync6_shared_list_dialog">Iedereen die in zijn eigen app dezelfde naam invoert, met dezelfde servermap, deelt één verlanglijst (familie, vrienden). Laat leeg om delen uit te zetten.</string>
+    <string name="sync6_shared_off">Uit</string>
+    <string name="sync6_shared_name">Mijn naam</string>
+    <string name="sync6_shared_name_dialog">De naam die de anderen zien bij de games die jij toevoegt. Leeg = de naam van dit apparaat.</string>
+    <string name="sync6_shared_needs_list">Stel een lijstnaam in om je verlanglijst te delen</string>
+    <string name="sync6_shared_now">Gedeelde verlanglijst synchroniseren</string>
+    <string name="sync6_shared_action">Nu synchroniseren</string>
+    <string name="sync6_shared_busy">Bezig met synchroniseren…</string>
+    <string name="sync6_shared_never">Nog niet gesynchroniseerd</string>
+    <string name="sync6_shared_last">Laatste sync %1$s · %2$d toegevoegd, %3$d verwijderd hier</string>
+    <string name="sync6_shared_failed_row">Laatste sync mislukt: %1$s</string>
+    <string name="sync6_shared_hint">Wensen die anderen toevoegen verschijnen met hun naam in je verlanglijst; als iemand een game vindt, staat dat bij het gedeelde item. De lijst staat in de map shared van je cloudmap, een extra account is niet nodig. Een wens verwijderen verwijdert hem voor iedereen.</string>
+    <string name="sync6_shared_done">Gedeelde verlanglijst: %1$d toegevoegd, %2$d verwijderd</string>
+    <string name="sync6_shared_nothing">Gedeelde verlanglijst is bij</string>
+    <string name="sync6_shared_failed">Gedeelde verlanglijst mislukt: %1$s</string>
+    <string name="sync6_wish_added_by">Toegevoegd door %1$s</string>
+    <string name="sync6_wish_found_by">Gevonden door %1$s</string>
+</resources>

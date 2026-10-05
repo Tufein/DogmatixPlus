@@ -166,8 +166,14 @@ fun CloudSavesSection(
     }
 
     pending?.let { p ->
+        // The folder the file goes to is named in the dialog (a same-named save of another emulator is never taken).
+        var target by remember(p) { mutableStateOf<String?>((p as? PendingRestore.Copy)?.copy?.path) }
+        LaunchedEffect(p) {
+            if (p is PendingRestore.Server) target = viewModel.targetFor(p.version)
+        }
         RestoreDialog(
             pending = p,
+            target = target,
             onConfirm = {
                 pending = null
                 when (p) {
@@ -382,7 +388,7 @@ private fun Notice(notice: CloudSavesNotice) {
 }
 
 @Composable
-private fun RestoreDialog(pending: PendingRestore, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+private fun RestoreDialog(pending: PendingRestore, target: String?, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     val (name, at) = when (pending) {
         is PendingRestore.Server -> pending.version.entry.fileName to pending.version.entry.updatedMillis
         is PendingRestore.Copy -> pending.copy.name to pending.copy.takenAt
@@ -393,7 +399,12 @@ private fun RestoreDialog(pending: PendingRestore, onConfirm: () -> Unit, onDism
         onDismissRequest = onDismiss,
         icon = { Icon(painterResource(R.drawable.ic_restore), contentDescription = null) },
         title = { Text(stringResource(R.string.csave_restore_title)) },
-        text = { Text(stringResource(R.string.csave_restore_message, name, whenText)) },
+        text = {
+            Text(
+                if (target != null) stringResource(R.string.sync6_csave_restore_message_target, name, whenText, target)
+                else stringResource(R.string.csave_restore_message, name, whenText)
+            )
+        },
         confirmButton = { DialogButton(stringResource(R.string.csave_restore), onClick = onConfirm) },
         // Cancel has the first focus: two quick presses of A never replace a save by accident.
         dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), onClick = onDismiss, initialFocus = rememberInitialFocus()) }

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 6.0 sync: hardening of the WebDAV cloud and the shared family wishlist -->
+    <string name="sync6_err_backup_too_large">This backup is too large to restore (the limit is %1$d MB), so it was not uploaded.</string>
+    <string name="sync6_csave_restore_message_target">%1$s (saved %2$s) goes to %3$s on this device. The file there now is kept as a safety copy first, and the next sync sends this version to the server.</string>
+    <string name="sync6_cleartext_warning">This address uses plain http:// outside your own network: your password and your files travel unencrypted and anyone on the way can read them. Use https:// if your server offers it.</string>
+    <string name="sync6_credentials_removed">A login typed into the address is removed: use the user name and password fields.</string>
+    <string name="sync6_shared_section">Shared wishlist</string>
+    <string name="sync6_shared_list">Shared list name</string>
+    <string name="sync6_shared_list_dialog">Everyone who types the same name in their own app, with the same server folder, shares one wishlist (family, friends). Leave it empty to switch sharing off.</string>
+    <string name="sync6_shared_off">Off</string>
+    <string name="sync6_shared_name">My name</string>
+    <string name="sync6_shared_name_dialog">The name the others see next to the games you add. Empty = the name of this device.</string>
+    <string name="sync6_shared_needs_list">Set a list name to share your wishlist</string>
+    <string name="sync6_shared_now">Sync shared wishlist</string>
+    <string name="sync6_shared_action">Sync now</string>
+    <string name="sync6_shared_busy">Syncing…</string>
+    <string name="sync6_shared_never">Not synced yet</string>
+    <string name="sync6_shared_last">Last sync %1$s · %2$d added, %3$d removed here</string>
+    <string name="sync6_shared_failed_row">Last sync failed: %1$s</string>
+    <string name="sync6_shared_hint">Wishes the others add appear in your wishlist with their name; when somebody finds a game, the shared entry says so. The list lives in the shared folder of your cloud folder, no extra account needed. Removing a wish removes it for everyone.</string>
+    <string name="sync6_shared_done">Shared wishlist: %1$d added, %2$d removed</string>
+    <string name="sync6_shared_nothing">Shared wishlist is up to date</string>
+    <string name="sync6_shared_failed">Shared wishlist failed: %1$s</string>
+    <string name="sync6_wish_added_by">Added by %1$s</string>
+    <string name="sync6_wish_found_by">Found by %1$s</string>
+</resources>

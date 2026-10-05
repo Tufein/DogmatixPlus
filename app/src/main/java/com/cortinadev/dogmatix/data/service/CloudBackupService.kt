@@ -5,6 +5,7 @@ import com.cortinadev.dogmatix.data.local.CloudSettings
 import com.cortinadev.dogmatix.util.BackupCrypto
 import com.cortinadev.dogmatix.util.CloudBackupEngine
 import com.cortinadev.dogmatix.util.CloudBackupNames
+import com.cortinadev.dogmatix.util.CloudBackupTooLargeException
 import com.cortinadev.dogmatix.util.CloudErrors
 import com.cortinadev.dogmatix.util.CloudNoPassphraseException
 import com.google.gson.JsonObject
@@ -91,11 +92,14 @@ class CloudBackupService @Inject constructor(
             val passphrase = settings.passphrase.first()
             if (!BackupCrypto.isAcceptable(passphrase)) throw CloudNoPassphraseException()
             val (json, _) = backupService.export()
+            // A restore refuses anything above this: better to say so now than to keep a backup that cannot come back.
+            if (json.length > BackupService.MAX_BACKUP_BYTES) throw CloudBackupTooLargeException(json.length.toLong(), BackupService.MAX_BACKUP_BYTES.toLong())
             val sealed = BackupCrypto.seal(json, passphrase)
+            if (sealed.size > BackupService.MAX_BACKUP_BYTES) throw CloudBackupTooLargeException(sealed.size.toLong(), BackupService.MAX_BACKUP_BYTES.toLong())
             val session = connection.open()
             val uploaded = CloudBackupEngine.upload(
                 session.store, session.serverUrl, session.rootUrl, sealed,
-                settings.deviceName.first(), settings.keep.first(), Instant.ofEpochMilli(startedAt)
+                settings.deviceName.first(), settings.keep.first(), Instant.ofEpochMilli(startedAt), settings.deviceId()
             )
             settings.recordBackup(System.currentTimeMillis(), uploaded.name, uploaded.bytes)
             Log.i(TAG, "Backup sent: ${uploaded.bytes} bytes, ${uploaded.deleted.size} old removed")
@@ -119,7 +123,7 @@ class CloudBackupService @Inject constructor(
     suspend fun list(): CloudResult<List<CloudBackupNames.Listed>> = withContext(Dispatchers.IO) {
         try {
             val session = connection.open()
-            CloudResult.Ok(CloudBackupEngine.list(session.store, session.rootUrl, settings.deviceName.first()))
+            CloudResult.Ok(CloudBackupEngine.list(session.store, session.rootUrl, settings.deviceName.first(), settings.deviceId()))
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

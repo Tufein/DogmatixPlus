@@ -362,9 +362,10 @@ object CloudSaves {
 
     /**
      * The device path "Restore this version" writes [version] to: the file a sync paired with it, else
-     * the file of the same name (the emulator folder picks among several), else the game's own file
-     * of the same type (slot saves and renamed files go where the emulator reads them), else a new
-     * file where a sync would put it.
+     * the file of the same name in the version's emulator folder (or tied to its ROM by a sync
+     * record), else the game's own file of the same type (slot saves and renamed files go where the
+     * emulator reads them), else a new file where a sync would put it (the emulator's folder).
+     * Several candidates and none that belongs = [RestoreTarget.Ambiguous].
      */
     fun restoreTarget(
         version: CloudSaveEntry,
@@ -379,7 +380,7 @@ object CloudSaves {
             sameKind.firstOrNull { it.path.equals(r.path, ignoreCase = true) }?.let { return RestoreTarget.Path(it.path) }
         }
         val sameName = sameKind.filter { it.name.equals(version.fileName, ignoreCase = true) }
-        pick(sameName, version.emulator)?.let { return RestoreTarget.Path(it.path) }
+        pick(sameName, version, records)?.let { return RestoreTarget.Path(it.path) }
         if (sameName.size > 1) return RestoreTarget.Ambiguous
         val suffix = suffix(version.fileName)
         val ofGame = sameKind.filter { l ->
@@ -388,7 +389,7 @@ object CloudSaves {
                     records.any { r -> r.kind == l.kind && r.path.equals(l.path, ignoreCase = true) && r.romId == version.romId }
                 )
         }
-        pick(ofGame, version.emulator)?.let { return RestoreTarget.Path(it.path) }
+        pick(ofGame, version, records)?.let { return RestoreTarget.Path(it.path) }
         if (ofGame.size > 1) return RestoreTarget.Ambiguous
         if (version.kind !in topFolders.keys) return RestoreTarget.NoFolder
         // A slot save's name carries its slot / date: the emulator reads the plain name.
@@ -401,10 +402,20 @@ object CloudSaves {
         }
     }
 
-    private fun pick(list: List<LocalSaveFile>, emulator: String?): LocalSaveFile? = when {
-        list.size == 1 -> list.single()
-        list.size > 1 -> list.filter { it.topFolder.equals(emulator.orEmpty(), ignoreCase = true) }.singleOrNull()
-        else -> null
+    /**
+     * The one device file a restore may overwrite among [list] (files that fit by name). A file is
+     * only taken when it belongs to the version: it lies in the version's emulator folder, or a sync
+     * record ties it to the version's ROM. A lone same-named file in another folder is NOT taken
+     * (the mGBA `Tetris.srm` must not overwrite the Nestopia one): the caller then offers the version's
+     * own folder as a new file, and the dialog names it.
+     */
+    private fun pick(list: List<LocalSaveFile>, version: CloudSaveEntry, records: Collection<SaveSyncRecord>): LocalSaveFile? {
+        val inFolder = list.filter { it.topFolder.equals(version.emulator.orEmpty(), ignoreCase = true) }
+        inFolder.singleOrNull()?.let { return it }
+        if (inFolder.size > 1) return null
+        return list.filter { l ->
+            records.any { r -> r.kind == l.kind && r.path.equals(l.path, ignoreCase = true) && r.romId == version.romId }
+        }.singleOrNull()
     }
 
     /** `Game.state1` → `state1`, `Game.srm` → `srm`, lower case; "" without one. */

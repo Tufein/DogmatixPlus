@@ -87,6 +87,22 @@ object WebDavStatus {
         return rank.firstNotNullOfOrNull { p -> failures.firstOrNull { it.problem == p } } ?: failures.firstOrNull()
     }
 
+    /** What a MKCOL answer means. */
+    enum class MkcolAnswer {
+        /** 200 / 201 / 204: the folder was made. */
+        CREATED,
+        /** 405: "already exists" on most servers, but also what a server that refuses MKCOL says; the caller checks. */
+        NOT_ALLOWED,
+        /** Anything else is a failure ([classify]). */
+        FAILED
+    }
+
+    fun mkcolAnswer(code: Int): MkcolAnswer = when (code) {
+        200, 201, 204 -> MkcolAnswer.CREATED
+        405 -> MkcolAnswer.NOT_ALLOWED
+        else -> MkcolAnswer.FAILED
+    }
+
     /** Strong ETag usable in `If-Match` (a weak `W/"…"` one never matches there); null otherwise. */
     fun strongEtag(etag: String?): String? {
         val e = etag?.trim().orEmpty()

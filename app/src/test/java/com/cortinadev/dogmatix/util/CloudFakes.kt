@@ -21,6 +21,18 @@ class FakeDavStore(
     var failNextPut: DavProblem? = null
     /** Runs before a PUT is applied (to simulate another device writing at the same moment). */
     var beforePut: ((String) -> Unit)? = null
+    /** A server that never sends an ETag. */
+    var hideEtags = false
+    /** A server that ignores If-Match / If-None-Match (every conditional write is a blind overwrite). */
+    var ignoreConditions = false
+    /** Runs once after the next GET returned (another device writing right after our read). */
+    var afterGet: ((String) -> Unit)? = null
+    /** Runs once after the next PUT was applied (another device overwriting right after us). */
+    var afterPut: ((String) -> Unit)? = null
+    /** A server without MOVE. */
+    var moveUnsupported = false
+    /** Fails the next MOVE with this problem. */
+    var failNextMove: DavProblem? = null
     /** Lists files with this many bytes more than stored (a server that lost part of an upload). */
     var sizeSkew = 0L
 
@@ -74,9 +86,11 @@ class FakeDavStore(
     override fun get(url: String, maxBytes: Long): DavFile? {
         requests += "GET $url"
         last = url
-        val (bytes, etag) = files[key(url)] ?: return null
-        if (bytes.size > maxBytes) throw DavException(DavProblem.BAD_RESPONSE)
-        return DavFile(bytes, etag)
+        val stored = files[key(url)]
+        if (stored != null && stored.first.size > maxBytes) throw DavException(DavProblem.BAD_RESPONSE)
+        val result = stored?.let { DavFile(it.first, if (hideEtags) null else it.second) }
+        afterGet?.let { hook -> afterGet = null; hook(url) }
+        return result
     }
 
     override fun put(url: String, bytes: ByteArray, contentType: String, ifMatch: String?, ifNoneMatch: Boolean): String? {
@@ -87,11 +101,14 @@ class FakeDavStore(
         val path = key(url)
         if (!parentExists(path)) throw DavException(DavProblem.CONFLICT, 409)
         val current = files[path]
-        if (ifMatch != null && (refuseConditionalWrites || current?.second != ifMatch)) throw DavException(DavProblem.PRECONDITION, 412)
-        if (ifNoneMatch && (refuseConditionalWrites || current != null)) throw DavException(DavProblem.PRECONDITION, 412)
+        if (!ignoreConditions) {
+            if (ifMatch != null && (refuseConditionalWrites || current?.second != ifMatch)) throw DavException(DavProblem.PRECONDITION, 412)
+            if (ifNoneMatch && (refuseConditionalWrites || current != null)) throw DavException(DavProblem.PRECONDITION, 412)
+        }
         val etag = "\"e${++etagCounter}\""
         files[path] = bytes to etag
-        return etag
+        afterPut?.let { hook -> afterPut = null; hook(url) }
+        return if (hideEtags) null else etag
     }
 
     /** Another client writing the file directly. */
@@ -112,6 +129,15 @@ class FakeDavStore(
             if (p !in collections) { collections += p; created = true }
         }
         return created
+    }
+
+    override fun move(from: String, to: String): Boolean {
+        requests += "MOVE $from"
+        failNextMove?.let { failNextMove = null; throw DavException(it, 500) }
+        if (moveUnsupported) return false
+        val src = files.remove(key(from)) ?: throw DavException(DavProblem.NOT_FOUND, 404)
+        files[key(to)] = src
+        return true
     }
 
     override fun delete(url: String) {

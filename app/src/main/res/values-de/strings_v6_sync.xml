@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 6.0 sync: hardening of the WebDAV cloud and the shared family wishlist -->
+    <string name="sync6_err_backup_too_large">Dieses Backup ist zu groß für eine Wiederherstellung (Limit: %1$d MB) und wurde deshalb nicht hochgeladen.</string>
+    <string name="sync6_csave_restore_message_target">%1$s (gespeichert %2$s) wird nach %3$s auf diesem Gerät geschrieben. Die Datei dort wird zuvor als Sicherheitskopie aufbewahrt, und der nächste Abgleich sendet diese Version an den Server.</string>
+    <string name="sync6_cleartext_warning">Diese Adresse nutzt unverschlüsseltes http:// außerhalb deines eigenen Netzwerks: Passwort und Dateien werden im Klartext übertragen und können unterwegs mitgelesen werden. Verwende https://, wenn dein Server es anbietet.</string>
+    <string name="sync6_credentials_removed">Eine in die Adresse getippte Anmeldung wird entfernt: Nutze die Felder für Benutzername und Passwort.</string>
+    <string name="sync6_shared_section">Gemeinsame Wunschliste</string>
+    <string name="sync6_shared_list">Name der gemeinsamen Liste</string>
+    <string name="sync6_shared_list_dialog">Alle, die in ihrer eigenen App denselben Namen eingeben, mit demselben Serverordner, teilen sich eine Wunschliste (Familie, Freunde). Leer lassen, um das Teilen auszuschalten.</string>
+    <string name="sync6_shared_off">Aus</string>
+    <string name="sync6_shared_name">Mein Name</string>
+    <string name="sync6_shared_name_dialog">Der Name, den die anderen bei den von dir hinzugefügten Spielen sehen. Leer = Name dieses Geräts.</string>
+    <string name="sync6_shared_needs_list">Lege einen Listennamen fest, um deine Wunschliste zu teilen</string>
+    <string name="sync6_shared_now">Gemeinsame Wunschliste abgleichen</string>
+    <string name="sync6_shared_action">Jetzt abgleichen</string>
+    <string name="sync6_shared_busy">Gleiche ab…</string>
+    <string name="sync6_shared_never">Noch nicht abgeglichen</string>
+    <string name="sync6_shared_last">Letzter Abgleich %1$s · hier %2$d hinzugefügt, %3$d entfernt</string>
+    <string name="sync6_shared_failed_row">Letzter Abgleich fehlgeschlagen: %1$s</string>
+    <string name="sync6_shared_hint">Wünsche der anderen erscheinen mit ihrem Namen in deiner Wunschliste; findet jemand ein Spiel, steht das am gemeinsamen Eintrag. Die Liste liegt im Ordner shared deines Cloud-Ordners, ein zusätzliches Konto ist nicht nötig. Einen Wunsch zu entfernen entfernt ihn für alle.</string>
+    <string name="sync6_shared_done">Gemeinsame Wunschliste: %1$d hinzugefügt, %2$d entfernt</string>
+    <string name="sync6_shared_nothing">Gemeinsame Wunschliste ist aktuell</string>
+    <string name="sync6_shared_failed">Gemeinsame Wunschliste fehlgeschlagen: %1$s</string>
+    <string name="sync6_wish_added_by">Hinzugefügt von %1$s</string>
+    <string name="sync6_wish_found_by">Gefunden von %1$s</string>
+</resources>

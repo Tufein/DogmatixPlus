@@ -128,4 +128,56 @@ class CloudBackupEngineTest {
         }
         assertNull(FakeDavStore().get("https://h/x", 10))
     }
+
+    private val root = "https://nas.local/dav/Dogmatix/"
+    private val backups = "/dav/Dogmatix/backups"
+    private val at = Instant.parse("2026-10-01T03:00:00Z")
+
+    @Test fun `an upload arrives as a part file and is moved into place`() {
+        val store = FakeDavStore("/dav", backups)
+        val up = CloudBackupEngine.upload(store, "https://nas.local/dav/", root, ByteArray(50), "Thor", 7, at, "aaaaaaaa-0")
+        assertTrue(store.requests.any { it.startsWith("PUT ") && it.contains(".dgxb.part") })
+        assertTrue(store.requests.any { it.startsWith("MOVE ") })
+        assertEquals(listOf("$backups/${up.name}"), store.files.keys.toList())
+    }
+
+    @Test fun `a server without MOVE gets a direct upload and no part file is left`() {
+        val store = FakeDavStore("/dav", backups).apply { moveUnsupported = true }
+        val up = CloudBackupEngine.upload(store, "https://nas.local/dav/", root, ByteArray(50), "Thor", 7, at)
+        assertEquals(listOf("$backups/${up.name}"), store.files.keys.toList())
+    }
+
+    @Test fun `a cut-off upload is never listed as a backup and is cleaned up next time`() {
+        val store = FakeDavStore("/dav", backups)
+        val name = CloudBackupNames.fileName(at, "Thor", "aaaaaaaa-0")
+        store.write("https://nas.local/dav/Dogmatix/backups/$name.part", "half")
+        assertTrue(CloudBackupEngine.list(store, root, "Thor", "aaaaaaaa-0").isEmpty())
+        CloudBackupEngine.upload(store, "https://nas.local/dav/", root, ByteArray(50), "Thor", 7, at.plusSeconds(86_400), "aaaaaaaa-0")
+        assertEquals(1, store.files.size)
+        assertFalse(store.files.keys.any { it.endsWith(".part") })
+    }
+
+    @Test fun `a full server fails the upload instead of falling back`() {
+        val store = FakeDavStore("/dav", backups).apply { failNextPut = DavProblem.NO_SPACE }
+        try {
+            CloudBackupEngine.upload(store, "https://nas.local/dav/", root, ByteArray(50), "Thor", 7, at)
+            fail("expected DavException")
+        } catch (e: DavException) {
+            assertEquals(DavProblem.NO_SPACE, e.problem)
+        }
+        assertEquals(1, store.requests.count { it.startsWith("PUT ") })
+    }
+
+    @Test fun `two handhelds with one name keep their own backups`() {
+        val store = FakeDavStore("/dav", backups)
+        val sealed = ByteArray(20)
+        (1..4).forEach { d ->
+            CloudBackupEngine.upload(store, "https://nas.local/dav/", root, sealed, "Retroid", 2, Instant.parse("2026-10-0${d}T03:00:00Z"), "aaaaaaaa-0")
+            CloudBackupEngine.upload(store, "https://nas.local/dav/", root, sealed, "Retroid", 2, Instant.parse("2026-10-0${d}T04:00:00Z"), "bbbbbbbb-0")
+        }
+        assertEquals(2, store.files.keys.count { it.contains(".aaaaaaaa.") })
+        assertEquals(2, store.files.keys.count { it.contains(".bbbbbbbb.") })
+        val mine = CloudBackupEngine.list(store, root, "Retroid", "aaaaaaaa-0").filter { it.isThisDevice }
+        assertEquals(2, mine.size)
+    }
 }

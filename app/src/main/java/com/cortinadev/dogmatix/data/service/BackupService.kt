@@ -30,6 +30,8 @@ import java.io.ByteArrayOutputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -73,7 +75,12 @@ class BackupService @Inject constructor(
 
     private val gson = GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create()
 
-    suspend fun export(): Pair<String, Summary> = withContext(Dispatchers.IO) {
+    /** An export never reads a half-restored state, and a restore never starts while one is being read. */
+    private val stateLock = Mutex()
+
+    suspend fun export(): Pair<String, Summary> = withContext(Dispatchers.IO) { stateLock.withLock { exportLocked() } }
+
+    private suspend fun exportLocked(): Pair<String, Summary> {
         val prefs = context.dataStore.data.first().asMap()
         val settings = JsonObject()
         // The WebDAV password is the one secret that stays out of every backup file (CloudSettingKeys).
@@ -100,7 +107,7 @@ class BackupService @Inject constructor(
             }
             add("downloadHistory", BackupJson.historyToJson(history))
         }
-        gson.toJson(root) to Summary(settings.size(), consoleCount(sources), favourites.size, history.size)
+        return gson.toJson(root) to Summary(settings.size(), consoleCount(sources), favourites.size, history.size)
     }
 
     /**
@@ -143,7 +150,9 @@ class BackupService @Inject constructor(
      * cancelled (leaving the screen half-way must not leave a half-restored app); the sources are
      * replaced in a single database transaction.
      */
-    suspend fun restore(backup: JsonObject): Summary = withContext(Dispatchers.IO) {
+    suspend fun restore(backup: JsonObject): Summary = withContext(Dispatchers.IO) { stateLock.withLock { restoreLocked(backup) } }
+
+    private suspend fun restoreLocked(backup: JsonObject): Summary {
         // Null when the file has no settings section: then the current settings stay untouched.
         val settings = (backup.get("settings") as? JsonObject)?.entrySet()
             ?.mapNotNull { (name, element) -> BackupJson.decodeSetting(name, element)?.let { name to it } }
@@ -156,7 +165,7 @@ class BackupService @Inject constructor(
         val wishlist = BackupJson.wishlistFromJson(backup.get("wishlist"))
         val savedCollections = backup.get("collections")?.let { SourcesJson.parseCollections(JsonObject().apply { add("_collections", it) }.toString()) }.orEmpty()
 
-        withContext(NonCancellable) {
+        return withContext(NonCancellable) {
             val (restored, repick) = settings?.let { restoreSettings(it) } ?: (0 to 0)
             val consoles = sourcesText?.let { sourcesRepository.importFromText(it, keepLocalTorrents = true) } ?: 0
             // The sources are committed by now: a failure of the smaller parts (a full disk…) must
@@ -255,7 +264,8 @@ class BackupService @Inject constructor(
         sources.entrySet().sumOf { (_, m) -> if (m.isJsonObject) m.asJsonObject.entrySet().count { (k, v) -> !k.startsWith("_") && v.isJsonObject } else 0 }
 
     companion object {
-        private const val MAX_BACKUP_BYTES = 8 * 1024 * 1024
+        /** The largest backup text a restore accepts; a cloud backup above it is not uploaded. */
+        const val MAX_BACKUP_BYTES = 8 * 1024 * 1024
         private val FOLDER_KEYS = setOf(
             SettingsKeys.DOWNLOAD_DIRECTORY.name,
             SettingsKeys.ESDE_DIRECTORY.name,
