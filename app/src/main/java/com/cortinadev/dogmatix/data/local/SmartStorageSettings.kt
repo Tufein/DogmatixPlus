@@ -58,6 +58,20 @@ class SmartStorageSettings @Inject constructor(@param:ApplicationContext private
         }
     }
 
+    /**
+     * Points [record]'s console at its new folder ([folderUri]; empty = back to its folder in the
+     * download folder) and stores the record, in one edit: the two can never disagree.
+     */
+    suspend fun switchConsole(record: SmartStorage.Record, folderUri: String) {
+        context.dataStore.edit { prefs ->
+            val dirs = prefs[SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES].orEmpty().filterNot { it.startsWith("${record.consoleId}:") }.toMutableSet()
+            if (folderUri.isNotEmpty()) dirs += "${record.consoleId}:$folderUri"
+            prefs[SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES] = dirs
+            val others = prefs[Keys.RECORDS].orEmpty().filterNot { SmartStorage.Record.decode(it)?.consoleId == record.consoleId }
+            prefs[Keys.RECORDS] = others.toSet() + record.encode()
+        }
+    }
+
     /** Forgets consoles whose folder was changed by hand since (smart storage leaves them alone from then on). */
     suspend fun dropRecords(consoleIds: Collection<String>) {
         if (consoleIds.isEmpty()) return

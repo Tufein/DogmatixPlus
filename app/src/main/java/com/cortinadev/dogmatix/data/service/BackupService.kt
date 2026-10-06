@@ -215,7 +215,11 @@ class BackupService @Inject constructor(
                     SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES.name -> {
                         @Suppress("UNCHECKED_CAST")
                         val entries = value as Set<String>
-                        val usable = entries.filter { it.substringAfter(':', "") in granted }
+                        // A folder inside a granted tree (smart storage's console folders on the SD card) is usable too.
+                        val usable = entries.filter { entry ->
+                            val uri = entry.substringAfter(':', "")
+                            uri in granted || com.cortinadev.dogmatix.util.SmartStorage.treeOf(uri)?.let { it in granted } == true
+                        }
                         repick += entries.size - usable.size
                         val usableIds = usable.map { it.substringBefore(':') }.toSet()
                         prefs[SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES] =

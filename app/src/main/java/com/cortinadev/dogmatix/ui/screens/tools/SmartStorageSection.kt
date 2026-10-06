@@ -111,7 +111,8 @@ class SmartStorageViewModel @Inject constructor(
         }
     }
 
-    fun moveNow() = service.start()
+    /** Runs exactly the moves of the confirmed preview (those still valid; nothing is added). */
+    fun moveNow(confirmed: SmartStorage.Plan) = service.start(confirmed.moves.associate { it.console.id to it.to })
     fun stop() = service.cancel()
     fun dismiss() { service.dismiss(); refreshPreview() }
 }
@@ -154,7 +155,7 @@ fun rememberSmartStorage(): SmartStorageUi {
                     " (" + formatBytes(m.console.bytes) + ")"
             },
             confirmText = stringResource(R.string.store8_confirm_ok),
-            onConfirm = { confirm = false; vm.moveNow() },
+            onConfirm = { confirm = false; vm.moveNow(plan) },
             onDismiss = { confirm = false },
             icon = R.drawable.ic_drive_file_move
         )
@@ -251,7 +252,10 @@ private fun RunRow(smart: SmartStorageUi, focus: Modifier) {
         run.finished && run.problem != null -> listOf(problemText(run.problem))
         run.finished -> listOfNotNull(
             pluralStringResource(R.plurals.store8_done, run.moved, run.moved),
-            run.failed.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.store8_failed, it, it) }
+            run.failed.takeIf { it > 0 }?.let { pluralStringResource(R.plurals.store8_failed, it, it) },
+            run.esdeUnchanged.takeIf { it.isNotEmpty() }?.let { ids ->
+                stringResource(R.string.store8_esde_unchanged, ids.joinToString(", ") { ConsoleFormatter.getConsoleDisplayName(it) })
+            }
         )
         smart.previewing -> listOf(stringResource(R.string.tools_scanning))
         preview?.problem != null -> listOf(problemText(preview.problem))
@@ -306,6 +310,7 @@ private fun MoveRow(move: SmartStorage.Move, wait: SmartStorage.Wait?, focus: Mo
     val lines = listOfNotNull(
         "$where · ${formatBytes(c.bytes)} · ${pluralStringResource(R.plurals.tools_files, c.files, c.files)}",
         why,
+        if (wait == null && c.largestFile > SmartStorage.AUTO_MAX_FILE_BYTES) stringResource(R.string.store8_wait_big_file, formatBytes(SmartStorage.AUTO_MAX_FILE_BYTES)) else null,
         wait?.let {
             stringResource(
                 when (it) {
@@ -313,6 +318,7 @@ private fun MoveRow(move: SmartStorage.Move, wait: SmartStorage.Wait?, focus: Mo
                     SmartStorage.Wait.RESTING -> R.string.store8_wait_resting
                     SmartStorage.Wait.NO_ROOM -> R.string.store8_wait_no_room
                     SmartStorage.Wait.LATER -> R.string.store8_wait_later
+                    SmartStorage.Wait.BIG_FILE -> R.string.store8_wait_big_file_short
                 }
             )
         }
@@ -334,5 +340,6 @@ private fun problemText(problem: SmartProblem): String = stringResource(
         SmartProblem.NO_LIBRARY -> R.string.store8_problem_no_library
         SmartProblem.SAME_STORAGE -> R.string.store8_problem_same
         SmartProblem.BUSY -> R.string.store8_problem_busy
+        SmartProblem.NO_PLAY_DATA -> R.string.store8_problem_no_play
     }
 )

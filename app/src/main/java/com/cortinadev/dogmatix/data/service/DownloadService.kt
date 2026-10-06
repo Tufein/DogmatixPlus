@@ -106,7 +106,8 @@ class DownloadService @Inject constructor(
     private val appSettings: AppSettings,
     private val partials: PartialDownloads,
     private val datService: DatService,
-    private val sourceTrack: SourceTrackService
+    private val sourceTrack: SourceTrackService,
+    private val moveGate: StorageMoveGate
 ) {
     val downloads: StateFlow<List<DownloadItemModel>> = downloadProgressTracker.downloads
 
@@ -490,6 +491,8 @@ class DownloadService @Inject constructor(
 
     /** Routes a file to the debrid, torrent or plain HTTP path (decided at start and on every retry). */
     private suspend fun perform(file: DownloadableFileEntity) {
+        // 8.0: while smart storage moves this console's folder, wait; the file then goes to the new folder.
+        moveGate.awaitFree(file.consoleId)
         val debrid = if (file.isTorrent) debridClient(settingsRepository.debridProvider.first()) else null
         if (debrid != null) viaDebrid += file.fileName
         when {
@@ -649,6 +652,7 @@ class DownloadService @Inject constructor(
     }
 
     private suspend fun moveTorrentFile(file: DownloadableFileEntity) {
+        moveGate.awaitFree(file.consoleId)
         try {
             val downloadDirUri = downloadFileManager.getDownloadDirectoryUri(file)
             if (downloadDirUri == Uri.EMPTY)

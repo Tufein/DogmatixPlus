@@ -5,7 +5,7 @@
     <string name="store8_switch_title">Intelligenter Speicher</string>
     <string name="store8_switch_hint">Aus. Einschalten, um den internen Speicher für die Konsolen freizuhalten, die du spielst</string>
     <string name="store8_explain_title">Es ziehen ganze Konsolen um, nie einzelne Spiele</string>
-    <string name="store8_explain">Dogmatix+ und Frontends wie ES-DE geben jeder Konsole einen Ordner, deshalb zieht eine Konsole mit ihrem ganzen Ordner um. Konsolen mit einem Favoriten oder einem kürzlich gespielten Spiel bleiben im internen Speicher; die übrigen kommen auf die SD-Karte und kehren zurück, sobald du sie wieder spielst. ES-DE zieht von selbst mit, wenn es in Dogmatix+ eingerichtet ist (ES-DE danach neu starten). In Daijishō, Pegasus oder RetroArch-Playlists musst du eine umgezogene Konsole auf ihren neuen Ordner verweisen.</string>
+    <string name="store8_explain">Dogmatix+ und Frontends wie ES-DE geben jeder Konsole einen Ordner, deshalb zieht eine Konsole mit ihrem ganzen Ordner um. Konsolen mit einem Favoriten, einem kürzlich gespielten Spiel oder einem neuen Download bleiben im internen Speicher; die übrigen kommen auf die SD-Karte und kehren zurück, sobald du sie wieder spielst. Dafür werden die Spieldaten von ES-DE gebraucht. ES-DE zieht von selbst mit, wenn es in Dogmatix+ eingerichtet ist und seine Systeme aus dem Download-Ordner liest (ES-DE danach neu starten). Sonst, und in Daijishō, Pegasus oder RetroArch-Playlists, musst du eine umgezogene Konsole auf ihren neuen Ordner verweisen.</string>
     <string name="store8_sd_title">Bibliotheksordner auf der SD-Karte</string>
     <string name="store8_sd_none">Noch kein Ordner gewählt</string>
     <string name="store8_sd_choose">Wählen</string>
@@ -67,4 +67,8 @@
         <item quantity="one">%d Konsole konnte nicht verschoben werden</item>
         <item quantity="other">%d Konsolen konnten nicht verschoben werden</item>
     </plurals>
+    <string name="store8_wait_big_file">Enthält eine Datei über %1$s: nur Jetzt verschieben verschiebt sie, der wöchentliche Durchlauf lässt sie stehen</string>
+    <string name="store8_wait_big_file_short">Wartet auf Jetzt verschieben: eine Datei über 2 GB</string>
+    <string name="store8_problem_no_play">Keine Spieldaten von ES-DE gefunden: Richte zuerst den ES-DE-Ordner in den Einstellungen ein, damit der intelligente Speicher weiß, was du spielst</string>
+    <string name="store8_esde_unchanged">ES-DE wurde für %1$s nicht geändert: Verweise diese Systeme in ES-DE auf ihren neuen Ordner</string>
 </resources>

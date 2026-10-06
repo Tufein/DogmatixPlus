@@ -5,7 +5,7 @@
     <string name="store8_switch_title">Slimme opslag</string>
     <string name="store8_switch_hint">Uit. Zet aan om de interne opslag te bewaren voor de consoles die je speelt</string>
     <string name="store8_explain_title">Hele consoles verhuizen, nooit losse games</string>
-    <string name="store8_explain">Dogmatix+ en frontends zoals ES-DE geven elke console één map, dus een console verhuist met zijn hele map. Consoles met een favoriet of een game die je onlangs speelde blijven op de interne opslag; de rest gaat naar de SD-kaart en komt terug zodra je ze weer speelt. ES-DE volgt vanzelf als het in Dogmatix+ is ingesteld (start ES-DE daarna opnieuw). In Daijishō, Pegasus of RetroArch-afspeellijsten wijs je een verhuisde console naar zijn nieuwe map.</string>
+    <string name="store8_explain">Dogmatix+ en frontends zoals ES-DE geven elke console één map, dus een console verhuist met zijn hele map. Consoles met een favoriet, een onlangs gespeelde game of een nieuwe download blijven op de interne opslag; de rest gaat naar de SD-kaart en komt terug zodra je ze weer speelt. Hiervoor zijn de speelgegevens van ES-DE nodig. ES-DE volgt vanzelf als het in Dogmatix+ is ingesteld en zijn systemen uit de downloadmap leest (start ES-DE daarna opnieuw). Anders, en in Daijishō, Pegasus of RetroArch-afspeellijsten, wijs je een verhuisde console naar zijn nieuwe map.</string>
     <string name="store8_sd_title">Bibliotheekmap op de SD-kaart</string>
     <string name="store8_sd_none">Nog geen map gekozen</string>
     <string name="store8_sd_choose">Kiezen</string>
@@ -67,4 +67,8 @@
         <item quantity="one">%d console kon niet worden verplaatst</item>
         <item quantity="other">%d consoles konden niet worden verplaatst</item>
     </plurals>
+    <string name="store8_wait_big_file">Heeft een bestand groter dan %1$s: alleen Nu verplaatsen verplaatst hem, de wekelijkse ronde laat hem staan</string>
+    <string name="store8_wait_big_file_short">Wacht op Nu verplaatsen: een bestand groter dan 2 GB</string>
+    <string name="store8_problem_no_play">Geen speelgegevens van ES-DE gevonden: stel eerst de ES-DE-map in bij Instellingen, zodat slimme opslag weet wat je speelt</string>
+    <string name="store8_esde_unchanged">ES-DE is niet aangepast voor %1$s: wijs deze systemen in ES-DE naar hun nieuwe map</string>
 </resources>

@@ -5,7 +5,7 @@
     <string name="store8_switch_title">Stockage intelligent</string>
     <string name="store8_switch_hint">Désactivé. Activez-le pour réserver le stockage interne aux consoles auxquelles vous jouez</string>
     <string name="store8_explain_title">Des consoles entières sont déplacées, jamais des jeux isolés</string>
-    <string name="store8_explain">Dogmatix+ et les frontends comme ES-DE attribuent un dossier à chaque console : une console est donc déplacée avec tout son dossier. Les consoles avec un favori ou un jeu joué récemment restent sur le stockage interne ; les autres vont sur la carte SD et reviennent dès que vous y rejouez. ES-DE suit tout seul s\'il est configuré dans Dogmatix+ (redémarrez ES-DE ensuite). Dans Daijishō, Pegasus ou les playlists RetroArch, indiquez le nouveau dossier d\'une console déplacée.</string>
+    <string name="store8_explain">Dogmatix+ et les frontends comme ES-DE attribuent un dossier à chaque console : une console est donc déplacée avec tout son dossier. Les consoles avec un favori, un jeu joué récemment ou un nouveau téléchargement restent sur le stockage interne ; les autres vont sur la carte SD et reviennent dès que vous y rejouez. Les données de jeu d\'ES-DE sont nécessaires. ES-DE suit tout seul s\'il est configuré dans Dogmatix+ et lit ses systèmes dans le dossier de téléchargement (redémarrez ES-DE ensuite). Sinon, et dans Daijishō, Pegasus ou les playlists RetroArch, indiquez le nouveau dossier d\'une console déplacée.</string>
     <string name="store8_sd_title">Dossier de bibliothèque sur la carte SD</string>
     <string name="store8_sd_none">Aucun dossier choisi</string>
     <string name="store8_sd_choose">Choisir</string>
@@ -73,4 +73,8 @@
         <item quantity="other">%d consoles n\'ont pas pu être déplacées</item>
         <item quantity="many">%d consoles n\'ont pas pu être déplacées</item>
     </plurals>
+    <string name="store8_wait_big_file">Contient un fichier de plus de %1$s : seul Déplacer maintenant la déplace, le passage hebdomadaire la laisse</string>
+    <string name="store8_wait_big_file_short">Attend Déplacer maintenant : un fichier de plus de 2 Go</string>
+    <string name="store8_problem_no_play">Aucune donnée de jeu d\'ES-DE trouvée : configurez d\'abord le dossier ES-DE dans les Paramètres, pour que le stockage intelligent sache à quoi vous jouez</string>
+    <string name="store8_esde_unchanged">ES-DE n\'a pas été modifié pour %1$s : indiquez dans ES-DE le nouveau dossier de ces systèmes</string>
 </resources>

@@ -30,7 +30,8 @@ import javax.inject.Singleton
 
 private const val TAG = "LibraryMoveService"
 
-enum class MoveProblem { NO_SOURCE, CANNOT_OPEN, OVERLAP, DOWNLOADS_ACTIVE, NO_ROOM }
+/** [ANOTHER_MOVE]: smart storage (8.0) is moving console folders; one mover at a time. */
+enum class MoveProblem { NO_SOURCE, CANNOT_OPEN, OVERLAP, DOWNLOADS_ACTIVE, NO_ROOM, ANOTHER_MOVE }
 
 data class MoveState(
     val running: Boolean = false,
@@ -61,7 +62,8 @@ class LibraryMoveService @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val downloadService: DownloadService,
-    private val libraryIndex: LibraryIndexService
+    private val libraryIndex: LibraryIndexService,
+    private val moveGate: StorageMoveGate
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var job: Job? = null
@@ -79,6 +81,11 @@ class LibraryMoveService @Inject constructor(
     fun dismiss() { if (job?.isActive != true) _state.value = MoveState() }
 
     private suspend fun run(destinationUri: String) {
+        if (!moveGate.lock.tryLock()) return stop(MoveProblem.ANOTHER_MOVE)
+        try { runLocked(destinationUri) } finally { moveGate.lock.unlock() }
+    }
+
+    private suspend fun runLocked(destinationUri: String) {
         _state.value = MoveState(running = true, scanning = true)
         try {
             if (downloadService.hasActiveDownloads()) return stop(MoveProblem.DOWNLOADS_ACTIVE)

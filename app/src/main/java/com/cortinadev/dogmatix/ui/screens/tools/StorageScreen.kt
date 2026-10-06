@@ -271,6 +271,7 @@ fun StorageScreen(viewModel: StorageViewModel = hiltViewModel()) {
                     MoveProblem.OVERLAP -> stringResource(R.string.storage_move_overlap)
                     MoveProblem.DOWNLOADS_ACTIVE -> stringResource(R.string.storage_move_downloads_active)
                     MoveProblem.NO_ROOM -> stringResource(R.string.storage_move_no_room, formatBytes(move.needBytes), formatBytes(move.freeBytes))
+                    MoveProblem.ANOTHER_MOVE -> stringResource(R.string.store8_problem_busy)
                     null -> null
                 }
                 val lines = when {

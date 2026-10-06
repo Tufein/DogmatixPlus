@@ -16,11 +16,13 @@ class SmartStorageTest {
     private val gb = 1024L * 1024 * 1024
     private val now = 1_000L * day
 
-    private fun console(id: String, place: Place = Place.INTERNAL, bytes: Long = gb, playedDaysAgo: Int? = null, favourite: Boolean = false, busy: Boolean = false, movedDaysAgo: Int? = null) =
-        Console(id, id, place, bytes, 10, playedDaysAgo?.let { now - it * day }, favourite, busy, movedDaysAgo?.let { now - it * day })
+    private fun console(
+        id: String, place: Place = Place.INTERNAL, bytes: Long = gb, playedDaysAgo: Int? = null, favourite: Boolean = false,
+        busy: Boolean = false, movedDaysAgo: Int? = null, changedDaysAgo: Int? = 400, largest: Long = bytes / 10
+    ) = Console(id, id, place, bytes, 10, playedDaysAgo?.let { now - it * day }, favourite, busy, movedDaysAgo?.let { now - it * day }, changedDaysAgo?.let { now - it * day }, largest)
 
     @Test fun `a cold console goes to the SD card and a played one stays`() {
-        val plan = SmartStorage.plan(listOf(console("gba", playedDaysAgo = 200), console("snes", playedDaysAgo = 3), console("nes")), now, 30, 50 * gb, 50 * gb)
+        val plan = SmartStorage.plan(listOf(console("gba", playedDaysAgo = 200), console("snes", playedDaysAgo = 3), console("nes", changedDaysAgo = 500)), now, 30, 50 * gb, 50 * gb)
         assertEquals(listOf("nes", "gba"), plan.moves.map { it.console.id })
         assertTrue(plan.moves.all { it.to == Place.SD && it.reason == Reason.COLD })
         assertEquals(2 * gb, plan.freesInternal)
@@ -135,6 +137,65 @@ class SmartStorageTest {
         assertEquals("1234-abcd", SmartStorage.volumeOf("1234-ABCD:Games"))
     }
 
+    @Test fun `nothing known about a console means it is not cold`() {
+        val plan = SmartStorage.plan(listOf(console("gba", changedDaysAgo = null)), now, 30, 50 * gb, 50 * gb)
+        assertTrue(plan.isEmpty)
+    }
+
+    @Test fun `a recent download keeps a never played console inside`() {
+        val plan = SmartStorage.plan(listOf(console("gba", changedDaysAgo = 3), console("nes", playedDaysAgo = 300, changedDaysAgo = 5)), now, 30, 50 * gb, 50 * gb)
+        assertTrue(plan.isEmpty)
+    }
+
+    @Test fun `an automatic run leaves consoles with a big file to a run by hand`() {
+        val c = console("psx", bytes = 6 * gb, largest = 3 * gb)
+        val auto = SmartStorage.plan(listOf(c), now, 30, gb, 100 * gb, budgetBytes = 8 * gb, maxFileBytes = SmartStorage.AUTO_MAX_FILE_BYTES)
+        assertEquals(Wait.BIG_FILE, auto.waiting.single().wait)
+        assertEquals(1, SmartStorage.plan(listOf(c), now, 30, gb, 100 * gb).moves.size)
+    }
+
+    @Test fun `a confirmed plan is run as confirmed, never more`() {
+        val fresh = SmartStorage.plan(listOf(console("a"), console("b"), console("c", Place.SD, playedDaysAgo = 1)), now, 30, 50 * gb, 50 * gb)
+        assertEquals(3, fresh.moves.size)
+        val run = SmartStorage.restrictTo(fresh, mapOf("a" to Place.SD, "c" to Place.SD, "gone" to Place.SD))
+        assertEquals(listOf("a"), run.moves.map { it.console.id })
+    }
+
+    @Test fun `an original goes only when unchanged since the copy`() {
+        val copied = SmartStorage.Stamp(100, 5000)
+        assertTrue(SmartStorage.unchanged(copied, SmartStorage.Stamp(100, 5000)))
+        assertFalse(SmartStorage.unchanged(copied, SmartStorage.Stamp(100, 6000)))
+        assertFalse(SmartStorage.unchanged(copied, SmartStorage.Stamp(101, 5000)))
+        assertFalse(SmartStorage.unchanged(copied, null))
+    }
+
+    @Test fun `only copies this feature wrote are trusted`() {
+        val original = SmartStorage.Stamp(100, 5000)
+        val text = SmartStorage.Manifest.encode("hacks/a b.gba", original) + "\n" + "junk\n" + SmartStorage.Manifest.encode("c.gba", SmartStorage.Stamp(7, 8)) + "\n"
+        val m = SmartStorage.Manifest.decode(text)
+        assertEquals(original, m["hacks/a b.gba"])
+        assertEquals(2, m.size)
+        assertTrue(SmartStorage.Manifest.trusted(m["hacks/a b.gba"], original, 100))
+        // Same name and size but not written by us, or the original changed since: copy again.
+        assertFalse(SmartStorage.Manifest.trusted(null, original, 100))
+        assertFalse(SmartStorage.Manifest.trusted(m["hacks/a b.gba"], SmartStorage.Stamp(100, 9000), 100))
+        assertFalse(SmartStorage.Manifest.trusted(m["hacks/a b.gba"], original, 99))
+    }
+
+    @Test fun `the tree a folder was granted through`() {
+        val tree = "content://com.android.externalstorage.documents/tree/1234-ABCD%3AGames"
+        assertEquals(tree, SmartStorage.treeOf("$tree/document/1234-ABCD%3AGames%2Fgba"))
+        assertEquals(tree, SmartStorage.treeOf(tree))
+        assertNull(SmartStorage.treeOf("content://x/document/abc"))
+    }
+
+    @Test fun `older records still read`() {
+        val old = listOf("gba", "SD", "5", "gba", "content://u").joinToString("\u001F")
+        assertEquals(SmartStorage.Record("gba", Place.SD, 5, "gba", "content://u"), SmartStorage.Record.decode(old))
+        val r = SmartStorage.Record("gba", Place.SD, 5, "gba", "u", "/storage/X/gba", "%ROMPATH%/gba", true)
+        assertEquals(r, SmartStorage.Record.decode(r.encode()))
+    }
+
     private val bundled = """
         <systemList>
             <system>
@@ -145,19 +206,46 @@ class SmartStorageTest {
         </systemList>
     """.trimIndent()
 
-    @Test fun `ES-DE gets the new path of a system, copied from its own definitions`() {
-        val out = SmartStorage.esdeSystemsWithPath(null, bundled, "gba", "/storage/1234-ABCD/Games/gba")
-        assertNotNull(out)
-        assertTrue(out!!.contains("<path>/storage/1234-ABCD/Games/gba</path>"))
-        assertTrue(out.contains(".gba .zip"))
-        // Coming back: the custom block is set back to the ROM folder.
-        val back = SmartStorage.esdeSystemsWithPath(out, null, "gba", SmartStorage.esdeRomPath("gba"))
-        assertTrue(back!!.contains("<path>%ROMPATH%/gba</path>"))
-        assertNull(SmartStorage.esdeSystemsWithPath(back, null, "gba", SmartStorage.esdeRomPath("gba")))
+    @Test fun `ES-DE ROM directory and paths`() {
+        val xml = """<?xml version="1.0"?>
+            <string name="MediaDirectory" value="" />
+            <string name="ROMDirectory" value="/storage/emulated/0/ROMs" />"""
+        assertEquals("/storage/emulated/0/ROMs", SmartStorage.esdeRomDirectory(xml))
+        assertNull(SmartStorage.esdeRomDirectory("""<string name="ROMDirectory" value="" />"""))
+        assertNull(SmartStorage.esdeRomDirectory("""<string name="ROMDirectory" value="%ESPATH%/ROMs" />"""))
+        assertTrue(SmartStorage.samePath("/storage/emulated/0/ROMs/", "/storage/emulated/0/roms"))
+        assertFalse(SmartStorage.samePath(null, "/x"))
+    }
+
+    @Test fun `ES-DE gets the new path of a system copied from its own definitions, and loses it again`() {
+        val patch = SmartStorage.esdePatch(null, bundled, "gba", "/storage/1234-ABCD/Games & Co/gba")!!
+        assertTrue(patch.inserted)
+        assertEquals("%ROMPATH%/gba", patch.previous)
+        assertTrue(patch.content.contains("<path>/storage/1234-ABCD/Games &amp; Co/gba</path>"))
+        assertTrue(patch.content.contains(".gba .zip"))
+        // Coming back: the block it added goes again.
+        val back = SmartStorage.esdeRestore(patch.content, "gba", "/storage/1234-ABCD/Games & Co/gba", patch.previous, patch.inserted)!!
+        assertNull(EsdeXml.systemBlock(back, "gba"))
+        assertTrue(back.contains("<systemList>"))
+    }
+
+    @Test fun `a custom ES-DE block gets its old path back and the user's own path is never touched`() {
+        val custom = "<systemList>\n    <system>\n        <name>gba</name>\n        <path>%ROMPATH%/gba</path>\n        <extension>.gba .dgmtx</extension>\n    </system>\n</systemList>\n"
+        val patch = SmartStorage.esdePatch(custom, bundled, "gba", "/storage/X/gba")!!
+        assertFalse(patch.inserted)
+        assertTrue(patch.content.contains(".gba .dgmtx"))
+        val back = SmartStorage.esdeRestore(patch.content, "gba", "/storage/X/gba", patch.previous, false)!!
+        assertEquals(custom, back)
+        // A path the user set: left alone, both ways.
+        val users = custom.replace("%ROMPATH%/gba", "/storage/Y/mygba")
+        assertNull(SmartStorage.esdePatch(users, bundled, "gba", "/storage/X/gba"))
+        assertNull(SmartStorage.esdeRestore(users, "gba", "/storage/X/gba", "%ROMPATH%/gba", false))
+        // What smart storage wrote itself may be changed again.
+        assertNotNull(SmartStorage.esdePatch(patch.content, bundled, "gba", "/storage/Z/gba", ours = "/storage/X/gba"))
     }
 
     @Test fun `an unknown ES-DE system is left alone`() {
-        assertNull(SmartStorage.esdeSystemsWithPath(null, bundled, "psx", "/x"))
-        assertNull(SmartStorage.esdeSystemsWithPath(null, null, "gba", "/x"))
+        assertNull(SmartStorage.esdePatch(null, bundled, "psx", "/x"))
+        assertNull(SmartStorage.esdePatch(null, null, "gba", "/x"))
     }
 }
