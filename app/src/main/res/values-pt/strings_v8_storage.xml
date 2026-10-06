@@ -5,7 +5,7 @@
     <string name="store8_switch_title">Armazenamento inteligente</string>
     <string name="store8_switch_hint">Desligado. Ligue para reservar o armazenamento interno às consolas que joga</string>
     <string name="store8_explain_title">Movem-se consolas inteiras, nunca jogos soltos</string>
-    <string name="store8_explain">O Dogmatix+ e frontends como o ES-DE dão uma pasta a cada consola, por isso uma consola muda-se com a pasta inteira. As consolas com um favorito ou um jogo jogado recentemente ficam no armazenamento interno; as restantes vão para o cartão SD e voltam assim que as jogar de novo. O ES-DE acompanha sozinho se estiver configurado no Dogmatix+ (reinicie o ES-DE depois). No Daijishō, no Pegasus ou nas listas do RetroArch, indique a nova pasta de uma consola movida.</string>
+    <string name="store8_explain">O Dogmatix+ e frontends como o ES-DE dão uma pasta a cada consola, por isso uma consola muda-se com a pasta inteira. As consolas com um favorito, um jogo jogado recentemente ou uma transferência nova ficam no armazenamento interno; as restantes vão para o cartão SD e voltam assim que as jogar de novo. São necessários os dados de jogo do ES-DE. O ES-DE acompanha sozinho se estiver configurado no Dogmatix+ e ler os seus sistemas da pasta de transferências (reinicie o ES-DE depois). Caso contrário, e no Daijishō, no Pegasus ou nas listas do RetroArch, indique a nova pasta de uma consola movida.</string>
     <string name="store8_sd_title">Pasta da biblioteca no cartão SD</string>
     <string name="store8_sd_none">Ainda não escolheu uma pasta</string>
     <string name="store8_sd_choose">Escolher</string>
@@ -73,4 +73,8 @@
         <item quantity="other">Não foi possível mover %d consolas</item>
         <item quantity="many">Não foi possível mover %d consolas</item>
     </plurals>
+    <string name="store8_wait_big_file">Tem um ficheiro com mais de %1$s: só Mover agora a move, a passagem semanal deixa-a</string>
+    <string name="store8_wait_big_file_short">Aguarda Mover agora: um ficheiro com mais de 2 GB</string>
+    <string name="store8_problem_no_play">Não foram encontrados dados de jogo do ES-DE: configure primeiro a pasta do ES-DE nas Definições, para que o armazenamento inteligente saiba o que joga</string>
+    <string name="store8_esde_unchanged">O ES-DE não foi alterado para %1$s: indique no ES-DE a nova pasta destes sistemas</string>
 </resources>

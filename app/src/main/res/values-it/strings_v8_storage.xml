@@ -5,7 +5,7 @@
     <string name="store8_switch_title">Archiviazione intelligente</string>
     <string name="store8_switch_hint">Disattivata. Attivala per riservare la memoria interna alle console a cui giochi</string>
     <string name="store8_explain_title">Si spostano console intere, mai singoli giochi</string>
-    <string name="store8_explain">Dogmatix+ e i frontend come ES-DE assegnano una cartella a ogni console, quindi una console si sposta con tutta la sua cartella. Le console con un preferito o un gioco giocato di recente restano sulla memoria interna; le altre vanno sulla scheda SD e tornano appena ci giochi di nuovo. ES-DE si adegua da solo se è configurato in Dogmatix+ (riavvia ES-DE dopo). In Daijishō, Pegasus o nelle playlist di RetroArch, indica la nuova cartella di una console spostata.</string>
+    <string name="store8_explain">Dogmatix+ e i frontend come ES-DE assegnano una cartella a ogni console, quindi una console si sposta con tutta la sua cartella. Le console con un preferito, un gioco giocato di recente o un nuovo download restano sulla memoria interna; le altre vanno sulla scheda SD e tornano appena ci giochi di nuovo. Servono i dati di gioco di ES-DE. ES-DE si adegua da solo se è configurato in Dogmatix+ e legge i suoi sistemi dalla cartella di download (riavvia ES-DE dopo). Altrimenti, e in Daijishō, Pegasus o nelle playlist di RetroArch, indica la nuova cartella di una console spostata.</string>
     <string name="store8_sd_title">Cartella della libreria sulla scheda SD</string>
     <string name="store8_sd_none">Nessuna cartella scelta</string>
     <string name="store8_sd_choose">Scegli</string>
@@ -73,4 +73,8 @@
         <item quantity="other">%d console non sono state spostate</item>
         <item quantity="many">%d console non sono state spostate</item>
     </plurals>
+    <string name="store8_wait_big_file">Contiene un file oltre %1$s: solo Sposta ora la sposta, il passaggio settimanale la lascia</string>
+    <string name="store8_wait_big_file_short">Attende Sposta ora: un file oltre 2 GB</string>
+    <string name="store8_problem_no_play">Nessun dato di gioco di ES-DE trovato: configura prima la cartella di ES-DE nelle Impostazioni, così l\'archiviazione intelligente sa a cosa giochi</string>
+    <string name="store8_esde_unchanged">ES-DE non è stato modificato per %1$s: indica in ES-DE la nuova cartella di questi sistemi</string>
 </resources>

@@ -5,7 +5,7 @@
     <string name="store8_switch_title">Smart storage</string>
     <string name="store8_switch_hint">Off. Turn on to keep internal storage for the consoles you play</string>
     <string name="store8_explain_title">Whole consoles move, never single games</string>
-    <string name="store8_explain">Dogmatix+ and frontends such as ES-DE give each console one folder, so a console moves with its whole folder. Consoles with a favourite or a game played recently stay on internal storage; the others go to the SD card and come back when you play them again. ES-DE follows by itself when it is set up in Dogmatix+ (restart ES-DE afterwards). In Daijishō, Pegasus or RetroArch playlists, point a moved console to its new folder.</string>
+    <string name="store8_explain">Dogmatix+ and frontends such as ES-DE give each console one folder, so a console moves with its whole folder. Consoles with a favourite, a game played recently or a new download stay on internal storage; the others go to the SD card and come back when you play them again. Needs ES-DE\'s play data. ES-DE follows by itself when it is set up in Dogmatix+ and reads its systems from the download folder (restart ES-DE afterwards). Otherwise, and in Daijishō, Pegasus or RetroArch playlists, point a moved console to its new folder.</string>
     <string name="store8_sd_title">Library folder on the SD card</string>
     <string name="store8_sd_none">No folder chosen yet</string>
     <string name="store8_sd_choose">Choose</string>
@@ -67,4 +67,8 @@
         <item quantity="one">%d console could not be moved</item>
         <item quantity="other">%d consoles could not be moved</item>
     </plurals>
+    <string name="store8_wait_big_file">Has a file over %1$s: only Move now moves it, the weekly run leaves it</string>
+    <string name="store8_wait_big_file_short">Waits for Move now: a file over 2 GB</string>
+    <string name="store8_problem_no_play">No ES-DE play data found: set up the ES-DE folder in Settings first, so smart storage knows what you play</string>
+    <string name="store8_esde_unchanged">ES-DE was left alone for %1$s: point these systems to their new folder in ES-DE</string>
 </resources>

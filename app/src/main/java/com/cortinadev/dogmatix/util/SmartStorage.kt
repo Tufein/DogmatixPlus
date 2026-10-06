@@ -55,12 +55,19 @@ object SmartStorage {
         /** A download or a frontend run is working on it right now. */
         val busy: Boolean = false,
         /** When smart storage last moved it, null when never. */
-        val lastMovedAt: Long? = null
-    )
+        val lastMovedAt: Long? = null,
+        /** Newest change of one of its files (a download, a save next to the games), null when unknown. */
+        val lastChanged: Long? = null,
+        /** Its biggest file. */
+        val largestFile: Long = 0
+    ) {
+        /** The last sign of use: a play, or a file that was written (a download lands as a new file). */
+        val lastActivity: Long? get() = listOfNotNull(lastPlayed, lastChanged?.takeIf { it > 0 }).maxOrNull()
+    }
 
     enum class Reason { FAVOURITE, PLAYED, COLD }
 
-    enum class Wait { BUSY, RESTING, NO_ROOM, LATER }
+    enum class Wait { BUSY, RESTING, NO_ROOM, LATER, BIG_FILE }
 
     data class Move(val console: Console, val to: Place, val reason: Reason)
 
@@ -79,8 +86,14 @@ object SmartStorage {
     fun isHot(c: Console, now: Long, recentDays: Int): Boolean =
         c.favourite || (c.lastPlayed != null && now - c.lastPlayed <= recentDays * DAY_MS)
 
-    fun isCold(c: Console, now: Long, recentDays: Int): Boolean =
-        !c.favourite && (c.lastPlayed == null || now - c.lastPlayed > (recentDays + COLD_MARGIN_DAYS) * DAY_MS)
+    /**
+     * Cold only on evidence: the last play or file change is known and long ago. A console about
+     * which nothing is known stays where it is.
+     */
+    fun isCold(c: Console, now: Long, recentDays: Int): Boolean {
+        val last = c.lastActivity ?: return false
+        return !c.favourite && now - last > (recentDays + COLD_MARGIN_DAYS) * DAY_MS
+    }
 
     fun isResting(c: Console, now: Long): Boolean = c.lastMovedAt != null && now - c.lastMovedAt < REST_DAYS * DAY_MS
 
@@ -91,7 +104,8 @@ object SmartStorage {
      * Where each console should be. Cold consoles go to the SD card first, coldest first (that gives
      * internal room back), then hot ones come home, most recently played first. Free space is
      * counted as the plan goes on. [budgetBytes] limits one run (the first move always fits it, so a
-     * big console is not stuck forever); null = no limit.
+     * big console is not stuck forever); null = no limit. With [maxFileBytes] (automatic runs) a
+     * console holding a bigger file waits for a run started by hand.
      */
     fun plan(
         consoles: List<Console>,
@@ -99,11 +113,12 @@ object SmartStorage {
         recentDays: Int,
         internalFree: Long?,
         sdFree: Long?,
-        budgetBytes: Long? = null
+        budgetBytes: Long? = null,
+        maxFileBytes: Long? = null
     ): Plan {
         val days = clampDays(recentDays)
         val out = consoles.filter { it.place == Place.INTERNAL && it.files > 0 && isCold(it, now, days) }
-            .sortedWith(compareBy<Console> { it.lastPlayed ?: 0L }.thenByDescending { it.bytes }.thenBy { it.id })
+            .sortedWith(compareBy<Console> { it.lastActivity ?: 0L }.thenByDescending { it.bytes }.thenBy { it.id })
             .map { Move(it, Place.SD, Reason.COLD) }
         val home = consoles.filter { it.place == Place.SD && it.files > 0 && isHot(it, now, days) }
             .sortedWith(compareByDescending<Console> { it.lastPlayed ?: Long.MIN_VALUE }.thenBy { it.id })
@@ -120,6 +135,7 @@ object SmartStorage {
             val wait = when {
                 c.busy -> Wait.BUSY
                 isResting(c, now) -> Wait.RESTING
+                maxFileBytes != null && c.largestFile > maxFileBytes -> Wait.BIG_FILE
                 !fits(c.bytes, target) -> Wait.NO_ROOM
                 budgetBytes != null && moves.isNotEmpty() && spent + c.bytes > budgetBytes -> Wait.LATER
                 else -> null
@@ -131,6 +147,55 @@ object SmartStorage {
             else { internal = internal?.minus(c.bytes); sd = sd?.plus(c.bytes) }
         }
         return Plan(moves, waiting)
+    }
+
+    /** An automatic run leaves consoles with a file bigger than this to a run started by hand. */
+    const val AUTO_MAX_FILE_BYTES = 2L * GB
+
+    /**
+     * The confirmed plan, checked again: only moves the user confirmed (console and direction) are
+     * kept, a confirmed move that is no longer valid is dropped, nothing new is added.
+     */
+    fun restrictTo(plan: Plan, confirmed: Map<String, Place>): Plan =
+        Plan(plan.moves.filter { confirmed[it.console.id] == it.to }, plan.waiting.filter { confirmed[it.move.console.id] == it.move.to })
+
+    /** Size and last change of a file, as listed. */
+    data class Stamp(val size: Long, val modified: Long)
+
+    /** The original may go only when it is exactly as it was when it was copied. */
+    fun unchanged(copied: Stamp, now: Stamp?): Boolean = now != null && now.size == copied.size && now.modified == copied.modified
+
+    /**
+     * Files this feature copied for one console move, so an interrupted run carries on without
+     * trusting a same-name file it did not write: path → the original's stamp at copy time.
+     */
+    object Manifest {
+        fun encode(path: String, stamp: Stamp): String = "${stamp.size}\t${stamp.modified}\t$path"
+
+        fun decode(text: String): Map<String, Stamp> = text.lineSequence().mapNotNull { line ->
+            val p = line.split('\t', limit = 3)
+            if (p.size != 3 || p[2].isEmpty()) return@mapNotNull null
+            val size = p[0].toLongOrNull() ?: return@mapNotNull null
+            val modified = p[1].toLongOrNull() ?: return@mapNotNull null
+            p[2] to Stamp(size, modified)
+        }.toMap()
+
+        /** A file at the target counts as copied only when this feature wrote it from this very original. */
+        fun trusted(entry: Stamp?, original: Stamp, targetSize: Long?): Boolean =
+            entry != null && entry == original && targetSize == original.size && original.size >= 0
+    }
+
+    /**
+     * The tree a `content://…/tree/<id>/document/<child>` URI was granted through
+     * (`content://…/tree/<id>`); the URI itself for a plain tree, null when it is no tree URI.
+     */
+    fun treeOf(uri: String): String? {
+        val i = uri.indexOf("/tree/")
+        if (i < 0) return null
+        val idStart = i + "/tree/".length
+        val end = uri.indexOf('/', idStart).let { if (it < 0) uri.length else it }
+        if (end == idStart) return null
+        return uri.substring(0, end)
     }
 
     /** The newest play among [plays] (system name, last played) that belongs to a console, by [belongs]. */
@@ -159,19 +224,33 @@ object SmartStorage {
 
     // ---- What smart storage moved (kept in settings) --------------------------------------------
 
-    /** A console smart storage has moved: where it is now and when it got there. [uri] = its folder on the SD card. */
-    data class Record(val consoleId: String, val place: Place, val movedAt: Long, val folder: String, val uri: String) {
-        fun encode(): String = listOf(consoleId, place.name, movedAt.toString(), folder, uri).joinToString(SEP)
+    /**
+     * A console smart storage has moved: where it is now and when it got there. [uri] = its folder
+     * on the SD card. When the ES-DE system path was changed for it: [esdeWrote] is the path written,
+     * [esdePrevious] the one it replaced, [esdeInserted] whether the whole system block was added.
+     */
+    data class Record(
+        val consoleId: String,
+        val place: Place,
+        val movedAt: Long,
+        val folder: String,
+        val uri: String,
+        val esdeWrote: String = "",
+        val esdePrevious: String = "",
+        val esdeInserted: Boolean = false
+    ) {
+        fun encode(): String = listOf(consoleId, place.name, movedAt.toString(), folder, uri, esdeWrote, esdePrevious, esdeInserted.toString()).joinToString(SEP)
 
         companion object {
             private const val SEP = "\u001F"
             fun decode(s: String): Record? {
                 val p = s.split(SEP)
-                if (p.size != 5) return null
+                if (p.size != 5 && p.size != 8) return null
                 val place = runCatching { Place.valueOf(p[1]) }.getOrNull() ?: return null
                 val at = p[2].toLongOrNull() ?: return null
                 if (p[0].isBlank() || p[3].isBlank()) return null
-                return Record(p[0], place, at, p[3], p[4])
+                return if (p.size == 5) Record(p[0], place, at, p[3], p[4])
+                else Record(p[0], place, at, p[3], p[4], p[5], p[6], p[7] == "true")
             }
         }
     }
@@ -194,30 +273,85 @@ object SmartStorage {
     /** ES-DE's own path of a system that lives in its ROM folder. */
     fun esdeRomPath(folder: String): String = "%ROMPATH%/$folder"
 
+    /** `ROMDirectory` of ES-DE's `settings/es_settings.xml`; null when not set or not a plain path. */
+    fun esdeRomDirectory(settingsXml: String): String? {
+        val m = Regex("""<string\s+name="ROMDirectory"\s+value="([^"]*)"""").find(settingsXml) ?: return null
+        val v = unescapeXml(m.groupValues[1]).trim()
+        return v.takeIf { it.startsWith("/") && '%' !in it && '~' !in it }
+    }
+
+    /** Two absolute paths name the same folder (case and trailing slashes aside). */
+    fun samePath(a: String?, b: String?): Boolean =
+        a != null && b != null && a.trimEnd('/').equals(b.trimEnd('/'), ignoreCase = true)
+
+    /** A patch of `custom_systems/es_systems.xml`: the new content, the path it replaced, and whether the block was added. */
+    data class EsdePatch(val content: String, val previous: String, val inserted: Boolean)
+
     /**
-     * ES-DE's `custom_systems/es_systems.xml` with the `<path>` of [folder]'s system set to [path]
-     * (an absolute path on the SD card, or [esdeRomPath] when it comes back). The block is the
-     * custom one when there is one, otherwise the one of [bundled] (ES-DE's own definitions) is
-     * copied in. Null when nothing changes or the system is unknown.
+     * ES-DE's `custom_systems/es_systems.xml` ([existing], null = the file does not exist) with the
+     * `<path>` of [folder]'s system set to [path]. Only when the system's current path is ES-DE's
+     * plain ROM folder path ([esdeRomPath]) or [ours] (what smart storage wrote before): a path the
+     * user chose is never touched. The block is the custom one when there is one, otherwise ES-DE's
+     * own ([bundled]) is copied in. Null when unsure or nothing changes.
      */
-    fun esdeSystemsWithPath(existing: String?, bundled: String?, folder: String, path: String): String? {
-        var content = existing
-            ?: ("<?xml version=\"1.0\"?>\n" +
+    fun esdePatch(existing: String?, bundled: String?, folder: String, path: String, ours: String = ""): EsdePatch? {
+        val custom = existing?.let { EsdeXml.systemBlock(it, folder) }
+        val source = custom ?: bundled?.let { EsdeXml.systemBlock(it, folder) } ?: return null
+        val current = pathOf(source) ?: return null
+        val plain = current.equals(esdeRomPath(folder), ignoreCase = true) || current.equals(esdeRomPath(folder) + "/", ignoreCase = true)
+        if (!plain && (ours.isEmpty() || (current != ours && current != escapeXml(ours)))) return null
+        val escaped = escapeXml(path)
+        if (current == escaped) return null
+        val patched = withPath(source, escaped) ?: return null
+        val content = if (custom != null && existing != null) {
+            existing.replace(custom, patched)
+        } else {
+            val base = existing ?: ("<?xml version=\"1.0\"?>\n" +
                 "<!-- Systems changed by Dogmatix+; your edits are kept. -->\n" +
                 "<systemList>\n</systemList>\n")
-        val custom = EsdeXml.systemBlock(content, folder)
-        if (custom == null) {
-            val fromBundled = bundled?.let { EsdeXml.systemBlock(it, folder) } ?: return null
-            val end = content.lastIndexOf("</systemList>")
+            val end = base.lastIndexOf("</systemList>")
             if (end < 0) return null
-            content = content.substring(0, end) + "    " + fromBundled + "\n" + content.substring(end)
+            base.substring(0, end) + "    " + patched + "\n" + base.substring(end)
         }
-        val block = EsdeXml.systemBlock(content, folder) ?: return null
+        return EsdePatch(content, current, inserted = custom == null)
+    }
+
+    /**
+     * Undoes [esdePatch] when the console comes back: the block it added is removed again, a block
+     * it changed gets [previous] back. Only while the path is still the one written ([wrote]);
+     * null when the user changed it since or nothing is to be done.
+     */
+    fun esdeRestore(existing: String?, folder: String, wrote: String, previous: String, inserted: Boolean): String? {
+        if (existing == null || wrote.isEmpty()) return null
+        val block = EsdeXml.systemBlock(existing, folder) ?: return null
+        if (pathOf(block) != escapeXml(wrote) && pathOf(block) != wrote) return null
+        if (inserted) {
+            val i = existing.indexOf(block)
+            var start = i
+            while (start > 0 && (existing[start - 1] == ' ' || existing[start - 1] == '\t')) start--
+            var end = i + block.length
+            if (end < existing.length && existing[end] == '\n') end++
+            return existing.substring(0, start) + existing.substring(end)
+        }
+        if (previous.isEmpty()) return null
+        return existing.replace(block, withPath(block, previous) ?: return null)
+    }
+
+    private fun pathOf(block: String): String? {
         val start = block.indexOf("<path>")
         val stop = block.indexOf("</path>", start + 1)
         if (start < 0 || stop < 0) return null
-        if (block.substring(start + 6, stop).trim() == path) return if (custom == null) content else null
-        val patched = block.substring(0, start + 6) + path + block.substring(stop)
-        return content.replace(block, patched)
+        return block.substring(start + 6, stop).trim()
     }
+
+    private fun withPath(block: String, path: String): String? {
+        val start = block.indexOf("<path>")
+        val stop = block.indexOf("</path>", start + 1)
+        if (start < 0 || stop < 0) return null
+        return block.substring(0, start + 6) + path + block.substring(stop)
+    }
+
+    fun escapeXml(s: String): String = s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&apos;")
+
+    private fun unescapeXml(s: String): String = s.replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", "\"").replace("&apos;", "'").replace("&amp;", "&")
 }
