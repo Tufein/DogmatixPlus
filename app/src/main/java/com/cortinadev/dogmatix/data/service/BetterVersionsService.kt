@@ -1,0 +1,243 @@
+package com.cortinadev.dogmatix.data.service
+
+import android.content.Context
+import android.util.Log
+import com.cortinadev.dogmatix.data.local.BetterVersionsSettings
+import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
+import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
+import com.cortinadev.dogmatix.data.model.DownloadStatus
+import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.util.BetterVersions
+import com.cortinadev.dogmatix.util.CollectionGoals
+import com.cortinadev.dogmatix.util.DatStatus
+import com.cortinadev.dogmatix.util.DuplicateFinder
+import com.cortinadev.dogmatix.util.FileParsingUtils
+import com.cortinadev.dogmatix.util.GameEntry
+import com.cortinadev.dogmatix.util.LibraryKeys
+import com.cortinadev.dogmatix.util.ToastUtil
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
+import java.util.concurrent.ConcurrentHashMap
+import javax.inject.Inject
+import javax.inject.Singleton
+
+private const val TAG = "BetterVersions"
+
+/** A better file for a game on the device: [owned] is what you have, [candidate] the row of a source to download. */
+data class BetterSuggestion(
+    val id: String,
+    val consoleId: String,
+    val owned: GameEntry,
+    val candidate: DownloadableFileEntity,
+    val upgrade: BetterVersions.Upgrade
+) {
+    /** The game's title as it reads without tags. */
+    val title: String get() = com.cortinadev.dogmatix.util.GameTitleCleaner.clean(owned.baseName + ".x").ifBlank { owned.baseName }
+
+    /** The candidate's name as a person reads it (URL escapes undone). */
+    val candidateName: String get() = FileParsingUtils.decodeUrlEncodedFileName(candidate.fileName)
+}
+
+/** What a scan found: the games checked and the suggestions. */
+data class BetterScan(val folderSet: Boolean, val gamesChecked: Int, val suggestions: List<BetterSuggestion>)
+
+/** The messages of a removal, resolved by the screen (it carries the in-app language) before the work starts. */
+data class ReplaceMessages(val removed: String, val kept: String, val failed: String)
+
+/** How the "download, then remove the old file" of one suggestion stands. */
+enum class ReplaceState { WAITING, REMOVED, KEPT, FAILED }
+
+/**
+ * Better versions (7.0): works out which games on the device have a clearly better copy in the
+ * sources (the decision is [BetterVersions]), starts the download, and, when asked, removes the
+ * old file afterwards. The removal is deliberately timid: it only runs for a download that finished
+ * and passed its check (or has nothing to be checked against), when the new file is on the device
+ * and is not the old one; anything else leaves the old file alone. A pending removal lives in
+ * memory only, so closing the app before the download is done removes nothing.
+ */
+@Singleton
+class BetterVersionsService @Inject constructor(
+    @param:ApplicationContext private val context: Context,
+    private val scanService: LibraryScanService,
+    private val fileDao: DownloadableFileDao,
+    private val libraryIndex: LibraryIndexService,
+    private val downloadService: DownloadService,
+    private val datService: DatService,
+    private val settingsRepository: SettingsRepository,
+    private val settings: BetterVersionsSettings
+) {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    private class Pending(val suggestion: BetterSuggestion, val messages: ReplaceMessages)
+
+    /** Pending removals by the file name of the download they wait for. */
+    private val pending = ConcurrentHashMap<String, Pending>()
+
+    private val _replacing = MutableStateFlow<Map<String, ReplaceState>>(emptyMap())
+    /** Suggestion id → state of its removal, for the suggestions that were started with "remove the old one". */
+    val replacing: StateFlow<Map<String, ReplaceState>> = _replacing.asStateFlow()
+
+    init {
+        scope.launch {
+            downloadService.finished.collect { name ->
+                val p = pending.remove(name) ?: return@collect
+                launch { finishReplace(p) }
+            }
+        }
+        // A download the user stopped is no longer going to replace anything.
+        scope.launch {
+            downloadService.downloads.map { list -> list.filter { it.status == DownloadStatus.STOPPED }.map { it.fileName }.toSet() }
+                .collect { stopped ->
+                    stopped.forEach { name -> pending.remove(name)?.let { setState(it.suggestion.id, null) } }
+                }
+        }
+    }
+
+    // ---- Finding -----------------------------------------------------------------------------
+
+    suspend fun find(): BetterScan = withContext(Dispatchers.IO) {
+        val folderSet = settingsRepository.downloadDirectory.first().isNotBlank() ||
+            settingsRepository.consoleDownloadDirectories.first().isNotEmpty()
+        val snapshot = scanService.scan()
+        val games = DuplicateFinder.entries(snapshot.files).filter { eligible(it) }
+        val reports = datService.reports.value
+        val ownedKeys = libraryIndex.ownedKeys.value
+        val ignored = settings.ignored.first()
+        val out = ArrayList<BetterSuggestion>()
+        for ((consoleId, group) in games.groupBy { it.consoleId!! }) {
+            ensureActive()
+            val rows = fileDao.filesOf(consoleId)
+            if (rows.isEmpty()) continue
+            val rowById = rows.associateBy { it.id.toString() }
+            val offers = rows.map { BetterVersions.Offer(it.id.toString(), consoleId, FileParsingUtils.decodeUrlEncodedFileName(it.fileName)) }
+            val scopes = LibraryKeys.scopesFor(consoleId)
+            val statuses = datStatuses(reports[consoleId])
+            val owned = group.map { BetterVersions.OwnedGame(it.id, consoleId, it.baseName, datStatus(it, statuses)) }
+            val byId = group.associateBy { it.id }
+            val matches = BetterVersions.suggest(owned, offers, ignored) { offer ->
+                val row = rowById[offer.id]!!
+                CollectionGoals.isOwned(scopes, row.fileName, ownedKeys) || downloadService.isActive(row.fileName)
+            }
+            for (m in matches) {
+                out += BetterSuggestion(m.owned.id + "::" + m.offer.id, consoleId, byId.getValue(m.owned.id), rowById.getValue(m.offer.id), m.upgrade)
+            }
+        }
+        BetterScan(folderSet, games.size, out)
+    }
+
+    /** A game worth comparing: known console, a real game (not a playlist, not a BIOS). */
+    private fun eligible(entry: GameEntry): Boolean =
+        entry.comparable && entry.consoleId != null && entry.baseName.isNotBlank() &&
+            !entry.files.all { it.name.substringAfterLast('.', "").equals("m3u", ignoreCase = true) } &&
+            entry.folder.split('/').none { it.trim().lowercase() in biosFolders }
+
+    private fun datStatuses(report: DatReport?): Map<String, DatStatus> =
+        report?.checks?.associate { (disk, check) -> disk.name.lowercase() to check.status }.orEmpty()
+
+    /** The DAT's verdict on one game of the device, when a DAT check ran this session and covered it. */
+    private fun datStatus(entry: GameEntry, byName: Map<String, DatStatus>): DatStatus? {
+        val seen = entry.files.mapNotNull { byName[it.name.lowercase()] }.filter { it != DatStatus.SKIPPED }
+        return when {
+            seen.isEmpty() -> null
+            DatStatus.VERIFIED in seen -> DatStatus.VERIFIED
+            DatStatus.MISNAMED in seen -> DatStatus.MISNAMED
+            else -> DatStatus.UNKNOWN
+        }
+    }
+
+    // ---- Downloading -------------------------------------------------------------------------
+
+    /** Starts the downloads of [items]; nothing is removed. */
+    fun download(items: List<BetterSuggestion>) {
+        if (items.isNotEmpty()) downloadService.startDownloads(items.map { it.candidate })
+    }
+
+    /**
+     * Starts the downloads of [items] and, for each, removes the old file once the new one is
+     * complete and checked. [messages] belong to each suggestion by id.
+     */
+    fun downloadAndReplace(items: List<BetterSuggestion>, messages: Map<String, ReplaceMessages>) {
+        if (items.isEmpty()) return
+        for (item in items) {
+            val m = messages[item.id] ?: continue
+            pending[item.candidate.fileName] = Pending(item, m)
+            setState(item.id, ReplaceState.WAITING)
+        }
+        downloadService.startDownloads(items.map { it.candidate })
+    }
+
+    // ---- Removing the old file ---------------------------------------------------------------
+
+    private suspend fun finishReplace(p: Pending) {
+        val s = p.suggestion
+        val outcome = try {
+            decide(s)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "Old file not removed: ${e.message}")
+            ReplaceState.KEPT
+        }
+        val state = if (outcome == ReplaceState.REMOVED) {
+            val removed = runCatching { scanService.delete(s.owned) }.getOrDefault(0)
+            if (removed > 0) ReplaceState.REMOVED else ReplaceState.FAILED
+        } else outcome
+        setState(s.id, state)
+        val text = when (state) {
+            ReplaceState.REMOVED -> p.messages.removed
+            ReplaceState.FAILED -> p.messages.failed
+            else -> p.messages.kept
+        }
+        withContext(Dispatchers.Main) {
+            if (state == ReplaceState.REMOVED) ToastUtil.showSuccess(context, text) else ToastUtil.showInfo(context, text)
+        }
+    }
+
+    /** [ReplaceState.REMOVED] when it is safe to remove the old file now (the caller does it), else [ReplaceState.KEPT]. */
+    private suspend fun decide(s: BetterSuggestion): ReplaceState {
+        val file = s.candidate
+        // The new file may be copied and unpacked a moment after "finished", and its check starts then.
+        delay(GRACE_MS)
+        val expectsCheck = file.expectedHash != null || datService.sets.first().any { it.consoleId == file.consoleId }
+        val verdict = withTimeoutOrNull(CHECK_WAIT_MS) {
+            downloadService.verification.map { BetterVersions.checkVerdict(it[file.fileName], expectsCheck) }
+                .first { it != BetterVersions.CheckVerdict.WAIT }
+        }
+        if (verdict != BetterVersions.CheckVerdict.REMOVE) return ReplaceState.KEPT
+        // Never trust the path alone: the new file must be on the device and must not be one of the old files.
+        if (BetterVersions.overlaps(s.owned.files.map { it.name }, file.fileName)) return ReplaceState.KEPT
+        if (!onDevice(file)) return ReplaceState.KEPT
+        return ReplaceState.REMOVED
+    }
+
+    private suspend fun onDevice(file: DownloadableFileEntity): Boolean {
+        if (LibraryKeys.isOwned(file.consoleId, file.fileName, libraryIndex.ownedKeys.value)) return true
+        libraryIndex.refresh()
+        return LibraryKeys.isOwned(file.consoleId, file.fileName, libraryIndex.ownedKeys.value)
+    }
+
+    private fun setState(id: String, state: ReplaceState?) {
+        _replacing.update { if (state == null) it - id else it + (id to state) }
+    }
+
+    private companion object {
+        val biosFolders = setOf("bios", "system", "firmware")
+        const val GRACE_MS = 3_000L
+        /** How long a check may take (hashing a big file) before the old file is simply left alone. */
+        const val CHECK_WAIT_MS = 5 * 60_000L
+    }
+}

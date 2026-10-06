@@ -483,4 +483,35 @@ class BetterVersionsTest {
             assertNotNull(BetterVersions.parse(name))
         }
     }
+
+    // ---- Removing the old file afterwards ------------------------------------------------------
+
+    @Test fun `only a file that passed its check replaces the old one`() {
+        assertEquals(BetterVersions.CheckVerdict.REMOVE, BetterVersions.checkVerdict(VerifyState.VERIFIED, expectsCheck = true))
+        assertEquals(BetterVersions.CheckVerdict.REMOVE, BetterVersions.checkVerdict(VerifyState.DAT_OK, expectsCheck = true))
+    }
+
+    @Test fun `a file that failed its check or is not in the DAT never replaces the old one`() {
+        assertEquals(BetterVersions.CheckVerdict.KEEP, BetterVersions.checkVerdict(VerifyState.MISMATCH, expectsCheck = true))
+        assertEquals(BetterVersions.CheckVerdict.KEEP, BetterVersions.checkVerdict(VerifyState.DAT_UNKNOWN, expectsCheck = true))
+        assertEquals(BetterVersions.CheckVerdict.KEEP, BetterVersions.checkVerdict(VerifyState.MISMATCH, expectsCheck = false))
+    }
+
+    @Test fun `a check that is still running is waited for`() {
+        assertEquals(BetterVersions.CheckVerdict.WAIT, BetterVersions.checkVerdict(VerifyState.CHECKING, expectsCheck = true))
+        assertEquals(BetterVersions.CheckVerdict.WAIT, BetterVersions.checkVerdict(VerifyState.CHECKING, expectsCheck = false))
+        assertEquals(BetterVersions.CheckVerdict.WAIT, BetterVersions.checkVerdict(null, expectsCheck = true))
+    }
+
+    @Test fun `nothing to check against is fine`() {
+        assertEquals(BetterVersions.CheckVerdict.REMOVE, BetterVersions.checkVerdict(null, expectsCheck = false))
+    }
+
+    @Test fun `the new file is never one of the old files`() {
+        assertTrue(BetterVersions.overlaps(listOf("Game (USA).zip"), "Game (USA).zip"))
+        assertTrue(BetterVersions.overlaps(listOf("game (usa).gba"), "Game (USA).zip"))
+        assertTrue(BetterVersions.overlaps(listOf("Game (USA).cue", "Game (USA).bin"), "Game (USA).chd"))
+        assertFalse(BetterVersions.overlaps(listOf("Game (USA).zip"), "Game (USA) (Rev 1).zip"))
+        assertFalse(BetterVersions.overlaps(emptyList(), "Game (USA).zip"))
+    }
 }

@@ -269,6 +269,33 @@ object BetterVersions {
         return pick?.let { it.first to it.second }
     }
 
+    // ---- Removing the old file afterwards ----------------------------------------------------
+
+    /** What to do with the old file once the better one has finished downloading. */
+    enum class CheckVerdict { REMOVE, KEEP, WAIT }
+
+    /**
+     * [state] is what the download's own check says (see `DownloadService.verification`); [expectsCheck]
+     * is whether a check applies at all (the source published a hash, or the console has a DAT), in
+     * which case no result yet means it is still to come. Removal happens only for a file that
+     * passed; one that failed its check, or that the DAT does not know, never replaces the old one.
+     */
+    fun checkVerdict(state: VerifyState?, expectsCheck: Boolean): CheckVerdict = when (state) {
+        VerifyState.VERIFIED, VerifyState.DAT_OK -> CheckVerdict.REMOVE
+        VerifyState.MISMATCH, VerifyState.DAT_UNKNOWN -> CheckVerdict.KEEP
+        VerifyState.CHECKING -> CheckVerdict.WAIT
+        null -> if (expectsCheck) CheckVerdict.WAIT else CheckVerdict.REMOVE
+    }
+
+    /** Whether one of the old files [oldNames] is the new file (or its unpacked form): then nothing may be removed. */
+    fun overlaps(oldNames: Collection<String>, newFileName: String): Boolean {
+        val new = withoutExtension(newFileName).trim().lowercase(Locale.ROOT)
+        return oldNames.any {
+            val old = it.trim().lowercase(Locale.ROOT)
+            old == newFileName.trim().lowercase(Locale.ROOT) || withoutExtension(old).trim() == new
+        }
+    }
+
     // ---- Matching a library against a listing -----------------------------------------------
 
     /** Key under which names of one game share a bucket (the same words once tags and the extension are left out). */
@@ -281,7 +308,8 @@ object BetterVersions {
 
     /**
      * The better version of every game in [owned] that [offers] hold, per console. [skip] leaves
-     * out an offer (already on the device, already downloading); [ignored] holds [ignoreKey]s the
+     * out an offer (already on the device, already downloading; asked only for offers that could
+     * match a game); [ignored] holds [ignoreKey]s the
      * user dismissed. An offer is suggested for at most one game, and each game gets only its best.
      */
     fun suggest(
@@ -293,7 +321,6 @@ object BetterVersions {
         if (owned.isEmpty() || offers.isEmpty()) return emptyList()
         val buckets = HashMap<String, MutableList<Offer>>()
         for (offer in offers) {
-            if (skip(offer)) continue
             val key = titleBucket(offer.fileName)
             if (key.isNotEmpty()) buckets.getOrPut(offer.consoleId + "\u0000" + key) { ArrayList() } += offer
         }
@@ -303,7 +330,7 @@ object BetterVersions {
             val key = titleBucket(game.name)
             if (key.isEmpty()) continue
             val candidates = buckets[game.consoleId + "\u0000" + key].orEmpty()
-                .filter { it.id !in used && ignoreKey(game.consoleId, game.name, it.fileName) !in ignored }
+                .filter { it.id !in used && ignoreKey(game.consoleId, game.name, it.fileName) !in ignored && !skip(it) }
             val (offer, upgrade) = best(game.name, candidates, game.dat) ?: continue
             used += offer.id
             out += Match(game, offer, upgrade)
