@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 7.0: Quick Settings tile, launcher shortcuts, "Your year in games" -->
+<resources>
+    <string name="quick7_tile_label">Downloads</string>
+    <string name="quick7_tile_paused_empty">Gepauzeerd</string>
+    <string name="quick7_tile_idle">Inactief</string>
+    <plurals name="quick7_tile_active">
+        <item quantity="one">Actief · %1$d in wachtrij</item>
+        <item quantity="other">Actief · %1$d in wachtrij</item>
+    </plurals>
+    <plurals name="quick7_tile_paused">
+        <item quantity="one">Gepauzeerd · %1$d in wachtrij</item>
+        <item quantity="other">Gepauzeerd · %1$d in wachtrij</item>
+    </plurals>
+    <string name="quick7_shortcut_surprise">Verras me</string>
+    <string name="quick7_shortcut_search">Zoeken</string>
+    <string name="quick7_title">Jouw jaar in games</string>
+    <string name="quick7_subtitle">Wat je downloadde en speelde</string>
+    <string name="quick7_hint">Een terugblik op je downloads, gespeelde games en reeksen, als kaart om te delen</string>
+    <string name="quick7_loading">Even terugkijken…</string>
+    <string name="quick7_period_last12">Laatste 12 maanden</string>
+    <string name="quick7_empty_title">Nog niets om op terug te kijken</string>
+    <string name="quick7_empty_message">Download of speel een paar games en je terugblik vult zich vanzelf.</string>
+    <string name="quick7_quiet_title">Een rustige periode</string>
+    <string name="quick7_quiet_message">In deze periode is niets gedownload of gespeeld. Kies een ander jaar.</string>
+    <string name="quick7_stat_downloaded">Gedownload</string>
+    <string name="quick7_stat_played">Gespeeld</string>
+    <string name="quick7_played_unknown">Vereist ES-DE</string>
+    <string name="quick7_stat_size">Gedownload volume</string>
+    <string name="quick7_stat_new">Nieuw voor jou</string>
+    <string name="quick7_stat_new_hint">Voor het eerst gedownload</string>
+    <string name="quick7_stat_streak">Langste reeks</string>
+    <string name="quick7_stat_active_days">Actieve dagen</string>
+    <string name="quick7_section_months">Activiteit per maand</string>
+    <string name="quick7_section_consoles">Topconsoles</string>
+    <string name="quick7_section_highlights">Uitgelicht</string>
+    <string name="quick7_console_line">%1$d gedownload · %2$d gespeeld</string>
+    <string name="quick7_most_played">Meest gespeelde game</string>
+    <string name="quick7_last_played">Laatst gespeeld op %1$s</string>
+    <string name="quick7_busiest_month">Drukste maand</string>
+    <string name="quick7_busiest_day">Drukste dag</string>
+    <string name="quick7_note_esde">ES-DE onthoudt alleen wanneer je een game voor het laatst speelde, dus een game telt mee in de periode waarin je hem het laatst speelde.</string>
+    <string name="quick7_note_no_esde">Stel ES-DE in bij Instellingen om te tellen welke games je speelde. Downloads tellen ook zonder.</string>
+    <string name="quick7_share">Delen als kaart</string>
+    <string name="quick7_share_chooser">Je terugblik delen</string>
+    <string name="quick7_share_failed">Delen is niet gelukt</string>
+    <string name="quick7_share_year">Mijn gamejaar %1$d:</string>
+    <string name="quick7_share_last12">Mijn laatste 12 maanden in games:</string>
+    <string name="quick7_card_most_played">Meest gespeeld: %1$s</string>
+    <string name="quick7_card_busiest">Drukste maand: %1$s</string>
+    <string name="quick7_card_footer">Gemaakt met Dogmatix+</string>
+    <plurals name="quick7_days">
+        <item quantity="one">%1$d dag</item>
+        <item quantity="other">%1$d dagen</item>
+    </plurals>
+    <plurals name="quick7_times_played">
+        <item quantity="one">%1$d keer gespeeld</item>
+        <item quantity="other">%1$d keer gespeeld</item>
+    </plurals>
+    <plurals name="quick7_activity">
+        <item quantity="one">%1$d download of gespeelde game</item>
+        <item quantity="other">%1$d downloads en gespeelde games</item>
+    </plurals>
+    <plurals name="quick7_share_downloaded">
+        <item quantity="one">%1$d gedownload</item>
+        <item quantity="other">%1$d gedownload</item>
+    </plurals>
+    <plurals name="quick7_share_played">
+        <item quantity="one">%1$d gespeeld</item>
+        <item quantity="other">%1$d gespeeld</item>
+    </plurals>
+</resources>

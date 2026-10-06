@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 7.0: Quick Settings tile, launcher shortcuts, "Your year in games" -->
+<resources>
+    <string name="quick7_tile_label">Téléchargements</string>
+    <string name="quick7_tile_paused_empty">En pause</string>
+    <string name="quick7_tile_idle">Inactif</string>
+    <plurals name="quick7_tile_active">
+        <item quantity="one">Actif · %1$d dans la file</item>
+        <item quantity="other">Actif · %1$d dans la file</item>
+    </plurals>
+    <plurals name="quick7_tile_paused">
+        <item quantity="one">En pause · %1$d dans la file</item>
+        <item quantity="other">En pause · %1$d dans la file</item>
+    </plurals>
+    <string name="quick7_shortcut_surprise">Surprenez-moi</string>
+    <string name="quick7_shortcut_search">Rechercher</string>
+    <string name="quick7_title">Votre année en jeux</string>
+    <string name="quick7_subtitle">Ce que vous avez téléchargé et joué</string>
+    <string name="quick7_hint">Un retour sur vos téléchargements, parties et séries, sous forme de carte à partager</string>
+    <string name="quick7_loading">Un instant, on fait le bilan…</string>
+    <string name="quick7_period_last12">12 derniers mois</string>
+    <string name="quick7_empty_title">Rien à revoir pour l\'instant</string>
+    <string name="quick7_empty_message">Téléchargez ou jouez à quelques jeux et votre bilan se remplira.</string>
+    <string name="quick7_quiet_title">Une période calme</string>
+    <string name="quick7_quiet_message">Rien n\'a été téléchargé ni joué sur cette période. Choisissez une autre année.</string>
+    <string name="quick7_stat_downloaded">Téléchargés</string>
+    <string name="quick7_stat_played">Joués</string>
+    <string name="quick7_played_unknown">Nécessite ES-DE</string>
+    <string name="quick7_stat_size">Volume téléchargé</string>
+    <string name="quick7_stat_new">Nouveaux pour vous</string>
+    <string name="quick7_stat_new_hint">Téléchargés pour la première fois</string>
+    <string name="quick7_stat_streak">Plus longue série</string>
+    <string name="quick7_stat_active_days">Jours actifs</string>
+    <string name="quick7_section_months">Activité par mois</string>
+    <string name="quick7_section_consoles">Consoles favorites</string>
+    <string name="quick7_section_highlights">Temps forts</string>
+    <string name="quick7_console_line">%1$d téléchargés · %2$d joués</string>
+    <string name="quick7_most_played">Jeu le plus joué</string>
+    <string name="quick7_last_played">Dernière partie : %1$s</string>
+    <string name="quick7_busiest_month">Mois le plus actif</string>
+    <string name="quick7_busiest_day">Jour le plus actif</string>
+    <string name="quick7_note_esde">ES-DE ne retient que la dernière fois que vous avez joué à un jeu : un jeu compte donc dans la période de sa dernière partie.</string>
+    <string name="quick7_note_no_esde">Configurez ES-DE dans les réglages pour compter les jeux auxquels vous avez joué. Les téléchargements sont comptés sans lui.</string>
+    <string name="quick7_share">Partager sous forme de carte</string>
+    <string name="quick7_share_chooser">Partager votre bilan</string>
+    <string name="quick7_share_failed">Le partage a échoué</string>
+    <string name="quick7_share_year">Mon année %1$d en jeux :</string>
+    <string name="quick7_share_last12">Mes 12 derniers mois en jeux :</string>
+    <string name="quick7_card_most_played">Le plus joué : %1$s</string>
+    <string name="quick7_card_busiest">Mois le plus actif : %1$s</string>
+    <string name="quick7_card_footer">Créé avec Dogmatix+</string>
+    <plurals name="quick7_days">
+        <item quantity="one">%1$d jour</item>
+        <item quantity="other">%1$d jours</item>
+    </plurals>
+    <plurals name="quick7_times_played">
+        <item quantity="one">Joué %1$d fois</item>
+        <item quantity="other">Joué %1$d fois</item>
+    </plurals>
+    <plurals name="quick7_activity">
+        <item quantity="one">%1$d téléchargement ou partie</item>
+        <item quantity="other">%1$d téléchargements et parties</item>
+    </plurals>
+    <plurals name="quick7_share_downloaded">
+        <item quantity="one">%1$d téléchargé</item>
+        <item quantity="other">%1$d téléchargés</item>
+    </plurals>
+    <plurals name="quick7_share_played">
+        <item quantity="one">%1$d joué</item>
+        <item quantity="other">%1$d joués</item>
+    </plurals>
+</resources>

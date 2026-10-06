@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The magnifier, scaled to sit in the middle of the adaptive-icon safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <group android:translateX="30" android:translateY="30" android:scaleX="0.05" android:scaleY="0.05">
+        <path
+            android:fillColor="#FF8A1F"
+            android:pathData="M784,840 L532,588q-30,24 -69,38t-83,14q-109,0 -184.5,-75.5T120,380t75.5,-184.5T380,120t184.5,75.5T640,380q0,44 -14,83t-38,69l252,252zM380,560q75,0 127.5,-52.5T560,380t-52.5,-127.5T380,200t-127.5,52.5T200,380t52.5,127.5T380,560" />
+    </group>
+</vector>

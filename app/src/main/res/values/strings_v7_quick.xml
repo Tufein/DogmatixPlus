@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 7.0: Quick Settings tile, launcher shortcuts, "Your year in games" -->
+<resources>
+    <string name="quick7_tile_label">Downloads</string>
+    <string name="quick7_tile_paused_empty">Paused</string>
+    <string name="quick7_tile_idle">Idle</string>
+    <plurals name="quick7_tile_active">
+        <item quantity="one">Active · %1$d in queue</item>
+        <item quantity="other">Active · %1$d in queue</item>
+    </plurals>
+    <plurals name="quick7_tile_paused">
+        <item quantity="one">Paused · %1$d in queue</item>
+        <item quantity="other">Paused · %1$d in queue</item>
+    </plurals>
+    <string name="quick7_shortcut_surprise">Surprise me</string>
+    <string name="quick7_shortcut_search">Search</string>
+    <string name="quick7_title">Your year in games</string>
+    <string name="quick7_subtitle">What you downloaded and played</string>
+    <string name="quick7_hint">A look back at your downloads, plays and streaks, as a card to share</string>
+    <string name="quick7_loading">Looking back…</string>
+    <string name="quick7_period_last12">Last 12 months</string>
+    <string name="quick7_empty_title">Nothing to look back on yet</string>
+    <string name="quick7_empty_message">Download or play a few games and your recap fills in.</string>
+    <string name="quick7_quiet_title">A quiet stretch</string>
+    <string name="quick7_quiet_message">Nothing was downloaded or played in this period. Pick another year.</string>
+    <string name="quick7_stat_downloaded">Downloaded</string>
+    <string name="quick7_stat_played">Played</string>
+    <string name="quick7_played_unknown">Needs ES-DE</string>
+    <string name="quick7_stat_size">Size downloaded</string>
+    <string name="quick7_stat_new">New to you</string>
+    <string name="quick7_stat_new_hint">Downloaded for the first time</string>
+    <string name="quick7_stat_streak">Longest streak</string>
+    <string name="quick7_stat_active_days">Active days</string>
+    <string name="quick7_section_months">Activity per month</string>
+    <string name="quick7_section_consoles">Top consoles</string>
+    <string name="quick7_section_highlights">Highlights</string>
+    <string name="quick7_console_line">%1$d downloaded · %2$d played</string>
+    <string name="quick7_most_played">Most played game</string>
+    <string name="quick7_last_played">Last played %1$s</string>
+    <string name="quick7_busiest_month">Busiest month</string>
+    <string name="quick7_busiest_day">Busiest day</string>
+    <string name="quick7_note_esde">ES-DE only keeps the last time you played a game, so a game counts in the period you last played it.</string>
+    <string name="quick7_note_no_esde">Set up ES-DE in Settings to count the games you played. Downloads are counted without it.</string>
+    <string name="quick7_share">Share as a card</string>
+    <string name="quick7_share_chooser">Share your recap</string>
+    <string name="quick7_share_failed">Could not share the recap</string>
+    <string name="quick7_share_year">My %1$d in games:</string>
+    <string name="quick7_share_last12">My last 12 months in games:</string>
+    <string name="quick7_card_most_played">Most played: %1$s</string>
+    <string name="quick7_card_busiest">Busiest month: %1$s</string>
+    <string name="quick7_card_footer">Made with Dogmatix+</string>
+    <plurals name="quick7_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <plurals name="quick7_times_played">
+        <item quantity="one">Played %1$d time</item>
+        <item quantity="other">Played %1$d times</item>
+    </plurals>
+    <plurals name="quick7_activity">
+        <item quantity="one">%1$d download or play</item>
+        <item quantity="other">%1$d downloads and plays</item>
+    </plurals>
+    <plurals name="quick7_share_downloaded">
+        <item quantity="one">%1$d downloaded</item>
+        <item quantity="other">%1$d downloaded</item>
+    </plurals>
+    <plurals name="quick7_share_played">
+        <item quantity="one">%1$d played</item>
+        <item quantity="other">%1$d played</item>
+    </plurals>
+</resources>
