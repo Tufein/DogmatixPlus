@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 7.5: buttons on the download notifications, the "game downloaded" notice -->
+<resources>
+    <string name="notif75_pause_all">Pausar tudo</string>
+    <string name="notif75_resume_all">Retomar tudo</string>
+    <string name="notif75_stop_all">Parar tudo</string>
+    <string name="notif75_open_library">Abrir na biblioteca</string>
+    <string name="notif75_open_downloads">Abrir os downloads</string>
+    <string name="notif75_held_title">Downloads em pausa</string>
+    <string name="notif75_held_text">Os downloads em curso terminam, nenhum novo começa</string>
+    <string name="notif75_game_done_title">%1$s descarregado</string>
+    <string name="notif75_game_done_text">Pronto na tua biblioteca</string>
+    <plurals name="notif75_game_done_files">
+        <item quantity="one">%1$d ficheiro pronto na tua biblioteca</item>
+        <item quantity="other">%1$d ficheiros prontos na tua biblioteca</item>
+    </plurals>
+    <plurals name="notif75_games_done">
+        <item quantity="one">%1$d jogo descarregado</item>
+        <item quantity="other">%1$d jogos descarregados</item>
+    </plurals>
+</resources>

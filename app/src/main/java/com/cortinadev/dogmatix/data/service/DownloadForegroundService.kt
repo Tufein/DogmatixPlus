@@ -8,9 +8,12 @@ import android.content.pm.ServiceInfo
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import com.cortinadev.dogmatix.DogmatixApplication
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.util.NotifAction
+import com.cortinadev.dogmatix.util.NotificationActions
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -68,14 +71,6 @@ class DownloadForegroundService : Service() {
             acquire()
         }
         powerHold.start()
-        // 7.5: while downloads wait (schedule, low battery, heat, hold) the notification says for what.
-        scope.launch {
-            combine(downloadService.gate.waiting, downloadService.waitingFiles) { reasons, files ->
-                if (files.isEmpty()) null else waitingNotificationText(this@DownloadForegroundService, reasons)
-            }.distinctUntilChanged().collect { text ->
-                if (running) runCatching { getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, buildNotification(text)) }
-            }
-        }
         scope.launch {
             downloadService.anyActive.distinctUntilChanged().collectLatest { active ->
                 if (!active) {
@@ -87,6 +82,20 @@ class DownloadForegroundService : Service() {
                     }
                 }
             }
+        }
+        // 7.5: the notification follows the queue: its buttons (Pause all / Resume all / Stop all) and,
+        // while downloads wait (schedule, low battery, heat), what they wait for. Redrawn only on a change.
+        scope.launch {
+            combine(downloadService.downloads, downloadService.gate.held, downloadService.gate.waiting, downloadService.waitingFiles) { list, held, reasons, files ->
+                Triple(held, NotificationActions.ongoing(list, held), if (files.isEmpty()) null else waitingNotificationText(this@DownloadForegroundService, reasons))
+            }
+                .distinctUntilChanged()
+                .collect { (held, actions, waiting) ->
+                    // Never after the service decided to stop: that would bring back a removed notification.
+                    if (!running) return@collect
+                    if (!NotificationManagerCompat.from(this@DownloadForegroundService).areNotificationsEnabled()) return@collect
+                    runCatching { NotificationManagerCompat.from(this@DownloadForegroundService).notify(NOTIFICATION_ID, buildNotification(held, actions, waiting)) }
+                }
         }
     }
 
@@ -122,18 +131,28 @@ class DownloadForegroundService : Service() {
         stopSelf()
     }
 
-    /** [waiting] replaces the usual line while the queue waits for something. */
-    private fun buildNotification(waiting: String? = null) = NotificationCompat.Builder(this, DogmatixApplication.DOWNLOAD_CHANNEL_ID)
-        .setContentTitle(getString(R.string.notification_downloading))
-        .setContentText(waiting ?: getString(R.string.notification_downloading_text))
-        .setSmallIcon(R.drawable.ic_arrow_down)
-        .setOngoing(true)
-        .setSilent(true)
-        .build()
+    /**
+     * The ongoing notification: on hold it says so, [waiting] replaces the usual line while the queue
+     * waits for something (schedule, low battery, heat), and it carries the buttons of [NotificationActions.ongoing].
+     */
+    private fun buildNotification(held: Boolean, actions: List<NotifAction>, waiting: String?) =
+        NotificationCompat.Builder(this, DogmatixApplication.DOWNLOAD_CHANNEL_ID)
+            .setContentTitle(getString(if (held) R.string.notif75_held_title else R.string.notification_downloading))
+            .setContentText(if (held) getString(R.string.notif75_held_text) else waiting ?: getString(R.string.notification_downloading_text))
+            .setSmallIcon(if (held) R.drawable.ic_pause else R.drawable.ic_arrow_down)
+            .setContentIntent(NotificationButtons.openDownloads(this))
+            .setOngoing(true)
+            .setSilent(true)
+            .setOnlyAlertOnce(true)
+            .also { NotificationButtons.addQueueActions(it, this, actions) }
+            .build()
+
+    private fun waitingText(): String? =
+        if (downloadService.waitingFiles.value.isEmpty()) null else waitingNotificationText(this, downloadService.gate.waiting.value)
 
     private fun promoteToForeground(): Boolean {
-        val waiting = if (downloadService.waitingFiles.value.isEmpty()) null else waitingNotificationText(this, downloadService.gate.waiting.value)
-        val notification = buildNotification(waiting)
+        val held = downloadService.gate.held.value
+        val notification = buildNotification(held, NotificationActions.ongoing(downloadService.downloads.value, held), waitingText())
         return try {
             ServiceCompat.startForeground(this, NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
             true
