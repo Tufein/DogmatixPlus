@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tv8_setting_title">TV mode</string>
+    <string name="tv8_setting_hint_on">Larger text and rows, margins for TV edges. On now</string>
+    <string name="tv8_setting_hint_off">Larger text and rows, margins for TV edges. Off now</string>
+    <string name="tv8_mode_auto">Auto</string>
+    <string name="tv8_mode_on">On</string>
+    <string name="tv8_mode_off">Off</string>
+</resources>

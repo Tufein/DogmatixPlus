@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tv8_setting_title">TV-Modus</string>
+    <string name="tv8_setting_hint_on">Größere Schrift und Zeilen, Ränder für den TV-Bildrand. Jetzt an</string>
+    <string name="tv8_setting_hint_off">Größere Schrift und Zeilen, Ränder für den TV-Bildrand. Jetzt aus</string>
+    <string name="tv8_mode_auto">Automatisch</string>
+    <string name="tv8_mode_on">An</string>
+    <string name="tv8_mode_off">Aus</string>
+</resources>

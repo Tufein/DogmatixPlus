@@ -92,10 +92,11 @@ fun tabRouteFor(route: String): String =
 fun TopTabs(currentRoute: String, onSelect: (NavRoutes) -> Unit, activeDownloads: Int = 0, onOpenCloud: () -> Unit = {}) {
     val scheme = MaterialTheme.colorScheme
     val litRoute = tabRouteFor(currentRoute)
+    val tabHeight = tvSized(48.dp)   // 8.0 TV mode: bigger targets for the D-pad and the sofa
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 48.dp)
+            .heightIn(min = tabHeight)
             .padding(start = 20.dp, end = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -106,7 +107,7 @@ fun TopTabs(currentRoute: String, onSelect: (NavRoutes) -> Unit, activeDownloads
             val underline = rememberSelectionProgress(selected)
             Box(
                 modifier = Modifier
-                    .heightIn(min = 48.dp)
+                    .heightIn(min = tabHeight)
                     .focusRequester(Gamepad.tabFocus.getValue(route.route))
                     .clip(RoundedCornerShape(8.dp))
                     .focusRing(source, 8.dp)

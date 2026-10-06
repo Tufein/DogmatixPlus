@@ -7,6 +7,8 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import androidx.compose.ui.focus.FocusRequester
 import com.cortinadev.dogmatix.ui.components.LegendEntry
+import com.cortinadev.dogmatix.util.RemoteKey
+import com.cortinadev.dogmatix.util.TvMode
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -124,7 +126,7 @@ object Gamepad {
             KeyEvent.KEYCODE_BUTTON_SELECT, KeyEvent.KEYCODE_BUTTON_THUMBL -> GamepadButton.FAVOURITE
             KeyEvent.KEYCODE_BUTTON_THUMBR -> GamepadButton.TOGGLE_FILTERS
             KeyEvent.KEYCODE_BUTTON_START -> GamepadButton.START
-            else -> null
+            else -> remoteShortcut(event.keyCode)
         }
         if (shortcut != null) {
             if (event.source and InputDevice.SOURCE_GAMEPAD == InputDevice.SOURCE_GAMEPAD) _connected.value = true
@@ -148,6 +150,19 @@ object Gamepad {
             return true
         }
         return false
+    }
+
+    /**
+     * 8.0: a TV remote's extra keys as gamepad shortcuts (see [TvMode.remoteKey]). Menu and Search
+     * act only in the library (details, search): elsewhere X and Y do things a stray remote key
+     * should not (X deletes in Downloads).
+     */
+    private fun remoteShortcut(keyCode: Int): GamepadButton? = when (TvMode.remoteKey(keyCode)) {
+        RemoteKey.PREV_SECTION -> GamepadButton.PREV_TAB
+        RemoteKey.NEXT_SECTION -> GamepadButton.NEXT_TAB
+        RemoteKey.DETAILS -> GamepadButton.X.takeIf { currentRoute == "home" }
+        RemoteKey.SEARCH -> GamepadButton.Y.takeIf { currentRoute == "home" }
+        null -> null
     }
 
     private var leftTriggerDown = false
