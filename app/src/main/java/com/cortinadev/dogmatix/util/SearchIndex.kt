@@ -38,6 +38,7 @@ object SettingKeys {
     const val BOLD_FOCUS = "bold_focus"
     const val ANIMATIONS = "animations"
     const val GLOW = "glow"
+    const val TV_MODE = "tv_mode"
     const val LIST_COVERS = "list_covers"
     const val COMPACT = "compact"
     const val COVERS_RETRY = "covers_retry"
@@ -125,6 +126,7 @@ object SearchIndex {
             setting(SettingKeys.BOLD_FOCUS, LOOK, R.string.settings_bold_focus, R.string.settings_bold_focus_hint, R.drawable.ic_center_focus_strong, R.string.find8_kw_accessibility),
             setting(SettingKeys.ANIMATIONS, LOOK, R.string.settings_v5_animations, R.string.settings_v5_animations_hint, R.drawable.ic_animation, R.string.find8_kw_animations),
             setting(SettingKeys.GLOW, LOOK, R.string.settings_v5_glow, R.string.settings_v5_glow_hint, R.drawable.ic_blur_on),
+            setting(SettingKeys.TV_MODE, LOOK, R.string.tv8_setting_title, null, R.drawable.ic_tv),
             setting(SettingKeys.LIST_COVERS, LOOK, R.string.settings_v5_list_covers, R.string.settings_v5_list_covers_hint, R.drawable.ic_image, R.string.find8_kw_covers),
             setting(SettingKeys.COMPACT, LOOK, R.string.disc6_compact_title, R.string.disc6_compact_hint, R.drawable.ic_list),
             setting(SettingKeys.COVERS_RETRY, LOOK, R.string.settings_v5_covers_retry, null, R.drawable.ic_image_search, R.string.find8_kw_covers),

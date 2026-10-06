@@ -137,6 +137,14 @@ import com.cortinadev.dogmatix.data.local.LookSettings
 import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
 import com.cortinadev.dogmatix.ui.theme.Motion
 import com.cortinadev.dogmatix.ui.theme.dogmatixBackground
+import com.cortinadev.dogmatix.data.local.TvModeSettings
+import com.cortinadev.dogmatix.util.TvModeSetting
+import com.cortinadev.dogmatix.util.QuickAction
+import com.cortinadev.dogmatix.ui.components.ProvideTvMode
+import com.cortinadev.dogmatix.ui.components.LocalTvMode
+import com.cortinadev.dogmatix.ui.components.tvSafeArea
+import com.cortinadev.dogmatix.ui.components.QuickMenuOverlay
+import com.cortinadev.dogmatix.ui.screens.search.SearchAllScreen
 import com.cortinadev.dogmatix.ui.screens.cloud.CloudBackupScreen
 import com.cortinadev.dogmatix.ui.screens.cloud.CloudScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -151,6 +159,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var downloadService: DownloadService
     @Inject lateinit var metadataService: GameMetadataService
     @Inject lateinit var lookSettings: LookSettings
+    @Inject lateinit var tvModeSettings: TvModeSettings
     private var secondScreen: SecondScreenPresenter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -186,6 +195,7 @@ class MainActivity : AppCompatActivity() {
             val textSize by appSettings.textSizePercent.collectAsState(initial = TextSize.DEFAULT)
             val animations by lookSettings.animations.collectAsState(initial = true)
             val glow by lookSettings.glow.collectAsState(initial = true)
+            val tvSetting by tvModeSettings.mode.collectAsState(initial = TvModeSetting.AUTO)
             val systemAnimationsOff = remember {
                 runCatching { Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f }.getOrDefault(false)
             }
@@ -196,12 +206,14 @@ class MainActivity : AppCompatActivity() {
                     LocalReduceMotion provides (!animations || systemAnimationsOff),
                     LocalDensity provides Density(density.density, density.fontScale * TextSize.factor(textSize))
                 ) {
-                    when (onboardingDone) {
-                        null -> Unit                      // DataStore not read yet: avoid flashing the wrong screen
-                        false -> OnboardingHost()
-                        true -> DogmatixApp(pendingFilters)
+                    ProvideTvMode(tvSetting) {
+                        when (onboardingDone) {
+                            null -> Unit                      // DataStore not read yet: avoid flashing the wrong screen
+                            false -> OnboardingHost()
+                            true -> DogmatixApp(pendingFilters)
+                        }
+                        WhatsNewAfterUpdate(onboardingDone)
                     }
-                    WhatsNewAfterUpdate(onboardingDone)
                 }
             }
         }
@@ -469,6 +481,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
             modifier = Modifier
                 .fillMaxSize()
                 .windowInsetsPadding(contentInsets())
+                .tvSafeArea()
         ) {
             if (isLandscape) {
                 TopTabs(
@@ -550,10 +563,12 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                         FrontendMetadataScreen(onOpenSettings = { navController.navigate(NavRoutes.Settings.route) })
                     }
                     composable(NavRoutes.BetterVersions.route) { BetterVersionsScreen() }
+                    composable(NavRoutes.SearchAll.route) { SearchAllScreen(navController) }
                 }
             }
 
-            if (gamepadConnected) {
+            // On a TV the remote is the controller: show the legend there too.
+            if (gamepadConnected || LocalTvMode.current) {
                 GamepadLegend(entries = legendOverride?.entries ?: legendFor(currentRoute), trailing = if (isLandscape) ({ FreeSpaceText(freeBytes) }) else null)
             } else if (isLandscape) {
                 NoGamepadHint(trailing = { FreeSpaceText(freeBytes) })
@@ -567,6 +582,18 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                 )
             }
         }
+        // 8.0: hold SELECT for the quick menu, over every screen.
+        val queueHeld by downloadViewModel.held.collectAsState()
+        QuickMenuOverlay(
+            queueHeld = queueHeld,
+            onSearch = { pendingFilters.submitQuick(QuickAction.SEARCH) },
+            onSearchAll = { navController.navigate(NavRoutes.SearchAll.route) { launchSingleTop = true } },
+            onSurprise = { pendingFilters.submitQuick(QuickAction.SURPRISE) },
+            onDownloads = { navController.switchTo(NavRoutes.Downloads) },
+            onSetQueueHeld = downloadViewModel::setHeld,
+            onTools = { navController.navigate(NavRoutes.Tools.route) { launchSingleTop = true } },
+            onSettings = { navController.switchTo(NavRoutes.Settings) }
+        )
     }
     }
 }

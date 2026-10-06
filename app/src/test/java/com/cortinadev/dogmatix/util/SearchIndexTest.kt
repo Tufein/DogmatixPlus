@@ -82,11 +82,11 @@ class SearchIndexTest {
         assertEquals(2, GameHits.pick("mario", rows, 2).size)
     }
 
-    @Test fun `every screen except Settings and the tabs' own is indexed, ids are unique`() {
+    @Test fun `every screen except Settings, the search itself and the tabs' own is indexed, ids are unique`() {
         val ids = SearchIndex.entries.map { it.id }
         assertEquals(ids.size, ids.toSet().size)
         val routes = SearchIndex.entries.map { it.target.route }.toSet()
-        val missing = NavRoutes.allRoutes.map { it.route }.filter { it !in routes && it != NavRoutes.Settings.route }
+        val missing = NavRoutes.allRoutes.map { it.route }.filter { it !in routes && it != NavRoutes.Settings.route && it != NavRoutes.SearchAll.route }
         assertEquals(emptyList<String>(), missing)
     }
 

@@ -488,6 +488,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setGlow(context, it > 0) }
             ) { ThemedSwitch(look.glow) { extra.setGlow(context, it) } }
         },
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.TV_MODE) { TvModeSettingRow() },
         SettingsRow(SettingsSection.LOOK, key = SettingKeys.LIST_COVERS) {
             SettingRow(
                 icon = R.drawable.ic_image,
