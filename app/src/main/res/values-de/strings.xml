@@ -1319,11 +1319,11 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Suchen nach Gefühl: Filter für Genre und Jahrzehnt, "Mehr davon" in der Detailkarte, Überrasch mich auf der Start-Taste, kompakte Listen.</item>
-        <item>Sammlungsziele und ein Spielverlauf, eine Teilen-Karte für Spiele und ein Widget "Weiterspielen".</item>
-        <item>Laden, wenn es passt: nur im WLAN, beim Laden, heute Nacht oder zu einer festen Zeit.</item>
-        <item>Eine gemeinsame Wunschliste für die Familie und ein sichereres WebDAV-Sync und -Backup.</item>
-        <item>Alles prüfen: ein Bericht zu Quellen, Speicher, RomM, Backups und mehr, mit Lösung je Problem.</item>
+        <item>Eine Sammlung auf dem Gerät halten: neue Spiele darin werden automatisch geladen.</item>
+        <item>Speicher freigeben: nie gespielte Spiele, größte zuerst, mit sicherem Entfernen.</item>
+        <item>Beschreibungen, Genres und Jahre für ES-DE und Pegasus sowie die besten Spiele je Konsole.</item>
+        <item>Eine bessere Version eines Spiels, ein Wochenüberblick, eine Schnelleinstellungs-Kachel und dein Jahr in Spielen.</item>
+        <item>Überall derselbe Symbolstil in den Einstellungen, und dein Symbol auf dem zweiten Bildschirm.</item>
     </string-array>
 
     <!-- 4.0 -->

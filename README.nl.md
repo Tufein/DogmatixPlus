@@ -33,6 +33,16 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 7.0
+- **Houd een collectie op je toestel** (*Tools → Collecties*): zet hem aan en nieuwe games in die collectie worden vanzelf gedownload, een paar per keer en alleen als er ruimte is. Er wordt niets automatisch verwijderd; games die uit de collectie zijn gehaald staan in een controlelijst.
+- **Ruimte vrijmaken** (*Tools*): games die je nooit speelde, grootste eerst, met de ruimte die je wint. Favorieten, games in een collectie, RomM-saves en achievements zijn beschermd. Verwijder ze, of verwijder en zet ze op de verlanglijst.
+- **Beschrijvingen voor je launcher** (*Tools*): schrijft beschrijving, genre, jaar en waardering in de gamelist.xml van ES-DE en de metadata.txt van Pegasus, zonder te raken aan wat er staat (eerst komt er een reservekopie).
+- **Beste games per console** (*Tools*, met een RetroAchievements-sleutel): de meest geliefde games, wat je hebt, en een knop voor wat je nog kunt halen.
+- **Betere versie beschikbaar** (*Tools*): een nieuwere revisie, een eindversie in plaats van een beta, of een goede dump in plaats van een slechte, voor games die je al hebt.
+- **Een wekelijks overzicht** (optioneel), een **Snelle instellingen-tegel** en launcher-snelkoppelingen voor de downloads, en **jouw jaar in games** met een kaart om te delen.
+- **Dezelfde look in elke rij van de instellingen**, en jouw eigen icoon op het tweede scherm.
+- Nog niet getest op een echt apparaat of tegen een echte RomM-, WebDAV- of RetroAchievements-server.
+
 ### Nieuw in 6.0
 - **Zoeken op gevoel**: filters voor **genre en decennium** (uit de gameinformatie die je al hebt), **Meer zoals dit** in de detailkaart, **Verras me** op de Start-knop van de controller en een optie voor **compacte lijsten**.
 - **Verzamelingsdoelen en speelgeschiedenis** (*Tools*): hoe compleet elke console is, met de ontbrekende titels klaar om te importeren, en een tijdlijn per dag van wat je downloadde en speelde.

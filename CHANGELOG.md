@@ -3,6 +3,21 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [7.0.0] – 2026-10-06 · Dogmatix+
+
+### Added
+- **Offline collections**: a collection can be kept on the device; new games in it are queued automatically (per-run cap, free-space check, optional Wi-Fi only). A review list offers games that left the collection; nothing is deleted automatically.
+- **Free up space** tool, **Descriptions for your launcher** (ES-DE gamelist.xml, Pegasus metadata.txt), **Best games per console** (RetroAchievements), **Better versions**, **Year in games** with a share card.
+- **Weekly digest** notification (opt-in), **Quick Settings tile** for the download queue, launcher shortcuts for Surprise me, Downloads and Search.
+
+### Changed
+- Settings: all rows share one icon style; the cloud screens, the Tools hub and the collection goals screen follow.
+- The second screen shows the app icon instead of the mascot.
+
+### Notes
+- No database change (version 13).
+- Not yet tried on a real device or against real servers.
+
 ## [6.0.0] – 2026-10-05 · Dogmatix+
 
 Finding, collecting and sharing. Layout and key bindings stay as they were.

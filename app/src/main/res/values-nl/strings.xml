@@ -1319,11 +1319,11 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Zoeken op gevoel: filters voor genre en decennium, "Meer zoals dit" in de detailkaart, Verras me op de Start-knop, compacte lijsten.</item>
-        <item>Verzamelingsdoelen en een speelgeschiedenis, een deelkaart voor games en een "Verder spelen"-widget.</item>
-        <item>Downloaden wanneer het uitkomt: alleen via wifi, aan de lader, vanavond of op een vast tijdstip.</item>
-        <item>Een gedeelde verlanglijst voor het gezin, en een veiligere WebDAV-sync en -back-up.</item>
-        <item>Alles controleren: één rapport over bronnen, opslag, RomM, back-ups en meer, met een oplossing per probleem.</item>
+        <item>Houd een collectie op je toestel: nieuwe games erin worden vanzelf gedownload.</item>
+        <item>Ruimte vrijmaken: games die je nooit speelde, grootste eerst, met veilig verwijderen.</item>
+        <item>Beschrijvingen, genres en jaren voor ES-DE en Pegasus, en de beste games per console.</item>
+        <item>Een betere versie van een game die je hebt, een weekoverzicht, een snelle tegel en jouw jaar in games.</item>
+        <item>Overal dezelfde icoonstijl in de instellingen, en jouw icoon op het tweede scherm.</item>
     </string-array>
 
     <!-- 4.0 -->

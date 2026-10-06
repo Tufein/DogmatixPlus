@@ -1270,11 +1270,11 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Procurar pela sensação: filtros de género e década, "Mais como este" na ficha, Surpreende-me no botão Start, listas compactas.</item>
-        <item>Objetivos de coleção e histórico de jogo, um cartão para partilhar e um widget "Continuar a jogar".</item>
-        <item>Descarregar quando convém: só com Wi-Fi, a carregar, esta noite ou a uma hora marcada.</item>
-        <item>Uma lista de desejos partilhada em família e sincronização e cópia WebDAV mais seguras.</item>
-        <item>Verificar tudo: um relatório sobre fontes, armazenamento, RomM, cópias e mais, com correção para cada problema.</item>
+        <item>Mantém uma coleção no dispositivo: os jogos novos que ela tiver descarregam-se sozinhos.</item>
+        <item>Libertar espaço: jogos que nunca jogaste, os maiores primeiro, com remoção segura.</item>
+        <item>Descrições, géneros e anos para o ES-DE e o Pegasus, e os melhores jogos por consola.</item>
+        <item>Uma versão melhor de um jogo que tens, um resumo semanal, um mosaico rápido e o teu ano em jogos.</item>
+        <item>O mesmo estilo de ícones em todas as definições e o teu ícone no segundo ecrã.</item>
     </string-array>
 
     <!-- 4.0 -->

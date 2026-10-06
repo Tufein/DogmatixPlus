@@ -33,6 +33,16 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
+### New in 7.0
+- **Keep a collection on your device** (*Tools → Collections*): switch it on and new games in that collection download by themselves, a few per run, only when there is room. Nothing is deleted automatically; games that left the collection are offered in a review list.
+- **Free up space** (*Tools*): games you never played, biggest first, with the space you would win. Favourites, collection games, RomM saves and achievements are protected. Remove them, or remove and put them on the wishlist.
+- **Descriptions for your launcher** (*Tools*): writes description, genre, year and rating into ES-DE's gamelist.xml and Pegasus' metadata.txt, without touching what is there (a backup copy is made first).
+- **Best games per console** (*Tools*, with a RetroAchievements key): the most-loved games, what you have, and a button for the ones you can still get.
+- **Better version available** (*Tools*): a newer revision, a final release instead of a beta, or a good dump instead of a bad one, for games you already have.
+- **A weekly digest** (optional), a **Quick Settings tile** and launcher shortcuts for the downloads, **your year in games** with a card to share.
+- **The same look in every Settings row**, and your own icon on the second screen.
+- Not tried yet on a real device or against a real RomM, WebDAV or RetroAchievements server.
+
 ### New in 6.0
 - **Search by feel**: filters for **genre and decade** (from the game information you already have), **More like this** in the details card, **Surprise me** on the controller's Start button and a **compact list** option.
 - **Collection goals and play history** (*Tools*): how complete each console is, with the missing titles ready to import, and a day-by-day timeline of what you downloaded and played.

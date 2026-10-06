@@ -94,6 +94,16 @@ Everything below came with the alpha and is part of 1.2.0; the RomM parts have n
 - **Diagnostics**: `DiagnosticsService` builds the report; `DiagnosticsRedactor` removes tokens, URLs, magnet links, IP addresses, e-mail addresses and the saved secrets before it is shared.
 - **Italian and Portuguese** (European) join the other languages.
 
+### What 7.0.0 adds
+- **Offline collections**: `OfflineCollections` (pure plan: per-run cap, free-space check, review list of fetched games that left a collection), `OfflineCollectionsService` (runs after every scan and the daily job, queues through `DownloadService.startDownloads`, never deletes by itself), prefs in `OfflineCollectionsSettings`.
+- **Free up space**: `SpaceReclaim` / `SpaceReclaimService` (never-played games from the ES-DE play data, protections for favourites, collections, RomM saves and achievements), removal through `LibraryScanService.deleteAll`.
+- **Launcher metadata**: `FrontendMetadata` (pure text-insertion merge into gamelist.xml and metadata.txt, nothing existing is rewritten), `FrontendMetadataService` (cache, RomM, then one online lookup, throttled and capped per run; `.dogmatix-bak` backup first).
+- **Best games**: `BestGames` (RA console map, ranking, title matching), `BestGamesService` (`API_GetGameList`, `API_GetGameExtended` for player counts, 7-day cache under `filesDir/bestgames`).
+- **Better versions and digest**: `BetterVersions` (tag parsing and the "is B better than A" rule), `BetterVersionsService` (removes the old file only after the new one finished and was checked), `WeeklyDigest` + `WeeklyDigestScheduler` (JobScheduler, opt-in).
+- **Quick access and recap**: `QuickActions` / `PendingLibraryFilters.submitQuick`, `QueueTileService`, launcher shortcuts in `AppShortcuts`; `YearRecap`, `RecapScreen`, `RecapShare`.
+- **Settings**: every `SettingRow` takes a required `icon` and draws it in one `SettingsIconTile`; shared tile size, gap and inset.
+- No database change: the schema stays at version 13.
+
 ### What 6.0.0 adds
 - **Search by feel**: `LibraryDiscovery` (genre and decade facets built only from `game_metadata`, via `GameMetadataDao.observeKnown()`), `SimilarGames` (scores genre, decade, console and title overlap for "More like this"), `DiscoverPanel` and `SimilarSection`, saved views carry genres and decades, `GamepadButton.START` picks a random game, `LookSettings.compactLists`.
 - **Goals and history**: `CollectionGoals` / `CollectionGoalsService` (per console: owned against known titles, missing titles go to `PendingListImport`), `PlayHistory` / `PlayHistoryService` (days built from the download table and ES-DE play data). Routes `collection_goals`, `play_history`.

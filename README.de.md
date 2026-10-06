@@ -33,6 +33,16 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 7.0
+- **Eine Sammlung auf dem Gerät halten** (*Tools → Sammlungen*): einschalten, und neue Spiele darin werden von selbst geladen, wenige pro Durchlauf und nur bei genug Platz. Nichts wird automatisch gelöscht; Spiele, die die Sammlung verlassen haben, stehen in einer Prüfliste.
+- **Speicher freigeben** (*Tools*): nie gespielte Spiele, größte zuerst, mit dem gewonnenen Platz. Favoriten, Sammlungsspiele, RomM-Spielstände und Erfolge sind geschützt. Entfernen, oder entfernen und auf die Wunschliste setzen.
+- **Beschreibungen für deinen Launcher** (*Tools*): schreibt Beschreibung, Genre, Jahr und Wertung in die gamelist.xml von ES-DE und die metadata.txt von Pegasus, ohne Vorhandenes anzutasten (vorher entsteht eine Sicherungskopie).
+- **Beste Spiele je Konsole** (*Tools*, mit RetroAchievements-Schlüssel): die beliebtesten Spiele, was du hast, und eine Taste für das, was du noch holen kannst.
+- **Bessere Version verfügbar** (*Tools*): eine neuere Revision, eine fertige Version statt einer Beta oder ein guter statt eines schlechten Dumps, für Spiele, die du schon hast.
+- **Ein Wochenüberblick** (optional), eine **Schnelleinstellungs-Kachel** und Launcher-Verknüpfungen für die Downloads, **dein Jahr in Spielen** mit einer Karte zum Teilen.
+- **Dasselbe Aussehen in jeder Zeile der Einstellungen** und dein eigenes Symbol auf dem zweiten Bildschirm.
+- Noch nicht auf einem echten Gerät oder gegen einen echten RomM-, WebDAV- oder RetroAchievements-Server getestet.
+
 ### Neu in 6.0
 - **Suchen nach Gefühl**: Filter für **Genre und Jahrzehnt** (aus den vorhandenen Spielinfos), **Mehr davon** in der Detailkarte, **Überrasch mich** auf der Start-Taste des Controllers und **kompakte Listen**.
 - **Sammlungsziele und Spielverlauf** (*Tools*): wie vollständig jede Konsole ist, mit den fehlenden Titeln zum Import, und eine Zeitleiste pro Tag mit Geladenem und Gespieltem.

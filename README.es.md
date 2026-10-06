@@ -33,6 +33,16 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 7.0
+- **Mantener una colección en el dispositivo** (*Herramientas → Colecciones*): actívala y los juegos nuevos que incluya se descargan solos, unos pocos por vez y solo si hay espacio. No se borra nada automáticamente; los juegos que salieron de la colección aparecen en una lista de revisión.
+- **Liberar espacio** (*Herramientas*): juegos que nunca jugaste, los más grandes primero, con el espacio que ganas. Favoritos, juegos de una colección, partidas de RomM y logros están protegidos. Bórralos, o bórralos y ponlos en la lista de deseos.
+- **Descripciones para tu lanzador** (*Herramientas*): escribe descripción, género, año y valoración en el gamelist.xml de ES-DE y el metadata.txt de Pegasus, sin tocar lo que ya hay (antes se hace una copia).
+- **Mejores juegos por consola** (*Herramientas*, con una clave de RetroAchievements): los juegos más queridos, lo que tienes y un botón para los que aún puedes conseguir.
+- **Versión mejor disponible** (*Herramientas*): una revisión más nueva, una versión final en vez de una beta, o un buen volcado en vez de uno malo, para juegos que ya tienes.
+- **Un resumen semanal** (opcional), un **mosaico de ajustes rápidos** y accesos directos del lanzador para las descargas, **tu año en juegos** con una tarjeta para compartir.
+- **El mismo aspecto en cada fila de los ajustes** y tu propio icono en la segunda pantalla.
+- Aún sin probar en un dispositivo real ni con un servidor RomM, WebDAV o RetroAchievements real.
+
 ### Novedades de 6.0
 - **Buscar por sensación**: filtros de **género y década** (con la información de juego que ya tienes), **Más como este** en la ficha, **Sorpréndeme** en el botón Start del mando y **listas compactas**.
 - **Objetivos de colección e historial** (*Herramientas*): lo completa que está cada consola, con los títulos que faltan listos para importar, y una cronología día a día de lo que descargaste y jugaste.

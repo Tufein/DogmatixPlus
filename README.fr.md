@@ -33,6 +33,16 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveau dans 7.0
+- **Garder une collection sur l'appareil** (*Outils → Collections*) : activez-la et les nouveaux jeux qu'elle contient se téléchargent seuls, quelques-uns par passage et seulement s'il y a de la place. Rien n'est supprimé automatiquement ; les jeux sortis de la collection sont proposés dans une liste de contrôle.
+- **Libérer de la place** (*Outils*) : jeux jamais lancés, les plus gros d'abord, avec la place gagnée. Favoris, jeux d'une collection, sauvegardes RomM et succès sont protégés. Supprimez-les, ou supprimez et mettez-les sur la liste de souhaits.
+- **Descriptions pour votre lanceur** (*Outils*) : écrit description, genre, année et note dans le gamelist.xml d'ES-DE et le metadata.txt de Pegasus, sans toucher à l'existant (une copie de secours est faite d'abord).
+- **Meilleurs jeux par console** (*Outils*, avec une clé RetroAchievements) : les jeux les plus aimés, ce que vous avez, et un bouton pour ceux que vous pouvez encore obtenir.
+- **Meilleure version disponible** (*Outils*) : une révision plus récente, une version finale au lieu d'une bêta, ou un bon dump au lieu d'un mauvais, pour les jeux que vous avez déjà.
+- **Un résumé hebdomadaire** (facultatif), une **tuile des réglages rapides** et des raccourcis du lanceur pour les téléchargements, **votre année en jeux** avec une carte à partager.
+- **Le même style sur chaque ligne des paramètres**, et votre propre icône sur le deuxième écran.
+- Pas encore essayé sur un vrai appareil ni sur un vrai serveur RomM, WebDAV ou RetroAchievements.
+
 ### Nouveau dans 6.0
 - **Chercher à l'instinct** : filtres de **genre et de décennie** (d'après les infos de jeu déjà là), **Plus comme ça** dans la fiche, **Surprends-moi** sur la touche Start de la manette et une option de **listes compactes**.
 - **Objectifs de collection et historique** (*Outils*) : à quel point chaque console est complète, avec les titres manquants prêts à importer, et une chronologie jour par jour de ce que vous avez téléchargé et joué.
