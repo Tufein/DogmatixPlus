@@ -168,6 +168,8 @@ fun SettingsScreen(
     val afterDownload by extra.afterDownload.collectAsState()
     val digestOn by extra.digestOn.collectAsState()
     val metaAuto by extra.metaAuto.collectAsState()
+    val power = extra.power.collectAsState().value ?: com.cortinadev.dogmatix.util.PowerSettings()
+    val pickBest by extra.pickBest.collectAsState()
     val appPrefs by extra.appPrefs.collectAsState()
     val activeProfileName by extra.activeProfileName.collectAsState()
     val updateOffer by extra.updateOffer.collectAsState()
@@ -624,6 +626,15 @@ fun SettingsScreen(
         },
         SettingsRow(SettingsSection.DOWNLOADS) {
             SettingRow(
+                icon = R.drawable.ic_swap_horiz,
+                title = stringResource(R.string.src75_pick_best_title),
+                hint = stringResource(R.string.src75_pick_best_hint),
+                onClick = { extra.setPickBest(context, !pickBest) },
+                onAdjust = { extra.setPickBest(context, it > 0) }
+            ) { ThemedSwitch(pickBest) { extra.setPickBest(context, it) } }
+        },
+        SettingsRow(SettingsSection.DOWNLOADS) {
+            SettingRow(
                 icon = R.drawable.ic_notifications,
                 title = stringResource(R.string.settings_queue_summary),
                 hint = stringResource(R.string.settings_queue_summary_hint),
@@ -648,6 +659,40 @@ fun SettingsScreen(
                 onClick = { extra.setChargingOnly(context, !schedule.chargingOnly) },
                 onAdjust = { extra.setChargingOnly(context, it > 0) }
             ) { ThemedSwitch(schedule.chargingOnly) { extra.setChargingOnly(context, it) } }
+        },
+        SettingsRow(SettingsSection.SCHEDULE) {
+            SettingRow(
+                icon = R.drawable.ic_battery,
+                title = stringResource(R.string.power75_battery_title),
+                hint = stringResource(R.string.power75_battery_hint, power.batteryPercent, power.batteryPercent + 5),
+                onClick = { extra.setLowBattery(context, !power.lowBatteryOn) },
+                onAdjust = { extra.setLowBattery(context, it > 0) }
+            ) { ThemedSwitch(power.lowBatteryOn) { extra.setLowBattery(context, it) } }
+        },
+        SettingsRow(SettingsSection.SCHEDULE, visible = power.lowBatteryOn) {
+            SettingRow(
+                icon = R.drawable.ic_battery,
+                title = stringResource(R.string.power75_battery_level_title),
+                hint = stringResource(R.string.power75_battery_level_hint),
+                onClick = { extra.shiftBatteryPercent(context, 1) },
+                onAdjust = { extra.shiftBatteryPercent(context, it) }
+            ) {
+                Stepper(
+                    stringResource(R.string.power75_percent, power.batteryPercent),
+                    onDecrement = { extra.shiftBatteryPercent(context, -1) },
+                    onIncrement = { extra.shiftBatteryPercent(context, 1) },
+                    valueWidth = 72.dp
+                )
+            }
+        },
+        SettingsRow(SettingsSection.SCHEDULE) {
+            SettingRow(
+                icon = R.drawable.ic_thermostat,
+                title = stringResource(R.string.power75_heat_title),
+                hint = stringResource(R.string.power75_heat_hint),
+                onClick = { extra.setHeat(context, !power.heatOn) },
+                onAdjust = { extra.setHeat(context, it > 0) }
+            ) { ThemedSwitch(power.heatOn) { extra.setHeat(context, it) } }
         },
         SettingsRow(SettingsSection.SCHEDULE) {
             SettingRow(

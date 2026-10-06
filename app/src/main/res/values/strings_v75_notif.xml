@@ -7,7 +7,7 @@
     <string name="notif75_open_library">Open in the library</string>
     <string name="notif75_open_downloads">Open the downloads</string>
     <string name="notif75_held_title">Downloads on hold</string>
-    <string name="notif75_held_text">Running downloads finish, nothing new starts</string>
+    <string name="notif75_held_text">Paused; tap Resume all to go on</string>
     <string name="notif75_game_done_title">%1$s downloaded</string>
     <string name="notif75_game_done_text">Ready in your library</string>
     <plurals name="notif75_game_done_files">

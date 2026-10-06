@@ -7,7 +7,7 @@
     <string name="notif75_open_library">Abrir na biblioteca</string>
     <string name="notif75_open_downloads">Abrir os downloads</string>
     <string name="notif75_held_title">Downloads em pausa</string>
-    <string name="notif75_held_text">Os downloads em curso terminam, nenhum novo começa</string>
+    <string name="notif75_held_text">Em pausa; toca em Retomar tudo para continuar</string>
     <string name="notif75_game_done_title">%1$s descarregado</string>
     <string name="notif75_game_done_text">Pronto na tua biblioteca</string>
     <plurals name="notif75_game_done_files">

@@ -6,7 +6,7 @@
     <string name="screen75_resume_all">Reanudar todo</string>
     <string name="screen75_held_title">Descargas en pausa</string>
     <string name="screen75_paused_items_hint">Toca reproducir en una descarga para seguir donde se quedó</string>
-    <string name="screen75_held_running_hint">Las descargas en curso terminan; no empieza nada nuevo hasta que reanudes</string>
+    <string name="screen75_held_running_hint">Las descargas que se están descomprimiendo o vienen de un servicio debrid terminan; el resto espera hasta que reanudes</string>
     <string name="screen75_held_waiting">Esperando para empezar: %1$d</string>
     <string name="screen75_held_empty_hint">Las nuevas descargas esperan hasta que reanudes</string>
     <string name="screen75_pause_item">Pausar %1$s</string>

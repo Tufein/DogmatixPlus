@@ -96,8 +96,18 @@ class ExtraSettingsViewModel @Inject constructor(
     private val lookSettings: LookSettings,
     private val covers: CoverRepository,
     private val weeklyDigest: com.cortinadev.dogmatix.data.local.WeeklyDigestSettings,
-    private val frontendMetadata: com.cortinadev.dogmatix.data.local.FrontendMetadataSettings
+    private val frontendMetadata: com.cortinadev.dogmatix.data.local.FrontendMetadataSettings,
+    private val powerRules: com.cortinadev.dogmatix.data.local.PowerRuleSettings,
+    private val sourcePick: com.cortinadev.dogmatix.data.local.SourcePickSettings
 ) : ViewModel() {
+
+    /** 7.5: battery and heat rules for downloads, and picking the best source. */
+    val power: StateFlow<com.cortinadev.dogmatix.util.PowerSettings?> = powerRules.settings.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    val pickBest: StateFlow<Boolean> = sourcePick.pickBest.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+    fun setLowBattery(context: Context, on: Boolean) = executeWithToast(context, TAG) { powerRules.setLowBatteryOn(on) }
+    fun shiftBatteryPercent(context: Context, delta: Int) = executeWithToast(context, TAG) { powerRules.shiftBatteryPercent(delta) }
+    fun setHeat(context: Context, on: Boolean) = executeWithToast(context, TAG) { powerRules.setHeatOn(on) }
+    fun setPickBest(context: Context, on: Boolean) = executeWithToast(context, TAG) { sourcePick.setPickBest(on) }
 
     /** 7.0: the weekly digest notification and writing descriptions after every download. */
     val digestOn: StateFlow<Boolean> = weeklyDigest.enabled.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)

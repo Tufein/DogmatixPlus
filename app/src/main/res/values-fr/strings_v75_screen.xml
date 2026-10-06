@@ -6,7 +6,7 @@
     <string name="screen75_resume_all">Tout reprendre</string>
     <string name="screen75_held_title">Téléchargements en pause</string>
     <string name="screen75_paused_items_hint">Touchez lecture sur un téléchargement pour reprendre là où il s\'est arrêté</string>
-    <string name="screen75_held_running_hint">Les téléchargements en cours se terminent ; rien de nouveau ne démarre avant la reprise</string>
+    <string name="screen75_held_running_hint">Les téléchargements en cours d\'extraction ou venant d\'un service debrid se terminent ; le reste attend la reprise</string>
     <string name="screen75_held_waiting">En attente de démarrage : %1$d</string>
     <string name="screen75_held_empty_hint">Les nouveaux téléchargements attendent la reprise</string>
     <string name="screen75_pause_item">Mettre %1$s en pause</string>

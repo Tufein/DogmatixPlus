@@ -6,7 +6,7 @@
     <string name="screen75_resume_all">Alle fortsetzen</string>
     <string name="screen75_held_title">Downloads pausiert</string>
     <string name="screen75_paused_items_hint">Tippe bei einem Download auf Abspielen, um dort weiterzumachen, wo er aufgehört hat</string>
-    <string name="screen75_held_running_hint">Laufende Downloads werden fertig; nichts Neues startet, bis du fortsetzt</string>
+    <string name="screen75_held_running_hint">Downloads, die entpackt werden oder von einem Debrid-Dienst kommen, werden fertig; der Rest wartet, bis du fortsetzt</string>
     <string name="screen75_held_waiting">Warten auf Start: %1$d</string>
     <string name="screen75_held_empty_hint">Neue Downloads warten, bis du fortsetzt</string>
     <string name="screen75_pause_item">%1$s pausieren</string>

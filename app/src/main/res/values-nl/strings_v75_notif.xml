@@ -7,7 +7,7 @@
     <string name="notif75_open_library">Openen in de bibliotheek</string>
     <string name="notif75_open_downloads">Downloads openen</string>
     <string name="notif75_held_title">Downloads gepauzeerd</string>
-    <string name="notif75_held_text">Lopende downloads maken af, er start niets nieuws</string>
+    <string name="notif75_held_text">Gepauzeerd; tik op Alles hervatten om verder te gaan</string>
     <string name="notif75_game_done_title">%1$s gedownload</string>
     <string name="notif75_game_done_text">Klaar in je bibliotheek</string>
     <plurals name="notif75_game_done_files">

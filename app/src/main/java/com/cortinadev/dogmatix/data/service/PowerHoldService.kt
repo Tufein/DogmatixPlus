@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -37,7 +38,10 @@ class PowerHoldService @Inject constructor(
     fun start() {
         if (!started.compareAndSet(false, true)) return
         scope.launch {
-            powerMonitor.hold.map { it.any }.distinctUntilChanged().collect { held -> if (held) parkRunning() }
+            // 7.5: *Pause all* (the queue hold from Downloads, the second screen, the tile and the
+            // notification) parks running downloads the same way, so it really pauses them.
+            combine(powerMonitor.hold.map { it.any }, downloadService.gate.held) { power, user -> power || user }
+                .distinctUntilChanged().collect { held -> if (held) parkRunning() }
         }
     }
 
