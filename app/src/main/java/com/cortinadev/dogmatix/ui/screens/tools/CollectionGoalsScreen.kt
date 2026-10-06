@@ -302,6 +302,7 @@ private fun MissingList(open: MissingUi, row: ConsoleProgress?, viewModel: Colle
                         title = title,
                         lines = emptyList(),
                         onClick = { viewModel.addToWishlist(context, title) },
+                        icon = R.drawable.ic_gamepad,
                         trailing = {
                             Icon(
                                 painterResource(if (done) R.drawable.ic_check_circle else R.drawable.ic_wishlist),

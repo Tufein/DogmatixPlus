@@ -20,6 +20,9 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,10 +40,12 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -60,11 +65,40 @@ import com.cortinadev.dogmatix.util.CardGrid
  * grid read as one panel (see [CardGrid]).
  */
 
+/** The accent tile every leading icon of a settings screen sits on: rows and card headers alike. */
+internal val SettingsTileSize = 32.dp
+
+/** Space between that tile and the text, so the title column lines up in every row and header. */
+internal val SettingsTileGap = 12.dp
+
+/** The room a row (or header, or preview) keeps from the edge of its card; the tiles line up on it. */
+@Composable
+@ReadOnlyComposable
+internal fun settingsInset(): Dp =
+    if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) 14.dp else 12.dp
+
+/** True inside the accent-filled card (the way into Tools): its tiles turn solid so they stay visible on the fill. */
+private val LocalOnAccentCard = compositionLocalOf { false }
+
+/** The one look of a settings icon: the accent tile, solid on the accent card. */
+@Composable
+internal fun SettingsIconTile(icon: Int, modifier: Modifier = Modifier) {
+    val scheme = MaterialTheme.colorScheme
+    if (LocalOnAccentCard.current) {
+        IconTile(icon, modifier, size = SettingsTileSize, container = scheme.primary, tint = scheme.onPrimary)
+    } else {
+        IconTile(icon, modifier, size = SettingsTileSize)
+    }
+}
+
 /**
  * A focusable settings row. Click / A runs [onClick]; while focused, D-pad left/right
  * calls [onAdjust] with -1 / +1 so steppers, switches and swatches work from a gamepad.
  *
- * @param icon leading icon; with [iconTile] it sits on an accent tile (rows that open a screen).
+ * Every row has a leading [icon], always drawn the same way (the accent tile, [SettingsTileSize]),
+ * so the title column of all rows lines up. A wide control at the end (a stepper, two buttons) that
+ * would squeeze the title too much drops under the text instead.
+ *
  * @param hintMaxLines lines of [hint]; 0 = one in landscape, two in portrait.
  * @param below extra content under the hint (a progress bar, status pills).
  */
@@ -73,11 +107,9 @@ internal fun SettingRow(
     title: String,
     hint: String?,
     onClick: () -> Unit,
+    icon: Int,
     onAdjust: ((Int) -> Unit)? = null,
     modifier: Modifier = Modifier,
-    icon: Int? = null,
-    iconTile: Boolean = false,
-    iconTint: Color? = null,
     hintMaxLines: Int = 0,
     hintColor: Color? = null,
     below: (@Composable ColumnScope.() -> Unit)? = null,
@@ -90,7 +122,7 @@ internal fun SettingRow(
         landscape -> 1
         else -> 2
     }
-    Row(
+    SettingRowLayout(
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 56.dp)
@@ -106,39 +138,73 @@ internal fun SettingRow(
                 }
             }
             .clickable(interactionSource = source, indication = null, onClick = onClick)
-            .padding(horizontal = if (landscape) 14.dp else 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        if (icon != null) {
-            if (iconTile) {
-                IconTile(icon, size = 32.dp, tint = iconTint)
-            } else {
-                Box(modifier = Modifier.size(32.dp), contentAlignment = Alignment.Center) {
-                    Icon(
-                        painterResource(icon),
-                        contentDescription = null,
-                        tint = iconTint ?: MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(20.dp)
+            .padding(horizontal = settingsInset(), vertical = 8.dp),
+        leading = { SettingsIconTile(icon) },
+        text = {
+            Column {
+                TruncatedText(title, style = MaterialTheme.typography.bodyLarge)
+                hint?.let {
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = hintColor ?: MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = lines,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 2.dp)
                     )
                 }
+                below?.invoke(this)
+            }
+        },
+        trailing = {
+            Row(horizontalArrangement = Arrangement.spacedBy(SettingsTileGap), verticalAlignment = Alignment.CenterVertically) { trailing() }
+        }
+    )
+}
+
+/** The least width the text of a row keeps beside its control before the control moves under it. */
+private val MinTextWidth = 112.dp
+
+/**
+ * Tile, text and control on one line; when the control would leave the text less than [MinTextWidth]
+ * (large controls on a narrow card, large font sizes), it sits under the text, at the end of the line.
+ */
+@Composable
+private fun SettingRowLayout(
+    leading: @Composable () -> Unit,
+    text: @Composable () -> Unit,
+    trailing: @Composable () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Layout(content = { leading(); text(); trailing() }, modifier = modifier) { measurables, constraints ->
+        val gap = SettingsTileGap.roundToPx()
+        val minText = MinTextWidth.roundToPx()
+        val width = constraints.maxWidth
+        val lead = measurables[0].measure(Constraints(maxWidth = width))
+        val room = (width - lead.width - gap).coerceAtLeast(0)
+        val trail = measurables[2].measure(Constraints(maxWidth = room))
+        val inline = trail.width == 0 || room - trail.width - gap >= minText
+        val textRoom = if (inline && trail.width > 0) room - trail.width - gap else room
+        val body = measurables[1].measure(Constraints(maxWidth = textRoom))
+        val textX = lead.width + gap
+        if (inline) {
+            val content = maxOf(lead.height, body.height, trail.height)
+            val height = maxOf(content, constraints.minHeight).coerceAtMost(constraints.maxHeight)
+            layout(width, height) {
+                lead.placeRelative(0, (height - lead.height) / 2)
+                body.placeRelative(textX, (height - body.height) / 2)
+                trail.placeRelative(width - trail.width, (height - trail.height) / 2)
+            }
+        } else {
+            val head = maxOf(lead.height, body.height)
+            val between = 6.dp.roundToPx()
+            val height = maxOf(head + between + trail.height, constraints.minHeight).coerceAtMost(constraints.maxHeight)
+            layout(width, height) {
+                lead.placeRelative(0, (head - lead.height) / 2)
+                body.placeRelative(textX, (head - body.height) / 2)
+                trail.placeRelative(width - trail.width, head + between)
             }
         }
-        Column(modifier = Modifier.weight(1f)) {
-            TruncatedText(title, style = MaterialTheme.typography.bodyLarge)
-            hint?.let {
-                Text(
-                    it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = hintColor ?: MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = lines,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(top = 2.dp)
-                )
-            }
-            below?.invoke(this)
-        }
-        trailing()
     }
 }
 
@@ -183,14 +249,15 @@ internal fun SettingsCardHeader(
     modifier: Modifier = Modifier,
     trailing: (@Composable RowScope.() -> Unit)? = null
 ) {
+    val inset = settingsInset()
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 10.dp),
+            .padding(start = inset, end = inset, top = 12.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(SettingsTileGap)
     ) {
-        IconTile(icon, size = 30.dp)
+        SettingsIconTile(icon)
         SectionTitle(title, modifier = Modifier.weight(1f))
         if (trailing != null) {
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) { trailing() }
@@ -210,19 +277,21 @@ internal fun CardCell(
     accent: Boolean = false,
     content: @Composable BoxScope.() -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = if (cell.top) gapAbove else 0.dp)
-            .cardSlice(cell, accent)
-            .padding(
-                start = if (cell.start) 6.dp else 3.dp,
-                end = if (cell.end) 6.dp else 3.dp,
-                top = if (cell.top && cell.kind == CardGrid.Kind.ITEM) 6.dp else 3.dp,
-                bottom = if (cell.bottom) 6.dp else 3.dp
-            ),
-        content = content
-    )
+    CompositionLocalProvider(LocalOnAccentCard provides accent) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(top = if (cell.top) gapAbove else 0.dp)
+                .cardSlice(cell, accent)
+                .padding(
+                    start = if (cell.start) 6.dp else 3.dp,
+                    end = if (cell.end) 6.dp else 3.dp,
+                    top = if (cell.top && cell.kind == CardGrid.Kind.ITEM) 6.dp else 3.dp,
+                    bottom = if (cell.bottom) 6.dp else 3.dp
+                ),
+            content = content
+        )
+    }
 }
 
 /**

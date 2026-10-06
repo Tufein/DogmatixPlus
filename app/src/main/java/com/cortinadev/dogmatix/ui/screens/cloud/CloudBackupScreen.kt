@@ -54,6 +54,10 @@ import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.util.BackupCrypto
 import com.cortinadev.dogmatix.util.CertTrust
 import com.cortinadev.dogmatix.util.CloudBackupNames
+import androidx.compose.foundation.layout.Box
+import com.cortinadev.dogmatix.ui.screens.settings.SettingsTileGap
+import com.cortinadev.dogmatix.ui.screens.settings.SettingsTileSize
+import com.cortinadev.dogmatix.ui.screens.settings.settingsInset
 import com.cortinadev.dogmatix.util.CloudErrors
 import com.cortinadev.dogmatix.util.DavProblem
 import com.cortinadev.dogmatix.util.WebDavPaths
@@ -200,6 +204,7 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
             item(key = "server") {
                 DavSection(stringResource(R.string.dav_section_server), R.drawable.ic_server) {
                     DavRow(
+                        icon = R.drawable.ic_link,
                         title = stringResource(R.string.dav_server),
                         hint = ui.server.ifBlank { notSet },
                         onClick = { editor = DavEditor.SERVER },
@@ -210,16 +215,19 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
                         DavNote(stringResource(R.string.sync6_cleartext_warning), R.drawable.ic_warning, tone = PillTone.Danger)
                     }
                     DavRow(
+                        icon = R.drawable.ic_account,
                         title = stringResource(R.string.dav_user),
                         hint = ui.user.ifBlank { notSet },
                         onClick = { editor = DavEditor.USER }
                     ) { ActionPill(change, { editor = DavEditor.USER }) }
                     DavRow(
+                        icon = R.drawable.ic_key,
                         title = stringResource(R.string.dav_password),
                         hint = if (ui.hasPassword) PASSWORD_DOTS else notSet,
                         onClick = { editor = DavEditor.PASSWORD }
                     ) { ActionPill(change, { editor = DavEditor.PASSWORD }) }
                     DavRow(
+                        icon = R.drawable.ic_folder,
                         title = stringResource(R.string.dav_folder),
                         hint = ui.folder,
                         onClick = { editor = DavEditor.FOLDER }
@@ -234,6 +242,7 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
                         else -> stringResource(R.string.dav_test_never)
                     }
                     DavRow(
+                        icon = R.drawable.ic_network_check,
                         title = stringResource(R.string.dav_test),
                         hint = testHint,
                         hintColor = if (failed && !testing) errorColor else Color.Unspecified,
@@ -253,6 +262,7 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
                     if (https && (tlsProblem || ui.trustFingerprint.isNotEmpty())) {
                         val pinned = ui.trustFingerprint.isNotEmpty()
                         DavRow(
+                            icon = if (pinned) R.drawable.ic_verified else R.drawable.ic_lock,
                             title = stringResource(R.string.dav_cert),
                             hint = if (pinned) stringResource(R.string.dav_cert_trusted_hint, CertTrust.format(ui.trustFingerprint).take(23) + "…") else stringResource(R.string.dav_cert_hint),
                             onClick = { if (pinned) viewModel.forgetTrust() else viewModel.checkCertificate(context) }
@@ -269,20 +279,23 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
 
             // ---- Encrypted backup ----------------------------------------------------------------
             item(key = "backup") {
-                DavSection(stringResource(R.string.dav_section_backup), R.drawable.ic_lock) {
+                DavSection(stringResource(R.string.dav_section_backup), R.drawable.ic_backup) {
                     DavRow(
+                        icon = R.drawable.ic_lock,
                         title = stringResource(R.string.dav_passphrase),
                         hint = stringResource(if (ui.hasPassphrase) R.string.dav_passphrase_set else R.string.dav_passphrase_unset),
                         onClick = { editor = DavEditor.PASSPHRASE }
                     ) { ActionPill(stringResource(if (ui.hasPassphrase) R.string.settings_change else R.string.dav_set), { editor = DavEditor.PASSPHRASE }) }
                     DavNote(stringResource(R.string.dav_passphrase_warning), R.drawable.ic_warning, tone = PillTone.Warning)
                     DavRow(
+                        icon = R.drawable.ic_update,
                         title = stringResource(R.string.dav_auto),
                         hint = stringResource(R.string.dav_auto_hint),
                         onClick = { viewModel.setAutoBackup(context, !ui.autoBackup) },
                         onAdjust = { viewModel.setAutoBackup(context, it > 0) }
                     ) { DavSwitch(ui.autoBackup) { viewModel.setAutoBackup(context, it) } }
                     DavRow(
+                        icon = R.drawable.ic_archive,
                         title = stringResource(R.string.dav_keep),
                         hint = stringResource(R.string.dav_keep_hint),
                         onClick = { viewModel.setKeep(CloudBackupNames.shiftKeep(ui.keep, 1)) },
@@ -305,6 +318,7 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
                     }
                     val canBackUp = configured && ui.hasPassphrase && !backingUp
                     DavRow(
+                        icon = R.drawable.ic_cloud_upload,
                         title = stringResource(R.string.dav_backup_now),
                         hint = if (!configured) stringResource(R.string.dav_test_needs_server) else if (!ui.hasPassphrase) stringResource(R.string.dav_err_no_passphrase) else backupHint,
                         hintColor = if (backupFailed && !backingUp && configured && ui.hasPassphrase) errorColor else Color.Unspecified,
@@ -337,18 +351,23 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
                 ) {
                     when (val state = list) {
                         DavListState.Idle -> DavRow(
+                            icon = R.drawable.ic_cloud_download,
                             title = stringResource(if (configured) R.string.dav_list_idle else R.string.dav_list_needs_setup),
                             onClick = { if (configured) viewModel.refreshList() }
                         )
                         DavListState.Loading -> Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 14.dp),
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = settingsInset(), vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            horizontalArrangement = Arrangement.spacedBy(SettingsTileGap)
                         ) {
-                            CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(18.dp))
+                            // Where the tile of a row would be, so the text lines up with the rows.
+                            Box(Modifier.size(SettingsTileSize), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(18.dp))
+                            }
                             Text(stringResource(R.string.dav_list_loading), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         is DavListState.Failed -> DavRow(
+                            icon = R.drawable.ic_cloud_off,
                             title = stringResource(R.string.dav_list_failed_title),
                             hint = CloudMessages.of(context, state.error),
                             hintColor = errorColor,
@@ -364,6 +383,7 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
                                     val hint = listOfNotNull(device, item.size?.let { formatBytes(it) }).joinToString(" · ")
                                     val readingThis = reading == item.name
                                     DavRow(
+                                        icon = R.drawable.ic_backup,
                                         title = date,
                                         hint = hint,
                                         onClick = { viewModel.readBackup(context, item) }
@@ -381,6 +401,7 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
                                 }
                                 if (state.items.size > shown) {
                                     DavRow(
+                                        icon = R.drawable.ic_expand_more,
                                         title = stringResource(R.string.dav_list_more, state.items.size - shown),
                                         onClick = { shown += PAGE }
                                     ) { ActionPill(stringResource(R.string.dav_list_show), { shown += PAGE }) }
@@ -395,11 +416,13 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
             item(key = "sync") {
                 DavSection(stringResource(R.string.dav_section_sync), R.drawable.ic_devices) {
                     DavRow(
+                        icon = R.drawable.ic_smartphone,
                         title = stringResource(R.string.dav_device_name),
                         hint = ui.deviceName.ifBlank { notSet },
                         onClick = { editor = DavEditor.DEVICE_NAME }
                     ) { ActionPill(change, { editor = DavEditor.DEVICE_NAME }) }
                     DavRow(
+                        icon = R.drawable.ic_sync,
                         title = stringResource(R.string.dav_device_sync),
                         hint = stringResource(R.string.dav_device_sync_hint),
                         onClick = { viewModel.setDeviceSync(context, !ui.deviceSync) },
@@ -416,6 +439,7 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
                         else -> stringResource(R.string.dav_sync_never)
                     }
                     DavRow(
+                        icon = R.drawable.ic_cloud_sync,
                         title = stringResource(R.string.dav_sync_now),
                         hint = if (!configured) stringResource(R.string.dav_test_needs_server) else syncHint,
                         hintColor = if (syncFailed && !syncing && configured) errorColor else Color.Unspecified,
@@ -431,6 +455,7 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
                     }
                     if (records.syncHeldBack > 0) {
                         DavRow(
+                            icon = R.drawable.ic_warning,
                             title = pluralStringResource(R.plurals.dav_sync_held_title, records.syncHeldBack, records.syncHeldBack),
                             hint = stringResource(R.string.dav_sync_held_hint),
                             onClick = { viewModel.syncNow(context, allowMassRemoval = true) }
@@ -443,11 +468,13 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
             item(key = "shared") {
                 DavSection(stringResource(R.string.sync6_shared_section), R.drawable.ic_wishlist) {
                     DavRow(
+                        icon = R.drawable.ic_share,
                         title = stringResource(R.string.sync6_shared_list),
                         hint = ui.sharedList.ifBlank { stringResource(R.string.sync6_shared_off) },
                         onClick = { editor = DavEditor.SHARED_LIST }
                     ) { ActionPill(change, { editor = DavEditor.SHARED_LIST }) }
                     DavRow(
+                        icon = R.drawable.ic_account,
                         title = stringResource(R.string.sync6_shared_name),
                         hint = ui.sharedName.ifBlank { ui.deviceName.ifBlank { notSet } },
                         onClick = { editor = DavEditor.SHARED_NAME }
@@ -466,6 +493,7 @@ fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
                         else -> stringResource(R.string.sync6_shared_never)
                     }
                     DavRow(
+                        icon = R.drawable.ic_cloud_sync,
                         title = stringResource(R.string.sync6_shared_now),
                         hint = sharedHint,
                         hintColor = if (sharedFailed && !sharedSyncing && sharedOn) errorColor else Color.Unspecified,

@@ -129,30 +129,30 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
     val serverRows: List<@Composable () -> Unit> = buildList {
         add {
             SettingRow(
+                icon = R.drawable.ic_link,
                 title = stringResource(R.string.romm_server_url),
                 hint = ui.url.ifBlank { stringResource(R.string.settings_not_set) },
                 onClick = { showUrlDialog = true },
-                icon = R.drawable.ic_link
             ) {
                 ActionPill(stringResource(R.string.settings_change), { showUrlDialog = true }, icon = R.drawable.ic_edit)
             }
         }
         add {
             SettingRow(
+                icon = R.drawable.ic_key,
                 title = stringResource(R.string.romm_token),
                 hint = maskedSecret(ui.token),
                 onClick = { showTokenDialog = true },
-                icon = R.drawable.ic_key
             ) {
                 ActionPill(stringResource(R.string.settings_change), { showTokenDialog = true }, icon = R.drawable.ic_edit)
             }
         }
         add {
             SettingRow(
+                icon = R.drawable.ic_network_check,
                 title = stringResource(R.string.romm_test_connection),
                 hint = if (platforms.isEmpty()) stringResource(R.string.romm_platforms_none) else stringResource(R.string.romm_platforms_count, platforms.size),
                 onClick = { viewModel.loadPlatforms(context, announce = true) },
-                icon = R.drawable.ic_network_check
             ) {
                 ActionPill(
                     stringResource(if (loading) R.string.romm_testing else R.string.settings_test),
@@ -164,31 +164,30 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
         }
         add {
             SettingRow(
+                icon = R.drawable.ic_cloud_upload,
                 title = stringResource(R.string.romm_auto_upload),
                 hint = stringResource(R.string.romm_auto_upload_hint),
                 onClick = { viewModel.setAutoUpload(context, !ui.autoUpload) },
                 onAdjust = { viewModel.setAutoUpload(context, it > 0) },
-                icon = R.drawable.ic_cloud_upload
             ) {
                 ThemedSwitch(ui.autoUpload) { viewModel.setAutoUpload(context, it) }
             }
         }
         add {
             SettingRow(
+                icon = R.drawable.ic_cloud_sync,
                 title = stringResource(R.string.romm_upload_missing),
                 hint = stringResource(R.string.romm_upload_missing_hint),
                 onClick = { viewModel.uploadMissing(context) },
-                icon = R.drawable.ic_cloud_sync
             ) { PillButton(stringResource(R.string.romm_upload_missing_action)) { viewModel.uploadMissing(context) } }
         }
         if (ui.url.startsWith("https://", ignoreCase = true)) add {
             val pinned = ui.trustFingerprint.isNotBlank()
             SettingRow(
+                icon = if (pinned) R.drawable.ic_verified else R.drawable.ic_lock,
                 title = stringResource(R.string.romm_cert),
                 hint = if (pinned) stringResource(R.string.romm_cert_trusted_hint, CertTrust.format(ui.trustFingerprint).take(23) + "…") else stringResource(R.string.romm_cert_hint),
                 onClick = { if (pinned) viewModel.forgetTrust(context) else viewModel.checkCertificate(context, ui.url) },
-                icon = R.drawable.ic_lock,
-                iconTint = if (pinned) MaterialTheme.colorScheme.primary else null
             ) {
                 ActionPill(
                     stringResource(if (pinned) R.string.romm_cert_forget else R.string.romm_cert_check),
@@ -199,11 +198,11 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
         }
         add {
             SettingRow(
+                icon = R.drawable.ic_label,
                 title = stringResource(R.string.romm_mark_games),
                 hint = stringResource(R.string.romm_mark_games_hint),
                 onClick = { viewModel.setMarkGames(context, !ui.markGames) },
                 onAdjust = { viewModel.setMarkGames(context, it > 0) },
-                icon = R.drawable.ic_label
             ) { ThemedSwitch(ui.markGames) { viewModel.setMarkGames(context, it) } }
         }
         if (ui.markGames) add {
@@ -214,10 +213,10 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                 else -> stringResource(R.string.romm_marks_never)
             }
             SettingRow(
+                icon = R.drawable.ic_library,
                 title = stringResource(R.string.romm_marks),
                 hint = hint,
                 onClick = viewModel::refreshMarks,
-                icon = R.drawable.ic_library,
                 hintColor = if (libraryState.error != null) MaterialTheme.colorScheme.error else null
             ) {
                 ActionPill(stringResource(R.string.romm_marks_refresh), viewModel::refreshMarks, icon = R.drawable.ic_sync)
@@ -228,11 +227,11 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
             val favOn by fav.enabled.collectAsState()
             val favState by fav.state.collectAsState()
             SettingRow(
+                icon = R.drawable.ic_star,
                 title = stringResource(R.string.romm5_fav_two_way),
                 hint = rommFavouritesHint(favOn, favState),
                 onClick = { fav.setEnabled(!favOn) },
                 onAdjust = { fav.setEnabled(it > 0) },
-                icon = R.drawable.ic_star
             ) { ThemedSwitch(favOn) { fav.setEnabled(it) } }
         }
         add {
@@ -246,10 +245,10 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                 else -> stringResource(R.string.romm_covers_hint)
             }
             SettingRow(
+                icon = R.drawable.ic_image,
                 title = stringResource(R.string.romm_covers),
                 hint = hint,
                 onClick = viewModel::startCovers,
-                icon = R.drawable.ic_image,
                 below = if (coverState.running && coverState.total > 0) {
                     { MeterBar(coverState.done.toFloat() / coverState.total.coerceAtLeast(1), modifier = Modifier.padding(top = 6.dp), height = 6.dp) }
                 } else null
@@ -261,11 +260,10 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
     // The mapping card: its header (with "Apply suggestions"), then one stepper per console.
     val platformHeader: @Composable () -> Unit = {
         SettingRow(
+            icon = R.drawable.ic_tune,
             title = stringResource(R.string.romm_platforms_header),
             hint = stringResource(R.string.romm_platforms_hint),
             onClick = { viewModel.applySuggestions(context) },
-            icon = R.drawable.ic_tune,
-            iconTile = true
         ) {
             ActionPill(stringResource(R.string.romm_apply_suggestions), { viewModel.applySuggestions(context) }, icon = R.drawable.ic_sparkle, tone = ActionTone.Accent)
         }
@@ -289,6 +287,7 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                 else -> notMapped
             }
             SettingRow(
+                icon = R.drawable.ic_controller,
                 title = ConsoleFormatter.getConsoleDisplayName(console.id),
                 hint = null,
                 onClick = { if (mappedId == null && suggestion != null) viewModel.setPlatform(context, console.id, suggestion.id) else step(1) },

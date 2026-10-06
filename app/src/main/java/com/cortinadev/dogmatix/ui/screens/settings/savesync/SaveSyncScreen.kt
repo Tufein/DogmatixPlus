@@ -77,7 +77,6 @@ import com.cortinadev.dogmatix.data.service.SaveSyncState
 import com.cortinadev.dogmatix.ui.components.ActionPill
 import com.cortinadev.dogmatix.ui.components.ActionTone
 import com.cortinadev.dogmatix.ui.components.DialogButton
-import com.cortinadev.dogmatix.ui.components.IconTile
 import com.cortinadev.dogmatix.ui.components.MeterBar
 import com.cortinadev.dogmatix.ui.components.Panel
 import com.cortinadev.dogmatix.ui.components.PanelTone
@@ -95,6 +94,9 @@ import com.cortinadev.dogmatix.ui.screens.cloud.saves.StateShotPair
 import com.cortinadev.dogmatix.ui.screens.settings.CardCell
 import com.cortinadev.dogmatix.ui.screens.settings.SettingRow
 import com.cortinadev.dogmatix.ui.screens.settings.SettingsCardHeader
+import com.cortinadev.dogmatix.ui.screens.settings.SettingsIconTile
+import com.cortinadev.dogmatix.ui.screens.settings.SettingsTileGap
+import com.cortinadev.dogmatix.ui.screens.settings.settingsInset
 import com.cortinadev.dogmatix.ui.screens.settings.ThemedSwitch
 import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
 import com.cortinadev.dogmatix.ui.theme.Motion
@@ -159,27 +161,27 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
     val folderRows: List<@Composable () -> Unit> = buildList {
         add {
             SettingRow(
+                icon = R.drawable.ic_save,
                 title = stringResource(R.string.save_sync_saves_folder),
                 hint = folderLabel(ui.savesDir) ?: stringResource(R.string.save_sync_saves_folder_hint),
                 onClick = { savesPicker.launch(null) },
-                icon = R.drawable.ic_save
             ) { ActionPill(stringResource(R.string.settings_change), { savesPicker.launch(null) }, icon = R.drawable.ic_folder_open) }
         }
         add {
             SettingRow(
+                icon = R.drawable.ic_history,
                 title = stringResource(R.string.save_sync_states_folder),
                 hint = folderLabel(ui.statesDir) ?: stringResource(R.string.save_sync_states_folder_hint),
                 onClick = { statesPicker.launch(null) },
-                icon = R.drawable.ic_history
             ) { ActionPill(stringResource(R.string.settings_change), { statesPicker.launch(null) }, icon = R.drawable.ic_folder_open) }
         }
         emulatorFolders.forEach { folder ->
             add {
                 SettingRow(
+                    icon = R.drawable.ic_folder,
                     title = folder.label,
                     hint = folderLabel(folder.uri) ?: folder.uri,
                     onClick = { viewModel.removeEmulatorFolder(context, folder.label) },
-                    icon = R.drawable.ic_folder
                 ) {
                     ActionPill(
                         stringResource(R.string.save_sync_emulator_remove),
@@ -192,65 +194,65 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
         }
         add {
             SettingRow(
+                icon = R.drawable.ic_add,
                 title = stringResource(R.string.save_sync_emulator_add),
                 hint = stringResource(R.string.save_sync_emulator_add_hint),
                 onClick = { emulatorPicker.launch(null) },
-                icon = R.drawable.ic_add
             ) { ActionPill(stringResource(R.string.save_sync_emulator_add_action), { emulatorPicker.launch(null) }, icon = R.drawable.ic_folder_open) }
         }
     }
     val autoRows: List<@Composable () -> Unit> = buildList {
         add {
             SettingRow(
+                icon = R.drawable.ic_sync,
                 title = stringResource(R.string.save_sync_auto),
                 hint = stringResource(R.string.save_sync_auto_hint),
                 onClick = { viewModel.setAuto(context, !ui.auto) },
                 onAdjust = { viewModel.setAuto(context, it > 0) },
-                icon = R.drawable.ic_play_circle
             ) { ThemedSwitch(ui.auto) { viewModel.setAuto(context, it) } }
         }
         add {
             SettingRow(
+                icon = R.drawable.ic_trash,
                 title = stringResource(R.string.save_sync_deletions),
                 hint = stringResource(R.string.save_sync_deletions_hint),
                 onClick = { viewModel.setDeletions(context, !ui.deletions) },
                 onAdjust = { viewModel.setDeletions(context, it > 0) },
-                icon = R.drawable.ic_trash
             ) { ThemedSwitch(ui.deletions) { viewModel.setDeletions(context, it) } }
         }
         add {
             SettingRow(
+                icon = R.drawable.ic_schedule,
                 title = stringResource(R.string.save_sync_bg),
                 hint = stringResource(R.string.save_sync_bg_hint),
                 onClick = { setBackground(!ui.background) },
                 onAdjust = { setBackground(it > 0) },
-                icon = R.drawable.ic_schedule
             ) { ThemedSwitch(ui.background) { setBackground(it) } }
         }
         if (ui.background) {
             add {
                 SettingRow(
+                    icon = R.drawable.ic_timer,
                     title = stringResource(R.string.save_sync_bg_interval),
                     hint = null,
                     onClick = { adjustInterval(1) },
                     onAdjust = ::adjustInterval,
-                    icon = R.drawable.ic_timer
                 ) {
                     Stepper(stringResource(R.string.save_sync_hours_short, ui.intervalHours), onDecrement = { adjustInterval(-1) }, onIncrement = { adjustInterval(1) }, valueWidth = 64.dp)
                 }
             }
             add {
                 SettingRow(
+                    icon = R.drawable.ic_wifi,
                     title = stringResource(R.string.save_sync_bg_wifi), hint = null,
                     onClick = { viewModel.setWifiOnly(context, !ui.wifiOnly) }, onAdjust = { viewModel.setWifiOnly(context, it > 0) },
-                    icon = R.drawable.ic_wifi
                 ) { ThemedSwitch(ui.wifiOnly) { viewModel.setWifiOnly(context, it) } }
             }
             add {
                 SettingRow(
+                    icon = R.drawable.ic_charging,
                     title = stringResource(R.string.save_sync_bg_charging), hint = null,
                     onClick = { viewModel.setCharging(context, !ui.charging) }, onAdjust = { viewModel.setCharging(context, it > 0) },
-                    icon = R.drawable.ic_charging
                 ) { ThemedSwitch(ui.charging) { viewModel.setCharging(context, it) } }
             }
         }
@@ -266,11 +268,10 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
                 else -> stringResource(R.string.save_sync_never)
             }
             SettingRow(
+                icon = R.drawable.ic_cloud_sync,
                 title = stringResource(R.string.save_sync_now),
                 hint = hint,
                 onClick = { if (ready) viewModel.syncNow() },
-                icon = R.drawable.ic_cloud_sync,
-                iconTile = true,
                 hintColor = if (sync.error != null && !sync.running) MaterialTheme.colorScheme.error else null,
                 below = if (sync.running) {
                     { SyncMeter(ProgressText.fraction(sync.progress), modifier = Modifier.padding(top = 6.dp)) }
@@ -287,11 +288,10 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
         sync.last?.takeIf { it.deletionsHeld > 0 }?.let { held ->
             add {
                 SettingRow(
+                    icon = R.drawable.ic_warning,
                     title = pluralStringResource(R.plurals.save_sync_held_title, held.deletionsHeld, held.deletionsHeld),
                     hint = stringResource(R.string.save_sync_held_hint),
                     onClick = viewModel::applyHeldDeletions,
-                    icon = R.drawable.ic_warning,
-                    iconTint = MaterialTheme.colorScheme.error
                 ) { ActionPill(stringResource(R.string.save_sync_held_apply), viewModel::applyHeldDeletions, tone = ActionTone.Danger) }
             }
         }
@@ -374,7 +374,7 @@ private fun SyncCardHeader(section: Int, conflicts: Int) {
                 stringResource(R.string.save_sync_conflicts_header, conflicts),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 8.dp)
+                modifier = Modifier.padding(start = settingsInset(), end = settingsInset(), bottom = 8.dp)
             )
         }
     }
@@ -447,12 +447,11 @@ private fun SyncErrorRow(error: String) {
         label = "errorChevron"
     )
     SettingRow(
+        icon = R.drawable.ic_error_circle,
         title = stringResource(R.string.save_sync_error_title),
         hint = error,
         onClick = { expanded = !expanded },
         modifier = if (reduce) Modifier else Modifier.animateContentSize(animationSpec = tween<IntSize>(Motion.MEDIUM)),
-        icon = R.drawable.ic_error_circle,
-        iconTint = MaterialTheme.colorScheme.error,
         hintMaxLines = if (expanded) Int.MAX_VALUE else 2
     ) {
         Icon(
@@ -500,11 +499,11 @@ private fun ConflictRow(conflict: SaveConflict, notSet: String, viewModel: SaveS
                 }
             }
             .clickable(interactionSource = source, indication = null, onClick = {})
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .padding(horizontal = settingsInset(), vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            IconTile(if (conflict.local.kind == SaveKind.STATE) R.drawable.ic_history else R.drawable.ic_save, size = 30.dp)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(SettingsTileGap)) {
+            SettingsIconTile(if (conflict.local.kind == SaveKind.STATE) R.drawable.ic_history else R.drawable.ic_save)
             Column(modifier = Modifier.weight(1f)) {
                 Text(kind, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                 TruncatedText(conflict.local.path, style = MaterialTheme.typography.bodyLarge)

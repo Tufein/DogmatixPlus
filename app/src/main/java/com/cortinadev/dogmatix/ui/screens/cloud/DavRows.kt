@@ -38,6 +38,9 @@ import com.cortinadev.dogmatix.ui.components.SectionTitle
 import com.cortinadev.dogmatix.ui.components.focusRing
 import com.cortinadev.dogmatix.ui.components.pillColors
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
+import com.cortinadev.dogmatix.ui.screens.settings.SettingsIconTile
+import com.cortinadev.dogmatix.ui.screens.settings.SettingsTileGap
+import com.cortinadev.dogmatix.ui.screens.settings.settingsInset
 import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
 
 /*
@@ -59,9 +62,10 @@ internal fun DavSection(
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(SettingsTileGap)
         ) {
-            SectionTitle(title, icon = icon, modifier = Modifier.weight(1f))
+            SettingsIconTile(icon)
+            SectionTitle(title, modifier = Modifier.weight(1f))
             action?.invoke()
         }
         Spacer(Modifier.height(8.dp))
@@ -82,6 +86,7 @@ internal fun DavSection(
 internal fun DavRow(
     title: String,
     onClick: () -> Unit,
+    icon: Int,
     modifier: Modifier = Modifier,
     hint: String? = null,
     hintColor: Color = Color.Unspecified,
@@ -104,10 +109,11 @@ internal fun DavRow(
                 }
             }
             .clickable(interactionSource = source, indication = null, onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .padding(horizontal = settingsInset(), vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(SettingsTileGap)
     ) {
+        SettingsIconTile(icon)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 title,

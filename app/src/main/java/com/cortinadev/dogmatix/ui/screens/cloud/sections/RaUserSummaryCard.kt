@@ -123,8 +123,8 @@ fun RaUserSummaryCard(
 
 @Composable
 private fun CardHeader(title: String, ready: Boolean?, summary: RaUserSummary?, status: RetroAchievementsService.SummaryStatus) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        IconTile(R.drawable.ic_trophy)
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        IconTile(R.drawable.ic_trophy, size = 38.dp)
         Text(
             title,
             style = MaterialTheme.typography.titleMedium,
