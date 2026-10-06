@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 7.5: touch controls for downloads on the second screen -->
+<resources>
+    <string name="screen75_paused">In pausa</string>
+    <string name="screen75_pause_all">Metti tutto in pausa</string>
+    <string name="screen75_resume_all">Riprendi tutto</string>
+    <string name="screen75_held_title">Download in pausa</string>
+    <string name="screen75_paused_items_hint">Tocca riproduci su un download per continuare da dove si è fermato</string>
+    <string name="screen75_held_running_hint">I download in corso terminano; non parte nulla di nuovo finché non riprendi</string>
+    <string name="screen75_held_waiting">In attesa di avvio: %1$d</string>
+    <string name="screen75_held_empty_hint">I nuovi download attendono finché non riprendi</string>
+    <string name="screen75_pause_item">Metti in pausa %1$s</string>
+    <string name="screen75_resume_item">Riprendi %1$s</string>
+</resources>
