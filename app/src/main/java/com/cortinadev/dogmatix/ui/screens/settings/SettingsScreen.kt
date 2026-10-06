@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
@@ -56,6 +57,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -128,7 +130,10 @@ import com.cortinadev.dogmatix.util.Constants
 import com.cortinadev.dogmatix.util.DownloadPolicy
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.ToastUtil
+import com.cortinadev.dogmatix.util.SettingKeys
 import com.cortinadev.dogmatix.util.TorrentConstants
+import com.cortinadev.dogmatix.ui.screens.search.SEARCH_ALL_ROUTE
+import kotlinx.coroutines.delay
 import java.text.DateFormat
 import java.time.LocalDate
 import java.util.Date
@@ -373,7 +378,7 @@ fun SettingsScreen(
 
     // The rows per group (see [SettingsSection]), in the order they are shown.
     val ordered: List<SettingsRow> = listOf(
-        SettingsRow(SettingsSection.LOOK) {
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.THEME) {
             SettingRow(
                 icon = R.drawable.ic_dark_mode,
                 title = stringResource(R.string.settings_theme),
@@ -384,7 +389,7 @@ fun SettingsScreen(
                 Stepper(themeLabel, onDecrement = { cycleTheme(-1) }, onIncrement = { cycleTheme(1) }, valueWidth = 110.dp)
             }
         },
-        SettingsRow(SettingsSection.LOOK) {
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.LANGUAGE) {
             SettingRow(
                 icon = R.drawable.ic_language,
                 title = stringResource(R.string.settings_language),
@@ -395,7 +400,7 @@ fun SettingsScreen(
                 Stepper(stringResource(appLanguage.label), onDecrement = { cycleLanguage(-1) }, onIncrement = { cycleLanguage(1) }, valueWidth = 96.dp)
             }
         },
-        SettingsRow(SettingsSection.LOOK) {
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.TEXT_SIZE) {
             SettingRow(
                 icon = R.drawable.ic_text_size,
                 title = stringResource(R.string.settings_text_size),
@@ -406,7 +411,7 @@ fun SettingsScreen(
                 Stepper("${appPrefs.textSize} %", onDecrement = { extra.shiftTextSize(context, -1) }, onIncrement = { extra.shiftTextSize(context, 1) }, valueWidth = 96.dp)
             }
         },
-        SettingsRow(SettingsSection.LOOK) {
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.ACCENT) {
             SettingRow(
                 icon = R.drawable.ic_colorize,
                 title = stringResource(R.string.settings_accent),
@@ -420,7 +425,7 @@ fun SettingsScreen(
                 }
             }
         },
-        SettingsRow(SettingsSection.LOOK) {
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.GAMEPAD_LAYOUT) {
             SettingRow(
                 icon = R.drawable.ic_gamepad,
                 title = stringResource(R.string.settings_gamepad_layout),
@@ -436,7 +441,7 @@ fun SettingsScreen(
                 )
             }
         },
-        SettingsRow(SettingsSection.LOOK) {
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.SWAP_BUTTONS) {
             SettingRow(
                 icon = R.drawable.ic_swap_horiz,
                 title = stringResource(R.string.settings_swap_face_buttons),
@@ -447,7 +452,7 @@ fun SettingsScreen(
                 ThemedSwitch(ui.swapFaceButtons) { viewModel.onSwapFaceButtonsChanged(context, it) }
             }
         },
-        SettingsRow(SettingsSection.LOOK) {
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.SECOND_SCREEN) {
             SettingRow(
                 icon = R.drawable.ic_tv,
                 title = stringResource(R.string.settings_second_screen),
@@ -456,7 +461,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setSecondScreen(context, it > 0) }
             ) { ThemedSwitch(appPrefs.secondScreen) { extra.setSecondScreen(context, it) } }
         },
-        SettingsRow(SettingsSection.LOOK) {
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.BOLD_FOCUS) {
             SettingRow(
                 icon = R.drawable.ic_center_focus_strong,
                 title = stringResource(R.string.settings_bold_focus),
@@ -465,7 +470,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setBoldFocus(context, it > 0) }
             ) { ThemedSwitch(appPrefs.boldFocus) { extra.setBoldFocus(context, it) } }
         },
-        SettingsRow(SettingsSection.LOOK) {
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.ANIMATIONS) {
             SettingRow(
                 icon = R.drawable.ic_animation,
                 title = stringResource(R.string.settings_v5_animations),
@@ -474,7 +479,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setAnimations(context, it > 0) }
             ) { ThemedSwitch(look.animations) { extra.setAnimations(context, it) } }
         },
-        SettingsRow(SettingsSection.LOOK) {
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.GLOW) {
             SettingRow(
                 icon = R.drawable.ic_blur_on,
                 title = stringResource(R.string.settings_v5_glow),
@@ -483,7 +488,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setGlow(context, it > 0) }
             ) { ThemedSwitch(look.glow) { extra.setGlow(context, it) } }
         },
-        SettingsRow(SettingsSection.LOOK) {
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.LIST_COVERS) {
             SettingRow(
                 icon = R.drawable.ic_image,
                 title = stringResource(R.string.settings_v5_list_covers),
@@ -492,7 +497,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setListCovers(context, it > 0) }
             ) { ThemedSwitch(look.listCovers) { extra.setListCovers(context, it) } }
         },
-        SettingsRow(SettingsSection.LOOK) {
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.COMPACT) {
             SettingRow(
                 icon = R.drawable.ic_list,
                 title = stringResource(R.string.disc6_compact_title),
@@ -501,7 +506,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setCompactLists(context, it > 0) }
             ) { ThemedSwitch(look.compactLists) { extra.setCompactLists(context, it) } }
         },
-        SettingsRow(SettingsSection.LOOK) {
+        SettingsRow(SettingsSection.LOOK, key = SettingKeys.COVERS_RETRY) {
             SettingRow(
                 icon = R.drawable.ic_image_search,
                 title = stringResource(R.string.settings_v5_covers_retry),
@@ -512,7 +517,7 @@ fun SettingsScreen(
                 ActionPill(stringResource(R.string.settings_v5_covers_retry_action), { extra.findMissingCovers(context) }, icon = R.drawable.ic_retry)
             }
         },
-        SettingsRow(SettingsSection.DOWNLOADS) {
+        SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.DOWNLOAD_DIR) {
             SettingRow(
                 icon = R.drawable.ic_folder_open,
                 title = stringResource(R.string.settings_download_directory),
@@ -522,7 +527,7 @@ fun SettingsScreen(
                 ActionPill(stringResource(R.string.settings_change), { launcher.launch(null) }, icon = R.drawable.ic_folder_open)
             }
         },
-        SettingsRow(SettingsSection.DOWNLOADS) {
+        SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.SEPARATE_CONSOLE) {
             SettingRow(
                 icon = R.drawable.ic_account_tree,
                 title = stringResource(R.string.settings_separate_by_console),
@@ -533,7 +538,7 @@ fun SettingsScreen(
                 ThemedSwitch(ui.separateByConsole) { viewModel.onSeparateByConsoleChanged(context, it) }
             }
         },
-        SettingsRow(SettingsSection.DOWNLOADS) {
+        SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.CONCURRENT) {
             SettingRow(
                 icon = R.drawable.ic_downloading,
                 title = stringResource(R.string.settings_concurrent_label),
@@ -544,7 +549,7 @@ fun SettingsScreen(
                 Stepper(ui.concurrentDownloads.toString(), onDecrement = { adjustConcurrent(-1) }, onIncrement = { adjustConcurrent(1) })
             }
         },
-        SettingsRow(SettingsSection.DOWNLOADS) {
+        SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.PER_SERVER) {
             SettingRow(
                 icon = R.drawable.ic_hub,
                 title = stringResource(R.string.settings_per_server),
@@ -558,7 +563,7 @@ fun SettingsScreen(
                 )
             }
         },
-        SettingsRow(SettingsSection.DOWNLOADS) {
+        SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.SPEED_LIMIT) {
             SettingRow(
                 icon = R.drawable.ic_speed,
                 title = stringResource(R.string.settings_limit_label),
@@ -583,7 +588,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setSpeedLimitDayOnly(context, it > 0) }
             ) { ThemedSwitch(schedule.speedLimitDayOnly) { extra.setSpeedLimitDayOnly(context, it) } }
         },
-        SettingsRow(SettingsSection.DOWNLOADS) {
+        SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.MIN_FREE) {
             SettingRow(
                 icon = R.drawable.ic_storage,
                 title = stringResource(R.string.settings_min_free),
@@ -597,7 +602,7 @@ fun SettingsScreen(
                 )
             }
         },
-        SettingsRow(SettingsSection.DOWNLOADS) {
+        SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.RESUME) {
             SettingRow(
                 icon = R.drawable.ic_play_arrow,
                 title = stringResource(R.string.settings_resume),
@@ -606,7 +611,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setResume(context, it > 0) }
             ) { ThemedSwitch(queue.resume) { extra.setResume(context, it) } }
         },
-        SettingsRow(SettingsSection.DOWNLOADS) {
+        SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.REQUEUE) {
             SettingRow(
                 icon = R.drawable.ic_restart_alt,
                 title = stringResource(R.string.settings_requeue),
@@ -615,7 +620,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setRequeue(context, it > 0) }
             ) { ThemedSwitch(queue.requeue) { extra.setRequeue(context, it) } }
         },
-        SettingsRow(SettingsSection.DOWNLOADS) {
+        SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.AUTO_RETRY) {
             SettingRow(
                 icon = R.drawable.ic_retry,
                 title = stringResource(R.string.settings_auto_retry),
@@ -624,7 +629,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setAutoRetry(context, it > 0) }
             ) { ThemedSwitch(queue.autoRetry) { extra.setAutoRetry(context, it) } }
         },
-        SettingsRow(SettingsSection.DOWNLOADS) {
+        SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.PICK_BEST) {
             SettingRow(
                 icon = R.drawable.ic_swap_horiz,
                 title = stringResource(R.string.src75_pick_best_title),
@@ -633,7 +638,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setPickBest(context, it > 0) }
             ) { ThemedSwitch(pickBest) { extra.setPickBest(context, it) } }
         },
-        SettingsRow(SettingsSection.DOWNLOADS) {
+        SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.QUEUE_SUMMARY) {
             SettingRow(
                 icon = R.drawable.ic_notifications,
                 title = stringResource(R.string.settings_queue_summary),
@@ -642,7 +647,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setQueueSummary(context, it > 0) }
             ) { ThemedSwitch(queue.queueSummary) { extra.setQueueSummary(context, it) } }
         },
-        SettingsRow(SettingsSection.SCHEDULE) {
+        SettingsRow(SettingsSection.SCHEDULE, key = SettingKeys.WIFI) {
             SettingRow(
                 icon = R.drawable.ic_wifi,
                 title = stringResource(R.string.settings_dl_wifi),
@@ -651,7 +656,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setWifiOnly(context, it > 0) }
             ) { ThemedSwitch(schedule.wifiOnly) { extra.setWifiOnly(context, it) } }
         },
-        SettingsRow(SettingsSection.SCHEDULE) {
+        SettingsRow(SettingsSection.SCHEDULE, key = SettingKeys.CHARGING) {
             SettingRow(
                 icon = R.drawable.ic_charging,
                 title = stringResource(R.string.settings_dl_charging),
@@ -660,7 +665,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setChargingOnly(context, it > 0) }
             ) { ThemedSwitch(schedule.chargingOnly) { extra.setChargingOnly(context, it) } }
         },
-        SettingsRow(SettingsSection.SCHEDULE) {
+        SettingsRow(SettingsSection.SCHEDULE, key = SettingKeys.LOW_BATTERY) {
             SettingRow(
                 icon = R.drawable.ic_battery,
                 title = stringResource(R.string.power75_battery_title),
@@ -685,7 +690,7 @@ fun SettingsScreen(
                 )
             }
         },
-        SettingsRow(SettingsSection.SCHEDULE) {
+        SettingsRow(SettingsSection.SCHEDULE, key = SettingKeys.HEAT) {
             SettingRow(
                 icon = R.drawable.ic_thermostat,
                 title = stringResource(R.string.power75_heat_title),
@@ -694,7 +699,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setHeat(context, it > 0) }
             ) { ThemedSwitch(power.heatOn) { extra.setHeat(context, it) } }
         },
-        SettingsRow(SettingsSection.SCHEDULE) {
+        SettingsRow(SettingsSection.SCHEDULE, key = SettingKeys.NIGHT) {
             SettingRow(
                 icon = R.drawable.ic_night,
                 title = stringResource(R.string.settings_dl_night),
@@ -717,7 +722,7 @@ fun SettingsScreen(
                 onClick = { shiftNightEnd(1) }, onAdjust = ::shiftNightEnd
             ) { Stepper(DownloadPolicy.formatMinutes(schedule.nightEnd), onDecrement = { shiftNightEnd(-1) }, onIncrement = { shiftNightEnd(1) }, valueWidth = 72.dp) }
         },
-        SettingsRow(SettingsSection.AFTER) {
+        SettingsRow(SettingsSection.AFTER, key = SettingKeys.AUTO_UNZIP) {
             SettingRow(
                 icon = R.drawable.ic_extract,
                 title = stringResource(R.string.settings_auto_unzip),
@@ -728,7 +733,7 @@ fun SettingsScreen(
                 ThemedSwitch(ui.autoUnzip) { viewModel.onAutoUnzipChanged(context, it) }
             }
         },
-        SettingsRow(SettingsSection.AFTER) {
+        SettingsRow(SettingsSection.AFTER, key = SettingKeys.AUTO_M3U) {
             SettingRow(
                 icon = R.drawable.ic_playlist_add,
                 title = stringResource(R.string.settings_auto_m3u),
@@ -737,7 +742,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setAutoM3u(context, it > 0) }
             ) { ThemedSwitch(afterDownload.autoM3u) { extra.setAutoM3u(context, it) } }
         },
-        SettingsRow(SettingsSection.AFTER) {
+        SettingsRow(SettingsSection.AFTER, key = SettingKeys.ESDE_ARTWORK) {
             SettingRow(
                 icon = R.drawable.ic_photos,
                 title = stringResource(R.string.settings_esde_artwork),
@@ -746,7 +751,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setEsdeArtwork(context, it > 0) }
             ) { ThemedSwitch(afterDownload.esdeArtwork) { extra.setEsdeArtwork(context, it) } }
         },
-        SettingsRow(SettingsSection.AFTER) {
+        SettingsRow(SettingsSection.AFTER, key = SettingKeys.PEGASUS_ARTWORK) {
             SettingRow(
                 icon = R.drawable.ic_photo_album,
                 title = stringResource(R.string.settings_pegasus_artwork),
@@ -755,7 +760,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setPegasusArtwork(context, it > 0) }
             ) { ThemedSwitch(afterDownload.pegasusArtwork) { extra.setPegasusArtwork(context, it) } }
         },
-        SettingsRow(SettingsSection.AFTER) {
+        SettingsRow(SettingsSection.AFTER, key = SettingKeys.RETROARCH_ARTWORK) {
             SettingRow(
                 icon = R.drawable.ic_wallpaper,
                 title = stringResource(R.string.settings_retroarch_artwork),
@@ -767,7 +772,7 @@ fun SettingsScreen(
                 ActionPill(stringResource(R.string.settings_change), { retroArchThumbsLauncher.launch(null) }, icon = R.drawable.ic_folder_open)
             }
         },
-        SettingsRow(SettingsSection.TORRENTS) {
+        SettingsRow(SettingsSection.TORRENTS, key = SettingKeys.DEBRID) {
             SettingRow(
                 icon = R.drawable.ic_bolt,
                 title = stringResource(R.string.settings_debrid),
@@ -788,7 +793,7 @@ fun SettingsScreen(
                 ActionPill(stringResource(R.string.settings_change), { showDebridKeyDialog = true }, icon = R.drawable.ic_key)
             }
         },
-        SettingsRow(SettingsSection.TORRENTS) {
+        SettingsRow(SettingsSection.TORRENTS, key = SettingKeys.METADATA_TIMEOUT) {
             SettingRow(
                 icon = R.drawable.ic_hourglass,
                 title = stringResource(R.string.settings_metadata_timeout),
@@ -799,7 +804,7 @@ fun SettingsScreen(
                 Stepper(stringResource(R.string.seconds_short, ui.metadataTimeoutSeconds), onDecrement = { adjustMetadataTimeout(-1) }, onIncrement = { adjustMetadataTimeout(1) })
             }
         },
-        SettingsRow(SettingsSection.LIBRARY) {
+        SettingsRow(SettingsSection.LIBRARY, key = SettingKeys.AUTOSCAN) {
             SettingRow(
                 icon = R.drawable.ic_sync,
                 title = stringResource(R.string.settings_autoscan),
@@ -844,7 +849,7 @@ fun SettingsScreen(
                 onClick = { extra.setAutoScanNight(context, !autoScan.nightOnly) }, onAdjust = { extra.setAutoScanNight(context, it > 0) }
             ) { ThemedSwitch(autoScan.nightOnly) { extra.setAutoScanNight(context, it) } }
         },
-        SettingsRow(SettingsSection.LIBRARY) {
+        SettingsRow(SettingsSection.LIBRARY, key = SettingKeys.MAX_RESULTS) {
             SettingRow(
                 icon = R.drawable.ic_format_list_numbered,
                 title = stringResource(R.string.settings_max_results),
@@ -860,7 +865,7 @@ fun SettingsScreen(
                 )
             }
         },
-        SettingsRow(SettingsSection.LIBRARY) {
+        SettingsRow(SettingsSection.LIBRARY, key = SettingKeys.FAVORITE_LANGUAGES) {
             SettingRow(
                 icon = R.drawable.ic_translate,
                 title = stringResource(R.string.settings_favorite_languages),
@@ -871,7 +876,7 @@ fun SettingsScreen(
                 ActionPill(stringResource(R.string.settings_change), { showLanguagesDialog = true }, icon = R.drawable.ic_edit)
             }
         },
-        SettingsRow(SettingsSection.LIBRARY) {
+        SettingsRow(SettingsSection.LIBRARY, key = SettingKeys.WISHLIST_AUTO) {
             SettingRow(
                 icon = R.drawable.ic_wishlist,
                 title = stringResource(R.string.settings_wishlist_auto),
@@ -880,7 +885,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setWishlistAuto(context, it > 0) }
             ) { ThemedSwitch(afterDownload.wishlistAuto) { extra.setWishlistAuto(context, it) } }
         },
-        SettingsRow(SettingsSection.LIBRARY) {
+        SettingsRow(SettingsSection.LIBRARY, key = SettingKeys.DIGEST) {
             SettingRow(
                 icon = R.drawable.ic_notifications,
                 title = stringResource(R.string.upg7_digest_setting),
@@ -889,7 +894,7 @@ fun SettingsScreen(
                 onAdjust = { setDigest(it > 0) }
             ) { ThemedSwitch(digestOn) { setDigest(it) } }
         },
-        SettingsRow(SettingsSection.FRONTENDS) {
+        SettingsRow(SettingsSection.FRONTENDS, key = SettingKeys.META_AUTO) {
             SettingRow(
                 icon = R.drawable.ic_description,
                 title = stringResource(R.string.meta7_auto_title),
@@ -906,7 +911,15 @@ fun SettingsScreen(
                 onClick = { navController.navigate(NavRoutes.Tools.route) },
             ) { NavChevron() }
         },
-        SettingsRow(SettingsSection.FRONTENDS) {
+        SettingsRow(SettingsSection.TOOLS) {
+            SettingRow(
+                icon = R.drawable.ic_search,
+                title = stringResource(R.string.find8_settings_row),
+                hint = stringResource(R.string.find8_hint),
+                onClick = { navController.navigate(SEARCH_ALL_ROUTE) { launchSingleTop = true } },
+            ) { NavChevron() }
+        },
+        SettingsRow(SettingsSection.FRONTENDS, key = SettingKeys.FRONTEND_SHORTCUTS) {
             SettingRow(
                 icon = R.drawable.ic_shortcut,
                 title = stringResource(R.string.settings_frontend_shortcuts),
@@ -918,7 +931,7 @@ fun SettingsScreen(
                 }
             }
         },
-        SettingsRow(SettingsSection.FRONTENDS) {
+        SettingsRow(SettingsSection.FRONTENDS, key = SettingKeys.ESDE) {
             SettingRow(
                 icon = R.drawable.ic_frontends,
                 title = stringResource(R.string.settings_esde),
@@ -928,7 +941,7 @@ fun SettingsScreen(
                 PillButton(stringResource(R.string.settings_esde_action), ::runEsdeSetup)
             }
         },
-        SettingsRow(SettingsSection.FRONTENDS) {
+        SettingsRow(SettingsSection.FRONTENDS, key = SettingKeys.IISU) {
             SettingRow(
                 icon = R.drawable.ic_grid,
                 title = stringResource(R.string.settings_iisu),
@@ -938,7 +951,7 @@ fun SettingsScreen(
                 PillButton(stringResource(R.string.settings_iisu_action), ::runIisuSetup)
             }
         },
-        SettingsRow(SettingsSection.FRONTENDS) {
+        SettingsRow(SettingsSection.FRONTENDS, key = SettingKeys.DAIJISHO) {
             SettingRow(
                 icon = R.drawable.ic_dashboard,
                 title = stringResource(R.string.settings_daijisho),
@@ -956,7 +969,7 @@ fun SettingsScreen(
                 onClick = { navController.navigate(NavRoutes.Cloud.route) },
             ) { NavChevron() }
         },
-        SettingsRow(SettingsSection.ROMM) {
+        SettingsRow(SettingsSection.ROMM, key = SettingKeys.SHELF) {
             val shelf: ContinuePlayingViewModel = hiltViewModel()
             val shelfOn by shelf.enabled.collectAsState()
             SettingRow(
@@ -991,7 +1004,7 @@ fun SettingsScreen(
                 onClick = { navController.navigate(NavRoutes.Profiles.route) },
             ) { NavChevron() }
         },
-        SettingsRow(SettingsSection.PROFILES) {
+        SettingsRow(SettingsSection.PROFILES, key = SettingKeys.COCOON) {
             SettingRow(
                 icon = R.drawable.ic_help,
                 title = stringResource(R.string.settings_cocoon),
@@ -1001,7 +1014,7 @@ fun SettingsScreen(
                 PillButton(stringResource(R.string.settings_daijisho_action)) { showCocoonHelp = true }
             }
         },
-        SettingsRow(SettingsSection.BACKUP) {
+        SettingsRow(SettingsSection.BACKUP, key = SettingKeys.BACKUP_EXPORT) {
             SettingRow(
                 icon = R.drawable.ic_file_export,
                 title = stringResource(R.string.settings_backup_export),
@@ -1011,7 +1024,7 @@ fun SettingsScreen(
                 ActionPill(stringResource(R.string.settings_backup_export_action), ::exportBackup, icon = R.drawable.ic_file_export)
             }
         },
-        SettingsRow(SettingsSection.BACKUP) {
+        SettingsRow(SettingsSection.BACKUP, key = SettingKeys.AUTO_BACKUP) {
             SettingRow(
                 icon = R.drawable.ic_update,
                 title = stringResource(R.string.settings_auto_backup),
@@ -1039,7 +1052,7 @@ fun SettingsScreen(
                 }
             }
         },
-        SettingsRow(SettingsSection.BACKUP) {
+        SettingsRow(SettingsSection.BACKUP, key = SettingKeys.BACKUP_IMPORT) {
             SettingRow(
                 icon = R.drawable.ic_restore,
                 title = stringResource(R.string.settings_backup_import),
@@ -1049,7 +1062,7 @@ fun SettingsScreen(
                 ActionPill(stringResource(R.string.settings_backup_import_action), ::importBackup, icon = R.drawable.ic_restore)
             }
         },
-        SettingsRow(SettingsSection.APP) {
+        SettingsRow(SettingsSection.APP, key = SettingKeys.PRERELEASES) {
             SettingRow(
                 icon = R.drawable.ic_science,
                 title = stringResource(R.string.settings_prereleases),
@@ -1058,7 +1071,7 @@ fun SettingsScreen(
                 onAdjust = { extra.setPreReleases(context, it > 0) },
             ) { ThemedSwitch(appPrefs.preReleases) { extra.setPreReleases(context, it) } }
         },
-        SettingsRow(SettingsSection.APP) {
+        SettingsRow(SettingsSection.APP, key = SettingKeys.UPDATE_CHECK) {
             SettingRow(
                 icon = R.drawable.ic_rocket,
                 title = stringResource(R.string.settings_update_check),
@@ -1069,7 +1082,7 @@ fun SettingsScreen(
                 } else null
             ) { ActionPill(stringResource(R.string.settings_update_check_action), { extra.checkForUpdates(context) }, icon = R.drawable.ic_sync) }
         },
-        SettingsRow(SettingsSection.APP) {
+        SettingsRow(SettingsSection.APP, key = SettingKeys.DIAGNOSTICS) {
             SettingRow(
                 icon = R.drawable.ic_bug,
                 title = stringResource(R.string.settings_diagnostics),
@@ -1106,6 +1119,7 @@ fun SettingsScreen(
     val currentFocus by rememberUpdatedState(rowFocus)
     var focusedRow by remember { mutableIntStateOf(-1) }
     val gridState = rememberLazyGridState()
+    val reduceMotionForJump = LocalReduceMotion.current
     LaunchedEffect(isLandscape) {
         Gamepad.presses.collect { button ->
             if (button != GamepadButton.PREV_PANEL && button != GamepadButton.NEXT_PANEL) return@collect
@@ -1127,6 +1141,37 @@ fun SettingsScreen(
                 runCatching { currentFocus[row].requestFocus() }
             }
         }
+    }
+    // 8.0: a "search everything" result asked for one row: scroll its card in, focus the row and
+    // light it up for a moment (a steady tint without animations).
+    var flashRow by remember { mutableIntStateOf(-1) }
+    val flash = remember { Animatable(0f) }
+    val jumpKey by SettingsJump.pending.collectAsState()
+    LaunchedEffect(jumpKey) {
+        if (jumpKey == null) return@LaunchedEffect
+        val key = SettingsJump.consume() ?: return@LaunchedEffect
+        val row = ordered.indexOfFirst { it.key == key && it.visible }.takeIf { it >= 0 } ?: return@LaunchedEffect
+        val cell = currentCells.indices.firstOrNull { i ->
+            val c = currentCells[i]
+            c.kind == CardGrid.Kind.ITEM && currentShown.getOrNull(c.section)?.getOrNull(c.item)?.index == row
+        } ?: return@LaunchedEffect
+        // Let the grid lay out once (Settings may just have been opened), then bring the row in.
+        withFrameNanos { }
+        gridState.scrollToItem((cell - 1).coerceAtLeast(0))
+        withFrameNanos { }
+        runCatching { rowFocus[row].requestFocus() }
+        flashRow = row
+        if (reduceMotionForJump) {
+            flash.snapTo(1f)
+            delay(JUMP_HIGHLIGHT_MS)
+        } else {
+            flash.snapTo(0f)
+            flash.animateTo(1f, tween(Motion.MEDIUM))
+            delay(JUMP_HIGHLIGHT_MS)
+            flash.animateTo(0f, tween(Motion.MEDIUM * 2))
+        }
+        flash.snapTo(0f)
+        flashRow = -1
     }
     run {
         val base = legendFor(NavRoutes.Settings.route)
@@ -1152,6 +1197,7 @@ fun SettingsScreen(
     val fadeSpec: FiniteAnimationSpec<Float>? = if (reduceMotion) null else tween(Motion.MEDIUM)
     val moveSpec: FiniteAnimationSpec<IntOffset>? = if (reduceMotion) null else tween(Motion.MEDIUM, easing = FastOutSlowInEasing)
 
+    val flashTint = MaterialTheme.colorScheme.primary
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -1193,8 +1239,10 @@ fun SettingsScreen(
                             gapAbove = gap,
                             accent = section == SettingsSection.TOOLS
                         ) {
+                            val flashing = shown.index == flashRow
                             Box(
                                 modifier = Modifier
+                                    .then(if (flashing) Modifier.jumpHighlight(flashTint) { flash.value } else Modifier)
                                     .focusRequester(rowFocus[shown.index])
                                     .onFocusChanged { if (it.hasFocus) focusedRow = shown.index }
                             ) { shown.row.content() }
@@ -1204,6 +1252,15 @@ fun SettingsScreen(
             }
         }
     }
+}
+
+/** How long a row found through "search everything" stays lit up. */
+private const val JUMP_HIGHLIGHT_MS = 1600L
+
+/** The tint behind a row found through search; [strength] (0..1) is read while drawing only. */
+private fun Modifier.jumpHighlight(color: Color, strength: () -> Float): Modifier = drawBehind {
+    val a = strength()
+    if (a > 0f) drawRoundRect(color.copy(alpha = 0.16f * a), cornerRadius = CornerRadius(8.dp.toPx()))
 }
 
 /** The groups of the Settings screen, in the order they are shown, with the icon of their card. */
@@ -1223,8 +1280,16 @@ private enum class SettingsSection(@StringRes val title: Int?, @DrawableRes val 
     APP(R.string.settings_section_app, R.drawable.ic_info)
 }
 
-/** One Settings entry and the group it belongs to; [visible] false leaves it out. */
-private class SettingsRow(val section: SettingsSection, val visible: Boolean = true, val content: @Composable () -> Unit)
+/**
+ * One Settings entry and the group it belongs to; [visible] false leaves it out. [key] is the
+ * stable name "search everything" jumps to (see [SettingKeys] and [SettingsJump]).
+ */
+private class SettingsRow(
+    val section: SettingsSection,
+    val visible: Boolean = true,
+    val key: String? = null,
+    val content: @Composable () -> Unit
+)
 
 /** A row that is shown, with its place in the full list (its focus requester and grid key). */
 private class ShownRow(val index: Int, val row: SettingsRow)
