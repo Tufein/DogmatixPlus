@@ -10,7 +10,9 @@ data class BulkCandidate(
     val size: Long,
     val tags: List<String>,
     val owned: Boolean,
-    val downloading: Boolean
+    val downloading: Boolean,
+    /** The source the row came from (as configured); '' when unknown. */
+    val sourceUrl: String = ""
 )
 
 /** What "Download all" would do with the rows the filters show. */
@@ -46,17 +48,23 @@ object BulkPlanner {
     /**
      * Skips what is on disk or already downloading; with [bestOnly], keeps one version per game
      * (per console and cleaned title), the one [VersionPicker] ranks first.
+     *
+     * 7.5: the same file listed by several sources is queued once, from the row [pickSource]
+     * returns (the best source, see [SourceRanking]; the first row when not given).
      */
     fun plan(
         candidates: List<BulkCandidate>,
         bestOnly: Boolean,
         regionPreference: List<String>,
         languages: Set<String>,
-        freeBytes: Long?
+        freeBytes: Long?,
+        pickSource: (List<BulkCandidate>) -> BulkCandidate = { it.first() }
     ): BulkPlan {
         val owned = candidates.count { it.owned }
         val active = candidates.count { !it.owned && it.downloading }
         val open = candidates.filter { !it.owned && !it.downloading }
+            // One row per file: the Downloads list knows a download by its file name.
+            .groupBy { it.consoleId to it.fileName }.values.map { if (it.size == 1) it.first() else pickSource(it) }
         val chosen = if (!bestOnly) open else open.groupBy { it.consoleId to it.titleKey }.values.mapNotNull { group ->
             if (group.size == 1) group.first() else {
                 val best = VersionPicker.best(group.map { VersionPicker.Candidate(it.fileName, it.fileName, it.tags, it.size) }, regionPreference, languages)

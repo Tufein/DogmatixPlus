@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="src75_switched_to">Mudou para %1$s</string>
+    <string name="src75_track">média %1$s · %2$d %% bem-sucedidas</string>
+    <string name="src75_track_ok">%1$d %% bem-sucedidas</string>
+    <string name="src75_pick_best_title">Escolher a melhor fonte</string>
+    <string name="src75_pick_best_hint">Quando várias fontes têm um jogo, é transferido da mais rápida e fiável e, se uma transferência falhar de vez, tenta-se a seguinte</string>
+</resources>

@@ -32,6 +32,7 @@ import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.MirrorUrls
 import com.cortinadev.dogmatix.util.ResumePlan
 import com.cortinadev.dogmatix.util.RommSource
+import com.cortinadev.dogmatix.util.SourceRanking
 import com.cortinadev.dogmatix.util.DebridMatcher
 import com.cortinadev.dogmatix.util.Checksums
 import com.cortinadev.dogmatix.util.ExpectedHash
@@ -100,7 +101,8 @@ class DownloadService @Inject constructor(
     private val consoleDao: ConsoleDao,
     private val appSettings: AppSettings,
     private val partials: PartialDownloads,
-    private val datService: DatService
+    private val datService: DatService,
+    private val sourceTrack: SourceTrackService
 ) {
     val downloads: StateFlow<List<DownloadItemModel>> = downloadProgressTracker.downloads
 
@@ -254,23 +256,30 @@ class DownloadService @Inject constructor(
         // A new download of a name starts without the verdict of an earlier one (startDownload goes through here too).
         val names = fresh.mapTo(HashSet()) { it.first.fileName }
         _verification.update { it - names }
+        _switchedTo.update { it - names }
+        switchedOnce.removeAll(names)
         fresh.forEach { (file, _) -> downloadEntities[file.fileName] = file }
         // Before the jobs start, so none of them runs unconditioned for a moment.
         if (condition != null) conditionGate.setAll(fresh.map { it.first.fileName }, condition)
         serviceScope.launch { historyDao.upsertAll(fresh.map { (file, item) -> DownloadHistoryEntity.from(file, item) }) }
         startForegroundService()
-        fresh.forEach { (file, _) -> launchJob(file) }
+        fresh.forEach { (file, _) -> launchJob(file, pickSource = true) }
     }
 
-    private fun launchJob(file: DownloadableFileEntity) {
+    /** [pickSource]: a new download first looks for a better source of the same file (see [chooseSource]). */
+    private fun launchJob(file: DownloadableFileEntity, pickSource: Boolean = false) {
         // Registered before it starts, so a download that ends at once cannot leave a stale entry.
         val job = serviceScope.launch(start = CoroutineStart.LAZY) {
+            // The row actually downloaded: the same file name, possibly from another source.
+            var current = file
             try {
+                if (pickSource) current = chooseSource(file)
+                val chosen = current
                 var ran = false
                 while (!ran) {
                     // The download's own condition is waited for outside a slot: it never blocks others.
                     conditionGate.awaitReady(file.fileName)
-                    withSlot(file) {
+                    withSlot(chosen) {
                         // A condition set while it stood in line: give the slot back and wait outside.
                         if (conditionGate.isBlocked(file.fileName)) return@withSlot
                         proceeding += file.fileName
@@ -279,11 +288,22 @@ class DownloadService @Inject constructor(
                         // Brief delay to allow the foreground service and initial UI state to settle
                         // before network/torrent activity begins.
                         delay(1000L)
-                        perform(file)
+                        perform(chosen)
                         ran = true
                     }
                 }
                 autoRetries.remove(file.fileName)
+                // Torrents end on COMPLETED or FAILED without throwing; web downloads throw on failure.
+                when (downloadProgressTracker.getDownloads().firstOrNull { it.fileName == file.fileName }?.status) {
+                    DownloadStatus.COMPLETED -> transferSamples.remove(file.fileName).let { s ->
+                        sourceTrack.recordSuccess(chosen, s?.first ?: 0L, s?.second ?: 0L)
+                    }
+                    DownloadStatus.FAILED -> {
+                        sourceTrack.recordFailure(chosen, null)
+                        serviceScope.launch { switchSourceOnce(file.fileName) }
+                    }
+                    else -> Unit
+                }
             } catch (e: kotlinx.coroutines.CancellationException) {
                 updateStatus(file.fileName, if (pausingFiles.remove(file.fileName)) DownloadStatus.PAUSED else DownloadStatus.STOPPED)
                 throw e
@@ -293,6 +313,7 @@ class DownloadService @Inject constructor(
             } catch (e: Exception) {
                 Log.e(TAG, "Download failed for ${file.fileName}: ${e.message}")
                 updateStatus(file.fileName, DownloadStatus.FAILED)
+                sourceTrack.recordFailure(current, e)
                 scheduleAutoRetry(file.fileName, e)
             } finally {
                 proceeding.remove(file.fileName)
@@ -312,17 +333,66 @@ class DownloadService @Inject constructor(
      * user did something with the row in the meantime or switched this off.
      */
     private fun scheduleAutoRetry(fileName: String, error: Exception) {
-        if (!AutoRetry.isTemporary(error)) return
         val done = autoRetries[fileName] ?: 0
-        val wait = AutoRetry.waitBeforeRetry(done) ?: return
+        val wait = if (AutoRetry.isTemporary(error)) AutoRetry.waitBeforeRetry(done) else null
         serviceScope.launch {
-            if (!appSettings.autoRetryFailed.first()) return@launch
+            // No (more) retries: the download failed for good here; another source may have it.
+            if (wait == null || !appSettings.autoRetryFailed.first()) {
+                switchSourceOnce(fileName)
+                return@launch
+            }
             autoRetries[fileName] = done + 1
             Log.i(TAG, "Retrying $fileName by itself in ${wait / 1000}s (retry ${done + 1} of ${AutoRetry.WAITS_MS.size})")
             delay(wait)
             val stillFailed = downloadProgressTracker.getDownloads().any { it.fileName == fileName && it.status == DownloadStatus.FAILED }
             if (stillFailed && downloadEntities.containsKey(fileName)) restartDownload(fileName)
         }
+    }
+
+    /** Bytes moved and milliseconds taken by the last finished web transfer per file, for the source's speed. */
+    private val transferSamples = ConcurrentHashMap<String, Pair<Long, Long>>()
+    /** Downloads that already moved to another source after failing (once per download). */
+    private val switchedOnce = ConcurrentHashMap.newKeySet<String>()
+    private val _switchedTo = MutableStateFlow<Map<String, String>>(emptyMap())
+    /** 7.5: file name -> short name of the source a failed download moved to ("Switched to <source>"). */
+    val switchedSources: StateFlow<Map<String, String>> = _switchedTo.asStateFlow()
+
+    /**
+     * With "Pick the best source" on, a new download takes the copy of the same file from the source
+     * with the best track record (see [SourceTrackService.ranked]); [file] itself otherwise.
+     */
+    private suspend fun chooseSource(file: DownloadableFileEntity): DownloadableFileEntity {
+        val best = sourceTrack.pickBest(file)
+        if (best.downloadUrl == file.downloadUrl || best.fileName != file.fileName) return file
+        if (!downloadEntities.replace(file.fileName, file, best)) return file
+        Log.i(TAG, "Taking ${file.fileName} from ${SourceRanking.label(best.sourceUrl)}")
+        rewriteHistory(best)
+        return best
+    }
+
+    /**
+     * A download that failed for good (no automatic retry left) starts again once from the next-best
+     * source of the same file, with "Switched to <source>" on its row.
+     */
+    private suspend fun switchSourceOnce(fileName: String) {
+        if (fileName in switchedOnce) return
+        val current = downloadEntities[fileName] ?: return
+        val next = sourceTrack.nextBest(current)?.takeIf { it.fileName == fileName } ?: return
+        val stillFailed = downloadProgressTracker.getDownloads().any { it.fileName == fileName && it.status == DownloadStatus.FAILED }
+        if (!stillFailed || !downloadEntities.replace(fileName, current, next) || !switchedOnce.add(fileName)) return
+        Log.i(TAG, "Switching $fileName to ${SourceRanking.label(next.sourceUrl)}")
+        // A part written from the other server is not continued.
+        partials.remove(fileName)
+        _switchedTo.update { it + (fileName to SourceRanking.label(next.sourceUrl)) }
+        rewriteHistory(next)
+        autoRetries.remove(fileName)
+        restartDownload(fileName)
+    }
+
+    /** The history row follows the source actually used, so a restart picks it up again. */
+    private suspend fun rewriteHistory(entity: DownloadableFileEntity) {
+        val item = downloadProgressTracker.getDownloads().firstOrNull { it.fileName == entity.fileName } ?: return
+        runCatching { historyDao.upsertAll(listOf(DownloadHistoryEntity.from(entity, item))) }
     }
 
     private suspend fun withSlot(file: DownloadableFileEntity, block: suspend () -> Unit) {
@@ -415,6 +485,7 @@ class DownloadService @Inject constructor(
 
     fun retryDownload(fileName: String) {
         autoRetries.remove(fileName)
+        switchedOnce.remove(fileName)
         restartDownload(fileName)
     }
 
@@ -436,7 +507,7 @@ class DownloadService @Inject constructor(
 
     /** [retryDownload] for many downloads at once: one list update, one database write, one service start. Returns how many were restarted. */
     fun retryDownloads(fileNames: List<String>): Int {
-        fileNames.forEach { autoRetries.remove(it) }
+        fileNames.forEach { autoRetries.remove(it); switchedOnce.remove(it) }
         val entities = synchronized(startLock) {
             downloadProgressTracker.resetDownloadsForRetry(fileNames).mapNotNull { downloadEntities[it] }
         }
@@ -454,6 +525,8 @@ class DownloadService @Inject constructor(
     fun deleteDownload(fileName: String, deleteFile: Boolean = false) {
         downloadJobs.remove(fileName)?.cancel()
         autoRetries.remove(fileName)
+        switchedOnce.remove(fileName)
+        _switchedTo.update { it - fileName }
         conditionGate.clear(fileName)
         val entity = downloadEntities.remove(fileName)
         val extracted = extractedFilesMap.remove(fileName) ?: emptyList()
@@ -868,6 +941,7 @@ class DownloadService @Inject constructor(
                 lastDownloaded = downloaded
             }
         }
+        transferSamples[file.fileName] = (downloaded - startOffset) to (System.currentTimeMillis() - startTime)
     }
 
     private suspend fun handlePostDownload(

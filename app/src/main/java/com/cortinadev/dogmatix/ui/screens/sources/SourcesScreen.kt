@@ -71,6 +71,7 @@ fun SourcesScreen(
     val manufacturers by viewModel.manufacturers.collectAsState(initial = emptyList())
     val isRescanning by viewModel.isRescanning.collectAsState()
     val sourceResults by viewModel.sourceResults.collectAsState()
+    val sourceTrack by viewModel.sourceTrack.collectAsState()
     val consoleDownloadPaths by viewModel.consoleDownloadPaths.collectAsState()
     val downloadDirectory by viewModel.downloadDirectory.collectAsState()
     val context = LocalContext.current
@@ -208,7 +209,8 @@ fun SourcesScreen(
                     },
                     onRefreshConsole = { viewModel.refreshConsole(console.id) },
                     onMergeFolders = { viewModel.showMergeDialog(console.id) },
-                    resultFor = { sourceResults[SourceScanResults.key(console.id, it.url)] }
+                    resultFor = { sourceResults[SourceScanResults.key(console.id, it.url)] },
+                    trackFor = { sourceTrack[it.url] }
                 )
             }
         }

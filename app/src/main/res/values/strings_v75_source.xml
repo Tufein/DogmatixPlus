@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="src75_switched_to">Switched to %1$s</string>
+    <string name="src75_track">avg %1$s · %2$d %% ok</string>
+    <string name="src75_track_ok">%1$d %% ok</string>
+    <string name="src75_pick_best_title">Pick the best source</string>
+    <string name="src75_pick_best_hint">When several sources list a game, download it from the fastest and most reliable one, and try the next one if a download fails for good</string>
+</resources>

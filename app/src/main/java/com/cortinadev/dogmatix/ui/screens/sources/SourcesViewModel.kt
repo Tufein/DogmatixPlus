@@ -54,8 +54,12 @@ class SourcesViewModel @Inject constructor(
     private val libraryIndexService: LibraryIndexService,
     private val rommClient: RommClient,
     private val scanResults: SourceScanResults,
-    private val scanService: com.cortinadev.dogmatix.data.service.SourceScanService
+    private val scanService: com.cortinadev.dogmatix.data.service.SourceScanService,
+    sourceTrack: com.cortinadev.dogmatix.data.service.SourceTrackService
 ) : ViewModel() {
+
+    /** 7.5: download track record per source address (speed, share that worked). */
+    val sourceTrack: StateFlow<Map<String, com.cortinadev.dogmatix.util.SourceRecord>> = sourceTrack.records
 
     /** The last scan's outcome per source (`consoleId|url`), shown under each URL. */
     val sourceResults: StateFlow<Map<String, SourceScanResult>> = scanResults.results

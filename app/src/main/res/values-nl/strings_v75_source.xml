@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="src75_switched_to">Overgeschakeld naar %1$s</string>
+    <string name="src75_track">gem. %1$s · %2$d %% gelukt</string>
+    <string name="src75_track_ok">%1$d %% gelukt</string>
+    <string name="src75_pick_best_title">Kies de beste bron</string>
+    <string name="src75_pick_best_hint">Staat een game bij meerdere bronnen, download hem dan van de snelste en betrouwbaarste, en probeer de volgende als een download definitief mislukt</string>
+</resources>

@@ -137,9 +137,11 @@ fun DownloadItem(
     }
     // Only rows handed to a debrid service show its name.
     val debridLabel = if (item.status == DownloadStatus.QUEUED) viewModel.debridLabel.collectAsState().value else ""
+    // 7.5: the source a failed download moved to by itself.
+    val switchedTo = viewModel.switchedSources.collectAsState().value[fileName]
     DownloadRow(
         item, details, compact, actions, debridLabel, modifier, upload, waitingReason, queuePosition, verify,
-        selectionMode, selected, focusUp, sweep, onToggleSelection, onRowFocused, condition, canSchedule
+        selectionMode, selected, focusUp, sweep, onToggleSelection, onRowFocused, condition, canSchedule, switchedTo
     )
 }
 
@@ -184,7 +186,9 @@ fun DownloadRow(
     /** The row's own "Download when..." condition while it is not met yet; its pill wins over [waitingReason]. */
     condition: WaitInfo? = null,
     /** Not started yet (in line, or waiting): the *Wait for...* button shows. */
-    canSchedule: Boolean = false
+    canSchedule: Boolean = false,
+    /** Short name of the source this download moved to after failing on its first one, or null. */
+    switchedTo: String? = null
 ) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
@@ -242,7 +246,8 @@ fun DownloadRow(
         DownloadStatus.DOWNLOADING -> stringResource(R.string.download_speed, item.downloadSpeed) +
             "  ·  ${formatBytes(item.downloadedBytes)} / ${formatBytes(item.fileSize)}"
         else -> formatBytes(item.fileSize)
-    } + (timeLabel?.let { "  ·  $it" } ?: "")
+    } + (timeLabel?.let { "  ·  $it" } ?: "") +
+        (switchedTo?.let { "  ·  " + stringResource(R.string.src75_switched_to, it) } ?: "")
     val busy = status == DownloadStatus.COPYING || status == DownloadStatus.UNZIPPING ||
         (status == DownloadStatus.QUEUED && item.progress <= 0f) || waiting || inQueue
     // 40 dp targets, a little smaller on a wide, short screen: the cover and the buttons share the row.

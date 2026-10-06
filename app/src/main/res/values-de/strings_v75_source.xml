@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="src75_switched_to">Gewechselt zu %1$s</string>
+    <string name="src75_track">Ø %1$s · %2$d %% ok</string>
+    <string name="src75_track_ok">%1$d %% ok</string>
+    <string name="src75_pick_best_title">Beste Quelle wählen</string>
+    <string name="src75_pick_best_hint">Führen mehrere Quellen ein Spiel, wird es von der schnellsten und zuverlässigsten geladen; scheitert ein Download endgültig, wird die nächste versucht</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="src75_switched_to">Cambiado a %1$s</string>
+    <string name="src75_track">media %1$s · %2$d %% correctas</string>
+    <string name="src75_track_ok">%1$d %% correctas</string>
+    <string name="src75_pick_best_title">Elegir la mejor fuente</string>
+    <string name="src75_pick_best_hint">Si varias fuentes ofrecen un juego, se descarga de la más rápida y fiable, y se prueba la siguiente si una descarga falla definitivamente</string>
+</resources>
