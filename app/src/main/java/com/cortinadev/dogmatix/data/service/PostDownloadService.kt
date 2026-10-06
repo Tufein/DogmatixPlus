@@ -26,7 +26,9 @@ import javax.inject.Singleton
  *  - a multi-disc game that is now complete gets its `.m3u` playlist (when that setting is on);
  *  - with *Covers for ES-DE* on, the game's cover goes to ES-DE's `downloaded_media/<system>/covers`
  *    and a gamelist entry with name, description, date, developer and genre is added, unless ES-DE
- *    already has one (ES-DE's own scraping and the user's edits win). Cocoon's ES-DE link reads them too.
+ *    already has one (ES-DE's own scraping and the user's edits win). Cocoon's ES-DE link reads them too;
+ *  - with *Descriptions for your launcher → after every download* on, the game's details are merged into
+ *    ES-DE's gamelist and Pegasus' metadata ([FrontendMetadataService]; only empty fields are filled).
  */
 @Singleton
 class PostDownloadService @Inject constructor(
@@ -37,7 +39,8 @@ class PostDownloadService @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val libraryTools: LibraryToolsService,
     private val metadata: GameMetadataService,
-    private val thumbnails: ThumbnailService
+    private val thumbnails: ThumbnailService,
+    private val frontendMetadata: FrontendMetadataService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -73,6 +76,8 @@ class PostDownloadService @Inject constructor(
         if (appSettings.esdeArtwork.first()) writeEsdeArtwork(entity.name, entity.consoleId, entity.fileName, dir.name.orEmpty(), romName)
         if (appSettings.pegasusArtwork.first()) writePegasusCover(entity.name, entity.consoleId, entity.fileName, dir, romName)
         appSettings.retroArchThumbnailsDir.first().takeIf { it.isNotBlank() }?.let { writeRetroArchCover(it, entity.consoleId, entity.fileName, romName) }
+        // 7.0: description, genre, year, developer and rating into ES-DE's gamelist / Pegasus' metadata (only with "after every download" on).
+        frontendMetadata.writeAfterDownload(entity.name, entity.consoleId, romName, dir, dir.name.orEmpty())
     }
 
     /** Pegasus: `media/<game>/boxFront.<ext>` next to the game, unless a cover is already there. */

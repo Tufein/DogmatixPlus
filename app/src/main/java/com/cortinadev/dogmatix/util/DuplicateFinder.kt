@@ -102,7 +102,7 @@ object DuplicateFinder {
 
     /** Files that are never games: shortcuts, artwork, notes, saves, states, patches, our own temp files. */
     private val ignoredExtensions = setOf(
-        "dgmtx", "tmp", "part", "txt", "nfo", "md", "xml", "json", "html", "url", "lnk", "ini", "cfg", "db",
+        "dgmtx", "tmp", "part", "txt", "nfo", "md", "xml", "json", "html", "url", "lnk", "ini", "cfg", "db", "dogmatix-bak",
         "jpg", "jpeg", "png", "gif", "webp", "bmp", "mp4", "mkv", "pdf",
         "sav", "srm", "state", "sta", "mcr", "mcd", "rtc", "eep", "sra", "fla", "mpk", "dsv", "auto", "brm",
         "ips", "bps", "ups", "xdelta", "ppf", "cht"

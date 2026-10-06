@@ -39,6 +39,27 @@ class GameMetadataService @Inject constructor(
             ?: GameDetails(GameTitleCleaner.clean(name), "", emptyList(), "", "", cover, "libretro-thumbnails")
     }
 
+    /** What the cache says about a game, without a network call (see [peek]). */
+    sealed interface Cached {
+        data class Hit(val details: GameDetails) : Cached
+        /** A recent lookup found nothing: asking again would be wasted. */
+        object Miss : Cached
+        /** Never looked up (or the miss is old): [lookup] would go online. */
+        object Unknown : Cached
+    }
+
+    /** What is already cached for a game: no network, one Room read (7.0: writing descriptions to the frontends). */
+    suspend fun peek(name: String, consoleId: String): Cached = withContext(Dispatchers.IO) {
+        val title = GameTitleCleaner.clean(name)
+        if (title.isBlank()) return@withContext Cached.Miss
+        val cached = dao.get("${consoleId.substringAfter("_", consoleId).lowercase()}|${title.lowercase()}") ?: return@withContext Cached.Unknown
+        when {
+            cached.source.isNotEmpty() -> Cached.Hit(cached.toDetails())
+            System.currentTimeMillis() - cached.fetchedAt < MISS_TTL_MS -> Cached.Miss
+            else -> Cached.Unknown
+        }
+    }
+
     private suspend fun lookupDatabases(name: String, consoleId: String): GameDetails? = withContext(Dispatchers.IO) {
         val title = GameTitleCleaner.clean(name)
         if (title.isBlank()) return@withContext null
