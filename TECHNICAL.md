@@ -428,6 +428,11 @@ Everything is also reachable by touch; the legend only appears while a controlle
 
 Planned features, in no particular order:
 
+- **Play now**: a button in the details card and on *Continue playing* that starts the game in the user's emulator or launcher (ES-DE, RetroArch, Daijishō), so there is no need to switch apps.
+- **Backlog and own rating**: per game "Want to play / Playing / Finished", own stars and a note, also without RomM (synced with RomM's play status when it is set up), and a "What next?" row on Home.
+- **For you**: a Home row with games like the ones played and finished (genre, decade, console, using `SimilarGames`).
+- **Repair the library**: find broken or cut-off files (0 bytes, unreadable archives, wrong size against the source) and fetch them again.
+- **Send to my other handheld**: one tap in the details card and the other device downloads the game, through the user's own WebDAV server (a request file next to the device sync data).
 - Try everything from 1.2.0-alpha.1 up to 3.3.0 (move library and RomM upload especially) against real RomM servers and a real handheld, and fix what that shows (certificate trust, resumed uploads, deletion sync, background sync, covers, the schedule and the checksum check have only been covered by unit tests so far).
 - Covers for iiSU and Daijishō. Neither has a known folder where it reads covers; find out on a real device first, then reuse `FrontendArtwork`.
 - Save sync for emulators whose saves are not named after the ROM: DuckStation and PPSSPP (memory cards and `SAVEDATA/<title id>` folders), matched to a game by serial or title id instead of by file name.
