@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android TV launcher banner (320 x 180 dp): the launcher icon's cartridge with dog ears, centred on an orange gradient. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+    <!-- ground -->
+    <path android:pathData="M0,0 h320 v180 h-320 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0" android:startY="0"
+                android:endX="320" android:endY="180">
+                <item android:offset="0" android:color="#FF9A3C" />
+                <item android:offset="0.55" android:color="#F57C10" />
+                <item android:offset="1" android:color="#D9650A" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- soft sheen across the top, as on the icon tile -->
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.12" android:pathData="M0,0 h320 v58 Q160,92 0,58 Z" />
+    <!-- the icon, scaled 2.6x and centred -->
+    <group android:scaleX="2.6" android:scaleY="2.6" android:translateX="19.6" android:translateY="-53">
+        <!-- shadow under the cartridge -->
+        <path android:fillColor="#1E1F24" android:fillAlpha="0.16" android:pathData="M39,35 L67,35 L72,40 L72,76 Q72,79 69,79 L41,79 Q38,79 38,76 L38,38 Q38,35 41,35 Z" />
+        <!-- ears -->
+        <path android:fillColor="#1E1F24" android:pathData="M37,38 C30,37 25,42 25,50 C25,58 28,64 32,66 C34,67 36,65 36,62 L37,46 Z" />
+        <path android:fillColor="#1E1F24" android:pathData="M71,38 C78,37 83,42 83,50 C83,58 80,64 76,66 C74,67 72,65 72,62 L71,46 Z" />
+        <!-- cartridge with a notched corner -->
+        <path android:fillColor="#FFFFFF" android:pathData="M38,33 L66,33 L71,38 L71,74 Q71,77 68,77 L40,77 Q37,77 37,74 L37,36 Q37,33 40,33 Z" />
+        <path android:fillColor="#1E1F24" android:fillAlpha="0.18" android:pathData="M41,36 h18 v2 h-18 Z" />
+        <!-- label -->
+        <path android:fillColor="#1E1F24" android:pathData="M42,42 L66,42 Q67,42 67,43 L67,64 Q67,66 65,66 L43,66 Q41,66 41,64 L41,43 Q41,42 42,42 Z" />
+        <!-- download arrow -->
+        <path android:fillColor="#FF8A1F" android:pathData="M51.5,46 h5 v8.5 h4.5 l-7,7.5 l-7,-7.5 h4.5 Z" />
+        <path android:fillColor="#1E1F24" android:pathData="M46,70 h16 v3 h-16 Z" />
+        <!-- plus badge -->
+        <path android:fillColor="#1E1F24" android:pathData="M70,61.5 A8.5,8.5 0 1,1 69.99,61.5 Z" />
+        <path android:fillColor="#FFFFFF" android:pathData="M68.8,65.5 h2.4 v3.3 h3.3 v2.4 h-3.3 v3.3 h-2.4 v-3.3 h-3.3 v-2.4 h3.3 Z" />
+    </group>
+</vector>

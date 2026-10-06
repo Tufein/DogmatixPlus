@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tv8_setting_title">Tv-modus</string>
+    <string name="tv8_setting_hint_on">Grotere tekst en rijen, marges voor de randen van de tv. Nu aan</string>
+    <string name="tv8_setting_hint_off">Grotere tekst en rijen, marges voor de randen van de tv. Nu uit</string>
+    <string name="tv8_mode_auto">Automatisch</string>
+    <string name="tv8_mode_on">Aan</string>
+    <string name="tv8_mode_off">Uit</string>
+</resources>

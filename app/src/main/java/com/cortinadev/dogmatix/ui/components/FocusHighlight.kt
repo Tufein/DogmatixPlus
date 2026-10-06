@@ -22,6 +22,7 @@ import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
 import com.cortinadev.dogmatix.ui.theme.accentInk
 import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
 import com.cortinadev.dogmatix.ui.theme.Motion
+import com.cortinadev.dogmatix.util.TvMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -53,6 +54,7 @@ fun Modifier.focusRing(
     val scheme = MaterialTheme.colorScheme
     val tokens = LocalDogmatixTokens.current
     val bold = LocalBoldFocus.current
+    val tv = LocalTvMode.current
     val reduce = LocalReduceMotion.current
     val ringColor = if (onAccent) scheme.onSurface else accentInk()
     val fillColor = scheme.primary.copy(alpha = if (tokens.isDark) 0.14f else 0.12f)
@@ -80,10 +82,11 @@ fun Modifier.focusRing(
         if (p > 0f) drawRoundRect(pressColor, topLeft = Offset(shift, 0f), size = area, cornerRadius = radius, alpha = p)
         drawContent()
         if (f <= 0f) return@drawWithContent
-        val stroke = (if (bold) maxOf(width, 3.5.dp) else maxOf(width, 2.dp)).toPx()
+        // 8.0 TV mode: as thick as the bold ring, with a wider halo, readable from the sofa.
+        val stroke = (if (bold || tv) maxOf(width, TvMode.FOCUS_RING_DP.dp) else maxOf(width, 2.dp)).toPx()
         if (!bold) {
             // Halo: a wider, faint ring just outside the element.
-            val halo = 3.dp.toPx()
+            val halo = (if (tv) 6.dp else 3.dp).toPx()
             drawRoundRect(
                 ringColor.copy(alpha = 0.22f * f),
                 topLeft = Offset(shift - halo / 2, -halo / 2),

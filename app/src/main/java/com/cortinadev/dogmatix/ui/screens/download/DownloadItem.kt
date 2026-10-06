@@ -56,6 +56,7 @@ import com.cortinadev.dogmatix.data.model.DownloadableFileWithTags
 import com.cortinadev.dogmatix.data.service.UploadState
 import com.cortinadev.dogmatix.data.service.UploadStatus
 import com.cortinadev.dogmatix.ui.components.CoverImage
+import com.cortinadev.dogmatix.ui.components.tvSized
 import com.cortinadev.dogmatix.ui.components.GameCover
 import com.cortinadev.dogmatix.ui.components.Panel
 import com.cortinadev.dogmatix.ui.components.Pill
@@ -351,7 +352,7 @@ fun DownloadRow(
                     // Long press is how touch enters selection mode (the pad uses SELECT).
                     onLongClick = onToggleSelection
                 )
-                .defaultMinSize(minHeight = if (compact) 66.dp else 82.dp)
+                .defaultMinSize(minHeight = tvSized(if (compact) 66.dp else 82.dp))   // 8.0: taller in TV mode
                 .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = if (actionsBelow) Alignment.Top else Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)

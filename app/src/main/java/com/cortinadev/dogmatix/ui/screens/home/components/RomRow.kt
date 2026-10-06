@@ -48,6 +48,8 @@ import androidx.compose.ui.unit.dp
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.model.DownloadableFileWithTags
 import com.cortinadev.dogmatix.ui.components.GameCover
+import com.cortinadev.dogmatix.ui.components.LocalTvMode
+import com.cortinadev.dogmatix.ui.components.tvSized
 import com.cortinadev.dogmatix.ui.components.Pill
 import com.cortinadev.dogmatix.ui.components.PillTone
 import com.cortinadev.dogmatix.ui.components.TagRow
@@ -115,6 +117,9 @@ fun RomRow(
     /** 6.0: compact lists (Settings → Look): tighter height and padding, smaller cover. */
     dense: Boolean = false
 ) {
+    // 8.0 TV mode: never the compact rows; rows (and the stacked covers) grow. The table's cover and
+    // column widths stay, so the header in HomeScreen keeps lining up; the TV text scale does the rest.
+    val tight = dense && !LocalTvMode.current
     val source = rememberFocusSource()
     val rom = item.file
     // No clip: the focus halo is drawn just outside the row, and a clip would also cost a layer per row.
@@ -130,8 +135,8 @@ fun RomRow(
     if (compact) {
         Row(
             modifier = base
-                .defaultMinSize(minHeight = if (dense) 40.dp else 46.dp)
-                .padding(horizontal = 14.dp, vertical = if (dense) 2.dp else if (showCover) 4.dp else 6.dp),
+                .defaultMinSize(minHeight = if (tight) 40.dp else tvSized(46.dp))
+                .padding(horizontal = 14.dp, vertical = if (tight) 2.dp else if (showCover) 4.dp else tvSized(6.dp)),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -147,7 +152,7 @@ fun RomRow(
                         title = rom.name,
                         // The extra end padding plus the row's 8 dp spacing make CoverGap, as in the table header.
                         modifier = Modifier.padding(end = CoverGap - 8.dp).size(
-                            if (dense) DenseTableCoverWidth else TableCoverWidth, if (dense) DenseTableCoverHeight else TableCoverHeight
+                            if (tight) DenseTableCoverWidth else TableCoverWidth, if (tight) DenseTableCoverHeight else TableCoverHeight
                         ),
                         shape = RoundedCornerShape(5.dp),
                         showLabel = false
@@ -175,15 +180,15 @@ fun RomRow(
     } else {
         Row(
             modifier = base
-                .defaultMinSize(minHeight = if (dense) 44.dp else 64.dp)
-                .padding(horizontal = 12.dp, vertical = if (dense) 3.dp else if (showCover) 8.dp else 10.dp),
+                .defaultMinSize(minHeight = if (tight) 44.dp else tvSized(64.dp))
+                .padding(horizontal = 12.dp, vertical = if (tight) 3.dp else if (showCover) 8.dp else tvSized(10.dp)),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(
                 modifier = Modifier.weight(1f).slidingCell(contentShift),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(if (dense) 8.dp else CoverGap + 2.dp)
+                horizontalArrangement = Arrangement.spacedBy(if (tight) 8.dp else CoverGap + 2.dp)
             ) {
                 if (showCover) {
                     GameCover(
@@ -191,26 +196,26 @@ fun RomRow(
                         fileName = rom.fileName,
                         title = rom.name,
                         modifier = Modifier.size(
-                            if (dense) DenseStackedCoverWidth else StackedCoverWidth, if (dense) DenseStackedCoverHeight else StackedCoverHeight
+                            if (tight) DenseStackedCoverWidth else tvSized(StackedCoverWidth), if (tight) DenseStackedCoverHeight else tvSized(StackedCoverHeight)
                         ),
-                        shape = RoundedCornerShape(if (dense) 5.dp else 7.dp),
-                        showLabel = !dense
+                        shape = RoundedCornerShape(if (tight) 5.dp else 7.dp),
+                        showLabel = !tight
                     )
                 }
-                Column(verticalArrangement = Arrangement.spacedBy(if (dense) 2.dp else 6.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(if (tight) 2.dp else 6.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         badges()
                         Text(
                             stripExtension(rom.name),
                             style = MaterialTheme.typography.bodyLarge,
                             color = nameColor,
-                            maxLines = if (dense) 1 else 2,
+                            maxLines = if (tight) 1 else 2,
                             overflow = TextOverflow.Ellipsis
                         )
                     }
                     TagRow(
                         console = consoleName, tags = item.tags, extension = rom.fileExtension, consoleId = rom.consoleId,
-                        maxLines = if (dense) 1 else Int.MAX_VALUE
+                        maxLines = if (tight) 1 else Int.MAX_VALUE
                     )
                 }
             }

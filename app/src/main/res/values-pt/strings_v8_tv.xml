@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tv8_setting_title">Modo TV</string>
+    <string name="tv8_setting_hint_on">Texto e linhas maiores, margens para as extremidades do televisor. Ligado agora</string>
+    <string name="tv8_setting_hint_off">Texto e linhas maiores, margens para as extremidades do televisor. Desligado agora</string>
+    <string name="tv8_mode_auto">Automático</string>
+    <string name="tv8_mode_on">Ligado</string>
+    <string name="tv8_mode_off">Desligado</string>
+</resources>
