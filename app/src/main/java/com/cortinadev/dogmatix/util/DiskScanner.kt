@@ -37,11 +37,17 @@ object DiskScanner {
         DocumentsContract.Document.COLUMN_LAST_MODIFIED
     )
 
-    /** The root directory of a persisted tree URI string, or null when it is not a tree. */
+    /**
+     * The root directory of a persisted tree URI string, or null when it is not a tree. A folder
+     * inside a granted tree (`…/tree/<id>/document/<child>`, how 8.0 smart storage stores a console
+     * folder on the SD card) is that folder, not the whole tree.
+     */
     fun rootOf(treeUriString: String): DiskDir? = runCatching {
         val uri = treeUriString.toUri()
         if (!DocumentsContract.isTreeUri(uri)) return null
-        DiskDir(uri, DocumentsContract.getTreeDocumentId(uri))
+        val segments = uri.pathSegments
+        val id = if (segments.size >= 4 && segments[2] == "document") segments[3] else DocumentsContract.getTreeDocumentId(uri)
+        DiskDir(uri, id)
     }.getOrNull()
 
     fun dirOf(parent: DiskDir, entry: DiskEntry): DiskDir = DiskDir(parent.treeUri, entry.documentId)

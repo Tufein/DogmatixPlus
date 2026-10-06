@@ -136,7 +136,7 @@ class StorageViewModel @Inject constructor(
     }
 }
 
-private enum class StorageFocus { REFRESH, MOVE, CONSOLE, GAME, INFO }
+private enum class StorageFocus { REFRESH, MOVE, SMART, CONSOLE, GAME, INFO }
 
 /** Where the space goes: per console, the biggest games, and whether the queued downloads still fit. */
 @OptIn(ExperimentalLayoutApi::class)
@@ -147,6 +147,7 @@ fun StorageScreen(viewModel: StorageViewModel = hiltViewModel()) {
     val scheme = MaterialTheme.colorScheme
     var pendingDelete by remember { mutableStateOf<GameEntry?>(null) }
     val move by viewModel.move.collectAsState()
+    val smart = rememberSmartStorage()
     var pendingMove by remember { mutableStateOf<String?>(null) }
     val moveLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let {
@@ -188,6 +189,7 @@ fun StorageScreen(viewModel: StorageViewModel = hiltViewModel()) {
         when (focusKind) {
             StorageFocus.REFRESH -> listOf(LegendEntry("A", stringResource(R.string.tools_refresh)), back, section)
             StorageFocus.MOVE -> listOf(LegendEntry("A", stringResource(R.string.storage_move_action)), back, section)
+            StorageFocus.SMART -> listOf(LegendEntry("A", stringResource(R.string.pad_select)), back, section)
             StorageFocus.CONSOLE -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
             StorageFocus.GAME -> listOf(LegendEntry("A", stringResource(R.string.pad_delete)), back, section)
             StorageFocus.INFO -> listOf(back, section)
@@ -297,6 +299,8 @@ fun StorageScreen(viewModel: StorageViewModel = hiltViewModel()) {
                     else ToolAction(stringResource(R.string.storage_move_action)) { moveLauncher.launch(null) }
                 }
             }
+            // 8.0: smart storage (cold consoles to the SD card, played ones back).
+            if (!ui.loading && ui.folderSet) smartStorageItems(smart) { focusKind = StorageFocus.SMART }
             if (!ui.loading && ui.usage.isNotEmpty()) {
                 item(key = "usageHeader") { SectionHeader(stringResource(R.string.storage_by_console), icon = R.drawable.ic_controller) }
                 val maxBytes = ui.usage.maxOf { it.bytes }.coerceAtLeast(1L)

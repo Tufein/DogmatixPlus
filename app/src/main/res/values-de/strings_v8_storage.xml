@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="store8_title">Intelligenter Speicher</string>
+    <string name="store8_hint">Behält die Konsolen, die du spielst, im schnellen internen Speicher und verschiebt die übrigen auf die SD-Karte</string>
+    <string name="store8_switch_title">Intelligenter Speicher</string>
+    <string name="store8_switch_hint">Aus. Einschalten, um den internen Speicher für die Konsolen freizuhalten, die du spielst</string>
+    <string name="store8_explain_title">Es ziehen ganze Konsolen um, nie einzelne Spiele</string>
+    <string name="store8_explain">Dogmatix+ und Frontends wie ES-DE geben jeder Konsole einen Ordner, deshalb zieht eine Konsole mit ihrem ganzen Ordner um. Konsolen mit einem Favoriten oder einem kürzlich gespielten Spiel bleiben im internen Speicher; die übrigen kommen auf die SD-Karte und kehren zurück, sobald du sie wieder spielst. ES-DE zieht von selbst mit, wenn es in Dogmatix+ eingerichtet ist (ES-DE danach neu starten). In Daijishō, Pegasus oder RetroArch-Playlists musst du eine umgezogene Konsole auf ihren neuen Ordner verweisen.</string>
+    <string name="store8_sd_title">Bibliotheksordner auf der SD-Karte</string>
+    <string name="store8_sd_none">Noch kein Ordner gewählt</string>
+    <string name="store8_sd_choose">Wählen</string>
+    <string name="store8_days_title">Kürzlich gespielt</string>
+    <string name="store8_days_hint">Konsolen, die du in den letzten %1$d Tagen gespielt hast, bleiben im internen Speicher</string>
+    <string name="store8_weekly_title">Jede Woche beim Laden</string>
+    <string name="store8_weekly_hint">Verschiebt höchstens %1$s pro Durchlauf, nie eine Konsole, die gerade herunterlädt</string>
+    <string name="store8_preview_title">Was verschoben würde</string>
+    <string name="store8_moving_title">Konsolen werden verschoben</string>
+    <string name="store8_preview_hint">Prüfen, was ein Durchlauf verschieben würde, ohne etwas zu verschieben</string>
+    <string name="store8_preview_action">Prüfen</string>
+    <string name="store8_preview_nothing">Nichts zu verschieben: Jede Konsole ist dort, wo sie hingehört</string>
+    <string name="store8_move_now">Jetzt verschieben</string>
+    <string name="store8_stop">Stoppen</string>
+    <string name="store8_ok">OK</string>
+    <string name="store8_to_sd">auf die SD-Karte</string>
+    <string name="store8_to_internal">in den internen Speicher</string>
+    <string name="store8_reason_cold">Länger nicht gespielt</string>
+    <string name="store8_reason_played">Kürzlich gespielt</string>
+    <string name="store8_reason_favourite">Hat einen Favoriten</string>
+    <string name="store8_wait_busy">Wartet: Ein Download oder Frontend-Update arbeitet daran</string>
+    <string name="store8_wait_resting">Wartet: vor weniger als zwei Wochen verschoben</string>
+    <string name="store8_wait_no_room">Wartet: nicht genug freier Speicher</string>
+    <string name="store8_wait_later">Wartet auf den nächsten Durchlauf</string>
+    <string name="store8_waits">Wartet</string>
+    <string name="store8_problem_no_sd">Wähle zuerst einen Ordner auf der SD-Karte</string>
+    <string name="store8_problem_no_library">Der intelligente Speicher braucht einen Download-Ordner mit einem Ordner pro Konsole</string>
+    <string name="store8_problem_same">Dieser Ordner liegt im selben Speicher wie die Bibliothek; wähle einen auf der SD-Karte</string>
+    <string name="store8_problem_busy">Es läuft bereits ein Umzug; versuche es erneut, wenn er fertig ist</string>
+    <string name="store8_running">%1$s (%2$d von %3$d) · %4$s von %5$s</string>
+    <string name="store8_last">Letzter Durchlauf %1$s · %2$s</string>
+    <string name="store8_last_none">An. Noch nicht gelaufen</string>
+    <string name="store8_confirm_title">Diese Konsolen verschieben?</string>
+    <string name="store8_confirm_message">Jeder Konsolenordner wird zuerst kopiert und geprüft; erst danach wird er am alten Ort entfernt.</string>
+    <string name="store8_confirm_ok">Verschieben</string>
+    <string name="store8_notify_title">Intelligenter Speicher</string>
+    <string name="store8_notify_progress">%1$s (%2$d von %3$d)</string>
+    <plurals name="store8_done">
+        <item quantity="one">%d Konsole verschoben</item>
+        <item quantity="other">%d Konsolen verschoben</item>
+    </plurals>
+    <plurals name="store8_failed">
+        <item quantity="one">%d Konsole konnte nicht verschoben werden und bleibt, wo sie war</item>
+        <item quantity="other">%d Konsolen konnten nicht verschoben werden und bleiben, wo sie waren</item>
+    </plurals>
+    <plurals name="store8_preview_frees">
+        <item quantity="one">Würde %1$d Konsole verschieben · gibt intern %2$s frei</item>
+        <item quantity="other">Würde %1$d Konsolen verschieben · gibt intern %2$s frei</item>
+    </plurals>
+    <plurals name="store8_preview_takes">
+        <item quantity="one">Würde %1$d Konsole verschieben · belegt intern %2$s</item>
+        <item quantity="other">Würde %1$d Konsolen verschieben · belegt intern %2$s</item>
+    </plurals>
+    <plurals name="store8_notify_done">
+        <item quantity="one">%1$d Konsole verschoben · %2$s</item>
+        <item quantity="other">%1$d Konsolen verschoben · %2$s</item>
+    </plurals>
+    <plurals name="store8_notify_failed">
+        <item quantity="one">%d Konsole konnte nicht verschoben werden</item>
+        <item quantity="other">%d Konsolen konnten nicht verschoben werden</item>
+    </plurals>
+</resources>

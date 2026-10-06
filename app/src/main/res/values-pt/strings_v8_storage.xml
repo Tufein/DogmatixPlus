@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="store8_title">Armazenamento inteligente</string>
+    <string name="store8_hint">Mantém as consolas que joga no armazenamento interno rápido e move as restantes para o cartão SD</string>
+    <string name="store8_switch_title">Armazenamento inteligente</string>
+    <string name="store8_switch_hint">Desligado. Ligue para reservar o armazenamento interno às consolas que joga</string>
+    <string name="store8_explain_title">Movem-se consolas inteiras, nunca jogos soltos</string>
+    <string name="store8_explain">O Dogmatix+ e frontends como o ES-DE dão uma pasta a cada consola, por isso uma consola muda-se com a pasta inteira. As consolas com um favorito ou um jogo jogado recentemente ficam no armazenamento interno; as restantes vão para o cartão SD e voltam assim que as jogar de novo. O ES-DE acompanha sozinho se estiver configurado no Dogmatix+ (reinicie o ES-DE depois). No Daijishō, no Pegasus ou nas listas do RetroArch, indique a nova pasta de uma consola movida.</string>
+    <string name="store8_sd_title">Pasta da biblioteca no cartão SD</string>
+    <string name="store8_sd_none">Ainda não escolheu uma pasta</string>
+    <string name="store8_sd_choose">Escolher</string>
+    <string name="store8_days_title">Jogado recentemente</string>
+    <string name="store8_days_hint">As consolas jogadas nos últimos %1$d dias ficam no armazenamento interno</string>
+    <string name="store8_weekly_title">Todas as semanas durante o carregamento</string>
+    <string name="store8_weekly_hint">Move no máximo %1$s por passagem, nunca uma consola que esteja a transferir</string>
+    <string name="store8_preview_title">O que seria movido</string>
+    <string name="store8_moving_title">A mover consolas</string>
+    <string name="store8_preview_hint">Veja o que uma passagem moveria, sem mover nada</string>
+    <string name="store8_preview_action">Verificar</string>
+    <string name="store8_preview_nothing">Nada a mover: cada consola está onde deve estar</string>
+    <string name="store8_move_now">Mover agora</string>
+    <string name="store8_stop">Parar</string>
+    <string name="store8_ok">OK</string>
+    <string name="store8_to_sd">para o cartão SD</string>
+    <string name="store8_to_internal">para o armazenamento interno</string>
+    <string name="store8_reason_cold">Não é jogada há algum tempo</string>
+    <string name="store8_reason_played">Jogada recentemente</string>
+    <string name="store8_reason_favourite">Tem um favorito</string>
+    <string name="store8_wait_busy">Em espera: uma transferência ou atualização do frontend está em curso</string>
+    <string name="store8_wait_resting">Em espera: foi movida há menos de duas semanas</string>
+    <string name="store8_wait_no_room">Em espera: espaço livre insuficiente</string>
+    <string name="store8_wait_later">Aguarda a próxima passagem</string>
+    <string name="store8_waits">Em espera</string>
+    <string name="store8_problem_no_sd">Escolha primeiro uma pasta no cartão SD</string>
+    <string name="store8_problem_no_library">O armazenamento inteligente precisa de uma pasta de transferências com uma pasta por consola</string>
+    <string name="store8_problem_same">Essa pasta está no mesmo armazenamento que a biblioteca; escolha uma no cartão SD</string>
+    <string name="store8_problem_busy">Já está a decorrer outra mudança; tente novamente quando terminar</string>
+    <string name="store8_running">%1$s (%2$d de %3$d) · %4$s de %5$s</string>
+    <string name="store8_last">Última passagem %1$s · %2$s</string>
+    <string name="store8_last_none">Ligado. Ainda não foi executado</string>
+    <string name="store8_confirm_title">Mover estas consolas?</string>
+    <string name="store8_confirm_message">Cada pasta de consola é primeiro copiada e verificada; só depois é removida do local anterior.</string>
+    <string name="store8_confirm_ok">Mover</string>
+    <string name="store8_notify_title">Armazenamento inteligente</string>
+    <string name="store8_notify_progress">%1$s (%2$d de %3$d)</string>
+    <plurals name="store8_done">
+        <item quantity="one">%d consola movida</item>
+        <item quantity="other">%d consolas movidas</item>
+        <item quantity="many">%d consolas movidas</item>
+    </plurals>
+    <plurals name="store8_failed">
+        <item quantity="one">Não foi possível mover %d consola; fica onde estava</item>
+        <item quantity="other">Não foi possível mover %d consolas; ficam onde estavam</item>
+        <item quantity="many">Não foi possível mover %d consolas; ficam onde estavam</item>
+    </plurals>
+    <plurals name="store8_preview_frees">
+        <item quantity="one">Moveria %1$d consola · liberta %2$s internos</item>
+        <item quantity="other">Moveria %1$d consolas · liberta %2$s internos</item>
+        <item quantity="many">Moveria %1$d consolas · liberta %2$s internos</item>
+    </plurals>
+    <plurals name="store8_preview_takes">
+        <item quantity="one">Moveria %1$d consola · ocupa %2$s internos</item>
+        <item quantity="other">Moveria %1$d consolas · ocupa %2$s internos</item>
+        <item quantity="many">Moveria %1$d consolas · ocupa %2$s internos</item>
+    </plurals>
+    <plurals name="store8_notify_done">
+        <item quantity="one">%1$d consola movida · %2$s</item>
+        <item quantity="other">%1$d consolas movidas · %2$s</item>
+        <item quantity="many">%1$d consolas movidas · %2$s</item>
+    </plurals>
+    <plurals name="store8_notify_failed">
+        <item quantity="one">Não foi possível mover %d consola</item>
+        <item quantity="other">Não foi possível mover %d consolas</item>
+        <item quantity="many">Não foi possível mover %d consolas</item>
+    </plurals>
+</resources>

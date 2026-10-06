@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="store8_title">Smart storage</string>
+    <string name="store8_hint">Keeps the consoles you play on fast internal storage and moves the others to the SD card</string>
+    <string name="store8_switch_title">Smart storage</string>
+    <string name="store8_switch_hint">Off. Turn on to keep internal storage for the consoles you play</string>
+    <string name="store8_explain_title">Whole consoles move, never single games</string>
+    <string name="store8_explain">Dogmatix+ and frontends such as ES-DE give each console one folder, so a console moves with its whole folder. Consoles with a favourite or a game played recently stay on internal storage; the others go to the SD card and come back when you play them again. ES-DE follows by itself when it is set up in Dogmatix+ (restart ES-DE afterwards). In Daijishō, Pegasus or RetroArch playlists, point a moved console to its new folder.</string>
+    <string name="store8_sd_title">Library folder on the SD card</string>
+    <string name="store8_sd_none">No folder chosen yet</string>
+    <string name="store8_sd_choose">Choose</string>
+    <string name="store8_days_title">Recently played</string>
+    <string name="store8_days_hint">Consoles played in the last %1$d days stay on internal storage</string>
+    <string name="store8_weekly_title">Every week while charging</string>
+    <string name="store8_weekly_hint">Moves at most %1$s per run, never a console that is downloading</string>
+    <string name="store8_preview_title">What would move</string>
+    <string name="store8_moving_title">Moving consoles</string>
+    <string name="store8_preview_hint">Check what a run would move, without moving anything</string>
+    <string name="store8_preview_action">Check</string>
+    <string name="store8_preview_nothing">Nothing to move: every console is where it belongs</string>
+    <string name="store8_move_now">Move now</string>
+    <string name="store8_stop">Stop</string>
+    <string name="store8_ok">OK</string>
+    <string name="store8_to_sd">to the SD card</string>
+    <string name="store8_to_internal">to internal storage</string>
+    <string name="store8_reason_cold">Not played for a while</string>
+    <string name="store8_reason_played">Played recently</string>
+    <string name="store8_reason_favourite">Has a favourite</string>
+    <string name="store8_wait_busy">Waits: a download or frontend update is working on it</string>
+    <string name="store8_wait_resting">Waits: it moved less than two weeks ago</string>
+    <string name="store8_wait_no_room">Waits: not enough free space</string>
+    <string name="store8_wait_later">Waits for the next run</string>
+    <string name="store8_waits">Waits</string>
+    <string name="store8_problem_no_sd">Choose a folder on the SD card first</string>
+    <string name="store8_problem_no_library">Smart storage needs a download folder with a folder per console</string>
+    <string name="store8_problem_same">That folder is on the same storage as the library; choose one on the SD card</string>
+    <string name="store8_problem_busy">Another move is running; try again when it is done</string>
+    <string name="store8_running">%1$s (%2$d of %3$d) · %4$s of %5$s</string>
+    <string name="store8_last">Last run %1$s · %2$s</string>
+    <string name="store8_last_none">On. Not run yet</string>
+    <string name="store8_confirm_title">Move these consoles?</string>
+    <string name="store8_confirm_message">Each console folder is copied and checked first; only then is it removed from where it was.</string>
+    <string name="store8_confirm_ok">Move</string>
+    <string name="store8_notify_title">Smart storage</string>
+    <string name="store8_notify_progress">%1$s (%2$d of %3$d)</string>
+    <plurals name="store8_done">
+        <item quantity="one">%d console moved</item>
+        <item quantity="other">%d consoles moved</item>
+    </plurals>
+    <plurals name="store8_failed">
+        <item quantity="one">%d console could not be moved and stays where it was</item>
+        <item quantity="other">%d consoles could not be moved and stay where they were</item>
+    </plurals>
+    <plurals name="store8_preview_frees">
+        <item quantity="one">Would move %1$d console · frees %2$s internal</item>
+        <item quantity="other">Would move %1$d consoles · frees %2$s internal</item>
+    </plurals>
+    <plurals name="store8_preview_takes">
+        <item quantity="one">Would move %1$d console · uses %2$s internal</item>
+        <item quantity="other">Would move %1$d consoles · uses %2$s internal</item>
+    </plurals>
+    <plurals name="store8_notify_done">
+        <item quantity="one">%1$d console moved · %2$s</item>
+        <item quantity="other">%1$d consoles moved · %2$s</item>
+    </plurals>
+    <plurals name="store8_notify_failed">
+        <item quantity="one">%d console could not be moved</item>
+        <item quantity="other">%d consoles could not be moved</item>
+    </plurals>
+</resources>
