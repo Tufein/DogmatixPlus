@@ -24,6 +24,7 @@
         <item quantity="other">%1$d gespielte Spiele werden ausgelassen (%2$s).</item>
     </plurals>
     <string name="space7_note_protected">Favoriten, Spiele in einer Sammlung und Spiele mit RomM-Spielstand oder Erfolg sind als Geschützt markiert. Die Schnellaktionen wählen sie nie aus.</string>
+    <string name="space7_note_no_protections">Favoriten oder Sammlungen konnten nicht gelesen werden, daher lassen sich geschützte Spiele nicht erkennen. Auswählen und Entfernen sind deaktiviert; versuche es erneut.</string>
     <string name="space7_note_no_saves">RomM-Spielstände wurden nicht geprüft: RomM ist nicht eingerichtet oder die Spieleliste ist noch nicht geladen.</string>
     <string name="space7_note_no_ach">Erfolge wurden nicht geprüft: RetroAchievements ist nicht eingerichtet.</string>
     <string name="space7_filter_all">Alle Konsolen</string>

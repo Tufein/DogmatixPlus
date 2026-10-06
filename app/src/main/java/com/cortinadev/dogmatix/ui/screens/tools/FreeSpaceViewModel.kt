@@ -35,6 +35,8 @@ data class FreeSpaceUiState(
     val hasPlayData: Boolean = false,
     val freeBytes: Long? = null,
     val savesChecked: Boolean = false,
+    /** Favourites and collections were read; without them nothing can be picked or removed. */
+    val protectionsChecked: Boolean = true,
     val achievementsChecked: Boolean = false,
     /** Console filter; null = all. */
     val console: String? = null,
@@ -90,6 +92,7 @@ class FreeSpaceViewModel @Inject constructor(
                     hasPlayData = scan?.report?.hasPlayData ?: false,
                     freeBytes = scan?.freeBytes,
                     savesChecked = scan?.savesChecked ?: false,
+                    protectionsChecked = scan?.protectionsChecked ?: false,
                     achievementsChecked = scan?.achievementsChecked ?: false,
                     // The filter and the pick survive a refresh as far as their games are still there.
                     console = old.console?.takeIf { c -> candidates.any { it.consoleId == c } },
@@ -108,6 +111,7 @@ class FreeSpaceViewModel @Inject constructor(
 
     /** Ticks every game of the filter that is not protected. */
     fun selectAll() {
+        if (!_ui.value.protectionsChecked) return
         _ui.update { it.copy(selected = it.selected + SpaceReclaim.unprotectedIds(it.visible), done = null) }
     }
 
@@ -118,6 +122,7 @@ class FreeSpaceViewModel @Inject constructor(
     /** Replaces the pick by the biggest unprotected games of the filter that free [FreeSpaceUiState.freeGb]. */
     fun selectBiggest(context: Context) {
         val state = _ui.value
+        if (!state.protectionsChecked) return
         val pick = SpaceReclaim.selectBiggest(state.visible, state.freeGb * SpaceReclaim.GB)
         _ui.update { it.copy(selected = pick.ids, done = null) }
         if (!pick.reached) {
@@ -131,7 +136,7 @@ class FreeSpaceViewModel @Inject constructor(
      */
     fun remove(context: Context, addToWishlist: Boolean) {
         val chosen = _ui.value.selectedGames
-        if (chosen.isEmpty() || _ui.value.removing) return
+        if (chosen.isEmpty() || _ui.value.removing || !_ui.value.protectionsChecked) return
         val app = context.applicationContext
         _ui.update { it.copy(removing = true) }
         viewModelScope.launch {

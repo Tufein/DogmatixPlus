@@ -24,6 +24,7 @@
         <item quantity="other">%1$d jogos já jogados ficam de fora (%2$s).</item>
     </plurals>
     <string name="space7_note_protected">Os favoritos, os jogos de uma coleção e os jogos com um save do RomM ou uma conquista estão marcados como Protegidos. As ações rápidas nunca os escolhem.</string>
+    <string name="space7_note_no_protections">Não foi possível ler os favoritos ou as coleções, por isso os jogos protegidos não se distinguem. Selecionar e remover estão desativados; tente novamente.</string>
     <string name="space7_note_no_saves">Os saves do RomM não foram verificados: o RomM não está configurado ou a sua lista de jogos ainda não foi carregada.</string>
     <string name="space7_note_no_ach">As conquistas não foram verificadas: o RetroAchievements não está configurado.</string>
     <string name="space7_filter_all">Todas as consolas</string>

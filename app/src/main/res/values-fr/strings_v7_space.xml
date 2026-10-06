@@ -24,6 +24,7 @@
         <item quantity="other">%1$d jeux déjà lancés sont exclus (%2$s).</item>
     </plurals>
     <string name="space7_note_protected">Les favoris, les jeux d\'une collection et les jeux avec une sauvegarde RomM ou un succès sont marqués Protégé. Les actions rapides ne les choisissent jamais.</string>
+    <string name="space7_note_no_protections">Les favoris ou les collections n\'ont pas pu être lus : impossible de repérer les jeux protégés. La sélection et la suppression sont désactivées ; réessayez.</string>
     <string name="space7_note_no_saves">Les sauvegardes RomM n\'ont pas été vérifiées : RomM n\'est pas configuré ou sa liste de jeux n\'est pas encore chargée.</string>
     <string name="space7_note_no_ach">Les succès n\'ont pas été vérifiés : RetroAchievements n\'est pas configuré.</string>
     <string name="space7_filter_all">Toutes les consoles</string>

@@ -165,18 +165,23 @@ object OfflineCollections {
 
     /**
      * The files on disk that make up [game]: entries of its console (or loose in the download
-     * folder) with a file of the same name, or the same name without its extension. This is the
+     * folder) with a file of the same name, or the same name without its extension (loose files: the exact
+     * file name only). This is the
      * list the confirmation shows, and exactly what a removal deletes.
      */
     fun entriesOf(game: Game, entries: List<GameEntry>): List<GameEntry> {
         val name = FileParsingUtils.decodeUrlEncodedFileName(game.fileName).lowercase()
         val base = LibraryKeys.baseName(name)
         return entries.filter { e ->
-            (e.consoleId == game.consoleId || (e.consoleId == null && e.scope.isEmpty())) &&
-                (e.baseName.lowercase() == base || e.files.any { f ->
+            if (e.consoleId == game.consoleId) {
+                e.baseName.lowercase() == base || e.files.any { f ->
                     val n = f.name.lowercase()
                     n == name || LibraryKeys.baseName(n) == base
-                })
+                }
+            } else {
+                // Loose in the download folder: only the file of exactly that name, never a folder or a sibling with the same stem.
+                e.consoleId == null && e.scope.isEmpty() && e.files.any { it.name.lowercase() == name }
+            }
         }
     }
 

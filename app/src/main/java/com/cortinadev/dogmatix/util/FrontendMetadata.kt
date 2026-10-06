@@ -210,10 +210,15 @@ object FrontendMetadata {
     /** Normalised path used to match a game: `./Sub\Game.gba` and `sub/game.gba` are the same file. */
     internal fun pathKey(path: String): String = path.trim().replace('\\', '/').removePrefix("./").lowercase()
 
-    private fun isAbsolute(key: String): Boolean = key.startsWith("/") || key.startsWith("~") || Regex("^[a-z]:/").containsMatchIn(key)
+    private val DRIVE_PREFIX = Regex("^[a-z]:/")
 
-    private fun <T> findEntries(byKey: Map<String, T>, key: String): T? =
-        byKey[key] ?: byKey.entries.firstOrNull { (k, _) -> isAbsolute(k) && k.endsWith("/$key") }?.value
+    private fun isAbsolute(key: String): Boolean = key.startsWith("/") || key.startsWith("~") || DRIVE_PREFIX.containsMatchIn(key)
+
+    /** The absolute keys of a document, worked out once (most gamelists have none, so the fallback is skipped). */
+    private fun <T> absoluteKeys(byKey: Map<String, T>): List<Map.Entry<String, T>> = byKey.entries.filter { isAbsolute(it.key) }
+
+    private fun <T> findEntries(byKey: Map<String, T>, absolute: List<Map.Entry<String, T>>, key: String): T? =
+        byKey[key] ?: if (absolute.isEmpty()) null else absolute.firstOrNull { it.key.endsWith("/$key") }?.value
 
     // =============================================================================================
     // ES-DE gamelist.xml
@@ -429,8 +434,9 @@ object FrontendMetadata {
         val all = Field.entries.toSet()
         if (existing == null || existing.isBlank()) return files.associateWith { all }
         val doc = esdeParse(existing) ?: return null
+        val absolute = absoluteKeys(doc.byKey)
         return files.associateWith { file ->
-            val entries = findEntries(doc.byKey, pathKey(file)) ?: return@associateWith all
+            val entries = findEntries(doc.byKey, absolute, pathKey(file)) ?: return@associateWith all
             Field.entries.filter { !esdeFilled(doc, entries, it) }.toSet()
         }
     }
@@ -454,11 +460,14 @@ object FrontendMetadata {
         val fresh = LinkedHashMap<String, Pair<String, GameMeta>>()
 
         val seen = HashSet<String>()
+        val absolute = absoluteKeys(doc.byKey)
+        // (entry, field) pairs already queued: items resolving to one entry must not queue a field twice.
+        val queued = HashSet<Pair<Any, Field>>()
         for ((file, meta) in items) {
             val key = pathKey(file)
             // Two names for one file (case, ./): the first one counts.
             if (!seen.add(key)) continue
-            val entries = findEntries(doc.byKey, key)
+            val entries = findEntries(doc.byKey, absolute, key)
             if (entries == null) {
                 if (meta.hasData) fresh.putIfAbsent(key, file to meta) else skipped++
                 continue
@@ -471,6 +480,7 @@ object FrontendMetadata {
             for (f in Field.entries) {
                 val value = meta.text(f)?.let { esdeRender(f, it) } ?: continue
                 if (esdeFilled(doc, entries, f)) continue
+                if (!queued.add(first to f)) continue
                 val tag = esdeTag(f)
                 val element = "<$tag>$value</$tag>"
                 val blank = first.children.firstOrNull { it.name == tag }
@@ -632,8 +642,9 @@ object FrontendMetadata {
         val all = pegasusFields.toSet()
         if (existing == null || existing.isBlank()) return files.associateWith { all }
         val doc = pegasusParse(existing) ?: return null
+        val absolute = absoluteKeys(doc.byKey)
         return files.associateWith { file ->
-            val entries = findEntries(doc.byKey, pathKey(file)) ?: return@associateWith all
+            val entries = findEntries(doc.byKey, absolute, pathKey(file)) ?: return@associateWith all
             pegasusFields.filter { !pegasusFilled(entries, it) }.toSet()
         }
     }
@@ -656,10 +667,13 @@ object FrontendMetadata {
         val fresh = LinkedHashMap<String, Pair<String, GameMeta>>()
 
         val seen = HashSet<String>()
+        val absolute = absoluteKeys(doc.byKey)
+        // (entry, field) pairs already queued: items resolving to one entry must not queue a field twice.
+        val queued = HashSet<Pair<Any, Field>>()
         for ((file, meta) in items) {
             val key = pathKey(file)
             if (!seen.add(key)) continue
-            val entries = findEntries(doc.byKey, key)
+            val entries = findEntries(doc.byKey, absolute, key)
             if (entries == null) {
                 if (meta.hasData) fresh.putIfAbsent(key, file to meta) else skipped++
                 continue
@@ -670,6 +684,7 @@ object FrontendMetadata {
             for (f in pegasusFields) {
                 val value = meta.text(f) ?: continue
                 if (pegasusFilled(entries, f)) continue
+                if (!queued.add(first to f)) continue
                 val blank = first.keys.firstOrNull { it.key in pegasusKeys(f) && it.isEmpty }
                 if (blank != null) edits += LineEdit(blank.line, blank.last + 1, pegasusLines(f, value, blank.raw.trim()))
                 else appended += pegasusLines(f, value, pegasusKeyName(f))

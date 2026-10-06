@@ -24,6 +24,7 @@
         <item quantity="other">%1$d gespeelde games zijn weggelaten (%2$s).</item>
     </plurals>
     <string name="space7_note_protected">Favorieten, games in een collectie en games met een RomM-save of een prestatie zijn gemarkeerd als Beschermd. De snelle acties kiezen ze nooit.</string>
+    <string name="space7_note_no_protections">Favorieten of collecties konden niet worden gelezen, dus beschermde games zijn niet te herkennen. Selecteren en verwijderen zijn uitgeschakeld; probeer het opnieuw.</string>
     <string name="space7_note_no_saves">RomM-saves zijn niet gecontroleerd: RomM is niet ingesteld of de gamelijst is nog niet geladen.</string>
     <string name="space7_note_no_ach">Prestaties zijn niet gecontroleerd: RetroAchievements is niet ingesteld.</string>
     <string name="space7_filter_all">Alle consoles</string>

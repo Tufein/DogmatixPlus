@@ -279,9 +279,19 @@ class OfflineCollectionsService @Inject constructor(
      */
     suspend fun remove(plan: RemovalPlan): Int = withContext(Dispatchers.IO) {
         lock.withLock {
+            // The review is worked out again right before deleting: only games still in it (still out of
+            // every collection, not back in a queue) are touched. When it cannot be read, nothing is.
+            val stillStale = try {
+                compute(refreshIndex = false)?.review?.mapTo(HashSet()) { it.game }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                null
+            } ?: return@withLock 0
             var removed = 0
             val done = ArrayList<Game>()
             for (item in plan.items) {
+                if (item.game.game !in stillStale) continue
                 if (item.entries.isEmpty()) { done += item.game.game; continue }
                 var deleted = 0
                 for (entry in item.entries) {

@@ -24,6 +24,7 @@
         <item quantity="other">%1$d played games are left out (%2$s).</item>
     </plurals>
     <string name="space7_note_protected">Favourites, games in a collection and games with a RomM save or an achievement are marked Protected. The quick actions never pick them.</string>
+    <string name="space7_note_no_protections">Favourites or collections could not be read, so protected games cannot be told apart. Selecting and removing are switched off; try again.</string>
     <string name="space7_note_no_saves">RomM saves were not checked: RomM is not set up or its game list is not loaded yet.</string>
     <string name="space7_note_no_ach">Achievements were not checked: RetroAchievements is not set up.</string>
     <string name="space7_filter_all">All consoles</string>

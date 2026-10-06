@@ -24,6 +24,7 @@
         <item quantity="other">%1$d giochi già giocati sono esclusi (%2$s).</item>
     </plurals>
     <string name="space7_note_protected">I preferiti, i giochi in una collezione e i giochi con un salvataggio RomM o un obiettivo sono segnati come Protetti. Le azioni rapide non li scelgono mai.</string>
+    <string name="space7_note_no_protections">Non è stato possibile leggere i preferiti o le raccolte, quindi i giochi protetti non si riconoscono. Selezione e rimozione sono disattivate; riprova.</string>
     <string name="space7_note_no_saves">I salvataggi RomM non sono stati controllati: RomM non è configurato o la sua lista di giochi non è ancora caricata.</string>
     <string name="space7_note_no_ach">Gli obiettivi non sono stati controllati: RetroAchievements non è configurato.</string>
     <string name="space7_filter_all">Tutte le console</string>

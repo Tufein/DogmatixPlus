@@ -119,8 +119,8 @@ fun FreeSpaceScreen(
         Gamepad.presses.collect { button ->
             if (confirm != null) return@collect
             when (button) {
-                GamepadButton.Y -> latest.let { if (!it.loading && !it.removing) viewModel.selectBiggest(context) }
-                GamepadButton.X -> if (latest.selected.isNotEmpty() && !latest.removing) confirm = RemoveMode.REMOVE
+                GamepadButton.Y -> latest.let { if (!it.loading && !it.removing && it.protectionsChecked) viewModel.selectBiggest(context) }
+                GamepadButton.X -> if (latest.selected.isNotEmpty() && !latest.removing && latest.protectionsChecked) confirm = RemoveMode.REMOVE
                 else -> Unit
             }
         }
@@ -150,6 +150,7 @@ fun FreeSpaceScreen(
             else if (ui.unknownCount > 0) add(pluralStringResource(R.plurals.space7_note_unknown, ui.unknownCount, ui.unknownCount))
             if (ui.playedCount > 0) add(pluralStringResource(R.plurals.space7_note_played, ui.playedCount, ui.playedCount, formatBytes(ui.playedBytes)))
             add(stringResource(R.string.space7_note_protected))
+            if (!ui.protectionsChecked) add(stringResource(R.string.space7_note_no_protections))
             if (!ui.savesChecked) add(stringResource(R.string.space7_note_no_saves))
             if (!ui.achievementsChecked) add(stringResource(R.string.space7_note_no_ach))
         }
@@ -224,8 +225,8 @@ fun FreeSpaceScreen(
                                 valueWidth = 64.dp
                             )
                         }
-                        ToolAction(stringResource(R.string.space7_select_biggest), icon = R.drawable.ic_sparkle, tone = ActionTone.Accent) { viewModel.selectBiggest(context) }
-                        ToolAction(stringResource(R.string.space7_select_all), icon = R.drawable.ic_checkbox_on) { viewModel.selectAll() }
+                        ActionPill(stringResource(R.string.space7_select_biggest), onClick = { viewModel.selectBiggest(context) }, icon = R.drawable.ic_sparkle, tone = ActionTone.Accent, enabled = ui.protectionsChecked)
+                        ActionPill(stringResource(R.string.space7_select_all), onClick = { viewModel.selectAll() }, icon = R.drawable.ic_checkbox_on, enabled = ui.protectionsChecked)
                         if (ui.selected.isNotEmpty()) ToolAction(stringResource(R.string.space7_clear), icon = R.drawable.ic_clear_all) { viewModel.clear() }
                     }
                 }
@@ -240,6 +241,7 @@ fun FreeSpaceScreen(
                 bytes = ui.selectedBytes,
                 protectedCount = ui.selectedProtected,
                 busy = ui.removing,
+                canRemove = ui.protectionsChecked,
                 onRemove = { confirm = RemoveMode.REMOVE },
                 onRemoveAndWish = { confirm = RemoveMode.REMOVE_AND_WISH }
             )
@@ -317,6 +319,7 @@ private fun SelectionBar(
     bytes: Long,
     protectedCount: Int,
     busy: Boolean,
+    canRemove: Boolean,
     onRemove: () -> Unit,
     onRemoveAndWish: () -> Unit
 ) {
@@ -331,8 +334,8 @@ private fun SelectionBar(
             icon = R.drawable.ic_trash
         )
         ToolsActions {
-            ActionPill(stringResource(R.string.space7_remove), onClick = onRemove, icon = R.drawable.ic_trash, tone = ActionTone.Danger, enabled = !busy)
-            ActionPill(stringResource(R.string.space7_remove_wish), onClick = onRemoveAndWish, icon = R.drawable.ic_wishlist, tone = ActionTone.Danger, enabled = !busy)
+            ActionPill(stringResource(R.string.space7_remove), onClick = onRemove, icon = R.drawable.ic_trash, tone = ActionTone.Danger, enabled = !busy && canRemove)
+            ActionPill(stringResource(R.string.space7_remove_wish), onClick = onRemoveAndWish, icon = R.drawable.ic_wishlist, tone = ActionTone.Danger, enabled = !busy && canRemove)
         }
     }
 }

@@ -557,4 +557,20 @@ class FrontendMetadataTest {
         assertEquals(1, m.skipped)
         assertNotNull(m.content)
     }
+
+    @Test fun `esde queues a field once when two items resolve to one entry`() {
+        val existing = text("<gameList>", "<game><path>/home/roms/gba/A.gba</path><desc></desc></game>", "</gameList>")
+        val m = FrontendMetadata.esdeMerge(existing, linkedMapOf("A.gba" to GameMeta(description = "one", genre = "g1"), "gba/A.gba" to GameMeta(description = "two", genre = "g2")))
+        val out = m.content!!
+        assertEquals(1, Regex("<desc>").findAll(out).count())
+        assertEquals(1, Regex("<genre>").findAll(out).count())
+        assertTrue(out.contains("one") && out.contains("g1") && !out.contains("two") && !out.contains("g2"))
+    }
+
+    @Test fun `pegasus queues a field once when two items map to one entry`() {
+        val existing = text("game: Disc", "files:", "  Disc1.bin", "  Disc2.bin")
+        val m = FrontendMetadata.pegasusMerge(existing, linkedMapOf("Disc1.bin" to GameMeta(genre = "one"), "Disc2.bin" to GameMeta(genre = "two")))
+        assertEquals(1, Regex("genre:").findAll(m.content!!).count())
+        assertTrue(m.content!!.contains("one") && !m.content!!.contains("two"))
+    }
 }

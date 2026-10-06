@@ -37,6 +37,8 @@ data class SpaceScan(
     val freeBytes: Long?,
     /** RomM saves were read, so a game with one is protected; false when RomM is not set up or its game list is not loaded. */
     val savesChecked: Boolean,
+    /** Favourites and collections were read; false when either failed (nothing may be removed then: protection fails closed). */
+    val protectionsChecked: Boolean,
     /** RetroAchievements is set up, so a game with an earned achievement the app knows of is protected. */
     val achievementsChecked: Boolean
 )
@@ -47,7 +49,9 @@ data class SpaceRemoval(
     val failed: List<SpaceCandidate>,
     val bytes: Long,
     /** How many games were put on the wishlist (already wished ones do not count). */
-    val wished: Int
+    val wished: Int,
+    /** Games left alone because a favourite or collection protects them now (they count as not removed). */
+    val newlyProtected: List<SpaceCandidate> = emptyList()
 )
 
 /**
@@ -87,17 +91,19 @@ class SpaceReclaimService @Inject constructor(
         val entries = DuplicateFinder.entries(snapshot.files)
         val (saves, savesChecked) = rommSaveKeys()
         val (achievements, achievementsChecked) = achievementKeys()
+        val favourites = favouriteKeys()
+        val collections = collectionKeys()
         val facts = SpaceFacts(
             plays = plays(),
-            favourites = safe { favouriteDao.getAll().mapTo(HashSet()) { SpaceReclaim.key(it.consoleId, it.fileName) } }.orEmpty(),
-            collections = safe { collectionDao.getAllItems().mapTo(HashSet()) { SpaceReclaim.key(it.consoleId, it.fileName) } }.orEmpty(),
+            favourites = favourites.orEmpty(),
+            collections = collections.orEmpty(),
             saves = saves,
             achievements = achievements,
             downloadedAt = downloadDates()
         )
         val report = SpaceReclaim.build(entries, facts)
         offered = report.candidates.flatMapTo(HashSet()) { c -> c.entry.files.map { it.fileId } }
-        SpaceScan(report, folderSet, snapshot.freeBytes, savesChecked, achievementsChecked)
+        SpaceScan(report, folderSet, snapshot.freeBytes, savesChecked, favourites != null && collections != null, achievementsChecked)
     }
 
     /**
@@ -108,7 +114,16 @@ class SpaceReclaimService @Inject constructor(
     suspend fun remove(candidates: List<SpaceCandidate>, addToWishlist: Boolean): SpaceRemoval =
         withContext(NonCancellable + Dispatchers.IO) {
             val allowed = offered
-            val targets = candidates.filter { c -> c.entry.files.isNotEmpty() && c.entry.files.all { it.fileId in allowed } }
+            // Protection is read again right before deleting: a favourite or collection added since the scan
+            // keeps its game. When it cannot be read, nothing is removed.
+            val favourites = favouriteKeys()
+            val collections = collectionKeys()
+            val readable = favourites != null && collections != null
+            val newlyProtected = if (!readable) emptyList() else candidates.filter { c ->
+                SpaceReclaim.keysOf(c.entry).any { it in favourites!! || it in collections!! }
+            }
+            val blocked = if (readable) newlyProtected.mapTo(HashSet()) { it.id } else candidates.mapTo(HashSet()) { it.id }
+            val targets = candidates.filter { c -> c.id !in blocked && c.entry.files.isNotEmpty() && c.entry.files.all { it.fileId in allowed } }
             val targetIds = targets.mapTo(HashSet()) { it.id }
             val counts = scanService.deleteAll(targets.map { it.entry })
             val removed = ArrayList<SpaceCandidate>()
@@ -126,7 +141,7 @@ class SpaceReclaimService @Inject constructor(
             // A game that lost only some of its files is broken: it is still worth fetching again.
             var wished = 0
             if (addToWishlist) (removed + partial).forEach { if (wish(it)) wished++ }
-            SpaceRemoval(removed, failed + partial, removed.sumOf { it.bytes }, wished)
+            SpaceRemoval(removed, failed + partial, removed.sumOf { it.bytes }, wished, newlyProtected)
         }
 
     // ---- The wishlist ----------------------------------------------------------------------
@@ -157,6 +172,14 @@ class SpaceReclaimService @Inject constructor(
     }
 
     // ---- The facts -------------------------------------------------------------------------
+
+    /** `consoleId|name` keys of the favourites; null when the table cannot be read. */
+    private suspend fun favouriteKeys(): Set<String>? =
+        safe { favouriteDao.getAll().mapTo(HashSet()) { SpaceReclaim.key(it.consoleId, it.fileName) } }
+
+    /** Same for the games in any collection. */
+    private suspend fun collectionKeys(): Set<String>? =
+        safe { collectionDao.getAllItems().mapTo(HashSet()) { SpaceReclaim.key(it.consoleId, it.fileName) } }
 
     /** ES-DE's play records; null when ES-DE is not set up (or unreadable): no play data at all. */
     private suspend fun plays(): List<EsdePlay>? = safe { esdePlays.plays() }

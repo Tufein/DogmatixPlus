@@ -98,12 +98,23 @@ class BetterVersionsService @Inject constructor(
                 launch { finishReplace(p) }
             }
         }
-        // A download the user stopped is no longer going to replace anything.
+        // A download the user stopped, that failed, or that is gone from the list is no longer going to
+        // replace anything: a later manual download of the same name must not delete without asking.
         scope.launch {
-            downloadService.downloads.map { list -> list.filter { it.status == DownloadStatus.STOPPED }.map { it.fileName }.toSet() }
-                .collect { stopped ->
-                    stopped.forEach { name -> pending.remove(name)?.let { setState(it.suggestion.id, null) } }
+            val seen = HashSet<String>()
+            downloadService.downloads.collect { list ->
+                val byName = list.associateBy { it.fileName }
+                seen.addAll(byName.keys)
+                for (name in pending.keys.toList()) {
+                    val status = byName[name]?.status
+                    val gone = byName[name] == null && name in seen
+                    if (gone || status == DownloadStatus.STOPPED || status == DownloadStatus.FAILED) {
+                        pending.remove(name)?.let { setState(it.suggestion.id, null) }
+                        seen.remove(name)
+                    }
                 }
+                seen.retainAll(byName.keys + pending.keys)
+            }
         }
     }
 

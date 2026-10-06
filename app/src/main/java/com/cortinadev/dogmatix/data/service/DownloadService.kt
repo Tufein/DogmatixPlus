@@ -248,6 +248,9 @@ class DownloadService @Inject constructor(
             items
         }
         if (fresh.isEmpty()) return
+        // A new download of a name starts without the verdict of an earlier one (startDownload goes through here too).
+        val names = fresh.mapTo(HashSet()) { it.first.fileName }
+        _verification.update { it - names }
         fresh.forEach { (file, _) -> downloadEntities[file.fileName] = file }
         // Before the jobs start, so none of them runs unconditioned for a moment.
         if (condition != null) conditionGate.setAll(fresh.map { it.first.fileName }, condition)

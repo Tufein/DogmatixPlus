@@ -178,6 +178,12 @@ class OfflineCollectionsTest {
         assertEquals(listOf(loose), OfflineCollections.entriesOf(Game("snes", "Mario.sfc"), listOf(loose)))
     }
 
+    @Test fun `a loose file matches by its exact name only`() {
+        val sibling = entry("Mario", "Mario.sfc.bak", "Mario.srm", console = null, scope = "")
+        val folder = entry("Mario", "Mario/Disc.bin", console = null, scope = "")
+        assertTrue(OfflineCollections.entriesOf(Game("snes", "Mario.sfc"), listOf(sibling, folder)).isEmpty())
+    }
+
     // ---- records ----
 
     @Test fun `a run record survives a round trip`() {
