@@ -158,6 +158,21 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_continue_info" />
         </receiver>
+    
+        <service
+            android:name=".data.service.QueueTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_download"
+            android:label="@string/quick7_tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".data.service.WeeklyDigestJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
     </application>
 
 </manifest>

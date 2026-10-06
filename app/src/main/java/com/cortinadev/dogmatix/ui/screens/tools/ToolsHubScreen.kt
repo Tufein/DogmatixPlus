@@ -140,6 +140,7 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { Tool(go, NavRoutes.CollectionGoals, R.string.coll6_goals_title, R.string.lead6_goals_hint) }
             item { Tool(go, NavRoutes.History, R.string.coll6_history_title, R.string.lead6_history_hint) }
             item { Tool(go, NavRoutes.Health, R.string.health6_title, R.string.lead6_health_hint) }
+            item { Tool(go, NavRoutes.Recap, R.string.quick7_title, R.string.quick7_hint) }
             item { ToolsGroup(stringResource(R.string.tools_group_games), icon = R.drawable.ic_gamepad) }
             item { Tool(go, NavRoutes.ImportList, R.string.nav_import_list, R.string.tools_import_list_hint) }
             item { Tool(go, NavRoutes.Wishlist, R.string.nav_wishlist, R.string.tools_wishlist_hint, count = wishCount) }
@@ -147,8 +148,11 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { Tool(go, NavRoutes.Bios, R.string.nav_bios, R.string.tools_bios_hint) }
             item { Tool(go, NavRoutes.Switch, R.string.nav_switch, R.string.tools_switch_hint) }
             item { Tool(go, NavRoutes.RetroAchievements, R.string.nav_ra, R.string.tools_ra_hint) }
+            item { Tool(go, NavRoutes.BestGames, R.string.top7_title, R.string.top7_hint) }
+            item { Tool(go, NavRoutes.BetterVersions, R.string.upg7_better_title, R.string.upg7_better_hint) }
             item { ToolsGroup(stringResource(R.string.settings_section_frontends), icon = R.drawable.ic_frontends) }
             item { Tool(go, NavRoutes.Frontends, R.string.nav_frontends, R.string.tools_frontends_hint) }
+            item { Tool(go, NavRoutes.FrontendMetadata, R.string.meta7_title, R.string.meta7_hint) }
             item {
                 val run = { viewModel.importEsdeFavourites(context) }
                 ToolRow(

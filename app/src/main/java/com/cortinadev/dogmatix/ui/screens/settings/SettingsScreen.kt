@@ -166,6 +166,16 @@ fun SettingsScreen(
     val queue by extra.queue.collectAsState()
     val autoScan by extra.autoScan.collectAsState()
     val afterDownload by extra.afterDownload.collectAsState()
+    val digestOn by extra.digestOn.collectAsState()
+    val metaAuto by extra.metaAuto.collectAsState()
+    // Android 13+ asks before the weekly digest may be shown.
+    val digestPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    val setDigest: (Boolean) -> Unit = { on ->
+        extra.setDigest(context, on)
+        if (on && android.os.Build.VERSION.SDK_INT >= 33 &&
+            androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) digestPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+    }
     val appPrefs by extra.appPrefs.collectAsState()
     val activeProfileName by extra.activeProfileName.collectAsState()
     val updateOffer by extra.updateOffer.collectAsState()
@@ -824,6 +834,24 @@ fun SettingsScreen(
                 onClick = { extra.setWishlistAuto(context, !afterDownload.wishlistAuto) },
                 onAdjust = { extra.setWishlistAuto(context, it > 0) }
             ) { ThemedSwitch(afterDownload.wishlistAuto) { extra.setWishlistAuto(context, it) } }
+        },
+        SettingsRow(SettingsSection.LIBRARY) {
+            SettingRow(
+                icon = R.drawable.ic_notifications,
+                title = stringResource(R.string.upg7_digest_setting),
+                hint = stringResource(R.string.upg7_digest_setting_hint),
+                onClick = { setDigest(!digestOn) },
+                onAdjust = { setDigest(it > 0) }
+            ) { ThemedSwitch(digestOn) { setDigest(it) } }
+        },
+        SettingsRow(SettingsSection.FRONTENDS) {
+            SettingRow(
+                icon = R.drawable.ic_description,
+                title = stringResource(R.string.meta7_auto_title),
+                hint = stringResource(R.string.meta7_auto_hint),
+                onClick = { extra.setMetaAuto(context, !metaAuto) },
+                onAdjust = { extra.setMetaAuto(context, it > 0) }
+            ) { ThemedSwitch(metaAuto) { extra.setMetaAuto(context, it) } }
         },
         SettingsRow(SettingsSection.TOOLS) {
             SettingRow(

@@ -67,6 +67,11 @@ import com.cortinadev.dogmatix.ui.screens.tools.BiosScreen
 import com.cortinadev.dogmatix.ui.screens.tools.CollectionsScreen
 import com.cortinadev.dogmatix.ui.screens.tools.CollectionGoalsScreen
 import com.cortinadev.dogmatix.ui.screens.tools.HealthScreen
+import com.cortinadev.dogmatix.ui.screens.tools.RecapScreen
+import com.cortinadev.dogmatix.ui.screens.tools.BestGamesScreen
+import com.cortinadev.dogmatix.ui.screens.tools.FrontendMetadataScreen
+import com.cortinadev.dogmatix.ui.screens.tools.BetterVersionsScreen
+import com.cortinadev.dogmatix.util.QuickActions
 import com.cortinadev.dogmatix.ui.screens.tools.HistoryScreen
 import com.cortinadev.dogmatix.util.HealthFix
 import com.cortinadev.dogmatix.data.state.LibraryFilterRequest
@@ -232,6 +237,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleDeepLink(intent: Intent?) {
+        QuickActions.parse(intent?.action, intent?.getStringExtra(QuickActions.EXTRA_QUICK_ACTION))?.let { quick ->
+            pendingFilters.submitQuick(quick)
+            intent?.removeExtra(QuickActions.EXTRA_QUICK_ACTION)
+            return
+        }
         intent?.getStringExtra(PendingLibraryFilters.EXTRA_OPEN_ROUTE)?.let {
             pendingFilters.openSection(it)
             intent.removeExtra(PendingLibraryFilters.EXTRA_OPEN_ROUTE)
@@ -527,6 +537,17 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                         })
                     }
                     composable(NavRoutes.Health.route) { HealthScreen(onFix = { fix -> navController.healthFix(fix) }) }
+                    composable(NavRoutes.Recap.route) { RecapScreen() }
+                    composable(NavRoutes.BestGames.route) {
+                        BestGamesScreen(
+                            onOpenRetroAchievements = { navController.navigate(NavRoutes.RetroAchievements.route) },
+                            onOpenLibrary = { navController.switchTo(NavRoutes.Home) }
+                        )
+                    }
+                    composable(NavRoutes.FrontendMetadata.route) {
+                        FrontendMetadataScreen(onOpenSettings = { navController.navigate(NavRoutes.Settings.route) })
+                    }
+                    composable(NavRoutes.BetterVersions.route) { BetterVersionsScreen() }
                 }
             }
 

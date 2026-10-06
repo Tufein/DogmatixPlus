@@ -94,8 +94,16 @@ class ExtraSettingsViewModel @Inject constructor(
     private val diagnostics: DiagnosticsService,
     private val profiles: ProfileService,
     private val lookSettings: LookSettings,
-    private val covers: CoverRepository
+    private val covers: CoverRepository,
+    private val weeklyDigest: com.cortinadev.dogmatix.data.local.WeeklyDigestSettings,
+    private val frontendMetadata: com.cortinadev.dogmatix.data.local.FrontendMetadataSettings
 ) : ViewModel() {
+
+    /** 7.0: the weekly digest notification and writing descriptions after every download. */
+    val digestOn: StateFlow<Boolean> = weeklyDigest.enabled.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val metaAuto: StateFlow<Boolean> = frontendMetadata.autoWrite.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    fun setDigest(context: Context, on: Boolean) = executeWithToast(context, TAG) { weeklyDigest.setEnabled(on) }
+    fun setMetaAuto(context: Context, on: Boolean) = executeWithToast(context, TAG) { frontendMetadata.setAutoWrite(on) }
 
     val look: StateFlow<LookPrefs> = combine(lookSettings.animations, lookSettings.glow, lookSettings.listCovers, lookSettings.compactLists) { animations, glow, listCovers, compact ->
         LookPrefs(animations, glow, listCovers, compact)

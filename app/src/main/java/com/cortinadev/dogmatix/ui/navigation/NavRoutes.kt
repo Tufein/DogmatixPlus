@@ -38,9 +38,18 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     /** 6.0: every health check in one report, with a fix per problem. */
     object Health : NavRoutes("health", R.string.health6_title, R.drawable.ic_health)
 
+    /** 7.0: the year in games, with a card to share. */
+    object Recap : NavRoutes("recap", R.string.quick7_title, R.drawable.ic_sparkle)
+    /** 7.0: the most-loved games per console (RetroAchievements) against the library. */
+    object BestGames : NavRoutes("bestgames", R.string.top7_title, R.drawable.ic_military_tech)
+    /** 7.0: write descriptions, genres and years into ES-DE and Pegasus. */
+    object FrontendMetadata : NavRoutes("frontend_metadata", R.string.meta7_title, R.drawable.ic_description)
+    /** 7.0: a newer revision or a clean dump of a game you already have. */
+    object BetterVersions : NavRoutes("better_versions", R.string.upg7_better_title, R.drawable.ic_better_version)
+
     companion object {
         /** The four sections shown as tabs; Contact, RomM and the library tools are reached from Settings. */
         val tabs by lazy { listOf(Home, Downloads, Sources, Settings) }
-        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health }
+        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions }
     }
 }
