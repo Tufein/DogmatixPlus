@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="top7_title">Best games per console</string>
+    <string name="top7_hint">The most-loved games of a console, from RetroAchievements</string>
+    <string name="top7_subtitle">What RetroAchievements players love most</string>
+    <string name="top7_intro">Pick a console to see its most-loved games on RetroAchievements, and which of them you already have, could download from a source or are still missing.</string>
+    <string name="top7_pick">Pick a console</string>
+    <string name="top7_console_line">RetroAchievements: %1$s</string>
+    <string name="top7_no_consoles_title">No console to rank yet</string>
+    <string name="top7_no_consoles_message">RetroAchievements covers most cartridge and disc systems. Add one of them to your sources and it shows up here.</string>
+    <string name="top7_no_key_title">RetroAchievements is not set up</string>
+    <string name="top7_no_key_message">This list comes from RetroAchievements. Add your user name and web API key (free, on your RetroAchievements profile) first.</string>
+    <string name="top7_no_key_action">Open RetroAchievements</string>
+    <string name="top7_game_title">Best of %1$s</string>
+    <string name="top7_basis_players">Ranked by the number of players on RetroAchievements, among the %1$d games with the biggest achievement sets.</string>
+    <string name="top7_basis_points">Ranked by achievement points of the %1$d biggest sets: a stand-in for popularity, because RetroAchievements has no most-played list.</string>
+    <string name="top7_basis_partial">Player counts: %1$d of %2$d fetched.</string>
+    <string name="top7_stale">An older copy of the list: RetroAchievements could not be reached.</string>
+    <string name="top7_refine">Rank by players</string>
+    <string name="top7_refine_continue">Continue counting players</string>
+    <string name="top7_refine_hint">Asks RetroAchievements how many players each of the top %1$d games has, one every 1.5 seconds (about a minute). The counts are kept for a week.</string>
+    <string name="top7_refining">Counting players… %1$d of %2$d</string>
+    <string name="top7_stop">Stop</string>
+    <string name="top7_loading">Fetching the game list…</string>
+    <string name="top7_retry">Try again</string>
+    <string name="top7_empty_title">No games found</string>
+    <string name="top7_empty_message">RetroAchievements has no achievement sets for this console yet.</string>
+    <string name="top7_count_device">%1$d on device</string>
+    <string name="top7_count_source">%1$d in a source</string>
+    <string name="top7_count_missing">%1$d missing</string>
+    <string name="top7_download_all">Download the ones I can get</string>
+    <string name="top7_wish_missing">Put the missing ones on the wishlist</string>
+    <string name="top7_refresh">Refresh the list</string>
+    <string name="top7_state_device">On device</string>
+    <string name="top7_state_source">In a source</string>
+    <string name="top7_state_missing">Missing</string>
+    <string name="top7_rank">#%1$d</string>
+    <string name="top7_downloading">Downloading</string>
+    <string name="top7_wished">On your wishlist</string>
+    <string name="top7_open_library">Open in the library</string>
+    <string name="top7_wish_one">Add to the wishlist</string>
+    <string name="top7_wish_none">Nothing new for the wishlist</string>
+    <string name="top7_confirm_title">Download games for %1$s?</string>
+    <string name="top7_confirm_hint">One version of each game: the best one for your languages. Games already on your device are left out.</string>
+    <plurals name="top7_row_players">
+        <item quantity="one">%1$s player</item>
+        <item quantity="other">%1$s players</item>
+    </plurals>
+    <plurals name="top7_row_points">
+        <item quantity="one">%1$s point</item>
+        <item quantity="other">%1$s points</item>
+    </plurals>
+    <plurals name="top7_versions">
+        <item quantity="one">%1$d version in your sources</item>
+        <item quantity="other">%1$d versions in your sources</item>
+    </plurals>
+    <plurals name="top7_wish_added">
+        <item quantity="one">%1$d game put on the wishlist</item>
+        <item quantity="other">%1$d games put on the wishlist</item>
+    </plurals>
+    <plurals name="top7_queued">
+        <item quantity="one">%1$d download queued</item>
+        <item quantity="other">%1$d downloads queued</item>
+    </plurals>
+</resources>

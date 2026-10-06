@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="top7_title">Mejores juegos por consola</string>
+    <string name="top7_hint">Los juegos más queridos de una consola, según RetroAchievements</string>
+    <string name="top7_subtitle">Lo que más aman los jugadores de RetroAchievements</string>
+    <string name="top7_intro">Elige una consola para ver sus juegos más queridos en RetroAchievements, y cuáles ya tienes, puedes descargar de una fuente o todavía te faltan.</string>
+    <string name="top7_pick">Elige una consola</string>
+    <string name="top7_console_line">RetroAchievements: %1$s</string>
+    <string name="top7_no_consoles_title">Aún no hay ninguna consola que clasificar</string>
+    <string name="top7_no_consoles_message">RetroAchievements cubre la mayoría de los sistemas de cartucho y de disco. Añade uno a tus fuentes y aparecerá aquí.</string>
+    <string name="top7_no_key_title">RetroAchievements no está configurado</string>
+    <string name="top7_no_key_message">Esta lista viene de RetroAchievements. Primero añade tu nombre de usuario y tu clave de la API web (gratuita, en tu perfil de RetroAchievements).</string>
+    <string name="top7_no_key_action">Abrir RetroAchievements</string>
+    <string name="top7_game_title">Lo mejor de %1$s</string>
+    <string name="top7_basis_players">Ordenados por número de jugadores en RetroAchievements, entre los %1$d juegos con los conjuntos de logros más grandes.</string>
+    <string name="top7_basis_points">Ordenados por puntos de logros de los %1$d conjuntos más grandes: un sustituto de la popularidad, porque RetroAchievements no tiene una lista de los más jugados.</string>
+    <string name="top7_basis_partial">Cifras de jugadores: %1$d de %2$d obtenidas.</string>
+    <string name="top7_stale">Una copia antigua de la lista: no se pudo conectar con RetroAchievements.</string>
+    <string name="top7_refine">Ordenar por jugadores</string>
+    <string name="top7_refine_continue">Seguir contando jugadores</string>
+    <string name="top7_refine_hint">Pregunta a RetroAchievements cuántos jugadores tiene cada uno de los %1$d mejores juegos, uno cada 1,5 segundos (cerca de un minuto). Las cifras se guardan una semana.</string>
+    <string name="top7_refining">Contando jugadores… %1$d de %2$d</string>
+    <string name="top7_stop">Detener</string>
+    <string name="top7_loading">Obteniendo la lista de juegos…</string>
+    <string name="top7_retry">Reintentar</string>
+    <string name="top7_empty_title">No se encontraron juegos</string>
+    <string name="top7_empty_message">RetroAchievements aún no tiene conjuntos de logros para esta consola.</string>
+    <string name="top7_count_device">%1$d en el dispositivo</string>
+    <string name="top7_count_source">%1$d en una fuente</string>
+    <string name="top7_count_missing">%1$d faltan</string>
+    <string name="top7_download_all">Descargar los que pueda conseguir</string>
+    <string name="top7_wish_missing">Poner los que faltan en la lista de deseos</string>
+    <string name="top7_refresh">Actualizar la lista</string>
+    <string name="top7_state_device">En el dispositivo</string>
+    <string name="top7_state_source">En una fuente</string>
+    <string name="top7_state_missing">Falta</string>
+    <string name="top7_rank">#%1$d</string>
+    <string name="top7_downloading">Descargando</string>
+    <string name="top7_wished">En tu lista de deseos</string>
+    <string name="top7_open_library">Abrir en la biblioteca</string>
+    <string name="top7_wish_one">Añadir a la lista de deseos</string>
+    <string name="top7_wish_none">Nada nuevo para la lista de deseos</string>
+    <string name="top7_confirm_title">¿Descargar juegos de %1$s?</string>
+    <string name="top7_confirm_hint">Una versión de cada juego: la mejor para tus idiomas. Los juegos que ya están en el dispositivo se omiten.</string>
+    <plurals name="top7_row_players">
+        <item quantity="one">%1$s jugador</item>
+        <item quantity="other">%1$s jugadores</item>
+    </plurals>
+    <plurals name="top7_row_points">
+        <item quantity="one">%1$s punto</item>
+        <item quantity="other">%1$s puntos</item>
+    </plurals>
+    <plurals name="top7_versions">
+        <item quantity="one">%1$d versión en tus fuentes</item>
+        <item quantity="other">%1$d versiones en tus fuentes</item>
+    </plurals>
+    <plurals name="top7_wish_added">
+        <item quantity="one">%1$d juego puesto en la lista de deseos</item>
+        <item quantity="other">%1$d juegos puestos en la lista de deseos</item>
+    </plurals>
+    <plurals name="top7_queued">
+        <item quantity="one">%1$d descarga en cola</item>
+        <item quantity="other">%1$d descargas en cola</item>
+    </plurals>
+</resources>
