@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="top7_title">Beste games per console</string>
+    <string name="top7_hint">De populairste games van een console, via RetroAchievements</string>
+    <string name="top7_subtitle">Waar RetroAchievements-spelers het meest van houden</string>
+    <string name="top7_intro">Kies een console om de populairste games op RetroAchievements te zien, en welke je al hebt, uit een bron kunt downloaden of nog mist.</string>
+    <string name="top7_pick">Kies een console</string>
+    <string name="top7_console_line">RetroAchievements: %1$s</string>
+    <string name="top7_no_consoles_title">Nog geen console om te rangschikken</string>
+    <string name="top7_no_consoles_message">RetroAchievements dekt de meeste cartridge- en discsystemen. Voeg er een toe aan je bronnen en hij verschijnt hier.</string>
+    <string name="top7_no_key_title">RetroAchievements is niet ingesteld</string>
+    <string name="top7_no_key_message">Deze lijst komt van RetroAchievements. Voeg eerst je gebruikersnaam en web-API-sleutel toe (gratis, in je RetroAchievements-profiel).</string>
+    <string name="top7_no_key_action">RetroAchievements openen</string>
+    <string name="top7_game_title">Het beste van %1$s</string>
+    <string name="top7_basis_players">Gerangschikt op aantal spelers op RetroAchievements, onder de %1$d games met de grootste achievementsets.</string>
+    <string name="top7_basis_points">Gerangschikt op achievementpunten van de %1$d grootste sets: een vervanger voor populariteit, want RetroAchievements heeft geen lijst met meest gespeelde games.</string>
+    <string name="top7_basis_partial">Spelersaantallen: %1$d van %2$d opgehaald.</string>
+    <string name="top7_stale">Een oudere kopie van de lijst: RetroAchievements was niet bereikbaar.</string>
+    <string name="top7_refine">Rangschik op spelers</string>
+    <string name="top7_refine_continue">Spelers verder tellen</string>
+    <string name="top7_refine_hint">Vraagt RetroAchievements hoeveel spelers elk van de beste %1$d games heeft, één per 1,5 seconde (ongeveer een minuut). De aantallen worden een week bewaard.</string>
+    <string name="top7_refining">Spelers tellen… %1$d van %2$d</string>
+    <string name="top7_stop">Stop</string>
+    <string name="top7_loading">Gamelijst ophalen…</string>
+    <string name="top7_retry">Opnieuw proberen</string>
+    <string name="top7_empty_title">Geen games gevonden</string>
+    <string name="top7_empty_message">RetroAchievements heeft nog geen achievementsets voor deze console.</string>
+    <string name="top7_count_device">%1$d op apparaat</string>
+    <string name="top7_count_source">%1$d in een bron</string>
+    <string name="top7_count_missing">%1$d ontbreken</string>
+    <string name="top7_download_all">Download wat ik kan krijgen</string>
+    <string name="top7_wish_missing">Zet de ontbrekende op de verlanglijst</string>
+    <string name="top7_refresh">Lijst vernieuwen</string>
+    <string name="top7_state_device">Op apparaat</string>
+    <string name="top7_state_source">In een bron</string>
+    <string name="top7_state_missing">Ontbreekt</string>
+    <string name="top7_rank">#%1$d</string>
+    <string name="top7_downloading">Wordt gedownload</string>
+    <string name="top7_wished">Op je verlanglijst</string>
+    <string name="top7_open_library">Openen in de bibliotheek</string>
+    <string name="top7_wish_one">Op de verlanglijst zetten</string>
+    <string name="top7_wish_none">Niets nieuws voor de verlanglijst</string>
+    <string name="top7_confirm_title">Games voor %1$s downloaden?</string>
+    <string name="top7_confirm_hint">Eén versie van elk spel: de beste voor jouw talen. Spellen die al op je apparaat staan, worden overgeslagen.</string>
+    <plurals name="top7_row_players">
+        <item quantity="one">%1$s speler</item>
+        <item quantity="other">%1$s spelers</item>
+    </plurals>
+    <plurals name="top7_row_points">
+        <item quantity="one">%1$s punt</item>
+        <item quantity="other">%1$s punten</item>
+    </plurals>
+    <plurals name="top7_versions">
+        <item quantity="one">%1$d versie in je bronnen</item>
+        <item quantity="other">%1$d versies in je bronnen</item>
+    </plurals>
+    <plurals name="top7_wish_added">
+        <item quantity="one">%1$d spel op de verlanglijst gezet</item>
+        <item quantity="other">%1$d spellen op de verlanglijst gezet</item>
+    </plurals>
+    <plurals name="top7_queued">
+        <item quantity="one">%1$d download in de wachtrij</item>
+        <item quantity="other">%1$d downloads in de wachtrij</item>
+    </plurals>
+</resources>
