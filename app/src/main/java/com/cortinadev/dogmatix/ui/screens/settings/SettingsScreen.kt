@@ -168,6 +168,13 @@ fun SettingsScreen(
     val afterDownload by extra.afterDownload.collectAsState()
     val digestOn by extra.digestOn.collectAsState()
     val metaAuto by extra.metaAuto.collectAsState()
+    val appPrefs by extra.appPrefs.collectAsState()
+    val activeProfileName by extra.activeProfileName.collectAsState()
+    val updateOffer by extra.updateOffer.collectAsState()
+    val updateProgress by extra.updateProgress.collectAsState()
+    val look by extra.look.collectAsState()
+    val coversReset by extra.coversReset.collectAsState()
+    val context = LocalContext.current
     // Android 13+ asks before the weekly digest may be shown.
     val digestPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
     val setDigest: (Boolean) -> Unit = { on ->
@@ -176,13 +183,6 @@ fun SettingsScreen(
             androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED
         ) digestPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
     }
-    val appPrefs by extra.appPrefs.collectAsState()
-    val activeProfileName by extra.activeProfileName.collectAsState()
-    val updateOffer by extra.updateOffer.collectAsState()
-    val updateProgress by extra.updateProgress.collectAsState()
-    val look by extra.look.collectAsState()
-    val coversReset by extra.coversReset.collectAsState()
-    val context = LocalContext.current
     val backupDirLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let {
             context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
