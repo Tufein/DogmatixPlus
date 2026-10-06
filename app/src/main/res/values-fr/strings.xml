@@ -1324,11 +1324,10 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Garder une collection sur l\'appareil : les nouveaux jeux qu\'elle contient se téléchargent seuls.</item>
-        <item>Libérer de la place : jeux jamais lancés, les plus gros d\'abord, avec une suppression sûre.</item>
-        <item>Descriptions, genres et années pour ES-DE et Pegasus, et les meilleurs jeux par console.</item>
-        <item>Une meilleure version d\'un jeu que vous avez, un résumé hebdomadaire, une tuile rapide et votre année en jeux.</item>
-        <item>Le même style d\'icônes partout dans les réglages, et votre icône sur le deuxième écran.</item>
+        <item>Le deuxième écran a Tout mettre en pause / Tout reprendre et un bouton pause par téléchargement.</item>
+        <item>Les téléchargements peuvent se mettre en pause si la batterie est faible ou si l\'appareil chauffe.</item>
+        <item>Des boutons dans les notifications : pause, reprise, arrêt, ouvrir le jeu dans la bibliothèque.</item>
+        <item>La meilleure source est choisie toute seule, et un téléchargement qui échoue passe à la suivante.</item>
     </string-array>
 
     <!-- 4.0 -->

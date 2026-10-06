@@ -1270,11 +1270,10 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Mantém uma coleção no dispositivo: os jogos novos que ela tiver descarregam-se sozinhos.</item>
-        <item>Libertar espaço: jogos que nunca jogaste, os maiores primeiro, com remoção segura.</item>
-        <item>Descrições, géneros e anos para o ES-DE e o Pegasus, e os melhores jogos por consola.</item>
-        <item>Uma versão melhor de um jogo que tens, um resumo semanal, um mosaico rápido e o teu ano em jogos.</item>
-        <item>O mesmo estilo de ícones em todas as definições e o teu ícone no segundo ecrã.</item>
+        <item>O segundo ecrã tem Pausar tudo / Retomar tudo e um botão de pausa por transferência.</item>
+        <item>As transferências podem pausar com bateria fraca ou quando o dispositivo aquece.</item>
+        <item>Botões nas notificações: pausar, retomar, parar, abrir o jogo na biblioteca.</item>
+        <item>A melhor fonte é escolhida sozinha, e uma transferência que falha passa para a seguinte.</item>
     </string-array>
 
     <!-- 4.0 -->

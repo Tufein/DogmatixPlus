@@ -1319,11 +1319,10 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Houd een collectie op je toestel: nieuwe games erin worden vanzelf gedownload.</item>
-        <item>Ruimte vrijmaken: games die je nooit speelde, grootste eerst, met veilig verwijderen.</item>
-        <item>Beschrijvingen, genres en jaren voor ES-DE en Pegasus, en de beste games per console.</item>
-        <item>Een betere versie van een game die je hebt, een weekoverzicht, een snelle tegel en jouw jaar in games.</item>
-        <item>Overal dezelfde icoonstijl in de instellingen, en jouw icoon op het tweede scherm.</item>
+        <item>Het tweede scherm heeft Alles pauzeren / Alles hervatten en een pauzeknop per download.</item>
+        <item>Downloads kunnen pauzeren bij een lage batterij of als het toestel warm wordt.</item>
+        <item>Knoppen in de meldingen: pauzeren, hervatten, stoppen, de game openen in de bibliotheek.</item>
+        <item>De beste bron wordt vanzelf gekozen, en een mislukte download schakelt over naar de volgende.</item>
     </string-array>
 
     <!-- 4.0 -->

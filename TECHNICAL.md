@@ -94,6 +94,12 @@ Everything below came with the alpha and is part of 1.2.0; the RomM parts have n
 - **Diagnostics**: `DiagnosticsService` builds the report; `DiagnosticsRedactor` removes tokens, URLs, magnet links, IP addresses, e-mail addresses and the saved secrets before it is shared.
 - **Italian and Portuguese** (European) join the other languages.
 
+### What 7.5.0 adds
+- **Second screen controls**: `SecondScreenControls.view(list, held)` decides idle / active / held / paused; buttons call `DownloadGate.setHeld` and the per-item pause/resume of `DownloadService`.
+- **Power rules**: `PowerRules` (pure state machine with hysteresis), `PowerMonitor` (battery receiver and thermal listener only while downloads are queued), `PowerHoldService` (parks running downloads when a power rule or the user's queue hold begins), `WaitReason.LOW_BATTERY` / `HOT`.
+- **Notification actions**: `NotificationActions` (pure mapping), `NotificationActionReceiver` (explicit, not exported), per-game notices from `QueueSummaryService`.
+- **Best source**: `SourceRanking` (record, ranking, same-game test), `SourceTrackService` (`files/source_track.json`), `SourcePickSettings`; `BulkPlanner` queues one row per console and file name.
+
 ### What 7.0.0 adds
 - **Offline collections**: `OfflineCollections` (pure plan: per-run cap, free-space check, review list of fetched games that left a collection), `OfflineCollectionsService` (runs after every scan and the daily job, queues through `DownloadService.startDownloads`, never deletes by itself), prefs in `OfflineCollectionsSettings`.
 - **Free up space**: `SpaceReclaim` / `SpaceReclaimService` (never-played games from the ES-DE play data, protections for favourites, collections, RomM saves and achievements), removal through `LibraryScanService.deleteAll`.

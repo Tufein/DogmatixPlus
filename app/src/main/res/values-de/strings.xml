@@ -1319,11 +1319,10 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Eine Sammlung auf dem Gerät halten: neue Spiele darin werden automatisch geladen.</item>
-        <item>Speicher freigeben: nie gespielte Spiele, größte zuerst, mit sicherem Entfernen.</item>
-        <item>Beschreibungen, Genres und Jahre für ES-DE und Pegasus sowie die besten Spiele je Konsole.</item>
-        <item>Eine bessere Version eines Spiels, ein Wochenüberblick, eine Schnelleinstellungs-Kachel und dein Jahr in Spielen.</item>
-        <item>Überall derselbe Symbolstil in den Einstellungen, und dein Symbol auf dem zweiten Bildschirm.</item>
+        <item>Der zweite Bildschirm hat Alle pausieren / Alle fortsetzen und eine Pausetaste je Download.</item>
+        <item>Downloads können bei schwachem Akku oder Hitze pausieren.</item>
+        <item>Tasten in den Benachrichtigungen: pausieren, fortsetzen, stoppen, das Spiel in der Bibliothek öffnen.</item>
+        <item>Die beste Quelle wird automatisch gewählt, und ein scheiternder Download wechselt zur nächsten.</item>
     </string-array>
 
     <!-- 4.0 -->

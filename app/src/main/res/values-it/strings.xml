@@ -1270,11 +1270,10 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Tieni una collezione sul dispositivo: i nuovi giochi che contiene si scaricano da soli.</item>
-        <item>Libera spazio: giochi mai giocati, i più grandi per primi, con rimozione sicura.</item>
-        <item>Descrizioni, generi e anni per ES-DE e Pegasus, e i migliori giochi per console.</item>
-        <item>Una versione migliore di un gioco che hai, un riepilogo settimanale, un riquadro rapido e il tuo anno nei giochi.</item>
-        <item>Lo stesso stile di icone in tutte le impostazioni e la tua icona sul secondo schermo.</item>
+        <item>Il secondo schermo ha Metti tutto in pausa / Riprendi tutto e un pulsante di pausa per ogni download.</item>
+        <item>I download possono andare in pausa con batteria scarica o se il dispositivo si scalda.</item>
+        <item>Pulsanti nelle notifiche: pausa, riprendi, ferma, apri il gioco nella libreria.</item>
+        <item>La fonte migliore viene scelta da sola e un download che fallisce passa alla successiva.</item>
     </string-array>
 
     <!-- 4.0 -->

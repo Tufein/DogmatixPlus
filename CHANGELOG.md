@@ -3,6 +3,20 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [7.5.0] – 2026-10-06 · Dogmatix+ (pre-release)
+
+### Added
+- Second screen: Pause all / Resume all and per-download pause/resume.
+- Pause on low battery (with hysteresis) and when the device is hot (battery temperature and Android's thermal status); "Waits for: low battery / device too hot".
+- Notification actions: Pause all, Resume all, Stop all on the ongoing notification; per-game "downloaded" notice with Open in the library and Open the downloads.
+- Best source: a per-source track record (speed, success rate), ranking by reliability then speed, one automatic switch to the next source after a final failure; track record on the source cards.
+
+### Changed
+- The queue hold (*Pause all*) now parks running downloads too, instead of letting them finish.
+
+### Notes
+- No database change (version 13). Not yet tried on a real device.
+
 ## [7.0.0] – 2026-10-06 · Dogmatix+
 
 ### Added
