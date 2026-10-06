@@ -1,6 +1,28 @@
 package com.cortinadev.dogmatix.ui.screens.settings
 
 import android.content.res.Configuration
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.lerp
+import com.cortinadev.dogmatix.ui.components.Stepper
+import com.cortinadev.dogmatix.ui.theme.DogmatixTokens
+import androidx.compose.ui.unit.IntOffset
+import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
+import com.cortinadev.dogmatix.ui.theme.Motion
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,7 +62,13 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -70,11 +98,104 @@ internal val SettingsTileSize = 32.dp
 /** Space between that tile and the text, so the title column lines up in every row and header. */
 internal val SettingsTileGap = 12.dp
 
-/** The room a row (or header, or preview) keeps from the edge of its card; the tiles line up on it. */
+/**
+ * The room a row (or header, or preview) keeps from its cell; the tiles line up on it. The same in
+ * both orientations, so every screen of the kit has one tile line and one control line.
+ */
 @Composable
 @ReadOnlyComposable
-internal fun settingsInset(): Dp =
-    if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) 14.dp else 12.dp
+internal fun settingsInset(): Dp = 12.dp
+
+/** Padding of a card on all four sides (and on both sides of the gutter between two columns). */
+internal val SettingsCardPad = 8.dp
+
+/** Space between two cards, and between the screen title and the first card. */
+internal val SettingsCardGap = 16.dp
+
+/** The value slot of every settings stepper, so their arrows line up from row to row. */
+internal val SettingsStepperWidth = 112.dp
+
+/** Left and right margin of a settings screen: the same on both sides. */
+@Composable
+@ReadOnlyComposable
+internal fun settingsMargin(): Dp =
+    if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) 16.dp else 12.dp
+
+/**
+ * Two columns of rows only where both stay roomy (an Odin or Thor top screen in landscape, a
+ * tablet); a narrow landscape screen (Thor's bottom screen) gets one centred column.
+ */
+@Composable
+@ReadOnlyComposable
+internal fun settingsColumns(): Int {
+    val config = LocalConfiguration.current
+    return if (config.orientation == Configuration.ORIENTATION_LANDSCAPE && config.screenWidthDp >= 800) 2 else 1
+}
+
+/** The widest a settings column of cards gets; wider screens centre it with equal margins. */
+internal fun settingsMaxWidth(columns: Int): Dp = if (columns >= 2) 1180.dp else 720.dp
+
+/** The ‹ value › stepper of a settings row, with the one value width of the kit (the value is centred). */
+@Composable
+internal fun SettingsStepper(value: String, onDecrement: () -> Unit, onIncrement: () -> Unit, valueWidth: Dp = SettingsStepperWidth) {
+    Stepper(value, onDecrement = onDecrement, onIncrement = onIncrement, valueWidth = valueWidth)
+}
+
+/**
+ * The ground of the settings screens: pure AMOLED black in the dark themes (dark and true black),
+ * with black cards drawn as hairline outlines instead of grey lifted panels and no glow; the light
+ * theme stays light, with white cards. Scoped: only what is inside sees the changed colours.
+ */
+@Composable
+internal fun SettingsSurface(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    val tokens = LocalDogmatixTokens.current
+    val (settingsScheme, settingsTokens) = remember(scheme, tokens) { settingsColors(scheme, tokens) }
+    CompositionLocalProvider(LocalDogmatixTokens provides settingsTokens) {
+        MaterialTheme(colorScheme = settingsScheme, typography = MaterialTheme.typography, shapes = MaterialTheme.shapes) {
+            CompositionLocalProvider(LocalContentColor provides settingsScheme.onBackground) {
+                Box(modifier = modifier.fillMaxSize().background(settingsScheme.background)) { content() }
+            }
+        }
+    }
+}
+
+/** Near-black for the few raised controls (stepper buttons, pill buttons) so they still read on #000. */
+private val AmoledRaised = Color(0xFF1B1B1F)
+/** The hairline of an AMOLED card: thin, neutral, just visible on black. */
+private val AmoledHairline = Color(0xFF2C2C32)
+
+internal fun settingsColors(scheme: ColorScheme, tokens: DogmatixTokens): Pair<ColorScheme, DogmatixTokens> {
+    if (!tokens.isDark) {
+        val light = scheme.copy(surfaceContainer = tokens.card, surfaceContainerLow = tokens.card)
+        return light to tokens.copy(glowStrength = 0f)
+    }
+    val black = Color.Black
+    val dark = scheme.copy(
+        background = black,
+        surface = black,
+        surfaceVariant = black,
+        surfaceDim = black,
+        surfaceContainerLowest = black,
+        surfaceContainerLow = black,
+        surfaceContainer = black,
+        surfaceContainerHigh = AmoledRaised,
+        surfaceBright = AmoledRaised,
+        primaryContainer = lerp(black, scheme.primary, 0.20f),
+        tertiaryContainer = lerp(black, scheme.tertiary, 0.20f),
+        errorContainer = lerp(black, scheme.error, 0.22f),
+        secondaryContainer = AmoledRaised,
+        outlineVariant = AmoledHairline,
+        inverseOnSurface = black
+    )
+    return dark to tokens.copy(
+        gradientTop = black,
+        card = black,
+        glowStrength = 0f,
+        highlight = Color.Transparent,
+        hairline = AmoledHairline
+    )
+}
 
 /** True inside the accent-filled card (the way into Tools): its tiles turn solid so they stay visible on the fill. */
 private val LocalOnAccentCard = compositionLocalOf { false }
@@ -137,7 +258,7 @@ internal fun SettingRow(
         leading = { SettingsIconTile(icon) },
         text = {
             Column {
-                Text(title, style = MaterialTheme.typography.bodyLarge)
+                Text(title, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
                 hint?.let {
                     Text(
                         it,
@@ -171,7 +292,15 @@ private fun SettingRowLayout(
     trailing: @Composable () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Layout(content = { leading(); text(); trailing() }, modifier = modifier) { measurables, constraints ->
+    Layout(content = { leading(); text(); trailing() }, modifier = modifier, measurePolicy = SettingRowPolicy)
+}
+
+/**
+ * Tile, text and control (see [SettingRowLayout]). It answers intrinsic height queries itself, from
+ * the same inline-or-under rule, so two rows side by side can share the height of the taller one.
+ */
+private object SettingRowPolicy : MeasurePolicy {
+    override fun MeasureScope.measure(measurables: List<Measurable>, constraints: Constraints): MeasureResult {
         val gap = SettingsTileGap.roundToPx()
         val minText = MinTextWidth.roundToPx()
         val width = constraints.maxWidth
@@ -182,7 +311,7 @@ private fun SettingRowLayout(
         val textRoom = if (inline && trail.width > 0) room - trail.width - gap else room
         val body = measurables[1].measure(Constraints(maxWidth = textRoom))
         val textX = lead.width + gap
-        if (inline) {
+        return if (inline) {
             val content = maxOf(lead.height, body.height, trail.height)
             val height = maxOf(content, constraints.minHeight).coerceAtMost(constraints.maxHeight)
             layout(width, height) {
@@ -194,13 +323,40 @@ private fun SettingRowLayout(
             val head = maxOf(lead.height, body.height)
             val between = 6.dp.roundToPx()
             val height = maxOf(head + between + trail.height, constraints.minHeight).coerceAtMost(constraints.maxHeight)
+            val top = (height - head - between - trail.height) / 2
             layout(width, height) {
-                lead.placeRelative(0, (head - lead.height) / 2)
-                body.placeRelative(textX, (head - body.height) / 2)
-                trail.placeRelative(width - trail.width, head + between)
+                lead.placeRelative(0, top + (head - lead.height) / 2)
+                body.placeRelative(textX, top + (head - body.height) / 2)
+                trail.placeRelative(width - trail.width, top + head + between)
             }
         }
     }
+
+    private fun IntrinsicMeasureScope.heightFor(measurables: List<IntrinsicMeasurable>, width: Int): Int {
+        val gap = SettingsTileGap.roundToPx()
+        val minText = MinTextWidth.roundToPx()
+        val leadW = measurables[0].maxIntrinsicWidth(Constraints.Infinity)
+        val leadH = measurables[0].maxIntrinsicHeight(leadW)
+        val room = (width - leadW - gap).coerceAtLeast(0)
+        val trailW = minOf(measurables[2].maxIntrinsicWidth(Constraints.Infinity), room)
+        val trailH = measurables[2].maxIntrinsicHeight(trailW)
+        val inline = trailW == 0 || room - trailW - gap >= minText
+        val textRoom = if (inline && trailW > 0) room - trailW - gap else room
+        val bodyH = measurables[1].maxIntrinsicHeight(textRoom)
+        return if (inline) maxOf(leadH, bodyH, trailH) else maxOf(leadH, bodyH) + 6.dp.roundToPx() + trailH
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(measurables: List<IntrinsicMeasurable>, width: Int): Int =
+        heightFor(measurables, width)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(measurables: List<IntrinsicMeasurable>, width: Int): Int =
+        heightFor(measurables, width)
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(measurables: List<IntrinsicMeasurable>, height: Int): Int =
+        measurables[0].minIntrinsicWidth(height) + SettingsTileGap.roundToPx() + MinTextWidth.roundToPx()
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(measurables: List<IntrinsicMeasurable>, height: Int): Int =
+        measurables.sumOf { it.maxIntrinsicWidth(height) } + 2 * SettingsTileGap.roundToPx()
 }
 
 /** A compact action at the end of a row (kept for the screens that share it). */
@@ -248,7 +404,8 @@ internal fun SettingsCardHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = inset, end = inset, top = 12.dp, bottom = 10.dp),
+            // With the card's own padding: 12 dp above the header and 12 dp between it and its first row.
+            .padding(start = inset, end = inset, top = 4.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(SettingsTileGap)
     ) {
@@ -278,12 +435,15 @@ internal fun CardCell(
                 .fillMaxWidth()
                 .padding(top = if (cell.top) gapAbove else 0.dp)
                 .cardSlice(cell, accent)
+                // The same padding on every side of a card, and on both sides of the column gutter;
+                // rows inside a card get half of it above and below, so every line is as tall.
                 .padding(
-                    start = if (cell.start) 6.dp else 3.dp,
-                    end = if (cell.end) 6.dp else 3.dp,
-                    top = if (cell.top && cell.kind == CardGrid.Kind.ITEM) 6.dp else 3.dp,
-                    bottom = if (cell.bottom) 6.dp else 3.dp
+                    start = SettingsCardPad,
+                    end = SettingsCardPad,
+                    top = if (cell.top) SettingsCardPad else SettingsCardPad / 2,
+                    bottom = if (cell.bottom) SettingsCardPad else SettingsCardPad / 2
                 ),
+            propagateMinConstraints = true,
             content = content
         )
     }
@@ -309,6 +469,8 @@ internal fun Modifier.cardSlice(cell: CardGrid.Cell, accent: Boolean = false): M
     val left = if (rtl) cell.end else cell.start
     val right = if (rtl) cell.start else cell.end
     val divider = cell.divider
+    val gutter = cell.kind == CardGrid.Kind.ITEM && !cell.start
+    val rowInset = settingsInset()
     return this.drawWithCache {
         val radius = 12.dp.toPx()
         val stroke = 1.dp.toPx()
@@ -346,7 +508,10 @@ internal fun Modifier.cardSlice(cell: CardGrid.Cell, accent: Boolean = false): M
         val shine = if (top && highlight.alpha > 0f) {
             Brush.verticalGradient(listOf(highlight, Color.Transparent), startY = 0f, endY = 48.dp.toPx())
         } else null
-        val inset = 16.dp.toPx()
+        // Row dividers run from the tile line to the control line (card padding + row inset).
+        val inset = (SettingsCardPad + rowInset).toPx()
+        // The column gutter: a hairline on the start side of a cell that has another one before it.
+        val gutterX = if (rtl) w - half else half
         onDrawBehind {
             drawPath(fillPath, fill)
             if (shine != null) drawPath(fillPath, shine)
@@ -358,7 +523,102 @@ internal fun Modifier.cardSlice(cell: CardGrid.Cell, accent: Boolean = false): M
                     strokeWidth = stroke
                 )
             }
+            if (gutter && border.alpha > 0f) drawLine(border, Offset(gutterX, 0f), Offset(gutterX, h), strokeWidth = stroke)
             if (border.alpha > 0f) clipRect { drawPath(edgePath, border, style = Stroke(stroke)) }
+        }
+    }
+}
+
+/**
+ * The cells of [cells] grouped into the lines of the grid: a header alone, then the rows of its card
+ * [columns] at a time. Each line is one item of [SettingsCardsGrid]'s list.
+ */
+internal fun settingsLines(cells: List<CardGrid.Cell>): List<List<Int>> {
+    val lines = ArrayList<List<Int>>()
+    var current = ArrayList<Int>()
+    cells.forEachIndexed { index, cell ->
+        val newLine = current.isEmpty() || cell.kind == CardGrid.Kind.HEADER || cell.column == 0 ||
+            cells[current.last()].kind == CardGrid.Kind.HEADER || cells[current.last()].section != cell.section
+        if (newLine && current.isNotEmpty()) { lines += current; current = ArrayList() }
+        current += index
+    }
+    if (current.isNotEmpty()) lines += current
+    return lines
+}
+
+/** The list item that shows cell [cell] of [cells] (counting the title item when there is one). */
+internal fun settingsItemOf(cells: List<CardGrid.Cell>, cell: Int, hasTitle: Boolean = false): Int {
+    val line = settingsLines(cells).indexOfFirst { cell in it }.coerceAtLeast(0)
+    return line + if (hasTitle) 1 else 0
+}
+
+/**
+ * The card grid of a settings screen. Every line of [CardGrid] cells is one list item: a card's
+ * header over the full width, or its rows side by side in [columns] equal columns. The cells of a
+ * line always share one height, so a card has straight edges however much a row's text wraps.
+ * The whole grid is a centred column (at most [settingsMaxWidth]) with equal margins left and
+ * right, and the same gap between all cards. [title] (a screen title) sits in that column on top.
+ * Rows slide to their new place and fade in / out when a setting shows or hides others (not with
+ * animations off).
+ */
+@Composable
+internal fun SettingsCardsGrid(
+    cells: List<CardGrid.Cell>,
+    columns: Int,
+    modifier: Modifier = Modifier,
+    state: LazyListState = rememberLazyListState(),
+    key: (Int, CardGrid.Cell) -> Any = { index, _ -> index },
+    accent: (CardGrid.Cell) -> Boolean = { false },
+    title: (@Composable () -> Unit)? = null,
+    content: @Composable (Int, CardGrid.Cell) -> Unit
+) {
+    val reduceMotion = LocalReduceMotion.current
+    val fadeSpec: FiniteAnimationSpec<Float>? = if (reduceMotion) null else tween(Motion.MEDIUM)
+    val moveSpec: FiniteAnimationSpec<IntOffset>? = if (reduceMotion) null else tween(Motion.MEDIUM, easing = FastOutSlowInEasing)
+    val lines = remember(cells) { settingsLines(cells) }
+    val margin = settingsMargin()
+    val maxWidth = settingsMaxWidth(columns)
+    LazyColumn(
+        state = state,
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        contentPadding = PaddingValues(start = margin, end = margin, top = 12.dp, bottom = 24.dp)
+    ) {
+        if (title != null) {
+            item(key = "settings-title") {
+                Box(
+                    Modifier
+                        .widthIn(max = maxWidth)
+                        .fillMaxWidth()
+                        // The title's icon and text on the same lines as the cards' tiles and text.
+                        .padding(start = SettingsCardPad + settingsInset(), end = SettingsCardPad + settingsInset(), bottom = SettingsCardGap)
+                ) { title() }
+            }
+        }
+        lines.forEachIndexed { lineIndex, line ->
+            val first = cells[line.first()]
+            item(key = key(line.first(), first)) {
+                val gap = if (lineIndex > 0 && first.top) SettingsCardGap else 0.dp
+                Row(
+                    modifier = Modifier
+                        .animateItem(fadeSpec, moveSpec, fadeSpec)
+                        .widthIn(max = maxWidth)
+                        .fillMaxWidth()
+                        .padding(top = gap)
+                        .then(if (line.size > 1) Modifier.height(IntrinsicSize.Max) else Modifier)
+                ) {
+                    line.forEach { index ->
+                        val cell = cells[index]
+                        CardCell(
+                            cell,
+                            modifier = Modifier
+                                .weight(cell.span.toFloat())
+                                .then(if (line.size > 1) Modifier.fillMaxHeight() else Modifier),
+                            accent = cell.kind == CardGrid.Kind.ITEM && accent(cell)
+                        ) { content(index, cell) }
+                    }
+                }
+            }
         }
     }
 }

@@ -11,8 +11,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,19 +20,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,15 +37,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,7 +71,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -99,7 +91,6 @@ import com.cortinadev.dogmatix.ui.components.MeterBar
 import com.cortinadev.dogmatix.ui.components.NavChevron
 import com.cortinadev.dogmatix.ui.components.Pill
 import com.cortinadev.dogmatix.ui.components.PillTone
-import com.cortinadev.dogmatix.ui.components.Stepper
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.coverPlaceholder
 import com.cortinadev.dogmatix.ui.components.focusRing
@@ -386,7 +377,7 @@ fun SettingsScreen(
                 onClick = { cycleTheme(1) },
                 onAdjust = ::cycleTheme
             ) {
-                Stepper(themeLabel, onDecrement = { cycleTheme(-1) }, onIncrement = { cycleTheme(1) }, valueWidth = 110.dp)
+                SettingsStepper(themeLabel, onDecrement = { cycleTheme(-1) }, onIncrement = { cycleTheme(1) })
             }
         },
         SettingsRow(SettingsSection.LOOK, key = SettingKeys.LANGUAGE) {
@@ -397,7 +388,7 @@ fun SettingsScreen(
                 onClick = { cycleLanguage(1) },
                 onAdjust = ::cycleLanguage
             ) {
-                Stepper(stringResource(appLanguage.label), onDecrement = { cycleLanguage(-1) }, onIncrement = { cycleLanguage(1) }, valueWidth = 96.dp)
+                SettingsStepper(stringResource(appLanguage.label), onDecrement = { cycleLanguage(-1) }, onIncrement = { cycleLanguage(1) })
             }
         },
         SettingsRow(SettingsSection.LOOK, key = SettingKeys.TEXT_SIZE) {
@@ -408,7 +399,7 @@ fun SettingsScreen(
                 onClick = { extra.shiftTextSize(context, 1) },
                 onAdjust = { extra.shiftTextSize(context, it) }
             ) {
-                Stepper("${appPrefs.textSize} %", onDecrement = { extra.shiftTextSize(context, -1) }, onIncrement = { extra.shiftTextSize(context, 1) }, valueWidth = 96.dp)
+                SettingsStepper("${appPrefs.textSize} %", onDecrement = { extra.shiftTextSize(context, -1) }, onIncrement = { extra.shiftTextSize(context, 1) })
             }
         },
         SettingsRow(SettingsSection.LOOK, key = SettingKeys.ACCENT) {
@@ -433,11 +424,10 @@ fun SettingsScreen(
                 onClick = { cycleGamepadLayout(1) },
                 onAdjust = ::cycleGamepadLayout
             ) {
-                Stepper(
+                SettingsStepper(
                     stringResource(ui.gamepadLayout.labelRes),
                     onDecrement = { cycleGamepadLayout(-1) },
-                    onIncrement = { cycleGamepadLayout(1) },
-                    valueWidth = 110.dp
+                    onIncrement = { cycleGamepadLayout(1) }
                 )
             }
         },
@@ -547,7 +537,7 @@ fun SettingsScreen(
                 onClick = { adjustConcurrent(1) },
                 onAdjust = ::adjustConcurrent
             ) {
-                Stepper(ui.concurrentDownloads.toString(), onDecrement = { adjustConcurrent(-1) }, onIncrement = { adjustConcurrent(1) })
+                SettingsStepper(ui.concurrentDownloads.toString(), onDecrement = { adjustConcurrent(-1) }, onIncrement = { adjustConcurrent(1) })
             }
         },
         SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.PER_SERVER) {
@@ -558,9 +548,9 @@ fun SettingsScreen(
                 onClick = { extra.shiftPerServer(context, 1) },
                 onAdjust = { extra.shiftPerServer(context, it) }
             ) {
-                Stepper(
+                SettingsStepper(
                     if (queue.perServer == 0) stringResource(R.string.settings_off) else "${queue.perServer}",
-                    onDecrement = { extra.shiftPerServer(context, -1) }, onIncrement = { extra.shiftPerServer(context, 1) }, valueWidth = 96.dp
+                    onDecrement = { extra.shiftPerServer(context, -1) }, onIncrement = { extra.shiftPerServer(context, 1) }
                 )
             }
         },
@@ -572,11 +562,10 @@ fun SettingsScreen(
                 onClick = { adjustLimit(1) },
                 onAdjust = ::adjustLimit
             ) {
-                Stepper(
+                SettingsStepper(
                     if (limitKb == 0) stringResource(R.string.settings_unrestricted) else "$limitKb KB/s",
                     onDecrement = { adjustLimit(-1) },
-                    onIncrement = { adjustLimit(1) },
-                    valueWidth = 110.dp
+                    onIncrement = { adjustLimit(1) }
                 )
             }
         },
@@ -597,9 +586,9 @@ fun SettingsScreen(
                 onClick = { extra.shiftMinFree(context, 1) },
                 onAdjust = { extra.shiftMinFree(context, it) }
             ) {
-                Stepper(
+                SettingsStepper(
                     if (queue.minFreeGb == 0) stringResource(R.string.settings_off) else "${queue.minFreeGb} GB",
-                    onDecrement = { extra.shiftMinFree(context, -1) }, onIncrement = { extra.shiftMinFree(context, 1) }, valueWidth = 96.dp
+                    onDecrement = { extra.shiftMinFree(context, -1) }, onIncrement = { extra.shiftMinFree(context, 1) }
                 )
             }
         },
@@ -683,11 +672,10 @@ fun SettingsScreen(
                 onClick = { extra.shiftBatteryPercent(context, 1) },
                 onAdjust = { extra.shiftBatteryPercent(context, it) }
             ) {
-                Stepper(
+                SettingsStepper(
                     stringResource(R.string.power75_percent, power.batteryPercent),
                     onDecrement = { extra.shiftBatteryPercent(context, -1) },
-                    onIncrement = { extra.shiftBatteryPercent(context, 1) },
-                    valueWidth = 72.dp
+                    onIncrement = { extra.shiftBatteryPercent(context, 1) }
                 )
             }
         },
@@ -714,14 +702,14 @@ fun SettingsScreen(
                 icon = R.drawable.ic_bedtime,
                 title = stringResource(R.string.settings_dl_night_start), hint = null,
                 onClick = { shiftNightStart(1) }, onAdjust = ::shiftNightStart
-            ) { Stepper(DownloadPolicy.formatMinutes(schedule.nightStart), onDecrement = { shiftNightStart(-1) }, onIncrement = { shiftNightStart(1) }, valueWidth = 72.dp) }
+            ) { SettingsStepper(DownloadPolicy.formatMinutes(schedule.nightStart), onDecrement = { shiftNightStart(-1) }, onIncrement = { shiftNightStart(1) }) }
         },
         SettingsRow(SettingsSection.SCHEDULE, visible = schedule.nightOnly) {
             SettingRow(
                 icon = R.drawable.ic_wb_twilight,
                 title = stringResource(R.string.settings_dl_night_end), hint = null,
                 onClick = { shiftNightEnd(1) }, onAdjust = ::shiftNightEnd
-            ) { Stepper(DownloadPolicy.formatMinutes(schedule.nightEnd), onDecrement = { shiftNightEnd(-1) }, onIncrement = { shiftNightEnd(1) }, valueWidth = 72.dp) }
+            ) { SettingsStepper(DownloadPolicy.formatMinutes(schedule.nightEnd), onDecrement = { shiftNightEnd(-1) }, onIncrement = { shiftNightEnd(1) }) }
         },
         SettingsRow(SettingsSection.AFTER, key = SettingKeys.AUTO_UNZIP) {
             SettingRow(
@@ -781,7 +769,7 @@ fun SettingsScreen(
                 onClick = { cycleDebrid(1) },
                 onAdjust = ::cycleDebrid
             ) {
-                Stepper(debrid.label, onDecrement = { cycleDebrid(-1) }, onIncrement = { cycleDebrid(1) }, valueWidth = 110.dp)
+                SettingsStepper(debrid.label, onDecrement = { cycleDebrid(-1) }, onIncrement = { cycleDebrid(1) })
             }
         },
         SettingsRow(SettingsSection.TORRENTS, visible = debrid != DebridProvider.NONE) {
@@ -802,7 +790,7 @@ fun SettingsScreen(
                 onClick = { adjustMetadataTimeout(1) },
                 onAdjust = ::adjustMetadataTimeout
             ) {
-                Stepper(stringResource(R.string.seconds_short, ui.metadataTimeoutSeconds), onDecrement = { adjustMetadataTimeout(-1) }, onIncrement = { adjustMetadataTimeout(1) })
+                SettingsStepper(stringResource(R.string.seconds_short, ui.metadataTimeoutSeconds), onDecrement = { adjustMetadataTimeout(-1) }, onIncrement = { adjustMetadataTimeout(1) })
             }
         },
         SettingsRow(SettingsSection.LIBRARY, key = SettingKeys.AUTOSCAN) {
@@ -821,10 +809,10 @@ fun SettingsScreen(
                 title = stringResource(R.string.settings_autoscan_every), hint = null,
                 onClick = { extra.shiftAutoScanHours(context, 1) }, onAdjust = { extra.shiftAutoScanHours(context, it) }
             ) {
-                Stepper(
+                SettingsStepper(
                     if (autoScan.hours % 24 == 0) pluralStringResource(R.plurals.settings_days, autoScan.hours / 24, autoScan.hours / 24)
                     else stringResource(R.string.hours_short, autoScan.hours),
-                    onDecrement = { extra.shiftAutoScanHours(context, -1) }, onIncrement = { extra.shiftAutoScanHours(context, 1) }, valueWidth = 96.dp
+                    onDecrement = { extra.shiftAutoScanHours(context, -1) }, onIncrement = { extra.shiftAutoScanHours(context, 1) }
                 )
             }
         },
@@ -858,11 +846,10 @@ fun SettingsScreen(
                 onClick = { adjustMaxSearchResults(1) },
                 onAdjust = ::adjustMaxSearchResults
             ) {
-                Stepper(
+                SettingsStepper(
                     if (ui.maxSearchResults <= 0) stringResource(R.string.settings_unlimited) else ui.maxSearchResults.toString(),
                     onDecrement = { adjustMaxSearchResults(-1) },
-                    onIncrement = { adjustMaxSearchResults(1) },
-                    valueWidth = 110.dp
+                    onIncrement = { adjustMaxSearchResults(1) }
                 )
             }
         },
@@ -1102,7 +1089,8 @@ fun SettingsScreen(
     )
     // Rows that do not apply right now are left out (sliding in and out as they change). Every
     // group is a card: its header over the full width, then its rows, in two columns in landscape.
-    val columns = if (isLandscape) 2 else 1
+    val columns = settingsColumns()
+    val twoColumns = columns == 2
     val shownBySection: List<List<ShownRow>> = SettingsSection.entries.map { section ->
         ordered.withIndex().filter { (_, row) -> row.section == section && row.visible }.map { (i, row) -> ShownRow(i, row) }
     }
@@ -1119,9 +1107,9 @@ fun SettingsScreen(
     val rowFocus = remember(ordered.size) { List(ordered.size) { FocusRequester() } }
     val currentFocus by rememberUpdatedState(rowFocus)
     var focusedRow by remember { mutableIntStateOf(-1) }
-    val gridState = rememberLazyGridState()
+    val gridState = rememberLazyListState()
     val reduceMotionForJump = LocalReduceMotion.current
-    LaunchedEffect(isLandscape) {
+    LaunchedEffect(twoColumns) {
         Gamepad.presses.collect { button ->
             if (button != GamepadButton.PREV_PANEL && button != GamepadButton.NEXT_PANEL) return@collect
             val list = currentCells
@@ -1130,14 +1118,14 @@ fun SettingsScreen(
                 ?.takeIf { it.kind == CardGrid.Kind.ITEM }
                 ?.let { shown.getOrNull(it.section)?.getOrNull(it.item)?.index }
             val current = list.indices.firstOrNull { rowIndexOf(it) == focusedRow }
-            if (isLandscape) {
+            if (twoColumns) {
                 val target = CardGrid.hop(list, current) ?: return@collect
                 rowIndexOf(target)?.let { row -> runCatching { currentFocus[row].requestFocus() } }
             } else {
                 val (header, first) = CardGrid.groupJump(list, current, forward = button == GamepadButton.NEXT_PANEL) ?: return@collect
                 val row = rowIndexOf(first) ?: return@collect
                 // The row may be off screen (not composed yet): scroll the card in first.
-                gridState.scrollToItem(header)
+                gridState.scrollToItem(settingsItemOf(list, header))
                 withFrameNanos { }
                 runCatching { currentFocus[row].requestFocus() }
             }
@@ -1158,7 +1146,7 @@ fun SettingsScreen(
         } ?: return@LaunchedEffect
         // Let the grid lay out once (Settings may just have been opened), then bring the row in.
         withFrameNanos { }
-        gridState.scrollToItem((cell - 1).coerceAtLeast(0))
+        gridState.scrollToItem((settingsItemOf(currentCells, cell) - 1).coerceAtLeast(0))
         withFrameNanos { }
         runCatching { rowFocus[row].requestFocus() }
         flashRow = row
@@ -1176,7 +1164,7 @@ fun SettingsScreen(
     }
     run {
         val base = legendFor(NavRoutes.Settings.route)
-        val hop = LegendEntry("LB · RB", stringResource(if (isLandscape) R.string.pad_column else R.string.pad_group))
+        val hop = LegendEntry("LB · RB", stringResource(if (twoColumns) R.string.pad_column else R.string.pad_group))
         val legend = remember(base, hop) { Legend(base.toMutableList().also { it.add(it.lastIndex, hop) }) }
         LaunchedEffect(legend) { Gamepad.legendOverride.value = legend }
         // Only clear our own legend: the previous screen's onDispose can run after ours is set.
@@ -1193,65 +1181,46 @@ fun SettingsScreen(
         autoBackupLast = appPrefs.autoBackupLast,
         updateProgress = updateProgress
     )
-    // Rows slide to their new place and fade in / out when a setting shows or hides others.
-    val reduceMotion = LocalReduceMotion.current
-    val fadeSpec: FiniteAnimationSpec<Float>? = if (reduceMotion) null else tween(Motion.MEDIUM)
-    val moveSpec: FiniteAnimationSpec<IntOffset>? = if (reduceMotion) null else tween(Motion.MEDIUM, easing = FastOutSlowInEasing)
-
     val flashTint = MaterialTheme.colorScheme.primary
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 8.dp)
-    ) {
-        LazyVerticalGrid(
-            state = gridState,
-            columns = GridCells.Fixed(columns),
-            contentPadding = PaddingValues(top = 12.dp, bottom = 16.dp),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            cells.forEachIndexed { index, cell ->
-                val section = SettingsSection.entries[cell.section]
-                val gap = if (index == 0) 0.dp else 14.dp
-                if (cell.kind == CardGrid.Kind.HEADER) {
-                    item(key = "section-${section.name}", span = { GridItemSpan(maxLineSpan) }) {
-                        CardCell(cell, modifier = Modifier.animateItem(fadeSpec, moveSpec, fadeSpec), gapAbove = gap) {
-                            Column {
-                                SettingsCardHeader(stringResource(section.title ?: R.string.settings_tools), section.icon) {
-                                    SectionPills(section, pills)
-                                }
-                                if (section == SettingsSection.LOOK) {
-                                    LookPreview(
-                                        listCovers = look.listCovers,
-                                        modifier = Modifier
-                                            .padding(start = settingsInset(), end = settingsInset(), bottom = 10.dp)
-                                            .widthIn(max = 560.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    val shown = shownBySection[cell.section][cell.item]
-                    item(key = "row-${shown.index}", span = { GridItemSpan(cell.span) }) {
-                        CardCell(
-                            cell,
-                            modifier = Modifier.animateItem(fadeSpec, moveSpec, fadeSpec),
-                            gapAbove = gap,
-                            accent = section == SettingsSection.TOOLS
-                        ) {
-                            val flashing = shown.index == flashRow
-                            Box(
-                                modifier = Modifier
-                                    .then(if (flashing) Modifier.jumpHighlight(flashTint) { flash.value } else Modifier)
-                                    .focusRequester(rowFocus[shown.index])
-                                    .onFocusChanged { if (it.hasFocus) focusedRow = shown.index }
-                            ) { shown.row.content() }
-                        }
-                    }
+    SettingsSurface {
+    SettingsCardsGrid(
+        cells = cells,
+        columns = columns,
+        state = gridState,
+        key = { _, cell ->
+            if (cell.kind == CardGrid.Kind.HEADER) "section-${SettingsSection.entries[cell.section].name}"
+            else "row-${shownBySection[cell.section][cell.item].index}"
+        },
+        accent = { cell -> SettingsSection.entries[cell.section] == SettingsSection.TOOLS }
+    ) { _, cell ->
+        val section = SettingsSection.entries[cell.section]
+        if (cell.kind == CardGrid.Kind.HEADER) {
+            Column {
+                SettingsCardHeader(stringResource(section.title ?: R.string.settings_tools), section.icon) {
+                    SectionPills(section, pills)
+                }
+                if (section == SettingsSection.LOOK) {
+                    LookPreview(
+                        listCovers = look.listCovers,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = settingsInset(), end = settingsInset(), bottom = 4.dp)
+                    )
                 }
             }
+        } else {
+            val shown = shownBySection[cell.section][cell.item]
+            val flashing = shown.index == flashRow
+            Box(
+                modifier = Modifier
+                    .then(if (flashing) Modifier.jumpHighlight(flashTint) { flash.value } else Modifier)
+                    .focusRequester(rowFocus[shown.index])
+                    .onFocusChanged { if (it.hasFocus) focusedRow = shown.index },
+                // The row fills its cell, so beside a taller neighbour it centres its content.
+                propagateMinConstraints = true
+            ) { shown.row.content() }
         }
+    }
     }
 }
 

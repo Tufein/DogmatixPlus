@@ -1,17 +1,15 @@
 package com.cortinadev.dogmatix.ui.screens.settings
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.TvModeSettings
 import com.cortinadev.dogmatix.ui.components.LocalTvMode
-import com.cortinadev.dogmatix.ui.components.Stepper
 import com.cortinadev.dogmatix.util.TvMode
 import com.cortinadev.dogmatix.util.TvModeSetting
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,7 +45,7 @@ fun TvModeSettingRow(viewModel: TvModeSettingViewModel = hiltViewModel()) {
         onClick = { viewModel.shift(1) },
         onAdjust = viewModel::shift
     ) {
-        Stepper(
+        SettingsStepper(
             stringResource(
                 when (mode) {
                     TvModeSetting.AUTO -> R.string.tv8_mode_auto
@@ -56,8 +54,7 @@ fun TvModeSettingRow(viewModel: TvModeSettingViewModel = hiltViewModel()) {
                 }
             ),
             onDecrement = { viewModel.shift(-1) },
-            onIncrement = { viewModel.shift(1) },
-            valueWidth = 110.dp
+            onIncrement = { viewModel.shift(1) }
         )
     }
 }

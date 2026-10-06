@@ -374,6 +374,9 @@ private fun OnboardingHost() {
     }
 }
 
+/** The screens built from the settings kit: they get the plain AMOLED ground (see SettingsSurface). */
+private val SettingsKitRoutes = setOf(NavRoutes.Settings.route, NavRoutes.Romm.route, NavRoutes.SaveSync.route)
+
 @Composable
 private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
     val context = LocalContext.current
@@ -477,7 +480,8 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .dogmatixBackground()
+            // 8.1: Settings and its sub-screens sit on a plain (AMOLED black in dark) ground.
+            .dogmatixBackground(amoled = currentRoute in SettingsKitRoutes)
     ) {
         Box(
             modifier = Modifier

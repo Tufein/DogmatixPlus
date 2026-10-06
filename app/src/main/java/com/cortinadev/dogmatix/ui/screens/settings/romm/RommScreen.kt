@@ -8,28 +8,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,7 +36,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cortinadev.dogmatix.R
@@ -62,7 +56,9 @@ import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.legendFor
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
-import com.cortinadev.dogmatix.ui.screens.settings.CardCell
+import com.cortinadev.dogmatix.ui.screens.settings.SettingsCardsGrid
+import com.cortinadev.dogmatix.ui.screens.settings.SettingsSurface
+import com.cortinadev.dogmatix.ui.screens.settings.settingsColumns
 import com.cortinadev.dogmatix.ui.screens.settings.PillButton
 import com.cortinadev.dogmatix.ui.screens.settings.SettingRow
 import com.cortinadev.dogmatix.ui.screens.cloud.sections.RommFavouritesViewModel
@@ -325,7 +321,8 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
 
     // Two cards on a grid: two columns in landscape. The mapping card keeps its header even
     // before the consoles are known.
-    val columns = if (isLandscape) 2 else 1
+    val columns = settingsColumns()
+    val twoColumns = columns == 2
     val cells = CardGrid.layout(
         listOf(
             CardGrid.Section(header = false, items = serverRows.size),
@@ -344,8 +341,8 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
     val rowFocus = remember(cells.size) { List(cells.size) { FocusRequester() } }
     val currentFocus by rememberUpdatedState(rowFocus)
     var focusedIndex by remember { mutableIntStateOf(-1) }
-    LaunchedEffect(isLandscape, cells.size) {
-        if (!isLandscape) return@LaunchedEffect
+    LaunchedEffect(twoColumns, cells.size) {
+        if (!twoColumns) return@LaunchedEffect
         Gamepad.presses.collect { button ->
             if (button != GamepadButton.PREV_PANEL && button != GamepadButton.NEXT_PANEL) return@collect
             val list = currentCells
@@ -360,7 +357,7 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
     }
     // Land on the first row so the screen is usable from the D-pad without a "wake-up" press.
     LaunchedEffect(cells.size) { if (focusedIndex < 0 && cells.isNotEmpty()) runCatching { rowFocus[0].requestFocus() } }
-    if (isLandscape) {
+    if (twoColumns) {
         val base = legendFor(NavRoutes.Romm.route)
         val column = LegendEntry("LB · RB", stringResource(R.string.pad_column))
         val legend = remember(base, column) { Legend(base.toMutableList().also { it.add(it.lastIndex, column) }) }
@@ -369,30 +366,26 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
         DisposableEffect(legend) { onDispose { if (Gamepad.legendOverride.value === legend) Gamepad.legendOverride.value = null } }
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
-        RommHeader(
-            url = ui.url,
-            loading = loading,
-            platformCount = platforms.size,
-            games = if (ui.markGames) libraryState.games else 0,
-            trusted = ui.trustFingerprint.isNotBlank(),
-            modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 12.dp, bottom = 8.dp)
-        )
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(columns),
-            contentPadding = PaddingValues(bottom = 16.dp),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(cells.size, span = { index -> GridItemSpan(cells[index].span) }) { index ->
-                val cell = cells[index]
-                CardCell(cell, gapAbove = if (index == 0) 0.dp else 14.dp) {
-                    Box(
-                        modifier = Modifier
-                            .focusRequester(rowFocus[index])
-                            .onFocusChanged { if (it.hasFocus) focusedIndex = index }
-                    ) { contentOf(cell)() }
-                }
+    SettingsSurface {
+        SettingsCardsGrid(
+            cells = cells,
+            columns = columns,
+            title = {
+                RommHeader(
+                    url = ui.url,
+                    loading = loading,
+                    platformCount = platforms.size,
+                    games = if (ui.markGames) libraryState.games else 0,
+                    trusted = ui.trustFingerprint.isNotBlank()
+                )
             }
+        ) { index, cell ->
+            Box(
+                modifier = Modifier
+                    .focusRequester(rowFocus[index])
+                    .onFocusChanged { if (it.hasFocus) focusedIndex = index },
+                propagateMinConstraints = true
+            ) { contentOf(cell)() }
         }
     }
 }

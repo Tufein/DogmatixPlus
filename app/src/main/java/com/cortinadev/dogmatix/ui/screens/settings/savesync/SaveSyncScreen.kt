@@ -9,10 +9,8 @@ import android.provider.DocumentsContract
 import android.text.format.DateUtils
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -22,13 +20,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -37,14 +33,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,7 +52,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.clipRect
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -66,8 +61,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -83,15 +76,15 @@ import com.cortinadev.dogmatix.ui.components.PanelTone
 import com.cortinadev.dogmatix.ui.components.Pill
 import com.cortinadev.dogmatix.ui.components.PillTone
 import com.cortinadev.dogmatix.ui.components.ScreenTitle
-import com.cortinadev.dogmatix.ui.components.Stepper
-import com.cortinadev.dogmatix.ui.components.TruncatedText
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.focusRing
 import com.cortinadev.dogmatix.ui.components.formatBytes
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import com.cortinadev.dogmatix.ui.screens.cloud.saves.StateShotPair
-import com.cortinadev.dogmatix.ui.screens.settings.CardCell
+import com.cortinadev.dogmatix.ui.screens.settings.SettingsCardsGrid
+import com.cortinadev.dogmatix.ui.screens.settings.SettingsStepper
+import com.cortinadev.dogmatix.ui.screens.settings.SettingsSurface
 import com.cortinadev.dogmatix.ui.screens.settings.SettingRow
 import com.cortinadev.dogmatix.ui.screens.settings.SettingsCardHeader
 import com.cortinadev.dogmatix.ui.screens.settings.SettingsIconTile
@@ -99,7 +92,6 @@ import com.cortinadev.dogmatix.ui.screens.settings.SettingsTileGap
 import com.cortinadev.dogmatix.ui.screens.settings.settingsInset
 import com.cortinadev.dogmatix.ui.screens.settings.ThemedSwitch
 import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
-import com.cortinadev.dogmatix.ui.theme.Motion
 import com.cortinadev.dogmatix.ui.theme.tabular
 import com.cortinadev.dogmatix.util.BackgroundSyncPolicy
 import com.cortinadev.dogmatix.util.CardGrid
@@ -238,7 +230,7 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
                     onClick = { adjustInterval(1) },
                     onAdjust = ::adjustInterval,
                 ) {
-                    Stepper(stringResource(R.string.save_sync_hours_short, ui.intervalHours), onDecrement = { adjustInterval(-1) }, onIncrement = { adjustInterval(1) }, valueWidth = 64.dp)
+                    SettingsStepper(stringResource(R.string.save_sync_hours_short, ui.intervalHours), onDecrement = { adjustInterval(-1) }, onIncrement = { adjustInterval(1) })
                 }
             }
             add {
@@ -321,39 +313,34 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
         if (focusedIndex < 0 && first >= 0) runCatching { rowFocus[first].requestFocus() }
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp)) {
-        Column(
-            modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 12.dp, bottom = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            ScreenTitle(
-                text = stringResource(R.string.settings_save_sync),
-                icon = R.drawable.ic_cloud_sync,
-                trailing = { SyncStatusPills(ui.rommUrl.isNotBlank(), sync) }
-            )
-            Text(
-                stringResource(R.string.save_sync_intro),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        LazyColumn(
-            contentPadding = PaddingValues(bottom = 16.dp),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(cells.size) { index ->
-                val cell = cells[index]
-                CardCell(cell, gapAbove = if (index == 0) 0.dp else 14.dp) {
-                    if (cell.kind == CardGrid.Kind.HEADER) {
-                        SyncCardHeader(cell.section, sync.conflicts.size)
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .focusRequester(rowFocus[index])
-                                .onFocusChanged { if (it.hasFocus) focusedIndex = index }
-                        ) { rowLists[cell.section][cell.item]() }
-                    }
+    SettingsSurface {
+        SettingsCardsGrid(
+            cells = cells,
+            columns = 1,
+            title = {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    ScreenTitle(
+                        text = stringResource(R.string.settings_save_sync),
+                        icon = R.drawable.ic_cloud_sync,
+                        trailing = { SyncStatusPills(ui.rommUrl.isNotBlank(), sync) }
+                    )
+                    Text(
+                        stringResource(R.string.save_sync_intro),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
+            }
+        ) { index, cell ->
+            if (cell.kind == CardGrid.Kind.HEADER) {
+                SyncCardHeader(cell.section, sync.conflicts.size)
+            } else {
+                Box(
+                    modifier = Modifier
+                        .focusRequester(rowFocus[index])
+                        .onFocusChanged { if (it.hasFocus) focusedIndex = index },
+                    propagateMinConstraints = true
+                ) { rowLists[cell.section][cell.item]() }
             }
         }
     }

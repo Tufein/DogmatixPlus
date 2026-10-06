@@ -12,14 +12,18 @@ import androidx.compose.ui.graphics.Color
  * The 5.0 ground behind every screen: the theme background with a soft accent glow from the top
  * left and a fainter partner glow from the bottom right. Brushes are built once per size and
  * drawn in the draw phase, so the glow costs no recomposition.
+ * With [amoled] (the settings screens) it is a plain ground: pure #000 in the dark themes.
  */
 @Composable
-fun Modifier.dogmatixBackground(): Modifier {
-    val background = MaterialTheme.colorScheme.background
+fun Modifier.dogmatixBackground(
+    /** 8.1: the settings screens: no glow, and pure black (AMOLED) in the dark themes. */
+    amoled: Boolean = false
+): Modifier {
     val tokens = LocalDogmatixTokens.current
+    val background = if (amoled && tokens.isDark) Color.Black else MaterialTheme.colorScheme.background
     val glow = tokens.glow
     val glowAlt = tokens.glowAlt
-    val strength = tokens.glowStrength
+    val strength = if (amoled) 0f else tokens.glowStrength
     return drawWithCache {
         val reach = maxOf(size.width, size.height)
         val main = if (strength > 0f && glow.visible()) Brush.radialGradient(
