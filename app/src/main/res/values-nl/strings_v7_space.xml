@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="space7_title">Ruimte vrijmaken</string>
+    <string name="space7_subtitle">Games die je nooit hebt gespeeld, de grootste eerst</string>
+    <string name="space7_hint">Zoek games die je nooit hebt gespeeld en verwijder ze om ruimte terug te winnen</string>
+    <plurals name="space7_summary">
+        <item quantity="one">%1$d game nooit gespeeld · %2$s te winnen</item>
+        <item quantity="other">%1$d games nooit gespeeld · %2$s te winnen</item>
+    </plurals>
+    <plurals name="space7_summary_nodata">
+        <item quantity="one">%1$d game op het apparaat · %2$s</item>
+        <item quantity="other">%1$d games op het apparaat · %2$s</item>
+    </plurals>
+    <string name="space7_none_played">Elke game op het apparaat is gespeeld</string>
+    <string name="space7_none_games">Geen games gevonden in je downloadmappen</string>
+    <string name="space7_free_now">%1$s vrij op het apparaat</string>
+    <string name="space7_note_nodata">Geen speelgegevens gevonden (ES-DE is niet ingesteld of heeft nog niets vastgelegd), dus de games staan alleen op grootte en leeftijd gerangschikt.</string>
+    <plurals name="space7_note_unknown">
+        <item quantity="one">%1$d game heeft geen speelgegevens (ES-DE heeft niets vastgelegd voor de console), dus die staat op grootte en leeftijd gerangschikt.</item>
+        <item quantity="other">%1$d games hebben geen speelgegevens (ES-DE heeft niets vastgelegd voor hun console), dus ze staan op grootte en leeftijd gerangschikt.</item>
+    </plurals>
+    <plurals name="space7_note_played">
+        <item quantity="one">%1$d gespeelde game is weggelaten (%2$s).</item>
+        <item quantity="other">%1$d gespeelde games zijn weggelaten (%2$s).</item>
+    </plurals>
+    <string name="space7_note_protected">Favorieten, games in een collectie en games met een RomM-save of een prestatie zijn gemarkeerd als Beschermd. De snelle acties kiezen ze nooit.</string>
+    <string name="space7_note_no_saves">RomM-saves zijn niet gecontroleerd: RomM is niet ingesteld of de gamelijst is nog niet geladen.</string>
+    <string name="space7_note_no_ach">Prestaties zijn niet gecontroleerd: RetroAchievements is niet ingesteld.</string>
+    <string name="space7_filter_all">Alle consoles</string>
+    <string name="space7_filter_chip">%1$s · %2$d</string>
+    <string name="space7_free_prefix">Maak vrij</string>
+    <string name="space7_free_value">%1$d GB</string>
+    <string name="space7_select_biggest">Grootste selecteren</string>
+    <string name="space7_select_all">Alles selecteren</string>
+    <string name="space7_clear">Selectie wissen</string>
+    <string name="space7_pick_short">Zonder de beschermde games kan maar %1$s worden vrijgemaakt</string>
+    <string name="space7_protected">Beschermd</string>
+    <string name="space7_protected_note">Beschermd: %1$s</string>
+    <string name="space7_why_favourite">favoriet</string>
+    <string name="space7_why_collection">in een collectie</string>
+    <string name="space7_why_save">heeft een RomM-save</string>
+    <string name="space7_why_achievement">heeft prestaties</string>
+    <string name="space7_no_data">Geen speelgegevens</string>
+    <string name="space7_added">Toegevoegd %1$s</string>
+    <plurals name="space7_selected">
+        <item quantity="one">%1$d game geselecteerd · %2$s</item>
+        <item quantity="other">%1$d games geselecteerd · %2$s</item>
+    </plurals>
+    <plurals name="space7_selected_protected">
+        <item quantity="one">%1$d daarvan is beschermd</item>
+        <item quantity="other">%1$d daarvan zijn beschermd</item>
+    </plurals>
+    <string name="space7_remove">Verwijderen</string>
+    <string name="space7_remove_wish">Verwijderen en op verlanglijst zetten</string>
+    <string name="space7_confirm_title">Deze games verwijderen?</string>
+    <plurals name="space7_confirm_message">
+        <item quantity="one">%1$d game (%2$s) wordt verwijderd uit je bibliotheekmappen. Dit kan niet ongedaan worden gemaakt.</item>
+        <item quantity="other">%1$d games (%2$s) worden verwijderd uit je bibliotheekmappen. Dit kan niet ongedaan worden gemaakt.</item>
+    </plurals>
+    <plurals name="space7_confirm_wish">
+        <item quantity="one">De game komt op je verlanglijst, zodat je hem later opnieuw kunt ophalen.</item>
+        <item quantity="other">De games komen op je verlanglijst, zodat je ze later opnieuw kunt ophalen.</item>
+    </plurals>
+    <plurals name="space7_confirm_protected">
+        <item quantity="one">%1$d daarvan is beschermd (favoriet, collectie, RomM-save of prestatie).</item>
+        <item quantity="other">%1$d daarvan zijn beschermd (favoriet, collectie, RomM-save of prestatie).</item>
+    </plurals>
+    <string name="space7_more_files">… en nog %1$d bestanden</string>
+    <plurals name="space7_done">
+        <item quantity="one">%1$d game verwijderd, %2$s vrijgemaakt</item>
+        <item quantity="other">%1$d games verwijderd, %2$s vrijgemaakt</item>
+    </plurals>
+    <plurals name="space7_done_wish">
+        <item quantity="one">%1$d game op de verlanglijst gezet</item>
+        <item quantity="other">%1$d games op de verlanglijst gezet</item>
+    </plurals>
+    <plurals name="space7_failed">
+        <item quantity="one">%1$d game kon niet volledig worden verwijderd</item>
+        <item quantity="other">%1$d games konden niet volledig worden verwijderd</item>
+    </plurals>
+    <string name="space7_open_wishlist">Verlanglijst openen</string>
+    <string name="space7_removing">Bezig met verwijderen…</string>
+    <string name="space7_pad_biggest">Grootste</string>
+</resources>

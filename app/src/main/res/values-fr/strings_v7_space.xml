@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="space7_title">Libérer de l\'espace</string>
+    <string name="space7_subtitle">Les jeux auxquels vous n\'avez jamais joué, du plus gros au plus petit</string>
+    <string name="space7_hint">Repérez les jeux jamais lancés et supprimez-les pour récupérer de la place</string>
+    <plurals name="space7_summary">
+        <item quantity="one">%1$d jeu jamais lancé · %2$s à gagner</item>
+        <item quantity="other">%1$d jeux jamais lancés · %2$s à gagner</item>
+    </plurals>
+    <plurals name="space7_summary_nodata">
+        <item quantity="one">%1$d jeu sur l\'appareil · %2$s</item>
+        <item quantity="other">%1$d jeux sur l\'appareil · %2$s</item>
+    </plurals>
+    <string name="space7_none_played">Tous les jeux de l\'appareil ont été lancés</string>
+    <string name="space7_none_games">Aucun jeu trouvé dans vos dossiers de téléchargement</string>
+    <string name="space7_free_now">%1$s libres sur l\'appareil</string>
+    <string name="space7_note_nodata">Aucune donnée de jeu trouvée (ES-DE n\'est pas configuré ou n\'a encore rien enregistré) : les jeux sont classés par taille et par ancienneté.</string>
+    <plurals name="space7_note_unknown">
+        <item quantity="one">%1$d jeu n\'a aucune donnée de jeu (ES-DE n\'a rien enregistré pour sa console) : il est classé par taille et par ancienneté.</item>
+        <item quantity="other">%1$d jeux n\'ont aucune donnée de jeu (ES-DE n\'a rien enregistré pour leur console) : ils sont classés par taille et par ancienneté.</item>
+    </plurals>
+    <plurals name="space7_note_played">
+        <item quantity="one">%1$d jeu déjà lancé est exclu (%2$s).</item>
+        <item quantity="other">%1$d jeux déjà lancés sont exclus (%2$s).</item>
+    </plurals>
+    <string name="space7_note_protected">Les favoris, les jeux d\'une collection et les jeux avec une sauvegarde RomM ou un succès sont marqués Protégé. Les actions rapides ne les choisissent jamais.</string>
+    <string name="space7_note_no_saves">Les sauvegardes RomM n\'ont pas été vérifiées : RomM n\'est pas configuré ou sa liste de jeux n\'est pas encore chargée.</string>
+    <string name="space7_note_no_ach">Les succès n\'ont pas été vérifiés : RetroAchievements n\'est pas configuré.</string>
+    <string name="space7_filter_all">Toutes les consoles</string>
+    <string name="space7_filter_chip">%1$s · %2$d</string>
+    <string name="space7_free_prefix">Libérer</string>
+    <string name="space7_free_value">%1$d GB</string>
+    <string name="space7_select_biggest">Choisir les plus gros</string>
+    <string name="space7_select_all">Tout sélectionner</string>
+    <string name="space7_clear">Effacer la sélection</string>
+    <string name="space7_pick_short">Sans les jeux protégés, on ne peut libérer que %1$s</string>
+    <string name="space7_protected">Protégé</string>
+    <string name="space7_protected_note">Protégé : %1$s</string>
+    <string name="space7_why_favourite">favori</string>
+    <string name="space7_why_collection">dans une collection</string>
+    <string name="space7_why_save">a une sauvegarde RomM</string>
+    <string name="space7_why_achievement">a des succès</string>
+    <string name="space7_no_data">Aucune donnée de jeu</string>
+    <string name="space7_added">Ajouté %1$s</string>
+    <plurals name="space7_selected">
+        <item quantity="one">%1$d jeu sélectionné · %2$s</item>
+        <item quantity="other">%1$d jeux sélectionnés · %2$s</item>
+    </plurals>
+    <plurals name="space7_selected_protected">
+        <item quantity="one">%1$d est protégé</item>
+        <item quantity="other">%1$d sont protégés</item>
+    </plurals>
+    <string name="space7_remove">Supprimer</string>
+    <string name="space7_remove_wish">Supprimer et ajouter à la liste de souhaits</string>
+    <string name="space7_confirm_title">Supprimer ces jeux ?</string>
+    <plurals name="space7_confirm_message">
+        <item quantity="one">%1$d jeu (%2$s) sera supprimé de vos dossiers de bibliothèque. Cette action est irréversible.</item>
+        <item quantity="other">%1$d jeux (%2$s) seront supprimés de vos dossiers de bibliothèque. Cette action est irréversible.</item>
+    </plurals>
+    <plurals name="space7_confirm_wish">
+        <item quantity="one">Il sera ajouté à votre liste de souhaits pour que vous puissiez le récupérer plus tard.</item>
+        <item quantity="other">Ils seront ajoutés à votre liste de souhaits pour que vous puissiez les récupérer plus tard.</item>
+    </plurals>
+    <plurals name="space7_confirm_protected">
+        <item quantity="one">%1$d est protégé (favori, collection, sauvegarde RomM ou succès).</item>
+        <item quantity="other">%1$d sont protégés (favori, collection, sauvegarde RomM ou succès).</item>
+    </plurals>
+    <string name="space7_more_files">… et %1$d fichiers de plus</string>
+    <plurals name="space7_done">
+        <item quantity="one">%1$d jeu supprimé, %2$s libérés</item>
+        <item quantity="other">%1$d jeux supprimés, %2$s libérés</item>
+    </plurals>
+    <plurals name="space7_done_wish">
+        <item quantity="one">%1$d jeu ajouté à la liste de souhaits</item>
+        <item quantity="other">%1$d jeux ajoutés à la liste de souhaits</item>
+    </plurals>
+    <plurals name="space7_failed">
+        <item quantity="one">%1$d jeu n\'a pas pu être entièrement supprimé</item>
+        <item quantity="other">%1$d jeux n\'ont pas pu être entièrement supprimés</item>
+    </plurals>
+    <string name="space7_open_wishlist">Ouvrir la liste de souhaits</string>
+    <string name="space7_removing">Suppression…</string>
+    <string name="space7_pad_biggest">Plus gros</string>
+</resources>

@@ -1,0 +1,10 @@
+<!-- Material Icons "delete_sweep", Apache License 2.0 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M600,640h160v80h-160zM600,320h280v80h-280zM600,480h240v80h-240zM120,720c0,44 36,80 80,80h240c44,0 80,-36 80,-80L520,320L120,320v400zM560,200h-120l-40,-40L240,160l-40,40L80,200v80h480z"/>
+</vector>

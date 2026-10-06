@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="space7_title">Free up space</string>
+    <string name="space7_subtitle">Games you never played, biggest first</string>
+    <string name="space7_hint">Find games you never played and remove them to win back space</string>
+    <plurals name="space7_summary">
+        <item quantity="one">%1$d game never played · %2$s to win</item>
+        <item quantity="other">%1$d games never played · %2$s to win</item>
+    </plurals>
+    <plurals name="space7_summary_nodata">
+        <item quantity="one">%1$d game on the device · %2$s</item>
+        <item quantity="other">%1$d games on the device · %2$s</item>
+    </plurals>
+    <string name="space7_none_played">Every game on the device has been played</string>
+    <string name="space7_none_games">No games found in your download folders</string>
+    <string name="space7_free_now">%1$s free on the device</string>
+    <string name="space7_note_nodata">No play data found (ES-DE is not set up or has no records yet), so games are ranked by size and age.</string>
+    <plurals name="space7_note_unknown">
+        <item quantity="one">%1$d game has no play data (ES-DE has no records for its console), so it is ranked by size and age.</item>
+        <item quantity="other">%1$d games have no play data (ES-DE has no records for their console), so they are ranked by size and age.</item>
+    </plurals>
+    <plurals name="space7_note_played">
+        <item quantity="one">%1$d played game is left out (%2$s).</item>
+        <item quantity="other">%1$d played games are left out (%2$s).</item>
+    </plurals>
+    <string name="space7_note_protected">Favourites, games in a collection and games with a RomM save or an achievement are marked Protected. The quick actions never pick them.</string>
+    <string name="space7_note_no_saves">RomM saves were not checked: RomM is not set up or its game list is not loaded yet.</string>
+    <string name="space7_note_no_ach">Achievements were not checked: RetroAchievements is not set up.</string>
+    <string name="space7_filter_all">All consoles</string>
+    <string name="space7_filter_chip">%1$s · %2$d</string>
+    <string name="space7_free_prefix">Free up</string>
+    <string name="space7_free_value">%1$d GB</string>
+    <string name="space7_select_biggest">Select the biggest</string>
+    <string name="space7_select_all">Select all</string>
+    <string name="space7_clear">Clear selection</string>
+    <string name="space7_pick_short">Only %1$s can be freed without touching protected games</string>
+    <string name="space7_protected">Protected</string>
+    <string name="space7_protected_note">Protected: %1$s</string>
+    <string name="space7_why_favourite">favourite</string>
+    <string name="space7_why_collection">in a collection</string>
+    <string name="space7_why_save">has a RomM save</string>
+    <string name="space7_why_achievement">has achievements</string>
+    <string name="space7_no_data">No play data</string>
+    <string name="space7_added">Added %1$s</string>
+    <plurals name="space7_selected">
+        <item quantity="one">%1$d game selected · %2$s</item>
+        <item quantity="other">%1$d games selected · %2$s</item>
+    </plurals>
+    <plurals name="space7_selected_protected">
+        <item quantity="one">%1$d of them is protected</item>
+        <item quantity="other">%1$d of them are protected</item>
+    </plurals>
+    <string name="space7_remove">Remove</string>
+    <string name="space7_remove_wish">Remove and add to wishlist</string>
+    <string name="space7_confirm_title">Remove these games?</string>
+    <plurals name="space7_confirm_message">
+        <item quantity="one">%1$d game (%2$s) will be deleted from your library folders. This cannot be undone.</item>
+        <item quantity="other">%1$d games (%2$s) will be deleted from your library folders. This cannot be undone.</item>
+    </plurals>
+    <plurals name="space7_confirm_wish">
+        <item quantity="one">It is put on your wishlist so you can fetch it again later.</item>
+        <item quantity="other">They are put on your wishlist so you can fetch them again later.</item>
+    </plurals>
+    <plurals name="space7_confirm_protected">
+        <item quantity="one">%1$d of them is protected (favourite, collection, RomM save or achievement).</item>
+        <item quantity="other">%1$d of them are protected (favourite, collection, RomM save or achievement).</item>
+    </plurals>
+    <string name="space7_more_files">… and %1$d more files</string>
+    <plurals name="space7_done">
+        <item quantity="one">Removed %1$d game, %2$s freed</item>
+        <item quantity="other">Removed %1$d games, %2$s freed</item>
+    </plurals>
+    <plurals name="space7_done_wish">
+        <item quantity="one">%1$d game put on the wishlist</item>
+        <item quantity="other">%1$d games put on the wishlist</item>
+    </plurals>
+    <plurals name="space7_failed">
+        <item quantity="one">%1$d game could not be removed completely</item>
+        <item quantity="other">%1$d games could not be removed completely</item>
+    </plurals>
+    <string name="space7_open_wishlist">Open wishlist</string>
+    <string name="space7_removing">Removing…</string>
+    <string name="space7_pad_biggest">Biggest</string>
+</resources>

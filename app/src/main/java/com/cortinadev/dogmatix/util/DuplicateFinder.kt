@@ -30,7 +30,9 @@ data class DiskFile(
     /** SAF document URI of the holding folder (to remove a game folder once it is empty). */
     val dirUri: String = "",
     /** Identity of the walk that found the file (download folder or one per-console folder). */
-    val rootId: String = ""
+    val rootId: String = "",
+    /** Last change (epoch millis) as the storage provider reports it; 0 when unknown. */
+    val lastModified: Long = 0L
 )
 
 /**
@@ -191,9 +193,17 @@ object DuplicateFinder {
             .groupBy { it.scope to it.dirId }
             .flatMap { (_, dirFiles) -> entriesOfFolder(dirFiles) }
 
+    /**
+     * An entry that is one recognisable game: a known game format with a real title, no update or
+     * DLC, no BIOS, not a program folder. What the duplicate finder compares and the "Free up
+     * space" tool offers.
+     */
+    fun isPlainGame(entry: GameEntry): Boolean =
+        entry.comparable && !(!entry.isFolderGame && isGeneric(entry.baseName)) && !isAddOn(entry.baseName) && !isBios(entry)
+
     fun find(files: List<DiskFile>): List<DuplicateGroup> =
         entries(files)
-            .filter { it.comparable && !(!it.isFolderGame && isGeneric(it.baseName)) && !isAddOn(it.baseName) && !isBios(it) }
+            .filter { isPlainGame(it) }
             // A playlist only points at discs that are counted on their own.
             .filterNot { e -> e.files.all { extension(it.name) == "m3u" } }
             .groupBy { it.comparisonScope() to titleKey(it.baseName) }
