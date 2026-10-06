@@ -49,7 +49,6 @@ data class FreeSpaceUiState(
     val selectedGames: List<SpaceCandidate> by lazy { candidates.filter { it.id in selected } }
     val selectedBytes: Long get() = selectedGames.sumOf { it.bytes }
     val selectedProtected: Int get() = selectedGames.count { it.isProtected }
-    val visibleBytes: Long get() = visible.sumOf { it.bytes }
     val unknownCount: Int get() = visible.count { it.play == SpacePlay.UNKNOWN }
 }
 

@@ -79,7 +79,7 @@ class SpaceReclaimService @Inject constructor(
     @Volatile private var offered: Set<String> = emptySet()
 
     /** RomM ids with a save or state, and when they were read. */
-    private var savedRoms: Pair<Long, Set<Int>>? = null
+    @Volatile private var savedRoms: Pair<Long, Set<Int>>? = null
 
     suspend fun scan(): SpaceScan = withContext(Dispatchers.IO) {
         val folderSet = settings.downloadDirectory.first().isNotBlank() || settings.consoleDownloadDirectories.first().isNotEmpty()

@@ -156,7 +156,7 @@ fun FreeSpaceScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        ToolsTitle(stringResource(R.string.space7_title), icon = R.drawable.ic_storage, subtitle = stringResource(R.string.space7_subtitle))
+        ToolsTitle(stringResource(R.string.space7_title), icon = R.drawable.ic_free_space, subtitle = stringResource(R.string.space7_subtitle))
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             contentPadding = PaddingValues(bottom = 16.dp),
@@ -168,7 +168,7 @@ fun FreeSpaceScreen(
                     lines = notes,
                     onClick = { viewModel.load() },
                     modifier = Modifier.focusRequester(firstFocus),
-                    icon = if (ready && ui.candidates.isEmpty()) R.drawable.ic_check_circle else R.drawable.ic_storage
+                    icon = if (ready && ui.candidates.isEmpty()) R.drawable.ic_check_circle else R.drawable.ic_free_space
                 ) {
                     ToolAction(stringResource(R.string.tools_refresh), icon = R.drawable.ic_retry) { viewModel.load() }
                 }
