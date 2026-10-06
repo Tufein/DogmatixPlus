@@ -308,8 +308,6 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                             ConsoleFormatter.getConsoleShortName(console.id),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f, fill = false)
                         )
                         when {

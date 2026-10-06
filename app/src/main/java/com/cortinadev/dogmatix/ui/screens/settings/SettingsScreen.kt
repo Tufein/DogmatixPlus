@@ -1524,9 +1524,7 @@ private fun AccentChoice(color: Color, selected: Boolean, onClick: () -> Unit, m
             style = MaterialTheme.typography.labelSmall,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
             color = if (selected) scheme.onSurface else scheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
+            textAlign = TextAlign.Center
         )
     }
 }

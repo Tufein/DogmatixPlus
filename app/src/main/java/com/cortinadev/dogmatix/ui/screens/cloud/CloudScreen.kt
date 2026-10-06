@@ -179,8 +179,6 @@ fun CloudCard(
                 title,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -199,7 +197,7 @@ private fun Pitch(text: String) {
 
 @Composable
 private fun FactLine(text: String, color: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurfaceVariant) {
-    Text(text, style = MaterialTheme.typography.bodySmall.tabular(), color = color, maxLines = 2, overflow = TextOverflow.Ellipsis)
+    Text(text, style = MaterialTheme.typography.bodySmall.tabular(), color = color)
 }
 
 // ---- RomM ---------------------------------------------------------------------------------------

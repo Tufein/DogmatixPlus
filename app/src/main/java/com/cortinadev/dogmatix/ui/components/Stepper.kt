@@ -15,10 +15,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,14 +55,15 @@ fun Stepper(
             },
             contentAlignment = Alignment.Center,
             label = "stepper",
-            modifier = Modifier.width(valueWidth)
+            // valueWidth is a minimum: a longer value (large text, long translation) widens the stepper instead of being cut off.
+            modifier = Modifier.widthIn(min = valueWidth)
         ) { shown ->
-            TruncatedText(
+            Text(
                 shown,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.width(valueWidth)
+                modifier = Modifier.widthIn(min = valueWidth)
             )
         }
         StepButton(R.drawable.ic_chevron_right, buttonSize, onIncrement)

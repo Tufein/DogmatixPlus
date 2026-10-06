@@ -436,33 +436,15 @@ private fun SyncMeter(fraction: Float?, modifier: Modifier = Modifier) {
     )
 }
 
-/** A file that did not sync: two lines of the reason, the whole of it on A / tap. */
+/** A file that did not sync, with the whole reason. */
 @Composable
 private fun SyncErrorRow(error: String) {
-    var expanded by remember(error) { mutableStateOf(false) }
-    val reduce = LocalReduceMotion.current
-    val turn by animateFloatAsState(
-        targetValue = if (expanded) 180f else 0f,
-        animationSpec = Motion.spec(reduce, Motion.MEDIUM),
-        label = "errorChevron"
-    )
     SettingRow(
         icon = R.drawable.ic_error_circle,
         title = stringResource(R.string.save_sync_error_title),
         hint = error,
-        onClick = { expanded = !expanded },
-        modifier = if (reduce) Modifier else Modifier.animateContentSize(animationSpec = tween<IntSize>(Motion.MEDIUM)),
-        hintMaxLines = if (expanded) Int.MAX_VALUE else 2
-    ) {
-        Icon(
-            painterResource(R.drawable.ic_expand_more),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .size(22.dp)
-                .graphicsLayer { rotationZ = turn }
-        )
-    }
+        onClick = {}
+    ) {}
 }
 
 /**
@@ -506,7 +488,7 @@ private fun ConflictRow(conflict: SaveConflict, notSet: String, viewModel: SaveS
             SettingsIconTile(if (conflict.local.kind == SaveKind.STATE) R.drawable.ic_history else R.drawable.ic_save)
             Column(modifier = Modifier.weight(1f)) {
                 Text(kind, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                TruncatedText(conflict.local.path, style = MaterialTheme.typography.bodyLarge)
+                Text(conflict.local.path, style = MaterialTheme.typography.bodyLarge)
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -535,9 +517,7 @@ private fun ConflictRow(conflict: SaveConflict, notSet: String, viewModel: SaveS
         Text(
             listOfNotNull(newer, sizeNote).joinToString(" · "),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -564,15 +544,13 @@ private fun ConflictSide(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Icon(painterResource(icon), contentDescription = null, tint = if (newer) scheme.primary else scheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
-            Text(label, style = MaterialTheme.typography.labelLarge, color = scheme.onSurface, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+            Text(label, style = MaterialTheme.typography.labelLarge, color = scheme.onSurface, modifier = Modifier.weight(1f, fill = false))
             if (newer) Pill(stringResource(R.string.save_sync_v5_newer), tone = PillTone.Success)
         }
         Text(
             "$sizeText · $time",
             style = MaterialTheme.typography.bodySmall.tabular(),
-            color = scheme.onSurfaceVariant,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
+            color = scheme.onSurfaceVariant
         )
         ActionPill(keepLabel, onKeep, tone = if (newer) ActionTone.Accent else ActionTone.Neutral)
     }

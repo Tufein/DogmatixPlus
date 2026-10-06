@@ -53,7 +53,6 @@ import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.ui.components.ActionPill
 import com.cortinadev.dogmatix.ui.components.IconTile
 import com.cortinadev.dogmatix.ui.components.SectionTitle
-import com.cortinadev.dogmatix.ui.components.TruncatedText
 import com.cortinadev.dogmatix.ui.components.focusRing
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.theme.LocalDogmatixTokens
@@ -99,7 +98,7 @@ internal fun SettingsIconTile(icon: Int, modifier: Modifier = Modifier) {
  * so the title column of all rows lines up. A wide control at the end (a stepper, two buttons) that
  * would squeeze the title too much drops under the text instead.
  *
- * @param hintMaxLines lines of [hint]; 0 = one in landscape, two in portrait.
+ * @param hintMaxLines cap on the lines of [hint]; 0 = no cap, the hint wraps in full.
  * @param below extra content under the hint (a progress bar, status pills).
  */
 @Composable
@@ -116,12 +115,8 @@ internal fun SettingRow(
     trailing: @Composable () -> Unit
 ) {
     val source = rememberFocusSource()
-    val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val lines = when {
-        hintMaxLines > 0 -> hintMaxLines
-        landscape -> 1
-        else -> 2
-    }
+    // Settings text is never cut off: the hint wraps in full unless a caller asks for a cap.
+    val lines = if (hintMaxLines > 0) hintMaxLines else Int.MAX_VALUE
     SettingRowLayout(
         modifier = modifier
             .fillMaxWidth()
@@ -142,7 +137,7 @@ internal fun SettingRow(
         leading = { SettingsIconTile(icon) },
         text = {
             Column {
-                TruncatedText(title, style = MaterialTheme.typography.bodyLarge)
+                Text(title, style = MaterialTheme.typography.bodyLarge)
                 hint?.let {
                     Text(
                         it,

@@ -241,7 +241,7 @@ internal fun ToolRow(
         if (leading != null) leading() else icon?.let { IconTile(it, size = 36.dp) }
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TruncatedText(
+                Text(
                     title,
                     style = MaterialTheme.typography.titleMedium,
                     color = scheme.onSurface,
@@ -254,8 +254,6 @@ internal fun ToolRow(
                     it,
                     style = MaterialTheme.typography.bodySmall,
                     color = scheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }

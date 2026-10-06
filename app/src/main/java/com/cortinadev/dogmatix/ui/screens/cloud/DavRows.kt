@@ -118,17 +118,13 @@ internal fun DavRow(
             Text(
                 title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                color = MaterialTheme.colorScheme.onSurface
             )
             if (!hint.isNullOrEmpty()) {
                 Text(
                     hint,
                     style = MaterialTheme.typography.bodySmall,
                     color = if (hintColor == Color.Unspecified) MaterialTheme.colorScheme.onSurfaceVariant else hintColor,
-                    maxLines = 4,
-                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
