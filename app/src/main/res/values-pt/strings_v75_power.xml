@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="power75_battery_title">Pausar com bateria fraca</string>
+    <string name="power75_battery_hint">Sem carregador, os downloads fazem pausa abaixo de %1$d %% e continuam acima de %2$d %%</string>
+    <string name="power75_battery_level_title">Limite da bateria</string>
+    <string name="power75_battery_level_hint">Abaixo deste nível, os downloads fazem pausa enquanto o dispositivo não está a carregar</string>
+    <string name="power75_percent">%1$d %%</string>
+    <string name="power75_heat_title">Pausar quando o dispositivo aquece</string>
+    <string name="power75_heat_hint">Os downloads fazem pausa a partir de 45 °C ou quando o sistema indica sobreaquecimento, e continuam abaixo de 40 °C</string>
+    <string name="power75_wait_battery">À espera: bateria fraca</string>
+    <string name="power75_wait_hot">À espera: dispositivo demasiado quente</string>
+    <string name="power75_wait_battery_short">Bateria fraca</string>
+    <string name="power75_wait_hot_short">Demasiado quente</string>
+</resources>

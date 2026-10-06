@@ -22,7 +22,11 @@ data class DeviceConditions(
     val freeBytes: Long? = null
 )
 
-enum class WaitReason { WIFI, CHARGER, NIGHT, STORAGE, /** The user put the queue on hold. */ HELD }
+enum class WaitReason {
+    WIFI, CHARGER, NIGHT, STORAGE, /** The user put the queue on hold. */ HELD,
+    /** 7.5 power rules ([PowerRules]): battery below the limit off the charger, or the device is hot. */
+    LOW_BATTERY, HOT
+}
 
 object DownloadPolicy {
 

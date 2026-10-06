@@ -38,13 +38,15 @@ import javax.inject.Singleton
  * Holds downloads back until the conditions the user set are met: only on Wi-Fi (an unmetered
  * network), only while charging, only in the night window. Downloads that are already running
  * are not interrupted; those that have not started wait here. "Start now" lets everything that is
- * waiting at that moment go, once.
+ * waiting at that moment go, once. The 7.5 power rules (low battery, too hot) wait here too; the
+ * downloads already running when they kick in are parked and queued again by [PowerHoldService].
  */
 @Singleton
 class DownloadGate @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
-    appSettings: AppSettings
+    appSettings: AppSettings,
+    powerMonitor: PowerMonitor
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -64,8 +66,9 @@ class DownloadGate @Inject constructor(
     private val settings = appSettings
 
     /** What a download that starts now would have to wait for; empty = go. */
-    val waiting: StateFlow<List<WaitReason>> = combine(conditions, device, held) { c, d, h ->
-        DownloadPolicy.waitingFor(c, d) + if (h) listOf(WaitReason.HELD) else emptyList()
+    val waiting: StateFlow<List<WaitReason>> = combine(conditions, device, held, powerMonitor.hold) { c, d, h, p ->
+        // 7.5: low battery / too hot come from [PowerMonitor] (with hysteresis), next to the schedule.
+        DownloadPolicy.waitingFor(c, d) + p.reasons + if (h) listOf(WaitReason.HELD) else emptyList()
     }.stateIn(scope, SharingStarted.Eagerly, emptyList())
 
     /** Holds the queue (running downloads finish, nothing new starts) or lets it go again. */

@@ -167,6 +167,8 @@ fun QueueHeader(
                         WaitReason.NIGHT -> R.string.q5_wait_night to R.drawable.ic_night
                         WaitReason.STORAGE -> R.string.q5_wait_storage to R.drawable.ic_storage
                         WaitReason.HELD -> R.string.q5_wait_held to R.drawable.ic_pause
+                        WaitReason.LOW_BATTERY -> R.string.power75_wait_battery_short to R.drawable.ic_battery
+                        WaitReason.HOT -> R.string.power75_wait_hot_short to R.drawable.ic_thermostat
                     }
                     Pill(stringResource(label), tone = PillTone.Warning, icon = icon)
                 }

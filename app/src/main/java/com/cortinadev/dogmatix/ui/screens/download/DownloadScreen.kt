@@ -105,6 +105,8 @@ fun DownloadScreen(
     val waitNight = stringResource(R.string.wait_night)
     val waitStorage = stringResource(R.string.wait_storage)
     val waitHeld = stringResource(R.string.wait_held)
+    val waitBattery = stringResource(R.string.power75_wait_battery)
+    val waitHot = stringResource(R.string.power75_wait_hot)
     val waitingText = waitingReasons.joinToString(" · ") {
         when (it) {
             WaitReason.WIFI -> waitWifi
@@ -112,6 +114,8 @@ fun DownloadScreen(
             WaitReason.NIGHT -> waitNight
             WaitReason.STORAGE -> waitStorage
             WaitReason.HELD -> waitHeld
+            WaitReason.LOW_BATTERY -> waitBattery
+            WaitReason.HOT -> waitHot
         }
     }
     // The same reasons in two or three words, for the pill on a waiting row.
@@ -120,6 +124,8 @@ fun DownloadScreen(
     val shortNight = stringResource(R.string.q5_wait_night)
     val shortStorage = stringResource(R.string.q5_wait_storage)
     val shortHeld = stringResource(R.string.q5_wait_held)
+    val shortBattery = stringResource(R.string.power75_wait_battery_short)
+    val shortHot = stringResource(R.string.power75_wait_hot_short)
     val waitingShort = waitingReasons.joinToString(" · ") {
         when (it) {
             WaitReason.WIFI -> shortWifi
@@ -127,6 +133,8 @@ fun DownloadScreen(
             WaitReason.NIGHT -> shortNight
             WaitReason.STORAGE -> shortStorage
             WaitReason.HELD -> shortHeld
+            WaitReason.LOW_BATTERY -> shortBattery
+            WaitReason.HOT -> shortHot
         }
     }
     val selection by viewModel.selection.collectAsState()

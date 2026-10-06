@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="power75_battery_title">Pause si la batterie est faible</string>
+    <string name="power75_battery_hint">Hors charge, les téléchargements se mettent en pause sous %1$d %% et reprennent au-dessus de %2$d %%</string>
+    <string name="power75_battery_level_title">Seuil de batterie</string>
+    <string name="power75_battery_level_hint">Sous ce niveau, les téléchargements se mettent en pause tant que l\'appareil ne charge pas</string>
+    <string name="power75_percent">%1$d %%</string>
+    <string name="power75_heat_title">Pause si l\'appareil chauffe</string>
+    <string name="power75_heat_hint">Les téléchargements se mettent en pause dès 45 °C ou si le système signale une surchauffe, et reprennent sous 40 °C</string>
+    <string name="power75_wait_battery">En attente : batterie faible</string>
+    <string name="power75_wait_hot">En attente : appareil trop chaud</string>
+    <string name="power75_wait_battery_short">Batterie faible</string>
+    <string name="power75_wait_hot_short">Trop chaud</string>
+</resources>
