@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="space7_title">Speicher freigeben</string>
+    <string name="space7_subtitle">Spiele, die du nie gespielt hast, die größten zuerst</string>
+    <string name="space7_hint">Finde Spiele, die du nie gespielt hast, und entferne sie, um Platz zurückzugewinnen</string>
+    <plurals name="space7_summary">
+        <item quantity="one">%1$d Spiel nie gespielt · %2$s zu gewinnen</item>
+        <item quantity="other">%1$d Spiele nie gespielt · %2$s zu gewinnen</item>
+    </plurals>
+    <plurals name="space7_summary_nodata">
+        <item quantity="one">%1$d Spiel auf dem Gerät · %2$s</item>
+        <item quantity="other">%1$d Spiele auf dem Gerät · %2$s</item>
+    </plurals>
+    <string name="space7_none_played">Jedes Spiel auf dem Gerät wurde gespielt</string>
+    <string name="space7_none_games">Keine Spiele in deinen Download-Ordnern gefunden</string>
+    <string name="space7_free_now">%1$s frei auf dem Gerät</string>
+    <string name="space7_note_nodata">Keine Spieldaten gefunden (ES-DE ist nicht eingerichtet oder hat noch keine Einträge), daher werden die Spiele nur nach Größe und Alter sortiert.</string>
+    <plurals name="space7_note_unknown">
+        <item quantity="one">%1$d Spiel hat keine Spieldaten (ES-DE hat keine Einträge für seine Konsole) und wird nach Größe und Alter sortiert.</item>
+        <item quantity="other">%1$d Spiele haben keine Spieldaten (ES-DE hat keine Einträge für ihre Konsole) und werden nach Größe und Alter sortiert.</item>
+    </plurals>
+    <plurals name="space7_note_played">
+        <item quantity="one">%1$d gespieltes Spiel wird ausgelassen (%2$s).</item>
+        <item quantity="other">%1$d gespielte Spiele werden ausgelassen (%2$s).</item>
+    </plurals>
+    <string name="space7_note_protected">Favoriten, Spiele in einer Sammlung und Spiele mit RomM-Spielstand oder Erfolg sind als Geschützt markiert. Die Schnellaktionen wählen sie nie aus.</string>
+    <string name="space7_note_no_saves">RomM-Spielstände wurden nicht geprüft: RomM ist nicht eingerichtet oder die Spieleliste ist noch nicht geladen.</string>
+    <string name="space7_note_no_ach">Erfolge wurden nicht geprüft: RetroAchievements ist nicht eingerichtet.</string>
+    <string name="space7_filter_all">Alle Konsolen</string>
+    <string name="space7_filter_chip">%1$s · %2$d</string>
+    <string name="space7_free_prefix">Freigeben</string>
+    <string name="space7_free_value">%1$d GB</string>
+    <string name="space7_select_biggest">Größte auswählen</string>
+    <string name="space7_select_all">Alle auswählen</string>
+    <string name="space7_clear">Auswahl aufheben</string>
+    <string name="space7_pick_short">Ohne die geschützten Spiele lassen sich nur %1$s freigeben</string>
+    <string name="space7_protected">Geschützt</string>
+    <string name="space7_protected_note">Geschützt: %1$s</string>
+    <string name="space7_why_favourite">Favorit</string>
+    <string name="space7_why_collection">in einer Sammlung</string>
+    <string name="space7_why_save">hat einen RomM-Spielstand</string>
+    <string name="space7_why_achievement">hat Erfolge</string>
+    <string name="space7_no_data">Keine Spieldaten</string>
+    <string name="space7_added">Hinzugefügt %1$s</string>
+    <plurals name="space7_selected">
+        <item quantity="one">%1$d Spiel ausgewählt · %2$s</item>
+        <item quantity="other">%1$d Spiele ausgewählt · %2$s</item>
+    </plurals>
+    <plurals name="space7_selected_protected">
+        <item quantity="one">%1$d davon ist geschützt</item>
+        <item quantity="other">%1$d davon sind geschützt</item>
+    </plurals>
+    <string name="space7_remove">Entfernen</string>
+    <string name="space7_remove_wish">Entfernen und auf die Wunschliste setzen</string>
+    <string name="space7_confirm_title">Diese Spiele entfernen?</string>
+    <plurals name="space7_confirm_message">
+        <item quantity="one">%1$d Spiel (%2$s) wird aus deinen Bibliotheksordnern gelöscht. Das lässt sich nicht rückgängig machen.</item>
+        <item quantity="other">%1$d Spiele (%2$s) werden aus deinen Bibliotheksordnern gelöscht. Das lässt sich nicht rückgängig machen.</item>
+    </plurals>
+    <plurals name="space7_confirm_wish">
+        <item quantity="one">Es kommt auf deine Wunschliste, damit du es später wieder laden kannst.</item>
+        <item quantity="other">Sie kommen auf deine Wunschliste, damit du sie später wieder laden kannst.</item>
+    </plurals>
+    <plurals name="space7_confirm_protected">
+        <item quantity="one">%1$d davon ist geschützt (Favorit, Sammlung, RomM-Spielstand oder Erfolg).</item>
+        <item quantity="other">%1$d davon sind geschützt (Favorit, Sammlung, RomM-Spielstand oder Erfolg).</item>
+    </plurals>
+    <string name="space7_more_files">… und %1$d weitere Dateien</string>
+    <plurals name="space7_done">
+        <item quantity="one">%1$d Spiel entfernt, %2$s freigegeben</item>
+        <item quantity="other">%1$d Spiele entfernt, %2$s freigegeben</item>
+    </plurals>
+    <plurals name="space7_done_wish">
+        <item quantity="one">%1$d Spiel auf die Wunschliste gesetzt</item>
+        <item quantity="other">%1$d Spiele auf die Wunschliste gesetzt</item>
+    </plurals>
+    <plurals name="space7_failed">
+        <item quantity="one">%1$d Spiel konnte nicht vollständig entfernt werden</item>
+        <item quantity="other">%1$d Spiele konnten nicht vollständig entfernt werden</item>
+    </plurals>
+    <string name="space7_open_wishlist">Wunschliste öffnen</string>
+    <string name="space7_removing">Wird entfernt …</string>
+    <string name="space7_pad_biggest">Größte</string>
+</resources>

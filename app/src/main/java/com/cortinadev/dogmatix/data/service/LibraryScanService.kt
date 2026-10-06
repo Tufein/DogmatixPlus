@@ -182,6 +182,22 @@ class LibraryScanService @Inject constructor(
      * only requested: it walks the whole library and must not hold up the caller.
      */
     suspend fun delete(entry: GameEntry): Int = withContext(NonCancellable + Dispatchers.IO) {
+        val removed = removeFiles(entry)
+        if (removed > 0) libraryIndexService.requestRefresh()
+        removed
+    }
+
+    /**
+     * [delete] for several games: the same removal, one owned-index refresh at the end instead of
+     * one per game. Returns how many files each entry lost, in the order of [entries].
+     */
+    suspend fun deleteAll(entries: List<GameEntry>): List<Int> = withContext(NonCancellable + Dispatchers.IO) {
+        val removed = entries.map { removeFiles(it) }
+        if (removed.any { it > 0 }) libraryIndexService.requestRefresh()
+        removed
+    }
+
+    private fun removeFiles(entry: GameEntry): Int {
         val removed = entry.files.count { DiskScanner.delete(context, it.uri.toUri()) }
         if (entry.isFolderGame && removed == entry.files.size) {
             entry.files.first().dirUri.takeIf { it.isNotEmpty() }?.toUri()?.let { dirUri ->
@@ -191,8 +207,7 @@ class LibraryScanService @Inject constructor(
                 if (dir != null && DiskScanner.listOrNull(context, dir)?.isEmpty() == true) DiskScanner.delete(context, dirUri)
             }
         }
-        if (removed > 0) libraryIndexService.requestRefresh()
-        removed
+        return removed
     }
 
     /** State of one disk walk: every folder and file is emitted once, whatever path led to it. */
@@ -238,7 +253,8 @@ class LibraryScanService @Inject constructor(
                 inSubfolder = inSubfolder,
                 level = level,
                 rootId = rootId,
-                dirUri = DiskScanner.uriOf(dir).toString()
+                dirUri = DiskScanner.uriOf(dir).toString(),
+                lastModified = child.lastModified
             )
         }
     }

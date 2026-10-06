@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="space7_title">Libera spazio</string>
+    <string name="space7_subtitle">I giochi che non hai mai giocato, dal più grande</string>
+    <string name="space7_hint">Trova i giochi mai giocati e rimuovili per recuperare spazio</string>
+    <plurals name="space7_summary">
+        <item quantity="one">%1$d gioco mai giocato · %2$s da recuperare</item>
+        <item quantity="other">%1$d giochi mai giocati · %2$s da recuperare</item>
+    </plurals>
+    <plurals name="space7_summary_nodata">
+        <item quantity="one">%1$d gioco sul dispositivo · %2$s</item>
+        <item quantity="other">%1$d giochi sul dispositivo · %2$s</item>
+    </plurals>
+    <string name="space7_none_played">Tutti i giochi sul dispositivo sono stati giocati</string>
+    <string name="space7_none_games">Nessun gioco trovato nelle tue cartelle di download</string>
+    <string name="space7_free_now">%1$s liberi sul dispositivo</string>
+    <string name="space7_note_nodata">Nessun dato di gioco trovato (ES-DE non è configurato o non ha ancora registrazioni), quindi i giochi sono ordinati solo per dimensione ed età.</string>
+    <plurals name="space7_note_unknown">
+        <item quantity="one">%1$d gioco non ha dati di gioco (ES-DE non ha registrazioni per la sua console), quindi è ordinato per dimensione ed età.</item>
+        <item quantity="other">%1$d giochi non hanno dati di gioco (ES-DE non ha registrazioni per la loro console), quindi sono ordinati per dimensione ed età.</item>
+    </plurals>
+    <plurals name="space7_note_played">
+        <item quantity="one">%1$d gioco già giocato è escluso (%2$s).</item>
+        <item quantity="other">%1$d giochi già giocati sono esclusi (%2$s).</item>
+    </plurals>
+    <string name="space7_note_protected">I preferiti, i giochi in una collezione e i giochi con un salvataggio RomM o un obiettivo sono segnati come Protetti. Le azioni rapide non li scelgono mai.</string>
+    <string name="space7_note_no_saves">I salvataggi RomM non sono stati controllati: RomM non è configurato o la sua lista di giochi non è ancora caricata.</string>
+    <string name="space7_note_no_ach">Gli obiettivi non sono stati controllati: RetroAchievements non è configurato.</string>
+    <string name="space7_filter_all">Tutte le console</string>
+    <string name="space7_filter_chip">%1$s · %2$d</string>
+    <string name="space7_free_prefix">Libera</string>
+    <string name="space7_free_value">%1$d GB</string>
+    <string name="space7_select_biggest">Scegli i più grandi</string>
+    <string name="space7_select_all">Seleziona tutto</string>
+    <string name="space7_clear">Deseleziona</string>
+    <string name="space7_pick_short">Senza i giochi protetti si possono liberare solo %1$s</string>
+    <string name="space7_protected">Protetto</string>
+    <string name="space7_protected_note">Protetto: %1$s</string>
+    <string name="space7_why_favourite">preferito</string>
+    <string name="space7_why_collection">in una collezione</string>
+    <string name="space7_why_save">ha un salvataggio RomM</string>
+    <string name="space7_why_achievement">ha obiettivi</string>
+    <string name="space7_no_data">Nessun dato di gioco</string>
+    <string name="space7_added">Aggiunto %1$s</string>
+    <plurals name="space7_selected">
+        <item quantity="one">%1$d gioco selezionato · %2$s</item>
+        <item quantity="other">%1$d giochi selezionati · %2$s</item>
+    </plurals>
+    <plurals name="space7_selected_protected">
+        <item quantity="one">%1$d è protetto</item>
+        <item quantity="other">%1$d sono protetti</item>
+    </plurals>
+    <string name="space7_remove">Rimuovi</string>
+    <string name="space7_remove_wish">Rimuovi e aggiungi alla lista dei desideri</string>
+    <string name="space7_confirm_title">Rimuovere questi giochi?</string>
+    <plurals name="space7_confirm_message">
+        <item quantity="one">%1$d gioco (%2$s) verrà eliminato dalle tue cartelle della libreria. L\'azione non si può annullare.</item>
+        <item quantity="other">%1$d giochi (%2$s) verranno eliminati dalle tue cartelle della libreria. L\'azione non si può annullare.</item>
+    </plurals>
+    <plurals name="space7_confirm_wish">
+        <item quantity="one">Verrà aggiunto alla tua lista dei desideri, così potrai riscaricarlo più tardi.</item>
+        <item quantity="other">Verranno aggiunti alla tua lista dei desideri, così potrai riscaricarli più tardi.</item>
+    </plurals>
+    <plurals name="space7_confirm_protected">
+        <item quantity="one">%1$d è protetto (preferito, collezione, salvataggio RomM o obiettivo).</item>
+        <item quantity="other">%1$d sono protetti (preferito, collezione, salvataggio RomM o obiettivo).</item>
+    </plurals>
+    <string name="space7_more_files">… e altri %1$d file</string>
+    <plurals name="space7_done">
+        <item quantity="one">%1$d gioco rimosso, %2$s liberati</item>
+        <item quantity="other">%1$d giochi rimossi, %2$s liberati</item>
+    </plurals>
+    <plurals name="space7_done_wish">
+        <item quantity="one">%1$d gioco aggiunto alla lista dei desideri</item>
+        <item quantity="other">%1$d giochi aggiunti alla lista dei desideri</item>
+    </plurals>
+    <plurals name="space7_failed">
+        <item quantity="one">%1$d gioco non è stato rimosso del tutto</item>
+        <item quantity="other">%1$d giochi non sono stati rimossi del tutto</item>
+    </plurals>
+    <string name="space7_open_wishlist">Apri la lista dei desideri</string>
+    <string name="space7_removing">Rimozione…</string>
+    <string name="space7_pad_biggest">Più grandi</string>
+</resources>
