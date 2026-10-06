@@ -76,7 +76,9 @@ class GamePageViewModel @Inject constructor(
         _phase.value = GamePagePhase.LOADING
         _details.value = null
         job = viewModelScope.launch {
+            // findByFileNames may fall back to another console's row with the same name: only this console's counts.
             val item = runCatching { repository.findByFileNames(listOf(fileName)) { consoleId }[fileName] }.getOrNull()
+                ?.takeIf { it.file.consoleId == consoleId }
             if (item == null) { _phase.value = GamePagePhase.MISSING; return@launch }
             _details.value = DetailsState(item, loading = true)
             _phase.value = GamePagePhase.READY

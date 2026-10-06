@@ -16,6 +16,7 @@ import com.cortinadev.dogmatix.util.TvMode
 import com.cortinadev.dogmatix.util.TvModeSetting
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -26,8 +27,8 @@ class TvModeSettingViewModel @Inject constructor(private val settings: TvModeSet
     val mode: StateFlow<TvModeSetting> = settings.mode.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TvModeSetting.AUTO)
 
     fun shift(delta: Int) {
-        val next = TvMode.shift(mode.value, delta)
-        viewModelScope.launch { settings.setMode(next) }
+        // The stored value, not the StateFlow's AUTO placeholder before DataStore has answered.
+        viewModelScope.launch { settings.setMode(TvMode.shift(settings.mode.first(), delta)) }
     }
 }
 

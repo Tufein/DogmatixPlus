@@ -541,7 +541,7 @@ fun HomeScreen(
     ) + filtersKey + section
     val legendDetails = listOf(
         LegendEntry("A", stringResource(R.string.pad_select)), LegendEntry("B", stringResource(R.string.pad_close)),
-        selectLegendEntry(R.string.pad_favourite), LegendEntry("▲ ▼", stringResource(R.string.pad_scroll))
+        LegendEntry("SELECT", stringResource(R.string.pad_favourite)), LegendEntry("▲ ▼", stringResource(R.string.pad_scroll))
     )
     val legendSearch = listOf(
         LegendEntry("A", stringResource(R.string.pad_keyboard)), LegendEntry("B", stringResource(R.string.pad_close_keyboard))

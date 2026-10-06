@@ -46,6 +46,7 @@ import com.cortinadev.dogmatix.ui.components.ActionPill
 import com.cortinadev.dogmatix.ui.components.EmptyState
 import com.cortinadev.dogmatix.ui.components.LegendEntry
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
+import com.cortinadev.dogmatix.ui.navigation.switchToTab
 import com.cortinadev.dogmatix.ui.screens.home.components.SearchField
 import com.cortinadev.dogmatix.ui.screens.settings.SettingsJump
 import com.cortinadev.dogmatix.ui.screens.tools.ConsoleTile
@@ -165,11 +166,7 @@ fun SearchAllScreen(navController: NavController, viewModel: SearchAllViewModel 
         val tab = NavRoutes.tabs.firstOrNull { it.route == target.route }
         target.rowKey?.let(SettingsJump::request)
         if (tab != null) {
-            navController.navigate(tab.route) {
-                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
-            }
+            navController.switchToTab(tab.route)
         } else {
             navController.navigate(target.route) { launchSingleTop = true }
         }

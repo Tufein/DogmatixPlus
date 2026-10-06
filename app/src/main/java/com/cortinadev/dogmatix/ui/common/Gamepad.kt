@@ -180,9 +180,22 @@ object Gamepad {
     /** Keys whose down the menu ate: their up is swallowed too, even after the menu has closed. */
     private val menuSwallowUps = mutableSetOf<Int>()
 
+    /** Set by [com.cortinadev.dogmatix.ui.components.QuickMenuOverlay] while it is on screen; no overlay (onboarding), no menu. */
+    @Volatile var quickMenuHosted = false
+
+    /** Mirrors TV mode for the key handling, which runs outside the composition: remote shortcuts only apply there. */
+    @Volatile var tvModeActive = false
+
     fun openQuickMenu() {
+        if (!quickMenuHosted) return
         quickMenuStick.value = null
         quickMenuOpen.value = true
+    }
+
+    /** The window lost focus (a dialog, another app): a SELECT held now never sees its release here. */
+    fun cancelSelectHold() {
+        mainHandler.removeCallbacks(holdCheck)
+        selectHold.cancel()
     }
 
     fun closeQuickMenu() { quickMenuOpen.value = false }
@@ -244,7 +257,7 @@ object Gamepad {
      * act only in the library (details, search): elsewhere X and Y do things a stray remote key
      * should not (X deletes in Downloads).
      */
-    private fun remoteShortcut(keyCode: Int): GamepadButton? = when (TvMode.remoteKey(keyCode)) {
+    private fun remoteShortcut(keyCode: Int): GamepadButton? = if (!tvModeActive) null else when (TvMode.remoteKey(keyCode)) {
         RemoteKey.PREV_SECTION -> GamepadButton.PREV_TAB
         RemoteKey.NEXT_SECTION -> GamepadButton.NEXT_TAB
         RemoteKey.DETAILS -> GamepadButton.X.takeIf { currentRoute == "home" }

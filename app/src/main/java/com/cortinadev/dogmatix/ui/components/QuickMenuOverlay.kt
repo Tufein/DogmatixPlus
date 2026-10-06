@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -103,6 +104,10 @@ fun QuickMenuOverlay(
     onTools: () -> Unit,
     onSettings: () -> Unit
 ) {
+    DisposableEffect(Unit) {
+        Gamepad.quickMenuHosted = true
+        onDispose { Gamepad.quickMenuHosted = false; Gamepad.closeQuickMenu() }
+    }
     val open by Gamepad.quickMenuOpen.collectAsState()
     if (!open) return
 

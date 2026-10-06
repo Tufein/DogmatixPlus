@@ -290,7 +290,7 @@ private fun GamePageContent(
             onRomm = onRomm,
             isLandscape = isLandscape,
             onBack = onBack,
-            backModifier = if (primary == GamePageModel.Primary.DOWNLOADING) Modifier.focusRequester(firstFocus) else Modifier
+            backModifier = Modifier
         )
     }
     val actions: @Composable () -> Unit = {
@@ -300,19 +300,20 @@ private fun GamePageContent(
             itemVerticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         ) {
-            when (primary) {
-                GamePageModel.Primary.DOWNLOAD -> PrimaryButton(
-                    stringResource(R.string.details_download), onClick = { download(item, null) },
-                    modifier = Modifier.focusRequester(firstFocus), icon = R.drawable.ic_download
-                )
-                GamePageModel.Primary.DOWNLOAD_AGAIN -> PrimaryButton(
-                    stringResource(R.string.owned_download_again), onClick = { download(item, null) },
-                    modifier = Modifier.focusRequester(firstFocus), icon = R.drawable.ic_download
-                )
-                GamePageModel.Primary.DOWNLOADING -> PrimaryButton(
-                    stringResource(R.string.page8_downloading), onClick = {}, icon = R.drawable.ic_downloading, enabled = false
-                )
-            }
+            // One button whose label changes, so focus stays on it when a download starts.
+            val busy = primary == GamePageModel.Primary.DOWNLOADING
+            PrimaryButton(
+                stringResource(
+                    when (primary) {
+                        GamePageModel.Primary.DOWNLOAD -> R.string.details_download
+                        GamePageModel.Primary.DOWNLOAD_AGAIN -> R.string.owned_download_again
+                        GamePageModel.Primary.DOWNLOADING -> R.string.page8_downloading
+                    }
+                ),
+                onClick = { if (!busy) download(item, null) },
+                modifier = Modifier.focusRequester(firstFocus),
+                icon = if (busy) R.drawable.ic_downloading else R.drawable.ic_download
+            )
             val switch = state.switch
             val best = state.best
             GamePageModel.actions(

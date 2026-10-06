@@ -1,5 +1,7 @@
 package com.cortinadev.dogmatix.ui.navigation
 
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.cortinadev.dogmatix.R
 
 sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
@@ -60,5 +62,22 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
         /** The four sections shown as tabs; Contact, RomM and the library tools are reached from Settings. */
         val tabs by lazy { listOf(Home, Downloads, Sources, Settings) }
         val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions + FreeSpace + SearchAll }
+    }
+}
+
+/**
+ * Switches to a section tab. A tab already in the back stack is popped back to: navigate() with
+ * restoreState would restore the very stack it has just saved and leave the user where they were.
+ */
+fun NavController.switchToTab(route: String) {
+    if (currentDestination?.route == route) return
+    if (runCatching { getBackStackEntry(route) }.isSuccess) {
+        popBackStack(route, inclusive = false)
+        return
+    }
+    navigate(route) {
+        popUpTo(graph.findStartDestination().id) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
     }
 }

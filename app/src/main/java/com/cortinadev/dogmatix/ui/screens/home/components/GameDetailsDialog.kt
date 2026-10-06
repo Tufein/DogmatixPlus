@@ -207,7 +207,8 @@ fun GameDetailsDialog(
                     when (event.key) {
                         Key.ButtonX -> { onDismiss(); true }
                         // The dialog is its own window, so Select never reaches the Activity's gamepad bus.
-                        Key.ButtonSelect, Key.ButtonThumbLeft -> { onToggleFavourite(); true }
+                        // Once per press: holding it must not flip the favourite on every key repeat.
+                        Key.ButtonSelect, Key.ButtonThumbLeft -> { if (event.nativeKeyEvent.repeatCount == 0) onToggleFavourite(); true }
                         // Focus first (the cloud sections have rows to reach); where it cannot move, ▲ ▼ scroll the text.
                         Key.DirectionUp ->
                             focusManager.moveFocus(FocusDirection.Up) ||

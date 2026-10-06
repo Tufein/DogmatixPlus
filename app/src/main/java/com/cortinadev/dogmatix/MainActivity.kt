@@ -110,6 +110,7 @@ import com.cortinadev.dogmatix.ui.components.PortraitHeader
 import com.cortinadev.dogmatix.ui.components.TopTabs
 import com.cortinadev.dogmatix.ui.components.legendFor
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
+import com.cortinadev.dogmatix.ui.navigation.switchToTab
 import com.cortinadev.dogmatix.ui.screens.contact.ContactScreen
 import com.cortinadev.dogmatix.ui.screens.download.DownloadScreen
 import com.cortinadev.dogmatix.ui.screens.download.DownloadViewModel
@@ -325,7 +326,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) hideSystemBars()
+        if (hasFocus) hideSystemBars() else Gamepad.cancelSelectHold()
     }
 
     /** Full-screen: status and navigation bars stay hidden; a swipe from the edge shows them briefly. */
@@ -420,7 +421,9 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
     val currentRoute = navBackStackEntry?.destination?.route ?: NavRoutes.Home.route
 
     Gamepad.currentRoute = currentRoute
-    SecondScreenState.setRoute(currentRoute)   // the second screen shows its downloads dashboard away from the library
+    SecondScreenState.setRoute(tabRouteFor(currentRoute))   // the second screen shows its downloads dashboard away from the library (a game page counts as library)
+    val tvActive = LocalTvMode.current
+    SideEffect { Gamepad.tvModeActive = tvActive }
     // A deep link lands on the Library tab; HomeViewModel picks the filters up from the holder.
     val pendingVersion by pendingFilters.version.collectAsState()
     LaunchedEffect(pendingVersion) {
@@ -657,10 +660,4 @@ private fun NavController.healthFix(fix: HealthFix) {
     navigate(route.route) { launchSingleTop = true }
 }
 
-private fun NavController.switchTo(route: NavRoutes) {
-    navigate(route.route) {
-        popUpTo(graph.findStartDestination().id) { saveState = true }
-        launchSingleTop = true
-        restoreState = true
-    }
-}
+private fun NavController.switchTo(route: NavRoutes) = switchToTab(route.route)
