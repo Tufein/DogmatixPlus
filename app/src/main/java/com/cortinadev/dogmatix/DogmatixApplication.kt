@@ -12,6 +12,7 @@ import com.cortinadev.dogmatix.data.repository.WishlistRepository
 import com.cortinadev.dogmatix.data.service.AppShortcutService
 import com.cortinadev.dogmatix.data.service.AutoBackupScheduler
 import com.cortinadev.dogmatix.data.service.AutoScanScheduler
+import com.cortinadev.dogmatix.data.service.OfflineCollectionsService
 import com.cortinadev.dogmatix.data.service.BandwidthLimiter
 import com.cortinadev.dogmatix.data.service.DownloadLog
 import com.cortinadev.dogmatix.data.service.PostDownloadService
@@ -80,6 +81,10 @@ class DogmatixApplication : Application(), ImageLoaderFactory {
     /** Injected so the background source scan follows its settings from the start. */
     @Inject
     lateinit var autoScanScheduler: AutoScanScheduler
+
+    /** Injected so collections kept on the device are looked at after every scan from the start. */
+    @Inject
+    lateinit var offlineCollectionsService: OfflineCollectionsService
 
     /** Injected so the speed limit (and its night exception) applies from the first download. */
     @Inject

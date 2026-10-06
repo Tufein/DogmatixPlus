@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="offline7_switch_title">Auf diesem Gerät behalten</string>
+    <string name="offline7_switch_hint">Lädt die Spiele dieser Sammlung, die deine Quellen listen und die dieses Gerät noch nicht hat.</string>
+    <string name="offline7_status_running">Suche nach Spielen zum Laden…</string>
+    <string name="offline7_status_checking">Sammlung wird geprüft…</string>
+    <string name="offline7_status_count">%1$d von %2$d auf diesem Gerät</string>
+    <string name="offline7_status_queued">%1$d in der Warteschlange</string>
+    <string name="offline7_status_fetch">%1$d jetzt zu laden</string>
+    <string name="offline7_status_space">%1$d warten auf Speicherplatz</string>
+    <string name="offline7_status_cap">%1$d beim nächsten Durchlauf</string>
+    <string name="offline7_status_not_listed">%1$d nicht in deinen Quellen</string>
+    <string name="offline7_section_title">Auf dem Gerät gehalten</string>
+    <string name="offline7_section_hint">Spiele einer eingeschalteten Sammlung werden nach jedem Scan geladen, einige auf einmal. Es wird nie etwas von selbst gelöscht.</string>
+    <string name="offline7_fetch_now">Jetzt laden</string>
+    <string name="offline7_last_none">Noch nichts geladen. Schalte eine Sammlung ein oder tippe auf Jetzt laden.</string>
+    <string name="offline7_last_line">Letzter Durchlauf %1$s · %2$s</string>
+    <string name="offline7_no_folder">Es ist kein Download-Ordner festgelegt, daher kann nichts geladen werden. Wähle einen in den Einstellungen.</string>
+    <string name="offline7_cap_title">Spiele pro Durchlauf</string>
+    <string name="offline7_cap_hint">Die höchste Zahl an Spielen, die auf einmal eingereiht werden, damit eine große Sammlung deine Warteschlange nie überflutet.</string>
+    <string name="offline7_wifi_title">Nur im WLAN</string>
+    <string name="offline7_wifi_hint">Eingereihte Spiele warten auf ein ungemessenes Netz. Deine Download-Regeln und -Bedingungen gelten weiterhin.</string>
+    <string name="offline7_review_title">Nicht mehr in der Sammlung</string>
+    <string name="offline7_review_hint">Diese Spiele wurden für eine Sammlung geladen und sind inzwischen nicht mehr darin. Sie liegen noch auf diesem Gerät und bleiben, bis du sie entfernst.</string>
+    <string name="offline7_review_from">Aus %1$s</string>
+    <string name="offline7_review_keep">Behalten</string>
+    <string name="offline7_review_remove">Entfernen</string>
+    <string name="offline7_review_remove_all">Alle entfernen (%1$d)</string>
+    <string name="offline7_review_keep_all">Alle behalten</string>
+    <string name="offline7_confirm_nothing">Diese Spiele sind nicht mehr auf diesem Gerät, sie verschwinden nur aus dieser Liste.</string>
+    <string name="offline7_confirm_drop">Aus Liste entfernen</string>
+    <string name="offline7_confirm_delete">Dateien löschen</string>
+    <string name="offline7_notify_space_title">Nicht genug Speicher für deine Sammlungen</string>
+    <string name="offline7_notify_text">Öffne Downloads, um sie zu verfolgen.</string>
+    <plurals name="offline7_last_queued">
+        <item quantity="one">%1$d Spiel eingereiht</item>
+        <item quantity="other">%1$d Spiele eingereiht</item>
+    </plurals>
+    <plurals name="offline7_notify_queued">
+        <item quantity="one">%1$d Spiel für deine Sammlungen eingereiht</item>
+        <item quantity="other">%1$d Spiele für deine Sammlungen eingereiht</item>
+    </plurals>
+    <plurals name="offline7_notify_space">
+        <item quantity="one">%1$d Spiel passt nicht; etwa %2$s mehr freier Speicher nötig</item>
+        <item quantity="other">%1$d Spiele passen nicht; etwa %2$s mehr freier Speicher nötig</item>
+    </plurals>
+    <plurals name="offline7_notify_more">
+        <item quantity="one">%1$d weiteres Spiel folgt beim nächsten Durchlauf</item>
+        <item quantity="other">%1$d weitere Spiele folgen beim nächsten Durchlauf</item>
+    </plurals>
+    <plurals name="offline7_confirm_title">
+        <item quantity="one">%1$d Spiel von diesem Gerät entfernen?</item>
+        <item quantity="other">%1$d Spiele von diesem Gerät entfernen?</item>
+    </plurals>
+    <plurals name="offline7_confirm_message">
+        <item quantity="one">Dabei wird %1$d Datei von diesem Gerät gelöscht (%2$s):</item>
+        <item quantity="other">Dabei werden %1$d Dateien von diesem Gerät gelöscht (%2$s):</item>
+    </plurals>
+    <plurals name="offline7_confirm_more">
+        <item quantity="one">… und %1$d weitere Datei</item>
+        <item quantity="other">… und %1$d weitere Dateien</item>
+    </plurals>
+    <plurals name="offline7_confirm_absent">
+        <item quantity="one">%1$d Spiel ist nicht mehr auf diesem Gerät und verschwindet nur aus dieser Liste.</item>
+        <item quantity="other">%1$d Spiele sind nicht mehr auf diesem Gerät und verschwinden nur aus dieser Liste.</item>
+    </plurals>
+    <plurals name="offline7_removed">
+        <item quantity="one">%1$d Spiel von diesem Gerät entfernt</item>
+        <item quantity="other">%1$d Spiele von diesem Gerät entfernt</item>
+    </plurals>
+</resources>

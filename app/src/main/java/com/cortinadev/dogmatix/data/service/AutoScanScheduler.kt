@@ -85,6 +85,7 @@ interface AutoScanJobEntryPoint {
     fun scanService(): SourceScanService
     fun appSettings(): AppSettings
     fun settingsRepository(): SettingsRepository
+    fun offlineCollections(): OfflineCollectionsService
 }
 
 /** One wake-up of the background scan: scans when due, and says what it found. */
@@ -110,6 +111,8 @@ class AutoScanJobService : JobService() {
                         settings.setAutoScanLast(summary.at)
                         Log.i("AutoScanJobService", "Background scan: $summary")
                         if (summary.newFiles > 0 || summary.failed > 0) notify(summary)
+                        // 7.0: collections kept on the device fetch what the scan brought in (waited for here, so the job stays alive).
+                        entry.offlineCollections().run(OfflineCollectionsService.Trigger.AUTO)
                     }
                 }
             }.onFailure { Log.w("AutoScanJobService", "Background scan failed: ${it.message}") }

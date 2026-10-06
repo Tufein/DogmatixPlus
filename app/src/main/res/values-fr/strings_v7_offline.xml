@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="offline7_switch_title">Garder sur cet appareil</string>
+    <string name="offline7_switch_hint">Récupère les jeux de cette collection que vos sources listent et que cet appareil n\'a pas encore.</string>
+    <string name="offline7_status_running">Recherche des jeux à récupérer…</string>
+    <string name="offline7_status_checking">Vérification de la collection…</string>
+    <string name="offline7_status_count">%1$d sur %2$d sur cet appareil</string>
+    <string name="offline7_status_queued">%1$d dans la file</string>
+    <string name="offline7_status_fetch">%1$d à récupérer maintenant</string>
+    <string name="offline7_status_space">%1$d en attente d\'espace</string>
+    <string name="offline7_status_cap">%1$d au prochain passage</string>
+    <string name="offline7_status_not_listed">%1$d absents de vos sources</string>
+    <string name="offline7_section_title">Gardées sur cet appareil</string>
+    <string name="offline7_section_hint">Les jeux d\'une collection activée sont récupérés après chaque analyse, quelques-uns à la fois. Rien n\'est jamais supprimé automatiquement.</string>
+    <string name="offline7_fetch_now">Récupérer maintenant</string>
+    <string name="offline7_last_none">Rien récupéré pour l\'instant. Activez une collection ou touchez Récupérer maintenant.</string>
+    <string name="offline7_last_line">Dernier passage %1$s · %2$s</string>
+    <string name="offline7_no_folder">Aucun dossier de téléchargement n\'est défini, rien ne peut donc être récupéré. Choisissez-en un dans les réglages.</string>
+    <string name="offline7_cap_title">Jeux par passage</string>
+    <string name="offline7_cap_hint">Le nombre maximal de jeux mis en file d\'un coup, pour qu\'une grande collection ne submerge jamais votre file.</string>
+    <string name="offline7_wifi_title">Wi-Fi uniquement</string>
+    <string name="offline7_wifi_hint">Les jeux en file attendent un réseau non facturé à l\'usage. Vos règles et conditions de téléchargement s\'appliquent toujours.</string>
+    <string name="offline7_review_title">Ne sont plus dans la collection</string>
+    <string name="offline7_review_hint">Ces jeux ont été récupérés pour une collection et n\'en font plus partie. Ils sont toujours sur cet appareil et y restent jusqu\'à ce que vous les retiriez.</string>
+    <string name="offline7_review_from">Depuis %1$s</string>
+    <string name="offline7_review_keep">Garder</string>
+    <string name="offline7_review_remove">Retirer</string>
+    <string name="offline7_review_remove_all">Tout retirer (%1$d)</string>
+    <string name="offline7_review_keep_all">Tout garder</string>
+    <string name="offline7_confirm_nothing">Ces jeux ne sont plus sur cet appareil, ils quittent seulement cette liste.</string>
+    <string name="offline7_confirm_drop">Retirer de la liste</string>
+    <string name="offline7_confirm_delete">Supprimer les fichiers</string>
+    <string name="offline7_notify_space_title">Pas assez d\'espace pour vos collections</string>
+    <string name="offline7_notify_text">Ouvrez Téléchargements pour les suivre.</string>
+    <plurals name="offline7_last_queued">
+        <item quantity="one">%1$d jeu mis en file</item>
+        <item quantity="other">%1$d jeux mis en file</item>
+    </plurals>
+    <plurals name="offline7_notify_queued">
+        <item quantity="one">%1$d jeu mis en file pour vos collections</item>
+        <item quantity="other">%1$d jeux mis en file pour vos collections</item>
+    </plurals>
+    <plurals name="offline7_notify_space">
+        <item quantity="one">%1$d jeu ne tient pas ; environ %2$s d\'espace libre en plus nécessaires</item>
+        <item quantity="other">%1$d jeux ne tiennent pas ; environ %2$s d\'espace libre en plus nécessaires</item>
+    </plurals>
+    <plurals name="offline7_notify_more">
+        <item quantity="one">%1$d jeu de plus au prochain passage</item>
+        <item quantity="other">%1$d jeux de plus au prochain passage</item>
+    </plurals>
+    <plurals name="offline7_confirm_title">
+        <item quantity="one">Retirer %1$d jeu de cet appareil ?</item>
+        <item quantity="other">Retirer %1$d jeux de cet appareil ?</item>
+    </plurals>
+    <plurals name="offline7_confirm_message">
+        <item quantity="one">Cela supprime %1$d fichier de cet appareil (%2$s) :</item>
+        <item quantity="other">Cela supprime %1$d fichiers de cet appareil (%2$s) :</item>
+    </plurals>
+    <plurals name="offline7_confirm_more">
+        <item quantity="one">… et %1$d fichier de plus</item>
+        <item quantity="other">… et %1$d fichiers de plus</item>
+    </plurals>
+    <plurals name="offline7_confirm_absent">
+        <item quantity="one">%1$d jeu n\'est plus sur cet appareil et quitte seulement cette liste.</item>
+        <item quantity="other">%1$d jeux ne sont plus sur cet appareil et quittent seulement cette liste.</item>
+    </plurals>
+    <plurals name="offline7_removed">
+        <item quantity="one">%1$d jeu retiré de cet appareil</item>
+        <item quantity="other">%1$d jeux retirés de cet appareil</item>
+    </plurals>
+</resources>

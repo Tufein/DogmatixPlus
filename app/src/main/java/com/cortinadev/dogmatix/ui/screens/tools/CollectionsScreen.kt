@@ -126,6 +126,7 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
     val collections by viewModel.collections.collectAsState()
     val views by viewModel.views.collectAsState()
     val rommReady by viewModel.rommReady.collectAsState()
+    val offline = rememberOfflineCollections()
     val context = LocalContext.current
     var naming by remember { mutableStateOf<CollectionWithCount?>(null) }
     var creating by remember { mutableStateOf(false) }
@@ -158,6 +159,7 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
                 ToolAction(stringResource(R.string.romm_collections_pull), icon = R.drawable.ic_cloud_download) { viewModel.syncRomm(context, push = false) }
                 ToolAction(stringResource(R.string.romm_collections_push), icon = R.drawable.ic_cloud_upload) { viewModel.syncRomm(context, push = true) }
             }
+            offline.FetchNowAction()
             ToolAction(stringResource(R.string.collections_new), icon = R.drawable.ic_plus, tone = ActionTone.Accent) { creating = true }
         }
         val list = collections
@@ -175,7 +177,7 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
                         actionFocus = firstFocus
                     )
                 }
-                items(list, key = { it.id }) { c ->
+                items(list, key = { it.id }) { c -> Column {
                     ToolRow(
                         title = c.name,
                         lines = listOf(pluralStringResource(R.plurals.collections_games, c.count, c.count)),
@@ -189,7 +191,9 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
                             ToolAction(stringResource(R.string.dialog_delete), tone = ActionTone.Danger) { deleting = c }
                         }
                     }
-                }
+                    offline.SwitchRow(c.id)
+                } }
+                offlineCollectionsItems(offline)
                 item { SectionHeader(stringResource(R.string.views_title), stringResource(R.string.views_hint), icon = R.drawable.ic_bookmark) }
                 if (views.isEmpty()) item { InfoCard(listOf(stringResource(R.string.views_empty)), icon = R.drawable.ic_filter) }
                 items(views, key = { "v" + it.id }) { v ->
