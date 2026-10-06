@@ -1324,12 +1324,8 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>A ou un appui sur un jeu ouvre sa propre page : illustration, téléchargement, versions, progression et jeux du même genre.</item>
-        <item>Maintenez SELECT pour le menu rapide : recherche, Surprenez-moi, téléchargements, outils et paramètres.</item>
-        <item>Le stockage intelligent (facultatif, Outils → Stockage) déplace les consoles auxquelles vous ne jouez pas sur la carte SD, et les ramène.</item>
-        <item>Tout rechercher : une seule recherche pour les paramètres, les outils, les écrans et vos jeux.</item>
-        <item>Mode TV : texte plus grand, marges de sécurité et touches de la télécommande ; l\'appli apparaît aussi dans le lanceur d\'Android TV.</item>
-        <item>Les textes des paramètres ne sont plus jamais coupés.</item>
+        <item>Les réglages sont noir pur (AMOLED) dans les thèmes sombres, avec de fins contours au lieu de panneaux gris.</item>
+        <item>Les réglages sont disposés de façon symétrique : marges égales, lignes côte à côte de même hauteur, commandes alignées.</item>
     </string-array>
 
     <!-- 4.0 -->

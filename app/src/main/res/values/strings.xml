@@ -1320,12 +1320,8 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>A or a tap on a game opens its own page: art, Download, versions, progress and more like this.</item>
-        <item>Hold SELECT for the quick menu: search, Surprise me, downloads, tools and settings.</item>
-        <item>Smart storage (optional, Tools → Storage) moves consoles you do not play to the SD card and back.</item>
-        <item>Search everything: one search for settings, tools, screens and your games.</item>
-        <item>TV mode: larger text, safe margins and remote keys; the app is in the Android TV launcher too.</item>
-        <item>Texts in Settings are never cut off any more.</item>
+        <item>Settings are pure black (AMOLED) in the dark themes, with thin outlines instead of grey panels.</item>
+        <item>Settings are laid out symmetrically: equal margins, rows of equal height side by side, controls on one line.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -1270,12 +1270,8 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>A ou um toque num jogo abre a sua própria página: imagem, transferir, versões, progresso e mais como este.</item>
-        <item>Mantenha SELECT premido para o menu rápido: pesquisa, Surpreende-me, transferências, ferramentas e definições.</item>
-        <item>O armazenamento inteligente (opcional, Ferramentas → Armazenamento) move as consolas que não joga para o cartão SD e de volta.</item>
-        <item>Pesquisar tudo: uma só pesquisa para definições, ferramentas, ecrãs e os seus jogos.</item>
-        <item>Modo TV: texto maior, margens seguras e teclas do comando; a app também aparece no launcher do Android TV.</item>
-        <item>Os textos nas definições nunca mais ficam cortados.</item>
+        <item>As definições são preto puro (AMOLED) nos temas escuros, com contornos finos em vez de painéis cinzentos.</item>
+        <item>As definições estão dispostas de forma simétrica: margens iguais, linhas lado a lado com a mesma altura, controlos alinhados.</item>
     </string-array>
 
     <!-- 4.0 -->

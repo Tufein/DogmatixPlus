@@ -1319,12 +1319,8 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>A of een tik op een game opent een eigen pagina: art, downloaden, versies, voortgang en meer zoals dit.</item>
-        <item>Houd SELECT ingedrukt voor het snelmenu: zoeken, Verras me, downloads, hulpmiddelen en instellingen.</item>
-        <item>Slimme opslag (optioneel, Hulpmiddelen → Opslag) zet consoles die je niet speelt op de SD-kaart en weer terug.</item>
-        <item>Alles doorzoeken: één zoekveld voor instellingen, hulpmiddelen, schermen en je games.</item>
-        <item>Tv-modus: grotere tekst, veilige marges en toetsen van de afstandsbediening; de app staat ook in de Android TV-launcher.</item>
-        <item>Teksten in de instellingen worden nooit meer afgekapt.</item>
+        <item>De instellingen zijn puur zwart (AMOLED) in de donkere thema\'s, met dunne randen in plaats van grijze vlakken.</item>
+        <item>De instellingen staan symmetrisch: gelijke marges, rijen naast elkaar even hoog, bedieningen op één lijn.</item>
     </string-array>
 
     <!-- 4.0 -->

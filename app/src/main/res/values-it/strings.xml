@@ -1270,12 +1270,8 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>A o un tocco su un gioco apre la sua pagina: immagini, download, versioni, progressi e giochi simili.</item>
-        <item>Tieni premuto SELECT per il menu rapido: ricerca, Sorprendimi, download, strumenti e impostazioni.</item>
-        <item>L\'archiviazione intelligente (facoltativa, Strumenti → Spazio) sposta le console a cui non giochi sulla scheda SD e le riporta indietro.</item>
-        <item>Cerca ovunque: un\'unica ricerca per impostazioni, strumenti, schermate e i tuoi giochi.</item>
-        <item>Modalità TV: testo più grande, margini sicuri e tasti del telecomando; l\'app compare anche nel launcher di Android TV.</item>
-        <item>I testi nelle impostazioni non vengono più tagliati.</item>
+        <item>Le impostazioni sono nero puro (AMOLED) nei temi scuri, con bordi sottili invece di pannelli grigi.</item>
+        <item>Le impostazioni sono disposte in modo simmetrico: margini uguali, righe affiancate della stessa altezza, comandi allineati.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -94,6 +94,13 @@ Everything below came with the alpha and is part of 1.2.0; the RomM parts have n
 - **Diagnostics**: `DiagnosticsService` builds the report; `DiagnosticsRedactor` removes tokens, URLs, magnet links, IP addresses, e-mail addresses and the saved secrets before it is shared.
 - **Italian and Portuguese** (European) join the other languages.
 
+### What 8.1.0 adds
+
+- `SettingsKit.kt`: `SettingsSurface` paints Settings, RomM and Save sync pure black (#000) in dark and True black themes (black cards, #2C2C32 hairline, near-black #1B1B1F for small controls); `dogmatixBackground(amoled = true)` drops the glow on those routes (`MainActivity`). Light theme unchanged.
+- `SettingsCardsGrid`: one list item per grid line, both cells take the taller height; equal outer margins (16dp landscape, 12dp portrait), centred column (max 1180dp two columns, 720dp one), 8dp card padding, 16dp between cards, column divider. Two columns only in landscape ≥ 800dp.
+- `SettingsStepper`: one 112dp minimum value slot for every Settings stepper so the arrows line up; values still widen instead of truncating.
+- No database change (still version 13).
+
 ### What 8.0.0 adds
 - **Game page**: `GamePageModel` (pure rules: tabs About / Versions / Progress / More like this, the main button, which actions show, the order of the versions, the route `game/{consoleId}/{fileName}`), `GamePage` and `GamePageViewModel` (fills a `DetailsState` with the same `GameDetailsLoader` as the details card; download, favourite, collections and remove go to the library's services). A / tap in the library opens the page, X / long press the quick details card; LB / RB switch tabs.
 - **Quick menu**: `QuickMenu` (pure ring geometry, stick slice and D-pad step), `SelectHold` (a short SELECT press keeps its meaning and fires on release, a hold opens the menu, letting go activates the slice), `QuickMenuOverlay` hosted over every screen; `Gamepad.quickMenuOpen`.

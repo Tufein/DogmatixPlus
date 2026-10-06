@@ -3,6 +3,16 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [8.1.0] – 2026-10-06 · Dogmatix+
+
+### Changed
+- Settings, RomM and Save sync screens: pure black (#000) ground in the dark and True black themes, black cards with a thin outline, no background glow. The light theme stays light.
+- Settings layout is symmetric: equal outer margins, a centred content column with a maximum width, equal card padding and gaps, two-column rows of equal height with a divider between the columns, icons and controls on one vertical line, all steppers the same width.
+- Two columns only on landscape screens of at least 800dp wide; smaller screens (such as the Thor's bottom screen) get one centred column.
+
+### Notes
+- No database change (version 13). Not yet tried on a real device.
+
 ## [8.0.0] – 2026-10-06 · Dogmatix+
 
 ### Added
