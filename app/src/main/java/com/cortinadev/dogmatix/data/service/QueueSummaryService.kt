@@ -21,6 +21,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,7 +40,9 @@ import javax.inject.Singleton
 class QueueSummaryService @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val downloadService: DownloadService,
-    private val appSettings: AppSettings
+    private val appSettings: AppSettings,
+    private val powerHold: PowerHoldService,
+    private val powerMonitor: PowerMonitor
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     // Every run is looked at (a run of one may be a game); the summary itself still needs two.
@@ -47,8 +50,11 @@ class QueueSummaryService @Inject constructor(
 
     fun start() {
         scope.launch {
-            downloadService.downloads.collect { list ->
-                val s = summary.update(list) ?: return@collect
+            // 7.5: not while the queue is held or a power rule holds it; rows a hold parked keep the run open.
+            combine(downloadService.downloads, powerHold.parked, downloadService.gate.held, powerMonitor.hold) { list, parked, held, power ->
+                Triple(list, parked, held || power.any)
+            }.collect { (list, parked, held) ->
+                val s = summary.update(list, parked, held) ?: return@collect
                 if (!appSettings.queueSummary.first()) return@collect
                 val game = finishedGame(list)
                 when {

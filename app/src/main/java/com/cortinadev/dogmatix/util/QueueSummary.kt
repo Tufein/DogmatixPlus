@@ -19,11 +19,15 @@ class QueueSummary(private val minSize: Int = 2) {
     var lastRun: List<String> = emptyList()
         private set
 
-    /** Feed every new list; returns the summary when a run of at least [minSize] downloads just ended. */
-    fun update(list: List<DownloadItemModel>): Summary? {
+    /**
+     * Feed every new list; returns the summary when a run of at least [minSize] downloads just ended.
+     * [parked]: rows a hold paused and will queue again; they keep the run open. [held]: the queue
+     * or a power rule holds downloads right now; the run is not over while that lasts.
+     */
+    fun update(list: List<DownloadItemModel>, parked: Set<String> = emptySet(), held: Boolean = false): Summary? {
         var anyActive = false
-        for (item in list) if (!item.isFinished && item.status != DownloadStatus.PAUSED) { anyActive = true; run += item.fileName }
-        if (anyActive || run.isEmpty()) return null
+        for (item in list) if ((!item.isFinished && item.status != DownloadStatus.PAUSED) || item.fileName in parked) { anyActive = true; run += item.fileName }
+        if (anyActive || held || run.isEmpty()) return null
         val byName = list.associateBy { it.fileName }
         val rows = run.mapNotNull { byName[it] }
         run.clear()

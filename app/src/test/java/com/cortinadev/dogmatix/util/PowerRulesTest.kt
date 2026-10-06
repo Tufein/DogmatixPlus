@@ -88,3 +88,41 @@ class PowerRulesTest {
         assertNull(PowerRules.levelPercent(10, 0))
     }
 }
+
+class ThermalLatchTest {
+    @Test fun `severe makes it hot and it stays hot while moderate`() {
+        val latch = ThermalLatch(coolMs = 60_000)
+        assertFalse(latch.update(ThermalLatch.MODERATE, 0))
+        assertTrue(latch.update(ThermalLatch.SEVERE, 1_000))
+        assertTrue(latch.update(ThermalLatch.MODERATE, 100_000))
+        assertNull(latch.releaseAt())
+    }
+
+    @Test fun `it lets go only after a full minute below moderate`() {
+        val latch = ThermalLatch(coolMs = 60_000)
+        latch.update(ThermalLatch.SEVERE, 0)
+        assertTrue(latch.update(1, 10_000))
+        assertEquals(70_000L, latch.releaseAt())
+        assertTrue(latch.update(1, 69_999))
+        assertFalse(latch.update(1, 70_000))
+        assertNull(latch.releaseAt())
+        assertFalse(latch.update(ThermalLatch.MODERATE, 80_000))
+    }
+
+    @Test fun `a bounce back up restarts the minute`() {
+        val latch = ThermalLatch(coolMs = 60_000)
+        latch.update(ThermalLatch.SEVERE, 0)
+        latch.update(0, 10_000)
+        assertTrue(latch.update(ThermalLatch.MODERATE, 50_000))
+        assertTrue(latch.update(0, 60_000))
+        assertTrue(latch.update(0, 100_000))
+        assertFalse(latch.update(0, 120_000))
+    }
+
+    @Test fun `reset forgets the heat`() {
+        val latch = ThermalLatch()
+        latch.update(ThermalLatch.SEVERE, 0)
+        latch.reset()
+        assertFalse(latch.update(0, 1))
+    }
+}

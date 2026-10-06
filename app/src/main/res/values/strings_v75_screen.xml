@@ -6,7 +6,7 @@
     <string name="screen75_resume_all">Resume all</string>
     <string name="screen75_held_title">Downloads paused</string>
     <string name="screen75_paused_items_hint">Tap play on a download to carry on where it stopped</string>
-    <string name="screen75_held_running_hint">Downloads that are unpacking or come from a debrid service finish; the rest waits until you resume</string>
+    <string name="screen75_held_running_hint">Downloads that cannot be paused safely (no resume support, a debrid service, unpacking) finish first; the rest waits until you resume</string>
     <string name="screen75_held_waiting">Waiting to start: %1$d</string>
     <string name="screen75_held_empty_hint">New downloads wait until you resume</string>
     <string name="screen75_pause_item">Pause %1$s</string>

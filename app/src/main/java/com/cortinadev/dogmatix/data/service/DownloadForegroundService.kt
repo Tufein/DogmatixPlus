@@ -23,6 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -90,6 +91,8 @@ class DownloadForegroundService : Service() {
                 Triple(held, NotificationActions.ongoing(list, held), if (files.isEmpty()) null else waitingNotificationText(this@DownloadForegroundService, reasons))
             }
                 .distinctUntilChanged()
+                // The list can be thousands of rows: worked out off the main thread, only the notify runs there.
+                .flowOn(Dispatchers.Default)
                 .collect { (held, actions, waiting) ->
                     // Never after the service decided to stop: that would bring back a removed notification.
                     if (!running) return@collect

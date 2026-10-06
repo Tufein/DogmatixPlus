@@ -6,7 +6,7 @@
     <string name="screen75_resume_all">Alles hervatten</string>
     <string name="screen75_held_title">Downloads gepauzeerd</string>
     <string name="screen75_paused_items_hint">Tik op afspelen bij een download om verder te gaan waar hij stopte</string>
-    <string name="screen75_held_running_hint">Downloads die uitpakken of van een debrid-dienst komen maken af; de rest wacht tot je hervat</string>
+    <string name="screen75_held_running_hint">Downloads die niet veilig kunnen pauzeren (geen hervatten, een debrid-dienst, uitpakken) maken eerst af; de rest wacht tot je hervat</string>
     <string name="screen75_held_waiting">Wachten op start: %1$d</string>
     <string name="screen75_held_empty_hint">Nieuwe downloads wachten tot je hervat</string>
     <string name="screen75_pause_item">%1$s pauzeren</string>

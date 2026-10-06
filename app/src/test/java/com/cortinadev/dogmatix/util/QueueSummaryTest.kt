@@ -43,4 +43,15 @@ class QueueSummaryTest {
         s.update(listOf(row("a", DownloadStatus.DOWNLOADING), row("b", DownloadStatus.DOWNLOADING), row("c", DownloadStatus.DOWNLOADING)))
         assertEquals(QueueSummary.Summary(2, 0, 0), s.update(listOf(row("a", DownloadStatus.COMPLETED), row("c", DownloadStatus.COMPLETED))))
     }
+
+    @Test fun noSummaryWhileHeldOrWhileHeldRowsAreParked() {
+        val s = QueueSummary()
+        s.update(listOf(row("a", DownloadStatus.DOWNLOADING), row("b", DownloadStatus.DOWNLOADING)))
+        // A hold parked both: the run is not over.
+        assertNull(s.update(listOf(row("a", DownloadStatus.PAUSED), row("b", DownloadStatus.PAUSED)), parked = setOf("a", "b")))
+        // Everything stopped, but the queue is held: not yet.
+        assertNull(s.update(listOf(row("a", DownloadStatus.COMPLETED), row("b", DownloadStatus.STOPPED)), held = true))
+        val done = s.update(listOf(row("a", DownloadStatus.COMPLETED), row("b", DownloadStatus.COMPLETED)))
+        assertEquals(QueueSummary.Summary(completed = 2, failed = 0, stopped = 0), done)
+    }
 }

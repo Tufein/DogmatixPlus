@@ -17,7 +17,7 @@ data class PowerReading(
     val charging: Boolean,
     /** Battery temperature in tenths of a degree Celsius (EXTRA_TEMPERATURE), or null when unknown. */
     val tenthsCelsius: Int?,
-    /** The system reports THERMAL_STATUS_SEVERE or worse. */
+    /** The system reports THERMAL_STATUS_SEVERE or worse, held until it is cool again (see [ThermalLatch]). */
     val thermalSevere: Boolean = false
 )
 
@@ -72,4 +72,50 @@ object PowerRules {
 
     /** Moves the limit by [delta] steps of 5 %, within 5..50. */
     fun shift(percent: Int, delta: Int): Int = clampPercent(clampPercent(percent) + delta * STEP_PERCENT)
+}
+
+/**
+ * Hysteresis for the system's thermal status (PowerManager.THERMAL_STATUS_*): from SEVERE on the
+ * device counts as hot, and it stays hot until the status has been below MODERATE for [coolMs]
+ * without a break, so a status that bounces around SEVERE does not start and park downloads over
+ * and over. The battery temperature keeps its own rule (see [PowerRules.hot]). Pure JVM for the tests.
+ */
+class ThermalLatch(private val coolMs: Long = COOL_MS) {
+    private var latched = false
+    private var coolSince: Long? = null
+
+    /** Feeds the current [status] at [nowMs]; returns whether the thermal status counts as hot. */
+    fun update(status: Int, nowMs: Long): Boolean {
+        if (status >= SEVERE) {
+            latched = true
+            coolSince = null
+            return true
+        }
+        if (!latched) return false
+        if (status >= MODERATE) {
+            coolSince = null
+            return true
+        }
+        val since = coolSince ?: nowMs.also { coolSince = it }
+        if (nowMs - since >= coolMs) {
+            latched = false
+            coolSince = null
+        }
+        return latched
+    }
+
+    /** While hot but cooling: the moment [update] should be called again to let go; null otherwise. */
+    fun releaseAt(): Long? = if (latched) coolSince?.plus(coolMs) else null
+
+    fun reset() {
+        latched = false
+        coolSince = null
+    }
+
+    companion object {
+        /** PowerManager.THERMAL_STATUS_MODERATE and THERMAL_STATUS_SEVERE. */
+        const val MODERATE = 2
+        const val SEVERE = 3
+        const val COOL_MS = 60_000L
+    }
 }

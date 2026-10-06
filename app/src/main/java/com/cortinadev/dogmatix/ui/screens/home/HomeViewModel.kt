@@ -349,11 +349,11 @@ class HomeViewModel @Inject constructor(
     /** Starts the download of a library row found by the Switch section (an update or a DLC). */
     /** 6.0: queues [file] with a condition (Wi-Fi, charging, tonight, at a time); null = right away. */
     fun downloadWhen(file: DownloadableFileEntity, condition: com.cortinadev.dogmatix.util.DownloadCondition?) {
-        viewModelScope.launch { downloadService.startDownload(sourceTrack.pickBest(file, sameNameOnly = false), condition) }
+        viewModelScope.launch { downloadService.startDownload(sourceTrack.pickBest(file, sameNameOnly = true), condition) }
     }
 
     fun downloadRow(file: DownloadableFileEntity) {
-        viewModelScope.launch { downloadService.startDownload(sourceTrack.pickBest(file, sameNameOnly = false)) }
+        viewModelScope.launch { downloadService.startDownload(sourceTrack.pickBest(file, sameNameOnly = true)) }
     }
 
     private fun newSince(): Long = if (_newOnly.value) NewGames.since(System.currentTimeMillis()) else 0L
@@ -784,7 +784,7 @@ class HomeViewModel @Inject constructor(
         }
 
         // 7.5: the copy of the game from the source with the best track record (same game, version and region).
-        downloadService.startDownload(sourceTrack.pickBest(fileWithTags.file, sameNameOnly = false))
+        downloadService.startDownload(sourceTrack.pickBest(fileWithTags.file, sameNameOnly = true))
     }
 }
 

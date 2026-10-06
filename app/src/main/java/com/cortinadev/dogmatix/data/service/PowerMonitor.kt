@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.PowerManager
+import android.os.SystemClock
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.cortinadev.dogmatix.data.local.PowerRuleSettings
@@ -13,10 +14,13 @@ import com.cortinadev.dogmatix.util.PowerHold
 import com.cortinadev.dogmatix.util.PowerReading
 import com.cortinadev.dogmatix.util.PowerRules
 import com.cortinadev.dogmatix.util.PowerSettings
+import com.cortinadev.dogmatix.util.ThermalLatch
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -71,9 +75,7 @@ class PowerMonitor @Inject constructor(
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) { onBattery(intent, power) }
         }
-        val thermal = PowerManager.OnThermalStatusChangedListener { status ->
-            reading.value = reading.value?.copy(thermalSevere = status >= PowerManager.THERMAL_STATUS_SEVERE)
-        }
+        val thermal = PowerManager.OnThermalStatusChangedListener { status -> onThermal(status) }
         val sticky = runCatching {
             ContextCompat.registerReceiver(context, receiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED), ContextCompat.RECEIVER_NOT_EXPORTED)
         }.onFailure { Log.w(TAG, "No battery updates: ${it.message}") }.getOrNull()
@@ -85,6 +87,8 @@ class PowerMonitor @Inject constructor(
         } finally {
             runCatching { context.unregisterReceiver(receiver) }
             runCatching { power?.removeThermalStatusListener(thermal) }
+            releaseJob?.cancel()
+            synchronized(latch) { latch.reset(); thermalStatus = 0 }
             reading.value = null
         }
     }
@@ -102,8 +106,32 @@ class PowerMonitor @Inject constructor(
         val level = PowerRules.levelPercent(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1), intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1))
         val plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0
         val temp = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, Int.MIN_VALUE).takeIf { it != Int.MIN_VALUE }
-        val severe = runCatching { (power?.currentThermalStatus ?: 0) >= PowerManager.THERMAL_STATUS_SEVERE }.getOrDefault(false)
+        val status = runCatching { power?.currentThermalStatus ?: 0 }.getOrDefault(0)
+        val severe = synchronized(latch) { thermalStatus = status; latch.update(status, SystemClock.elapsedRealtime()) }
         reading.value = PowerReading(level, plugged, temp, severe)
+        scheduleRelease()
+    }
+
+    /** Thermal status as last reported, fed through [latch] (hot from SEVERE, cool after a minute below MODERATE). */
+    private var thermalStatus = 0
+    private val latch = ThermalLatch()
+    @Volatile private var releaseJob: Job? = null
+
+    private fun onThermal(status: Int) {
+        val hot = synchronized(latch) { thermalStatus = status; latch.update(status, SystemClock.elapsedRealtime()) }
+        reading.value = reading.value?.copy(thermalSevere = hot)
+        scheduleRelease()
+    }
+
+    /** No new status arrives when the device simply stays cool: look again once the minute is over. */
+    private fun scheduleRelease() {
+        releaseJob?.cancel()
+        val at = synchronized(latch) { latch.releaseAt() } ?: return
+        releaseJob = scope.launch {
+            delay((at - SystemClock.elapsedRealtime()).coerceAtLeast(0L) + 50L)
+            val hot = synchronized(latch) { latch.update(thermalStatus, SystemClock.elapsedRealtime()) }
+            reading.value = reading.value?.copy(thermalSevere = hot)
+        }
     }
 
     private companion object { const val TAG = "PowerMonitor" }
