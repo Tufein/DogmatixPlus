@@ -67,6 +67,8 @@ fun SearchField(
     modifier: Modifier = Modifier,
     focusRequester: FocusRequester = remember { FocusRequester() },
     trailing: @Composable (() -> Unit)? = null,
+    /** Text shown while the box is empty; the library's "Search" line when null. */
+    placeholder: String? = null,
     /**
      * Horizontal shift (px) of the box's left edge and content, read in the draw / placement
      * phases only: lets the filter panel animation drag the field along without re-measuring it.
@@ -179,7 +181,7 @@ fun SearchField(
                 Box(contentAlignment = Alignment.CenterStart) {
                     if (value.isEmpty() && !focused) {
                         Text(
-                            stringResource(R.string.search_library),
+                            placeholder ?: stringResource(R.string.search_library),
                             style = MaterialTheme.typography.bodyLarge,
                             color = scheme.onSurfaceVariant
                         )

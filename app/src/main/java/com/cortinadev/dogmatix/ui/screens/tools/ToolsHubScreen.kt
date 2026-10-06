@@ -31,7 +31,10 @@ import com.cortinadev.dogmatix.data.repository.CollectionsRepository
 import com.cortinadev.dogmatix.data.repository.WishlistRepository
 import com.cortinadev.dogmatix.data.service.EsdeFavouritesService
 import com.cortinadev.dogmatix.data.service.LibraryToolsService
+import com.cortinadev.dogmatix.ui.components.ActionPill
 import com.cortinadev.dogmatix.ui.components.Pill
+import com.cortinadev.dogmatix.ui.components.ScreenTitle
+import com.cortinadev.dogmatix.ui.screens.search.SEARCH_ALL_ROUTE
 import com.cortinadev.dogmatix.ui.components.PillTone
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.util.CollectionExport
@@ -123,7 +126,19 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
     val go: (NavRoutes) -> Unit = { route -> navController.navigate(route.route) }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        ToolsTitle(stringResource(R.string.settings_tools), icon = NavRoutes.Tools.icon)
+        // 8.0: the way into "search everything", next to the title.
+        ScreenTitle(
+            stringResource(R.string.settings_tools),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            icon = NavRoutes.Tools.icon,
+            trailing = {
+                ActionPill(
+                    stringResource(R.string.find8_open),
+                    { navController.navigate(SEARCH_ALL_ROUTE) { launchSingleTop = true } },
+                    icon = R.drawable.ic_search
+                )
+            }
+        )
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             contentPadding = PaddingValues(bottom = 16.dp),
