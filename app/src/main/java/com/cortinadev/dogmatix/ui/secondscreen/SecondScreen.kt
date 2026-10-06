@@ -99,6 +99,23 @@ import com.cortinadev.dogmatix.ui.theme.tabular
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.QueueEta
 import com.cortinadev.dogmatix.util.QueueGlance
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import com.cortinadev.dogmatix.data.service.DownloadService
+import com.cortinadev.dogmatix.ui.components.ActionPill
+import com.cortinadev.dogmatix.ui.components.IconTile
+import com.cortinadev.dogmatix.ui.components.PrimaryButton
+import com.cortinadev.dogmatix.ui.theme.accentInk
+import com.cortinadev.dogmatix.ui.theme.inkOf
+import com.cortinadev.dogmatix.util.SecondScreenControls
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -126,13 +143,17 @@ object SecondScreenState {
     fun setRoute(route: String) { _route.value = route }
 }
 
-/** The settings the second screen follows, so it wears the same theme and accent as the app. */
+/**
+ * The settings the second screen follows, so it wears the same theme and accent as the app, and
+ * the download service its touch controls act on.
+ */
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 interface SecondScreenEntryPoint {
     fun settings(): SettingsDataStore
     fun look(): LookSettings
     fun files(): DownloadableFileDao
+    fun downloads(): DownloadService
 }
 
 /**
@@ -225,7 +246,7 @@ private fun SecondScreenRoot(
             LocalReduceMotion provides (!animations || systemAnimationsOff),
             LocalContentColor provides MaterialTheme.colorScheme.onBackground
         ) {
-            SecondScreenContent(downloads, lookup, env.files())
+            SecondScreenContent(downloads, lookup, env.files(), env.downloads())
         }
     }
 }
@@ -234,7 +255,8 @@ private fun SecondScreenRoot(
 private fun SecondScreenContent(
     downloads: StateFlow<List<DownloadItemModel>>,
     lookup: suspend (DownloadableFileWithTags) -> GameDetails?,
-    files: DownloadableFileDao
+    files: DownloadableFileDao,
+    service: DownloadService
 ) {
     val focused by SecondScreenState.focused.collectAsState()
     val route by SecondScreenState.route.collectAsState()
@@ -272,7 +294,7 @@ private fun SecondScreenContent(
             Backdrop(art.url, spec)
             GameView(item, details, art, glance, spec)
         } else {
-            DownloadsDashboard(list, glance, files)
+            DownloadsDashboard(list, glance, files, service)
         }
     }
 }
@@ -468,13 +490,28 @@ private fun brandText(accent: Color): AnnotatedString {
 /**
  * Away from the library: the queue as a ring with its speed and time left, and the running
  * downloads (as many as fit, at most four) with covers and progress bars. When nothing downloads,
- * the mascot and a line of help.
+ * the mascot and a line of help. The second screen of a dual-screen handheld is touch only (no
+ * gamepad focus there), so it carries its own controls with 48 dp targets: *Pause all / Resume
+ * all* holds or releases the whole queue (the same hold as the Downloads screen and the Quick
+ * Settings tile), and each download pauses or resumes on its own where the Downloads screen allows it.
  */
 @Composable
-private fun DownloadsDashboard(list: List<DownloadItemModel>, glance: QueueGlance.Glance, files: DownloadableFileDao) {
+private fun DownloadsDashboard(
+    list: List<DownloadItemModel>,
+    glance: QueueGlance.Glance,
+    files: DownloadableFileDao,
+    service: DownloadService
+) {
     val scheme = MaterialTheme.colorScheme
-    val active = remember(list) { list.filter { QueueGlance.isRunning(it) } }
-    if (active.isEmpty()) {
+    val held by service.gate.held.collectAsState()
+    val view = remember(list, held) { SecondScreenControls.view(list, held) }
+    // The service calls are quick, but they never run on the UI thread here.
+    val scope = rememberCoroutineScope()
+    val act: (DownloadService.() -> Unit) -> Unit = { action ->
+        scope.launch(Dispatchers.Default) { runCatching { service.action() } }
+    }
+    val holdToggle: () -> Unit = { service.gate.setHeld(!held) }
+    if (view.mode == SecondScreenControls.Mode.IDLE) {
         Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
             EmptyState(
                 title = stringResource(R.string.app_name),
@@ -484,6 +521,7 @@ private fun DownloadsDashboard(list: List<DownloadItemModel>, glance: QueueGlanc
         }
         return
     }
+    val pausedLook = view.mode != SecondScreenControls.Mode.ACTIVE
     BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         // A short display (the second screen of a dual-screen handheld) gets a tighter layout.
         val compact = maxHeight < 440.dp
@@ -492,46 +530,124 @@ private fun DownloadsDashboard(list: List<DownloadItemModel>, glance: QueueGlanc
         val ring = if (compact) 72.dp else 96.dp
         val thumb = if (compact) 36.dp else 44.dp
         val rowGap = if (compact) 10.dp else 12.dp
-        // What the header, the ring panel and the list panel's padding take; the rest holds rows.
-        val fixed = pad * 2 + 28.dp + gap * 2 + ring + (if (compact) 24.dp else 32.dp) + 24.dp + 28.dp
-        val rows = ((maxHeight - fixed + rowGap) / (thumb + rowGap)).toInt().coerceIn(1, 4)
-        val shown = active.take(rows)
+        val panelPad = if (compact) 12.dp else 16.dp
+        // Each row carries a 48 dp button, so a row is never lower than that.
+        val rowHeight = if (thumb > TOUCH) thumb else TOUCH
+        val topPanel = when (view.mode) {
+            SecondScreenControls.Mode.HELD -> TOUCH + gap + BIG_BUTTON
+            SecondScreenControls.Mode.PAUSED -> TOUCH
+            else -> ring
+        } + panelPad * 2
+        // What the header, the top panel and the list panel's padding take; the rest holds rows.
+        val fixed = pad * 2 + 28.dp + gap * 2 + topPanel + 24.dp + 28.dp
+        val rows = ((maxHeight - fixed + rowGap) / (rowHeight + rowGap)).toInt().coerceIn(1, 4)
+        val shown = view.rows.take(rows)
         Column(
             modifier = Modifier.widthIn(max = 760.dp).fillMaxSize().padding(pad),
             verticalArrangement = Arrangement.spacedBy(gap)
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(brandText(scheme.primary), style = MaterialTheme.typography.headlineSmall, color = scheme.onSurface, maxLines = 1)
-                Pill(text = stringResource(R.string.second_screen_downloads, glance.active), tone = PillTone.Accent, icon = R.drawable.ic_download)
+                if (pausedLook) Pill(text = stringResource(R.string.screen75_paused), tone = PillTone.Warning, icon = R.drawable.ic_pause)
+                else Pill(text = stringResource(R.string.second_screen_downloads, glance.active), tone = PillTone.Accent, icon = R.drawable.ic_download)
             }
-            Panel(Modifier.fillMaxWidth(), contentPadding = PaddingValues(if (compact) 12.dp else 16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                    ProgressRing(glance.fraction, size = ring, stroke = if (compact) 8.dp else 10.dp) {
+            if (pausedLook) {
+                PausedPanel(view, panelPad, onResumeAll = if (view.holdButton == SecondScreenControls.HoldButton.RESUME_ALL) holdToggle else null)
+            } else {
+                Panel(Modifier.fillMaxWidth(), contentPadding = PaddingValues(panelPad)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(if (compact) 14.dp else 20.dp)) {
+                        ProgressRing(glance.fraction, size = ring, stroke = if (compact) 8.dp else 10.dp) {
+                            Text(
+                                stringResource(R.string.status_downloading, glance.percent),
+                                style = if (compact) MaterialTheme.typography.titleMedium.tabular() else MaterialTheme.typography.titleLarge.tabular(),
+                                color = scheme.onSurface,
+                                maxLines = 1
+                            )
+                        }
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            speedLabel(glance)?.let { StatLine(R.drawable.ic_speed, it) }
+                            etaLabel(glance)?.let { StatLine(R.drawable.ic_timer, it) }
+                            if (glance.remainingBytes > 0) StatLine(R.drawable.ic_storage, stringResource(R.string.downloads_left, formatBytes(glance.remainingBytes)))
+                        }
+                        if (view.holdButton == SecondScreenControls.HoldButton.PAUSE_ALL) {
+                            ActionPill(
+                                label = stringResource(R.string.screen75_pause_all),
+                                onClick = holdToggle,
+                                modifier = Modifier.heightIn(min = TOUCH),
+                                icon = R.drawable.ic_pause
+                            )
+                        }
+                    }
+                }
+            }
+            if (shown.isNotEmpty()) {
+                Panel(Modifier.fillMaxWidth(), contentPadding = PaddingValues(12.dp), verticalArrangement = Arrangement.spacedBy(rowGap)) {
+                    shown.forEach { d ->
+                        key(d.fileName) {
+                            val action = SecondScreenControls.rowAction(d.status, service.entityFor(d.fileName)?.isTorrent)
+                            DashboardRow(d, files, thumb, held, action) {
+                                when (action) {
+                                    SecondScreenControls.RowAction.PAUSE -> act { pauseDownload(d.fileName) }
+                                    SecondScreenControls.RowAction.RESUME -> act { retryDownload(d.fileName) }
+                                    SecondScreenControls.RowAction.NONE -> Unit
+                                }
+                            }
+                        }
+                    }
+                    val more = view.rows.size - shown.size
+                    if (more > 0) {
                         Text(
-                            stringResource(R.string.status_downloading, glance.percent),
-                            style = if (compact) MaterialTheme.typography.titleMedium.tabular() else MaterialTheme.typography.titleLarge.tabular(),
-                            color = scheme.onSurface,
-                            maxLines = 1
+                            stringResource(R.string.second_screen_more, more),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = scheme.onSurfaceVariant
                         )
                     }
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        speedLabel(glance)?.let { StatLine(R.drawable.ic_speed, it) }
-                        etaLabel(glance)?.let { StatLine(R.drawable.ic_timer, it) }
-                        if (glance.remainingBytes > 0) StatLine(R.drawable.ic_storage, stringResource(R.string.downloads_left, formatBytes(glance.remainingBytes)))
-                    }
                 }
             }
-            Panel(Modifier.fillMaxWidth(), contentPadding = PaddingValues(12.dp), verticalArrangement = Arrangement.spacedBy(rowGap)) {
-                shown.forEach { d -> key(d.fileName) { DashboardRow(d, files, thumb) } }
-                val more = active.size - shown.size
-                if (more > 0) {
-                    Text(
-                        stringResource(R.string.second_screen_more, more),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = scheme.onSurfaceVariant
-                    )
-                }
+        }
+    }
+}
+
+/** The smallest touch target on the second screen. */
+private val TOUCH = 48.dp
+/** The height of the big *Resume all* button. */
+private val BIG_BUTTON = 56.dp
+
+/**
+ * The queue is held (or only paused downloads are left): a calm "Paused" with what is waiting,
+ * and, when the user holds the queue, *Resume all* as the one big thing to tap.
+ */
+@Composable
+private fun PausedPanel(view: SecondScreenControls.View, panelPad: Dp, onResumeAll: (() -> Unit)?) {
+    val scheme = MaterialTheme.colorScheme
+    val held = view.mode == SecondScreenControls.Mode.HELD
+    val hint = when {
+        !held -> stringResource(R.string.screen75_paused_items_hint)
+        view.rows.size > view.waiting + view.paused -> stringResource(R.string.screen75_held_running_hint)
+        view.waiting > 0 -> stringResource(R.string.screen75_held_waiting, view.waiting)
+        else -> stringResource(R.string.screen75_held_empty_hint)
+    }
+    Panel(Modifier.fillMaxWidth(), contentPadding = PaddingValues(panelPad), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            IconTile(R.drawable.ic_pause, size = TOUCH)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    stringResource(if (held) R.string.screen75_held_title else R.string.screen75_paused),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = scheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(hint, style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
+        }
+        onResumeAll?.let {
+            PrimaryButton(
+                text = stringResource(R.string.screen75_resume_all),
+                onClick = it,
+                modifier = Modifier.fillMaxWidth().heightIn(min = BIG_BUTTON),
+                icon = R.drawable.ic_play_arrow
+            )
         }
     }
 }
@@ -544,9 +660,20 @@ private fun StatLine(icon: Int, text: String) {
     }
 }
 
-/** One running download: cover, name, status and a bar in its console's colour. */
+/**
+ * One download: cover, name, status and a bar in its console's colour, with its pause or resume
+ * button at the end. A row that cannot pause (unpacking, copying, a torrent still with its debrid
+ * service) keeps the button's place empty, so the bars stay aligned.
+ */
 @Composable
-private fun DashboardRow(d: DownloadItemModel, files: DownloadableFileDao, thumbSize: Dp) {
+private fun DashboardRow(
+    d: DownloadItemModel,
+    files: DownloadableFileDao,
+    thumbSize: Dp,
+    held: Boolean,
+    action: SecondScreenControls.RowAction,
+    onAction: () -> Unit
+) {
     val scheme = MaterialTheme.colorScheme
     // A download only knows its file name; the console comes from the library index.
     var consoleId by remember(d.fileName) { mutableStateOf<String?>(null) }
@@ -554,6 +681,7 @@ private fun DashboardRow(d: DownloadItemModel, files: DownloadableFileDao, thumb
     val console = consoleId
     val thumb = Modifier.size(thumbSize)
     val shape = RoundedCornerShape(8.dp)
+    val paused = d.status == DownloadStatus.PAUSED
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         if (console != null) GameCover(console, d.fileName, d.name, thumb, shape, showLabel = false)
         else CoverImage(null, "", thumb, shape, showLabel = false)
@@ -567,16 +695,51 @@ private fun DashboardRow(d: DownloadItemModel, files: DownloadableFileDao, thumb
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
                 )
-                Text(rowStatus(d), style = MaterialTheme.typography.labelMedium.tabular(), color = scheme.onSurfaceVariant, maxLines = 1)
+                Text(rowStatus(d, held), style = MaterialTheme.typography.labelMedium.tabular(), color = if (paused) inkOf(PAUSED_COLOR) else scheme.onSurfaceVariant, maxLines = 1)
             }
-            MeterBar(d.progress, height = 6.dp, color = if (console != null) consoleColor(console) else scheme.primary)
+            val bar = when {
+                paused -> scheme.outline
+                console != null -> consoleColor(console)
+                else -> scheme.primary
+            }
+            MeterBar(d.progress, height = 6.dp, color = bar)
+        }
+        when (action) {
+            SecondScreenControls.RowAction.NONE -> Spacer(Modifier.size(TOUCH))
+            SecondScreenControls.RowAction.PAUSE ->
+                RowButton(R.drawable.ic_pause, stringResource(R.string.screen75_pause_item, stripExtension(d.name)), scheme.onSurface, onAction)
+            SecondScreenControls.RowAction.RESUME ->
+                RowButton(R.drawable.ic_play_arrow, stringResource(R.string.screen75_resume_item, stripExtension(d.name)), accentInk(), onAction)
         }
     }
 }
 
+/** The amber of a paused row's status, as the "Paused" pill. */
+private val PAUSED_COLOR = Color(0xFFFFB300)
+
+/** A 48 dp round touch button with one icon (the second screen has no gamepad focus to show). */
 @Composable
-private fun rowStatus(d: DownloadItemModel): String = when (d.status) {
+private fun RowButton(icon: Int, label: String, tint: Color, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(TOUCH)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            .clickable(onClickLabel = label, role = Role.Button, onClick = onClick)
+            .semantics { contentDescription = label },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(painterResource(icon), contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))
+    }
+}
+
+@Composable
+private fun rowStatus(d: DownloadItemModel, held: Boolean): String = when (d.status) {
     DownloadStatus.COPYING -> stringResource(R.string.status_copying)
     DownloadStatus.UNZIPPING -> stringResource(R.string.status_extracting)
+    DownloadStatus.PAUSED -> stringResource(R.string.screen75_paused)
+    // Held back by the user's hold: it starts once the queue is resumed.
+    DownloadStatus.QUEUED -> if (held && d.progress <= 0f) stringResource(R.string.q5_wait_held)
+        else stringResource(R.string.status_downloading, (d.progress.coerceIn(0f, 1f) * 100).toInt())
     else -> stringResource(R.string.status_downloading, (d.progress.coerceIn(0f, 1f) * 100).toInt())
 }

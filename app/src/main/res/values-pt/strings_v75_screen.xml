@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 7.5: touch controls for downloads on the second screen -->
+<resources>
+    <string name="screen75_paused">Em pausa</string>
+    <string name="screen75_pause_all">Pausar tudo</string>
+    <string name="screen75_resume_all">Retomar tudo</string>
+    <string name="screen75_held_title">Transferências em pausa</string>
+    <string name="screen75_paused_items_hint">Toque em reproduzir numa transferência para continuar onde parou</string>
+    <string name="screen75_held_running_hint">As transferências em curso terminam; nada de novo começa até retomar</string>
+    <string name="screen75_held_waiting">À espera de começar: %1$d</string>
+    <string name="screen75_held_empty_hint">As novas transferências esperam até retomar</string>
+    <string name="screen75_pause_item">Pausar %1$s</string>
+    <string name="screen75_resume_item">Retomar %1$s</string>
+</resources>

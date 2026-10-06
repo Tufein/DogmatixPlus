@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 7.5: touch controls for downloads on the second screen -->
+<resources>
+    <string name="screen75_paused">Gepauzeerd</string>
+    <string name="screen75_pause_all">Alles pauzeren</string>
+    <string name="screen75_resume_all">Alles hervatten</string>
+    <string name="screen75_held_title">Downloads gepauzeerd</string>
+    <string name="screen75_paused_items_hint">Tik op afspelen bij een download om verder te gaan waar hij stopte</string>
+    <string name="screen75_held_running_hint">Lopende downloads maken het af; er start niets nieuws tot je hervat</string>
+    <string name="screen75_held_waiting">Wachten op start: %1$d</string>
+    <string name="screen75_held_empty_hint">Nieuwe downloads wachten tot je hervat</string>
+    <string name="screen75_pause_item">%1$s pauzeren</string>
+    <string name="screen75_resume_item">%1$s hervatten</string>
+</resources>
