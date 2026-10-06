@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="store8_title">Slimme opslag</string>
+    <string name="store8_hint">Houdt de consoles die je speelt op de snelle interne opslag en zet de rest op de SD-kaart</string>
+    <string name="store8_switch_title">Slimme opslag</string>
+    <string name="store8_switch_hint">Uit. Zet aan om de interne opslag te bewaren voor de consoles die je speelt</string>
+    <string name="store8_explain_title">Hele consoles verhuizen, nooit losse games</string>
+    <string name="store8_explain">Dogmatix+ en frontends zoals ES-DE geven elke console één map, dus een console verhuist met zijn hele map. Consoles met een favoriet of een game die je onlangs speelde blijven op de interne opslag; de rest gaat naar de SD-kaart en komt terug zodra je ze weer speelt. ES-DE volgt vanzelf als het in Dogmatix+ is ingesteld (start ES-DE daarna opnieuw). In Daijishō, Pegasus of RetroArch-afspeellijsten wijs je een verhuisde console naar zijn nieuwe map.</string>
+    <string name="store8_sd_title">Bibliotheekmap op de SD-kaart</string>
+    <string name="store8_sd_none">Nog geen map gekozen</string>
+    <string name="store8_sd_choose">Kiezen</string>
+    <string name="store8_days_title">Onlangs gespeeld</string>
+    <string name="store8_days_hint">Consoles die je de afgelopen %1$d dagen speelde, blijven op de interne opslag</string>
+    <string name="store8_weekly_title">Elke week tijdens het opladen</string>
+    <string name="store8_weekly_hint">Verplaatst hooguit %1$s per keer, nooit een console die aan het downloaden is</string>
+    <string name="store8_preview_title">Wat zou verhuizen</string>
+    <string name="store8_moving_title">Consoles verhuizen</string>
+    <string name="store8_preview_hint">Bekijk wat een ronde zou verplaatsen, zonder iets te verplaatsen</string>
+    <string name="store8_preview_action">Bekijken</string>
+    <string name="store8_preview_nothing">Niets te verplaatsen: elke console staat waar hij hoort</string>
+    <string name="store8_move_now">Nu verplaatsen</string>
+    <string name="store8_stop">Stoppen</string>
+    <string name="store8_ok">OK</string>
+    <string name="store8_to_sd">naar de SD-kaart</string>
+    <string name="store8_to_internal">naar de interne opslag</string>
+    <string name="store8_reason_cold">Al een tijd niet gespeeld</string>
+    <string name="store8_reason_played">Onlangs gespeeld</string>
+    <string name="store8_reason_favourite">Heeft een favoriet</string>
+    <string name="store8_wait_busy">Wacht: een download of frontend-update is ermee bezig</string>
+    <string name="store8_wait_resting">Wacht: minder dan twee weken geleden verplaatst</string>
+    <string name="store8_wait_no_room">Wacht: niet genoeg vrije ruimte</string>
+    <string name="store8_wait_later">Wacht op de volgende ronde</string>
+    <string name="store8_waits">Wacht</string>
+    <string name="store8_problem_no_sd">Kies eerst een map op de SD-kaart</string>
+    <string name="store8_problem_no_library">Slimme opslag heeft een downloadmap nodig met een map per console</string>
+    <string name="store8_problem_same">Die map staat op dezelfde opslag als de bibliotheek; kies er een op de SD-kaart</string>
+    <string name="store8_problem_busy">Er loopt al een verhuizing; probeer het opnieuw als die klaar is</string>
+    <string name="store8_running">%1$s (%2$d van %3$d) · %4$s van %5$s</string>
+    <string name="store8_last">Laatste ronde %1$s · %2$s</string>
+    <string name="store8_last_none">Aan. Nog niet uitgevoerd</string>
+    <string name="store8_confirm_title">Deze consoles verplaatsen?</string>
+    <string name="store8_confirm_message">Elke consolemap wordt eerst gekopieerd en gecontroleerd; pas daarna verdwijnt hij van de oude plek.</string>
+    <string name="store8_confirm_ok">Verplaatsen</string>
+    <string name="store8_notify_title">Slimme opslag</string>
+    <string name="store8_notify_progress">%1$s (%2$d van %3$d)</string>
+    <plurals name="store8_done">
+        <item quantity="one">%d console verplaatst</item>
+        <item quantity="other">%d consoles verplaatst</item>
+    </plurals>
+    <plurals name="store8_failed">
+        <item quantity="one">%d console kon niet worden verplaatst en blijft waar hij was</item>
+        <item quantity="other">%d consoles konden niet worden verplaatst en blijven waar ze waren</item>
+    </plurals>
+    <plurals name="store8_preview_frees">
+        <item quantity="one">Zou %1$d console verplaatsen · maakt %2$s intern vrij</item>
+        <item quantity="other">Zou %1$d consoles verplaatsen · maakt %2$s intern vrij</item>
+    </plurals>
+    <plurals name="store8_preview_takes">
+        <item quantity="one">Zou %1$d console verplaatsen · gebruikt %2$s intern</item>
+        <item quantity="other">Zou %1$d consoles verplaatsen · gebruikt %2$s intern</item>
+    </plurals>
+    <plurals name="store8_notify_done">
+        <item quantity="one">%1$d console verplaatst · %2$s</item>
+        <item quantity="other">%1$d consoles verplaatst · %2$s</item>
+    </plurals>
+    <plurals name="store8_notify_failed">
+        <item quantity="one">%d console kon niet worden verplaatst</item>
+        <item quantity="other">%d consoles konden niet worden verplaatst</item>
+    </plurals>
+</resources>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="store8_title">Stockage intelligent</string>
+    <string name="store8_hint">Garde les consoles auxquelles vous jouez sur le stockage interne rapide et déplace les autres sur la carte SD</string>
+    <string name="store8_switch_title">Stockage intelligent</string>
+    <string name="store8_switch_hint">Désactivé. Activez-le pour réserver le stockage interne aux consoles auxquelles vous jouez</string>
+    <string name="store8_explain_title">Des consoles entières sont déplacées, jamais des jeux isolés</string>
+    <string name="store8_explain">Dogmatix+ et les frontends comme ES-DE attribuent un dossier à chaque console : une console est donc déplacée avec tout son dossier. Les consoles avec un favori ou un jeu joué récemment restent sur le stockage interne ; les autres vont sur la carte SD et reviennent dès que vous y rejouez. ES-DE suit tout seul s\'il est configuré dans Dogmatix+ (redémarrez ES-DE ensuite). Dans Daijishō, Pegasus ou les playlists RetroArch, indiquez le nouveau dossier d\'une console déplacée.</string>
+    <string name="store8_sd_title">Dossier de bibliothèque sur la carte SD</string>
+    <string name="store8_sd_none">Aucun dossier choisi</string>
+    <string name="store8_sd_choose">Choisir</string>
+    <string name="store8_days_title">Joué récemment</string>
+    <string name="store8_days_hint">Les consoles jouées ces %1$d derniers jours restent sur le stockage interne</string>
+    <string name="store8_weekly_title">Chaque semaine pendant la charge</string>
+    <string name="store8_weekly_hint">Déplace au plus %1$s par passage, jamais une console en cours de téléchargement</string>
+    <string name="store8_preview_title">Ce qui serait déplacé</string>
+    <string name="store8_moving_title">Déplacement des consoles</string>
+    <string name="store8_preview_hint">Voir ce qu\'un passage déplacerait, sans rien déplacer</string>
+    <string name="store8_preview_action">Vérifier</string>
+    <string name="store8_preview_nothing">Rien à déplacer : chaque console est à sa place</string>
+    <string name="store8_move_now">Déplacer maintenant</string>
+    <string name="store8_stop">Arrêter</string>
+    <string name="store8_ok">OK</string>
+    <string name="store8_to_sd">vers la carte SD</string>
+    <string name="store8_to_internal">vers le stockage interne</string>
+    <string name="store8_reason_cold">Pas joué depuis un moment</string>
+    <string name="store8_reason_played">Joué récemment</string>
+    <string name="store8_reason_favourite">Contient un favori</string>
+    <string name="store8_wait_busy">En attente : un téléchargement ou une mise à jour du frontend est en cours</string>
+    <string name="store8_wait_resting">En attente : déplacée il y a moins de deux semaines</string>
+    <string name="store8_wait_no_room">En attente : pas assez d\'espace libre</string>
+    <string name="store8_wait_later">En attente du prochain passage</string>
+    <string name="store8_waits">En attente</string>
+    <string name="store8_problem_no_sd">Choisissez d\'abord un dossier sur la carte SD</string>
+    <string name="store8_problem_no_library">Le stockage intelligent a besoin d\'un dossier de téléchargement avec un dossier par console</string>
+    <string name="store8_problem_same">Ce dossier est sur le même stockage que la bibliothèque ; choisissez-en un sur la carte SD</string>
+    <string name="store8_problem_busy">Un autre déplacement est en cours ; réessayez quand il sera terminé</string>
+    <string name="store8_running">%1$s (%2$d sur %3$d) · %4$s sur %5$s</string>
+    <string name="store8_last">Dernier passage %1$s · %2$s</string>
+    <string name="store8_last_none">Activé. Pas encore lancé</string>
+    <string name="store8_confirm_title">Déplacer ces consoles ?</string>
+    <string name="store8_confirm_message">Chaque dossier de console est d\'abord copié et vérifié ; il n\'est supprimé de son ancien emplacement qu\'ensuite.</string>
+    <string name="store8_confirm_ok">Déplacer</string>
+    <string name="store8_notify_title">Stockage intelligent</string>
+    <string name="store8_notify_progress">%1$s (%2$d sur %3$d)</string>
+    <plurals name="store8_done">
+        <item quantity="one">%d console déplacée</item>
+        <item quantity="other">%d consoles déplacées</item>
+        <item quantity="many">%d consoles déplacées</item>
+    </plurals>
+    <plurals name="store8_failed">
+        <item quantity="one">%d console n\'a pas pu être déplacée et reste à sa place</item>
+        <item quantity="other">%d consoles n\'ont pas pu être déplacées et restent à leur place</item>
+        <item quantity="many">%d consoles n\'ont pas pu être déplacées et restent à leur place</item>
+    </plurals>
+    <plurals name="store8_preview_frees">
+        <item quantity="one">Déplacerait %1$d console · libère %2$s en interne</item>
+        <item quantity="other">Déplacerait %1$d consoles · libère %2$s en interne</item>
+        <item quantity="many">Déplacerait %1$d consoles · libère %2$s en interne</item>
+    </plurals>
+    <plurals name="store8_preview_takes">
+        <item quantity="one">Déplacerait %1$d console · occupe %2$s en interne</item>
+        <item quantity="other">Déplacerait %1$d consoles · occupe %2$s en interne</item>
+        <item quantity="many">Déplacerait %1$d consoles · occupe %2$s en interne</item>
+    </plurals>
+    <plurals name="store8_notify_done">
+        <item quantity="one">%1$d console déplacée · %2$s</item>
+        <item quantity="other">%1$d consoles déplacées · %2$s</item>
+        <item quantity="many">%1$d consoles déplacées · %2$s</item>
+    </plurals>
+    <plurals name="store8_notify_failed">
+        <item quantity="one">%d console n\'a pas pu être déplacée</item>
+        <item quantity="other">%d consoles n\'ont pas pu être déplacées</item>
+        <item quantity="many">%d consoles n\'ont pas pu être déplacées</item>
+    </plurals>
+</resources>
