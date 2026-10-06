@@ -117,6 +117,10 @@ import java.util.Date
  * 5.0: a hero header — the game's art softened and dimmed behind the card's top, the cover in front,
  * the title in large type and a row of info pills (console, size, region, source, on device, on
  * RomM, verified, found date) — then the description and [extraSections].
+ *
+ * 8.0: the library opens the full-screen game page (ui/screens/game/GamePage) instead; this card
+ * stays as the quick look behind X / long press, and its hero, pills, facts and description are
+ * shared with the page.
  */
 @Composable
 fun GameDetailsDialog(
@@ -151,7 +155,9 @@ fun GameDetailsDialog(
     /** 6.0: shares a card of this game (GameShare). */
     onShare: (() -> Unit)? = null,
     /** 6.0: queues this game with a condition (null = right away): Wi-Fi, charging, tonight, at a time. */
-    onDownloadWhen: ((com.cortinadev.dogmatix.util.DownloadCondition?) -> Unit)? = null
+    onDownloadWhen: ((com.cortinadev.dogmatix.util.DownloadCondition?) -> Unit)? = null,
+    /** 8.0: opens the full-screen game page instead (null hides the action). */
+    onOpenPage: (() -> Unit)? = null
 ) {
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val scheme = MaterialTheme.colorScheme
@@ -174,16 +180,7 @@ fun GameDetailsDialog(
         if (onOpenSimilar != null) SimilarSection(similar, onOpenSimilar)
     }
 
-    // The cover from the shared repository (RomM, libretro box art, cached metadata); the metadata
-    // image (often a screenshot) is the better backdrop, the box art the better front cover.
-    val covers = rememberCoverRepository()
-    var coverUrl by remember(rom.consoleId, rom.fileName) { mutableStateOf(covers.cached(rom.consoleId, rom.fileName)) }
-    LaunchedEffect(rom.consoleId, rom.fileName) {
-        if (coverUrl == null) coverUrl = runCatching { covers.coverUrl(rom.consoleId, rom.fileName, rom.name) }.getOrNull()
-    }
-    val artUrl = state.details?.imageUrl?.takeIf { it.isNotBlank() }
-    val frontUrl = coverUrl ?: artUrl
-    val backdropUrl = artUrl ?: coverUrl
+    val (frontUrl, backdropUrl) = rememberGameArt(state)
 
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         // The button is not attached on the first frame: retry for a few frames so the first
@@ -224,30 +221,30 @@ fun GameDetailsDialog(
         ) {
             val details = state.details
             val title = details?.title?.takeIf { it.isNotBlank() } ?: stripExtension(rom.name)
-            val pills: @Composable () -> Unit = { InfoPills(state, consoleName, onRomm, owned, downloading, favourite) }
+            val pills: @Composable () -> Unit = { GameInfoPills(state, consoleName, onRomm, owned, downloading, favourite) }
 
             if (isLandscape) {
-                Hero(backdropUrl, rom.consoleId, Modifier.fillMaxWidth()) {
+                GameHero(backdropUrl, rom.consoleId, Modifier.fillMaxWidth()) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(18.dp),
                         modifier = Modifier
                             .heightIn(max = 270.dp)
                             .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 6.dp)
                     ) {
-                        HeroCover(frontUrl, rom.consoleId, height = 186.dp, maxRatio = 1.45f)
+                        GameHeroCover(frontUrl, rom.consoleId, height = 186.dp, maxRatio = 1.45f)
                         Body(state, title, scroll, Modifier.weight(1f), header = pills, extraSections = extraSections, similarSection = similarSection)
                     }
                 }
             } else {
-                Hero(backdropUrl, rom.consoleId, Modifier.fillMaxWidth()) {
+                GameHero(backdropUrl, rom.consoleId, Modifier.fillMaxWidth()) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(14.dp),
                         verticalAlignment = Alignment.Bottom,
                         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 8.dp)
                     ) {
-                        HeroCover(frontUrl, rom.consoleId, height = 148.dp, maxRatio = 1.0f)
+                        GameHeroCover(frontUrl, rom.consoleId, height = 148.dp, maxRatio = 1.0f)
                         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Title(title)
+                            GameTitle(title)
                             pills()
                         }
                     }
@@ -290,6 +287,9 @@ fun GameDetailsDialog(
                 if (onDownloadWhen != null && !owned && !downloading) {
                     ActionPill(stringResource(R.string.plan6_wait_for), { showWhen = true }, icon = R.drawable.ic_schedule)
                 }
+                if (onOpenPage != null) {
+                    ActionPill(stringResource(R.string.page8_open_page), onOpenPage, icon = R.drawable.ic_open_in_new)
+                }
                 ActionPill(stringResource(R.string.details_close), onDismiss, icon = R.drawable.ic_close)
                 if (onDownloadBest != null && state.best != null) {
                     ActionPill(stringResource(R.string.details_download_best), onDownloadBest, icon = R.drawable.ic_award)
@@ -306,11 +306,28 @@ fun GameDetailsDialog(
 }
 
 /**
+ * The front cover and the backdrop of [state]'s game: the cover from the shared repository (RomM,
+ * libretro box art, cached metadata); the metadata image (often a screenshot) is the better
+ * backdrop, the box art the better front cover.
+ */
+@Composable
+internal fun rememberGameArt(state: DetailsState): Pair<String?, String?> {
+    val rom = state.item.file
+    val covers = rememberCoverRepository()
+    var coverUrl by remember(rom.consoleId, rom.fileName) { mutableStateOf(covers.cached(rom.consoleId, rom.fileName)) }
+    LaunchedEffect(rom.consoleId, rom.fileName) {
+        if (coverUrl == null) coverUrl = runCatching { covers.coverUrl(rom.consoleId, rom.fileName, rom.name) }.getOrNull()
+    }
+    val artUrl = state.details?.imageUrl?.takeIf { it.isNotBlank() }
+    return (coverUrl ?: artUrl) to (artUrl ?: coverUrl)
+}
+
+/**
  * The card's top: [url] decoded small and stretched (soft, no blur effect) over the console's colour,
  * fading into the card colour at the bottom so the text over it stays readable.
  */
 @Composable
-private fun Hero(url: String?, consoleId: String, modifier: Modifier, content: @Composable () -> Unit) {
+internal fun GameHero(url: String?, consoleId: String, modifier: Modifier, content: @Composable () -> Unit) {
     Box(modifier = modifier) {
         Backdrop(url, consoleId)
         content()
@@ -357,7 +374,7 @@ private fun BoxScope.Backdrop(url: String?, consoleId: String) {
  * shape (box art of some consoles is landscape), between 0.62 and [maxRatio].
  */
 @Composable
-private fun HeroCover(url: String?, consoleId: String, height: Dp, maxRatio: Float) {
+internal fun GameHeroCover(url: String?, consoleId: String, height: Dp, maxRatio: Float) {
     val context = LocalContext.current
     val reduce = LocalReduceMotion.current
     var ratio by remember(url) { mutableFloatStateOf(3f / 4f) }
@@ -402,12 +419,12 @@ private fun HeroCover(url: String?, consoleId: String, height: Dp, maxRatio: Flo
 }
 
 @Composable
-private fun Title(title: String) {
+internal fun GameTitle(title: String, maxLines: Int = 2) {
     Text(
         title,
         style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.onSurface,
-        maxLines = 2,
+        maxLines = maxLines,
         overflow = TextOverflow.Ellipsis
     )
 }
@@ -415,7 +432,7 @@ private fun Title(title: String) {
 /** Console, size, region, source, on device / on RomM, verified, found date, favourite. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun InfoPills(
+internal fun GameInfoPills(
     state: DetailsState,
     consoleName: String,
     onRomm: Boolean,
@@ -470,9 +487,30 @@ private fun Body(
     val details = state.details
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (header != null) {
-            Title(title)
+            GameTitle(title)
             header()
         }
+        GameFacts(state)
+
+        Box(modifier = Modifier.weight(1f, fill = false)) {
+            Column(modifier = Modifier.verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                GameDescription(state)
+                // ---- 5.0 extension point: cloud sections (see GameDetailsDialog.extraSections) ----
+                extraSections()
+                similarSection()
+                if (details != null) {
+                    Text(stringResource(R.string.details_source, details.source), style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
+                }
+            }
+        }
+    }
+}
+
+/** The facts under the title: tags, year / developer / genres, versions, RetroAchievements, Switch status. */
+@Composable
+internal fun GameFacts(state: DetailsState) {
+    val details = state.details
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         TagRow(
             console = ConsoleFormatter.getConsoleShortName(state.item.file.consoleId),
             tags = state.item.tags,
@@ -503,35 +541,31 @@ private fun Body(
             )
         }
         state.switchTitle?.let { switchTitle -> SwitchLines(switchTitle, state.switch) }
+    }
+}
 
-        Box(modifier = Modifier.weight(1f, fill = false)) {
-            Column(modifier = Modifier.verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                when {
-                    state.loading -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(vertical = 8.dp)) {
-                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                        Text(stringResource(R.string.details_loading), style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
-                    }
-                    details == null -> Text(stringResource(R.string.details_not_found), style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
-                    else -> Text(
-                        details.description.ifBlank { stringResource(R.string.details_not_found) },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = scheme.onSurface
-                    )
-                }
-                // ---- 5.0 extension point: cloud sections (see GameDetailsDialog.extraSections) ----
-                extraSections()
-                similarSection()
-                if (details != null) {
-                    Text(stringResource(R.string.details_source, details.source), style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
-                }
-            }
+/** The online description, or a spinner while it loads / a line when there is none. */
+@Composable
+internal fun GameDescription(state: DetailsState) {
+    val scheme = MaterialTheme.colorScheme
+    val details = state.details
+    when {
+        state.loading -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(vertical = 8.dp)) {
+            CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+            Text(stringResource(R.string.details_loading), style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
         }
+        details == null -> Text(stringResource(R.string.details_not_found), style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
+        else -> Text(
+            details.description.ifBlank { stringResource(R.string.details_not_found) },
+            style = MaterialTheme.typography.bodyMedium,
+            color = scheme.onSurface
+        )
     }
 }
 
 /** A small icon and one line of facts (versions, achievements, Switch status). */
 @Composable
-private fun InfoLine(icon: Int, text: String, accent: Boolean = false) {
+internal fun InfoLine(icon: Int, text: String, accent: Boolean = false) {
     val scheme = MaterialTheme.colorScheme
     val color = if (accent) accentInk() else scheme.onSurfaceVariant
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {

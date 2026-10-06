@@ -158,7 +158,13 @@ private const val FAV_ONLY = "only"
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    /**
+     * 8.0: opens the full-screen game page (the shell navigates to it). When set, A / tap on a row,
+     * "Surprise me" and the Continue playing shelf open the page; X and a long press still show
+     * the details card as a quick look. Null keeps the 7.x behaviour (A / tap downloads).
+     */
+    onOpenGame: ((consoleId: String, fileName: String) -> Unit)? = null
 ) {
     val results by viewModel.results.collectAsState()
     val hasMoreResults by viewModel.hasMoreResults.collectAsState()
@@ -410,6 +416,12 @@ fun HomeScreen(
         }
     }
 
+    // 8.0: the game page when the shell provides it, else the details card.
+    val openGame: (DownloadableFileWithTags) -> Unit = { item ->
+        if (onOpenGame != null) onOpenGame(item.file.consoleId, item.file.fileName) else viewModel.openDetails(item)
+    }
+    val onRowClick: (DownloadableFileWithTags) -> Unit = if (onOpenGame != null) openGame else onFileClick
+
     ownedDialogItem?.let { item ->
         AlertDialog(
             onDismissRequest = { ownedDialogItem = null },
@@ -483,6 +495,7 @@ fun HomeScreen(
             onRomm = viewModel.isOnRomm(state.item.file, rommKeys, rommBase),
             similar = state.similar,
             onOpenSimilar = viewModel::openDetails,
+            onOpenPage = onOpenGame?.let { open -> { viewModel.closeDetails(); open(state.item.file.consoleId, state.item.file.fileName) } },
             onShare = {
                 val file = state.item.file
                 scope.launch { com.cortinadev.dogmatix.data.service.GameShare.share(context, file.consoleId, file.fileName, file.name) }
@@ -518,7 +531,7 @@ fun HomeScreen(
     val filtersKey = if (isLandscape) listOf(LegendEntry("R3", stringResource(R.string.pad_filters))) else emptyList()
     val section = LegendEntry("ZL · ZR", stringResource(R.string.pad_section))
     val legendList = listOf(
-        LegendEntry("A", stringResource(R.string.pad_download)), LegendEntry("X", stringResource(R.string.pad_details)),
+        LegendEntry("A", stringResource(if (onOpenGame != null) R.string.pad_open else R.string.pad_download)), LegendEntry("X", stringResource(R.string.pad_details)),
         LegendEntry("Y", stringResource(R.string.pad_search)), LegendEntry("SELECT", stringResource(R.string.pad_favourite)),
         LegendEntry("◀ ▶", stringResource(R.string.pad_letters))
     ) + filtersKey + section + LegendEntry("START", stringResource(R.string.disc6_pad_surprise))
@@ -568,7 +581,7 @@ fun HomeScreen(
                 GamepadButton.FAVOURITE -> (viewModel.details.value?.item ?: focusedItem?.takeIf { listHasFocus })?.let(toggleFavourite)
                 GamepadButton.Y -> searchActive = true
                 // 6.0: Start = surprise me (a random game of the current list opens its details card).
-                GamepadButton.START -> if (viewModel.details.value == null && !searchActive) results.randomOrNull()?.let(viewModel::openDetails)
+                GamepadButton.START -> if (viewModel.details.value == null && !searchActive) results.randomOrNull()?.let(openGame)
                 GamepadButton.PREV_PANEL -> if (isLandscape) {
                     filtersCollapsed = false
                     scope.launch { withFrameNanos { }; withFrameNanos { }; runCatching { filterFocus.requestFocus() } }
@@ -681,7 +694,7 @@ fun HomeScreen(
                         )
                         if (activeFilterCount > 0 || query.isNotBlank()) PanelArrow(R.drawable.ic_star, stringResource(R.string.view_save)) { savingView = true }
                         if (results.isNotEmpty()) PanelArrow(R.drawable.ic_arrow_down, stringResource(R.string.bulk_title)) { showBulk = true }
-                        if (results.isNotEmpty()) PanelArrow(R.drawable.ic_shuffle, stringResource(R.string.surprise_me)) { results.randomOrNull()?.let(viewModel::openDetails) }
+                        if (results.isNotEmpty()) PanelArrow(R.drawable.ic_shuffle, stringResource(R.string.surprise_me)) { results.randomOrNull()?.let(openGame) }
                         PanelArrow(R.drawable.ic_arrow_left, stringResource(R.string.collapse_filters)) { collapseFilters() }
                     }
                 }
@@ -706,7 +719,7 @@ fun HomeScreen(
                             modifier = Modifier.padding(start = 6.dp, top = 8.dp)
                         )
                         if (query.isEmpty() && activeFilterCount == 0) ContinuePlayingShelf(
-                            onOpenGame = viewModel::openDetails,
+                            onOpenGame = openGame,
                             modifier = Modifier.padding(top = 8.dp)
                         )
                         if (tableRows) TableHeader(contentShift, showCover = listCovers) else Text(
@@ -722,7 +735,7 @@ fun HomeScreen(
                             isLoadingMore = isLoadingMore,
                             onLoadMore = { scope.launch { viewModel.loadMore() } },
                             getConsoleName = { ConsoleFormatter.getConsoleShortName(it) },
-                            onFileClick = onFileClick,
+                            onFileClick = onRowClick,
                             isOwned = { viewModel.isOwned(it.file, ownedKeys) },
                             isOnRomm = { viewModel.isOnRomm(it.file, rommKeys, rommBase) },
                             isFavourite = { viewModel.isFavourite(it.file, favouriteKeys) },
@@ -793,7 +806,7 @@ fun HomeScreen(
                     modifier = Modifier.padding(start = 20.dp, end = 16.dp, top = 6.dp)
                 )
                 if (query.isEmpty() && activeFilterCount == 0) ContinuePlayingShelf(
-                    onOpenGame = viewModel::openDetails,
+                    onOpenGame = openGame,
                     modifier = Modifier.padding(start = 14.dp, end = 10.dp, top = 6.dp)
                 )
                 ConsoleChips(
@@ -818,7 +831,7 @@ fun HomeScreen(
                         Row(modifier = Modifier.horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically) {
                             if (activeFilterCount > 0 || query.isNotBlank()) BulkLink(stringResource(R.string.view_save), R.drawable.ic_star) { savingView = true }
                             if (results.isNotEmpty()) BulkLink(stringResource(R.string.bulk_link), R.drawable.ic_download) { showBulk = true }
-                            if (results.isNotEmpty()) BulkLink(stringResource(R.string.surprise_me), R.drawable.ic_shuffle) { results.randomOrNull()?.let(viewModel::openDetails) }
+                            if (results.isNotEmpty()) BulkLink(stringResource(R.string.surprise_me), R.drawable.ic_shuffle) { results.randomOrNull()?.let(openGame) }
                         }
                     }
                 }
@@ -829,7 +842,7 @@ fun HomeScreen(
                     isLoadingMore = isLoadingMore,
                     onLoadMore = { scope.launch { viewModel.loadMore() } },
                     getConsoleName = { ConsoleFormatter.getConsoleShortName(it) },
-                    onFileClick = onFileClick,
+                    onFileClick = onRowClick,
                     isOwned = { viewModel.isOwned(it.file, ownedKeys) },
                     isOnRomm = { viewModel.isOnRomm(it.file, rommKeys, rommBase) },
                     isFavourite = { viewModel.isFavourite(it.file, favouriteKeys) },

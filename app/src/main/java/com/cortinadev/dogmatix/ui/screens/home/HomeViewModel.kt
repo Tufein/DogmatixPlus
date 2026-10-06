@@ -10,7 +10,6 @@ import com.cortinadev.dogmatix.data.local.LookSettings
 import com.cortinadev.dogmatix.data.local.dao.GameMetadataDao
 import com.cortinadev.dogmatix.util.GameTitleCleaner
 import com.cortinadev.dogmatix.util.LibraryDiscovery
-import com.cortinadev.dogmatix.util.SimilarGames
 import kotlinx.coroutines.delay
 import com.cortinadev.dogmatix.data.local.dao.CollectionWithCount
 import com.cortinadev.dogmatix.data.local.entity.ConsoleEntity
@@ -36,7 +35,6 @@ import com.cortinadev.dogmatix.util.BulkPlan
 import com.cortinadev.dogmatix.util.BulkPlanner
 import com.cortinadev.dogmatix.util.SourceRanking
 import com.cortinadev.dogmatix.util.FileParsingUtils
-import com.cortinadev.dogmatix.util.LibraryKeys
 import com.cortinadev.dogmatix.util.LibraryView
 import com.cortinadev.dogmatix.util.LibraryViews
 import com.cortinadev.dogmatix.util.NewGames
@@ -106,7 +104,8 @@ class HomeViewModel @Inject constructor(
     private val libraryTools: LibraryToolsService,
     private val metadataDao: GameMetadataDao,
     lookSettings: LookSettings,
-    private val sourceTrack: com.cortinadev.dogmatix.data.service.SourceTrackService
+    private val sourceTrack: com.cortinadev.dogmatix.data.service.SourceTrackService,
+    private val detailsLoader: GameDetailsLoader
 ) : ViewModel() {
 
     /** 5.0: small covers in front of the games in the list (Settings → Look). */
@@ -181,36 +180,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    /** The details dialog's "More like this": local data only, off the main thread. */
-    private suspend fun similarTo(item: DownloadableFileWithTags, extra: GameDetails?): List<DownloadableFileWithTags> = runCatching {
-        withContext(Dispatchers.Default) {
-            val index = discoverIndex.value
-            val file = item.file
-            val own = index.metaFor(file.consoleId, file.name)
-            val genres = own?.genres ?: LibraryDiscovery.parseGenres(extra?.genres?.joinToString("|").orEmpty())
-            val developer = own?.developer?.takeIf { it.isNotBlank() } ?: extra?.developer.orEmpty()
-            val target = SimilarGames.Candidate(file.id, file.consoleId, file.name, genres, developer)
-            val family = SimilarGames.familyQuery(file.name)
-            val pool = HashMap<Long, DownloadableFileWithTags>()
-            if (family.isNotBlank()) {
-                repository.searchFilesWithTags(query = family, limit = 80, offset = 0).forEach { pool[it.file.id] = it }
-            }
-            // Same console and a shared genre: cheap thanks to the cached index (no network).
-            if (genres.isNotEmpty()) {
-                repository.filesOf(file.consoleId).asSequence()
-                    .filter { f -> index.metaFor(f.consoleId, f.name)?.genres?.any { it in genres } == true }
-                    .take(400)
-                    .forEach { pool.putIfAbsent(it.id, DownloadableFileWithTags(it, emptyList())) }
-            }
-            val candidates = pool.values.map {
-                val meta = index.metaFor(it.file.consoleId, it.file.name)
-                SimilarGames.Candidate(it.file.id, it.file.consoleId, it.file.name, meta?.genres.orEmpty(), meta?.developer.orEmpty())
-            }
-            val byId = pool
-            SimilarGames.rank(target, candidates, SIMILAR_LIMIT).mapNotNull { byId[it.id] }
-        }
-    }.getOrDefault(emptyList())
-
     /** Bytes that removing duplicate games (keeping the biggest copy of each) would free; null on failure. */
     suspend fun reclaimableBytes(): Long? = runCatching {
         withContext(Dispatchers.IO) { libraryTools.duplicateGroups().sumOf { it.reclaimable } }
@@ -220,7 +189,7 @@ class HomeViewModel @Inject constructor(
     val raMarks: StateFlow<RaMarks> = retroAchievements.marks
 
     /** RA game of a row for the details card: (game, true) by hash, (game, false) by title only. */
-    suspend fun achievementsFor(file: DownloadableFileEntity) = runCatching { retroAchievements.resolveGame(file.consoleId, file.fileName, file.name) }.getOrNull()
+    suspend fun achievementsFor(file: DownloadableFileEntity) = detailsLoader.achievementsFor(file)
 
     // ---- 2.5: saved views ("smart collections") ------------------------------------------------
 
@@ -290,15 +259,6 @@ class HomeViewModel @Inject constructor(
     }
 
     fun isNew(file: DownloadableFileEntity): Boolean = NewGames.isNew(file.firstSeenAt, System.currentTimeMillis())
-
-    /** File names on disk for [consoleId] (from the library index keys of its folders). */
-    private fun ownedNamesFor(consoleId: String): List<String> {
-        val scopes = LibraryKeys.scopesFor(consoleId)
-        return libraryIndex.ownedKeys.value.mapNotNull { key ->
-            val bar = key.indexOf('|')
-            if (bar < 0 || key.substring(0, bar) !in scopes) null else key.substring(bar + 1)
-        }
-    }
 
     /** What "Download all" would queue for the current filters ([bestOnly]: one version per game). */
     suspend fun planBulk(bestOnly: Boolean): BulkPlan {
@@ -418,33 +378,9 @@ class HomeViewModel @Inject constructor(
         detailsJob?.cancel()
         _details.value = DetailsState(item, loading = true)
         detailsJob = viewModelScope.launch {
-            // Which version of this game suits the user best (region, language, no demos).
-            val versions = runCatching { repository.versionsOf(item.file) }.getOrDefault(emptyList())
-            val languages = settingsRepository.favoriteLanguages.first()
-            val bestId = if (versions.size > 1) VersionPicker.best(
-                versions.map { VersionPicker.Candidate(it.file.fileName, FileParsingUtils.decodeUrlEncodedFileName(it.file.fileName), it.tags, it.file.fileSize) },
-                VersionPicker.regionPreference(languages), languages
-            )?.id else null
-            val best = versions.firstOrNull { it.file.fileName == bestId }
-            if (_details.value?.item == item) _details.value = _details.value!!.copy(versionCount = versions.size, best = best)
-            if (_details.value?.item == item) _details.value = _details.value!!.copy(collectionIds = collectionsRepository.collectionsOf(item.file))
-            achievementsFor(item.file)?.let { ra -> if (_details.value?.item == item) _details.value = _details.value!!.copy(achievements = ra) }
-            // A Switch game: its updates and DLC in the library, against what is on disk.
-            SwitchTitles.parse(item.file.fileName)?.let { title ->
-                val rows = runCatching { repository.filesOf(item.file.consoleId) }.getOrDefault(emptyList())
-                val status = SwitchTitles.analyse(rows, { it.fileName }, ownedNamesFor(item.file.consoleId), onlyOwned = false)
-                    .firstOrNull { it.baseId == title.baseId }
-                if (_details.value?.item == item) _details.value = _details.value!!.copy(switchTitle = title, switch = status)
-            }
-            // "More like this" from what is cached: shown before the (slower) online lookup returns.
-            val similar = similarTo(item, null)
-            if (_details.value?.item == item && similar.isNotEmpty()) _details.value = _details.value!!.copy(similar = similar)
-            val found = metadataService.lookup(item.file.name, item.file.consoleId, item.file.fileName)
-            if (_details.value?.item == item) _details.value = _details.value!!.copy(loading = false, details = found)
-            // The lookup may have brought genres / developer the first pass did not have.
-            if (found != null && (found.genres.isNotEmpty() || found.developer.isNotBlank())) {
-                val better = similarTo(item, found)
-                if (_details.value?.item == item && better.isNotEmpty()) _details.value = _details.value!!.copy(similar = better)
+            // 8.0: the same steps as the game page (GameDetailsLoader); each one lands only while this game is still open.
+            detailsLoader.load(item, discoverIndex.value) { change ->
+                _details.value?.takeIf { it.item == item }?.let { _details.value = change(it) }
             }
         }
     }
@@ -806,7 +742,6 @@ private const val SCAN_BATCH = 1500
 private const val SCAN_CAP = 60_000
 internal const val FETCH_CAP = 40
 private const val FETCH_GAP_MS = 800L
-private const val SIMILAR_LIMIT = 6
 
 private data class FilterExtra(val sort: SortOption, val favouritesOnly: Boolean, val source: SourceFilter, val newOnly: Boolean, val collectionId: Long)
 
@@ -826,5 +761,9 @@ data class DetailsState(
     /** RetroAchievements game and whether it was matched by hash (true) or only by title (false). */
     val achievements: Pair<RaGame, Boolean>? = null,
     /** 6.0: "More like this", ranked from local data; empty hides the section. */
-    val similar: List<DownloadableFileWithTags> = emptyList()
+    val similar: List<DownloadableFileWithTags> = emptyList(),
+    /** 8.0: every version of the game the library lists (this one included), for the game page. */
+    val versions: List<DownloadableFileWithTags> = emptyList(),
+    /** 8.0: file name of the version that suits the user best (null with one version or no pick). */
+    val bestFileName: String? = null
 )
