@@ -556,6 +556,9 @@ fun HomeScreen(
         }
     }
 
+    // 7.0: the Search shortcut puts the cursor in the search box (the same as the Y button).
+    LaunchedEffect(Unit) { viewModel.searchRequests.collect { searchActive = true } }
+
     LaunchedEffect(isLandscape) {
         Gamepad.presses.collect { button ->
             when (button) {

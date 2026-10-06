@@ -16,6 +16,8 @@ import com.cortinadev.dogmatix.util.AppShortcut
 import com.cortinadev.dogmatix.util.AppShortcuts
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.LibraryViews
+import com.cortinadev.dogmatix.util.QuickAction
+import com.cortinadev.dogmatix.util.QuickActions
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +32,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Android app shortcuts for Dogmatix+: Downloads, each saved view and each console. Launchers show
+ * Android app shortcuts for Dogmatix+: Surprise me, Downloads and Search (7.0 quick access), each
+ * saved view and each console. Launchers show
  * them on a long press of the icon, and frontends that read app shortcuts (Cocoon picks them up in
  * *Add Games*) turn them into tiles that open Dogmatix+ on that console or view. They follow the
  * consoles and views as those change. [shortcutFor] builds one on request, for the "add a
@@ -52,7 +55,8 @@ class AppShortcutService @Inject constructor(
                     downloads(),
                     consoles.map { it.id to ConsoleFormatter.getConsoleDisplayName(it.id) },
                     LibraryViews.fromJson(views),
-                    ShortcutManagerCompat.getMaxShortcutCountPerActivity(context).takeIf { it > 0 } ?: AppShortcuts.MAX_DYNAMIC
+                    ShortcutManagerCompat.getMaxShortcutCountPerActivity(context).takeIf { it > 0 } ?: AppShortcuts.MAX_DYNAMIC,
+                    surprise(), search()
                 )
             }.distinctUntilChanged().debounce(2_000).collect { plan ->
                 runCatching { ShortcutManagerCompat.setDynamicShortcuts(context, plan.mapIndexed { i, s -> build(s, rank = i) }) }
@@ -64,21 +68,35 @@ class AppShortcutService @Inject constructor(
     suspend fun available(): List<AppShortcut> {
         val consoles = consoleDao.getAllConsoles().first()
         val views = LibraryViews.fromJson(appSettings.libraryViews.first())
-        return AppShortcuts.plan(downloads(), consoles.map { it.id to ConsoleFormatter.getConsoleDisplayName(it.id) }, views, max = Int.MAX_VALUE)
+        return AppShortcuts.plan(
+            downloads(), consoles.map { it.id to ConsoleFormatter.getConsoleDisplayName(it.id) }, views, max = Int.MAX_VALUE,
+            surprise = surprise(), search = search()
+        )
     }
 
     fun shortcutFor(shortcut: AppShortcut): ShortcutInfoCompat = build(shortcut, rank = 0)
 
     private fun downloads() = AppShortcuts.downloads(context.getString(R.string.nav_downloads), NavRoutes.Downloads.route)
 
+    private fun surprise() = AppShortcuts.surprise(context.getString(R.string.quick7_shortcut_surprise))
+
+    private fun search() = AppShortcuts.search(context.getString(R.string.quick7_shortcut_search))
+
     private fun build(s: AppShortcut, rank: Int): ShortcutInfoCompat {
         val intent = Intent(context, MainActivity::class.java).apply {
-            action = Intent.ACTION_VIEW
+            // 7.0: Surprise me / Search travel as QuickActions.ACTION_QUICK + the action's key (MainActivity hands them on).
+            action = if (s.quick != null) QuickActions.ACTION_QUICK else Intent.ACTION_VIEW
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             s.deepLink?.let { data = Uri.parse(it) }
             s.route?.let { putExtra(PendingLibraryFilters.EXTRA_OPEN_ROUTE, it) }
+            s.quick?.let { putExtra(QuickActions.EXTRA_QUICK_ACTION, it.key) }
         }
-        val icon = if (s.route != null) R.drawable.ic_shortcut_downloads else R.drawable.ic_shortcut_library
+        val icon = when {
+            s.quick == QuickAction.SURPRISE -> R.drawable.ic_shortcut_surprise
+            s.quick == QuickAction.SEARCH -> R.drawable.ic_shortcut_search
+            s.route != null -> R.drawable.ic_shortcut_downloads
+            else -> R.drawable.ic_shortcut_library
+        }
         return ShortcutInfoCompat.Builder(context, s.id)
             .setShortLabel(s.label.take(24))
             .setLongLabel(s.label)

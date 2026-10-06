@@ -1,5 +1,7 @@
 package com.cortinadev.dogmatix.data.state
 
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
+import com.cortinadev.dogmatix.util.QuickAction
 import com.cortinadev.dogmatix.util.SharedLink
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,6 +56,22 @@ class PendingLibraryFilters @Inject constructor() {
     fun share(link: SharedLink) { _shared.value = link }
     fun dismissShare() { _shared.value = null }
     fun consumeSection(): String? = _openRoute.getAndUpdate { null }
+
+    /** 7.0: a quick action (launcher shortcut) waiting for the Library screen; taken by HomeViewModel. */
+    private val _quick = MutableStateFlow<QuickAction?>(null)
+    val quick: StateFlow<QuickAction?> = _quick.asStateFlow()
+
+    /**
+     * Hands a quick action to the UI. Downloads is a section (the shell opens it); Surprise me and
+     * Search belong to the Library screen, so they wait here and the shell switches to that tab.
+     */
+    fun submitQuick(action: QuickAction) {
+        if (action == QuickAction.DOWNLOADS) { openSection(NavRoutes.Downloads.route); return }
+        _quick.value = action
+        _version.update { it + 1 }
+    }
+
+    fun consumeQuick(): QuickAction? = _quick.getAndUpdate { null }
 
     companion object {
         /** Intent extra with a route to open (see [openSection]). */

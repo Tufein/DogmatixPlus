@@ -52,8 +52,10 @@ import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import com.cortinadev.dogmatix.data.state.LibraryFilterRequest
 import com.cortinadev.dogmatix.data.state.PendingLibraryFilters
+import com.cortinadev.dogmatix.util.QuickAction
 import com.cortinadev.dogmatix.data.state.RescanStateHolder
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.Constants
@@ -69,7 +71,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.sample
@@ -377,6 +381,22 @@ class HomeViewModel @Inject constructor(
         _source.value = source
     }
 
+    /** 7.0: asks the screen to put the cursor in the search box (the Search shortcut); it keeps the ask until the screen collects it. */
+    private val _searchRequests = Channel<Unit>(Channel.CONFLATED)
+    val searchRequests: Flow<Unit> = _searchRequests.receiveAsFlow()
+
+    private fun onQuickAction(action: QuickAction) {
+        when (action) {
+            QuickAction.SEARCH -> _searchRequests.trySend(Unit)
+            QuickAction.SURPRISE -> viewModelScope.launch {
+                // A cold start: wait for the first list (the shortcut may be what launched the app).
+                withTimeoutOrNull(15_000) { _isSearching.first { !it } }
+                _results.value.randomOrNull()?.let(::openDetails)
+            }
+            QuickAction.DOWNLOADS -> Unit   // a section: PendingLibraryFilters hands it to the shell
+        }
+    }
+
     /** The game whose details card is open, if any, and what we know about it so far. */
     private val _details = MutableStateFlow<DetailsState?>(null)
     val details: StateFlow<DetailsState?> = _details.asStateFlow()
@@ -527,6 +547,10 @@ class HomeViewModel @Inject constructor(
         // Deep links (dogmatix://library?…): apply whatever is waiting, now and on every new link.
         viewModelScope.launch {
             pendingFilters.request.collect { if (it != null) pendingFilters.consume()?.let { request -> applyRequest(request) } }
+        }
+        // 7.0 quick access (launcher shortcuts): Surprise me and Search.
+        viewModelScope.launch {
+            pendingFilters.quick.collect { if (it != null) pendingFilters.consumeQuick()?.let(::onQuickAction) }
         }
         viewModelScope.launch {
             combine(
