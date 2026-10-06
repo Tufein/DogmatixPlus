@@ -33,6 +33,15 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
+### New in 8.0
+- **A page for every game**: A or a tap in the library opens a full-screen page with the art, a big Download button, the best version, favourite, collections, share and remove, and tabs for **About**, **Versions**, **Progress** (achievements, cloud saves) and **More like this**. X or a long press still opens the quick details card.
+- **Quick menu**: hold SELECT for a ring with Search, Search everything, Surprise me, Downloads, Pause all / Resume all, Tools and Settings. A short press still marks a favourite.
+- **Smart storage** (optional, *Tools → Storage*): consoles you have not played lately and have no favourites in move as a whole folder to the SD card, and come back when you play them again. Every file is copied and checked before the original goes; *Check* shows what would move first. ES-DE follows by itself, other launchers need the new folder by hand.
+- **Search everything**: one search for settings, tools, screens and your games, from the quick menu, the Tools title or *Settings*; a setting you pick is scrolled into view and lit up.
+- **TV mode** (*Settings → Look and controls*): larger text and rows, margins for the TV's edges and remote keys; the app also shows up in the Android TV launcher.
+- **Settings text is never cut off** any more: titles, hints and values wrap in full.
+- Not tried yet on a real device, a TV or an SD card.
+
 ### New in 7.0
 - **Keep a collection on your device** (*Tools → Collections*): switch it on and new games in that collection download by themselves, a few per run, only when there is room. Nothing is deleted automatically; games that left the collection are offered in a review list.
 - **Free up space** (*Tools*): games you never played, biggest first, with the space you would win. Favourites, collection games, RomM saves and achievements are protected. Remove them, or remove and put them on the wishlist.

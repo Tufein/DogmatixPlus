@@ -33,6 +33,15 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 8.0
+- **Eine Seite für jedes Spiel**: A oder Tippen in der Bibliothek öffnet eine Vollbildseite mit dem Artwork, einer großen Download-Taste, der besten Version, Favorit, Sammlungen, Teilen und Entfernen, und Reitern für **Info**, **Versionen**, **Fortschritt** (Erfolge, Cloud-Spielstände) und **Mehr davon**. X oder langes Drücken öffnet weiterhin die schnelle Detailkarte.
+- **Schnellmenü**: SELECT halten für einen Ring mit Suchen, Alles durchsuchen, Überrasch mich, Downloads, Alle pausieren / fortsetzen, Tools und Einstellungen. Kurz drücken setzt weiterhin einen Favoriten.
+- **Intelligenter Speicher** (optional, *Tools → Speicher*): Konsolen, die du länger nicht gespielt hast und in denen kein Favorit liegt, ziehen als ganzer Ordner auf die SD-Karte und kommen zurück, sobald du sie wieder spielst. Jede Datei wird kopiert und geprüft, bevor das Original geht; *Prüfen* zeigt vorher, was verschoben würde. ES-DE folgt von selbst, andere Launcher musst du selbst auf den neuen Ordner zeigen lassen.
+- **Alles durchsuchen**: eine Suche für Einstellungen, Tools, Bildschirme und deine Spiele, aus dem Schnellmenü, dem Tools-Titel oder den *Einstellungen*; eine gewählte Einstellung wird ins Bild geholt und hervorgehoben.
+- **TV-Modus** (*Einstellungen → Aussehen und Bedienung*): größere Schrift und Zeilen, Ränder für den TV-Bildrand und Tasten der Fernbedienung; die App erscheint auch im Launcher von Android TV.
+- **Text in den Einstellungen wird nie mehr abgeschnitten**: Titel, Hinweise und Werte brechen vollständig um.
+- Noch nicht auf einem echten Gerät, einem Fernseher oder einer SD-Karte getestet.
+
 ### Neu in 7.0
 - **Eine Sammlung auf dem Gerät halten** (*Tools → Sammlungen*): einschalten, und neue Spiele darin werden von selbst geladen, wenige pro Durchlauf und nur bei genug Platz. Nichts wird automatisch gelöscht; Spiele, die die Sammlung verlassen haben, stehen in einer Prüfliste.
 - **Speicher freigeben** (*Tools*): nie gespielte Spiele, größte zuerst, mit dem gewonnenen Platz. Favoriten, Sammlungsspiele, RomM-Spielstände und Erfolge sind geschützt. Entfernen, oder entfernen und auf die Wunschliste setzen.

@@ -1293,10 +1293,12 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>La segunda pantalla tiene Pausar todo / Reanudar todo y un botón de pausa por descarga.</item>
-        <item>Las descargas pueden pausarse con poca batería o si el dispositivo se calienta.</item>
-        <item>Botones en las notificaciones: pausar, reanudar, detener, abrir el juego en la biblioteca.</item>
-        <item>La mejor fuente se elige sola, y una descarga que falla pasa a la siguiente.</item>
+        <item>A o un toque en un juego abre su propia página: imagen, descarga, versiones, progreso y más como este.</item>
+        <item>Mantén SELECT para el menú rápido: búsqueda, Sorpréndeme, descargas, herramientas y ajustes.</item>
+        <item>El almacenamiento inteligente (opcional, Herramientas → Almacenamiento) mueve las consolas a las que no juegas a la tarjeta SD y de vuelta.</item>
+        <item>Buscar en todo: una sola búsqueda para ajustes, herramientas, pantallas y tus juegos.</item>
+        <item>Modo TV: texto más grande, márgenes seguros y teclas del mando a distancia; la app también aparece en el lanzador de Android TV.</item>
+        <item>Los textos de los ajustes ya nunca se cortan.</item>
     </string-array>
 
     <!-- 4.0 -->

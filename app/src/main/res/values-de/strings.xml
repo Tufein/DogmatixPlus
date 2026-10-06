@@ -1319,10 +1319,12 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Der zweite Bildschirm hat Alle pausieren / Alle fortsetzen und eine Pausetaste je Download.</item>
-        <item>Downloads können bei schwachem Akku oder Hitze pausieren.</item>
-        <item>Tasten in den Benachrichtigungen: pausieren, fortsetzen, stoppen, das Spiel in der Bibliothek öffnen.</item>
-        <item>Die beste Quelle wird automatisch gewählt, und ein scheiternder Download wechselt zur nächsten.</item>
+        <item>A oder Tippen auf ein Spiel öffnet seine eigene Seite: Artwork, Download, Versionen, Fortschritt und Mehr davon.</item>
+        <item>SELECT halten öffnet das Schnellmenü: Suche, Überrasch mich, Downloads, Werkzeuge und Einstellungen.</item>
+        <item>Intelligenter Speicher (optional, Werkzeuge → Speicher) verschiebt Konsolen, die du nicht spielst, auf die SD-Karte und zurück.</item>
+        <item>Alles durchsuchen: eine Suche für Einstellungen, Werkzeuge, Bildschirme und deine Spiele.</item>
+        <item>TV-Modus: größere Schrift, sichere Ränder und Tasten der Fernbedienung; die App steht auch im Android-TV-Launcher.</item>
+        <item>Texte in den Einstellungen werden nie mehr abgeschnitten.</item>
     </string-array>
 
     <!-- 4.0 -->

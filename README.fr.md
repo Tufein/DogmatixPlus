@@ -33,6 +33,15 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveau dans 8.0
+- **Une page pour chaque jeu** : A ou un appui dans la bibliothèque ouvre une page plein écran avec l'illustration, un grand bouton Télécharger, la meilleure version, favori, collections, partage et suppression, et des onglets **À propos**, **Versions**, **Progression** (succès, sauvegardes cloud) et **Dans le même genre**. X ou un appui long ouvre toujours la fiche rapide.
+- **Menu rapide** : maintenez SELECT pour un anneau avec Rechercher, Tout rechercher, Surprenez-moi, Téléchargements, Tout mettre en pause / Tout reprendre, Outils et Paramètres. Un appui court marque toujours un favori.
+- **Stockage intelligent** (facultatif, *Outils → Stockage*) : les consoles auxquelles vous n'avez pas joué depuis un moment et sans favori partent en dossier entier sur la carte SD, et reviennent dès que vous y rejouez. Chaque fichier est copié et vérifié avant que l'original ne parte ; *Vérifier* montre d'abord ce qui serait déplacé. ES-DE suit tout seul, les autres lanceurs doivent être dirigés vers le nouveau dossier à la main.
+- **Tout rechercher** : une seule recherche pour les paramètres, les outils, les écrans et vos jeux, depuis le menu rapide, le titre des Outils ou les *Paramètres* ; le paramètre choisi est amené à l'écran et mis en évidence.
+- **Mode TV** (*Paramètres → Apparence et commandes*) : texte et lignes plus grands, marges pour les bords du téléviseur et touches de la télécommande ; l'application apparaît aussi dans le lanceur d'Android TV.
+- **Le texte des paramètres n'est plus jamais coupé** : titres, explications et valeurs s'affichent en entier.
+- Pas encore essayé sur un vrai appareil, un téléviseur ou une carte SD.
+
 ### Nouveau dans 7.0
 - **Garder une collection sur l'appareil** (*Outils → Collections*) : activez-la et les nouveaux jeux qu'elle contient se téléchargent seuls, quelques-uns par passage et seulement s'il y a de la place. Rien n'est supprimé automatiquement ; les jeux sortis de la collection sont proposés dans une liste de contrôle.
 - **Libérer de la place** (*Outils*) : jeux jamais lancés, les plus gros d'abord, avec la place gagnée. Favoris, jeux d'une collection, sauvegardes RomM et succès sont protégés. Supprimez-les, ou supprimez et mettez-les sur la liste de souhaits.

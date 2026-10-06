@@ -1320,10 +1320,12 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>The second screen has Pause all / Resume all and a pause button per download.</item>
-        <item>Downloads can pause on low battery or when the device gets hot.</item>
-        <item>Buttons in the notifications: pause, resume, stop, open the game in the library.</item>
-        <item>The best source is picked by itself, and a failing download switches to the next one.</item>
+        <item>A or a tap on a game opens its own page: art, Download, versions, progress and more like this.</item>
+        <item>Hold SELECT for the quick menu: search, Surprise me, downloads, tools and settings.</item>
+        <item>Smart storage (optional, Tools → Storage) moves consoles you do not play to the SD card and back.</item>
+        <item>Search everything: one search for settings, tools, screens and your games.</item>
+        <item>TV mode: larger text, safe margins and remote keys; the app is in the Android TV launcher too.</item>
+        <item>Texts in Settings are never cut off any more.</item>
     </string-array>
 
     <!-- 4.0 -->

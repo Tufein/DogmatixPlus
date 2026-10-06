@@ -33,6 +33,15 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 8.0
+- **Una página para cada juego**: A o un toque en la biblioteca abre una página a pantalla completa con la imagen, un gran botón Descargar, la mejor versión, favorito, colecciones, compartir y quitar, y pestañas **Información**, **Versiones**, **Progreso** (logros, partidas en la nube) y **Más como este**. X o una pulsación larga sigue abriendo la ficha rápida.
+- **Menú rápido**: mantén SELECT para un anillo con Buscar, Buscar en todo, Sorpréndeme, Descargas, Pausar todo / Reanudar todo, Herramientas y Ajustes. Una pulsación corta sigue marcando un favorito.
+- **Almacenamiento inteligente** (opcional, *Herramientas → Almacenamiento*): las consolas a las que no has jugado últimamente y sin favoritos pasan como carpeta entera a la tarjeta SD, y vuelven en cuanto juegas otra vez. Cada archivo se copia y se comprueba antes de borrar el original; *Comprobar* muestra primero qué se movería. ES-DE se ajusta solo; a los demás lanzadores hay que indicarles la carpeta nueva a mano.
+- **Buscar en todo**: una sola búsqueda para ajustes, herramientas, pantallas y tus juegos, desde el menú rápido, el título de Herramientas o los *Ajustes*; el ajuste elegido se muestra y se resalta.
+- **Modo TV** (*Ajustes → Aspecto y controles*): texto y filas más grandes, márgenes para los bordes del televisor y teclas del mando a distancia; la app también aparece en el lanzador de Android TV.
+- **El texto de los ajustes ya nunca se corta**: títulos, explicaciones y valores se muestran completos.
+- Aún sin probar en un dispositivo real, un televisor ni una tarjeta SD.
+
 ### Novedades de 7.0
 - **Mantener una colección en el dispositivo** (*Herramientas → Colecciones*): actívala y los juegos nuevos que incluya se descargan solos, unos pocos por vez y solo si hay espacio. No se borra nada automáticamente; los juegos que salieron de la colección aparecen en una lista de revisión.
 - **Liberar espacio** (*Herramientas*): juegos que nunca jugaste, los más grandes primero, con el espacio que ganas. Favoritos, juegos de una colección, partidas de RomM y logros están protegidos. Bórralos, o bórralos y ponlos en la lista de deseos.

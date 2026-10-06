@@ -3,6 +3,24 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [8.0.0] – 2026-10-06 · Dogmatix+
+
+### Added
+- **Game page**: A or a tap on a library game opens a full-screen page with its art, a main Download button, actions (best version, favourite, collections, share, remove after a confirmation) and tabs About / Versions / Progress (achievements, cloud saves) / More like this; LB / RB switch tabs.
+- **Quick menu**: hold SELECT for a ring of shortcuts (Search, Search everything, Surprise me, Downloads, Pause all / Resume all, Tools, Settings); the stick or D-pad chooses, letting go or A opens.
+- **Smart storage** (optional, off by default, *Tools → Storage*): consoles not played recently (ES-DE play data) and without favourites move as a whole folder to a chosen SD-card folder and come back when played again. Copy, verify, then delete; *Check* shows a dry run; the weekly run only happens while charging. ES-DE's system path follows (restart ES-DE); other launchers must be pointed to the new folder by hand.
+- **Search everything**: one search for settings, tools, screens and library games, from the quick menu, the Tools title or *Settings → Search settings and tools*; a Settings result jumps to its row and highlights it.
+- **TV mode** (*Settings → Look and controls*, Auto / On / Off): larger text and rows, safe margins for TV edges, remote keys (channel and page keys switch sections), the legend with a remote. The app also shows in the Android TV launcher with its own banner.
+
+### Changed
+- A on a library row opens the game page instead of downloading straight away; X or a long press still opens the quick details card.
+- A short SELECT press still marks a favourite, now on release.
+- Texts in Settings are never cut off: titles, hints and values wrap in full.
+
+### Notes
+- No database change (version 13).
+- Not yet tried on a real device, a TV or an SD card.
+
 ## [7.5.0] – 2026-10-06 · Dogmatix+ (pre-release)
 
 ### Added

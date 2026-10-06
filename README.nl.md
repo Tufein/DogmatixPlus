@@ -33,6 +33,15 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 8.0
+- **Een pagina voor elke game**: A of een tik in de bibliotheek opent een pagina over het hele scherm met de art, een grote downloadknop, de beste versie, favoriet, collecties, delen en verwijderen, en tabbladen **Over**, **Versies**, **Voortgang** (achievements, cloud-saves) en **Meer zoals dit**. X of lang indrukken opent nog steeds de snelle detailkaart.
+- **Snelmenu**: houd SELECT ingedrukt voor een ring met Zoeken, Alles doorzoeken, Verras me, Downloads, Alles pauzeren / hervatten, Tools en Instellingen. Kort drukken maakt nog steeds een favoriet.
+- **Slimme opslag** (optioneel, *Tools → Opslag*): consoles die je een tijd niet speelde en waarin geen favoriet staat verhuizen als hele map naar de SD-kaart, en komen terug zodra je ze weer speelt. Elk bestand wordt gekopieerd en gecontroleerd voordat het origineel weggaat; *Bekijken* laat eerst zien wat zou verhuizen. ES-DE volgt vanzelf, andere launchers moet je zelf naar de nieuwe map wijzen.
+- **Alles doorzoeken**: één zoekveld voor instellingen, tools, schermen en je games, vanuit het snelmenu, de titel van Tools of de *Instellingen*; een gekozen instelling wordt in beeld gebracht en licht op.
+- **Tv-modus** (*Instellingen → Uiterlijk en bediening*): grotere tekst en rijen, marges voor de randen van de tv en toetsen van de afstandsbediening; de app staat ook in de launcher van Android TV.
+- **Tekst in de instellingen wordt nooit meer afgekapt**: titels, uitleg en waarden lopen volledig door.
+- Nog niet getest op een echt apparaat, een tv of een SD-kaart.
+
 ### Nieuw in 7.0
 - **Houd een collectie op je toestel** (*Tools → Collecties*): zet hem aan en nieuwe games in die collectie worden vanzelf gedownload, een paar per keer en alleen als er ruimte is. Er wordt niets automatisch verwijderd; games die uit de collectie zijn gehaald staan in een controlelijst.
 - **Ruimte vrijmaken** (*Tools*): games die je nooit speelde, grootste eerst, met de ruimte die je wint. Favorieten, games in een collectie, RomM-saves en achievements zijn beschermd. Verwijder ze, of verwijder en zet ze op de verlanglijst.
