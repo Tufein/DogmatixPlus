@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Better versions -->
+    <string name="upg7_better_title">Betere versies</string>
+    <string name="upg7_better_subtitle">Nieuwere of schonere kopieën van je games</string>
+    <string name="upg7_better_hint">Zoekt in je bronnen naar nieuwere revisies, definitieve versies en goede dumps van je games</string>
+    <plurals name="upg7_better_summary">
+        <item quantity="one">%1$d betere versie gevonden · %2$d games gecontroleerd</item>
+        <item quantity="other">%1$d betere versies gevonden · %2$d games gecontroleerd</item>
+    </plurals>
+    <string name="upg7_better_none">Niets beters gevonden onder %1$d games</string>
+    <string name="upg7_empty_title">Niets beters te bieden</string>
+    <string name="upg7_empty_message">Elke game die je hebt is al de beste versie die je bronnen tonen, of ze hebben er geen andere versie van. Dit wordt alleen op bestandsnamen beoordeeld.</string>
+    <string name="upg7_row_current">Op je apparaat: %1$s</string>
+    <string name="upg7_row_better">Beter: %1$s</string>
+    <string name="upg7_reason_rev">Nieuwere revisie (%1$s)</string>
+    <string name="upg7_reason_rev_plain">Nieuwere revisie</string>
+    <string name="upg7_reason_final_beta">Definitieve versie in plaats van een bètaversie</string>
+    <string name="upg7_reason_final_proto">Definitieve versie in plaats van een prototype</string>
+    <string name="upg7_reason_final_demo">Definitieve versie in plaats van een demo</string>
+    <string name="upg7_reason_final_sample">Definitieve versie in plaats van een sample</string>
+    <string name="upg7_reason_final_kiosk">Definitieve versie in plaats van een kioskversie</string>
+    <string name="upg7_reason_final_other">Definitieve versie in plaats van een pre-release</string>
+    <string name="upg7_reason_dump_bad">Goede dump in plaats van een slechte dump</string>
+    <string name="upg7_reason_dump_overdump">Goede dump in plaats van een overdump</string>
+    <string name="upg7_reason_dump_hack">Origineel in plaats van een gehackte kopie</string>
+    <string name="upg7_reason_dump_pirate">Origineel in plaats van een piratenkopie</string>
+    <string name="upg7_reason_dump_modified">Ongewijzigde kopie in plaats van een aangepaste</string>
+    <string name="upg7_reason_dump_dat">Geverifieerde dump; je DAT kent het bestand dat je hebt niet</string>
+    <string name="upg7_action_download">Downloaden</string>
+    <string name="upg7_action_replace">Downloaden, daarna oude verwijderen</string>
+    <string name="upg7_action_ignore">Deze suggestie negeren</string>
+    <plurals name="upg7_sel_count">
+        <item quantity="one">%1$d geselecteerd</item>
+        <item quantity="other">%1$d geselecteerd</item>
+    </plurals>
+    <string name="upg7_sel_download">Selectie downloaden</string>
+    <string name="upg7_sel_replace">Selectie downloaden, daarna oude verwijderen</string>
+    <string name="upg7_selected">Geselecteerd</string>
+    <string name="upg7_sel_all">Alles selecteren</string>
+    <string name="upg7_sel_clear">Selectie wissen</string>
+    <string name="upg7_ignored_reset">Genegeerde suggesties weer tonen</string>
+    <string name="upg7_ignored_toast">Suggestie genegeerd</string>
+    <string name="upg7_replace_title">De oude bestanden daarna verwijderen?</string>
+    <string name="upg7_replace_message">De betere versies worden eerst gedownload. Een oud bestand wordt pas verwijderd nadat het nieuwe bestand klaar is en de controle heeft doorstaan. Mislukt een download of kan hij niet gecontroleerd worden, dan blijft het oude bestand staan.\n\nDeze bestanden worden verwijderd:</string>
+    <string name="upg7_replace_confirm">Downloaden en verwijderen</string>
+    <string name="upg7_state_downloading">Bezig met downloaden</string>
+    <string name="upg7_state_done">Gedownload</string>
+    <string name="upg7_state_failed">Download mislukt</string>
+    <string name="upg7_state_waiting">Oud bestand verdwijnt na de controle</string>
+    <string name="upg7_state_kept">Oud bestand bewaard</string>
+    <string name="upg7_removed_old">Oude versie van %1$s verwijderd</string>
+    <string name="upg7_kept_old">Oude versie van %1$s bewaard: het nieuwe bestand is niet bevestigd</string>
+    <string name="upg7_remove_failed">Kon de oude versie van %1$s niet verwijderen</string>
+    <plurals name="upg7_download_started">
+        <item quantity="one">%1$d download gestart</item>
+        <item quantity="other">%1$d downloads gestart</item>
+    </plurals>
+    <string name="upg7_pad_ignore">Negeren</string>
+
+    <!-- Weekly digest -->
+    <string name="upg7_digest_setting">Wekelijkse samenvatting</string>
+    <string name="upg7_digest_setting_hint">Eén keer per week: nieuwe games voor je consoles, vondsten van je verlanglijst, voortgang van je doelen en wat je hebt gedownload</string>
+    <string name="upg7_digest_title">Je wekelijkse samenvatting</string>
+    <plurals name="upg7_digest_new">
+        <item quantity="one">%1$d nieuwe game voor je consoles</item>
+        <item quantity="other">%1$d nieuwe games voor je consoles</item>
+    </plurals>
+    <plurals name="upg7_digest_wishes">
+        <item quantity="one">%1$d game van je verlanglijst opgedoken: %2$s</item>
+        <item quantity="other">%1$d games van je verlanglijst opgedoken: %2$s</item>
+    </plurals>
+    <string name="upg7_digest_goals">Doelen: %1$s</string>
+    <plurals name="upg7_digest_goals_done">
+        <item quantity="one">%1$d doel voltooid</item>
+        <item quantity="other">%1$d doelen voltooid</item>
+    </plurals>
+    <plurals name="upg7_digest_downloads">
+        <item quantity="one">%1$d game gedownload (%2$s)</item>
+        <item quantity="other">%1$d games gedownload (%2$s)</item>
+    </plurals>
+</resources>

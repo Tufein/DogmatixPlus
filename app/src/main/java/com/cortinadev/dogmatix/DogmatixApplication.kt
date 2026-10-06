@@ -23,6 +23,7 @@ import com.cortinadev.dogmatix.data.service.RommTrustService
 import com.cortinadev.dogmatix.data.service.RommUploadService
 import com.cortinadev.dogmatix.data.service.SaveSyncScheduler
 import com.cortinadev.dogmatix.data.service.VersionCheckerService
+import com.cortinadev.dogmatix.data.service.WeeklyDigestScheduler
 import com.cortinadev.dogmatix.util.ConsoleAliasRegistry
 import com.cortinadev.dogmatix.util.CrashLog
 import com.cortinadev.dogmatix.widget.WidgetUpdater
@@ -85,6 +86,10 @@ class DogmatixApplication : Application(), ImageLoaderFactory {
     /** Injected so collections kept on the device are looked at after every scan from the start. */
     @Inject
     lateinit var offlineCollectionsService: OfflineCollectionsService
+
+    /** Injected so the weekly digest job follows its setting from the start. */
+    @Inject
+    lateinit var weeklyDigestScheduler: WeeklyDigestScheduler
 
     /** Injected so the speed limit (and its night exception) applies from the first download. */
     @Inject

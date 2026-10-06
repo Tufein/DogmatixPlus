@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Better versions -->
+    <string name="upg7_better_title">Better versions</string>
+    <string name="upg7_better_subtitle">Newer or cleaner copies of the games you have</string>
+    <string name="upg7_better_hint">Finds newer revisions, final releases and good dumps of your games in your sources</string>
+    <plurals name="upg7_better_summary">
+        <item quantity="one">%1$d better version found · %2$d games checked</item>
+        <item quantity="other">%1$d better versions found · %2$d games checked</item>
+    </plurals>
+    <string name="upg7_better_none">Nothing better found among %1$d games</string>
+    <string name="upg7_empty_title">Nothing better to offer</string>
+    <string name="upg7_empty_message">Every game you have is already the best version your sources list, or they hold no other version of it. This is judged from file names only.</string>
+    <string name="upg7_row_current">On your device: %1$s</string>
+    <string name="upg7_row_better">Better: %1$s</string>
+    <string name="upg7_reason_rev">Newer revision (%1$s)</string>
+    <string name="upg7_reason_rev_plain">Newer revision</string>
+    <string name="upg7_reason_final_beta">Final release instead of a beta</string>
+    <string name="upg7_reason_final_proto">Final release instead of a prototype</string>
+    <string name="upg7_reason_final_demo">Final release instead of a demo</string>
+    <string name="upg7_reason_final_sample">Final release instead of a sample</string>
+    <string name="upg7_reason_final_kiosk">Final release instead of a kiosk build</string>
+    <string name="upg7_reason_final_other">Final release instead of a pre-release</string>
+    <string name="upg7_reason_dump_bad">Good dump instead of a bad dump</string>
+    <string name="upg7_reason_dump_overdump">Good dump instead of an overdump</string>
+    <string name="upg7_reason_dump_hack">Original instead of a hacked copy</string>
+    <string name="upg7_reason_dump_pirate">Original instead of a pirate copy</string>
+    <string name="upg7_reason_dump_modified">Unmodified copy instead of a modified one</string>
+    <string name="upg7_reason_dump_dat">Verified dump; your DAT does not know the file you have</string>
+    <string name="upg7_action_download">Download</string>
+    <string name="upg7_action_replace">Download, then remove old</string>
+    <string name="upg7_action_ignore">Ignore this suggestion</string>
+    <plurals name="upg7_sel_count">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+    <string name="upg7_sel_download">Download selected</string>
+    <string name="upg7_sel_replace">Download selected, then remove old</string>
+    <string name="upg7_selected">Selected</string>
+    <string name="upg7_sel_all">Select all</string>
+    <string name="upg7_sel_clear">Clear selection</string>
+    <string name="upg7_ignored_reset">Show ignored suggestions again</string>
+    <string name="upg7_ignored_toast">Suggestion ignored</string>
+    <string name="upg7_replace_title">Remove the old files afterwards?</string>
+    <string name="upg7_replace_message">The better versions are downloaded first. An old file is removed only after its new file has finished and passed its check. If a download fails or cannot be checked, the old file stays.\n\nThese files will be removed:</string>
+    <string name="upg7_replace_confirm">Download and remove</string>
+    <string name="upg7_state_downloading">Downloading</string>
+    <string name="upg7_state_done">Downloaded</string>
+    <string name="upg7_state_failed">Download failed</string>
+    <string name="upg7_state_waiting">Old file goes after the check</string>
+    <string name="upg7_state_kept">Old file kept</string>
+    <string name="upg7_removed_old">Removed the old version of %1$s</string>
+    <string name="upg7_kept_old">Kept the old version of %1$s: the new file was not confirmed</string>
+    <string name="upg7_remove_failed">Could not remove the old version of %1$s</string>
+    <plurals name="upg7_download_started">
+        <item quantity="one">Started %1$d download</item>
+        <item quantity="other">Started %1$d downloads</item>
+    </plurals>
+    <string name="upg7_pad_ignore">Ignore</string>
+
+    <!-- Weekly digest -->
+    <string name="upg7_digest_setting">Weekly digest</string>
+    <string name="upg7_digest_setting_hint">Once a week: new games for your consoles, wishlist finds, goal progress and what you downloaded</string>
+    <string name="upg7_digest_title">Your weekly digest</string>
+    <plurals name="upg7_digest_new">
+        <item quantity="one">%1$d new game for your consoles</item>
+        <item quantity="other">%1$d new games for your consoles</item>
+    </plurals>
+    <plurals name="upg7_digest_wishes">
+        <item quantity="one">%1$d wishlist game turned up: %2$s</item>
+        <item quantity="other">%1$d wishlist games turned up: %2$s</item>
+    </plurals>
+    <string name="upg7_digest_goals">Goals: %1$s</string>
+    <plurals name="upg7_digest_goals_done">
+        <item quantity="one">%1$d goal complete</item>
+        <item quantity="other">%1$d goals complete</item>
+    </plurals>
+    <plurals name="upg7_digest_downloads">
+        <item quantity="one">%1$d game downloaded (%2$s)</item>
+        <item quantity="other">%1$d games downloaded (%2$s)</item>
+    </plurals>
+</resources>

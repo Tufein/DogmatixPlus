@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Better versions -->
+    <string name="upg7_better_title">Mejores versiones</string>
+    <string name="upg7_better_subtitle">Copias más recientes o más limpias de tus juegos</string>
+    <string name="upg7_better_hint">Busca en tus fuentes revisiones más nuevas, versiones finales y buenos dumps de tus juegos</string>
+    <plurals name="upg7_better_summary">
+        <item quantity="one">%1$d mejor versión encontrada · %2$d juegos comprobados</item>
+        <item quantity="other">%1$d mejores versiones encontradas · %2$d juegos comprobados</item>
+    </plurals>
+    <string name="upg7_better_none">No se encontró nada mejor entre %1$d juegos</string>
+    <string name="upg7_empty_title">Nada mejor que ofrecer</string>
+    <string name="upg7_empty_message">Cada juego que tienes ya es la mejor versión que listan tus fuentes, o estas no tienen otra versión. Se juzga solo por los nombres de archivo.</string>
+    <string name="upg7_row_current">En tu dispositivo: %1$s</string>
+    <string name="upg7_row_better">Mejor: %1$s</string>
+    <string name="upg7_reason_rev">Revisión más reciente (%1$s)</string>
+    <string name="upg7_reason_rev_plain">Revisión más reciente</string>
+    <string name="upg7_reason_final_beta">Versión final en lugar de una beta</string>
+    <string name="upg7_reason_final_proto">Versión final en lugar de un prototipo</string>
+    <string name="upg7_reason_final_demo">Versión final en lugar de una demo</string>
+    <string name="upg7_reason_final_sample">Versión final en lugar de una muestra</string>
+    <string name="upg7_reason_final_kiosk">Versión final en lugar de una versión de quiosco</string>
+    <string name="upg7_reason_final_other">Versión final en lugar de una versión preliminar</string>
+    <string name="upg7_reason_dump_bad">Buen dump en lugar de un dump malo</string>
+    <string name="upg7_reason_dump_overdump">Buen dump en lugar de un overdump</string>
+    <string name="upg7_reason_dump_hack">Original en lugar de una copia modificada (hack)</string>
+    <string name="upg7_reason_dump_pirate">Original en lugar de una copia pirata</string>
+    <string name="upg7_reason_dump_modified">Copia sin modificar en lugar de una modificada</string>
+    <string name="upg7_reason_dump_dat">Dump verificado; tu DAT no conoce el archivo que tienes</string>
+    <string name="upg7_action_download">Descargar</string>
+    <string name="upg7_action_replace">Descargar y luego quitar el antiguo</string>
+    <string name="upg7_action_ignore">Ignorar esta sugerencia</string>
+    <plurals name="upg7_sel_count">
+        <item quantity="one">%1$d seleccionado</item>
+        <item quantity="other">%1$d seleccionados</item>
+    </plurals>
+    <string name="upg7_sel_download">Descargar la selección</string>
+    <string name="upg7_sel_replace">Descargar la selección y luego quitar los antiguos</string>
+    <string name="upg7_selected">Seleccionado</string>
+    <string name="upg7_sel_all">Seleccionar todo</string>
+    <string name="upg7_sel_clear">Quitar la selección</string>
+    <string name="upg7_ignored_reset">Volver a mostrar las sugerencias ignoradas</string>
+    <string name="upg7_ignored_toast">Sugerencia ignorada</string>
+    <string name="upg7_replace_title">¿Quitar después los archivos antiguos?</string>
+    <string name="upg7_replace_message">Primero se descargan las mejores versiones. Un archivo antiguo solo se quita cuando su archivo nuevo ha terminado y ha pasado su comprobación. Si una descarga falla o no se puede comprobar, el archivo antiguo se queda.\n\nSe quitarán estos archivos:</string>
+    <string name="upg7_replace_confirm">Descargar y quitar</string>
+    <string name="upg7_state_downloading">Descargando</string>
+    <string name="upg7_state_done">Descargado</string>
+    <string name="upg7_state_failed">Descarga fallida</string>
+    <string name="upg7_state_waiting">El archivo antiguo se quita tras la comprobación</string>
+    <string name="upg7_state_kept">Archivo antiguo conservado</string>
+    <string name="upg7_removed_old">Versión antigua de %1$s eliminada</string>
+    <string name="upg7_kept_old">Versión antigua de %1$s conservada: el archivo nuevo no se confirmó</string>
+    <string name="upg7_remove_failed">No se pudo eliminar la versión antigua de %1$s</string>
+    <plurals name="upg7_download_started">
+        <item quantity="one">%1$d descarga iniciada</item>
+        <item quantity="other">%1$d descargas iniciadas</item>
+    </plurals>
+    <string name="upg7_pad_ignore">Ignorar</string>
+
+    <!-- Weekly digest -->
+    <string name="upg7_digest_setting">Resumen semanal</string>
+    <string name="upg7_digest_setting_hint">Una vez por semana: juegos nuevos para tus consolas, hallazgos de tu lista de deseos, progreso de tus objetivos y lo que descargaste</string>
+    <string name="upg7_digest_title">Tu resumen semanal</string>
+    <plurals name="upg7_digest_new">
+        <item quantity="one">%1$d juego nuevo para tus consolas</item>
+        <item quantity="other">%1$d juegos nuevos para tus consolas</item>
+    </plurals>
+    <plurals name="upg7_digest_wishes">
+        <item quantity="one">Ha aparecido %1$d juego de tu lista de deseos: %2$s</item>
+        <item quantity="other">Han aparecido %1$d juegos de tu lista de deseos: %2$s</item>
+    </plurals>
+    <string name="upg7_digest_goals">Objetivos: %1$s</string>
+    <plurals name="upg7_digest_goals_done">
+        <item quantity="one">%1$d objetivo completado</item>
+        <item quantity="other">%1$d objetivos completados</item>
+    </plurals>
+    <plurals name="upg7_digest_downloads">
+        <item quantity="one">%1$d juego descargado (%2$s)</item>
+        <item quantity="other">%1$d juegos descargados (%2$s)</item>
+    </plurals>
+</resources>
