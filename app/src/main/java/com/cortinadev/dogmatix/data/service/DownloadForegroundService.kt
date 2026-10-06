@@ -7,9 +7,12 @@ import android.content.pm.ServiceInfo
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import com.cortinadev.dogmatix.DogmatixApplication
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.util.NotifAction
+import com.cortinadev.dogmatix.util.NotificationActions
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +20,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -76,6 +80,17 @@ class DownloadForegroundService : Service() {
                 }
             }
         }
+        // 7.5: the buttons follow the queue (Pause all / Resume all / Stop all); redrawn only when they change.
+        scope.launch {
+            combine(downloadService.downloads, downloadService.gate.held) { list, held -> held to NotificationActions.ongoing(list, held) }
+                .distinctUntilChanged()
+                .collect { (held, actions) ->
+                    // Never after the service decided to stop: that would bring back a removed notification.
+                    if (!running) return@collect
+                    if (!NotificationManagerCompat.from(this@DownloadForegroundService).areNotificationsEnabled()) return@collect
+                    runCatching { NotificationManagerCompat.from(this@DownloadForegroundService).notify(NOTIFICATION_ID, buildNotification(held, actions)) }
+                }
+        }
     }
 
     override fun onDestroy() {
@@ -110,14 +125,22 @@ class DownloadForegroundService : Service() {
         stopSelf()
     }
 
-    private fun promoteToForeground(): Boolean {
-        val notification = NotificationCompat.Builder(this, DogmatixApplication.DOWNLOAD_CHANNEL_ID)
-            .setContentTitle(getString(R.string.notification_downloading))
-            .setContentText(getString(R.string.notification_downloading_text))
-            .setSmallIcon(R.drawable.ic_arrow_down)
+    /** The ongoing notification; on hold it says so, and it carries the queue buttons of [NotificationActions.ongoing]. */
+    private fun buildNotification(held: Boolean, actions: List<NotifAction>) =
+        NotificationCompat.Builder(this, DogmatixApplication.DOWNLOAD_CHANNEL_ID)
+            .setContentTitle(getString(if (held) R.string.notif75_held_title else R.string.notification_downloading))
+            .setContentText(getString(if (held) R.string.notif75_held_text else R.string.notification_downloading_text))
+            .setSmallIcon(if (held) R.drawable.ic_pause else R.drawable.ic_arrow_down)
+            .setContentIntent(NotificationButtons.openDownloads(this))
             .setOngoing(true)
             .setSilent(true)
+            .setOnlyAlertOnce(true)
+            .also { NotificationButtons.addQueueActions(it, this, actions) }
             .build()
+
+    private fun promoteToForeground(): Boolean {
+        val held = downloadService.gate.held.value
+        val notification = buildNotification(held, NotificationActions.ongoing(downloadService.downloads.value, held))
         return try {
             ServiceCompat.startForeground(this, NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
             true

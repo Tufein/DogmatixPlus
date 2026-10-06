@@ -15,6 +15,10 @@ class QueueSummary(private val minSize: Int = 2) {
 
     private val run = LinkedHashSet<String>()
 
+    /** The rows (file names, still in the list) of the run that ended last, whatever its size; for the per-game notice (7.5). */
+    var lastRun: List<String> = emptyList()
+        private set
+
     /** Feed every new list; returns the summary when a run of at least [minSize] downloads just ended. */
     fun update(list: List<DownloadItemModel>): Summary? {
         var anyActive = false
@@ -23,6 +27,7 @@ class QueueSummary(private val minSize: Int = 2) {
         val byName = list.associateBy { it.fileName }
         val rows = run.mapNotNull { byName[it] }
         run.clear()
+        lastRun = rows.map { it.fileName }
         if (rows.size < minSize) return null
         return Summary(
             completed = rows.count { it.status == DownloadStatus.COMPLETED },

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 7.5: buttons on the download notifications, the "game downloaded" notice -->
+<resources>
+    <string name="notif75_pause_all">Pause all</string>
+    <string name="notif75_resume_all">Resume all</string>
+    <string name="notif75_stop_all">Stop all</string>
+    <string name="notif75_open_library">Open in the library</string>
+    <string name="notif75_open_downloads">Open the downloads</string>
+    <string name="notif75_held_title">Downloads on hold</string>
+    <string name="notif75_held_text">Running downloads finish, nothing new starts</string>
+    <string name="notif75_game_done_title">%1$s downloaded</string>
+    <string name="notif75_game_done_text">Ready in your library</string>
+    <plurals name="notif75_game_done_files">
+        <item quantity="one">%1$d file ready in your library</item>
+        <item quantity="other">%1$d files ready in your library</item>
+    </plurals>
+    <plurals name="notif75_games_done">
+        <item quantity="one">%1$d game downloaded</item>
+        <item quantity="other">%1$d games downloaded</item>
+    </plurals>
+</resources>
