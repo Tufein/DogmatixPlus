@@ -73,6 +73,8 @@ import com.cortinadev.dogmatix.ui.theme.motionSpec
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.SourceHealth
 import com.cortinadev.dogmatix.util.SourceKind
+import com.cortinadev.dogmatix.util.SourceRanking
+import com.cortinadev.dogmatix.util.SourceRecord
 import kotlinx.coroutines.launch
 
 /**
@@ -96,7 +98,9 @@ fun ConsoleCard(
     onRefreshConsole: () -> Unit,
     onMergeFolders: () -> Unit = {},
     /** How the last scan of a source went, if known. */
-    resultFor: (UrlEntry) -> SourceScanResult? = { null }
+    resultFor: (UrlEntry) -> SourceScanResult? = { null },
+    /** 7.5: how downloads from a source went lately, if any were made. */
+    trackFor: (UrlEntry) -> SourceRecord? = { null }
 ) {
     var expanded by remember { mutableStateOf(false) }
     // D-pad: when any button inside gains focus, scroll the whole card into view (not just the button),
@@ -252,6 +256,7 @@ fun ConsoleCard(
                         UrlItem(
                             urlEntry = urlEntry,
                             result = resultFor(urlEntry),
+                            track = trackFor(urlEntry),
                             onEdit = { onEditUrl(index, urlEntry) },
                             onDelete = { onDeleteUrl(index, urlEntry) },
                             onToggle = { onToggleUrl(index, it) }
@@ -347,6 +352,7 @@ private fun ExpandButton(expanded: Boolean, onClick: () -> Unit) {
 private fun UrlItem(
     urlEntry: UrlEntry,
     result: SourceScanResult? = null,
+    track: SourceRecord? = null,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onToggle: (Boolean) -> Unit
@@ -395,6 +401,14 @@ private fun UrlItem(
                     } else {
                         Pill(stringResource(R.string.q5_health_ok), tone = PillTone.Success, icon = R.drawable.ic_check_circle)
                     }
+                }
+                // 7.5: the download track record ("avg 12 MB/s · 98 % ok"); amber while the source is set aside.
+                val ok = track?.okPercent
+                if (enabled && ok != null) {
+                    val speed = SourceRanking.speedText(track.bytesPerSec)
+                    val text = if (speed != null) stringResource(R.string.src75_track, speed, ok) else stringResource(R.string.src75_track_ok, ok)
+                    val demoted = SourceRanking.isDemoted(track, System.currentTimeMillis())
+                    Pill(text, tone = if (demoted) PillTone.Warning else PillTone.Info, icon = R.drawable.ic_arrow_down)
                 }
             }
             if (!enabled) {

@@ -34,6 +34,7 @@ import com.cortinadev.dogmatix.data.repository.WishlistRepository
 import com.cortinadev.dogmatix.util.BulkCandidate
 import com.cortinadev.dogmatix.util.BulkPlan
 import com.cortinadev.dogmatix.util.BulkPlanner
+import com.cortinadev.dogmatix.util.SourceRanking
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.LibraryKeys
 import com.cortinadev.dogmatix.util.LibraryView
@@ -104,7 +105,8 @@ class HomeViewModel @Inject constructor(
     private val retroAchievements: RetroAchievementsService,
     private val libraryTools: LibraryToolsService,
     private val metadataDao: GameMetadataDao,
-    lookSettings: LookSettings
+    lookSettings: LookSettings,
+    private val sourceTrack: com.cortinadev.dogmatix.data.service.SourceTrackService
 ) : ViewModel() {
 
     /** 5.0: small covers in front of the games in the list (Settings → Look). */
@@ -305,6 +307,11 @@ class HomeViewModel @Inject constructor(
         val active = activeDownloads.value
         val languages = settingsRepository.favoriteLanguages.first()
         val whitespace = Regex("\\s+")
+        // 7.5: the same file from several sources is queued from the best one.
+        val pickBest = sourceTrack.enabled.first()
+        val records = sourceTrack.records.value
+        val orders = if (pickBest) rows.map { it.file.consoleId }.distinct().associateWith { sourceTrack.sourceOrder(it) } else emptyMap()
+        val now = System.currentTimeMillis()
         // Thousands of rows for a whole console: plan them off the UI thread (the dialog asks from it).
         return withContext(Dispatchers.Default) { BulkPlanner.plan(
             rows.map {
@@ -312,10 +319,15 @@ class HomeViewModel @Inject constructor(
                     // The cleaned title itself (tags are already stripped from it): the search key folds
                     // repeated characters, so "Game 001" and "Game 011" would count as one game.
                     it.file.id, it.file.consoleId, it.file.name.lowercase().replace(whitespace, " ").trim(),
-                    it.file.fileName, it.file.fileSize, it.tags, isOwned(it.file, owned), isDownloading(it.file, active)
+                    it.file.fileName, it.file.fileSize, it.tags, isOwned(it.file, owned), isDownloading(it.file, active),
+                    it.file.sourceUrl
                 )
             },
-            bestOnly, VersionPicker.regionPreference(languages), languages, libraryIndex.freeBytes.value
+            bestOnly, VersionPicker.regionPreference(languages), languages, libraryIndex.freeBytes.value,
+            pickSource = { group ->
+                if (!pickBest) group.first()
+                else SourceRanking.best(group, { it.sourceUrl }, records, orders[group.first().consoleId].orEmpty(), now) ?: group.first()
+            }
         ) }.also { lastBulkRows = rows.associateBy { it.file.id } }
     }
 
@@ -337,11 +349,11 @@ class HomeViewModel @Inject constructor(
     /** Starts the download of a library row found by the Switch section (an update or a DLC). */
     /** 6.0: queues [file] with a condition (Wi-Fi, charging, tonight, at a time); null = right away. */
     fun downloadWhen(file: DownloadableFileEntity, condition: com.cortinadev.dogmatix.util.DownloadCondition?) {
-        viewModelScope.launch { downloadService.startDownload(file, condition) }
+        viewModelScope.launch { downloadService.startDownload(sourceTrack.pickBest(file, sameNameOnly = false), condition) }
     }
 
     fun downloadRow(file: DownloadableFileEntity) {
-        viewModelScope.launch { downloadService.startDownload(file) }
+        viewModelScope.launch { downloadService.startDownload(sourceTrack.pickBest(file, sameNameOnly = false)) }
     }
 
     private fun newSince(): Long = if (_newOnly.value) NewGames.since(System.currentTimeMillis()) else 0L
@@ -771,7 +783,8 @@ class HomeViewModel @Inject constructor(
             return
         }
 
-        downloadService.startDownload(fileWithTags.file)
+        // 7.5: the copy of the game from the source with the best track record (same game, version and region).
+        downloadService.startDownload(sourceTrack.pickBest(fileWithTags.file, sameNameOnly = false))
     }
 }
 

@@ -80,6 +80,8 @@ class DownloadViewModel @Inject constructor(
 
     /** Checksum check per finished download. */
     val verification: StateFlow<Map<String, VerifyState>> = downloadService.verification
+    /** 7.5: file name -> source a failed download moved to by itself ("Switched to <source>"). */
+    val switchedSources: StateFlow<Map<String, String>> = downloadService.switchedSources
 
     /** Lets everything that is waiting for the schedule start now. */
     fun startWaitingNow() = downloadService.gate.startNow()

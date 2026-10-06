@@ -36,4 +36,13 @@ class BulkPlannerTest {
         val many = (1..(BulkPlanner.MAX_FILES + 20)).map { c(it.toLong(), "g$it", "g$it.zip", 1) }
         assertEquals(BulkPlanner.MAX_FILES, BulkPlanner.plan(many, false, emptyList(), emptySet(), null).chosen.size)
     }
+
+    @Test fun `the same file from several sources is queued once from the picked source`() {
+        val rows = listOf(c(1, "a", "A.zip").copy(sourceUrl = "s1"), c(2, "a", "A.zip").copy(sourceUrl = "s2"), c(3, "b", "B.zip"))
+        val plan = BulkPlanner.plan(rows, bestOnly = false, regionPreference = emptyList(), languages = emptySet(), freeBytes = null,
+            pickSource = { group -> group.first { it.sourceUrl == "s2" } })
+        assertEquals(listOf(2L, 3L), plan.chosen.map { it.id })
+        assertEquals(200L, plan.totalBytes)
+        assertEquals(0, plan.skippedVersions)
+    }
 }

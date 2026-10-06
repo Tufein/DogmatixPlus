@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="src75_switched_to">Passé à %1$s</string>
+    <string name="src75_track">moy. %1$s · %2$d %% réussis</string>
+    <string name="src75_track_ok">%1$d %% réussis</string>
+    <string name="src75_pick_best_title">Choisir la meilleure source</string>
+    <string name="src75_pick_best_hint">Quand plusieurs sources proposent un jeu, le télécharger depuis la plus rapide et la plus fiable, et essayer la suivante si un téléchargement échoue définitivement</string>
+</resources>
