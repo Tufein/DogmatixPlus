@@ -47,9 +47,12 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     /** 7.0: a newer revision or a clean dump of a game you already have. */
     object BetterVersions : NavRoutes("better_versions", R.string.upg7_better_title, R.drawable.ic_better_version)
 
+    /** 7.0: games never played, biggest first, to remove or move to the wishlist. */
+    object FreeSpace : NavRoutes("freespace", R.string.space7_title, R.drawable.ic_free_space)
+
     companion object {
         /** The four sections shown as tabs; Contact, RomM and the library tools are reached from Settings. */
         val tabs by lazy { listOf(Home, Downloads, Sources, Settings) }
-        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions }
+        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions + FreeSpace }
     }
 }

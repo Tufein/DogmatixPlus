@@ -68,6 +68,7 @@ import com.cortinadev.dogmatix.ui.screens.tools.CollectionsScreen
 import com.cortinadev.dogmatix.ui.screens.tools.CollectionGoalsScreen
 import com.cortinadev.dogmatix.ui.screens.tools.HealthScreen
 import com.cortinadev.dogmatix.ui.screens.tools.RecapScreen
+import com.cortinadev.dogmatix.ui.screens.tools.FreeSpaceScreen
 import com.cortinadev.dogmatix.ui.screens.tools.BestGamesScreen
 import com.cortinadev.dogmatix.ui.screens.tools.FrontendMetadataScreen
 import com.cortinadev.dogmatix.ui.screens.tools.BetterVersionsScreen
@@ -537,6 +538,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                         })
                     }
                     composable(NavRoutes.Health.route) { HealthScreen(onFix = { fix -> navController.healthFix(fix) }) }
+                    composable(NavRoutes.FreeSpace.route) { FreeSpaceScreen(onOpenWishlist = { navController.navigate(NavRoutes.Wishlist.route) }) }
                     composable(NavRoutes.Recap.route) { RecapScreen() }
                     composable(NavRoutes.BestGames.route) {
                         BestGamesScreen(
