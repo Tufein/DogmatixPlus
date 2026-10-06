@@ -186,6 +186,18 @@ class BetterVersionsTest {
         assertEquals(Reason.NEWER_REVISION, reason("Some Game v1.0 (USA).zip", "Some Game v1.1 (USA).zip"))
     }
 
+    @Test fun `a version in only one of the titles is another game`() {
+        assertNull(up("Gundam (Japan).zip", "Gundam v2 (Japan).zip"))
+        assertNull(up("Gundam v2 (Japan).zip", "Gundam (Japan).zip"))
+        assertNull(up("Some Game v1.0 (USA).zip", "Some Game (USA) (v1.1).zip"))
+    }
+
+    @Test fun `the title is parsed without tags and version`() {
+        assertEquals("Some Game", BetterVersions.parse("Some Game v1.1 (USA).zip").title)
+        assertEquals("Chrono Trigger", BetterVersions.parse("Chrono Trigger (USA) (Rev 1).sfc").title)
+        assertEquals("Legend of Zelda, The - Ocarina of Time", BetterVersions.parse("Legend of Zelda, The - Ocarina of Time (USA).z64").title)
+    }
+
     // ---- Final instead of beta ----------------------------------------------------------------
 
     @Test fun `a final release beats a beta, prototype, demo, sample or kiosk build`() {

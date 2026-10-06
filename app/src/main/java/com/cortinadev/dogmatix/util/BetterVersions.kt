@@ -42,6 +42,10 @@ object BetterVersions {
     data class Parsed(
         /** The name without its extension. */
         val base: String,
+        /** The title alone: no tags, no extension, no version at its end ("Some Game v1.1 (USA)" → "Some Game"). */
+        val title: String,
+        /** The version written at the end of the title itself, if any (also in [revision] when no tag has one). */
+        val titleVersion: Revision?,
         /** Everything that says which release this is, apart from quality: regions, languages, other tags. */
         val identity: Set<String>,
         val integrity: Integrity,
@@ -79,7 +83,8 @@ object BetterVersions {
     private val extension = Regex("\\.[A-Za-z0-9]{1,5}$")
     private val revisionTag = Regex("(?i)^rev(?:ision)?\\.?\\s*(\\d+(?:\\.\\d+)*|[a-z])$")
     private val versionTag = Regex("(?i)^v(?:er(?:sion)?)?\\.?\\s*(\\d+(?:\\.\\d+)*)([a-z])?$")
-    private val titleVersion = Regex("(?i)\\s+v(\\d+(?:\\.\\d+)*)$")
+    private val titleVersionTag = Regex("(?i)\\s+v(\\d+(?:\\.\\d+)*)$")
+    private val whitespace = Regex("\\s+")
     private val preTag = Regex("(?i)\\b(beta|proto|prototype|demo|sample|kiosk|preview|trial|taikenban|debug)\\b")
     private val addOnTag = Regex("(?i)^(update|upd|dlc|patch|add-?on|season pass|title update)\\b")
     private val modifiedTag = Regex("(?i)\\b(hack(?:ed)?|pirate|bootleg|cracked|trainer|trained)\\b")
@@ -144,10 +149,11 @@ object BetterVersions {
                     .forEach { identity += if (square) "[$it" else it }
             }
         }
-        if (revision == null) {
-            titleVersion.find(groups.replace(base, "").trim())?.let { revision = Revision(Scheme.VERSION, numbers(it.groupValues[1]), "v" + it.groupValues[1]) }
-        }
-        return Parsed(base, identity, integrity, problem, pre, revision, verified, addOn)
+        val bare = groups.replace(base, " ").replace(whitespace, " ").trim()
+        val tail = titleVersionTag.find(bare)
+        val inTitle = tail?.let { Revision(Scheme.VERSION, numbers(it.groupValues[1]), "v" + it.groupValues[1]) }
+        val title = if (tail == null) bare else bare.removeRange(tail.range).trim()
+        return Parsed(base, title, inTitle, identity, integrity, problem, pre, revision ?: inTitle, verified, addOn)
     }
 
     private fun preKind(word: String): PreKind = when (word.lowercase(Locale.ROOT)) {
@@ -200,8 +206,13 @@ object BetterVersions {
     /** Disc / side / tape / part numbers of a name, so the discs of one game are never compared with each other. */
     private fun discKey(base: String): String = DuplicateFinder.titleKey(base).substringAfter('#', "")
 
+    /**
+     * Same title (see [GameTitleCleaner.sameTitle]), disc and tags. A version in the title itself
+     * ("Some Game v1.1") only counts when both names have one: "Gundam v2" may be another game than "Gundam".
+     */
     private fun sameGame(a: Parsed, b: Parsed): Boolean =
-        GameTitleCleaner.sameTitle(a.base + ".x", b.base + ".x") && discKey(a.base) == discKey(b.base) && a.identity == b.identity
+        (a.titleVersion == null) == (b.titleVersion == null) &&
+            GameTitleCleaner.sameTitle(a.title + ".x", b.title + ".x") && discKey(a.base) == discKey(b.base) && a.identity == b.identity
 
     /**
      * Whether [candidate] (a file name) is a better copy of the same game than [current] (a file

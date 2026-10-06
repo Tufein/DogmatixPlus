@@ -68,13 +68,12 @@ class WeeklyDigestService @Inject constructor(
 
     /** The last seven days as the notification will say them. */
     suspend fun summary(now: Long = System.currentTimeMillis()): DigestSummary {
+        // The on-disk index only fills while the app runs; read it when a background wake-up finds it empty.
+        // The goals below are measured against it, so it comes first.
+        if (libraryIndex.ownedKeys.value.isEmpty()) withTimeoutOrNull(INDEX_WAIT_MS) { libraryIndex.refresh() }
+
         val newRows = fileDao.newestSince(WeeklyDigest.since(now), MAX_NEW_ROWS)
         val files = newRows.map { DigestFile(it.consoleId, it.fileName) }
-
-        // The on-disk index is only filled while the app has run for a moment; read it when it is not.
-        if (files.isNotEmpty() && libraryIndex.ownedKeys.value.isEmpty()) {
-            withTimeoutOrNull(INDEX_WAIT_MS) { libraryIndex.refresh() }
-        }
         val consoles = consoleRepository.getAllConsoles().first().map { it.id }
         val owned = WeeklyDigest.consolesWithGames(consoles, libraryIndex.ownedKeys.value)
 
