@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 8.0: controller quick menu (hold SELECT) -->
+<resources>
+    <string name="menu8_title">Menu rápido</string>
+    <string name="menu8_search">Pesquisar</string>
+    <string name="menu8_search_all">Pesquisar tudo</string>
+    <string name="menu8_surprise">Surpreende-me</string>
+    <string name="menu8_downloads">Downloads</string>
+    <string name="menu8_pause_all">Pausar tudo</string>
+    <string name="menu8_resume_all">Retomar tudo</string>
+    <string name="menu8_tools">Ferramentas</string>
+    <string name="menu8_settings">Definições</string>
+    <string name="menu8_hint_pad">Stick ou direcional para escolher · A ou largar SELECT para abrir · B para fechar</string>
+    <string name="menu8_hint_touch">Toque numa opção · toque fora para fechar</string>
+    <string name="menu8_pad_hold">%1$s · manter premido: menu</string>
+</resources>
