@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recovery_title">Trash and recovery</string>
+    <string name="recovery_hint">Restore removed games and finish interrupted moves.</string>
+    <string name="recovery_action_failed">The operation could not finish. Your recovery copies are kept. Check storage and permissions, then try again.</string>
+    <string name="recovery_remove_title">Move these files to trash?</string>
+    <string name="recovery_remove_hint">Only these files move. Saves and metadata are protected. You can restore them from Tools → Trash and recovery.</string>
+    <string name="recovery_to_trash">Move to trash</string>
+    <string name="recovery_no_files">No matching game files were found.</string>
+    <string name="recovery_restore">Restore</string>
+    <string name="recovery_resume">Resume</string>
+    <string name="recovery_purge">Delete permanently</string>
+    <string name="recovery_purge_warning">This removes the recovery copies permanently. It cannot be undone.</string>
+    <string name="recovery_days">Keep for %1$d days</string>
+    <string name="recovery_automatic">Automatically empty expired trash when Dogmatix+ opens. Off by default.</string>
+    <string name="recovery_share">Share action report</string>
+    <string name="recovery_space">Recovery copies: %1$s</string>
+    <string name="recovery_empty">No recorded actions yet.</string>
+    <string name="recovery_move">Library move</string>
+    <string name="recovery_done">Completed</string>
+    <string name="recovery_stored">Kept in trash</string>
+    <string name="recovery_cleanup">Cleanup pending</string>
+    <string name="recovery_interrupted">Interrupted or failed</string>
+    <string name="recovery_pending">In progress or interrupted</string>
+    <string name="recovery_conflict">Needs your decision</string>
+    <string name="play_game">Play</string>
+    <string name="play_choose">Choose a game file and application</string>
+    <string name="play_remember">Remember application for this console</string>
+    <string name="play_change_handler">Choose another application</string>
+    <string name="play_no_handler">No compatible application found. Install an emulator that can open this file type.</string>
+    <string name="version_language">Preferred language</string>
+    <string name="version_dump_claim">Name marks a good dump; not independently verified</string>
+    <string name="version_unwanted">Demo, modification or dump warning</string>
+    <string name="version_dat">DAT: %1$s</string>
+    <string name="version_unknown">not checked</string>
+    <string name="version_pin">Use this version automatically</string>
+    <string name="version_unpin">Remove version preference</string>
+    <string name="version_ra_hash">RetroAchievements matched by hash</string>
+    <string name="version_ra_title">RetroAchievements matched by title only</string>
+    <string name="version_revision">Revision %1$s</string>
+    <string name="recovery_file_count">%1$d files in this action</string>
+</resources>

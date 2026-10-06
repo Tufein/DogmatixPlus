@@ -48,7 +48,7 @@ class LibraryToolsService @Inject constructor(
     }
 
     private fun readSheet(file: DiskFile): String? = runCatching {
-        context.contentResolver.openInputStream(file.uri.toUri())?.use { it.readNBytes(SetChecker.MAX_SHEET_BYTES.toInt()) }?.toString(Charsets.UTF_8)
+        context.contentResolver.openInputStream(file.uri.toUri())?.use { com.cortinadev.dogmatix.util.BoundedStreams.read(it, SetChecker.MAX_SHEET_BYTES.toInt()) }?.toString(Charsets.UTF_8)
     }.getOrNull()
 
     /** Writes the playlist next to the discs; false when the folder refuses. */

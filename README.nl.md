@@ -164,14 +164,14 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 1. De welkomstgids legt de basis uit.
 2. **Kies je ROM-map** — de map waar je games in moeten komen.
 3. **Importeer je bronnen** (een bestand met je gamelijsten) — of sla dit over en voeg later bronnen toe in het tabblad **Bronnen**.
-4. Open de **Bibliotheek**, zoek een game en tik erop (of druk op **A**) om hem te downloaden.
+4. Open de **Bibliotheek**, zoek een game en tik erop (of druk op **A**) om de gamepagina te openen. Kies daar **Downloaden** of **Spelen**.
 
 ## Een gamepad gebruiken
 
 | Knop | Wat doet hij? |
 |---|---|
 | D-pad | Navigeren |
-| **A** | Kiezen / downloaden |
+| **A** | Kiezen / gamepagina openen; daar downloaden of spelen |
 | **B** | Een stap terug |
 | **X** | Game-info |
 | **Y** | Zoeken |
@@ -184,7 +184,7 @@ Alles werkt ook met het touchscreen. De hints verschijnen alleen als er een cont
 
 ## Goed om te weten
 
-- **Het verwijderen van dubbele games is definitief.** De app laat eerst elk bestand zien, maar er is geen prullenbak.
+- Verwijderde games gaan naar de prullenbak. Herstel of leeg definitief via Hulpmiddelen → Prullenbak en herstel. Ruimte komt vrij na het legen; de gewone bestandsverkenner verwijdert nog definitief.
 - **Een back-upbestand bevat je accountsleutels** (TorBox, Real-Debrid, RomM). Houd het privé.
 - **Het venster met game-info blijft leeg in de versies van de app die je hier downloadt**, omdat het een gratis sleutel van een gamedatabase nodig heeft die wordt toegevoegd wanneer de app wordt gebouwd.
 - DogmatixPlus zoekt zelf niet naar games. Het leest alleen de bronnen die **jij** toevoegt.

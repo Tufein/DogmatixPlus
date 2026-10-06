@@ -556,6 +556,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.SaveSync.route) { SaveSyncScreen() }
                     composable(NavRoutes.Overview.route) { LibraryOverviewScreen() }
                     composable(NavRoutes.Duplicates.route) { DuplicatesScreen() }
+                    composable(NavRoutes.Recovery.route) { com.cortinadev.dogmatix.ui.screens.tools.RecoveryScreen(onNavigate = { navController.navigate(it) }) }
                     composable(NavRoutes.Tools.route) { ToolsHubScreen(navController) }
                     composable(NavRoutes.Sets.route) { SetsScreen() }
                     composable(NavRoutes.Storage.route) { StorageScreen() }
@@ -579,7 +580,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                             navController.switchTo(NavRoutes.Home)
                         })
                     }
-                    composable(NavRoutes.Health.route) { HealthScreen(onFix = { fix -> navController.healthFix(fix) }) }
+                    composable(NavRoutes.Health.route) { HealthScreen(onFix = { fix -> navController.healthFix(fix) }, onRecovery = { navController.navigate(NavRoutes.Recovery.route) }) }
                     composable(NavRoutes.FreeSpace.route) { FreeSpaceScreen(onOpenWishlist = { navController.navigate(NavRoutes.Wishlist.route) }) }
                     composable(NavRoutes.Recap.route) { RecapScreen() }
                     composable(NavRoutes.BestGames.route) {

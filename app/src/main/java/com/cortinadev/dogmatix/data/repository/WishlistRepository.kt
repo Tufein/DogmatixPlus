@@ -57,6 +57,7 @@ class WishlistRepository @Inject constructor(
     private val fileDao: DownloadableFileDao,
     rescanStateHolder: RescanStateHolder,
     private val appSettings: AppSettings,
+    private val versionPreference: com.cortinadev.dogmatix.data.service.VersionPreferenceService,
     private val settingsRepository: SettingsRepository,
     private val downloadService: DownloadService,
     private val libraryIndex: dagger.Lazy<LibraryIndexService>,
@@ -174,9 +175,9 @@ class WishlistRepository @Inject constructor(
                 .filter { GameTitleCleaner.containsAllWords(item.title, it.fileName) }
                 .groupBy { it.consoleId }.mapNotNull { (_, files) ->
                 if (files.any { index.isOwned(it) || downloadService.isActive(it.fileName) }) return@mapNotNull null
-                val best = VersionPicker.best(
+                val best = com.cortinadev.dogmatix.util.VersionPreference.pick(
                     files.map { VersionPicker.Candidate(it.fileName, it.fileName, fileDao.tagsOf(it.id), it.fileSize) },
-                    regions, languages
+                    regions, languages, versionPreference.preferred(files.first().consoleId, files.first().fileName)
                 ) ?: return@mapNotNull null
                 files.first { it.fileName == best.id }
             }

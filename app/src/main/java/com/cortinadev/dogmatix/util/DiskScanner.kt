@@ -98,7 +98,7 @@ object DiskScanner {
     private val otherUser = Regex("^/storage/emulated/\\d+(?=/|$)")
 
     /** Children of [dir]; empty when the provider refuses or the folder vanished. */
-    fun list(context: Context, dir: DiskDir): List<DiskEntry> = listOrNull(context, dir, strict = false).orEmpty()
+    fun list(context: Context, dir: DiskDir): List<DiskEntry> = listOrNull(context, dir, strict = false).orEmpty().filterNot { it.name.startsWith(".dogmatix-") }
 
     /**
      * Children of [dir], or null when the listing cannot be trusted to be complete: the provider

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recovery_title">Cestino e ripristino</string>
+    <string name="recovery_hint">Ripristina giochi rimossi e riprendi spostamenti interrotti.</string>
+    <string name="recovery_action_failed">Impossibile completare l’operazione. Le copie di ripristino sono conservate. Controlla spazio e autorizzazioni e riprova.</string>
+    <string name="recovery_remove_title">Spostare questi file nel cestino?</string>
+    <string name="recovery_remove_hint">Vengono spostati solo questi file. Salvataggi e metadati sono protetti. Ripristina da Strumenti → Cestino e ripristino.</string>
+    <string name="recovery_to_trash">Sposta nel cestino</string>
+    <string name="recovery_no_files">Nessun file di gioco corrispondente.</string>
+    <string name="recovery_restore">Ripristina</string>
+    <string name="recovery_resume">Riprendi</string>
+    <string name="recovery_purge">Elimina definitivamente</string>
+    <string name="recovery_purge_warning">Le copie di ripristino verranno eliminate definitivamente. Non si può annullare.</string>
+    <string name="recovery_days">Conserva per %1$d giorni</string>
+    <string name="recovery_automatic">Svuota gli elementi scaduti all’apertura di Dogmatix+. Disattivato inizialmente.</string>
+    <string name="recovery_share">Condividi rapporto operazioni</string>
+    <string name="recovery_space">Copie di ripristino: %1$s</string>
+    <string name="recovery_empty">Nessuna operazione registrata.</string>
+    <string name="recovery_move">Spostamento libreria</string>
+    <string name="recovery_done">Completato</string>
+    <string name="recovery_stored">Conservato nel cestino</string>
+    <string name="recovery_cleanup">Pulizia in sospeso</string>
+    <string name="recovery_interrupted">Interrotto o fallito</string>
+    <string name="recovery_pending">In corso o interrotto</string>
+    <string name="recovery_conflict">Serve una decisione</string>
+    <string name="play_game">Gioca</string>
+    <string name="play_choose">Scegli file e applicazione</string>
+    <string name="play_remember">Ricorda l’applicazione per questa console</string>
+    <string name="play_change_handler">Scegli un’altra applicazione</string>
+    <string name="play_no_handler">Nessuna applicazione compatibile. Installa un emulatore che apra questo formato.</string>
+    <string name="version_language">Lingua preferita</string>
+    <string name="version_dump_claim">Il nome indica un dump valido; non verificato indipendentemente</string>
+    <string name="version_unwanted">Demo, modifica o avviso sul dump</string>
+    <string name="version_dat">DAT: %1$s</string>
+    <string name="version_unknown">non verificato</string>
+    <string name="version_pin">Usa questa versione automaticamente</string>
+    <string name="version_unpin">Rimuovi preferenza versione</string>
+    <string name="version_ra_hash">RetroAchievements riconosciuto tramite hash</string>
+    <string name="version_ra_title">RetroAchievements riconosciuto solo dal titolo</string>
+    <string name="version_revision">Revisione %1$s</string>
+    <string name="recovery_file_count">%1$d file in questa operazione</string>
+</resources>

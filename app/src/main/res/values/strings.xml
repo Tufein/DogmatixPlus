@@ -489,8 +489,8 @@
     <string name="duplicates_delete">Delete</string>
     <string name="duplicates_delete_title">Delete from disk?</string>
     <plurals name="duplicates_delete_message">
-        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s) will be deleted permanently.</item>
-        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s) will be deleted permanently.</item>
+        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s)\nMoved to trash. Restore or permanently empty it in Tools → Trash and recovery. Space is released only after emptying.</item>
+        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s)\nMoved to trash. Restore or permanently empty it in Tools → Trash and recovery. Space is released only after emptying.</item>
     </plurals>
     <string name="duplicates_deleted">Deleted %1$s</string>
     <string name="duplicates_delete_failed">Could not delete %1$s</string>
@@ -1320,8 +1320,9 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Settings are pure black (AMOLED) in the dark themes, with thin outlines instead of grey panels.</item>
-        <item>Settings are laid out symmetrically: equal margins, rows of equal height side by side, controls on one line.</item>
+        <item>Verified library moves with resumable recovery.</item>
+        <item>Trash with restore and optional expiry; empty it to free space.</item>
+        <item>Play owned games and fix a preferred version for automatic selection.</item>
     </string-array>
 
     <!-- 4.0 -->

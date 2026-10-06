@@ -488,8 +488,8 @@
     <string name="duplicates_delete">Verwijderen</string>
     <string name="duplicates_delete_title">Van schijf verwijderen?</string>
     <plurals name="duplicates_delete_message">
-        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s) wordt definitief verwijderd.</item>
-        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s) worden definitief verwijderd.</item>
+        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s)\nNaar de prullenbak verplaatst. Herstel of leeg definitief via Hulpmiddelen → Prullenbak en herstel. Ruimte komt pas vrij na het legen.</item>
+        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s)\nNaar de prullenbak verplaatst. Herstel of leeg definitief via Hulpmiddelen → Prullenbak en herstel. Ruimte komt pas vrij na het legen.</item>
     </plurals>
     <string name="duplicates_deleted">%1$s verwijderd</string>
     <string name="duplicates_delete_failed">Kon %1$s niet verwijderen</string>
@@ -1319,8 +1319,9 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>De instellingen zijn puur zwart (AMOLED) in de donkere thema\'s, met dunne randen in plaats van grijze vlakken.</item>
-        <item>De instellingen staan symmetrisch: gelijke marges, rijen naast elkaar even hoog, bedieningen op één lijn.</item>
+        <item>Gecontroleerd verplaatsen met hervatbaar herstel.</item>
+        <item>Prullenbak met herstel en optionele bewaartermijn; leeg hem om ruimte vrij te maken.</item>
+        <item>Start eigen spellen en zet een voorkeursversie vast voor automatische selectie.</item>
     </string-array>
 
     <!-- 4.0 -->

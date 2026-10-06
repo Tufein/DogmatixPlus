@@ -164,14 +164,14 @@ Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Goo
 1. Le guide de bienvenue explique les bases.
 2. **Choisissez votre dossier de ROM** — le dossier où vos jeux doivent aller.
 3. **Importez vos sources** (un fichier avec vos listes de jeux) — ou passez cette étape et ajoutez des sources plus tard dans l’onglet **Sources**.
-4. Ouvrez la **Bibliothèque**, trouvez un jeu et touchez-le (ou appuyez sur **A**) pour le télécharger.
+4. Ouvrez la **Bibliothèque** et touchez un jeu (ou appuyez sur **A**) pour ouvrir sa page. Choisissez ensuite **Télécharger** ou **Jouer**.
 
 ## Utiliser une manette
 
 | Bouton | Ce qu’il fait |
 |---|---|
 | D-pad | Se déplacer |
-| **A** | Choisir / télécharger |
+| **A** | Choisir / ouvrir la page du jeu ; télécharger ou jouer depuis cette page |
 | **B** | Revenir en arrière d’une étape |
 | **X** | Infos du jeu |
 | **Y** | Rechercher |
@@ -184,7 +184,7 @@ Tout fonctionne aussi au toucher. Les indications ne s’affichent que lorsqu’
 
 ## Bon à savoir
 
-- **Supprimer les doublons est définitif.** L’application affiche d’abord chaque fichier, mais il n’y a pas de corbeille.
+- Les jeux retirés vont dans la corbeille. Restaurez ou videz via Outils → Corbeille et récupération. L’espace est libéré après vidage ; l’explorateur de fichiers supprime toujours définitivement.
 - **Un fichier de sauvegarde contient vos clés de compte** (TorBox, Real-Debrid, RomM). Gardez-le privé.
 - **La fenêtre d’infos du jeu reste vide dans les fichiers proposés au téléchargement ici**, car elle a besoin d’une clé gratuite, fournie par une base de données de jeux et ajoutée lors de la compilation de l’application.
 - DogmatixPlus ne cherche pas de jeux tout seul. Il lit seulement les sources que **vous** ajoutez.

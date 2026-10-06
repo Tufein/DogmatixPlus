@@ -56,7 +56,7 @@ class GamePageModelTest {
 
     @Test fun `primary follows download state first`() {
         assertEquals(Primary.DOWNLOAD, GamePageModel.primary(owned = false, downloading = false))
-        assertEquals(Primary.DOWNLOAD_AGAIN, GamePageModel.primary(owned = true, downloading = false))
+        assertEquals(Primary.PLAY, GamePageModel.primary(owned = true, downloading = false))
         assertEquals(Primary.DOWNLOADING, GamePageModel.primary(owned = true, downloading = true))
         assertEquals(Primary.DOWNLOADING, GamePageModel.primary(owned = false, downloading = true))
     }

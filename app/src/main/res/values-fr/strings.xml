@@ -492,9 +492,9 @@
     <string name="duplicates_delete">Supprimer</string>
     <string name="duplicates_delete_title">Supprimer du disque ?</string>
     <plurals name="duplicates_delete_message">
-        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s) sera supprimé définitivement.</item>
-        <item quantity="many">%1$s\n%2$s\n\n%3$s (%4$s) seront supprimés définitivement.</item>
-        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s) seront supprimés définitivement.</item>
+        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s)\nDéplacés dans la corbeille. Restaurez ou videz définitivement via Outils → Corbeille et récupération. L’espace est libéré après vidage.</item>
+        <item quantity="many">%1$s\n%2$s\n\n%3$s (%4$s)\nDéplacés dans la corbeille. Restaurez ou videz définitivement via Outils → Corbeille et récupération. L’espace est libéré après vidage.</item>
+        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s)\nDéplacés dans la corbeille. Restaurez ou videz définitivement via Outils → Corbeille et récupération. L’espace est libéré après vidage.</item>
     </plurals>
     <string name="duplicates_deleted">%1$s supprimé</string>
     <string name="duplicates_delete_failed">Impossible de supprimer %1$s</string>
@@ -1324,8 +1324,9 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Les réglages sont noir pur (AMOLED) dans les thèmes sombres, avec de fins contours au lieu de panneaux gris.</item>
-        <item>Les réglages sont disposés de façon symétrique : marges égales, lignes côte à côte de même hauteur, commandes alignées.</item>
+        <item>Déplacements vérifiés avec récupération reprenable.</item>
+        <item>Corbeille avec restauration et expiration facultative ; videz-la pour libérer de l’espace.</item>
+        <item>Lancez vos jeux et fixez une version préférée pour la sélection automatique.</item>
     </string-array>
 
     <!-- 4.0 -->

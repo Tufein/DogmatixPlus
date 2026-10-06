@@ -97,7 +97,7 @@ class DownloadForegroundService : Service() {
                     // Never after the service decided to stop: that would bring back a removed notification.
                     if (!running) return@collect
                     if (!NotificationManagerCompat.from(this@DownloadForegroundService).areNotificationsEnabled()) return@collect
-                    runCatching { NotificationManagerCompat.from(this@DownloadForegroundService).notify(NOTIFICATION_ID, buildNotification(held, actions, waiting)) }
+                    try { NotificationManagerCompat.from(this@DownloadForegroundService).notify(NOTIFICATION_ID, buildNotification(held, actions, waiting)) } catch (_: SecurityException) { /* Notification permission revoked. */ }
                 }
         }
     }

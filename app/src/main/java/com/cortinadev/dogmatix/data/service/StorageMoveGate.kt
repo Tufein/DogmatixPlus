@@ -31,7 +31,7 @@ class StorageMoveGate @Inject constructor() {
 
     /** Returns at once unless [consoleId]'s folder is being moved; then waits until it is done. */
     suspend fun awaitFree(consoleId: String) {
-        if (consoleId !in _moving.value) return
-        _moving.first { consoleId !in it }
+        if (consoleId !in _moving.value && "*" !in _moving.value) return
+        _moving.first { consoleId !in it && "*" !in it }
     }
 }

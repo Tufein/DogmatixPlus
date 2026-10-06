@@ -55,8 +55,8 @@
     <string name="space7_remove_wish">Entfernen und auf die Wunschliste setzen</string>
     <string name="space7_confirm_title">Diese Spiele entfernen?</string>
     <plurals name="space7_confirm_message">
-        <item quantity="one">%1$d Spiel (%2$s) wird aus deinen Bibliotheksordnern gelöscht. Das lässt sich nicht rückgängig machen.</item>
-        <item quantity="other">%1$d Spiele (%2$s) werden aus deinen Bibliotheksordnern gelöscht. Das lässt sich nicht rückgängig machen.</item>
+        <item quantity="one">%1$d (%2$s)\nIn den Papierkorb verschoben. Unter Werkzeuge → Papierkorb und Wiederherstellung wiederherstellen oder endgültig leeren. Speicher wird erst nach dem Leeren frei.</item>
+        <item quantity="other">%1$d (%2$s)\nIn den Papierkorb verschoben. Unter Werkzeuge → Papierkorb und Wiederherstellung wiederherstellen oder endgültig leeren. Speicher wird erst nach dem Leeren frei.</item>
     </plurals>
     <plurals name="space7_confirm_wish">
         <item quantity="one">Es kommt auf deine Wunschliste, damit du es später wieder laden kannst.</item>
@@ -68,8 +68,8 @@
     </plurals>
     <string name="space7_more_files">… und %1$d weitere Dateien</string>
     <plurals name="space7_done">
-        <item quantity="one">%1$d Spiel entfernt, %2$s freigegeben</item>
-        <item quantity="other">%1$d Spiele entfernt, %2$s freigegeben</item>
+        <item quantity="one">Im Papierkorb: %1$d · %2$s zur Wiederherstellung</item>
+        <item quantity="other">Im Papierkorb: %1$d · %2$s zur Wiederherstellung</item>
     </plurals>
     <plurals name="space7_done_wish">
         <item quantity="one">%1$d Spiel auf die Wunschliste gesetzt</item>

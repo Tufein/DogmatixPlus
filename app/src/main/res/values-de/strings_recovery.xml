@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recovery_title">Papierkorb und Wiederherstellung</string>
+    <string name="recovery_hint">Gelöschte Spiele wiederherstellen und unterbrochene Verschiebungen fortsetzen.</string>
+    <string name="recovery_action_failed">Die Aktion konnte nicht abgeschlossen werden. Sicherungskopien bleiben erhalten. Speicher und Zugriffsrechte prüfen und erneut versuchen.</string>
+    <string name="recovery_remove_title">Diese Dateien in den Papierkorb verschieben?</string>
+    <string name="recovery_remove_hint">Nur diese Dateien werden verschoben. Spielstände und Metadaten bleiben geschützt. Wiederherstellen unter Werkzeuge → Papierkorb und Wiederherstellung.</string>
+    <string name="recovery_to_trash">In den Papierkorb</string>
+    <string name="recovery_no_files">Keine passenden Spieldateien gefunden.</string>
+    <string name="recovery_restore">Wiederherstellen</string>
+    <string name="recovery_resume">Fortsetzen</string>
+    <string name="recovery_purge">Endgültig löschen</string>
+    <string name="recovery_purge_warning">Die Sicherungskopien werden endgültig gelöscht. Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="recovery_days">%1$d Tage behalten</string>
+    <string name="recovery_automatic">Abgelaufene Papierkorbeinträge beim Öffnen von Dogmatix+ automatisch löschen. Standardmäßig aus.</string>
+    <string name="recovery_share">Aktionsbericht teilen</string>
+    <string name="recovery_space">Sicherungskopien: %1$s</string>
+    <string name="recovery_empty">Noch keine Aktionen aufgezeichnet.</string>
+    <string name="recovery_move">Bibliothek verschieben</string>
+    <string name="recovery_done">Abgeschlossen</string>
+    <string name="recovery_stored">Im Papierkorb aufbewahrt</string>
+    <string name="recovery_cleanup">Bereinigung ausstehend</string>
+    <string name="recovery_interrupted">Unterbrochen oder fehlgeschlagen</string>
+    <string name="recovery_pending">Läuft oder wurde unterbrochen</string>
+    <string name="recovery_conflict">Entscheidung erforderlich</string>
+    <string name="play_game">Spielen</string>
+    <string name="play_choose">Spieldatei und Anwendung wählen</string>
+    <string name="play_remember">Anwendung für diese Konsole merken</string>
+    <string name="play_change_handler">Andere Anwendung wählen</string>
+    <string name="play_no_handler">Keine passende Anwendung gefunden. Einen Emulator installieren, der dieses Format öffnen kann.</string>
+    <string name="version_language">Bevorzugte Sprache</string>
+    <string name="version_dump_claim">Name kennzeichnet guten Dump; nicht unabhängig geprüft</string>
+    <string name="version_unwanted">Demo, Änderung oder Dump-Warnung</string>
+    <string name="version_dat">DAT: %1$s</string>
+    <string name="version_unknown">nicht geprüft</string>
+    <string name="version_pin">Diese Version automatisch verwenden</string>
+    <string name="version_unpin">Versionsvorliebe entfernen</string>
+    <string name="version_ra_hash">RetroAchievements anhand des Hashs erkannt</string>
+    <string name="version_ra_title">RetroAchievements nur anhand des Titels erkannt</string>
+    <string name="version_revision">Revision %1$s</string>
+    <string name="recovery_file_count">%1$d Dateien in dieser Aktion</string>
+</resources>

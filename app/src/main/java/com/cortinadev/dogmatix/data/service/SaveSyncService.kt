@@ -88,7 +88,8 @@ class SaveSyncService @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val rommClient: RommClient,
-    private val appSettings: AppSettings
+    private val appSettings: AppSettings,
+    private val history: OperationHistoryService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val lock = Mutex()
@@ -164,6 +165,7 @@ class SaveSyncService @Inject constructor(
                     val records = loadRecords().toMutableMap()
                     val (result, conflicts) = engine.sync(records, confirmDeletions)
                     saveRecords(records)
+                    history.event("save_sync", "${result.uploaded} / ${result.downloaded} / ${result.conflicts}", if (result.conflicts > 0) "conflict" else if (result.failed > 0) "failed" else "done")
                     _state.update { it.copy(last = result, conflicts = conflicts) }
                     result
                 }.onFailure { e ->

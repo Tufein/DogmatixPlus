@@ -3,6 +3,16 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [8.2.0-beta.1] – 2026-10-07 · Dogmatix+
+
+- Verified file copies, protected destination conflicts, durable move receipts and recovery actions.
+- Recovery trash for game removal, duplicates, free-space selection and Downloads; original paths can be restored. Empty trash to reclaim space. The general file explorer still deletes permanently.
+- Play owned games through compatible applications; remember the application per console.
+- Explain version differences and pin a preferred version for automatic selection.
+- Privacy-filtered operation reports, seven translated interfaces, mandatory release signing and Android integration checks.
+- Fix a library-index initialization race and API 29–32 compatibility of bounded stream reads.
+- Database version remains 13. Physical SD cards, controller hardware and live RomM/WebDAV interoperability still require acceptance testing; see `docs/quality/recovery-acceptance.md`.
+
 ## [8.1.0] – 2026-10-06 · Dogmatix+
 
 ### Changed

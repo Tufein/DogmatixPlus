@@ -28,6 +28,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.Checkbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -211,41 +212,87 @@ private fun GamePageContent(
 
     var showWhen by remember { mutableStateOf(false) }
     var showCollections by remember { mutableStateOf(false) }
-    var confirmRemove by remember { mutableStateOf(false) }
+    var removalPlan by remember { mutableStateOf<List<com.cortinadev.dogmatix.data.service.RemovalFile>?>(null) }
+    var launchChoices by remember { mutableStateOf<List<com.cortinadev.dogmatix.data.service.GameLaunch>?>(null) }
+    var rememberEmulator by rememberSaveable { mutableStateOf(true) }
+    var preparing by remember { mutableStateOf(false) }
+    val planError = stringResource(R.string.recovery_action_failed)
+    val missingEmulator = stringResource(R.string.play_no_handler)
+    val prepareRemoval: () -> Unit = {
+        if (!preparing) scope.launch {
+            preparing = true
+            try { removalPlan = viewModel.removalPlan(item) }
+            catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (_: Exception) { showMessage(planError) }
+            finally { preparing = false }
+        }
+    }
+    val play: () -> Unit = {
+        if (!preparing) scope.launch {
+            preparing = true
+            try {
+                val choices = viewModel.gameLauncher.choices(rom)
+                val preferred = viewModel.gameLauncher.preferred(rom.consoleId)
+                val single = choices.singleOrNull()
+                val handler = single?.handlers?.firstOrNull { it.component == preferred }
+                if (single != null && handler != null) viewModel.gameLauncher.launch(context, rom.consoleId, single, handler, false)
+                else if (choices.isEmpty() || choices.all { it.handlers.isEmpty() }) showMessage(missingEmulator)
+                else launchChoices = choices
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (_: Exception) { showMessage(planError) }
+            finally { preparing = false }
+        }
+    }
     if (showWhen) {
-        DownloadWhenDialog(
-            onDismiss = { showWhen = false },
-            onConfirm = { condition -> showWhen = false; download(item, condition) }
-        )
+        DownloadWhenDialog(onDismiss = { showWhen = false }, onConfirm = { condition -> showWhen = false; download(item, condition) })
     }
     if (showCollections) {
-        CollectionPickerDialog(
-            collections = collections,
-            selected = state.collectionIds,
+        CollectionPickerDialog(collections = collections, selected = state.collectionIds,
             onToggle = { id -> scope.launch { viewModel.toggleCollection(item, id) } },
             onCreate = { name -> scope.launch { if (viewModel.createCollectionWith(item, name)) showMessage(collectionAddedMessage.format(name.trim())) } },
-            onDismiss = { showCollections = false }
-        )
+            onDismiss = { showCollections = false })
     }
-    if (confirmRemove) {
+    removalPlan?.let { plan ->
         val cancelFocus = rememberInitialFocus()
-        AlertDialog(
-            modifier = Modifier.closeOnGamepadB { confirmRemove = false },
-            onDismissRequest = { confirmRemove = false },
-            icon = { Icon(painterResource(R.drawable.ic_trash), contentDescription = null, tint = MaterialTheme.colorScheme.error) },
-            title = { Text(stringResource(R.string.page8_remove_title)) },
-            text = { Text(stringResource(R.string.page8_remove_message, FileParsingUtils.decodeUrlEncodedFileName(rom.fileName))) },
-            confirmButton = {
-                DialogButton(text = stringResource(R.string.page8_remove_confirm), onClick = {
-                    confirmRemove = false
-                    scope.launch {
-                        val ok = viewModel.deleteOwned(item)
+        AlertDialog(modifier = Modifier.closeOnGamepadB { removalPlan = null }, onDismissRequest = { removalPlan = null },
+            title = { Text(stringResource(R.string.recovery_remove_title)) },
+            text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(stringResource(R.string.recovery_remove_hint))
+                plan.forEach { Text("${it.path} · ${formatBytes(it.bytes)}", style = MaterialTheme.typography.bodySmall) }
+                if (plan.isEmpty()) Text(stringResource(R.string.recovery_no_files))
+            } },
+            confirmButton = { DialogButton(stringResource(R.string.recovery_to_trash), onClick = {
+                removalPlan = null
+                scope.launch {
+                    try {
+                        val ok = viewModel.remove(plan, rom.name)
                         showMessage((if (ok) deletedMessage else deleteFailedMessage).format(rom.name))
+                    } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                    catch (_: Exception) { showMessage(planError) }
+                }
+            }) },
+            dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), { removalPlan = null }, initialFocus = cancelFocus) })
+    }
+    launchChoices?.let { choices ->
+        val cancelFocus = rememberInitialFocus()
+        AlertDialog(modifier = Modifier.closeOnGamepadB { launchChoices = null }, onDismissRequest = { launchChoices = null },
+            title = { Text(stringResource(R.string.play_choose)) },
+            text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(rememberEmulator, { rememberEmulator = it })
+                    Text(stringResource(R.string.play_remember), style = MaterialTheme.typography.bodySmall)
+                }
+                choices.forEach { choice ->
+                    Text(choice.name, style = MaterialTheme.typography.bodyMedium)
+                    choice.handlers.forEach { handler ->
+                        ActionPill(handler.label, {
+                            try { viewModel.gameLauncher.launch(context, rom.consoleId, choice, handler, rememberEmulator); launchChoices = null }
+                            catch (_: Exception) { showMessage(missingEmulator) }
+                        }, icon = R.drawable.ic_controller)
                     }
-                })
-            },
-            dismissButton = { DialogButton(text = stringResource(R.string.dialog_cancel), onClick = { confirmRemove = false }, initialFocus = cancelFocus) }
-        )
+                }
+            } }, confirmButton = {},
+            dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), { launchChoices = null }, initialFocus = cancelFocus) })
     }
 
     // LB / RB switch tabs, Select stars the game (the shell keeps ZL / ZR for the app's sections).
@@ -308,12 +355,17 @@ private fun GamePageContent(
                         GamePageModel.Primary.DOWNLOAD -> R.string.details_download
                         GamePageModel.Primary.DOWNLOAD_AGAIN -> R.string.owned_download_again
                         GamePageModel.Primary.DOWNLOADING -> R.string.page8_downloading
+                        GamePageModel.Primary.PLAY -> R.string.play_game
                     }
                 ),
-                onClick = { if (!busy) download(item, null) },
+                onClick = { if (!busy && !preparing) { if (owned) play() else download(item, null) } },
                 modifier = Modifier.focusRequester(firstFocus),
-                icon = if (busy) R.drawable.ic_downloading else R.drawable.ic_download
+                icon = if (busy) R.drawable.ic_downloading else if (owned) R.drawable.ic_controller else R.drawable.ic_download
             )
+            if (owned && !downloading) {
+                ActionPill(stringResource(R.string.owned_download_again), { download(item, null) }, icon = R.drawable.ic_download)
+                ActionPill(stringResource(R.string.play_change_handler), { viewModel.gameLauncher.clear(rom.consoleId); play() }, icon = R.drawable.ic_settings)
+            }
             val switch = state.switch
             val best = state.best
             GamePageModel.actions(
@@ -355,7 +407,7 @@ private fun GamePageContent(
                         { scope.launch { GameShare.share(context, rom.consoleId, rom.fileName, rom.name) } },
                         icon = R.drawable.ic_share
                     )
-                    GamePageModel.Action.REMOVE -> ActionPill(stringResource(R.string.page8_remove), { confirmRemove = true }, icon = R.drawable.ic_trash, tone = ActionTone.Danger)
+                    GamePageModel.Action.REMOVE -> ActionPill(stringResource(R.string.page8_remove), { prepareRemoval() }, icon = R.drawable.ic_trash, tone = ActionTone.Danger)
                 }
             }
         }
@@ -370,7 +422,8 @@ private fun GamePageContent(
             ownedOf = { viewModel.isOwned(it.file, ownedKeys) },
             downloadingOf = { it.file.fileName in active },
             onDownload = { download(it, null) },
-            onOpenGame = onOpenGame
+            onOpenGame = onOpenGame,
+            viewModel = viewModel
         )
     }
 
@@ -520,7 +573,8 @@ private fun TabContent(
     ownedOf: (DownloadableFileWithTags) -> Boolean,
     downloadingOf: (DownloadableFileWithTags) -> Boolean,
     onDownload: (DownloadableFileWithTags) -> Unit,
-    onOpenGame: (String, String) -> Unit
+    onOpenGame: (String, String) -> Unit,
+    viewModel: GamePageViewModel
 ) {
     val rom = state.item.file
     val scheme = MaterialTheme.colorScheme
@@ -539,7 +593,7 @@ private fun TabContent(
                     Text(stringResource(R.string.details_source, details.source), style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
                 }
             }
-            Tab.VERSIONS -> Versions(state, ownedOf, downloadingOf, onDownload)
+            Tab.VERSIONS -> Versions(state, ownedOf, downloadingOf, onDownload, viewModel)
             Tab.PROGRESS -> {
                 AchievementsSection(consoleId = rom.consoleId, fileName = rom.fileName, title = rom.name, match = state.achievements)
                 CloudSavesSection(consoleId = rom.consoleId, fileName = rom.fileName)
@@ -556,8 +610,13 @@ private fun Versions(
     state: DetailsState,
     ownedOf: (DownloadableFileWithTags) -> Boolean,
     downloadingOf: (DownloadableFileWithTags) -> Boolean,
-    onDownload: (DownloadableFileWithTags) -> Unit
+    onDownload: (DownloadableFileWithTags) -> Unit,
+    viewModel: GamePageViewModel
 ) {
+    val preferred by viewModel.preferred.collectAsState()
+    val languages by viewModel.languages.collectAsState()
+    val datReports by viewModel.datReports.collectAsState()
+    val scope = rememberCoroutineScope()
     val current = state.item.file.fileName
     val ordered = remember(state.versions, state.bestFileName, current) {
         GamePageModel.orderVersions(state.versions.ifEmpty { listOf(state.item) }, { it.file.fileName }, current, state.bestFileName)
@@ -565,14 +624,34 @@ private fun Versions(
     Text(stringResource(R.string.page8_versions_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     Panel(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(6.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
         ordered.forEach { version ->
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             VersionRow(
                 version = version,
                 isCurrent = version.file.fileName == current,
                 isBest = version.file.fileName == state.bestFileName,
                 owned = ownedOf(version),
                 downloading = downloadingOf(version),
-                onClick = { onDownload(version) }
+                onClick = { if (!downloadingOf(version)) onDownload(version) }
             )
+            val ranking = com.cortinadev.dogmatix.util.VersionPicker.score(
+                com.cortinadev.dogmatix.util.VersionPicker.Candidate(version.file.fileName, version.file.fileName, version.tags, version.file.fileSize),
+                com.cortinadev.dogmatix.util.VersionPicker.regionPreference(languages), languages)
+            val labels = ranking.notes.map { note ->
+                when (note) {
+                    "language" -> stringResource(R.string.version_language)
+                    "verified" -> stringResource(R.string.version_dump_claim)
+                    "unwanted" -> stringResource(R.string.version_unwanted)
+                    else -> if (note.startsWith("revision:")) stringResource(R.string.version_revision, note.substringAfter(":")) else note
+                }
+            }
+            val dat = datReports[version.file.consoleId]?.checks?.firstOrNull { it.first.name.equals(version.file.fileName, true) }?.second?.status
+            Text(labels.joinToString(" · ") + " · " + stringResource(R.string.version_dat, dat?.name ?: stringResource(R.string.version_unknown)),
+                modifier = Modifier.padding(horizontal = 10.dp), style = MaterialTheme.typography.bodySmall)
+            if (version.file.fileName == current && state.achievements != null) Text(stringResource(if (state.achievements.second) R.string.version_ra_hash else R.string.version_ra_title), modifier = Modifier.padding(horizontal = 10.dp), style = MaterialTheme.typography.bodySmall)
+            ActionPill(stringResource(if (preferred == version.file.fileName) R.string.version_unpin else R.string.version_pin),
+                { scope.launch { viewModel.setPreferred(version, preferred != version.file.fileName) } }, icon = R.drawable.ic_star)
+            }
+
         }
     }
 }
@@ -601,7 +680,7 @@ private fun VersionRow(
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(name, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurface, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(name, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurface)
             TagRow(
                 console = ConsoleFormatter.getConsoleShortName(file.consoleId),
                 tags = version.tags,

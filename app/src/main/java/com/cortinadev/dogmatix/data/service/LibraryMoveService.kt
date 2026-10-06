@@ -63,7 +63,9 @@ class LibraryMoveService @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val downloadService: DownloadService,
     private val libraryIndex: LibraryIndexService,
-    private val moveGate: StorageMoveGate
+    private val moveGate: StorageMoveGate,
+    private val copier: VerifiedDocumentCopy,
+    private val history: OperationHistoryService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var job: Job? = null
@@ -87,107 +89,92 @@ class LibraryMoveService @Inject constructor(
 
     private suspend fun runLocked(destinationUri: String) {
         _state.value = MoveState(running = true, scanning = true)
+        moveGate.hold("*")
+        var operation: LibraryOperation? = null
         try {
             if (downloadService.hasActiveDownloads()) return stop(MoveProblem.DOWNLOADS_ACTIVE)
-            val sourceUri = settingsRepository.downloadDirectory.first()
+            val root = settingsRepository.downloadDirectory.first()
+            val pending = history.entries.value.firstOrNull { it.kind == "library_move" && it.phase != "done" && it.target == destinationUri && (it.source == root || it.target == root) }
+            val sourceUri = pending?.source ?: root
             val source = sourceUri.takeIf { it.isNotBlank() }?.let { DiskScanner.rootOf(it) } ?: return stop(MoveProblem.NO_SOURCE)
             val destination = DiskScanner.rootOf(destinationUri) ?: return stop(MoveProblem.CANNOT_OPEN)
             if (LibraryMove.overlaps(DiskScanner.canonicalKey(source), DiskScanner.canonicalKey(destination))) return stop(MoveProblem.OVERLAP)
-
-            val files = ArrayList<Pair<LibraryMove.Item, Uri>>()
-            walk(source, "", files)
-            val total = LibraryMove.totalBytes(files.map { it.first })
-            val free = StorageHelper.getFreeBytes(context, destinationUri)
-            if (LibraryMove.fits(total, free) == false) {
-                _state.value = MoveState(problem = MoveProblem.NO_ROOM, needBytes = total, freeBytes = free ?: 0)
-                return
+            operation = pending ?: LibraryOperation(kind = "library_move", title = "", source = sourceUri, target = destinationUri)
+            history.put(operation)
+            if (operation.phase == "copying" || operation.phase == "interrupted") {
+                val files = ArrayList<Pair<LibraryMove.Item, Uri>>()
+                walk(source, "", files)
+                val total = LibraryMove.totalBytes(files.map { it.first })
+                val free = StorageHelper.getFreeBytes(context, destinationUri)
+                // Existing verified copies need no additional space.
+                val remaining = files.sumOf { (item, uri) ->
+                    val existing = StorageHelper.findFile(StorageHelper.getDocumentFile(context, destinationUri) ?: return stop(MoveProblem.CANNOT_OPEN), LibraryMove.join(item.dirPath, item.name))
+                    if (existing != null && runCatching { copier.hash(uri) == copier.hash(existing.uri) }.getOrDefault(false)) 0L else item.size
+                }
+                if (LibraryMove.fits(remaining, free) == false) {
+                    _state.value = MoveState(problem = MoveProblem.NO_ROOM, needBytes = remaining, freeBytes = free ?: 0)
+                    return
+                }
+                _state.value = MoveState(running = true, filesTotal = files.size, bytesTotal = total)
+                val currentUris = files.map { it.second.toString() }.toSet()
+                operation = operation.copy(files = operation.files.filter { it.source in currentUris })
+                history.put(operation)
+                files.forEachIndexed { index, (item, uri) ->
+                    currentCoroutineContext().ensureActive()
+                    _state.update { it.copy(current = item.name, filesDone = index) }
+                    val directory = StorageHelper.createDirectory(context, destinationUri, item.dirPath) ?: error("Cannot open destination")
+                    val target = copier.copy(uri, directory, item.name) { bytes -> _state.update { it.copy(bytesDone = it.bytesDone + bytes) } }
+                    val hash = copier.hash(uri)
+                    check(copier.mayRemove(uri, target.uri, hash)) { "Source changed during copy" }
+                    val receipt = OperationFile(uri.toString(), target.uri.toString(), item.name, item.size, hash)
+                    val currentOperation = requireNotNull(operation)
+                    operation = currentOperation.copy(files = currentOperation.files.filterNot { it.source == receipt.source } + receipt)
+                    history.put(operation)
+                }
+                operation = requireNotNull(operation).copy(phase = "ready")
+                history.put(operation)
             }
-            _state.value = MoveState(running = true, filesTotal = files.size, bytesTotal = total)
-
+            // All games are still in the source until every copy has passed its content check.
+            for (receipt in operation.files) {
+                if (copier.hash(Uri.parse(receipt.target)) != receipt.hash) error("Destination changed; originals kept")
+            }
+            settingsRepository.updateDownloadDirectory(destinationUri)
+            operation = operation.copy(phase = "cleanup")
+            history.put(operation)
             var failed = 0
-            var lastUpdate = 0L
-            var bytesDone = 0L
-            files.forEachIndexed { index, (item, uri) ->
-                currentCoroutineContext().ensureActive()
-                _state.update { it.copy(current = item.name, filesDone = index) }
-                val before = bytesDone
-                val outcome = copyOne(destinationUri, item, uri) { delta ->
-                    bytesDone += delta
-                    val now = System.currentTimeMillis()
-                    if (now - lastUpdate > 500) { lastUpdate = now; _state.update { it.copy(bytesDone = bytesDone) } }
+            val cleaned = operation.files.map { receipt ->
+                if (receipt.removed) receipt else {
+                    val original = androidx.documentfile.provider.DocumentFile.fromSingleUri(context, Uri.parse(receipt.source))
+                    val absent = original?.exists() == false
+                    val removed = absent || (copier.mayRemove(Uri.parse(receipt.source), Uri.parse(receipt.target), receipt.hash) && DiskScanner.delete(context, Uri.parse(receipt.source)))
+                    if (!removed) failed++
+                    receipt.copy(removed = removed)
                 }
-                val copySize = copiedSize(destinationUri, item)
-                if (LibraryMove.mayDeleteOriginal(outcome, item.size, copySize)) {
-                    if (!DiskScanner.delete(context, uri)) Log.w(TAG, "Copied ${item.name} but could not delete the original")
-                } else {
-                    failed++
-                    bytesDone = before + item.size
-                }
-                _state.update { it.copy(bytesDone = bytesDone, failed = failed) }
             }
-
-            val moved = files.size - failed
-            if (failed == 0) {
-                settingsRepository.updateDownloadDirectory(destinationUri)
-                libraryIndex.requestRefresh()
-            }
-            _state.value = MoveState(filesDone = files.size, filesTotal = files.size, bytesDone = total, bytesTotal = total, failed = failed, finished = true)
-            val msg = if (failed == 0) context.getString(R.string.storage_move_done, moved) else context.getString(R.string.storage_move_done_failed, failed)
-            withContext(Dispatchers.Main) { if (failed == 0) ToastUtil.showSuccess(context, msg) else ToastUtil.showError(context, msg) }
+            operation = operation.copy(files = cleaned, phase = if (failed == 0) "done" else "cleanup")
+            history.put(operation)
+            libraryIndex.requestRefresh()
+            val total = cleaned.sumOf { it.bytes }
+            _state.value = MoveState(filesDone = cleaned.size, filesTotal = cleaned.size, bytesDone = total, bytesTotal = total, failed = failed, finished = true)
         } catch (e: CancellationException) {
+            operation?.takeIf { it.phase == "copying" }?.let { history.put(it.copy(phase = "interrupted")) }
             _state.update { it.copy(running = false, scanning = false) }
             throw e
         } catch (e: Exception) {
-            Log.e(TAG, "Move failed: ${e.message}", e)
+            Log.e(TAG, "Move failed", e)
+            operation?.takeIf { it.phase == "copying" }?.let { history.put(it.copy(phase = "interrupted")) }
             _state.update { it.copy(running = false, scanning = false, finished = true, failed = it.failed.coerceAtLeast(1)) }
-        }
+        } finally { moveGate.release("*") }
     }
 
     private fun stop(problem: MoveProblem) { _state.value = MoveState(problem = problem) }
 
     private fun walk(dir: DiskDir, path: String, out: MutableList<Pair<LibraryMove.Item, Uri>>) {
-        for (entry in DiskScanner.list(context, dir)) {
+        val entries = DiskScanner.listOrNull(context, dir, strict = true) ?: error("Directory cannot be read completely")
+        for (entry in entries) {
+            if (entry.name.startsWith(".dogmatix-")) continue
             if (entry.isDirectory) walk(DiskScanner.dirOf(dir, entry), LibraryMove.join(path, entry.name), out)
             else out += LibraryMove.Item(path, entry.name, entry.size) to entry.uri
-        }
-    }
-
-    private fun copiedSize(destinationUri: String, item: LibraryMove.Item): Long = runCatching {
-        StorageHelper.createDirectory(context, destinationUri, item.dirPath)?.findFile(item.name)?.length() ?: -1L
-    }.getOrDefault(-1L)
-
-    /** Copies one file below the destination; a half-written copy is removed again. */
-    private suspend fun copyOne(destinationUri: String, item: LibraryMove.Item, source: Uri, onBytes: (Long) -> Unit): LibraryMove.Outcome {
-        val dir = StorageHelper.createDirectory(context, destinationUri, item.dirPath) ?: return LibraryMove.Outcome.FAILED
-        val existing = runCatching { dir.findFile(item.name) }.getOrNull()
-        if (existing != null && existing.isFile && LibraryMove.alreadyThere(existing.length(), item.size)) {
-            onBytes(item.size)
-            return LibraryMove.Outcome.ALREADY_THERE
-        }
-        runCatching { existing?.delete() }
-        val target = runCatching { dir.createFile("application/octet-stream", item.name) }.getOrNull() ?: return LibraryMove.Outcome.FAILED
-        return try {
-            val input = context.contentResolver.openInputStream(source) ?: return LibraryMove.Outcome.FAILED
-            val output = context.contentResolver.openOutputStream(target.uri) ?: run { input.close(); runCatching { target.delete() }; return LibraryMove.Outcome.FAILED }
-            input.use { i ->
-                output.use { o ->
-                    val buffer = ByteArray(256 * 1024)
-                    while (true) {
-                        currentCoroutineContext().ensureActive()
-                        val n = i.read(buffer)
-                        if (n < 0) break
-                        o.write(buffer, 0, n)
-                        onBytes(n.toLong())
-                    }
-                }
-            }
-            if (target.length() == item.size) LibraryMove.Outcome.COPIED
-            else { runCatching { target.delete() }; LibraryMove.Outcome.FAILED }
-        } catch (e: Exception) {
-            runCatching { target.delete() }
-            if (e is CancellationException) throw e
-            Log.w(TAG, "Could not copy ${item.name}: ${e.message}")
-            LibraryMove.Outcome.FAILED
         }
     }
 }

@@ -97,7 +97,10 @@ class SmartStorageService @Inject constructor(
     private val libraryIndex: LibraryIndexService,
     private val moveGate: StorageMoveGate,
     private val frontendMetadata: FrontendMetadataService,
-    private val esdePlay: EsdePlayService
+    private val esdePlay: EsdePlayService,
+    private val copier: VerifiedDocumentCopy,
+    private val history: OperationHistoryService,
+    private val trash: TrashService
 ) {
     enum class Trigger { MANUAL, AUTO }
 
@@ -265,6 +268,7 @@ class SmartStorageService @Inject constructor(
 
     /** The weekly run: only while smart storage is on and its weekly run too. Waits until done. */
     suspend fun runIfEnabled() {
+        trash.cleanExpired()
         if (!settings.enabled.first() || !settings.weekly.first()) return
         run(Trigger.AUTO, null)
     }
@@ -351,6 +355,7 @@ class SmartStorageService @Inject constructor(
                     if (copied[file.path] != file.stamp) { copied[file.path] = file.stamp; appendManifest(manifest, file) }
                 } else {
                     Log.w(TAG, "Could not copy ${file.path}")
+                    return null
                 }
             }
             // 2. Verify: every file there, every size equal. Otherwise nothing changes on the source side.
@@ -379,8 +384,18 @@ class SmartStorageService @Inject constructor(
         val now = System.currentTimeMillis()
         val record = if (to == SmartStorage.Place.SD) SmartStorage.Record(c.id, SmartStorage.Place.SD, now, c.folder, target.uri.toString())
             else SmartStorage.Record(c.id, SmartStorage.Place.INTERNAL, now, c.folder, "")
+        val receipts = source.files.map { file ->
+            val destination = StorageHelper.findFile(target, file.path) ?: error("Missing target")
+            val hash = copier.hash(file.uri)
+            check(copier.mayRemove(file.uri, destination.uri, hash)) { "Copy changed" }
+            OperationFile(file.uri.toString(), destination.uri.toString(), file.path, file.size, hash)
+        }
+        var operation = LibraryOperation(kind = "smart_move", title = c.id, source = DiskScanner.uriOf(source.dir).toString(), target = target.uri.toString(), consoleId = c.id, files = receipts, phase = "ready", destinationPlace = to.name)
+        history.put(operation)
         // The folder setting and the record in one edit.
         settings.switchConsole(record, record.uri)
+        operation = operation.copy(phase = "cleanup")
+        history.put(operation)
 
         // Originals go only when, listed right before, they are exactly as they were copied; a file
         // that changed meanwhile (or arrived) is copied again and goes on the next pass.
@@ -389,13 +404,23 @@ class SmartStorageService @Inject constructor(
             walk(source.dir, "", current)
             if (current.isEmpty()) return@repeat
             for (file in current) {
-                if (SmartStorage.unchanged(copied[file.path] ?: SmartStorage.Stamp(-1, -1), file.stamp)) {
+                val destination = StorageHelper.findFile(target, file.path)
+                val expected = operation.files.firstOrNull { it.source == file.uri.toString() }?.hash
+                if (destination != null && expected != null && copier.mayRemove(file.uri, destination.uri, expected)) {
                     if (!DiskScanner.delete(context, file.uri)) Log.w(TAG, "Copied ${file.path} but could not delete the original")
                 } else if (copyOne(file, target, null)) {
                     copied[file.path] = file.stamp
+                    val destination = StorageHelper.findFile(target, file.path) ?: continue
+                    val receipt = OperationFile(file.uri.toString(), destination.uri.toString(), file.path, file.size, copier.hash(file.uri))
+                    operation = operation.copy(files = operation.files.filterNot { it.source == receipt.source } + receipt)
+                    history.put(operation)
                 }
             }
         }
+        val remaining = ArrayList<FileItem>()
+        walk(source.dir, "", remaining)
+        operation = operation.copy(phase = if (remaining.isEmpty()) "done" else "cleanup")
+        history.put(operation)
         pruneEmpty(source.dir)
         runCatching { manifest.delete() }
 
@@ -408,14 +433,16 @@ class SmartStorageService @Inject constructor(
     }
 
     private fun walk(dir: DiskDir, path: String, out: MutableList<FileItem>) {
-        for (entry in DiskScanner.list(context, dir)) {
+        for (entry in (DiskScanner.listOrNull(context, dir, strict = true) ?: error("Incomplete directory listing"))) {
+            if (entry.name.startsWith(".dogmatix-")) continue
             if (entry.isDirectory) walk(DiskScanner.dirOf(dir, entry), LibraryMove.join(path, entry.name), out)
             else out += FileItem(path, entry.name, entry.size, entry.lastModified, entry.uri)
         }
     }
 
     private fun sizes(dir: DiskDir, path: String, out: MutableMap<String, Long>) {
-        for (entry in DiskScanner.list(context, dir)) {
+        for (entry in (DiskScanner.listOrNull(context, dir, strict = true) ?: error("Incomplete directory listing"))) {
+            if (entry.name.startsWith(".dogmatix-")) continue
             if (entry.isDirectory) sizes(DiskScanner.dirOf(dir, entry), LibraryMove.join(path, entry.name), out)
             else out[LibraryMove.join(path, entry.name)] = entry.size
         }
@@ -449,45 +476,11 @@ class SmartStorageService @Inject constructor(
      */
     private suspend fun copyOne(file: FileItem, target: DocumentFile, trusted: SmartStorage.Stamp?): Boolean {
         val dir = StorageHelper.createDirectory(target, file.dirPath) ?: return false
-        val existing = runCatching { dir.findFile(file.name) }.getOrNull()
-        if (existing != null && existing.isFile && SmartStorage.Manifest.trusted(trusted, file.stamp, existing.length())) {
-            _state.update { it.copy(bytesDone = it.bytesDone + file.size) }
-            return true
-        }
-        runCatching { existing?.delete() }
-        val out = runCatching { dir.createFile("application/octet-stream", file.name) }.getOrNull() ?: return false
-        var lastUpdate = 0L
-        var pending = 0L
         return try {
-            val input = context.contentResolver.openInputStream(file.uri) ?: run { runCatching { out.delete() }; return false }
-            val output = context.contentResolver.openOutputStream(out.uri) ?: run { input.close(); runCatching { out.delete() }; return false }
-            input.use { i ->
-                output.use { o ->
-                    val buffer = ByteArray(256 * 1024)
-                    while (true) {
-                        currentCoroutineContext().ensureActive()
-                        val n = i.read(buffer)
-                        if (n < 0) break
-                        o.write(buffer, 0, n)
-                        pending += n
-                        val now = System.currentTimeMillis()
-                        if (now - lastUpdate > 500) {
-                            lastUpdate = now
-                            val add = pending
-                            pending = 0
-                            _state.update { it.copy(bytesDone = it.bytesDone + add) }
-                        }
-                    }
-                }
-            }
-            _state.update { it.copy(bytesDone = it.bytesDone + pending) }
-            if (out.length() == file.size) true else { runCatching { out.delete() }; false }
-        } catch (e: Exception) {
-            runCatching { out.delete() }
-            if (e is CancellationException) throw e
-            Log.w(TAG, "Could not copy ${file.name}: ${e.message}")
-            false
-        }
+            copier.copy(file.uri, dir, file.name) { bytes -> _state.update { it.copy(bytesDone = it.bytesDone + bytes) } }
+            true
+        } catch (e: CancellationException) { throw e }
+        catch (e: Exception) { Log.w(TAG, "Copy refused for ${file.name}", e); false }
     }
 
     // ---- ES-DE ----------------------------------------------------------------------------------

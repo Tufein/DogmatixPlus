@@ -164,14 +164,14 @@ You need **Android 10 or newer**. The app is not on Google Play.
 1. The welcome guide explains the basics.
 2. **Pick your ROMs folder** — the folder where your games should go.
 3. **Import your sources** (a file with your game lists) — or skip and add sources later in the **Sources** tab.
-4. Open the **Library**, find a game and tap it (or press **A**) to download it.
+4. Open the **Library**, find a game and tap it (or press **A**) to open its game page. Choose **Download** or **Play** there.
 
 ## Using a gamepad
 
 | Button | What it does |
 |---|---|
 | D-pad | Move around |
-| **A** | Choose / download |
+| **A** | Choose / open the game page; download or play on that page |
 | **B** | Go back one step |
 | **X** | Game info |
 | **Y** | Search |
@@ -184,7 +184,7 @@ Everything also works by touch. The hints only show while a controller is connec
 
 ## Good to know
 
-- **Deleting duplicates is permanent.** The app shows every file first, but there is no recycle bin.
+- Removed games go to recovery trash. Restore or permanently empty them in Tools → Trash and recovery. Space is freed only after emptying; the general file explorer still deletes permanently.
 - **A backup file contains your account keys** (TorBox, Real-Debrid, RomM). Keep it private.
 - **The game info window stays empty in the downloads here**, because it needs a free key from a game database that is added when the app is built.
 - DogmatixPlus does not look for games on its own. It only reads the sources **you** add.

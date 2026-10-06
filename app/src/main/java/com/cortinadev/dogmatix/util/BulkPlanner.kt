@@ -58,7 +58,8 @@ object BulkPlanner {
         regionPreference: List<String>,
         languages: Set<String>,
         freeBytes: Long?,
-        pickSource: (List<BulkCandidate>) -> BulkCandidate = { it.first() }
+        pickSource: (List<BulkCandidate>) -> BulkCandidate = { it.first() },
+        preferredVersion: (BulkCandidate) -> String? = { null }
     ): BulkPlan {
         val owned = candidates.count { it.owned }
         val active = candidates.count { !it.owned && it.downloading }
@@ -67,7 +68,7 @@ object BulkPlanner {
             .groupBy { it.consoleId to it.fileName }.values.map { if (it.size == 1) it.first() else pickSource(it) }
         val chosen = if (!bestOnly) open else open.groupBy { it.consoleId to it.titleKey }.values.mapNotNull { group ->
             if (group.size == 1) group.first() else {
-                val best = VersionPicker.best(group.map { VersionPicker.Candidate(it.fileName, it.fileName, it.tags, it.size) }, regionPreference, languages)
+                val best = VersionPreference.pick(group.map { VersionPicker.Candidate(it.fileName, it.fileName, it.tags, it.size) }, regionPreference, languages, preferredVersion(group.first()))
                 group.firstOrNull { it.fileName == best?.id } ?: group.first()
             }
         }

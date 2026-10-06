@@ -38,7 +38,8 @@ class ListImportService @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val libraryIndex: LibraryIndexService,
     private val downloadService: DownloadService,
-    private val wishlist: WishlistRepository
+    private val wishlist: WishlistRepository,
+    private val versionPreference: VersionPreferenceService
 ) {
     suspend fun match(titles: List<String>, consoleId: String?, onProgress: (Int) -> Unit = {}): ListMatch = withContext(Dispatchers.IO) {
         val languages = settingsRepository.favoriteLanguages.first()
@@ -56,9 +57,9 @@ class ListImportService @Inject constructor(
                 files.isEmpty() -> missing += title
                 files.any { libraryIndex.isOwned(it) || downloadService.isActive(it.fileName) } -> have += title
                 else -> files.groupBy { it.consoleId }.values.forEach { perConsole ->
-                    val best = VersionPicker.best(
+                    val best = com.cortinadev.dogmatix.util.VersionPreference.pick(
                         perConsole.map { VersionPicker.Candidate(it.fileName, it.fileName, fileDao.tagsOf(it.id), it.fileSize) },
-                        regions, languages
+                        regions, languages, versionPreference.preferred(perConsole.first().consoleId, perConsole.first().fileName)
                     )
                     perConsole.firstOrNull { it.fileName == best?.id }?.let(picks::add)
                 }

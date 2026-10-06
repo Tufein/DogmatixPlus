@@ -68,7 +68,8 @@ class DeviceSyncService @Inject constructor(
     private val database: DogmatixDatabase,
     private val favouriteDao: FavouriteDao,
     private val wishlistDao: WishlistDao,
-    private val collectionDao: CollectionDao
+    private val collectionDao: CollectionDao,
+    private val history: OperationHistoryService
 ) {
     /** Why a background sync was asked for. */
     enum class Trigger { START, LOCAL_CHANGE, BACKGROUND, SCHEDULED }
@@ -150,11 +151,13 @@ class DeviceSyncService @Inject constructor(
                 is DeviceSyncEngine.Outcome.Synced -> {
                     settings.recordSync(System.currentTimeMillis(), outcome.added, outcome.removed, outcome.sent)
                     Log.i(TAG, "Device sync: +${outcome.added} -${outcome.removed}${if (outcome.sent) ", sent" else ""}")
+                    history.event("device_sync", "${outcome.added} / ${outcome.removed}")
                     Result.Synced(outcome.added, outcome.removed, outcome.sent)
                 }
                 is DeviceSyncEngine.Outcome.HeldBack -> {
                     settings.recordSyncHeldBack(outcome.removals)
                     Log.i(TAG, "Device sync held back: ${outcome.removals} removals")
+                    history.event("device_sync", outcome.removals.toString(), "conflict")
                     Result.HeldBack(outcome.removals)
                 }
                 DeviceSyncEngine.Outcome.NothingToSend -> Result.Skipped

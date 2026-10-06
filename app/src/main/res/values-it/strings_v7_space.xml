@@ -55,8 +55,8 @@
     <string name="space7_remove_wish">Rimuovi e aggiungi alla lista dei desideri</string>
     <string name="space7_confirm_title">Rimuovere questi giochi?</string>
     <plurals name="space7_confirm_message">
-        <item quantity="one">%1$d gioco (%2$s) verrà eliminato dalle tue cartelle della libreria. L\'azione non si può annullare.</item>
-        <item quantity="other">%1$d giochi (%2$s) verranno eliminati dalle tue cartelle della libreria. L\'azione non si può annullare.</item>
+        <item quantity="one">%1$d (%2$s)\nSpostati nel cestino. Ripristina o svuota definitivamente in Strumenti → Cestino e recupero. Lo spazio viene liberato dopo lo svuotamento.</item>
+        <item quantity="other">%1$d (%2$s)\nSpostati nel cestino. Ripristina o svuota definitivamente in Strumenti → Cestino e recupero. Lo spazio viene liberato dopo lo svuotamento.</item>
     </plurals>
     <plurals name="space7_confirm_wish">
         <item quantity="one">Verrà aggiunto alla tua lista dei desideri, così potrai riscaricarlo più tardi.</item>
@@ -68,8 +68,8 @@
     </plurals>
     <string name="space7_more_files">… e altri %1$d file</string>
     <plurals name="space7_done">
-        <item quantity="one">%1$d gioco rimosso, %2$s liberati</item>
-        <item quantity="other">%1$d giochi rimossi, %2$s liberati</item>
+        <item quantity="one">Nel cestino: %1$d · %2$s conservati</item>
+        <item quantity="other">Nel cestino: %1$d · %2$s conservati</item>
     </plurals>
     <plurals name="space7_done_wish">
         <item quantity="one">%1$d gioco aggiunto alla lista dei desideri</item>

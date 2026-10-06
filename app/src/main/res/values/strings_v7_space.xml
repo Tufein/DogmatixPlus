@@ -55,8 +55,8 @@
     <string name="space7_remove_wish">Remove and add to wishlist</string>
     <string name="space7_confirm_title">Remove these games?</string>
     <plurals name="space7_confirm_message">
-        <item quantity="one">%1$d game (%2$s) will be deleted from your library folders. This cannot be undone.</item>
-        <item quantity="other">%1$d games (%2$s) will be deleted from your library folders. This cannot be undone.</item>
+        <item quantity="one">%1$d (%2$s)\nMoved to trash. Restore or permanently empty it in Tools → Trash and recovery. Space is released only after emptying.</item>
+        <item quantity="other">%1$d (%2$s)\nMoved to trash. Restore or permanently empty it in Tools → Trash and recovery. Space is released only after emptying.</item>
     </plurals>
     <plurals name="space7_confirm_wish">
         <item quantity="one">It is put on your wishlist so you can fetch it again later.</item>
@@ -68,8 +68,8 @@
     </plurals>
     <string name="space7_more_files">… and %1$d more files</string>
     <plurals name="space7_done">
-        <item quantity="one">Removed %1$d game, %2$s freed</item>
-        <item quantity="other">Removed %1$d games, %2$s freed</item>
+        <item quantity="one">Moved to trash: %1$d · %2$s retained for recovery</item>
+        <item quantity="other">Moved to trash: %1$d · %2$s retained for recovery</item>
     </plurals>
     <plurals name="space7_done_wish">
         <item quantity="one">%1$d game put on the wishlist</item>

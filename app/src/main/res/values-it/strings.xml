@@ -517,8 +517,8 @@
         <item quantity="other">%1$d gruppi · si possono liberare %2$s · %3$d file controllati</item>
     </plurals>
     <plurals name="duplicates_delete_message">
-        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s) verrà eliminato definitivamente.</item>
-        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s) verranno eliminati definitivamente.</item>
+        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s)\nSpostati nel cestino. Ripristina o svuota definitivamente in Strumenti → Cestino e recupero. Lo spazio viene liberato dopo lo svuotamento.</item>
+        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s)\nSpostati nel cestino. Ripristina o svuota definitivamente in Strumenti → Cestino e recupero. Lo spazio viene liberato dopo lo svuotamento.</item>
     </plurals>
 
     <!-- 1.2.0-alpha.1 strings (generated) -->
@@ -1270,8 +1270,9 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Le impostazioni sono nero puro (AMOLED) nei temi scuri, con bordi sottili invece di pannelli grigi.</item>
-        <item>Le impostazioni sono disposte in modo simmetrico: margini uguali, righe affiancate della stessa altezza, comandi allineati.</item>
+        <item>Spostamenti verificati con recupero riprendibile.</item>
+        <item>Cestino con ripristino e scadenza facoltativa; svuotalo per liberare spazio.</item>
+        <item>Avvia i tuoi giochi e fissa una versione preferita per la selezione automatica.</item>
     </string-array>
 
     <!-- 4.0 -->

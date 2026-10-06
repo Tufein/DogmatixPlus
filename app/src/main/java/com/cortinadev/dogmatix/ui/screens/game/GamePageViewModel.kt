@@ -56,7 +56,11 @@ class GamePageViewModel @Inject constructor(
     private val collectionsRepository: CollectionsRepository,
     private val sourceTrack: SourceTrackService,
     rommLibrary: RommLibraryService,
-    retroAchievements: RetroAchievementsService
+    retroAchievements: RetroAchievementsService,
+    val gameLauncher: com.cortinadev.dogmatix.data.service.GameLaunchService,
+    private val versionPreference: com.cortinadev.dogmatix.data.service.VersionPreferenceService,
+    datService: com.cortinadev.dogmatix.data.service.DatService,
+    private val profiles: com.cortinadev.dogmatix.data.service.ProfileService
 ) : ViewModel() {
 
     private val _phase = MutableStateFlow(GamePagePhase.LOADING)
@@ -72,13 +76,15 @@ class GamePageViewModel @Inject constructor(
     fun load(consoleId: String, fileName: String) {
         if (key == consoleId to fileName) return
         key = consoleId to fileName
+        preferredJob?.cancel()
+        preferredJob = viewModelScope.launch { versionPreference.observe(consoleId, fileName).collect { _preferred.value = it } }
         job?.cancel()
         _phase.value = GamePagePhase.LOADING
         _details.value = null
         job = viewModelScope.launch {
             // findByFileNames may fall back to another console's row with the same name: only this console's counts.
             val item = runCatching { repository.findByFileNames(listOf(fileName)) { consoleId }[fileName] }.getOrNull()
-                ?.takeIf { it.file.consoleId == consoleId }
+                ?.takeIf { it.file.consoleId == consoleId && profiles.current().allows(it.file.consoleId, it.tags) }
             if (item == null) { _phase.value = GamePagePhase.MISSING; return@launch }
             _details.value = DetailsState(item, loading = true)
             _phase.value = GamePagePhase.READY
@@ -148,6 +154,24 @@ class GamePageViewModel @Inject constructor(
         }
         downloadService.startDownload(sourceTrack.pickBest(file, sameNameOnly = true), condition)
         return true
+    }
+
+    val datReports = datService.reports
+    val languages = settingsRepository.favoriteLanguages.stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+    private val _preferred = MutableStateFlow<String?>(null)
+    val preferred = _preferred.asStateFlow()
+    private var preferredJob: Job? = null
+
+    suspend fun removalPlan(item: DownloadableFileWithTags) = libraryIndex.removalPlan(item.file)
+    suspend fun remove(plan: List<com.cortinadev.dogmatix.data.service.RemovalFile>, title: String) = libraryIndex.deletePlan(plan, title)
+    suspend fun setPreferred(item: DownloadableFileWithTags, pinned: Boolean) {
+        versionPreference.set(item.file.consoleId, item.file.fileName, if (pinned) item.file.fileName else null)
+        _preferred.value = if (pinned) item.file.fileName else null
+        val current = _details.value ?: return
+        val candidates = current.versions.map { com.cortinadev.dogmatix.util.VersionPicker.Candidate(it.file.fileName, it.file.fileName, it.tags, it.file.fileSize) }
+        val languages = settingsRepository.favoriteLanguages.first()
+        val best = com.cortinadev.dogmatix.util.VersionPreference.pick(candidates, com.cortinadev.dogmatix.util.VersionPicker.regionPreference(languages), languages, _preferred.value)?.id
+        _details.value = current.copy(bestFileName = best, best = current.versions.firstOrNull { it.file.fileName == best })
     }
 
     /** Removes the game from the download folder (the screen confirms first). */

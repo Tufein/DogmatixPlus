@@ -78,7 +78,8 @@ class BetterVersionsService @Inject constructor(
     private val downloadService: DownloadService,
     private val datService: DatService,
     private val settingsRepository: SettingsRepository,
-    private val settings: BetterVersionsSettings
+    private val settings: BetterVersionsSettings,
+    private val versionPreference: VersionPreferenceService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -124,7 +125,7 @@ class BetterVersionsService @Inject constructor(
         val folderSet = settingsRepository.downloadDirectory.first().isNotBlank() ||
             settingsRepository.consoleDownloadDirectories.first().isNotEmpty()
         val snapshot = scanService.scan()
-        val games = DuplicateFinder.entries(snapshot.files).filter { eligible(it) }
+        val games = DuplicateFinder.entries(snapshot.files).filter { eligible(it) && versionPreference.preferred(it.consoleId.orEmpty(), it.baseName) == null }
         val reports = datService.reports.value
         val ownedKeys = libraryIndex.ownedKeys.value
         val ignored = settings.ignored.first()

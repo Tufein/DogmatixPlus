@@ -493,3 +493,12 @@ DogmatixPlus is a small layer on top of two projects. Most of what you use every
 DogmatixPlus was **made with the help of A.I.**: the code, the tests and this documentation were written together with an AI assistant, then checked in several independent review rounds and tried on an emulator. Decisions, direction and publishing are the maintainer's.
 
 Libraries the apps rely on are listed under [Tech stack](#tech-stack): Jetpack Compose, Hilt, Room, libtorrent4j, 7-Zip-JBinding, Jsoup and Kotlin Coroutines.
+
+
+## Library recovery
+
+`VerifiedDocumentCopy` stages a new SAF document and verifies SHA-256 by re-reading the source and copy. A different existing target is refused. `OperationHistoryService` writes an atomic durable journal before destructive changes; a corrupt journal prevents destructive library operations. `TrashService` keeps verified copies beside the original files in hidden `.dogmatix-trash` directories. Ordinary scans exclude these directories; strict deletion checks include them so recursive cleanup cannot erase recovery data.
+
+The Recovery tool resumes library-move cleanup and restores trash to the original path. Fixed game versions are kept in the shared DataStore and carried by regular backups. Native game launching grants read access to the content URI and remembers only handlers compatible with that URI type.
+
+Acceptance and remaining device checks: [recovery acceptance](docs/quality/recovery-acceptance.md).

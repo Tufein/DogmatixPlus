@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recovery_title">Prullenbak en herstel</string>
+    <string name="recovery_hint">Zet verwijderde games terug en hervat onderbroken verplaatsingen.</string>
+    <string name="recovery_action_failed">De actie kon niet worden afgerond. Herstelkopieën blijven bewaard. Controleer opslag en toegang en probeer opnieuw.</string>
+    <string name="recovery_remove_title">Deze bestanden naar de prullenbak?</string>
+    <string name="recovery_remove_hint">Alleen deze bestanden worden verplaatst. Saves en metadata blijven beschermd. Terugzetten kan via Hulpmiddelen → Prullenbak en herstel.</string>
+    <string name="recovery_to_trash">Naar prullenbak</string>
+    <string name="recovery_no_files">Geen bijbehorende gamebestanden gevonden.</string>
+    <string name="recovery_restore">Terugzetten</string>
+    <string name="recovery_resume">Hervatten</string>
+    <string name="recovery_purge">Definitief verwijderen</string>
+    <string name="recovery_purge_warning">Dit verwijdert de herstelkopieën definitief. Dit kan niet ongedaan worden gemaakt.</string>
+    <string name="recovery_days">%1$d dagen bewaren</string>
+    <string name="recovery_automatic">Verlopen prullenbak automatisch legen bij het openen van Dogmatix+. Standaard uit.</string>
+    <string name="recovery_share">Actierapport delen</string>
+    <string name="recovery_space">Herstelkopieën: %1$s</string>
+    <string name="recovery_empty">Nog geen acties geregistreerd.</string>
+    <string name="recovery_move">Bibliotheek verplaatsen</string>
+    <string name="recovery_done">Afgerond</string>
+    <string name="recovery_stored">Bewaard in prullenbak</string>
+    <string name="recovery_cleanup">Opruimen nog nodig</string>
+    <string name="recovery_interrupted">Onderbroken of mislukt</string>
+    <string name="recovery_pending">Bezig of onderbroken</string>
+    <string name="recovery_conflict">Je keuze is nodig</string>
+    <string name="play_game">Spelen</string>
+    <string name="play_choose">Kies een gamebestand en toepassing</string>
+    <string name="play_remember">Toepassing onthouden voor deze console</string>
+    <string name="play_change_handler">Andere toepassing kiezen</string>
+    <string name="play_no_handler">Geen geschikte toepassing gevonden. Installeer een emulator die dit bestandstype kan openen.</string>
+    <string name="version_language">Voorkeurstaal</string>
+    <string name="version_dump_claim">Naam vermeldt goede dump; niet onafhankelijk gecontroleerd</string>
+    <string name="version_unwanted">Demo, wijziging of dumpwaarschuwing</string>
+    <string name="version_dat">DAT: %1$s</string>
+    <string name="version_unknown">niet gecontroleerd</string>
+    <string name="version_pin">Deze versie automatisch gebruiken</string>
+    <string name="version_unpin">Versievoorkeur verwijderen</string>
+    <string name="version_ra_hash">RetroAchievements herkend via hash</string>
+    <string name="version_ra_title">RetroAchievements alleen herkend via titel</string>
+    <string name="version_revision">Revisie %1$s</string>
+    <string name="recovery_file_count">%1$d bestanden in deze actie</string>
+</resources>

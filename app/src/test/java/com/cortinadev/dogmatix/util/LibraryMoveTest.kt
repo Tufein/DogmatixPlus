@@ -9,15 +9,18 @@ import org.junit.Test
 
 class LibraryMoveTest {
     @Test fun `the original goes only after a copy of the same size`() {
-        assertTrue(LibraryMove.mayDeleteOriginal(Outcome.COPIED, 1000, 1000))
-        assertTrue(LibraryMove.mayDeleteOriginal(Outcome.ALREADY_THERE, 1000, 1000))
+        assertFalse(LibraryMove.mayDeleteOriginal(Outcome.COPIED, 1000, 1000))
+        assertTrue(LibraryMove.mayDeleteOriginal(Outcome.COPIED, 1000, 1000, "hash", "hash"))
+        assertFalse(LibraryMove.mayDeleteOriginal(Outcome.COPIED, 1000, 1000, "hash", "different"))
+        assertFalse(LibraryMove.mayDeleteOriginal(Outcome.ALREADY_THERE, 1000, 1000))
         assertFalse(LibraryMove.mayDeleteOriginal(Outcome.COPIED, 1000, 999))
         assertFalse(LibraryMove.mayDeleteOriginal(Outcome.COPIED, 1000, -1))
         assertFalse(LibraryMove.mayDeleteOriginal(Outcome.FAILED, 1000, 1000))
     }
 
     @Test fun `a file already at the target counts only with the exact size`() {
-        assertTrue(LibraryMove.alreadyThere(1000, 1000))
+        assertFalse(LibraryMove.alreadyThere(1000, 1000))
+        assertTrue(LibraryMove.alreadyThere(1000, 1000, "hash", "hash"))
         assertFalse(LibraryMove.alreadyThere(400, 1000))
         assertFalse(LibraryMove.alreadyThere(null, 1000))
         assertFalse(LibraryMove.alreadyThere(0, 0))

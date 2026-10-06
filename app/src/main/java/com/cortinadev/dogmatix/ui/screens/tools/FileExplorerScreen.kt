@@ -124,7 +124,8 @@ data class ExplorerState(
 class FileExplorerViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settings: SettingsRepository,
-    private val extractor: ArchiveExtractorService
+    private val extractor: ArchiveExtractorService,
+    private val verifiedCopy: com.cortinadev.dogmatix.data.service.VerifiedDocumentCopy
 ) : ViewModel() {
     private val _state = MutableStateFlow(ExplorerState())
     val state: StateFlow<ExplorerState> = _state.asStateFlow()
@@ -204,7 +205,7 @@ class FileExplorerViewModel @Inject constructor(
         viewModelScope.launch {
             val problems = withContext(Dispatchers.IO) {
                 SetChecker.check(files) { f ->
-                    runCatching { context.contentResolver.openInputStream(Uri.parse(f.uri))?.use { it.readNBytes(SetChecker.MAX_SHEET_BYTES.toInt()) }?.toString(Charsets.UTF_8) }.getOrNull()
+                    runCatching { context.contentResolver.openInputStream(Uri.parse(f.uri))?.use { com.cortinadev.dogmatix.util.BoundedStreams.read(it, SetChecker.MAX_SHEET_BYTES.toInt()) }?.toString(Charsets.UTF_8) }.getOrNull()
                 }
             }
             _state.update { it.copy(problems = problems) }
@@ -253,13 +254,19 @@ class FileExplorerViewModel @Inject constructor(
             val ok = withContext(Dispatchers.IO) {
                 val resolver = app.contentResolver
                 val target = DiskScanner.uriOf(to)
-                val moved = runCatching { DocumentsContract.moveDocument(resolver, entry.uri, DiskScanner.uriOf(from), target) }.getOrNull() != null
-                moved || (!entry.isDirectory && runCatching {
-                    val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(entry.name.substringAfterLast('.', "").lowercase()) ?: "application/octet-stream"
-                    val copy = DocumentsContract.createDocument(resolver, target, mime, entry.name) ?: error("cannot create")
-                    resolver.openInputStream(entry.uri)!!.use { input -> resolver.openOutputStream(copy)!!.use { input.copyTo(it, 256 * 1024) } }
-                    DocumentsContract.deleteDocument(resolver, entry.uri)
-                }.getOrDefault(false))
+                runCatching {
+                    val parent = com.cortinadev.dogmatix.util.StorageHelper.getDocumentFile(app, target.toString()) ?: error("Destination unavailable")
+                    check(parent.findFile(entry.name) == null) { "Destination already exists" }
+                    if (entry.isDirectory) {
+                        // A provider-native move preserves directory structure without a recursive copy/delete fallback.
+                        DocumentsContract.moveDocument(resolver, entry.uri, DiskScanner.uriOf(from), target) != null
+                    } else {
+                        val hash = verifiedCopy.hash(entry.uri)
+                        val copy = verifiedCopy.copy(entry.uri, parent, entry.name)
+                        check(verifiedCopy.mayRemove(entry.uri, copy.uri, hash))
+                        DiskScanner.delete(app, entry.uri)
+                    }
+                }.getOrDefault(false)
             }
             _state.update { it.copy(busy = null) }
             if (ok) ToastUtil.showSuccess(app, app.getString(R.string.files_moved, entry.name)) else ToastUtil.showError(app, app.getString(R.string.files_move_failed, entry.name))

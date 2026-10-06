@@ -461,9 +461,9 @@
     <string name="duplicates_delete">Borrar</string>
     <string name="duplicates_delete_title">¿Borrar del disco?</string>
     <plurals name="duplicates_delete_message">
-        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s) se borrará definitivamente.</item>
-        <item quantity="many">%1$s\n%2$s\n\n%3$s (%4$s) se borrarán definitivamente.</item>
-        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s) se borrarán definitivamente.</item>
+        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s)\nMovidos a la papelera. Restaura o vacía definitivamente en Herramientas → Papelera y recuperación. El espacio se libera al vaciarla.</item>
+        <item quantity="many">%1$s\n%2$s\n\n%3$s (%4$s)\nMovidos a la papelera. Restaura o vacía definitivamente en Herramientas → Papelera y recuperación. El espacio se libera al vaciarla.</item>
+        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s)\nMovidos a la papelera. Restaura o vacía definitivamente en Herramientas → Papelera y recuperación. El espacio se libera al vaciarla.</item>
     </plurals>
     <string name="duplicates_deleted">Borrado %1$s</string>
     <string name="duplicates_delete_failed">No se pudo borrar %1$s</string>
@@ -1293,8 +1293,9 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Los ajustes son negro puro (AMOLED) en los temas oscuros, con bordes finos en lugar de paneles grises.</item>
-        <item>Los ajustes están dispuestos de forma simétrica: márgenes iguales, filas contiguas de la misma altura y controles alineados.</item>
+        <item>Traslados verificados con recuperación reanudable.</item>
+        <item>Papelera con restauración y caducidad opcional; vacíala para liberar espacio.</item>
+        <item>Abre tus juegos y fija una versión preferida para la selección automática.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recovery_title">Papelera y recuperación</string>
+    <string name="recovery_hint">Restaura juegos eliminados y reanuda traslados interrumpidos.</string>
+    <string name="recovery_action_failed">No se pudo completar la acción. Se conservan las copias de recuperación. Comprueba el almacenamiento y los permisos e inténtalo de nuevo.</string>
+    <string name="recovery_remove_title">¿Mover estos archivos a la papelera?</string>
+    <string name="recovery_remove_hint">Solo se moverán estos archivos. Las partidas y los metadatos están protegidos. Restaura desde Herramientas → Papelera y recuperación.</string>
+    <string name="recovery_to_trash">Mover a la papelera</string>
+    <string name="recovery_no_files">No se encontraron archivos de juego coincidentes.</string>
+    <string name="recovery_restore">Restaurar</string>
+    <string name="recovery_resume">Reanudar</string>
+    <string name="recovery_purge">Eliminar definitivamente</string>
+    <string name="recovery_purge_warning">Se eliminarán definitivamente las copias de recuperación. No se puede deshacer.</string>
+    <string name="recovery_days">Conservar %1$d días</string>
+    <string name="recovery_automatic">Vaciar los elementos caducados al abrir Dogmatix+. Desactivado por defecto.</string>
+    <string name="recovery_share">Compartir informe de acciones</string>
+    <string name="recovery_space">Copias de recuperación: %1$s</string>
+    <string name="recovery_empty">Todavía no hay acciones registradas.</string>
+    <string name="recovery_move">Traslado de biblioteca</string>
+    <string name="recovery_done">Completado</string>
+    <string name="recovery_stored">Guardado en la papelera</string>
+    <string name="recovery_cleanup">Limpieza pendiente</string>
+    <string name="recovery_interrupted">Interrumpido o fallido</string>
+    <string name="recovery_pending">En curso o interrumpido</string>
+    <string name="recovery_conflict">Necesita tu decisión</string>
+    <string name="play_game">Jugar</string>
+    <string name="play_choose">Elige un archivo y una aplicación</string>
+    <string name="play_remember">Recordar aplicación para esta consola</string>
+    <string name="play_change_handler">Elegir otra aplicación</string>
+    <string name="play_no_handler">No hay aplicación compatible. Instala un emulador que pueda abrir este formato.</string>
+    <string name="version_language">Idioma preferido</string>
+    <string name="version_dump_claim">El nombre indica un volcado bueno; sin verificación independiente</string>
+    <string name="version_unwanted">Demo, modificación o advertencia de volcado</string>
+    <string name="version_dat">DAT: %1$s</string>
+    <string name="version_unknown">sin comprobar</string>
+    <string name="version_pin">Usar esta versión automáticamente</string>
+    <string name="version_unpin">Quitar preferencia de versión</string>
+    <string name="version_ra_hash">RetroAchievements identificado por hash</string>
+    <string name="version_ra_title">RetroAchievements identificado solo por título</string>
+    <string name="version_revision">Revisión %1$s</string>
+    <string name="recovery_file_count">%1$d archivos en esta acción</string>
+</resources>

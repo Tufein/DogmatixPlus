@@ -37,7 +37,8 @@ class SourceTrackService @Inject constructor(
     @param:ApplicationContext context: Context,
     private val fileDao: DownloadableFileDao,
     private val consoleDao: ConsoleDao,
-    private val settings: SourcePickSettings
+    private val settings: SourcePickSettings,
+    private val history: OperationHistoryService
 ) {
     private val file = File(context.filesDir, "source_track.json")
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -59,11 +60,13 @@ class SourceTrackService @Inject constructor(
 
     /** A download of [entity] finished; [bytes] moved in [millis] (0 when unknown, e.g. a torrent). */
     fun recordSuccess(entity: DownloadableFileEntity, bytes: Long, millis: Long) = record(entity) { r, now ->
+        history.event("download", entity.fileName)
         SourceRanking.withSuccess(r, bytes, millis, now)
     }
 
     /** A download (or one of its automatic retries) of [entity] failed with [error] (null = no detail). */
     fun recordFailure(entity: DownloadableFileEntity, error: Throwable?) = record(entity) { r, now ->
+        history.event("download", entity.fileName, "failed")
         val code = (error as? HttpStatusException)?.code
         SourceRanking.withFailure(r, FailureClass.of(code, error is IOException), now)
     }

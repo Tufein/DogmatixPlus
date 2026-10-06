@@ -49,7 +49,8 @@ class LibraryIndexService @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val downloadService: DownloadService,
-    private val downloadableFileDao: DownloadableFileDao
+    private val downloadableFileDao: DownloadableFileDao,
+    private val trash: TrashService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -59,6 +60,8 @@ class LibraryIndexService @Inject constructor(
 
     private val _freeBytes = MutableStateFlow<Long?>(null)
     val freeBytes: StateFlow<Long?> = _freeBytes.asStateFlow()
+
+    private val finishedNames = com.cortinadev.dogmatix.util.FreshNames()
 
     init {
         scope.launch {
@@ -83,7 +86,6 @@ class LibraryIndexService @Inject constructor(
     }
 
     /** Finished downloads already marked as owned (see [FreshNames]). */
-    private val finishedNames = com.cortinadev.dogmatix.util.FreshNames()
 
     /** Keys for a download that just finished: scoped to its console (known from the download itself). */
     private suspend fun keysForCompleted(fileName: String): List<String> {
@@ -130,60 +132,72 @@ class LibraryIndexService @Inject constructor(
      * Delete every file on disk that [isOwned] would match for [file] — only inside the folders
      * that belong to its console — then refresh the index. Returns true if something was removed.
      */
-    suspend fun deleteOwned(file: DownloadableFileEntity): Boolean = withContext(Dispatchers.IO) {
-        val name = FileParsingUtils.decodeUrlEncodedFileName(file.fileName).lowercase()
-        val base = LibraryKeys.baseName(name)
+    /** Exact files shown before confirmation. Fail closed if any folder cannot be listed. */
+    suspend fun removalPlan(file: DownloadableFileEntity): List<RemovalFile> = withContext(Dispatchers.IO) {
+        val name = FileParsingUtils.decodeUrlEncodedFileName(file.fileName)
         val scopes = LibraryKeys.scopesFor(file.consoleId)
-        val root = settingsRepository.downloadDirectory.first()
-        val custom = settingsRepository.consoleDownloadDirectories.first()
-        var deleted = false
-
-        if (root.isNotBlank()) {
-            runCatching { StorageHelper.getDocumentFile(context, root) }.getOrNull()?.let { dir ->
-                val children = runCatching { dir.listFiles() }.getOrNull().orEmpty()
-                for (child in children) {
-                    val childName = child.name ?: continue
-                    if (child.isDirectory) {
-                        if (LibraryKeys.folderScope(childName) in scopes) {
-                            deleted = deleteMatching(child, name, base, depth = 1) || deleted
-                        }
-                    } else if (matches(childName, name, base)) {
-                        deleted = runCatching { child.delete() }.getOrDefault(false) || deleted
+        val result = ArrayList<RemovalFile>()
+        fun walk(dir: DiskDir, path: String, depth: Int) {
+            val entries = DiskScanner.listOrNull(context, dir, true) ?: error("Folder cannot be read completely")
+            val selected = entries.filter { !it.isDirectory && com.cortinadev.dogmatix.util.GameRemoval.matches(it.name, name) }.toMutableList()
+            // Disc/playlist references are included only when local and not used by another descriptor.
+            fun references(entry: com.cortinadev.dogmatix.util.DiskEntry): List<String> {
+                val ext = entry.name.substringAfterLast('.').lowercase()
+                if (ext !in setOf("cue", "m3u", "gdi")) return emptyList()
+                val text = context.contentResolver.openInputStream(entry.uri)?.use { input ->
+                    val out = java.io.ByteArrayOutputStream()
+                    val buffer = ByteArray(8192)
+                    while (out.size() <= 1024 * 1024) {
+                        val count = input.read(buffer)
+                        if (count < 0) break
+                        out.write(buffer, 0, count)
+                    }
+                    val bytes = out.toByteArray()
+                    check(bytes.size <= 1024 * 1024) { "Descriptor too large" }
+                    bytes.toString(Charsets.UTF_8)
+                } ?: error("Descriptor unavailable")
+                return when (ext) {
+                    "cue" -> com.cortinadev.dogmatix.util.SheetParser.cueFiles(text)
+                    "gdi" -> com.cortinadev.dogmatix.util.SheetParser.gdiFiles(text)
+                    else -> com.cortinadev.dogmatix.util.SheetParser.m3uFiles(text)
+                }
+            }
+            val others = entries.filter { !it.isDirectory && it !in selected && it.name.substringAfterLast('.').lowercase() in setOf("cue", "m3u", "gdi") }.flatMap(::references).map { it.lowercase() }.toSet()
+            selected.removeAll { it.name.lowercase() in others }
+            val queue = java.util.ArrayDeque(selected)
+            val visited = HashSet<String>()
+            while (queue.isNotEmpty()) {
+                val descriptor = queue.removeFirst()
+                if (!visited.add(descriptor.name)) continue
+                for (reference in references(descriptor)) {
+                    if (!com.cortinadev.dogmatix.util.GameRemoval.safeReference(reference) || reference.lowercase() in others) continue
+                    entries.firstOrNull { !it.isDirectory && it.name.equals(reference, true) }?.let { child ->
+                        if (child !in selected) { selected += child; queue.add(child) }
                     }
                 }
             }
+            selected.forEach { entry -> result += RemovalFile(entry.uri.toString(), DiskScanner.uriOf(dir).toString(), entry.name, entry.size, "$path${entry.name}") }
+            if (depth < 2) entries.filter { it.isDirectory && !it.name.startsWith(".dogmatix-") }.forEach { walk(DiskScanner.dirOf(dir, it), "$path${it.name}/", depth + 1) }
         }
-        custom[file.consoleId]?.takeIf { it.isNotBlank() }?.let { uri ->
-            runCatching { StorageHelper.getDocumentFile(context, uri) }.getOrNull()?.let { dir ->
-                deleted = deleteMatching(dir, name, base, depth = 0) || deleted
+        val root = settingsRepository.downloadDirectory.first()
+        DiskScanner.rootOf(root)?.let { dir ->
+            val entries = DiskScanner.listOrNull(context, dir, true) ?: error("Library unavailable")
+            entries.filter { !it.isDirectory && com.cortinadev.dogmatix.util.GameRemoval.matches(it.name, name) }.forEach {
+                result += RemovalFile(it.uri.toString(), DiskScanner.uriOf(dir).toString(), it.name, it.size)
             }
+            entries.filter { it.isDirectory && LibraryKeys.folderScope(it.name) in scopes }.forEach { walk(DiskScanner.dirOf(dir, it), "${it.name}/", 1) }
         }
-        if (deleted) {
-            // Drop the keys now so the list reflects the deletion immediately; rescan in the background.
-            _ownedKeys.update { keys -> keys.filterNot { k -> scopes.any { s -> k == "$s|$name" || k == "$s|$base" } }.toSet() }
-            scope.launch { refresh() }
-        }
-        deleted
+        settingsRepository.consoleDownloadDirectories.first()[file.consoleId]?.let { uri -> DiskScanner.rootOf(uri)?.let { walk(it, "", 0) } }
+        result.distinctBy { it.uri }
     }
 
-    private fun matches(childName: String, name: String, base: String): Boolean {
-        val lower = childName.lowercase()
-        return lower == name || LibraryKeys.baseName(lower) == base
+    suspend fun deletePlan(plan: List<RemovalFile>, title: String): Boolean = withContext(Dispatchers.IO) {
+        val removed = trash.move(plan, title)
+        if (removed > 0) requestRefresh()
+        removed > 0
     }
 
-    private fun deleteMatching(dir: DocumentFile, name: String, base: String, depth: Int): Boolean {
-        val children = runCatching { dir.listFiles() }.getOrNull() ?: return false
-        var deleted = false
-        for (child in children) {
-            val childName = child.name ?: continue
-            if (child.isDirectory) {
-                if (depth < 2) deleted = deleteMatching(child, name, base, depth + 1) || deleted
-            } else if (matches(childName, name, base)) {
-                deleted = runCatching { child.delete() }.getOrDefault(false) || deleted
-            }
-        }
-        return deleted
-    }
+    suspend fun deleteOwned(file: DownloadableFileEntity): Boolean = deletePlan(removalPlan(file), file.name)
 
     private fun collect(dir: DiskDir, scope: String, into: MutableSet<String>, depth: Int) {
         for (child in DiskScanner.list(context, dir)) {

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recovery_title">Corbeille et récupération</string>
+    <string name="recovery_hint">Restaurez les jeux supprimés et reprenez les déplacements interrompus.</string>
+    <string name="recovery_action_failed">L’action a échoué. Les copies de récupération sont conservées. Vérifiez le stockage et les autorisations, puis réessayez.</string>
+    <string name="recovery_remove_title">Déplacer ces fichiers dans la corbeille ?</string>
+    <string name="recovery_remove_hint">Seuls ces fichiers sont déplacés. Les sauvegardes et métadonnées sont protégées. Restaurez-les dans Outils → Corbeille et récupération.</string>
+    <string name="recovery_to_trash">Mettre à la corbeille</string>
+    <string name="recovery_no_files">Aucun fichier de jeu correspondant.</string>
+    <string name="recovery_restore">Restaurer</string>
+    <string name="recovery_resume">Reprendre</string>
+    <string name="recovery_purge">Supprimer définitivement</string>
+    <string name="recovery_purge_warning">Les copies de récupération seront supprimées définitivement. Cette action est irréversible.</string>
+    <string name="recovery_days">Conserver %1$d jours</string>
+    <string name="recovery_automatic">Vider automatiquement les éléments expirés à l’ouverture de Dogmatix+. Désactivé par défaut.</string>
+    <string name="recovery_share">Partager le rapport d’actions</string>
+    <string name="recovery_space">Copies de récupération : %1$s</string>
+    <string name="recovery_empty">Aucune action enregistrée.</string>
+    <string name="recovery_move">Déplacement de bibliothèque</string>
+    <string name="recovery_done">Terminé</string>
+    <string name="recovery_stored">Conservé dans la corbeille</string>
+    <string name="recovery_cleanup">Nettoyage nécessaire</string>
+    <string name="recovery_interrupted">Interrompu ou échoué</string>
+    <string name="recovery_pending">En cours ou interrompu</string>
+    <string name="recovery_conflict">Votre choix est nécessaire</string>
+    <string name="play_game">Jouer</string>
+    <string name="play_choose">Choisir un fichier et une application</string>
+    <string name="play_remember">Mémoriser l’application pour cette console</string>
+    <string name="play_change_handler">Choisir une autre application</string>
+    <string name="play_no_handler">Aucune application compatible. Installez un émulateur capable d’ouvrir ce format.</string>
+    <string name="version_language">Langue préférée</string>
+    <string name="version_dump_claim">Le nom indique un bon dump ; non vérifié indépendamment</string>
+    <string name="version_unwanted">Démo, modification ou avertissement de dump</string>
+    <string name="version_dat">DAT : %1$s</string>
+    <string name="version_unknown">non vérifié</string>
+    <string name="version_pin">Utiliser cette version automatiquement</string>
+    <string name="version_unpin">Retirer la préférence de version</string>
+    <string name="version_ra_hash">RetroAchievements identifié par hash</string>
+    <string name="version_ra_title">RetroAchievements identifié seulement par titre</string>
+    <string name="version_revision">Révision %1$s</string>
+    <string name="recovery_file_count">%1$d fichiers dans cette action</string>
+</resources>

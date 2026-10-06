@@ -55,8 +55,8 @@
     <string name="space7_remove_wish">Eliminar y añadir a la lista de deseos</string>
     <string name="space7_confirm_title">¿Eliminar estos juegos?</string>
     <plurals name="space7_confirm_message">
-        <item quantity="one">Se eliminará %1$d juego (%2$s) de tus carpetas de biblioteca. No se puede deshacer.</item>
-        <item quantity="other">Se eliminarán %1$d juegos (%2$s) de tus carpetas de biblioteca. No se puede deshacer.</item>
+        <item quantity="one">%1$d (%2$s)\nMovidos a la papelera. Restaura o vacía definitivamente en Herramientas → Papelera y recuperación. El espacio se libera al vaciarla.</item>
+        <item quantity="other">%1$d (%2$s)\nMovidos a la papelera. Restaura o vacía definitivamente en Herramientas → Papelera y recuperación. El espacio se libera al vaciarla.</item>
     </plurals>
     <plurals name="space7_confirm_wish">
         <item quantity="one">Se añade a tu lista de deseos para que puedas volver a descargarlo más tarde.</item>
@@ -68,8 +68,8 @@
     </plurals>
     <string name="space7_more_files">… y %1$d archivos más</string>
     <plurals name="space7_done">
-        <item quantity="one">%1$d juego eliminado, %2$s liberados</item>
-        <item quantity="other">%1$d juegos eliminados, %2$s liberados</item>
+        <item quantity="one">En la papelera: %1$d · %2$s para recuperar</item>
+        <item quantity="other">En la papelera: %1$d · %2$s para recuperar</item>
     </plurals>
     <plurals name="space7_done_wish">
         <item quantity="one">%1$d juego añadido a la lista de deseos</item>

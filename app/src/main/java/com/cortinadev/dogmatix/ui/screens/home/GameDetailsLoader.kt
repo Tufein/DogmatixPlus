@@ -37,7 +37,9 @@ class GameDetailsLoader @Inject constructor(
     private val retroAchievements: RetroAchievementsService,
     private val metadataService: GameMetadataService,
     private val libraryIndex: LibraryIndexService,
-    private val metadataDao: GameMetadataDao
+    private val metadataDao: GameMetadataDao,
+    private val versionPreference: com.cortinadev.dogmatix.data.service.VersionPreferenceService,
+    private val profiles: com.cortinadev.dogmatix.data.service.ProfileService
 ) {
     /**
      * Runs every step for [item]. [index] is the cached genre / year index ("More like this");
@@ -49,11 +51,12 @@ class GameDetailsLoader @Inject constructor(
         update: ((DetailsState) -> DetailsState) -> Unit
     ) {
         // Which version of this game suits the user best (region, language, no demos).
-        val versions = runCatching { repository.versionsOf(item.file) }.getOrDefault(emptyList())
+        val restrictions = profiles.current()
+        val versions = runCatching { repository.versionsOf(item.file) }.getOrDefault(emptyList()).filter { restrictions.allows(it.file.consoleId, it.tags) }
         val languages = settingsRepository.favoriteLanguages.first()
-        val bestId = if (versions.size > 1) VersionPicker.best(
+        val bestId = if (versions.size > 1) com.cortinadev.dogmatix.util.VersionPreference.pick(
             versions.map { VersionPicker.Candidate(it.file.fileName, FileParsingUtils.decodeUrlEncodedFileName(it.file.fileName), it.tags, it.file.fileSize) },
-            VersionPicker.regionPreference(languages), languages
+            VersionPicker.regionPreference(languages), languages, versionPreference.preferred(item.file.consoleId, item.file.fileName)
         )?.id else null
         val best = versions.firstOrNull { it.file.fileName == bestId }
         update { it.copy(versionCount = versions.size, best = best, versions = versions, bestFileName = bestId) }
@@ -127,7 +130,8 @@ class GameDetailsLoader @Inject constructor(
                 val meta = index.metaFor(it.file.consoleId, it.file.name)
                 SimilarGames.Candidate(it.file.id, it.file.consoleId, it.file.name, meta?.genres.orEmpty(), meta?.developer.orEmpty())
             }
-            SimilarGames.rank(target, candidates, SIMILAR_LIMIT).mapNotNull { pool[it.id] }
+            val restrictions = profiles.current()
+            SimilarGames.rank(target, candidates, SIMILAR_LIMIT).mapNotNull { pool[it.id] }.filter { restrictions.allows(it.file.consoleId, it.tags) }
         }
     }.getOrDefault(emptyList())
 

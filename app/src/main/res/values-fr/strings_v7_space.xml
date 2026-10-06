@@ -55,8 +55,8 @@
     <string name="space7_remove_wish">Supprimer et ajouter à la liste de souhaits</string>
     <string name="space7_confirm_title">Supprimer ces jeux ?</string>
     <plurals name="space7_confirm_message">
-        <item quantity="one">%1$d jeu (%2$s) sera supprimé de vos dossiers de bibliothèque. Cette action est irréversible.</item>
-        <item quantity="other">%1$d jeux (%2$s) seront supprimés de vos dossiers de bibliothèque. Cette action est irréversible.</item>
+        <item quantity="one">%1$d (%2$s)\nDéplacés dans la corbeille. Restaurez ou videz définitivement via Outils → Corbeille et récupération. L’espace est libéré après vidage.</item>
+        <item quantity="other">%1$d (%2$s)\nDéplacés dans la corbeille. Restaurez ou videz définitivement via Outils → Corbeille et récupération. L’espace est libéré après vidage.</item>
     </plurals>
     <plurals name="space7_confirm_wish">
         <item quantity="one">Il sera ajouté à votre liste de souhaits pour que vous puissiez le récupérer plus tard.</item>
@@ -68,8 +68,8 @@
     </plurals>
     <string name="space7_more_files">… et %1$d fichiers de plus</string>
     <plurals name="space7_done">
-        <item quantity="one">%1$d jeu supprimé, %2$s libérés</item>
-        <item quantity="other">%1$d jeux supprimés, %2$s libérés</item>
+        <item quantity="one">Dans la corbeille : %1$d · %2$s conservés</item>
+        <item quantity="other">Dans la corbeille : %1$d · %2$s conservés</item>
     </plurals>
     <plurals name="space7_done_wish">
         <item quantity="one">%1$d jeu ajouté à la liste de souhaits</item>

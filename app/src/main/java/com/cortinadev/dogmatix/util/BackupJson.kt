@@ -85,6 +85,7 @@ object BackupJson {
         val obj = element as? JsonObject ?: return null
         val type = (obj.get("t") as? JsonPrimitive)?.takeIf { it.isString }?.asString ?: return null
         expectedTypes[name]?.let { if (it != type) return null }
+        if (name.startsWith("fixed_version:") && type != "s") return null
         val v = obj.get("v") ?: return null
         val value: Any = runCatching {
             when (type) {

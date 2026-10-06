@@ -164,14 +164,14 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 1. Die Einführung erklärt die Grundlagen.
 2. **Wähle deinen ROM-Ordner** — den Ordner, in den deine Spiele sollen.
 3. **Importiere deine Quellen** (eine Datei mit deinen Spielelisten) — oder überspringe das und füge Quellen später im Tab **Quellen** hinzu.
-4. Öffne die **Bibliothek**, suche dir ein Spiel aus und tippe darauf (oder drücke **A**), um es herunterzuladen.
+4. Öffne die **Bibliothek** und tippe auf ein Spiel (oder drücke **A**), um seine Spielseite zu öffnen. Wähle dort **Herunterladen** oder **Spielen**.
 
 ## Ein Gamepad benutzen
 
 | Taste | Was sie macht |
 |---|---|
 | D-Pad | Sich bewegen |
-| **A** | Auswählen / herunterladen |
+| **A** | Auswählen / Spielseite öffnen; dort herunterladen oder spielen |
 | **B** | Einen Schritt zurück |
 | **X** | Spielinfos |
 | **Y** | Suchen |
@@ -184,7 +184,7 @@ Alles funktioniert auch per Touch. Die Hinweise erscheinen nur, solange ein Cont
 
 ## Gut zu wissen
 
-- **Das Löschen von Duplikaten ist endgültig.** Die App zeigt dir vorher jede Datei, aber es gibt keinen Papierkorb.
+- Entfernte Spiele kommen in den Papierkorb. Unter Werkzeuge → Papierkorb und Wiederherstellung wiederherstellen oder leeren. Speicher wird erst nach dem Leeren frei; der Datei-Explorer löscht weiterhin endgültig.
 - **Eine Sicherungsdatei enthält deine Kontoschlüssel** (TorBox, Real-Debrid, RomM). Gib sie nicht weiter.
 - **Das Fenster mit den Spielinfos bleibt in den hier angebotenen Downloads leer**, weil es einen kostenlosen Schlüssel aus einer Spieldatenbank braucht, der erst beim Erstellen der App hinzugefügt wird.
 - DogmatixPlus sucht nicht von selbst nach Spielen. Es liest nur die Quellen, die **du** hinzufügst.

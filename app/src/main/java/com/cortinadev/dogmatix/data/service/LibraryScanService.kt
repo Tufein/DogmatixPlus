@@ -89,7 +89,8 @@ class LibraryScanService @Inject constructor(
     private val consoleDao: ConsoleDao,
     private val downloadableFileDao: DownloadableFileDao,
     private val libraryIndexService: LibraryIndexService,
-    private val pathResolver: ConsoleDownloadPathResolver
+    private val pathResolver: ConsoleDownloadPathResolver,
+    private val trash: TrashService
 ) {
 
     /** Per-console numbers for the library overview; walks the disk once. */
@@ -197,8 +198,8 @@ class LibraryScanService @Inject constructor(
         removed
     }
 
-    private fun removeFiles(entry: GameEntry): Int {
-        val removed = entry.files.count { DiskScanner.delete(context, it.uri.toUri()) }
+    private suspend fun removeFiles(entry: GameEntry): Int {
+        val removed = trash.move(entry.files.map { RemovalFile(it.uri, it.dirUri, it.name, it.size, "${it.folder}/${it.name}") }, entry.baseName)
         if (entry.isFolderGame && removed == entry.files.size) {
             entry.files.first().dirUri.takeIf { it.isNotEmpty() }?.toUri()?.let { dirUri ->
                 // Providers delete folders recursively: only when a complete listing says it is empty

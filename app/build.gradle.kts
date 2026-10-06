@@ -23,8 +23,8 @@ android {
         applicationId = "com.tufein.dogmatixplus"
         minSdk = 29
         targetSdk = 36
-        versionCode = 31
-        versionName = "8.1.0"
+        versionCode = 32
+        versionName = "8.2.0-beta.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -82,8 +82,9 @@ android {
     }
 
     lint {
-        abortOnError = false
-        checkReleaseBuilds = false
+        abortOnError = true
+        baseline = file("lint-baseline.xml")
+        checkReleaseBuilds = true
         disable += setOf("MissingTranslation", "ExtraTranslation")
     }
 
@@ -138,4 +139,15 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
+
+val requireReleaseSigning = tasks.register("requireReleaseSigning") {
+    doLast {
+        check(android.signingConfigs.findByName("release") != null) {
+            "Release signing key is required. Configure RELEASE_STORE_FILE and its credentials; debug builds remain available."
+        }
+    }
+}
+tasks.configureEach {
+    if (name == "validateSigningRelease") dependsOn(requireReleaseSigning)
 }

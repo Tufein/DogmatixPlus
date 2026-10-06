@@ -55,8 +55,8 @@
     <string name="space7_remove_wish">Verwijderen en op verlanglijst zetten</string>
     <string name="space7_confirm_title">Deze games verwijderen?</string>
     <plurals name="space7_confirm_message">
-        <item quantity="one">%1$d game (%2$s) wordt verwijderd uit je bibliotheekmappen. Dit kan niet ongedaan worden gemaakt.</item>
-        <item quantity="other">%1$d games (%2$s) worden verwijderd uit je bibliotheekmappen. Dit kan niet ongedaan worden gemaakt.</item>
+        <item quantity="one">%1$d (%2$s)\nNaar de prullenbak verplaatst. Herstel of leeg definitief via Hulpmiddelen → Prullenbak en herstel. Ruimte komt pas vrij na het legen.</item>
+        <item quantity="other">%1$d (%2$s)\nNaar de prullenbak verplaatst. Herstel of leeg definitief via Hulpmiddelen → Prullenbak en herstel. Ruimte komt pas vrij na het legen.</item>
     </plurals>
     <plurals name="space7_confirm_wish">
         <item quantity="one">De game komt op je verlanglijst, zodat je hem later opnieuw kunt ophalen.</item>
@@ -68,8 +68,8 @@
     </plurals>
     <string name="space7_more_files">… en nog %1$d bestanden</string>
     <plurals name="space7_done">
-        <item quantity="one">%1$d game verwijderd, %2$s vrijgemaakt</item>
-        <item quantity="other">%1$d games verwijderd, %2$s vrijgemaakt</item>
+        <item quantity="one">Naar de prullenbak: %1$d · %2$s bewaard voor herstel</item>
+        <item quantity="other">Naar de prullenbak: %1$d · %2$s bewaard voor herstel</item>
     </plurals>
     <plurals name="space7_done_wish">
         <item quantity="one">%1$d game op de verlanglijst gezet</item>

@@ -303,7 +303,7 @@ private fun startSettings(context: Context, fix: HealthFix): Boolean {
  * go to [onFix] so the host can open the right screen.
  */
 @Composable
-fun HealthScreen(onFix: (HealthFix) -> Unit, viewModel: HealthViewModel = hiltViewModel()) {
+fun HealthScreen(onFix: (HealthFix) -> Unit, viewModel: HealthViewModel = hiltViewModel(), onRecovery: () -> Unit = {}) {
     val context = LocalContext.current
     val results by viewModel.results.collectAsState()
     val summary = remember(results) { HealthRollup.summarize(results.values) }
@@ -393,6 +393,7 @@ fun HealthScreen(onFix: (HealthFix) -> Unit, viewModel: HealthViewModel = hiltVi
             .padding(horizontal = 4.dp, vertical = 12.dp)
     ) {
         ToolsTitle(stringResource(R.string.health6_title), icon = R.drawable.ic_health)
+        ActionPill(stringResource(R.string.recovery_title), onRecovery, icon = R.drawable.ic_history)
         SummaryPanel(summary, summaryLine, onAgain = viewModel::runAll, onShare = ::share, canShare = results.isNotEmpty())
 
         HealthGroup.entries.forEach { group ->

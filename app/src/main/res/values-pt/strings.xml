@@ -517,8 +517,8 @@
         <item quantity="other">%1$d grupos · podem ser libertados %2$s · %3$d ficheiros verificados</item>
     </plurals>
     <plurals name="duplicates_delete_message">
-        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s) será apagado permanentemente.</item>
-        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s) serão apagados permanentemente.</item>
+        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s)\nMovidos para o lixo. Restaure ou esvazie definitivamente em Ferramentas → Lixo e recuperação. O espaço é libertado ao esvaziar.</item>
+        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s)\nMovidos para o lixo. Restaure ou esvazie definitivamente em Ferramentas → Lixo e recuperação. O espaço é libertado ao esvaziar.</item>
     </plurals>
 
     <!-- 1.2.0-alpha.1 strings (generated) -->
@@ -1270,8 +1270,9 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>As definições são preto puro (AMOLED) nos temas escuros, com contornos finos em vez de painéis cinzentos.</item>
-        <item>As definições estão dispostas de forma simétrica: margens iguais, linhas lado a lado com a mesma altura, controlos alinhados.</item>
+        <item>Transferências verificadas com recuperação retomável.</item>
+        <item>Lixo com restauro e expiração opcional; esvazie para libertar espaço.</item>
+        <item>Abra os seus jogos e fixe uma versão preferida para a seleção automática.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -488,8 +488,8 @@
     <string name="duplicates_delete">Löschen</string>
     <string name="duplicates_delete_title">Von der Festplatte löschen?</string>
     <plurals name="duplicates_delete_message">
-        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s) wird endgültig gelöscht.</item>
-        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s) werden endgültig gelöscht.</item>
+        <item quantity="one">%1$s\n%2$s\n\n%3$s (%4$s)\nIn den Papierkorb verschoben. Unter Werkzeuge → Papierkorb und Wiederherstellung wiederherstellen oder endgültig leeren. Speicher wird erst nach dem Leeren frei.</item>
+        <item quantity="other">%1$s\n%2$s\n\n%3$s (%4$s)\nIn den Papierkorb verschoben. Unter Werkzeuge → Papierkorb und Wiederherstellung wiederherstellen oder endgültig leeren. Speicher wird erst nach dem Leeren frei.</item>
     </plurals>
     <string name="duplicates_deleted">%1$s gelöscht</string>
     <string name="duplicates_delete_failed">%1$s konnte nicht gelöscht werden</string>
@@ -1319,8 +1319,9 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Die Einstellungen sind in den dunklen Designs rein schwarz (AMOLED), mit feinen Rahmen statt grauer Flächen.</item>
-        <item>Die Einstellungen sind symmetrisch angeordnet: gleiche Ränder, nebeneinanderliegende Zeilen gleich hoch, Bedienelemente auf einer Linie.</item>
+        <item>Geprüfte Bibliotheksumzüge mit fortsetzbarer Wiederherstellung.</item>
+        <item>Papierkorb mit Wiederherstellung und optionaler Aufbewahrungsfrist; zum Freigeben von Speicher leeren.</item>
+        <item>Eigene Spiele starten und eine bevorzugte Version für die automatische Auswahl festlegen.</item>
     </string-array>
 
     <!-- 4.0 -->

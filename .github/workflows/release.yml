@@ -8,14 +8,14 @@
 #
 # Signing: with the repository secrets RELEASE_KEYSTORE_BASE64, RELEASE_STORE_PASSWORD,
 # RELEASE_KEY_ALIAS and RELEASE_KEY_PASSWORD the release APK is signed with that key (the same
-# key every time, so updates install in place). Without them both APKs are signed with the
-# runner's throwaway debug key.
+# key every time, so updates install in place). Without them public releases are refused. Local debug APKs use the
+# runner's debug key.
 name: Release
 
 on:
   push:
     tags: ['v*']
-    branches: ['**']
+    branches: [master]
     paths: ['docs/release-notes/**', '.github/workflows/release.yml']
   workflow_dispatch:
 
@@ -88,11 +88,36 @@ jobs:
             } > .env
             echo "Release APK signed with the repository key."
           else
-            echo "No signing secrets: APKs are signed with the runner's debug key."
+            echo "Release signing secrets are required. Refusing to publish an incompatible APK."
+            exit 1
           fi
 
       - name: Test and build
-        run: ./gradlew --no-daemon testDebugUnitTest assembleDebug assembleRelease
+        run: ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug assembleRelease assembleDebugAndroidTest
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Android integration tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          disable-animations: true
+          script: ./gradlew --no-daemon connectedDebugAndroidTest
+
+      - name: Verify release identity
+        run: |
+          EXPECTED_CERT=$(cat .github/release-cert-sha256.txt)
+          test -n "$EXPECTED_CERT" || { echo "Trusted release certificate fingerprint is required."; exit 1; }
+          APK=app/build/outputs/apk/release/app-release.apk
+          CERT=$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')
+          normalize() { tr '[:upper:]' '[:lower:]' | tr -d ':[:space:]'; }
+          test "$(printf '%s' "$CERT" | normalize)" = "$(printf '%s' "$EXPECTED_CERT" | normalize)" || { echo "Release certificate mismatch."; exit 1; }
+          test "v$(sed -n 's/^ *versionName = "\(.*\)"/\1/p' app/build.gradle.kts | head -1)" = "$TAG" || { echo "Tag and APK version disagree."; exit 1; }
 
       - name: Collect APKs and notes
         run: |

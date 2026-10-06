@@ -55,8 +55,8 @@
     <string name="space7_remove_wish">Remover e adicionar à lista de desejos</string>
     <string name="space7_confirm_title">Remover estes jogos?</string>
     <plurals name="space7_confirm_message">
-        <item quantity="one">%1$d jogo (%2$s) vai ser apagado das tuas pastas da biblioteca. Não é possível desfazer.</item>
-        <item quantity="other">%1$d jogos (%2$s) vão ser apagados das tuas pastas da biblioteca. Não é possível desfazer.</item>
+        <item quantity="one">%1$d (%2$s)\nMovidos para o lixo. Restaure ou esvazie definitivamente em Ferramentas → Lixo e recuperação. O espaço é libertado ao esvaziar.</item>
+        <item quantity="other">%1$d (%2$s)\nMovidos para o lixo. Restaure ou esvazie definitivamente em Ferramentas → Lixo e recuperação. O espaço é libertado ao esvaziar.</item>
     </plurals>
     <plurals name="space7_confirm_wish">
         <item quantity="one">Fica na tua lista de desejos para o poderes obter de novo mais tarde.</item>
@@ -68,8 +68,8 @@
     </plurals>
     <string name="space7_more_files">… e mais %1$d ficheiros</string>
     <plurals name="space7_done">
-        <item quantity="one">%1$d jogo removido, %2$s libertados</item>
-        <item quantity="other">%1$d jogos removidos, %2$s libertados</item>
+        <item quantity="one">No lixo: %1$d · %2$s para recuperar</item>
+        <item quantity="other">No lixo: %1$d · %2$s para recuperar</item>
     </plurals>
     <plurals name="space7_done_wish">
         <item quantity="one">%1$d jogo adicionado à lista de desejos</item>

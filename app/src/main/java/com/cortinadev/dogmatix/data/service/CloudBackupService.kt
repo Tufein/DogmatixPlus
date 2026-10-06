@@ -50,7 +50,8 @@ class CloudBackupService @Inject constructor(
     private val settings: CloudSettings,
     private val connection: CloudConnection,
     private val backupService: BackupService,
-    private val deviceSync: DeviceSyncService
+    private val deviceSync: DeviceSyncService,
+    private val history: OperationHistoryService
 ) {
     /** A downloaded, decrypted and checked backup waiting for the user's confirmation. */
     class Prepared(val name: String, val backup: JsonObject, val createdAt: Long, val appVersion: String)
@@ -103,6 +104,7 @@ class CloudBackupService @Inject constructor(
             )
             settings.recordBackup(System.currentTimeMillis(), uploaded.name, uploaded.bytes)
             Log.i(TAG, "Backup sent: ${uploaded.bytes} bytes, ${uploaded.deleted.size} old removed")
+            history.event("cloud_backup", "")
             CloudResult.Ok(uploaded)
         } catch (e: CancellationException) {
             throw e

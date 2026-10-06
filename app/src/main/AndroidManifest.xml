@@ -18,6 +18,7 @@
          installed APK; without these entries Android 11+ package visibility hides the app and
          the setups wrongly report "not installed". -->
     <queries>
+        <intent><action android:name="android.intent.action.VIEW" /><data android:mimeType="application/octet-stream" /></intent>
         <package android:name="org.es_de.frontend" />
         <package android:name="com.iisulauncher" />
     </queries>

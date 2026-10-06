@@ -424,10 +424,16 @@ fun HomeScreen(
     val onRowClick: (DownloadableFileWithTags) -> Unit = if (onOpenGame != null) openGame else onFileClick
 
     ownedDialogItem?.let { item ->
+        var removal by remember(item) { mutableStateOf<List<com.cortinadev.dogmatix.data.service.RemovalFile>?>(null) }
+        LaunchedEffect(item) { removal = runCatching { viewModel.removalPlan(item) }.getOrNull() }
         AlertDialog(
             onDismissRequest = { ownedDialogItem = null },
             title = { Text(stripExtension(item.file.name)) },
-            text = { Text(stringResource(R.string.owned_dialog_message)) },
+            text = { Column(Modifier.verticalScroll(rememberScrollState())) {
+                Text(stringResource(R.string.owned_dialog_message))
+                Text(stringResource(R.string.recovery_to_trash))
+                removal?.forEach { Text("${it.path} · ${com.cortinadev.dogmatix.ui.components.formatBytes(it.bytes)}") }
+            } },
             confirmButton = {
                 TextButton(onClick = {
                     ownedDialogItem = null
@@ -435,10 +441,11 @@ fun HomeScreen(
                 }) { Text(stringResource(R.string.owned_download_again)) }
             },
             dismissButton = {
-                TextButton(onClick = {
+                TextButton(enabled = !removal.isNullOrEmpty(), onClick = {
+                    val plan = removal ?: return@TextButton
                     ownedDialogItem = null
                     scope.launch {
-                        val ok = viewModel.deleteOwned(item)
+                        val ok = runCatching { viewModel.removePlan(plan, item.file.name) }.getOrDefault(false)
                         showMessage((if (ok) deletedMessage else deleteFailedMessage).format(item.file.name))
                     }
                 }) { Text(stringResource(R.string.owned_delete)) }

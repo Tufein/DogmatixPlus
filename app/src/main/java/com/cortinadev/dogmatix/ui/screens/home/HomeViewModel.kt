@@ -100,6 +100,7 @@ class HomeViewModel @Inject constructor(
     private val collectionsRepository: CollectionsRepository,
     private val appSettings: AppSettings,
     private val profiles: ProfileService,
+    private val versionPreference: com.cortinadev.dogmatix.data.service.VersionPreferenceService,
     private val retroAchievements: RetroAchievementsService,
     private val libraryTools: LibraryToolsService,
     private val metadataDao: GameMetadataDao,
@@ -272,6 +273,7 @@ class HomeViewModel @Inject constructor(
         val records = sourceTrack.records.value
         val orders = if (pickBest) rows.map { it.file.consoleId }.distinct().associateWith { sourceTrack.sourceOrder(it) } else emptyMap()
         val now = System.currentTimeMillis()
+        val pinned = rows.associate { it.file.id to versionPreference.preferred(it.file.consoleId, it.file.fileName) }
         // Thousands of rows for a whole console: plan them off the UI thread (the dialog asks from it).
         return withContext(Dispatchers.Default) { BulkPlanner.plan(
             rows.map {
@@ -287,7 +289,8 @@ class HomeViewModel @Inject constructor(
             pickSource = { group ->
                 if (!pickBest) group.first()
                 else SourceRanking.best(group, { it.sourceUrl }, records, orders[group.first().consoleId].orEmpty(), now) ?: group.first()
-            }
+            },
+            preferredVersion = { pinned[it.id] }
         ) }.also { lastBulkRows = rows.associateBy { it.file.id } }
     }
 
@@ -417,6 +420,10 @@ class HomeViewModel @Inject constructor(
     fun isDownloading(file: DownloadableFileEntity, active: Set<String>): Boolean = file.fileName in active
 
     /** Remove an owned game from the download folder. Returns true if something was deleted. */
+    suspend fun removalPlan(fileWithTags: DownloadableFileWithTags) = libraryIndex.removalPlan(fileWithTags.file)
+
+    suspend fun removePlan(plan: List<com.cortinadev.dogmatix.data.service.RemovalFile>, title: String) = libraryIndex.deletePlan(plan, title)
+
     suspend fun deleteOwned(fileWithTags: DownloadableFileWithTags): Boolean =
         libraryIndex.deleteOwned(fileWithTags.file)
 

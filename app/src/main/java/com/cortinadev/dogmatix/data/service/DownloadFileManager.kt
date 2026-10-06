@@ -25,7 +25,8 @@ class DownloadFileManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val consoleRepository: ConsoleRepository,
-    private val pathResolver: ConsoleDownloadPathResolver
+    private val pathResolver: ConsoleDownloadPathResolver,
+    private val trash: TrashService
 ) {
 
     fun createDownloadItem(file: DownloadableFileEntity): DownloadItemModel {
@@ -99,23 +100,11 @@ class DownloadFileManager @Inject constructor(
                 subPath = subPath
             ) ?: return false
 
-            if (extractedFiles.isNotEmpty()) {
-                var deletedAny = false
-                extractedFiles.forEach { extractedFileName ->
-                    val fileToDelete = directory.findFile(extractedFileName)
-                    if (fileToDelete?.delete() == true) {
-                        deletedAny = true
-                    }
-                }
-                return deletedAny
+            val names = (extractedFiles + decodedFileName).distinct()
+            val plan = names.filter { com.cortinadev.dogmatix.util.GameRemoval.safeReference(it) }.mapNotNull { name ->
+                directory.findFile(name)?.takeIf { it.isFile }?.let { RemovalFile(it.uri.toString(), directory.uri.toString(), name, it.length()) }
             }
-
-            val archiveFile = directory.findFile(decodedFileName)
-            if (archiveFile != null && archiveFile.exists()) {
-                return archiveFile.delete()
-            }
-
-            false
+            trash.move(plan, file.name) > 0
         } catch (_: Exception) {
             false
         }

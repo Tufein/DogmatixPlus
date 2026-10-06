@@ -53,11 +53,11 @@ object GamePageModel {
     // ---- Actions ---------------------------------------------------------------------------------
 
     /** What the big button in the header does. */
-    enum class Primary { DOWNLOAD, DOWNLOADING, DOWNLOAD_AGAIN }
+    enum class Primary { DOWNLOAD, DOWNLOADING, DOWNLOAD_AGAIN, PLAY }
 
     fun primary(owned: Boolean, downloading: Boolean): Primary = when {
         downloading -> Primary.DOWNLOADING
-        owned -> Primary.DOWNLOAD_AGAIN
+        owned -> Primary.PLAY
         else -> Primary.DOWNLOAD
     }
 

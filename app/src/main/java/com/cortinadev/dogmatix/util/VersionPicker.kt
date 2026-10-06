@@ -64,6 +64,7 @@ object VersionPicker {
             val rev = m.groupValues[1].ifEmpty { m.groupValues[2] }
             val number = rev.toDoubleOrNull() ?: (rev.firstOrNull()?.let { it.lowercaseChar() - 'a' + 1 }?.toDouble() ?: 0.0)
             score += number.coerceIn(0.0, 5.0).toInt()
+            notes += "revision:$rev"
         }
         return Ranked(candidate, score, notes)
     }
