@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="power75_battery_title">Pausar con batería baja</string>
+    <string name="power75_battery_hint">Sin cargador, las descargas se pausan por debajo del %1$d %% y siguen por encima del %2$d %%</string>
+    <string name="power75_battery_level_title">Límite de batería</string>
+    <string name="power75_battery_level_hint">Por debajo de este nivel, las descargas se pausan mientras el dispositivo no se carga</string>
+    <string name="power75_percent">%1$d %%</string>
+    <string name="power75_heat_title">Pausar si el dispositivo está caliente</string>
+    <string name="power75_heat_hint">Las descargas se pausan desde 45 °C o si el sistema avisa de sobrecalentamiento, y siguen por debajo de 40 °C</string>
+    <string name="power75_wait_battery">Espera: batería baja</string>
+    <string name="power75_wait_hot">Espera: dispositivo demasiado caliente</string>
+    <string name="power75_wait_battery_short">Batería baja</string>
+    <string name="power75_wait_hot_short">Demasiado caliente</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="power75_battery_title">Pausa con batteria scarica</string>
+    <string name="power75_battery_hint">Senza caricatore, i download vanno in pausa sotto il %1$d %% e riprendono sopra il %2$d %%</string>
+    <string name="power75_battery_level_title">Soglia batteria</string>
+    <string name="power75_battery_level_hint">Sotto questo livello i download vanno in pausa finché il dispositivo non è in carica</string>
+    <string name="power75_percent">%1$d %%</string>
+    <string name="power75_heat_title">Pausa se il dispositivo è caldo</string>
+    <string name="power75_heat_hint">I download vanno in pausa da 45 °C o quando il sistema segnala surriscaldamento, e riprendono sotto i 40 °C</string>
+    <string name="power75_wait_battery">In attesa: batteria scarica</string>
+    <string name="power75_wait_hot">In attesa: dispositivo troppo caldo</string>
+    <string name="power75_wait_battery_short">Batteria scarica</string>
+    <string name="power75_wait_hot_short">Troppo caldo</string>
+</resources>

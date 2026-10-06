@@ -1,0 +1,11 @@
+<!-- Thermometer, Material Symbols style -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+  <path
+      android:fillColor="#FF000000"
+      android:fillType="evenOdd"
+      android:pathData="M480,880A160,160 0,0 1,400 581L400,200A80,80 0,0 1,560 200L560,581A160,160 0,0 1,480 880Z M480,820A100,100 0,0 1,440 628L440,200A40,40 0,0 1,520 200L520,628A100,100 0,0 1,480 820Z M480,780A60,60 0,0 1,460 663L460,400L500,400L500,663A60,60 0,0 1,480 780Z"/>
+</vector>

@@ -158,6 +158,9 @@ class DownloadService @Inject constructor(
     private val extractedFilesMap = ConcurrentHashMap<String, List<String>>()
     /** Debrid client + torrent id per file being fetched through the debrid route (see [performDebridDownload]). */
     private val debridTorrents = ConcurrentHashMap<String, Pair<DebridClient, String>>()
+
+    /** True while [fileName] goes through a debrid service (7.5 power rules let those finish instead of parking them). */
+    fun isDebrid(fileName: String): Boolean = debridTorrents.containsKey(fileName)
     /** Files whose job is being cancelled by a pause (they land on PAUSED instead of STOPPED). */
     private val pausingFiles = ConcurrentHashMap.newKeySet<String>()
 

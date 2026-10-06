@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.data.service
 
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -17,6 +18,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,6 +38,7 @@ class DownloadForegroundService : Service() {
     @Inject lateinit var downloadService: DownloadService
     @Inject lateinit var torrentHandleRegistry: TorrentHandleRegistry
     @Inject lateinit var torrentProgressBridge: TorrentProgressBridge
+    @Inject lateinit var powerHold: PowerHoldService
 
     private var wakeLock: PowerManager.WakeLock? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -63,6 +66,15 @@ class DownloadForegroundService : Service() {
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "dogmatix:DownloadWakeLock").apply {
             setReferenceCounted(false)
             acquire()
+        }
+        powerHold.start()
+        // 7.5: while downloads wait (schedule, low battery, heat, hold) the notification says for what.
+        scope.launch {
+            combine(downloadService.gate.waiting, downloadService.waitingFiles) { reasons, files ->
+                if (files.isEmpty()) null else waitingNotificationText(this@DownloadForegroundService, reasons)
+            }.distinctUntilChanged().collect { text ->
+                if (running) runCatching { getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, buildNotification(text)) }
+            }
         }
         scope.launch {
             downloadService.anyActive.distinctUntilChanged().collectLatest { active ->
@@ -110,14 +122,18 @@ class DownloadForegroundService : Service() {
         stopSelf()
     }
 
+    /** [waiting] replaces the usual line while the queue waits for something. */
+    private fun buildNotification(waiting: String? = null) = NotificationCompat.Builder(this, DogmatixApplication.DOWNLOAD_CHANNEL_ID)
+        .setContentTitle(getString(R.string.notification_downloading))
+        .setContentText(waiting ?: getString(R.string.notification_downloading_text))
+        .setSmallIcon(R.drawable.ic_arrow_down)
+        .setOngoing(true)
+        .setSilent(true)
+        .build()
+
     private fun promoteToForeground(): Boolean {
-        val notification = NotificationCompat.Builder(this, DogmatixApplication.DOWNLOAD_CHANNEL_ID)
-            .setContentTitle(getString(R.string.notification_downloading))
-            .setContentText(getString(R.string.notification_downloading_text))
-            .setSmallIcon(R.drawable.ic_arrow_down)
-            .setOngoing(true)
-            .setSilent(true)
-            .build()
+        val waiting = if (downloadService.waitingFiles.value.isEmpty()) null else waitingNotificationText(this, downloadService.gate.waiting.value)
+        val notification = buildNotification(waiting)
         return try {
             ServiceCompat.startForeground(this, NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
             true

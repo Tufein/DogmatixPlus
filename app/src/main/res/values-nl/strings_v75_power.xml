@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="power75_battery_title">Pauzeren bij lege batterij</string>
+    <string name="power75_battery_hint">Zonder oplader pauzeren downloads onder %1$d %% en gaan ze verder boven %2$d %%</string>
+    <string name="power75_battery_level_title">Batterijgrens</string>
+    <string name="power75_battery_level_hint">Onder dit niveau pauzeren downloads zolang het apparaat niet oplaadt</string>
+    <string name="power75_percent">%1$d %%</string>
+    <string name="power75_heat_title">Pauzeren als het apparaat heet is</string>
+    <string name="power75_heat_hint">Downloads pauzeren vanaf 45 °C of als het systeem oververhitting meldt, en gaan verder onder 40 °C</string>
+    <string name="power75_wait_battery">Wacht op: batterij bijna leeg</string>
+    <string name="power75_wait_hot">Wacht op: apparaat te heet</string>
+    <string name="power75_wait_battery_short">Batterij laag</string>
+    <string name="power75_wait_hot_short">Te heet</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="power75_battery_title">Bei niedrigem Akku pausieren</string>
+    <string name="power75_battery_hint">Ohne Ladegerät pausieren Downloads unter %1$d %% und laufen über %2$d %% weiter</string>
+    <string name="power75_battery_level_title">Akku-Grenze</string>
+    <string name="power75_battery_level_hint">Unter diesem Stand pausieren Downloads, solange das Gerät nicht lädt</string>
+    <string name="power75_percent">%1$d %%</string>
+    <string name="power75_heat_title">Pausieren, wenn das Gerät heiß ist</string>
+    <string name="power75_heat_hint">Downloads pausieren ab 45 °C oder wenn das System Überhitzung meldet, und laufen unter 40 °C weiter</string>
+    <string name="power75_wait_battery">Wartet auf: Akku zu schwach</string>
+    <string name="power75_wait_hot">Wartet auf: Gerät zu heiß</string>
+    <string name="power75_wait_battery_short">Akku schwach</string>
+    <string name="power75_wait_hot_short">Zu heiß</string>
+</resources>

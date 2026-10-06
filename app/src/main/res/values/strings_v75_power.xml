@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 7.5 battery- and heat-aware downloads (Settings → Download schedule, Downloads screen, notification) -->
+    <string name="power75_battery_title">Pause on low battery</string>
+    <string name="power75_battery_hint">Off the charger, downloads pause below %1$d %% and go on again above %2$d %%</string>
+    <string name="power75_battery_level_title">Battery limit</string>
+    <string name="power75_battery_level_hint">Downloads pause below this level while the device is not charging</string>
+    <string name="power75_percent">%1$d %%</string>
+    <string name="power75_heat_title">Pause when the device is hot</string>
+    <string name="power75_heat_hint">Downloads pause from 45 °C or when the system reports overheating, and go on again below 40 °C</string>
+    <string name="power75_wait_battery">Waits for: low battery</string>
+    <string name="power75_wait_hot">Waits for: device too hot</string>
+    <string name="power75_wait_battery_short">Low battery</string>
+    <string name="power75_wait_hot_short">Too hot</string>
+</resources>
