@@ -12,7 +12,7 @@ All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 - Best source: a per-source track record (speed, success rate), ranking by reliability then speed, one automatic switch to the next source after a final failure; track record on the source cards.
 
 ### Changed
-- The queue hold (*Pause all*) now parks running downloads too, instead of letting them finish.
+- The queue hold (*Pause all*) now parks running downloads that can resume (torrents, web downloads with a partial file); the others still finish.
 
 ### Notes
 - No database change (version 13). Not yet tried on a real device.
