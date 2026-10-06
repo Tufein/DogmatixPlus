@@ -48,6 +48,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.cortinadev.dogmatix.ui.screens.game.GamePage
+import com.cortinadev.dogmatix.util.GamePageModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -143,6 +147,7 @@ import com.cortinadev.dogmatix.util.QuickAction
 import com.cortinadev.dogmatix.ui.components.ProvideTvMode
 import com.cortinadev.dogmatix.ui.components.LocalTvMode
 import com.cortinadev.dogmatix.ui.components.tvSafeArea
+import com.cortinadev.dogmatix.ui.components.tabRouteFor
 import com.cortinadev.dogmatix.ui.components.QuickMenuOverlay
 import com.cortinadev.dogmatix.ui.screens.search.SearchAllScreen
 import com.cortinadev.dogmatix.ui.screens.cloud.CloudBackupScreen
@@ -443,7 +448,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
         Gamepad.presses.collect { button ->
             val tabs = NavRoutes.tabs
             val route = navController.currentBackStackEntry?.destination?.route
-            val index = tabs.indexOfFirst { it.route == route }.coerceAtLeast(0)
+            val index = tabs.indexOfFirst { it.route == tabRouteFor(route.orEmpty()) }.coerceAtLeast(0)
             when (button) {
                 GamepadButton.PREV_TAB, GamepadButton.NEXT_TAB -> {
                     val delta = if (button == GamepadButton.PREV_TAB) -1 else 1
@@ -518,7 +523,24 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     },
                     popExitTransition = { if (reduceMotion) ExitTransition.None else fadeOut(tween(Motion.FAST)) }
                 ) {
-                    composable(NavRoutes.Home.route) { HomeScreen(navController) }
+                    composable(NavRoutes.Home.route) {
+                        HomeScreen(navController, onOpenGame = { c, f -> navController.navigate(GamePageModel.route(c, f)) })
+                    }
+                    composable(
+                        NavRoutes.Game.route,
+                        arguments = listOf(
+                            navArgument(GamePageModel.ARG_CONSOLE) { type = NavType.StringType },
+                            navArgument(GamePageModel.ARG_FILE) { type = NavType.StringType }
+                        )
+                    ) { entry ->
+                        // Navigation already URL-decodes path arguments; do not decode them again.
+                        GamePage(
+                            consoleId = entry.arguments?.getString(GamePageModel.ARG_CONSOLE).orEmpty(),
+                            fileName = entry.arguments?.getString(GamePageModel.ARG_FILE).orEmpty(),
+                            onBack = { navController.popBackStack() },
+                            onOpenGame = { c, f -> navController.navigate(GamePageModel.route(c, f)) }
+                        )
+                    }
                     composable(NavRoutes.Downloads.route) { DownloadScreen(navController) }
                     composable(NavRoutes.Sources.route) { SourcesScreen() }
                     composable(NavRoutes.Settings.route) { SettingsScreen(navController) }

@@ -84,8 +84,11 @@ private fun Wordmark(modifier: Modifier = Modifier) {
 }
 
 /** The tab a route belongs to: the screens opened from Settings keep Settings lit. */
-fun tabRouteFor(route: String): String =
-    if (NavRoutes.tabs.any { it.route == route }) route else NavRoutes.Settings.route
+fun tabRouteFor(route: String): String = when {
+    NavRoutes.tabs.any { it.route == route } -> route
+    route == NavRoutes.Game.route || route.startsWith("game/") -> NavRoutes.Home.route   // 8.0: a game page belongs to the Library
+    else -> NavRoutes.Settings.route
+}
 
 /** Landscape header: title, numbered section tabs (ZL / ZR), rescan status. */
 @Composable

@@ -50,6 +50,9 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     /** 7.0: games never played, biggest first, to remove or move to the wishlist. */
     object FreeSpace : NavRoutes("freespace", R.string.space7_title, R.drawable.ic_free_space)
 
+    /** 8.0: the full-screen page of one library game; build the path with GamePageModel.route(consoleId, fileName). Not in [allRoutes]. */
+    object Game : NavRoutes(com.cortinadev.dogmatix.util.GamePageModel.ROUTE, R.string.page8_title, R.drawable.ic_controller)
+
     /** 8.0: one search for settings, tools, screens and games. */
     object SearchAll : NavRoutes("search_all", R.string.find8_title, R.drawable.ic_search)
 

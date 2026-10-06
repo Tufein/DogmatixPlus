@@ -91,6 +91,10 @@ class DogmatixApplication : Application(), ImageLoaderFactory {
     @Inject
     lateinit var weeklyDigestScheduler: WeeklyDigestScheduler
 
+    /** Injected so the smart storage job follows its setting from the start. */
+    @Inject
+    lateinit var smartStorageScheduler: com.cortinadev.dogmatix.data.service.SmartStorageScheduler
+
     /** Injected so the speed limit (and its night exception) applies from the first download. */
     @Inject
     lateinit var bandwidthLimiter: BandwidthLimiter
