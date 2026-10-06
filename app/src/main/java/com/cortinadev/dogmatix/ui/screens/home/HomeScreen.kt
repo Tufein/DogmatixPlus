@@ -132,6 +132,7 @@ import com.cortinadev.dogmatix.ui.common.Gamepad
 import com.cortinadev.dogmatix.ui.common.GamepadButton
 import com.cortinadev.dogmatix.ui.common.Legend
 import com.cortinadev.dogmatix.ui.components.LegendEntry
+import com.cortinadev.dogmatix.ui.components.selectLegendEntry
 import com.cortinadev.dogmatix.ui.components.focusRing
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.swapFaceButtons
@@ -519,7 +520,7 @@ fun HomeScreen(
     val section = LegendEntry("ZL · ZR", stringResource(R.string.pad_section))
     val legendList = listOf(
         LegendEntry("A", stringResource(R.string.pad_download)), LegendEntry("X", stringResource(R.string.pad_details)),
-        LegendEntry("Y", stringResource(R.string.pad_search)), LegendEntry("SELECT", stringResource(R.string.pad_favourite)),
+        LegendEntry("Y", stringResource(R.string.pad_search)), selectLegendEntry(R.string.pad_favourite),
         LegendEntry("◀ ▶", stringResource(R.string.pad_letters))
     ) + filtersKey + section + LegendEntry("START", stringResource(R.string.disc6_pad_surprise))
     val legendFilters = listOf(
@@ -527,7 +528,7 @@ fun HomeScreen(
     ) + filtersKey + section
     val legendDetails = listOf(
         LegendEntry("A", stringResource(R.string.pad_select)), LegendEntry("B", stringResource(R.string.pad_close)),
-        LegendEntry("SELECT", stringResource(R.string.pad_favourite)), LegendEntry("▲ ▼", stringResource(R.string.pad_scroll))
+        selectLegendEntry(R.string.pad_favourite), LegendEntry("▲ ▼", stringResource(R.string.pad_scroll))
     )
     val legendSearch = listOf(
         LegendEntry("A", stringResource(R.string.pad_keyboard)), LegendEntry("B", stringResource(R.string.pad_close_keyboard))

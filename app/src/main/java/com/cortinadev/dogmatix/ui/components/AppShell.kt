@@ -282,7 +282,7 @@ fun legendFor(route: String): List<LegendEntry> {
         NavRoutes.Downloads.route -> listOf(
             LegendEntry("A", stringResource(R.string.pad_retry)),
             LegendEntry("X", stringResource(R.string.pad_delete)),
-            LegendEntry("SELECT", stringResource(R.string.pad_tick)), section
+            selectLegendEntry(R.string.pad_tick), section
         )
         NavRoutes.Sources.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
         NavRoutes.Duplicates.route -> listOf(LegendEntry("A", stringResource(R.string.pad_delete)), back, section)
