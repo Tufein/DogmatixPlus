@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="page8_title">Game</string>
+    <string name="page8_back">Terug</string>
+    <string name="page8_tab_about">Over</string>
+    <string name="page8_tab_versions">Versies</string>
+    <string name="page8_tab_progress">Voortgang</string>
+    <string name="page8_tab_similar">Meer zoals dit</string>
+    <string name="page8_downloading">Wordt gedownload…</string>
+    <string name="page8_remove">Van apparaat verwijderen</string>
+    <string name="page8_remove_title">Deze game verwijderen?</string>
+    <string name="page8_remove_message">Verwijdert “%1$s” uit de downloadmap, samen met een uitgepakte kopie met dezelfde naam. Dit kan niet ongedaan worden gemaakt.</string>
+    <string name="page8_remove_confirm">Verwijderen</string>
+    <string name="page8_missing_title">Game niet gevonden</string>
+    <string name="page8_missing_message">Deze game staat niet meer in de bibliotheek. Een nieuwe scan heeft hem misschien hernoemd of verwijderd.</string>
+    <string name="page8_version_this">Deze versie</string>
+    <string name="page8_version_best">Beste keuze</string>
+    <string name="page8_versions_hint">Kies een versie om die te downloaden.</string>
+    <string name="page8_progress_hint">Prestaties, saves en speelstatus verschijnen hier zodra RetroAchievements of RomM deze game kent.</string>
+    <string name="page8_pad_tabs">Tabbladen</string>
+    <string name="page8_open_page">Gamepagina openen</string>
+</resources>

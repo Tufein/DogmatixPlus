@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="page8_title">Jogo</string>
+    <string name="page8_back">Voltar</string>
+    <string name="page8_tab_about">Sobre</string>
+    <string name="page8_tab_versions">Versões</string>
+    <string name="page8_tab_progress">Progresso</string>
+    <string name="page8_tab_similar">Mais como este</string>
+    <string name="page8_downloading">A transferir…</string>
+    <string name="page8_remove">Remover do dispositivo</string>
+    <string name="page8_remove_title">Remover este jogo?</string>
+    <string name="page8_remove_message">Apaga «%1$s» da pasta de transferências, juntamente com uma cópia descompactada com o mesmo nome. Esta ação não pode ser anulada.</string>
+    <string name="page8_remove_confirm">Remover</string>
+    <string name="page8_missing_title">Jogo não encontrado</string>
+    <string name="page8_missing_message">Este jogo já não está na biblioteca. Uma nova análise pode tê-lo renomeado ou removido.</string>
+    <string name="page8_version_this">Esta versão</string>
+    <string name="page8_version_best">Melhor escolha</string>
+    <string name="page8_versions_hint">Escolhe uma versão para a transferir.</string>
+    <string name="page8_progress_hint">As conquistas, os jogos guardados e o estado de jogo aparecem aqui assim que o RetroAchievements ou o RomM conhecerem este jogo.</string>
+    <string name="page8_pad_tabs">Separadores</string>
+    <string name="page8_open_page">Abrir página do jogo</string>
+</resources>

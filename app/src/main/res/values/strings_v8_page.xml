@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="page8_title">Game</string>
+    <string name="page8_back">Back</string>
+    <string name="page8_tab_about">About</string>
+    <string name="page8_tab_versions">Versions</string>
+    <string name="page8_tab_progress">Progress</string>
+    <string name="page8_tab_similar">More like this</string>
+    <string name="page8_downloading">Downloading…</string>
+    <string name="page8_remove">Remove from device</string>
+    <string name="page8_remove_title">Remove this game?</string>
+    <string name="page8_remove_message">Deletes “%1$s” from the download folder, together with an unpacked copy of the same name. This cannot be undone.</string>
+    <string name="page8_remove_confirm">Remove</string>
+    <string name="page8_missing_title">Game not found</string>
+    <string name="page8_missing_message">This game is no longer in the library. A rescan may have renamed or removed it.</string>
+    <string name="page8_version_this">This version</string>
+    <string name="page8_version_best">Best match</string>
+    <string name="page8_versions_hint">Select a version to download it.</string>
+    <string name="page8_progress_hint">Achievements, saves and play status show up here once RetroAchievements or RomM know this game.</string>
+    <string name="page8_pad_tabs">Tabs</string>
+    <string name="page8_open_page">Open game page</string>
+</resources>
