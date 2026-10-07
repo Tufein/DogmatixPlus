@@ -864,6 +864,9 @@ fun SettingsScreen(
                 ActionPill(stringResource(R.string.settings_change), { showLanguagesDialog = true }, icon = R.drawable.ic_edit)
             }
         },
+        SettingsRow(SettingsSection.LIBRARY, key = SettingKeys.VERSION_PREF) {
+            VersionPreferenceRow(onOpen = { navController.navigate(NavRoutes.VersionPreference.route) })
+        },
         SettingsRow(SettingsSection.LIBRARY, key = SettingKeys.WISHLIST_AUTO) {
             SettingRow(
                 icon = R.drawable.ic_wishlist,
@@ -949,6 +952,7 @@ fun SettingsScreen(
                 PillButton(stringResource(R.string.settings_daijisho_action)) { viewModel.onPrepareDaijisho(context) }
             }
         },
+        SettingsRow(SettingsSection.FRONTENDS, key = SettingKeys.EMULATORS) { EmulatorChoiceSettingsRow() },
         SettingsRow(SettingsSection.ROMM) {
             SettingRow(
                 icon = R.drawable.ic_cloud,

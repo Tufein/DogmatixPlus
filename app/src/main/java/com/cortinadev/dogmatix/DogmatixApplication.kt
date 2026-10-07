@@ -107,6 +107,10 @@ class DogmatixApplication : Application(), ImageLoaderFactory {
     @Inject
     lateinit var downloadLog: DownloadLog
 
+    /** Injected so finished and failed downloads reach the action history from the first one. */
+    @Inject
+    lateinit var downloadActionRecorder: com.cortinadev.dogmatix.data.service.DownloadActionRecorder
+
     /** Injected so the weekly automatic backup follows its settings from the start. */
     @Inject
     lateinit var autoBackupScheduler: AutoBackupScheduler

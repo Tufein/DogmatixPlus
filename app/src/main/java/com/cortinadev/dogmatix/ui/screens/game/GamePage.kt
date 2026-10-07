@@ -104,6 +104,9 @@ import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.GamePageModel
 import com.cortinadev.dogmatix.util.GamePageModel.Tab
 import com.cortinadev.dogmatix.util.TagClassifier
+import com.cortinadev.dogmatix.util.ToastUtil
+import com.cortinadev.dogmatix.util.VersionPreferences
+import java.util.Locale
 import kotlinx.coroutines.launch
 
 /**
@@ -118,6 +121,7 @@ import kotlinx.coroutines.launch
  * B goes back, LB / RB switch tabs and Select stars the game.
  *
  * @param onOpenGame opens another game's page ("More like this").
+ * @param onOpenVersionPreference opens the Version preference screen (a link in the Versions tab); left out when null.
  */
 @Composable
 fun GamePage(
@@ -125,6 +129,7 @@ fun GamePage(
     fileName: String,
     onBack: () -> Unit,
     onOpenGame: (consoleId: String, fileName: String) -> Unit,
+    onOpenVersionPreference: (() -> Unit)? = null,
     viewModel: GamePageViewModel = hiltViewModel()
 ) {
     LaunchedEffect(consoleId, fileName) { viewModel.load(consoleId, fileName) }
@@ -148,7 +153,7 @@ fun GamePage(
         current == null -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 3.dp)
         }
-        else -> GamePageContent(current, viewModel, onBack, onOpenGame)
+        else -> GamePageContent(current, viewModel, onBack, onOpenGame, onOpenVersionPreference)
     }
 }
 
@@ -158,7 +163,8 @@ private fun GamePageContent(
     state: DetailsState,
     viewModel: GamePageViewModel,
     onBack: () -> Unit,
-    onOpenGame: (String, String) -> Unit
+    onOpenGame: (String, String) -> Unit,
+    onOpenVersionPreference: (() -> Unit)?
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -172,6 +178,7 @@ private fun GamePageContent(
     val rommKeys by viewModel.rommKeys.collectAsState()
     val progressAvailable by viewModel.progressAvailable.collectAsState()
     val collections by viewModel.collections.collectAsState()
+    val ranking by viewModel.versionRanking.collectAsState()
     val owned = viewModel.isOwned(rom, ownedKeys)
     val downloading = rom.fileName in active
     val favourite = viewModel.isFavourite(rom, favouriteKeys)
@@ -215,6 +222,7 @@ private fun GamePageContent(
     var removalPlan by remember { mutableStateOf<List<com.cortinadev.dogmatix.data.service.RemovalFile>?>(null) }
     var launchChoices by remember { mutableStateOf<List<com.cortinadev.dogmatix.data.service.GameLaunch>?>(null) }
     var rememberEmulator by rememberSaveable { mutableStateOf(true) }
+    var staleChoice by remember { mutableStateOf(false) }
     var preparing by remember { mutableStateOf(false) }
     val planError = stringResource(R.string.recovery_action_failed)
     val missingEmulator = stringResource(R.string.play_no_handler)
@@ -227,17 +235,34 @@ private fun GamePageContent(
             finally { preparing = false }
         }
     }
+    val needsExtractMessage = stringResource(R.string.play24_needs_extract, "%s")
+    val launchFailedMessage = stringResource(R.string.play24_launch_failed, "%s")
+    // Starts [handler]; false when it did not start (the reason is shown).
+    val start: (com.cortinadev.dogmatix.data.service.GameLaunch, com.cortinadev.dogmatix.data.service.GameHandler, Boolean, Boolean) -> Boolean = { game, handler, remember, automatic ->
+        when (viewModel.gameLauncher.launch(context, rom.consoleId, game, handler, remember, automatic)) {
+            com.cortinadev.dogmatix.data.service.LaunchOutcome.STARTED -> true
+            com.cortinadev.dogmatix.data.service.LaunchOutcome.NEEDS_EXTRACT -> { showMessage(needsExtractMessage.format(handler.label)); false }
+            com.cortinadev.dogmatix.data.service.LaunchOutcome.FAILED -> { showMessage(launchFailedMessage.format(handler.label)); false }
+        }
+    }
     val play: () -> Unit = {
         if (!preparing) scope.launch {
             preparing = true
             try {
                 val choices = viewModel.gameLauncher.choices(rom)
                 val preferred = viewModel.gameLauncher.preferred(rom.consoleId)
-                val single = choices.singleOrNull()
-                val handler = single?.handlers?.firstOrNull { it.component == preferred }
-                if (single != null && handler != null) viewModel.gameLauncher.launch(context, rom.consoleId, single, handler, false)
-                else if (choices.isEmpty() || choices.all { it.handlers.isEmpty() }) showMessage(missingEmulator)
-                else launchChoices = choices
+                // One file, or a playlist that holds every disc: the remembered app starts it directly.
+                val single = choices.singleOrNull() ?: choices.firstOrNull()?.takeIf { it.name.endsWith(".m3u", ignoreCase = true) }
+                val handler = single?.let { viewModel.gameLauncher.resolve(it, preferred) }
+                if (choices.isEmpty() || choices.all { it.handlers.isEmpty() }) showMessage(missingEmulator)
+                else if (single != null && handler != null) {
+                    // A remembered app that fails is no dead end: the chooser opens.
+                    if (!start(single, handler, false, false)) { staleChoice = false; launchChoices = choices }
+                } else {
+                    // A remembered app that is not offered any more (uninstalled): say so above the choices.
+                    staleChoice = preferred != null && choices.none { viewModel.gameLauncher.resolve(it, preferred) != null }
+                    launchChoices = choices
+                }
             } catch (e: kotlinx.coroutines.CancellationException) { throw e }
             catch (_: Exception) { showMessage(planError) }
             finally { preparing = false }
@@ -275,22 +300,28 @@ private fun GamePageContent(
     }
     launchChoices?.let { choices ->
         val cancelFocus = rememberInitialFocus()
+        val pick: (com.cortinadev.dogmatix.data.service.GameLaunch, com.cortinadev.dogmatix.data.service.GameHandler, Boolean) -> Unit = { choice, handler, automatic ->
+            try { if (start(choice, handler, rememberEmulator, automatic)) launchChoices = null }
+            catch (_: Exception) { showMessage(missingEmulator) }
+        }
         AlertDialog(modifier = Modifier.closeOnGamepadB { launchChoices = null }, onDismissRequest = { launchChoices = null },
             title = { Text(stringResource(R.string.play_choose)) },
             text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (staleChoice) Text(stringResource(R.string.play24_remembered_missing), style = MaterialTheme.typography.bodySmall)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(rememberEmulator, { rememberEmulator = it })
                     Text(stringResource(R.string.play_remember), style = MaterialTheme.typography.bodySmall)
                 }
+                // Automatic: the best app offered (a known emulator first), now and, when remembered, every time.
+                val best = choices.firstOrNull { it.handlers.isNotEmpty() }
+                best?.let { game -> ActionPill(stringResource(R.string.play24_automatic, game.handlers.first().label), { pick(game, game.handlers.first(), true) }, icon = R.drawable.ic_controller) }
                 choices.forEach { choice ->
                     Text(choice.name, style = MaterialTheme.typography.bodyMedium)
                     choice.handlers.forEach { handler ->
-                        ActionPill(handler.label, {
-                            try { viewModel.gameLauncher.launch(context, rom.consoleId, choice, handler, rememberEmulator); launchChoices = null }
-                            catch (_: Exception) { showMessage(missingEmulator) }
-                        }, icon = R.drawable.ic_controller)
+                        ActionPill(handler.label, { pick(choice, handler, false) }, icon = R.drawable.ic_controller)
                     }
                 }
+                if (choices.any { c -> c.handlers.any { it.core != null } }) Text(stringResource(R.string.play24_core_hint), style = MaterialTheme.typography.bodySmall)
             } }, confirmButton = {},
             dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), { launchChoices = null }, initialFocus = cancelFocus) })
     }
@@ -367,7 +398,8 @@ private fun GamePageContent(
                 ActionPill(stringResource(R.string.play_change_handler), { viewModel.gameLauncher.clear(rom.consoleId); play() }, icon = R.drawable.ic_settings)
             }
             val switch = state.switch
-            val best = state.best
+            // The live ranking (the same as the Versions tab), so a pin or a preference change shows at once.
+            val best = ranking?.pick ?: state.best
             GamePageModel.actions(
                 owned = owned,
                 downloading = downloading,
@@ -423,7 +455,8 @@ private fun GamePageContent(
             downloadingOf = { it.file.fileName in active },
             onDownload = { download(it, null) },
             onOpenGame = onOpenGame,
-            viewModel = viewModel
+            viewModel = viewModel,
+            onOpenVersionPreference = onOpenVersionPreference
         )
     }
 
@@ -574,7 +607,8 @@ private fun TabContent(
     downloadingOf: (DownloadableFileWithTags) -> Boolean,
     onDownload: (DownloadableFileWithTags) -> Unit,
     onOpenGame: (String, String) -> Unit,
-    viewModel: GamePageViewModel
+    viewModel: GamePageViewModel,
+    onOpenVersionPreference: (() -> Unit)?
 ) {
     val rom = state.item.file
     val scheme = MaterialTheme.colorScheme
@@ -593,7 +627,7 @@ private fun TabContent(
                     Text(stringResource(R.string.details_source, details.source), style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
                 }
             }
-            Tab.VERSIONS -> Versions(state, ownedOf, downloadingOf, onDownload, viewModel)
+            Tab.VERSIONS -> Versions(state, ownedOf, downloadingOf, onDownload, viewModel, onOpenVersionPreference)
             Tab.PROGRESS -> {
                 AchievementsSection(consoleId = rom.consoleId, fileName = rom.fileName, title = rom.name, match = state.achievements)
                 CloudSavesSection(consoleId = rom.consoleId, fileName = rom.fileName)
@@ -604,55 +638,109 @@ private fun TabContent(
     }
 }
 
-/** Every version of the game in the sources: best match first, then this one; A downloads a row. */
+/**
+ * Every version of the game in the sources, ranked by the user's version preference: the pick (the
+ * fixed version, else the best ranked) first with why it wins, every other version with why it
+ * ranks lower, its DAT result and (for this version) how RetroAchievements knows it. A downloads a
+ * row; under it: fix this version for the game, put it side by side with another, or prefer
+ * versions like it from now on.
+ */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Versions(
     state: DetailsState,
     ownedOf: (DownloadableFileWithTags) -> Boolean,
     downloadingOf: (DownloadableFileWithTags) -> Boolean,
     onDownload: (DownloadableFileWithTags) -> Unit,
-    viewModel: GamePageViewModel
+    viewModel: GamePageViewModel,
+    onOpenVersionPreference: (() -> Unit)?
 ) {
     val preferred by viewModel.preferred.collectAsState()
-    val languages by viewModel.languages.collectAsState()
     val datReports by viewModel.datReports.collectAsState()
+    val ranking by viewModel.versionRanking.collectAsState()
+    val prefs by viewModel.versionPrefs.collectAsState()
+    val context = LocalContext.current
+    val preferDoneTemplate = stringResource(R.string.compare24_prefer_done)
     val scope = rememberCoroutineScope()
+    val scheme = MaterialTheme.colorScheme
     val current = state.item.file.fileName
-    val ordered = remember(state.versions, state.bestFileName, current) {
-        GamePageModel.orderVersions(state.versions.ifEmpty { listOf(state.item) }, { it.file.fileName }, current, state.bestFileName)
-    }
-    Text(stringResource(R.string.page8_versions_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    val consoleName = ConsoleFormatter.getConsoleShortName(state.item.file.consoleId)
+    Text(stringResource(R.string.page8_versions_hint), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+    val r = ranking ?: return
+    // Up to two versions for the side-by-side, by ranking id; the oldest pick goes first.
+    var picked by remember(r.ranked.map { it.version.name }) { mutableStateOf(emptyList<String>()) }
+    var preferTarget by remember { mutableStateOf<com.cortinadev.dogmatix.util.VersionCompare.Ranked?>(null) }
+    val pair = picked.mapNotNull { id -> r.ranked.firstOrNull { it.version.id == id } }
+    if (pair.size == 2) CompareTable(pair[0], pair[1], r.preference, onClear = { picked = emptyList() })
+    else if (r.rows.size > 1) Text(stringResource(R.string.compare24_compare_hint), style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
     Panel(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(6.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        ordered.forEach { version ->
+        r.rows.forEach { row ->
+            val version = row.item
+            val id = row.ranked.version.id
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            VersionRow(
-                version = version,
-                isCurrent = version.file.fileName == current,
-                isBest = version.file.fileName == state.bestFileName,
-                owned = ownedOf(version),
-                downloading = downloadingOf(version),
-                onClick = { if (!downloadingOf(version)) onDownload(version) }
-            )
-            val ranking = com.cortinadev.dogmatix.util.VersionPicker.score(
-                com.cortinadev.dogmatix.util.VersionPicker.Candidate(version.file.fileName, version.file.fileName, version.tags, version.file.fileSize),
-                com.cortinadev.dogmatix.util.VersionPicker.regionPreference(languages), languages)
-            val labels = ranking.notes.map { note ->
-                when (note) {
-                    "language" -> stringResource(R.string.version_language)
-                    "verified" -> stringResource(R.string.version_dump_claim)
-                    "unwanted" -> stringResource(R.string.version_unwanted)
-                    else -> if (note.startsWith("revision:")) stringResource(R.string.version_revision, note.substringAfter(":")) else note
+                VersionRow(
+                    version = version,
+                    isCurrent = version.file.fileName == current,
+                    isBest = row.isPick,
+                    owned = ownedOf(version),
+                    downloading = downloadingOf(version),
+                    onClick = { if (!downloadingOf(version)) onDownload(version) }
+                )
+                Column(modifier = Modifier.padding(horizontal = 10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    ReasonPills(row.ranked.reasons)
+                    // Why it sits where it does: a fixed version, the best ranked one, or what it lacks against that one.
+                    val why = listOfNotNull(
+                        if (row.isFixed) stringResource(R.string.compare24_fixed_note) else null,
+                        if (row.isTop) r.explanation?.let { becauseLine(it) } else row.whyNot?.let { whyNotLine(it) }
+                    )
+                    why.forEach { Text(it, style = MaterialTheme.typography.bodySmall, color = if (row.isPick) scheme.onSurface else scheme.onSurfaceVariant) }
+                    if (row.isTop && !row.isPick && r.pick != null) {
+                        Text(stringResource(R.string.compare24_top_but_fixed), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+                    }
+                    val dat = datReports[version.file.consoleId]?.checks?.firstOrNull { it.first.name.equals(version.file.fileName, true) }?.second?.status
+                    Text(stringResource(R.string.version_dat, dat?.name ?: stringResource(R.string.version_unknown)), style = MaterialTheme.typography.bodySmall)
+                    if (version.file.fileName == current && state.achievements != null) {
+                        Text(stringResource(if (state.achievements.second) R.string.version_ra_hash else R.string.version_ra_title), style = MaterialTheme.typography.bodySmall)
+                    }
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ActionPill(stringResource(if (preferred == version.file.fileName) R.string.version_unpin else R.string.version_pin),
+                            { scope.launch { viewModel.setPreferred(version, preferred != version.file.fileName) } }, icon = R.drawable.ic_star)
+                        if (r.rows.size > 1) {
+                            val on = id in picked
+                            ActionPill(
+                                stringResource(if (on) R.string.compare24_compare_selected else R.string.compare24_compare),
+                                onClick = { picked = if (on) picked - id else (picked + id).takeLast(2) },
+                                icon = if (on) R.drawable.ic_check else R.drawable.ic_compare,
+                                tone = if (on) ActionTone.Accent else ActionTone.Neutral
+                            )
+                        }
+                        if (prefs != null) ActionPill(stringResource(R.string.compare24_prefer), onClick = { preferTarget = row.ranked }, icon = R.drawable.ic_tune)
+                    }
                 }
             }
-            val dat = datReports[version.file.consoleId]?.checks?.firstOrNull { it.first.name.equals(version.file.fileName, true) }?.second?.status
-            Text(labels.joinToString(" · ") + " · " + stringResource(R.string.version_dat, dat?.name ?: stringResource(R.string.version_unknown)),
-                modifier = Modifier.padding(horizontal = 10.dp), style = MaterialTheme.typography.bodySmall)
-            if (version.file.fileName == current && state.achievements != null) Text(stringResource(if (state.achievements.second) R.string.version_ra_hash else R.string.version_ra_title), modifier = Modifier.padding(horizontal = 10.dp), style = MaterialTheme.typography.bodySmall)
-            ActionPill(stringResource(if (preferred == version.file.fileName) R.string.version_unpin else R.string.version_pin),
-                { scope.launch { viewModel.setPreferred(version, preferred != version.file.fileName) } }, icon = R.drawable.ic_star)
-            }
-
         }
+    }
+    onOpenVersionPreference?.let { open -> ActionPill(stringResource(R.string.compare24_title), onClick = open, icon = R.drawable.ic_compare) }
+    val target = preferTarget
+    val base = prefs
+    if (target != null && base != null) {
+        PreferLikeDialog(
+            target = target,
+            ranked = r.ranked,
+            prefs = base,
+            consoleName = consoleName,
+            onDismiss = { preferTarget = null },
+            onConfirm = { forConsole, followRevision, clearOverride ->
+                preferTarget = null
+                scope.launch {
+                    val now = viewModel.preferLike(target, r.ranked, forConsole, followRevision, clearOverride) ?: return@launch
+                    ToastUtil.showSuccess(
+                        context,
+                        String.format(Locale.getDefault(), preferDoneTemplate, VersionPreferences.summary(now))
+                    )
+                }
+            }
+        )
     }
 }
 

@@ -125,7 +125,7 @@ class SpaceReclaimService @Inject constructor(
             val blocked = if (readable) newlyProtected.mapTo(HashSet()) { it.id } else candidates.mapTo(HashSet()) { it.id }
             val targets = candidates.filter { c -> c.id !in blocked && c.entry.files.isNotEmpty() && c.entry.files.all { it.fileId in allowed } }
             val targetIds = targets.mapTo(HashSet()) { it.id }
-            val counts = scanService.deleteAll(targets.map { it.entry })
+            val counts = scanService.deleteAll(targets.map { it.entry }, com.cortinadev.dogmatix.util.ActionReason.FREE_SPACE)
             val removed = ArrayList<SpaceCandidate>()
             val partial = ArrayList<SpaceCandidate>()
             val failed = ArrayList<SpaceCandidate>()

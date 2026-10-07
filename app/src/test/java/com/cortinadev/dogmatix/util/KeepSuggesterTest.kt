@@ -37,4 +37,29 @@ class KeepSuggesterTest {
         val s = KeepSuggester.suggest(group(DuplicateGroup.Kind.IDENTICAL, entry("G", "/a", 50), entry("G", "/a/b/c", 70)), eu, setOf("EN"))!!
         assertEquals(70L, s.reclaimable)
     }
+
+    @Test fun `a fixed version on disk is kept even when its region ranks lower`() {
+        val usa = entry("Game (USA)")
+        val japan = entry("Game (Japan)")
+        val s = KeepSuggester.suggest(group(DuplicateGroup.Kind.VARIANT, usa, japan),
+            { VersionPreferences.defaultFor(setOf("EN"), null, null) }, { "Game%20%28Japan%29.gba" })!!
+        assertEquals(japan, s.keep)
+        assertEquals(listOf(usa), s.remove)
+    }
+
+    @Test fun `an extracted copy of a fixed archive is also kept`() {
+        val usa = entry("Game (USA)")
+        val japan = entry("Game (Japan)")
+        val s = KeepSuggester.suggest(group(DuplicateGroup.Kind.VARIANT, usa, japan),
+            { VersionPreferences.defaultFor(setOf("EN"), null, null) }, { "Game (Japan).zip" })!!
+        assertEquals(japan, s.keep)
+    }
+
+    @Test fun `an unavailable pin falls back to ranking without inventing an entry`() {
+        val usa = entry("Game (USA)")
+        val japan = entry("Game (Japan)")
+        val s = KeepSuggester.suggest(group(DuplicateGroup.Kind.VARIANT, usa, japan),
+            { VersionPreferences.defaultFor(setOf("EN"), null, null) }, { "Game (Europe).gba" })!!
+        assertEquals(usa, s.keep)
+    }
 }

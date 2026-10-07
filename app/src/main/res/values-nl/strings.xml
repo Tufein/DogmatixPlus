@@ -1319,9 +1319,9 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Zoek downloads op titel of bestandsnaam en filter op status.</item>
-        <item>Selecteer zoekresultaten en zet wachtende downloads samen vooraan.</item>
-        <item>Veiliger hervatten, controle op onvolledige bestanden en annuleren van oude retrytimers.</item>
+        <item>Kies een geschikte emulator per console en start eigen spellen rechtstreeks.</item>
+        <item>Vergelijk versies en bewaar voorkeuren voor taal, regio en revisie.</item>
+        <item>Doorzoek en filter de actiegeschiedenis, herstel verwijderde spellen of download ze opnieuw.</item>
     </string-array>
 
     <!-- 4.0 -->

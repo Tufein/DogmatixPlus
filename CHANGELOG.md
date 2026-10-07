@@ -2,6 +2,15 @@
 
 Public releases follow 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. See [release numbering](docs/releases/numbering.md) for the migration and original APK versions.
 
+## [2.4.0] – 2026-10-08 · Dogmatix+
+
+- Compatible emulator choices per console, with application-specific launch recipes and explicit installed variants.
+- Separate launch and removal plans so playing can read shared disc dependencies without removing shared files.
+- Explain and save global/per-console language, region, revision and dump preferences; fixed game versions are respected by automatic and duplicate selection.
+- Searchable action history with recovery and profile-aware download-again actions; refresh the library after restore and report persistence failures accurately.
+- Preserve revision facts independently of active ranking rules and normalize encoded source names when identifying version preferences.
+- Seven translated interfaces, Android build 36 and database version 13; release signing identity retained.
+
 ## [2.3.0] – 2026-10-07 · Dogmatix+
 
 - Search Downloads by title or file name and filter active, waiting, paused, problem and completed rows.

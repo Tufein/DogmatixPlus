@@ -375,7 +375,7 @@ private fun OnboardingHost() {
 }
 
 /** The screens built from the settings kit: they get the plain AMOLED ground (see SettingsSurface). */
-private val SettingsKitRoutes = setOf(NavRoutes.Settings.route, NavRoutes.Romm.route, NavRoutes.SaveSync.route)
+private val SettingsKitRoutes = setOf(NavRoutes.Settings.route, NavRoutes.Romm.route, NavRoutes.SaveSync.route, NavRoutes.VersionPreference.route)
 
 @Composable
 private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
@@ -545,9 +545,11 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                             consoleId = entry.arguments?.getString(GamePageModel.ARG_CONSOLE).orEmpty(),
                             fileName = entry.arguments?.getString(GamePageModel.ARG_FILE).orEmpty(),
                             onBack = { navController.popBackStack() },
-                            onOpenGame = { c, f -> navController.navigate(GamePageModel.route(c, f)) }
+                            onOpenGame = { c, f -> navController.navigate(GamePageModel.route(c, f)) },
+                            onOpenVersionPreference = { navController.navigate(NavRoutes.VersionPreference.route) }
                         )
                     }
+                    composable(NavRoutes.VersionPreference.route) { com.cortinadev.dogmatix.ui.screens.settings.VersionPreferenceScreen() }
                     composable(NavRoutes.Downloads.route) { DownloadScreen(navController) }
                     composable(NavRoutes.Sources.route) { SourcesScreen() }
                     composable(NavRoutes.Settings.route) { SettingsScreen(navController) }
@@ -557,6 +559,11 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.Overview.route) { LibraryOverviewScreen() }
                     composable(NavRoutes.Duplicates.route) { DuplicatesScreen() }
                     composable(NavRoutes.Recovery.route) { com.cortinadev.dogmatix.ui.screens.tools.RecoveryScreen(onNavigate = { navController.navigate(it) }) }
+                    composable(NavRoutes.ActionHistory.route) {
+                        com.cortinadev.dogmatix.ui.screens.tools.ActionHistoryScreen(
+                            onOpenGame = { c, f -> navController.navigate(GamePageModel.route(c, f)) },
+                            onNavigate = { navController.navigate(it) })
+                    }
                     composable(NavRoutes.Tools.route) { ToolsHubScreen(navController) }
                     composable(NavRoutes.Sets.route) { SetsScreen() }
                     composable(NavRoutes.Storage.route) { StorageScreen() }

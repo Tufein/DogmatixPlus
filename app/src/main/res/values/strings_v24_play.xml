@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="play24_automatic">Automatic: %1$s</string>
+    <string name="play24_needs_extract">%1$s cannot open this archive for this console. Extract the game first, then press Play again.</string>
+    <string name="play24_launch_failed">%1$s could not be started. Choose another application.</string>
+    <string name="play24_remembered_missing">The application remembered for this console is no longer installed. Choose another one.</string>
+    <string name="play24_core_hint">RetroArch only starts the game when that core is installed (Online Updater, Core Downloader).</string>
+    <string name="play24_settings_title">Emulator per console</string>
+    <string name="play24_settings_hint">Which application Play starts for each console. Known emulators such as RetroArch, DuckStation, Dolphin and PPSSPP are started with their own launch settings.</string>
+    <string name="play24_settings_loading">Looking for emulators…</string>
+    <string name="play24_settings_empty">No known emulator is installed for your consoles yet. Install one (RetroArch, DuckStation, Dolphin, PPSSPP…) and come back.</string>
+    <string name="play24_settings_ask">Ask each time</string>
+    <string name="play24_settings_ask_hint">Play shows the list of applications</string>
+    <string name="play24_settings_automatic">Automatic</string>
+    <string name="play24_settings_automatic_hint">Now: %1$s</string>
+    <string name="play24_settings_not_installed">%1$s (not installed)</string>
+</resources>

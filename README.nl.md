@@ -158,6 +158,10 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ---
 
+### Nieuw in 2.4.0
+
+Kies een geïnstalleerde emulator per console, vergelijk gameversies met bewaarde taal-, regio- en revisievoorkeuren en doorzoek de actiegeschiedenis. Herstel verwijderde spellen of download ze opnieuw vanuit de geschiedenis. Herstelkopieën behouden hun oorspronkelijke pad en kosten ruimte totdat je de prullenbak leegt.
+
 ## Installeren
 
 1. Open de **[Releases-pagina](https://github.com/Tufein/DogmatixPlus/releases)** op je telefoon of handheld, of download het bestand daar en kopieer het naar je toestel.

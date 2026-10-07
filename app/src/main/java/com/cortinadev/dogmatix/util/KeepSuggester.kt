@@ -12,11 +12,35 @@ data class KeepSuggestion(val group: DuplicateGroup, val keep: GameEntry, val re
  */
 object KeepSuggester {
 
-    fun suggest(groups: List<DuplicateGroup>, regionPreference: List<String>, languages: Set<String>): List<KeepSuggestion> =
-        groups.mapNotNull { suggest(it, regionPreference, languages) }
+    fun suggest(groups: List<DuplicateGroup>, regionPreference: List<String>, languages: Set<String>): List<KeepSuggestion> {
+        val preference = VersionPreferences.of(regionPreference, languages)
+        return suggest(groups) { preference }
+    }
 
-    fun suggest(group: DuplicateGroup, regionPreference: List<String>, languages: Set<String>): KeepSuggestion? {
+    /** With the user's version preference per group (a console may have its own order). */
+    fun suggest(groups: List<DuplicateGroup>, preferenceOf: (DuplicateGroup) -> VersionPreference): List<KeepSuggestion> =
+        groups.mapNotNull { suggest(it, preferenceOf) }
+
+    /** A per-game fixed version on disk wins over the general ranking. */
+    fun suggest(groups: List<DuplicateGroup>, preferenceOf: (DuplicateGroup) -> VersionPreference, preferredVersion: (GameEntry) -> String?): List<KeepSuggestion> =
+        groups.mapNotNull { suggest(it, preferenceOf, preferredVersion) }
+
+    fun suggest(group: DuplicateGroup, regionPreference: List<String>, languages: Set<String>): KeepSuggestion? =
+        VersionPreferences.of(regionPreference, languages).let { p -> suggest(group) { p } }
+
+    fun suggest(group: DuplicateGroup, preferenceOf: (DuplicateGroup) -> VersionPreference): KeepSuggestion? =
+        suggest(group, preferenceOf) { null }
+
+    fun suggest(group: DuplicateGroup, preferenceOf: (DuplicateGroup) -> VersionPreference, preferredVersion: (GameEntry) -> String?): KeepSuggestion? {
         if (group.entries.size < 2) return null
+        val fixed = group.entries.filter { entry ->
+            val name = preferredVersion(entry)?.let(VersionPicker::readable) ?: return@filter false
+            entry.files.any { GameRemoval.matches(VersionPicker.readable(it.name), name) }
+        }
+        if (fixed.isNotEmpty()) {
+            val keep = fixed.sortedWith(compareBy({ it.folder.count { c -> c == '/' } }, { it.folder.lowercase() })).first()
+            return KeepSuggestion(group, keep, group.entries.filter { it.id != keep.id })
+        }
         return when (group.kind) {
             // The very same file in several folders: keep the one in the shallowest, alphabetically first folder.
             DuplicateGroup.Kind.IDENTICAL -> {
@@ -24,11 +48,9 @@ object KeepSuggester {
                 KeepSuggestion(group, keep, group.entries.filter { it.id != keep.id })
             }
             DuplicateGroup.Kind.VARIANT -> {
-                val ranked = group.entries.map { entry ->
-                    entry to VersionPicker.score(VersionPicker.Candidate(entry.id, entry.baseName, size = entry.size), regionPreference, languages).score
-                }.sortedByDescending { it.second }
-                if (ranked[0].second == ranked[1].second) return null
-                val keep = ranked[0].first
+                val ranked = VersionPicker.rank(group.entries.map { VersionPicker.Candidate(it.id, it.baseName, size = it.size) }, preferenceOf(group))
+                if (ranked[0].score == ranked[1].score) return null
+                val keep = group.entries.first { it.id == ranked[0].candidate.id }
                 KeepSuggestion(group, keep, group.entries.filter { it.id != keep.id })
             }
         }

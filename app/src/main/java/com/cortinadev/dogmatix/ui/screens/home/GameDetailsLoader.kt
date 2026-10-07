@@ -6,11 +6,9 @@ import com.cortinadev.dogmatix.data.model.DownloadableFileWithTags
 import com.cortinadev.dogmatix.data.model.GameDetails
 import com.cortinadev.dogmatix.data.repository.CollectionsRepository
 import com.cortinadev.dogmatix.data.repository.DownloadableFileRepository
-import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.service.GameMetadataService
 import com.cortinadev.dogmatix.data.service.LibraryIndexService
 import com.cortinadev.dogmatix.data.service.RetroAchievementsService
-import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.LibraryDiscovery
 import com.cortinadev.dogmatix.util.LibraryKeys
 import com.cortinadev.dogmatix.util.SimilarGames
@@ -32,13 +30,13 @@ import javax.inject.Singleton
 @Singleton
 class GameDetailsLoader @Inject constructor(
     private val repository: DownloadableFileRepository,
-    private val settingsRepository: SettingsRepository,
     private val collectionsRepository: CollectionsRepository,
     private val retroAchievements: RetroAchievementsService,
     private val metadataService: GameMetadataService,
     private val libraryIndex: LibraryIndexService,
     private val metadataDao: GameMetadataDao,
     private val versionPreference: com.cortinadev.dogmatix.data.service.VersionPreferenceService,
+    private val versionSettings: com.cortinadev.dogmatix.data.local.VersionPreferenceSettings,
     private val profiles: com.cortinadev.dogmatix.data.service.ProfileService
 ) {
     /**
@@ -53,10 +51,9 @@ class GameDetailsLoader @Inject constructor(
         // Which version of this game suits the user best (region, language, no demos).
         val restrictions = profiles.current()
         val versions = runCatching { repository.versionsOf(item.file) }.getOrDefault(emptyList()).filter { restrictions.allows(it.file.consoleId, it.tags) }
-        val languages = settingsRepository.favoriteLanguages.first()
         val bestId = if (versions.size > 1) com.cortinadev.dogmatix.util.VersionPreference.pick(
-            versions.map { VersionPicker.Candidate(it.file.fileName, FileParsingUtils.decodeUrlEncodedFileName(it.file.fileName), it.tags, it.file.fileSize) },
-            VersionPicker.regionPreference(languages), languages, versionPreference.preferred(item.file.consoleId, item.file.fileName)
+            versions.map { VersionPicker.Candidate(it.file.fileName, it.file.fileName, it.tags, it.file.fileSize) },
+            versionSettings.effective(item.file.consoleId), versionPreference.preferred(item.file.consoleId, item.file.fileName)
         )?.id else null
         val best = versions.firstOrNull { it.file.fileName == bestId }
         update { it.copy(versionCount = versions.size, best = best, versions = versions, bestFileName = bestId) }

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hist24_title">Actiegeschiedenis</string>
+    <string name="hist24_subtitle">Wat downloads, verwijderingen, verplaatsingen en synchronisaties deden</string>
+    <string name="hist24_hint">Zie wat de app voor je deed en zet een verwijderde game terug of download hem opnieuw</string>
+    <string name="hist24_kw">geschiedenis, logboek, activiteit, ongedaan maken, terugzetten, verwijderd, verplaatst, gesynchroniseerd, back-up, wat er gebeurde</string>
+    <string name="hist24_filter_all">Alles</string>
+    <string name="hist24_filter_downloads">Downloads</string>
+    <string name="hist24_filter_trash">Verwijderd &amp; teruggezet</string>
+    <string name="hist24_filter_moves">Verplaatsingen</string>
+    <string name="hist24_filter_sync">Sync &amp; back-up</string>
+    <string name="hist24_filter_games">Gespeeld &amp; vastgezet</string>
+    <string name="hist24_kind_downloaded">Gedownload</string>
+    <string name="hist24_kind_download_failed">Download mislukt</string>
+    <string name="hist24_kind_removed">Naar de prullenbak verplaatst</string>
+    <string name="hist24_kind_restored">Teruggezet uit de prullenbak</string>
+    <string name="hist24_kind_purged">Definitief verwijderd</string>
+    <string name="hist24_kind_moved">Verplaatst</string>
+    <string name="hist24_kind_move_failed">Verplaatsen mislukt</string>
+    <string name="hist24_kind_synced">Gesynchroniseerd</string>
+    <string name="hist24_kind_sync_failed">Synchronisatie mislukt</string>
+    <string name="hist24_kind_backed_up">Back-up gemaakt</string>
+    <string name="hist24_kind_backup_failed">Back-up mislukt</string>
+    <string name="hist24_kind_backup_restored">Back-up teruggezet</string>
+    <string name="hist24_kind_played">Gespeeld</string>
+    <string name="hist24_kind_pinned">Versie vastgezet</string>
+    <string name="hist24_kind_unpinned">Vaste versie losgelaten</string>
+    <string name="hist24_kind_other">Actie</string>
+    <string name="hist24_t_save_sync">Saves synchroniseren</string>
+    <string name="hist24_t_device_sync">Apparaatsynchronisatie</string>
+    <string name="hist24_t_cloud_backup">WebDAV-back-up</string>
+    <string name="hist24_t_library_folder">Downloadmap</string>
+    <string name="hist24_t_smart_storage">Slimme opslag</string>
+    <string name="hist24_r_user_removed">Door jou verwijderd</string>
+    <string name="hist24_r_duplicate">Verwijderd als dubbel exemplaar</string>
+    <string name="hist24_r_better_version">Vervangen door een betere versie</string>
+    <string name="hist24_r_free_space">Verwijderd om ruimte vrij te maken</string>
+    <string name="hist24_r_offline_collection">Verwijderd met een offline collectie</string>
+    <string name="hist24_r_user_purged">Prullenbak door jou geleegd</string>
+    <string name="hist24_r_expired">Prullenbak automatisch geleegd na de bewaartermijn</string>
+    <string name="hist24_r_to_sd">Naar de SD-kaart</string>
+    <string name="hist24_r_to_internal">Naar de interne opslag</string>
+    <string name="hist24_r_to_sd_esde">Naar de SD-kaart. ES-DE wijst nog naar de oude map.</string>
+    <string name="hist24_r_to_internal_esde">Naar de interne opslag. ES-DE wijst nog naar de oude map.</string>
+    <string name="hist24_r_originals_left">Sommige originelen konden niet worden verwijderd. Prullenbak en herstel kan dit afmaken.</string>
+    <string name="hist24_r_smart_failed">Kon niet worden verplaatst. Er is niets veranderd.</string>
+    <string name="hist24_r_library_failed">Het verplaatsen is gestopt. Prullenbak en herstel kan het hervatten.</string>
+    <string name="hist24_r_sync_failed">De synchronisatie is niet afgerond.</string>
+    <string name="hist24_r_cloud_other">De server was niet bereikbaar of weigerde het verzoek.</string>
+    <string name="hist24_restore">Terugzetten</string>
+    <string name="hist24_download_again">Opnieuw downloaden</string>
+    <string name="hist24_restore_done">%1$s is terug</string>
+    <string name="hist24_requeued">%1$s staat in de wachtrij om te downloaden</string>
+    <string name="hist24_restore_partial">Niet alles van %1$s is teruggekomen. De rest staat nog in de prullenbak, dus je kunt het opnieuw proberen.</string>
+    <string name="hist24_restore_failed">Terugzetten is niet gelukt. Prullenbak en herstel laat zien wat er nog in de prullenbak staat.</string>
+    <string name="hist24_requeue_failed">Kon niet in de wachtrij worden gezet. De game staat niet meer in je bibliotheek.</string>
+    <string name="hist24_clear">Geschiedenis wissen</string>
+    <string name="hist24_clear_title">Geschiedenis wissen?</string>
+    <string name="hist24_clear_confirm">Wissen</string>
+    <string name="hist24_empty_title">Nog niets te zien</string>
+    <string name="hist24_empty_message">Downloads, verwijderingen, verplaatsingen, synchronisaties en back-ups verschijnen hier zodra ze gebeuren.</string>
+    <string name="hist24_empty_filter_title">Niets gevonden</string>
+    <string name="hist24_empty_filter_message">Geen regels voor dit filter of deze zoekopdracht.</string>
+    <string name="hist24_search_hint">Zoeken op titel</string>
+    <string name="hist24_pad_filter">Filter</string>
+    <plurals name="hist24_more_downloaded">
+        <item quantity="one">Nog %d game gedownload</item>
+        <item quantity="other">Nog %d games gedownload</item>
+    </plurals>
+    <plurals name="hist24_more_download_failed">
+        <item quantity="one">Nog %d download mislukt</item>
+        <item quantity="other">Nog %d downloads mislukt</item>
+    </plurals>
+    <plurals name="hist24_more_purged">
+        <item quantity="one">Nog %d game definitief verwijderd</item>
+        <item quantity="other">Nog %d games definitief verwijderd</item>
+    </plurals>
+    <plurals name="hist24_more_other">
+        <item quantity="one">Nog %d actie</item>
+        <item quantity="other">Nog %d acties</item>
+    </plurals>
+    <plurals name="hist24_clear_message">
+        <item quantity="one">%d regel wordt uit deze lijst verwijderd. Je games, de prullenbak en Prullenbak en herstel blijven ongemoeid.</item>
+        <item quantity="other">%d regels worden uit deze lijst verwijderd. Je games, de prullenbak en Prullenbak en herstel blijven ongemoeid.</item>
+    </plurals>
+    <plurals name="hist24_p_files">
+        <item quantity="one">%d bestand</item>
+        <item quantity="other">%d bestanden</item>
+    </plurals>
+    <plurals name="hist24_p_added">
+        <item quantity="one">%d toegevoegd</item>
+        <item quantity="other">%d toegevoegd</item>
+    </plurals>
+    <plurals name="hist24_p_removed">
+        <item quantity="one">%d verwijderd</item>
+        <item quantity="other">%d verwijderd</item>
+    </plurals>
+    <plurals name="hist24_p_uploaded">
+        <item quantity="one">%d geüpload</item>
+        <item quantity="other">%d geüpload</item>
+    </plurals>
+    <plurals name="hist24_p_downloaded">
+        <item quantity="one">%d gedownload</item>
+        <item quantity="other">%d gedownload</item>
+    </plurals>
+    <plurals name="hist24_p_deleted_device">
+        <item quantity="one">%d verwijderd op dit apparaat</item>
+        <item quantity="other">%d verwijderd op dit apparaat</item>
+    </plurals>
+    <plurals name="hist24_p_deleted_server">
+        <item quantity="one">%d verwijderd op de server</item>
+        <item quantity="other">%d verwijderd op de server</item>
+    </plurals>
+    <plurals name="hist24_p_conflicts">
+        <item quantity="one">%d conflict</item>
+        <item quantity="other">%d conflicten</item>
+    </plurals>
+    <plurals name="hist24_p_failed">
+        <item quantity="one">%d mislukt</item>
+        <item quantity="other">%d mislukt</item>
+    </plurals>
+    <plurals name="hist24_p_held">
+        <item quantity="one">%d verwijdering wacht op je bevestiging</item>
+        <item quantity="other">%d verwijderingen wachten op je bevestiging</item>
+    </plurals>
+    <string name="hist24_clear_failed">De geschiedenis kon niet worden gewist. Probeer opnieuw.</string>
+</resources>

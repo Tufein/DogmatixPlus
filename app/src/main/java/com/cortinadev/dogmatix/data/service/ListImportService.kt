@@ -2,7 +2,6 @@ package com.cortinadev.dogmatix.data.service
 
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
-import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.data.repository.WishlistRepository
 import com.cortinadev.dogmatix.util.GameTitleCleaner
 import com.cortinadev.dogmatix.util.ListImport
@@ -35,15 +34,14 @@ data class ListMatch(
 @Singleton
 class ListImportService @Inject constructor(
     private val fileDao: DownloadableFileDao,
-    private val settingsRepository: SettingsRepository,
     private val libraryIndex: LibraryIndexService,
     private val downloadService: DownloadService,
     private val wishlist: WishlistRepository,
-    private val versionPreference: VersionPreferenceService
+    private val versionPreference: VersionPreferenceService,
+    private val versionSettings: com.cortinadev.dogmatix.data.local.VersionPreferenceSettings
 ) {
     suspend fun match(titles: List<String>, consoleId: String?, onProgress: (Int) -> Unit = {}): ListMatch = withContext(Dispatchers.IO) {
-        val languages = settingsRepository.favoriteLanguages.first()
-        val regions = VersionPicker.regionPreference(languages)
+        val versionPrefs = versionSettings.snapshot()
         val preferences = versionPreference.snapshot()
         val picks = mutableListOf<DownloadableFileEntity>()
         val have = mutableListOf<String>()
@@ -60,7 +58,7 @@ class ListImportService @Inject constructor(
                 else -> files.groupBy { it.consoleId }.values.forEach { perConsole ->
                     val best = com.cortinadev.dogmatix.util.VersionPreference.pick(
                         perConsole.map { VersionPicker.Candidate(it.fileName, it.fileName, fileDao.tagsOf(it.id), it.fileSize) },
-                        regions, languages, preferences.preferred(perConsole.first().consoleId, perConsole.first().fileName)
+                        versionPrefs.of(perConsole.first().consoleId), preferences.preferred(perConsole.first().consoleId, perConsole.first().fileName)
                     )
                     perConsole.firstOrNull { it.fileName == best?.id }?.let(picks::add)
                 }

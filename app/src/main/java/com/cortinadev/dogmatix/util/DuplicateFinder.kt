@@ -150,6 +150,9 @@ object DuplicateFinder {
     )
     private fun isGameFormat(ext: String) = ext in gameFormats
 
+    /** Positive format allowlist for read grants; unlike the scan's permissive unknown-file handling. */
+    fun isKnownGameFormat(name: String): Boolean = isGameFormat(extension(name))
+
     /** Names that mark the files of a per-game folder holding one disc image. */
     private val folderGameMarker = Regex("(?i)^(track\\s*\\d+|disc\\s*\\d*|disk\\s*\\d*|cd\\s*\\d*|game|rom|eboot|image)$")
     private val trackStem = Regex("(?i)^track\\s*\\d+$")

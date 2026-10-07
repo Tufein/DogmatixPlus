@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hist24_title">Historique des actions</string>
+    <string name="hist24_subtitle">Ce qu\'ont fait les téléchargements, suppressions, déplacements et synchros</string>
+    <string name="hist24_hint">Voyez ce que l\'app a fait pour vous, puis récupérez un jeu supprimé ou téléchargez-le à nouveau</string>
+    <string name="hist24_kw">historique, journal, activité, annuler, restaurer, supprimé, déplacé, synchronisé, sauvegarde, ce qui s\'est passé</string>
+    <string name="hist24_filter_all">Tout</string>
+    <string name="hist24_filter_downloads">Téléchargements</string>
+    <string name="hist24_filter_trash">Supprimés et restaurés</string>
+    <string name="hist24_filter_moves">Déplacements</string>
+    <string name="hist24_filter_sync">Synchro et sauvegarde</string>
+    <string name="hist24_filter_games">Joués et épinglés</string>
+    <string name="hist24_kind_downloaded">Téléchargé</string>
+    <string name="hist24_kind_download_failed">Échec du téléchargement</string>
+    <string name="hist24_kind_removed">Mis à la corbeille</string>
+    <string name="hist24_kind_restored">Restauré depuis la corbeille</string>
+    <string name="hist24_kind_purged">Supprimé définitivement</string>
+    <string name="hist24_kind_moved">Déplacé</string>
+    <string name="hist24_kind_move_failed">Échec du déplacement</string>
+    <string name="hist24_kind_synced">Synchronisé</string>
+    <string name="hist24_kind_sync_failed">Échec de la synchronisation</string>
+    <string name="hist24_kind_backed_up">Sauvegarde effectuée</string>
+    <string name="hist24_kind_backup_failed">Échec de la sauvegarde</string>
+    <string name="hist24_kind_backup_restored">Sauvegarde restaurée</string>
+    <string name="hist24_kind_played">Joué</string>
+    <string name="hist24_kind_pinned">Version épinglée</string>
+    <string name="hist24_kind_unpinned">Version désépinglée</string>
+    <string name="hist24_kind_other">Action</string>
+    <string name="hist24_t_save_sync">Synchro des sauvegardes</string>
+    <string name="hist24_t_device_sync">Synchro entre appareils</string>
+    <string name="hist24_t_cloud_backup">Sauvegarde WebDAV</string>
+    <string name="hist24_t_library_folder">Dossier de téléchargement</string>
+    <string name="hist24_t_smart_storage">Stockage intelligent</string>
+    <string name="hist24_r_user_removed">Supprimé par vous</string>
+    <string name="hist24_r_duplicate">Supprimé comme doublon</string>
+    <string name="hist24_r_better_version">Remplacé par une meilleure version</string>
+    <string name="hist24_r_free_space">Supprimé pour libérer de l\'espace</string>
+    <string name="hist24_r_offline_collection">Supprimé avec une collection hors ligne</string>
+    <string name="hist24_r_user_purged">Corbeille vidée par vous</string>
+    <string name="hist24_r_expired">Corbeille vidée automatiquement après la durée de conservation</string>
+    <string name="hist24_r_to_sd">Vers la carte SD</string>
+    <string name="hist24_r_to_internal">Vers le stockage interne</string>
+    <string name="hist24_r_to_sd_esde">Vers la carte SD. ES-DE pointe encore vers l\'ancien dossier.</string>
+    <string name="hist24_r_to_internal_esde">Vers le stockage interne. ES-DE pointe encore vers l\'ancien dossier.</string>
+    <string name="hist24_r_originals_left">Certains originaux n\'ont pas pu être supprimés. Corbeille et récupération peut terminer l\'opération.</string>
+    <string name="hist24_r_smart_failed">Impossible de déplacer. Rien n\'a été modifié.</string>
+    <string name="hist24_r_library_failed">Le déplacement s\'est arrêté. Corbeille et récupération peut le reprendre.</string>
+    <string name="hist24_r_sync_failed">La synchronisation n\'a pas abouti.</string>
+    <string name="hist24_r_cloud_other">Le serveur était injoignable ou a refusé la demande.</string>
+    <string name="hist24_restore">Restaurer</string>
+    <string name="hist24_download_again">Télécharger à nouveau</string>
+    <string name="hist24_restore_done">%1$s est de retour</string>
+    <string name="hist24_requeued">%1$s est en file d\'attente de téléchargement</string>
+    <string name="hist24_restore_partial">%1$s n\'est pas revenu en entier. Le reste est toujours dans la corbeille, vous pouvez réessayer.</string>
+    <string name="hist24_restore_failed">Impossible de restaurer. Corbeille et récupération montre ce qui est encore dans la corbeille.</string>
+    <string name="hist24_requeue_failed">Impossible de l\'ajouter à la file. Le jeu n\'est plus dans votre bibliothèque.</string>
+    <string name="hist24_clear">Effacer l\'historique</string>
+    <string name="hist24_clear_title">Effacer l\'historique ?</string>
+    <string name="hist24_clear_confirm">Effacer</string>
+    <string name="hist24_empty_title">Rien pour l\'instant</string>
+    <string name="hist24_empty_message">Les téléchargements, suppressions, déplacements, synchros et sauvegardes apparaissent ici dès qu\'ils ont lieu.</string>
+    <string name="hist24_empty_filter_title">Aucun résultat</string>
+    <string name="hist24_empty_filter_message">Aucune ligne pour ce filtre ou cette recherche.</string>
+    <string name="hist24_search_hint">Rechercher par titre</string>
+    <string name="hist24_pad_filter">Filtre</string>
+    <plurals name="hist24_more_downloaded">
+        <item quantity="one">%d autre jeu téléchargé</item>
+        <item quantity="many">%d autres jeux téléchargés</item>
+        <item quantity="other">%d autres jeux téléchargés</item>
+    </plurals>
+    <plurals name="hist24_more_download_failed">
+        <item quantity="one">%d autre téléchargement en échec</item>
+        <item quantity="many">%d autres téléchargements en échec</item>
+        <item quantity="other">%d autres téléchargements en échec</item>
+    </plurals>
+    <plurals name="hist24_more_purged">
+        <item quantity="one">%d autre jeu supprimé définitivement</item>
+        <item quantity="many">%d autres jeux supprimés définitivement</item>
+        <item quantity="other">%d autres jeux supprimés définitivement</item>
+    </plurals>
+    <plurals name="hist24_more_other">
+        <item quantity="one">%d autre action</item>
+        <item quantity="many">%d autres actions</item>
+        <item quantity="other">%d autres actions</item>
+    </plurals>
+    <plurals name="hist24_clear_message">
+        <item quantity="one">%d ligne sera retirée de cette liste. Vos jeux, la corbeille et Corbeille et récupération ne sont pas touchés.</item>
+        <item quantity="many">%d lignes seront retirées de cette liste. Vos jeux, la corbeille et Corbeille et récupération ne sont pas touchés.</item>
+        <item quantity="other">%d lignes seront retirées de cette liste. Vos jeux, la corbeille et Corbeille et récupération ne sont pas touchés.</item>
+    </plurals>
+    <plurals name="hist24_p_files">
+        <item quantity="one">%d fichier</item>
+        <item quantity="many">%d fichiers</item>
+        <item quantity="other">%d fichiers</item>
+    </plurals>
+    <plurals name="hist24_p_added">
+        <item quantity="one">%d ajouté</item>
+        <item quantity="many">%d ajoutés</item>
+        <item quantity="other">%d ajoutés</item>
+    </plurals>
+    <plurals name="hist24_p_removed">
+        <item quantity="one">%d retiré</item>
+        <item quantity="many">%d retirés</item>
+        <item quantity="other">%d retirés</item>
+    </plurals>
+    <plurals name="hist24_p_uploaded">
+        <item quantity="one">%d envoyé</item>
+        <item quantity="many">%d envoyés</item>
+        <item quantity="other">%d envoyés</item>
+    </plurals>
+    <plurals name="hist24_p_downloaded">
+        <item quantity="one">%d téléchargé</item>
+        <item quantity="many">%d téléchargés</item>
+        <item quantity="other">%d téléchargés</item>
+    </plurals>
+    <plurals name="hist24_p_deleted_device">
+        <item quantity="one">%d supprimé sur cet appareil</item>
+        <item quantity="many">%d supprimés sur cet appareil</item>
+        <item quantity="other">%d supprimés sur cet appareil</item>
+    </plurals>
+    <plurals name="hist24_p_deleted_server">
+        <item quantity="one">%d supprimé sur le serveur</item>
+        <item quantity="many">%d supprimés sur le serveur</item>
+        <item quantity="other">%d supprimés sur le serveur</item>
+    </plurals>
+    <plurals name="hist24_p_conflicts">
+        <item quantity="one">%d conflit</item>
+        <item quantity="many">%d conflits</item>
+        <item quantity="other">%d conflits</item>
+    </plurals>
+    <plurals name="hist24_p_failed">
+        <item quantity="one">%d en échec</item>
+        <item quantity="many">%d en échec</item>
+        <item quantity="other">%d en échec</item>
+    </plurals>
+    <plurals name="hist24_p_held">
+        <item quantity="one">%d suppression en attente de votre confirmation</item>
+        <item quantity="many">%d suppressions en attente de votre confirmation</item>
+        <item quantity="other">%d suppressions en attente de votre confirmation</item>
+    </plurals>
+    <string name="hist24_clear_failed">Impossible d’effacer l’historique. Réessayez.</string>
+</resources>

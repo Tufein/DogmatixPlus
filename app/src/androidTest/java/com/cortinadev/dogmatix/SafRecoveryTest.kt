@@ -49,7 +49,7 @@ class SafRecoveryTest {
         val original = write(source,"Game.gba","original")
         val save = write(source,"Game.srm","save progress")
         val history = OperationHistoryService(context)
-        val trash = TrashService(context,copier,history,StorageMoveGate())
+        val trash = TrashService(context,copier,history,StorageMoveGate(),ActionLogService(context))
         assertEquals(1,trash.move(listOf(RemovalFile(original.uri.toString(),source.uri.toString(),"Game.gba",8)),"Game"))
         assertFalse(original.exists())
         assertEquals("save progress",StorageHelper.readText(context,save))
@@ -68,5 +68,38 @@ class SafRecoveryTest {
         val hash=copier.hash(original.uri)
         context.contentResolver.openOutputStream(original.uri,"wt")!!.use { it.write("modified".toByteArray()) }
         assertFalse(copier.mayRemove(original.uri,result.uri,hash))
+    }
+
+    @Test fun partialRestoreVerifiesReturnedContentsAndReleasesDownloadGate() = fixture { source, _, copier ->
+        val first = write(source, "First.gba", "first original")
+        val second = write(source, "Second.gba", "second original")
+        val history = OperationHistoryService(context)
+        val gate = StorageMoveGate()
+        val trash = TrashService(context, copier, history, gate, ActionLogService(context))
+        val title = "partial-${UUID.randomUUID()}"
+        trash.move(listOf(
+            RemovalFile(first.uri.toString(), source.uri.toString(), "First.gba", 14),
+            RemovalFile(second.uri.toString(), source.uri.toString(), "Second.gba", 15)
+        ), title)
+        val op = history.entries.value.first { it.title == title }
+        val conflict = write(source, "Second.gba", "different save-safe contents")
+        assertTrue(runCatching { trash.restore(op.id) }.isFailure)
+        assertEquals(1, trash.restoredFiles(op.id))
+        assertEquals("first original", StorageHelper.readText(context, source.findFile("First.gba")!!))
+        assertEquals("different save-safe contents", StorageHelper.readText(context, conflict))
+        assertTrue(gate.moving.value.isEmpty())
+    }
+
+    @Test fun missingTrashCopyDoesNotCountAsARecoveredFile() = fixture { source, _, copier ->
+        val original = write(source, "Missing.gba", "original")
+        val history = OperationHistoryService(context)
+        val trash = TrashService(context, copier, history, StorageMoveGate(), ActionLogService(context))
+        val title = "missing-${UUID.randomUUID()}"
+        trash.move(listOf(RemovalFile(original.uri.toString(), source.uri.toString(), "Missing.gba", 8)), title)
+        val op = history.entries.value.first { it.title == title }
+        assertTrue(DocumentFile.fromSingleUri(context, Uri.parse(op.files.single().target))!!.delete())
+        assertTrue(runCatching { trash.restore(op.id) }.isFailure)
+        assertEquals(0, trash.restoredFiles(op.id))
+        assertNull(source.findFile("Missing.gba"))
     }
 }

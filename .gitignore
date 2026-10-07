@@ -65,3 +65,6 @@ compose.*.yaml
 # Release tooling caches
 __pycache__/
 *.pyc
+
+# Generated Android Studio release exports
+/app/release/

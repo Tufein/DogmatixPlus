@@ -128,19 +128,17 @@ class LibraryIndexService @Inject constructor(
             ?.let { StorageHelper.getFreeBytes(context, it) }
     }
 
-    /**
-     * Delete every file on disk that [isOwned] would match for [file] — only inside the folders
-     * that belong to its console — then refresh the index. Returns true if something was removed.
-     */
     /** Exact files shown before confirmation. Fail closed if any folder cannot be listed. */
-    suspend fun removalPlan(file: DownloadableFileEntity): List<RemovalFile> = withContext(Dispatchers.IO) {
+    suspend fun removalPlan(file: DownloadableFileEntity): List<RemovalFile> = artifactPlan(file, protectShared = true)
+
+    /** Play also needs tracks/discs shared with another descriptor; these are read grants, never a deletion plan. */
+    suspend fun launchPlan(file: DownloadableFileEntity): List<RemovalFile> = artifactPlan(file, protectShared = false)
+
+    private suspend fun artifactPlan(file: DownloadableFileEntity, protectShared: Boolean): List<RemovalFile> = withContext(Dispatchers.IO) {
         val name = FileParsingUtils.decodeUrlEncodedFileName(file.fileName)
         val scopes = LibraryKeys.scopesFor(file.consoleId)
         val result = ArrayList<RemovalFile>()
-        fun walk(dir: DiskDir, path: String, depth: Int) {
-            val entries = DiskScanner.listOrNull(context, dir, true) ?: error("Folder cannot be read completely")
-            val selected = entries.filter { !it.isDirectory && com.cortinadev.dogmatix.util.GameRemoval.matches(it.name, name) }.toMutableList()
-            // Disc/playlist references are included only when local and not used by another descriptor.
+        fun addFiles(dir: DiskDir, entries: List<com.cortinadev.dogmatix.util.DiskEntry>, path: String) {
             fun references(entry: com.cortinadev.dogmatix.util.DiskEntry): List<String> {
                 val ext = entry.name.substringAfterLast('.').lowercase()
                 if (ext !in setOf("cue", "m3u", "gdi")) return emptyList()
@@ -162,42 +160,33 @@ class LibraryIndexService @Inject constructor(
                     else -> com.cortinadev.dogmatix.util.SheetParser.m3uFiles(text)
                 }
             }
-            val others = entries.filter { !it.isDirectory && it !in selected && it.name.substringAfterLast('.').lowercase() in setOf("cue", "m3u", "gdi") }.flatMap(::references).map { it.lowercase() }.toSet()
-            selected.removeAll { it.name.lowercase() in others }
-            val queue = java.util.ArrayDeque(selected)
-            val visited = HashSet<String>()
-            while (queue.isNotEmpty()) {
-                val descriptor = queue.removeFirst()
-                if (!visited.add(descriptor.name)) continue
-                for (reference in references(descriptor)) {
-                    if (!com.cortinadev.dogmatix.util.GameRemoval.safeReference(reference) || reference.lowercase() in others) continue
-                    entries.firstOrNull { !it.isDirectory && it.name.equals(reference, true) }?.let { child ->
-                        if (child !in selected) { selected += child; queue.add(child) }
-                    }
-                }
-            }
-            selected.forEach { entry -> result += RemovalFile(entry.uri.toString(), DiskScanner.uriOf(dir).toString(), entry.name, entry.size, "$path${entry.name}") }
+            val files = entries.filter { !it.isDirectory }.associateBy { it.name }
+            val selected = com.cortinadev.dogmatix.util.GameArtifacts.plan(files.keys.toList(), name, protectShared) { references(files.getValue(it)) }
+            selected.map { files.getValue(it) }.forEach { entry -> result += RemovalFile(entry.uri.toString(), DiskScanner.uriOf(dir).toString(), entry.name, entry.size, "$path${entry.name}") }
+        }
+        fun walk(dir: DiskDir, path: String, depth: Int) {
+            val entries = DiskScanner.listOrNull(context, dir, true) ?: error("Folder cannot be read completely")
+            addFiles(dir, entries, path)
             if (depth < 2) entries.filter { it.isDirectory && !it.name.startsWith(".dogmatix-") }.forEach { walk(DiskScanner.dirOf(dir, it), "$path${it.name}/", depth + 1) }
         }
         val root = settingsRepository.downloadDirectory.first()
         DiskScanner.rootOf(root)?.let { dir ->
             val entries = DiskScanner.listOrNull(context, dir, true) ?: error("Library unavailable")
-            entries.filter { !it.isDirectory && com.cortinadev.dogmatix.util.GameRemoval.matches(it.name, name) }.forEach {
-                result += RemovalFile(it.uri.toString(), DiskScanner.uriOf(dir).toString(), it.name, it.size)
-            }
+            addFiles(dir, entries, "")
             entries.filter { it.isDirectory && LibraryKeys.folderScope(it.name) in scopes }.forEach { walk(DiskScanner.dirOf(dir, it), "${it.name}/", 1) }
         }
         settingsRepository.consoleDownloadDirectories.first()[file.consoleId]?.let { uri -> DiskScanner.rootOf(uri)?.let { walk(it, "", 0) } }
         result.distinctBy { it.uri }
     }
 
-    suspend fun deletePlan(plan: List<RemovalFile>, title: String): Boolean = withContext(Dispatchers.IO) {
-        val removed = trash.move(plan, title)
+    /** [consoleId] and [fileName] (the library row's) only go to the action history. */
+    suspend fun deletePlan(plan: List<RemovalFile>, title: String, consoleId: String? = null, fileName: String? = null): Boolean = withContext(Dispatchers.IO) {
+        val removed = trash.move(plan, title, consoleId, fileName)
         if (removed > 0) requestRefresh()
         removed > 0
     }
 
-    suspend fun deleteOwned(file: DownloadableFileEntity): Boolean = deletePlan(removalPlan(file), file.name)
+    suspend fun deleteOwned(file: DownloadableFileEntity): Boolean = deletePlan(removalPlan(file), file.name, file.consoleId, file.fileName)
 
     private fun collect(dir: DiskDir, scope: String, into: MutableSet<String>, depth: Int) {
         for (child in DiskScanner.list(context, dir)) {

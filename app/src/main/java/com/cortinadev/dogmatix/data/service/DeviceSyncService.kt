@@ -69,7 +69,8 @@ class DeviceSyncService @Inject constructor(
     private val favouriteDao: FavouriteDao,
     private val wishlistDao: WishlistDao,
     private val collectionDao: CollectionDao,
-    private val history: OperationHistoryService
+    private val history: OperationHistoryService,
+    private val actionLog: ActionLogService
 ) {
     /** Why a background sync was asked for. */
     enum class Trigger { START, LOCAL_CHANGE, BACKGROUND, SCHEDULED }
@@ -152,12 +153,14 @@ class DeviceSyncService @Inject constructor(
                     settings.recordSync(System.currentTimeMillis(), outcome.added, outcome.removed, outcome.sent)
                     Log.i(TAG, "Device sync: +${outcome.added} -${outcome.removed}${if (outcome.sent) ", sent" else ""}")
                     history.event("device_sync", "${outcome.added} / ${outcome.removed}")
+                    actionLog.deviceSync(outcome.added, outcome.removed)
                     Result.Synced(outcome.added, outcome.removed, outcome.sent)
                 }
                 is DeviceSyncEngine.Outcome.HeldBack -> {
                     settings.recordSyncHeldBack(outcome.removals)
                     Log.i(TAG, "Device sync held back: ${outcome.removals} removals")
                     history.event("device_sync", outcome.removals.toString(), "conflict")
+                    actionLog.deviceSyncHeld(outcome.removals)
                     Result.HeldBack(outcome.removals)
                 }
                 DeviceSyncEngine.Outcome.NothingToSend -> Result.Skipped
@@ -170,6 +173,7 @@ class DeviceSyncService @Inject constructor(
             if (!(quietTransient && CloudErrors.isTransient(e))) {
                 settings.recordSyncError(now, CloudErrors.encode(e))
                 connection.noteFailure(e)
+                actionLog.cloudFailed(com.cortinadev.dogmatix.util.ActionKind.SYNC_FAILED, com.cortinadev.dogmatix.util.ActionTopic.DEVICE_SYNC, e)
             }
             Result.Failed(e)
         } finally {

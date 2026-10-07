@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hist24_title">Aktionsverlauf</string>
+    <string name="hist24_subtitle">Was Downloads, Entfernungen, Verschiebungen und Synchronisierungen getan haben</string>
+    <string name="hist24_hint">Sieh, was die App für dich getan hat, und hole ein entferntes Spiel zurück oder lade es erneut herunter</string>
+    <string name="hist24_kw">Verlauf, Protokoll, Aktivität, rückgängig, wiederherstellen, entfernt, gelöscht, verschoben, synchronisiert, Sicherung, was passiert ist</string>
+    <string name="hist24_filter_all">Alle</string>
+    <string name="hist24_filter_downloads">Downloads</string>
+    <string name="hist24_filter_trash">Entfernt &amp; wiederhergestellt</string>
+    <string name="hist24_filter_moves">Verschiebungen</string>
+    <string name="hist24_filter_sync">Sync &amp; Sicherung</string>
+    <string name="hist24_filter_games">Gespielt &amp; festgelegt</string>
+    <string name="hist24_kind_downloaded">Heruntergeladen</string>
+    <string name="hist24_kind_download_failed">Download fehlgeschlagen</string>
+    <string name="hist24_kind_removed">In den Papierkorb verschoben</string>
+    <string name="hist24_kind_restored">Aus dem Papierkorb wiederhergestellt</string>
+    <string name="hist24_kind_purged">Endgültig gelöscht</string>
+    <string name="hist24_kind_moved">Verschoben</string>
+    <string name="hist24_kind_move_failed">Verschieben fehlgeschlagen</string>
+    <string name="hist24_kind_synced">Synchronisiert</string>
+    <string name="hist24_kind_sync_failed">Synchronisierung fehlgeschlagen</string>
+    <string name="hist24_kind_backed_up">Sicherung erstellt</string>
+    <string name="hist24_kind_backup_failed">Sicherung fehlgeschlagen</string>
+    <string name="hist24_kind_backup_restored">Sicherung wiederhergestellt</string>
+    <string name="hist24_kind_played">Gespielt</string>
+    <string name="hist24_kind_pinned">Version festgelegt</string>
+    <string name="hist24_kind_unpinned">Festgelegte Version aufgehoben</string>
+    <string name="hist24_kind_other">Aktion</string>
+    <string name="hist24_t_save_sync">Spielstände synchronisieren</string>
+    <string name="hist24_t_device_sync">Gerätesynchronisierung</string>
+    <string name="hist24_t_cloud_backup">WebDAV-Sicherung</string>
+    <string name="hist24_t_library_folder">Download-Ordner</string>
+    <string name="hist24_t_smart_storage">Intelligenter Speicher</string>
+    <string name="hist24_r_user_removed">Von dir entfernt</string>
+    <string name="hist24_r_duplicate">Als Duplikat entfernt</string>
+    <string name="hist24_r_better_version">Durch eine bessere Version ersetzt</string>
+    <string name="hist24_r_free_space">Entfernt, um Platz zu schaffen</string>
+    <string name="hist24_r_offline_collection">Mit einer Offline-Sammlung entfernt</string>
+    <string name="hist24_r_user_purged">Papierkorb von dir geleert</string>
+    <string name="hist24_r_expired">Papierkorb nach Ablauf der Aufbewahrungsfrist automatisch geleert</string>
+    <string name="hist24_r_to_sd">Auf die SD-Karte</string>
+    <string name="hist24_r_to_internal">In den internen Speicher</string>
+    <string name="hist24_r_to_sd_esde">Auf die SD-Karte. ES-DE zeigt noch auf den alten Ordner.</string>
+    <string name="hist24_r_to_internal_esde">In den internen Speicher. ES-DE zeigt noch auf den alten Ordner.</string>
+    <string name="hist24_r_originals_left">Einige Originale konnten nicht entfernt werden. Papierkorb und Wiederherstellung kann das abschließen.</string>
+    <string name="hist24_r_smart_failed">Konnte nicht verschoben werden. Es wurde nichts geändert.</string>
+    <string name="hist24_r_library_failed">Das Verschieben wurde unterbrochen. Papierkorb und Wiederherstellung kann es fortsetzen.</string>
+    <string name="hist24_r_sync_failed">Die Synchronisierung wurde nicht abgeschlossen.</string>
+    <string name="hist24_r_cloud_other">Der Server war nicht erreichbar oder hat die Anfrage abgelehnt.</string>
+    <string name="hist24_restore">Wiederherstellen</string>
+    <string name="hist24_download_again">Erneut herunterladen</string>
+    <string name="hist24_restore_done">%1$s ist wieder da</string>
+    <string name="hist24_requeued">%1$s wartet auf den Download</string>
+    <string name="hist24_restore_partial">Nicht alles von %1$s ist zurück. Der Rest liegt noch im Papierkorb, du kannst es erneut versuchen.</string>
+    <string name="hist24_restore_failed">Wiederherstellen fehlgeschlagen. Papierkorb und Wiederherstellung zeigt, was noch im Papierkorb liegt.</string>
+    <string name="hist24_requeue_failed">Konnte nicht eingereiht werden. Das Spiel ist nicht mehr in deiner Bibliothek.</string>
+    <string name="hist24_clear">Verlauf löschen</string>
+    <string name="hist24_clear_title">Verlauf löschen?</string>
+    <string name="hist24_clear_confirm">Löschen</string>
+    <string name="hist24_empty_title">Noch nichts hier</string>
+    <string name="hist24_empty_message">Downloads, Entfernungen, Verschiebungen, Synchronisierungen und Sicherungen erscheinen hier, sobald sie passieren.</string>
+    <string name="hist24_empty_filter_title">Nichts gefunden</string>
+    <string name="hist24_empty_filter_message">Keine Einträge für diesen Filter oder diese Suche.</string>
+    <string name="hist24_search_hint">Nach Titel suchen</string>
+    <string name="hist24_pad_filter">Filter</string>
+    <plurals name="hist24_more_downloaded">
+        <item quantity="one">%d weiteres Spiel heruntergeladen</item>
+        <item quantity="other">%d weitere Spiele heruntergeladen</item>
+    </plurals>
+    <plurals name="hist24_more_download_failed">
+        <item quantity="one">%d weiterer Download fehlgeschlagen</item>
+        <item quantity="other">%d weitere Downloads fehlgeschlagen</item>
+    </plurals>
+    <plurals name="hist24_more_purged">
+        <item quantity="one">%d weiteres Spiel endgültig gelöscht</item>
+        <item quantity="other">%d weitere Spiele endgültig gelöscht</item>
+    </plurals>
+    <plurals name="hist24_more_other">
+        <item quantity="one">%d weitere Aktion</item>
+        <item quantity="other">%d weitere Aktionen</item>
+    </plurals>
+    <plurals name="hist24_clear_message">
+        <item quantity="one">%d Eintrag wird aus dieser Liste entfernt. Deine Spiele, der Papierkorb und Papierkorb und Wiederherstellung bleiben unberührt.</item>
+        <item quantity="other">%d Einträge werden aus dieser Liste entfernt. Deine Spiele, der Papierkorb und Papierkorb und Wiederherstellung bleiben unberührt.</item>
+    </plurals>
+    <plurals name="hist24_p_files">
+        <item quantity="one">%d Datei</item>
+        <item quantity="other">%d Dateien</item>
+    </plurals>
+    <plurals name="hist24_p_added">
+        <item quantity="one">%d hinzugefügt</item>
+        <item quantity="other">%d hinzugefügt</item>
+    </plurals>
+    <plurals name="hist24_p_removed">
+        <item quantity="one">%d entfernt</item>
+        <item quantity="other">%d entfernt</item>
+    </plurals>
+    <plurals name="hist24_p_uploaded">
+        <item quantity="one">%d hochgeladen</item>
+        <item quantity="other">%d hochgeladen</item>
+    </plurals>
+    <plurals name="hist24_p_downloaded">
+        <item quantity="one">%d heruntergeladen</item>
+        <item quantity="other">%d heruntergeladen</item>
+    </plurals>
+    <plurals name="hist24_p_deleted_device">
+        <item quantity="one">%d auf diesem Gerät gelöscht</item>
+        <item quantity="other">%d auf diesem Gerät gelöscht</item>
+    </plurals>
+    <plurals name="hist24_p_deleted_server">
+        <item quantity="one">%d auf dem Server gelöscht</item>
+        <item quantity="other">%d auf dem Server gelöscht</item>
+    </plurals>
+    <plurals name="hist24_p_conflicts">
+        <item quantity="one">%d Konflikt</item>
+        <item quantity="other">%d Konflikte</item>
+    </plurals>
+    <plurals name="hist24_p_failed">
+        <item quantity="one">%d fehlgeschlagen</item>
+        <item quantity="other">%d fehlgeschlagen</item>
+    </plurals>
+    <plurals name="hist24_p_held">
+        <item quantity="one">%d Löschung wartet auf deine Bestätigung</item>
+        <item quantity="other">%d Löschungen warten auf deine Bestätigung</item>
+    </plurals>
+    <string name="hist24_clear_failed">Der Verlauf konnte nicht gelöscht werden. Versuche es erneut.</string>
+</resources>

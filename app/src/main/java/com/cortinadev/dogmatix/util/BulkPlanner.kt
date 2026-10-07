@@ -61,14 +61,27 @@ object BulkPlanner {
         pickSource: (List<BulkCandidate>) -> BulkCandidate = { it.first() },
         preferredVersion: (BulkCandidate) -> String? = { null }
     ): BulkPlan {
+        val preference = VersionPreferences.of(regionPreference, languages)
+        return plan(candidates, bestOnly, { preference }, freeBytes, pickSource, preferredVersion)
+    }
+
+    /** As above, with the user's version preference per console ([preferenceOf] gets the console id). */
+    fun plan(
+        candidates: List<BulkCandidate>,
+        bestOnly: Boolean,
+        preferenceOf: (String) -> VersionPreference,
+        freeBytes: Long?,
+        pickSource: (List<BulkCandidate>) -> BulkCandidate = { it.first() },
+        preferredVersion: (BulkCandidate) -> String? = { null }
+    ): BulkPlan {
         val owned = candidates.count { it.owned }
         val active = candidates.count { !it.owned && it.downloading }
         val open = candidates.filter { !it.owned && !it.downloading }
             // One row per file: the Downloads list knows a download by its file name.
             .groupBy { it.consoleId to it.fileName }.values.map { if (it.size == 1) it.first() else pickSource(it) }
-        val chosen = if (!bestOnly) open else open.groupBy { it.consoleId to it.titleKey }.values.mapNotNull { group ->
+        val chosen = if (!bestOnly) open else open.groupBy { Triple(it.consoleId, it.titleKey, VersionPreference.partKey(it.fileName)) }.values.mapNotNull { group ->
             if (group.size == 1) group.first() else {
-                val best = VersionPreference.pick(group.map { VersionPicker.Candidate(it.fileName, it.fileName, it.tags, it.size) }, regionPreference, languages, preferredVersion(group.first()))
+                val best = VersionPreference.pick(group.map { VersionPicker.Candidate(it.fileName, it.fileName, it.tags, it.size) }, preferenceOf(group.first().consoleId), preferredVersion(group.first()))
                 group.firstOrNull { it.fileName == best?.id } ?: group.first()
             }
         }
