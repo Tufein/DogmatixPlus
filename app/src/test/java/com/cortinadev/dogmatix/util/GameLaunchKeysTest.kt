@@ -55,6 +55,30 @@ class GameLaunchKeysTest {
         assertNull(resolve("not a value"))
     }
 
+    @Test fun `an explicit flavour survives another install and never switches after an uninstall`() {
+        val standard = H(GameLaunchKeys.catalogue("ppsspp", packageName = "org.ppsspp.ppsspp"), "org.ppsspp.ppsspp")
+        val gold = H(GameLaunchKeys.catalogue("ppsspp", packageName = "org.ppsspp.ppssppgold"), "org.ppsspp.ppssppgold")
+        val both = listOf(gold, standard)
+        assertEquals("catalog:ppsspp@org.ppsspp.ppsspp", standard.key)
+        assertEquals("org.ppsspp.ppsspp", GameLaunchKeys.cataloguePackage(standard.key))
+        assertEquals("ppsspp" to null, GameLaunchKeys.parseCatalogue(standard.key))
+        assertEquals(standard, GameLaunchKeys.resolve(standard.key, both, { it.key }, { it.pkg }))
+        assertNull(GameLaunchKeys.resolve(standard.key, listOf(gold), { it.key }, { it.pkg }))
+        // Earlier catalogue preferences had no flavour and keep their preferred-first behaviour.
+        assertEquals(gold, GameLaunchKeys.resolve("catalog:ppsspp", both, { it.key }, { it.pkg }))
+        // Earlier explicit Android components remain bound to their package.
+        assertEquals(standard, GameLaunchKeys.resolve("org.ppsspp.ppsspp/.PpssppActivity", both, { it.key }, { it.pkg }))
+    }
+
+    @Test fun `legacy core preferences migrate to package keys with the same core`() {
+        val pcsx = H(GameLaunchKeys.catalogue("retroarch", "pcsx_rearmed", "com.retroarch.aarch64"), "com.retroarch.aarch64")
+        val swan = H(GameLaunchKeys.catalogue("retroarch", "swanstation", "com.retroarch.aarch64"), "com.retroarch.aarch64")
+        assertEquals(pcsx, GameLaunchKeys.resolve("catalog:retroarch|pcsx_rearmed", listOf(swan, pcsx), { it.key }, { it.pkg }))
+        assertEquals("retroarch" to "pcsx_rearmed", GameLaunchKeys.parseCatalogue(pcsx.key))
+        assertEquals("com.retroarch.aarch64", GameLaunchKeys.cataloguePackage(pcsx.key))
+        assertNull(GameLaunchKeys.cataloguePackage("catalog:retroarch|pcsx_rearmed"))
+    }
+
     @Test fun `catalogue handlers come first and generic ones are deduplicated by package`() {
         val genericDuck = H("com.github.stenzek.duckstation/x.View", "com.github.stenzek.duckstation")
         val other1 = H("org.other/org.other.A", "org.other")

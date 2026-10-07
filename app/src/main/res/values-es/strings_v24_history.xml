@@ -138,4 +138,5 @@
         <item quantity="many">%d eliminaciones esperan tu confirmación</item>
         <item quantity="other">%d eliminaciones esperan tu confirmación</item>
     </plurals>
+    <string name="hist24_clear_failed">No se pudo borrar el historial. Inténtalo de nuevo.</string>
 </resources>

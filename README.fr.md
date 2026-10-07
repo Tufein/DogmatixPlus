@@ -158,6 +158,10 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ---
 
+### Nouveautés de 2.4.0
+
+Choisissez un émulateur installé par console, comparez les versions avec des préférences de langue, région et révision et recherchez dans les actions. Restaurez les jeux retirés ou téléchargez-les depuis l’historique. Les copies gardent leurs chemins d’origine et occupent de l’espace jusqu’au vidage de la corbeille.
+
 ## Installation
 
 1. Ouvrez la **[page Releases](https://github.com/Tufein/DogmatixPlus/releases)** sur votre téléphone ou votre console portable, ou téléchargez-y le fichier et copiez-le sur l’appareil.

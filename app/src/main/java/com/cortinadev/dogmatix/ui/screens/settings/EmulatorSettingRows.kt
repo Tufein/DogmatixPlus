@@ -144,7 +144,8 @@ private fun currentText(row: ConsoleEmulator): String = when (row.stored) {
     null -> stringResource(R.string.play24_settings_ask)
     GameLaunchKeys.AUTOMATIC -> stringResource(R.string.play24_settings_automatic)
     else -> {
-        val installed = if (GameLaunchKeys.parseCatalogue(row.stored) != null) row.targets.any { it.key == row.stored } else row.storedLabel != null
+        val installed = if (GameLaunchKeys.parseCatalogue(row.stored) != null)
+            GameLaunchKeys.resolve(row.stored, row.targets, { it.key }, { it.packageName }) != null else row.storedLabel != null
         val label = row.storedLabel ?: row.stored
         if (installed) label else stringResource(R.string.play24_settings_not_installed, label)
     }
@@ -165,9 +166,10 @@ private fun ConsoleDialog(row: ConsoleEmulator, onPick: (String?) -> Unit, onDis
                     row.targets.firstOrNull()?.label?.let { stringResource(R.string.play24_settings_automatic_hint, it) },
                     row.stored == GameLaunchKeys.AUTOMATIC
                 ) { onPick(GameLaunchKeys.AUTOMATIC) }
-                row.targets.forEach { target -> OptionRow(target.label, null, row.stored == target.key) { onPick(target.key) } }
+                val resolved = GameLaunchKeys.resolve(row.stored?.takeUnless { it == GameLaunchKeys.AUTOMATIC }, row.targets, { it.key }, { it.packageName })
+                row.targets.forEach { target -> OptionRow(target.label, null, resolved?.key == target.key) { onPick(target.key) } }
                 // An app picked on a game page that the catalogue does not know stays as it is.
-                val other = row.stored?.takeIf { s -> s != GameLaunchKeys.AUTOMATIC && row.targets.none { it.key == s } }
+                val other = row.stored?.takeIf { s -> s != GameLaunchKeys.AUTOMATIC && resolved == null }
                 if (other != null) OptionRow(currentText(row), null, true) { onDismiss() }
             }
         },

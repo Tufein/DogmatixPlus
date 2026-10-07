@@ -1,10 +1,13 @@
 package com.cortinadev.dogmatix.util
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import com.google.gson.JsonParser
 
 class VersionPreferenceTest {
 
@@ -55,5 +58,65 @@ class VersionPreferenceTest {
         assertEquals(b, VersionPreference.pick(listOf(a, b), english, "b"))
         assertEquals(a, VersionPreference.pick(listOf(a, b), english, null))
         assertEquals(a, VersionPreference.pick(listOf(a, b), listOf("USA", "Japan"), setOf("EN"), "gone"))
+    }
+
+    @Test fun `encoded release names share one game key while consoles sequels and discs stay separate`() {
+        assertEquals(VersionPreference.key("gba", "Game (Japan) (Rev 1).gba"),
+            VersionPreference.key("gba", "Game%20%28USA%29%20%28Rev%202%29.gba"))
+        assertNotEquals(VersionPreference.key("gba", "Game.gba"), VersionPreference.key("gba", "Game 2.gba"))
+        assertNotEquals(VersionPreference.key("gba", "Game.gba"), VersionPreference.key("snes", "Game.sfc"))
+        assertEquals(VersionPreference.key("psx", "Game (Disc II).cue"), VersionPreference.key("psx", "Game (Disc 2).chd"))
+        assertNotEquals(VersionPreference.key("psx", "Game (Disc 1).cue"), VersionPreference.key("psx", "Game (Disc 10).cue"))
+        assertNotEquals(VersionPreference.key("psx", "Game (Disc 1).cue"), VersionPreference.key("psx", "Game (Side 1).cue"))
+        assertNotEquals(VersionPreference.key("psx", "Game (Tape 1).cue"), VersionPreference.key("psx", "Game (Tape 2).cue"))
+        assertNotEquals(VersionPreference.key("psx", "Game (Disc 1) (Disc 2).cue"), VersionPreference.key("psx", "Game (Disc 1).cue"))
+    }
+
+    @Test fun `older encoded and disc pins are recovered by the file they actually fixed`() {
+        val encoded = "Game%20%28Japan%29.gba"
+        val side = "Game (Side 1).cue"
+        val pins = VersionPreference.storedPins(mapOf(
+            VersionPreference.legacyKey("gba", encoded) to encoded,
+            VersionPreference.legacyKey("psx", side) to side
+        ))
+        assertEquals(encoded, pins[VersionPreference.key("gba", "Game (USA).gba")])
+        assertEquals(side, pins[VersionPreference.key("psx", side)])
+        assertFalse(pins.containsKey(VersionPreference.key("psx", "Game (Disc 1).cue")))
+        assertFalse(pins.containsKey(VersionPreference.key("gba", "Game 2.gba")))
+    }
+
+    @Test fun `a canonical pin takes precedence over a stale legacy value`() {
+        val old = "Game%20%28Japan%29.gba"
+        val current = "Game (Europe).gba"
+        val key = VersionPreference.key("gba", current)
+        assertEquals(current, VersionPreference.storedPins(mapOf(
+            key to current, VersionPreference.legacyKey("gba", old) to old
+        ))[key])
+        assertTrue(VersionPreference.storedPins(mapOf("gba|another game|" to current)).isEmpty())
+    }
+
+    @Test fun `a fixed source filename remains fixed when another source lists it decoded`() {
+        val usa = VersionPicker.Candidate("Game (USA).gba", "Game (USA).gba")
+        val japan = VersionPicker.Candidate("Game (Japan).gba", "Game (Japan).gba")
+        assertEquals(japan, VersionPreference.pick(listOf(usa, japan), VersionPreferences.defaultFor(setOf("EN"), null, null),
+            "Game%20%28Japan%29.gba"))
+        assertFalse(VersionPreference.matchesPin("Game (Disc 2).cue", "Game%20%28Disc%201%29.cue"))
+    }
+
+    @Test fun `global preference and console overrides survive the existing backup format`() {
+        val preference = VersionPreference(languages = listOf("NL", "EN"), regions = listOf("Europe", "USA"),
+            preferLatestRevision = false, sizeTieBreak = SizeTieBreak.SMALLER)
+        val overrides = mapOf("psx" to ConsoleOverride(languages = listOf("JA")), "gba" to ConsoleOverride(regions = emptyList()))
+        val values = mapOf(VersionPreferences.PINNED_KEY to VersionPreferences.toJson(preference),
+            VersionPreferences.OVERRIDES_KEY to VersionPreferences.overridesToJson(overrides))
+        val restored = values.mapValues { (key, value) ->
+            BackupJson.decodeSetting(key, JsonParser.parseString(BackupJson.encodeSetting(value)!!.toString())) as String
+        }
+        assertEquals(preference, VersionPreferences.fromJson(restored[VersionPreferences.PINNED_KEY]))
+        assertEquals(overrides, VersionPreferences.overridesFromJson(restored[VersionPreferences.OVERRIDES_KEY]))
+        for (key in values.keys) {
+            assertNull(BackupJson.decodeSetting(key, BackupJson.encodeSetting(true)))
+            assertNull(BackupJson.decodeSetting(key, BackupJson.encodeSetting(42)))
+        }
     }
 }

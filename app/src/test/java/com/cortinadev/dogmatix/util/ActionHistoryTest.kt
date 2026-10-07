@@ -92,6 +92,29 @@ class ActionHistoryTest {
         assertEquals(listOf(a, b), ActionLogFile(file).load())
     }
 
+    @Test fun `clear removes private history from a failed rewrite temporary file too`() {
+        val file = File(tmp.root, "log.jsonl")
+        val store = ActionLogFile(file)
+        store.append(entry(ActionKind.PLAYED, "Private game"))
+        val pending = File(tmp.root, "log.jsonl.tmp").apply { writeText(file.readText()) }
+        store.rewrite(emptyList())
+        assertFalse(file.exists())
+        assertFalse(pending.exists())
+    }
+
+    @Test fun `clear refuses to succeed while a temporary history cannot be removed`() {
+        val file = File(tmp.root, "log.jsonl")
+        val store = ActionLogFile(file)
+        store.append(entry(ActionKind.PLAYED, "Private game"))
+        val original = file.readText()
+        val pending = File(tmp.root, "log.jsonl.tmp").apply { mkdirs() }
+        File(pending, "blocked").writeText("keep")
+        var refused = false
+        try { store.rewrite(emptyList()) } catch (_: java.io.IOException) { refused = true }
+        assertTrue(refused)
+        assertEquals(original, file.readText())
+    }
+
     // ---- Filter, search, days -------------------------------------------------------------------
 
     @Test fun `chips filter by kind and words must all match`() {
@@ -151,6 +174,18 @@ class ActionHistoryTest {
         val older = entry(ActionKind.REMOVED, op = "o1", file = "1")
         val newer = entry(ActionKind.REMOVED, op = "o2", file = "2")
         assertEquals(listOf(newer.id, older.id), ActionHistory.undoCandidates(listOf(newer, older)).keys.toList())
+    }
+
+    @Test fun `same filename on different consoles keeps both download again offers`() {
+        val snes = entry(ActionKind.DOWNLOAD_FAILED, console = "snes", file = "Game.zip")
+        val nes = entry(ActionKind.DOWNLOAD_FAILED, console = "nes", file = "Game.zip")
+        assertEquals(setOf(snes.id, nes.id), ActionHistory.undoCandidates(listOf(snes, nes)).keys)
+    }
+
+    @Test fun `download on another console does not hide a failed game offer`() {
+        val failed = entry(ActionKind.DOWNLOAD_FAILED, console = "nes", file = "Game.zip")
+        val downloaded = entry(ActionKind.DOWNLOADED, console = "snes", file = "Game.zip")
+        assertEquals(mapOf(failed.id to UndoAction.DOWNLOAD_AGAIN), ActionHistory.undoCandidates(listOf(downloaded, failed)))
     }
 
     // ---- Download runs --------------------------------------------------------------------------

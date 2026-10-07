@@ -120,7 +120,8 @@ class BestGamesViewModel @Inject constructor(
     private val pendingFilters: PendingLibraryFilters,
     private val settingsRepository: SettingsRepository,
     private val rescan: RescanStateHolder,
-    private val versionSettings: com.cortinadev.dogmatix.data.local.VersionPreferenceSettings
+    private val versionSettings: com.cortinadev.dogmatix.data.local.VersionPreferenceSettings,
+    private val versionPreference: com.cortinadev.dogmatix.data.service.VersionPreferenceService
 ) : ViewModel() {
 
     private data class Loaded(val consoleId: String, val games: List<BestGame>, val players: Map<Int, Int>, val stale: Boolean)
@@ -352,6 +353,7 @@ class BestGamesViewModel @Inject constructor(
      */
     suspend fun planDownload(): BulkPlan {
         val preferences = versionSettings.snapshot()
+        val fixed = versionPreference.snapshot()
         val free = libraryIndex.freeBytes.value
         val m = matched.value ?: return BulkPlanner.plan(emptyList(), true, { preferences.of(it) }, free)
         val gameOfFile = HashMap<String, Int>()
@@ -365,7 +367,8 @@ class BestGamesViewModel @Inject constructor(
                 // The RA game stands in for the cleaned title: versions of one game are picked among.
                 BulkCandidate(row.id, row.consoleId, "ra$game", row.fileName, row.fileSize, tags[row.id].orEmpty(), owned = false, downloading = downloadService.isActive(row.fileName))
             }
-            BulkPlanner.plan(candidates, bestOnly = true, { preferences.of(it) }, free)
+            BulkPlanner.plan(candidates, bestOnly = true, { preferences.of(it) }, free,
+                preferredVersion = { fixed.preferred(it.consoleId, it.fileName) })
         }
     }
 

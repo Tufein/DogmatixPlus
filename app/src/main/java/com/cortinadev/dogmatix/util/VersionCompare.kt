@@ -195,6 +195,18 @@ object VersionCompare {
 
     private val partsComparator = Comparator<List<Int>> { a, b -> compareParts(a, b) }
 
+    /** Revision facts remain available when their scoring rule is switched off. */
+    private fun revisionKeys(parsed: List<Parsed>): Pair<List<List<Int>>, List<List<Int>>> {
+        val versionScheme = parsed.mapNotNull { p -> p.revisionParts?.let { p.revisionIsVersion } }.let { it.isNotEmpty() && it.all { v -> v } }
+        val baseline = if (versionScheme) listOf(1, 0) else listOf(0)
+        val keys = parsed.map { it.revisionParts ?: baseline }
+        val distinct = keys.sortedWith(partsComparator).fold(mutableListOf<List<Int>>()) { acc, k ->
+            if (acc.isEmpty() || compareParts(acc.last(), k) != 0) acc += k
+            acc
+        }
+        return keys to distinct
+    }
+
     /** [versions] best first, each with its score, rank (1 = best) and reasons. Never empty for a non-empty input. */
     fun rank(versions: List<Version>, pref: VersionPreference): List<Ranked> {
         if (versions.isEmpty()) return emptyList()
@@ -203,13 +215,7 @@ object VersionCompare {
         val regionKeys = pref.regions.map { it.trim().lowercase(Locale.ROOT) }
 
         // Revisions are compared inside the group: the untagged release is the baseline.
-        val versionScheme = parsed.mapNotNull { p -> p.revisionParts?.let { p.revisionIsVersion } }.let { it.isNotEmpty() && it.all { v -> v } }
-        val baseline = if (versionScheme) listOf(1, 0) else listOf(0)
-        val keys = parsed.map { it.revisionParts ?: baseline }
-        val distinct = keys.sortedWith(partsComparator).fold(mutableListOf<List<Int>>()) { acc, k ->
-            if (acc.isEmpty() || compareParts(acc.last(), k) != 0) acc += k
-            acc
-        }
+        val (keys, distinct) = revisionKeys(parsed)
         val newest = parsed.indices.firstOrNull { compareParts(keys[it], distinct.last()) == 0 }?.let { parsed[it].facts.revision } ?: ""
         val oldest = parsed.indices.firstOrNull { compareParts(keys[it], distinct.first()) == 0 }?.let { parsed[it].facts.revision } ?: ""
 
@@ -451,7 +457,12 @@ object VersionCompare {
 
     /** Whether [target] belongs to the newest revision among [ranked] (true when there is only one revision). */
     fun isNewestRevision(target: Ranked, ranked: List<Ranked>): Boolean {
-        val r = target.reasons.firstOrNull { it.category == Category.REVISION } ?: return true
-        return r.kind == ReasonKind.REVISION_NEWEST || ranked.none { it.reasons.any { x -> x.kind == ReasonKind.REVISION_NEWEST } }
+        val index = ranked.indexOfFirst { it.version == target.version }
+        if (index < 0) return true
+        val (keys, distinct) = revisionKeys(ranked.map { parse(it.version) })
+        return compareParts(keys[index], distinct.last()) == 0
     }
+
+    /** The pin dialog can offer the revision rule even when that rule currently weighs nothing. */
+    fun hasRevisionChoice(ranked: List<Ranked>): Boolean = revisionKeys(ranked.map { parse(it.version) }).second.size > 1
 }

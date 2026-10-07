@@ -123,4 +123,5 @@
         <item quantity="one">%d removal held back until you confirm</item>
         <item quantity="other">%d removals held back until you confirm</item>
     </plurals>
+    <string name="hist24_clear_failed">The history could not be cleared. Try again.</string>
 </resources>

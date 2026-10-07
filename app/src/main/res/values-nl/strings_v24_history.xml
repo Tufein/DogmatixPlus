@@ -123,4 +123,5 @@
         <item quantity="one">%d verwijdering wacht op je bevestiging</item>
         <item quantity="other">%d verwijderingen wachten op je bevestiging</item>
     </plurals>
+    <string name="hist24_clear_failed">De geschiedenis kon niet worden gewist. Probeer opnieuw.</string>
 </resources>

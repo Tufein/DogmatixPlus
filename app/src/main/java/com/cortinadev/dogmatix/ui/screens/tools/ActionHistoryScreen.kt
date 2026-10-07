@@ -102,7 +102,13 @@ fun ActionHistoryScreen(
 ) {
     val ui by viewModel.ui.collectAsState()
     val context = LocalContext.current
+    val clearFailureMessage = stringResource(R.string.hist24_clear_failed)
     val locale = Locale.getDefault()
+    val restoreDoneTemplate = stringResource(R.string.hist24_restore_done)
+    val requeuedTemplate = stringResource(R.string.hist24_requeued)
+    val restorePartialTemplate = stringResource(R.string.hist24_restore_partial)
+    val restoreFailedMessage = stringResource(R.string.hist24_restore_failed)
+    val requeueFailedMessage = stringResource(R.string.hist24_requeue_failed)
     val timeFormat = remember(locale) { DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale) }
     val dateFormat = remember(locale) { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale) }
     val zone = remember { ZoneId.systemDefault() }
@@ -160,18 +166,23 @@ fun ActionHistoryScreen(
         )
     )
 
-    if (confirmClear) ClearDialog(ui.all, onConfirm = { confirmClear = false; focusedKey = null; viewModel.clear() }, onDismiss = { confirmClear = false })
+    if (confirmClear) ClearDialog(ui.all, onConfirm = {
+        confirmClear = false
+        focusedKey = null
+        viewModel.clear { ToastUtil.showError(context, clearFailureMessage) }
+    }, onDismiss = { confirmClear = false })
 
     fun undo(r: ActionRowUi) {
         val title = r.entry.title
         viewModel.undo(r) { action, result ->
             when (result) {
                 UndoResult.DONE -> ToastUtil.showSuccess(
-                    context, context.getString(if (action == UndoAction.RESTORE) R.string.hist24_restore_done else R.string.hist24_requeued, title)
+                    context,
+                    String.format(locale, if (action == UndoAction.RESTORE) restoreDoneTemplate else requeuedTemplate, title)
                 )
-                UndoResult.PARTIAL -> ToastUtil.showError(context, context.getString(R.string.hist24_restore_partial, title))
+                UndoResult.PARTIAL -> ToastUtil.showError(context, String.format(locale, restorePartialTemplate, title))
                 UndoResult.FAILED -> ToastUtil.showError(
-                    context, context.getString(if (action == UndoAction.RESTORE) R.string.hist24_restore_failed else R.string.hist24_requeue_failed)
+                    context, if (action == UndoAction.RESTORE) restoreFailedMessage else requeueFailedMessage
                 )
             }
         }

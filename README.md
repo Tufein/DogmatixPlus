@@ -158,6 +158,10 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ---
 
+### New in 2.4.0
+
+Choose an installed emulator per console, compare game versions with saved language/region/revision rules, and search the action history. Restore removed games or download them again from history. Recovery copies keep their original paths and consume space until trash is emptied.
+
 ## Install
 
 1. Open the **[Releases page](https://github.com/Tufein/DogmatixPlus/releases)** on your phone or handheld, or download there and copy the file over.

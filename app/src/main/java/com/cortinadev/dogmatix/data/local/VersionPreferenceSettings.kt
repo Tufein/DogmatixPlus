@@ -36,8 +36,8 @@ class VersionPreferenceSettings @Inject constructor(
     settingsRepository: SettingsRepository
 ) {
     private object Keys {
-        val PINNED = stringPreferencesKey("version_pref_pinned")
-        val OVERRIDES = stringPreferencesKey("version_pref_overrides")
+        val PINNED = stringPreferencesKey(VersionPreferences.PINNED_KEY)
+        val OVERRIDES = stringPreferencesKey(VersionPreferences.OVERRIDES_KEY)
     }
 
     /** The pinned preference for all consoles; null = nothing pinned, the default applies. */

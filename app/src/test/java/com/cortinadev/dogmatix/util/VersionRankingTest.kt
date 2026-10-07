@@ -40,4 +40,10 @@ class VersionRankingTest {
         assertEquals(2, r.rows.size)
         assertEquals(1, r.rows.count { it.isPick })
     }
+
+    @Test fun `a decoded filename stays marked as fixed in the displayed ranking`() {
+        val r = of(listOf("G (Japan).gba", "G (USA).gba"), "G%20%28Japan%29.gba")
+        assertEquals("G (Japan).gba", r.pick)
+        assertTrue(r.rows.first().isFixed && r.rows.first().isPick)
+    }
 }

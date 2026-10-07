@@ -62,6 +62,17 @@ class PlayRecipeTest {
         assertEquals("org.ppsspp.ppsspp.PpssppActivity", build("ppsspp", "org.ppsspp.ppsspp").attempts.first().className)
     }
 
+    @Test fun `watermelonds uses its documented uri data contract for standard and nightly`() {
+        listOf("me.magnum.melondualds", "me.magnum.melondualds.nightly").forEach { pkg ->
+            val spec = build("watermelonds", pkg).attempts.first()
+            assertEquals("me.magnum.melonds.ui.emulator.EmulatorActivity", spec.className)
+            assertEquals(PlayRecipe.ACTION_VIEW, spec.action)
+            assertEquals(doc, spec.dataUri)
+            assertEquals(listOf(doc), spec.grantUris)
+            assertTrue(spec.extras.isEmpty())
+        }
+    }
+
     @Test fun `dolphin starts the tv activity with AutoStartFile, then the main one`() {
         val built = build("dolphin", "org.dolphinemu.dolphinemu")
         assertEquals(listOf("org.dolphinemu.dolphinemu.ui.main.TvMainActivity", "org.dolphinemu.dolphinemu.ui.main.MainActivity", null), built.attempts.map { it.className })
@@ -132,6 +143,20 @@ class PlayRecipeTest {
         assertEquals(listOf("Game.m3u", "Game (Disc 1).cue", "Game.chd", "Game.iso", "Game.sfc"), names.sortedBy { PlayRecipe.entryRank(it) })
     }
 
+    @Test fun `cue and gdi start without offering their audio and data tracks as separate games`() {
+        assertEquals(listOf("Game.cue"), PlayRecipe.entryFiles(listOf("Game.cue", "Game.bin", "Track 2.wav", "Game.sub", "Game.sbi")))
+        assertEquals(listOf("Game.gdi"), PlayRecipe.entryFiles(listOf("Game.gdi", "track01.bin", "track02.raw", "track03.bin")))
+        assertEquals(listOf("Game.m3u", "Disc 1.cue"), PlayRecipe.entryFiles(listOf("Disc 1.cue", "Track.wav", "Game.m3u", "Disc 1.bin")))
+    }
+
+    @Test fun `standalone binary and megadrive roms remain playable and extracted files precede an archive`() {
+        assertEquals(listOf("Game.bin"), PlayRecipe.entryFiles(listOf("Game.zip", "Game.bin")))
+        assertEquals(listOf("Game.img"), PlayRecipe.entryFiles(listOf("Game.img")))
+        assertEquals(listOf("Game.md"), PlayRecipe.entryFiles(listOf("Game.md")))
+        assertEquals(listOf("Game.zip"), PlayRecipe.entryFiles(listOf("Game.zip")))
+        assertTrue(PlayRecipe.entryFiles(listOf("Track.wav", "Game.sub", "private.key")).isEmpty())
+    }
+
     @Test fun `relative activity names resolve against the package`() {
         assertEquals("com.dsemu.drastic.DraSticActivity", PlayRecipe.className("com.dsemu.drastic", ".DraSticActivity"))
         assertEquals("org.ppsspp.ppsspp.PpssppActivity", PlayRecipe.className("org.ppsspp.ppssppgold", "org.ppsspp.ppsspp.PpssppActivity"))
@@ -146,5 +171,8 @@ class PlayRecipeTest {
         assertTrue(PlayRecipe.needsExtract(duck, PlaySystem.PS1, "Game.ZIP"))
         assertFalse(PlayRecipe.needsExtract(duck, PlaySystem.PS1, "Game.chd"))
         assertFalse(PlayRecipe.needsExtract(duck, PlaySystem.PS1, "Game.cue"))
+        val pce = EmulatorCatalog.byId("pce_emu")!!
+        assertTrue(PlayRecipe.needsExtract(pce, PlaySystem.PC_ENGINE_CD, "Game.zip"))
+        assertFalse(PlayRecipe.needsExtract(pce, PlaySystem.PC_ENGINE, "Game.zip"))
     }
 }

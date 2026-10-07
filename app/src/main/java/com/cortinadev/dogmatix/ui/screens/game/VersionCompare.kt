@@ -313,7 +313,7 @@ internal fun PreferLikeDialog(
     var clearOverride by remember { mutableStateOf(false) }
     val newest = remember(target, ranked) { VersionCompare.isNewestRevision(target, ranked) }
     // Following the revision rule only changes something when the version is not the newest, or the rule is off now.
-    val ruleDiffers = target.reasons.any { it.category == Category.REVISION } && (!newest || !prefs.global.preferLatestRevision)
+    val ruleDiffers = VersionCompare.hasRevisionChoice(ranked) && (!newest || !prefs.global.preferLatestRevision)
     val hides = remember(target, prefs) { VersionCompare.planPin(target.facts, prefs.global, prefs.override, false, false, newest, false).hiddenByOverride }
     val plan = remember(target, prefs, forConsole, followRule, clearOverride, newest) {
         VersionCompare.planPin(target.facts, prefs.global, prefs.override, forConsole, followRule && !forConsole, newest, clearOverride && !forConsole)

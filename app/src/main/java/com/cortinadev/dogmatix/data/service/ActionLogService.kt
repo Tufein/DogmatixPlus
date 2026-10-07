@@ -45,6 +45,7 @@ class ActionLogService @Inject constructor(
         class Append(val entry: ActionEntry) : Op
         class MarkUndone(val id: String, val done: CompletableDeferred<Unit>) : Op
         class Clear(val done: CompletableDeferred<Unit>) : Op
+        class FindRemoval(val id: String, val done: CompletableDeferred<ActionEntry?>) : Op
     }
 
     private val store = ActionLogFile(File(context.filesDir, "action_log.jsonl"))
@@ -70,23 +71,32 @@ class ActionLogService @Inject constructor(
             for (op in ops) {
                 when (op) {
                     is Op.Append -> {
-                        all = all + op.entry
-                        runCatching { store.append(op.entry) }.onFailure { Log.w(TAG, "Could not write history: ${it.javaClass.simpleName}") }
+                        // Also keep ordering after a restart while the device clock moved back.
+                        val entry = op.entry.copy(at = maxOf(op.entry.at, all.lastOrNull()?.at ?: 0L))
+                        all = all + entry
+                        runCatching { store.append(entry) }.onFailure { Log.w(TAG, "Could not write history: ${it.javaClass.simpleName}") }
                         if (store.lines > ActionLogFormat.COMPACT_AT || all.size > ActionLogFormat.COMPACT_AT) {
                             all = ActionLogFormat.trim(all, System.currentTimeMillis())
                             runCatching { store.rewrite(all) }
                         }
                     }
                     is Op.MarkUndone -> {
-                        all = all.map { if (it.id == op.id) it.copy(undone = true) else it }
-                        runCatching { store.rewrite(all) }
-                        op.done.complete(Unit)
+                        val next = all.map { if (it.id == op.id) it.copy(undone = true) else it }
+                        try {
+                            store.rewrite(next)
+                            all = next
+                            op.done.complete(Unit)
+                        } catch (e: Exception) { op.done.completeExceptionally(e) }
                     }
                     is Op.Clear -> {
-                        all = emptyList()
-                        runCatching { store.rewrite(all) }
-                        op.done.complete(Unit)
+                        // An explicit privacy action only succeeds once the on-disk history is gone.
+                        try {
+                            store.rewrite(emptyList())
+                            all = emptyList()
+                            op.done.complete(Unit)
+                        } catch (e: Exception) { op.done.completeExceptionally(e) }
                     }
+                    is Op.FindRemoval -> op.done.complete(all.lastOrNull { it.opId == op.id && it.kind == ActionKind.REMOVED })
                 }
                 _entries.value = all
             }
@@ -129,15 +139,22 @@ class ActionLogService @Inject constructor(
     /** The way back of line [id] was used: the line stays, its button goes. */
     suspend fun markUndone(id: String) {
         val done = CompletableDeferred<Unit>()
-        ops.trySend(Op.MarkUndone(id, done))
+        ops.trySend(Op.MarkUndone(id, done)).getOrThrow()
         done.await()
     }
 
     /** Empties the history. Games, the trash and the recovery journal are not touched. */
     suspend fun clear() {
         val done = CompletableDeferred<Unit>()
-        ops.trySend(Op.Clear(done))
+        ops.trySend(Op.Clear(done)).getOrThrow()
         done.await()
+    }
+
+    /** Waits for the initial read and previously queued writes, including a just-completed removal. */
+    suspend fun removal(opId: String): ActionEntry? {
+        val done = CompletableDeferred<ActionEntry?>()
+        ops.trySend(Op.FindRemoval(opId, done)).getOrThrow()
+        return done.await()
     }
 
     // ---- Helpers for the features -------------------------------------------------------------

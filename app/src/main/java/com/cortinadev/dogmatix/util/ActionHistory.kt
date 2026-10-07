@@ -82,18 +82,19 @@ object ActionHistory {
         // In the order of the lines, newest first: the caller checks only the newest few.
         val out = LinkedHashMap<String, UndoAction>()
         val closedOps = HashSet<String>()
-        val laterFiles = HashSet<String>()
+        val laterFiles = HashSet<Pair<String?, String>>()
         for (e in newestFirst) {
             val file = e.fileName?.takeIf { it.isNotBlank() }
+            val game = file?.let { e.consoleId to it }
             when (e.kind) {
                 ActionKind.REMOVED -> if (!e.undone && e.opId != null && e.opId !in closedOps) out[e.id] = UndoAction.RESTORE
-                ActionKind.PURGED -> if (!e.undone && file != null && file !in laterFiles) out[e.id] = UndoAction.DOWNLOAD_AGAIN
-                ActionKind.DOWNLOAD_FAILED -> if (!e.undone && file != null && !e.isSummary && file !in laterFiles) out[e.id] = UndoAction.DOWNLOAD_AGAIN
+                ActionKind.PURGED -> if (!e.undone && game != null && game !in laterFiles) out[e.id] = UndoAction.DOWNLOAD_AGAIN
+                ActionKind.DOWNLOAD_FAILED -> if (!e.undone && game != null && !e.isSummary && game !in laterFiles) out[e.id] = UndoAction.DOWNLOAD_AGAIN
                 else -> Unit
             }
             if (e.kind == ActionKind.RESTORED || e.kind == ActionKind.PURGED) e.opId?.let(closedOps::add)
             // Anything newer about this file (downloaded again, removed, offered already) ends older offers.
-            if (file != null && e.kind != ActionKind.PLAYED && e.kind != ActionKind.PINNED && e.kind != ActionKind.UNPINNED) laterFiles += file
+            if (game != null && e.kind != ActionKind.PLAYED && e.kind != ActionKind.PINNED && e.kind != ActionKind.UNPINNED) laterFiles += game
         }
         return out
     }

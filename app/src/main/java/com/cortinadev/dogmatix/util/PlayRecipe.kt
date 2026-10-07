@@ -4,7 +4,8 @@ package com.cortinadev.dogmatix.util
  * What [com.cortinadev.dogmatix.data.service.GameLaunchService] remembers per console, as one
  * string so the values 2.3.0 stored keep working:
  *  - a flattened component (`com.foo/com.foo.Activity`): an app found through `ACTION_VIEW` (2.3.0);
- *  - `catalog:<emulator>` or `catalog:retroarch|<core>`: a catalogue emulator started with its recipe;
+ *  - `catalog:<emulator>@<package>` or `catalog:retroarch@<package>|<core>`: one installed flavour;
+ *    earlier keys without a package still resolve to the first installed flavour;
  *  - [AUTOMATIC]: always the first app offered (the catalogue's preferred emulator).
  * Each console is its own entry, so one unreadable value never affects another. Pure JVM.
  */
@@ -13,16 +14,25 @@ object GameLaunchKeys {
     const val AUTOMATIC = "auto"
     private const val CATALOGUE = "catalog:"
 
-    fun catalogue(emulatorId: String, core: String? = null): String =
-        CATALOGUE + emulatorId + (core?.takeIf { it.isNotBlank() }?.let { "|$it" } ?: "")
+    fun catalogue(emulatorId: String, core: String? = null, packageName: String? = null): String =
+        CATALOGUE + emulatorId + (packageName?.takeIf { it.isNotBlank() }?.let { "@$it" } ?: "") +
+            (core?.takeIf { it.isNotBlank() }?.let { "|$it" } ?: "")
 
     /** The emulator id and RetroArch core of a catalogue key; null for anything else. */
     fun parseCatalogue(key: String?): Pair<String, String?>? {
         val value = key?.trim().orEmpty()
         if (!value.startsWith(CATALOGUE)) return null
         val body = value.removePrefix(CATALOGUE)
-        val id = body.substringBefore('|').trim().ifEmpty { return null }
+        val head = body.substringBefore('|').trim()
+        val id = head.substringBefore('@').trim().ifEmpty { return null }
+        if ('@' in head && head.substringAfter('@').isBlank()) return null
         return id to body.substringAfter('|', "").trim().ifEmpty { null }
+    }
+
+    /** A chosen installed flavour; absent in earlier catalogue preferences. */
+    fun cataloguePackage(key: String?): String? {
+        if (parseCatalogue(key) == null) return null
+        return key?.trim()?.removePrefix(CATALOGUE)?.substringBefore('|')?.substringAfter('@', "")?.trim()?.ifEmpty { null }
     }
 
     /** The package of a stored component (`pkg/cls`), or null when [key] is not one. */
@@ -43,6 +53,11 @@ object GameLaunchKeys {
         if (value.isEmpty()) return null
         if (value == AUTOMATIC) return handlers.firstOrNull()
         handlers.firstOrNull { keyOf(it) == value }?.let { return it }
+        parseCatalogue(value)?.let { target ->
+            // New explicit flavour choices never silently switch to a different package.
+            if (cataloguePackage(value) != null) return null
+            return handlers.firstOrNull { parseCatalogue(keyOf(it)) == target }
+        }
         val pkg = componentPackage(value) ?: return null
         return handlers.firstOrNull { packageOf(it) == pkg }
     }
@@ -109,12 +124,22 @@ object PlayRecipe {
     val archiveExtensions = setOf("zip", "7z", "rar", "gz", "tar")
 
     /** Extensions in the order they are the better entry of a game: playlist, sheets, then images. */
-    private val entryPriority = listOf("m3u", "cue", "gdi", "chd", "cso", "ciso", "iso", "pbp", "rvz", "wbfs", "gcz", "nsp", "xci", "3ds", "cia", "cci", "cxi")
+    private val entryPriority = listOf("m3u", "cue", "gdi", "ccd", "mds", "toc", "chd", "cso", "ciso", "iso", "pbp", "rvz", "wbfs", "gcz", "nsp", "xci", "3ds", "cia", "cci", "cxi")
 
     private fun ext(name: String) = name.substringAfterLast('.', "").lowercase()
 
     /** Sort key of a game file: a playlist before a cue sheet before a disc image; anything else after, in its order. */
     fun entryRank(name: String): Int = entryPriority.indexOf(ext(name)).let { if (it < 0) entryPriority.size else it }
+
+    /** Entry files in one folder; audio/subchannel tracks are granted as dependencies, never launched alone. */
+    fun entryFiles(names: List<String>): List<String> {
+        val sidecars = setOf("wav", "mp3", "ogg", "flac", "ape", "raw", "sub", "sbi")
+        val sheets = setOf("m3u", "cue", "gdi", "ccd", "mds", "toc")
+        val candidates = names.filter { GameArtifacts.safeLaunchReference(it) && ext(it) !in sidecars }
+        val hasSheet = candidates.any { ext(it) in sheets }
+        val unarchived = candidates.filter { ext(it) !in archiveExtensions && (!hasSheet || ext(it) !in setOf("bin", "img", "mdf")) }
+        return unarchived.ifEmpty { candidates }.sortedBy(::entryRank)
+    }
 
     /** Where a RetroArch package keeps its cores (private to the app; ES-DE's `%INTERNALDATA%/<pkg>/cores`). */
     fun corePath(packageName: String, core: String): String = "/data/data/$packageName/cores/${core}_libretro_android.so"

@@ -48,7 +48,7 @@ class EmulatorCatalogTest {
             "sony_psp" to PlaySystem.PSP, "sony_playstation_portable" to PlaySystem.PSP, "psx" to PlaySystem.PS1,
             "sega_genesis" to PlaySystem.GENESIS, "genesis" to PlaySystem.GENESIS, "sega_master_system" to PlaySystem.MASTER_SYSTEM,
             "sega_game_gear" to PlaySystem.GAME_GEAR, "sega_cd" to PlaySystem.SEGA_CD, "sega_saturn" to PlaySystem.SATURN,
-            "sega_dreamcast" to PlaySystem.DREAMCAST, "nec_pc_engine_cd" to PlaySystem.PC_ENGINE,
+            "sega_dreamcast" to PlaySystem.DREAMCAST, "nec_pc_engine_cd" to PlaySystem.PC_ENGINE_CD,
             "snk_neo_geo" to PlaySystem.NEO_GEO, "snk_neo_geo_cd" to PlaySystem.NEO_GEO_CD, "snk_neo_geo_pocket" to PlaySystem.NEO_GEO_POCKET,
             "atari_2600" to PlaySystem.ATARI_2600, "atari_lynx" to PlaySystem.ATARI_LYNX, "arcade" to PlaySystem.ARCADE
         )
@@ -86,8 +86,8 @@ class EmulatorCatalogTest {
         assertEquals("duckstation", targets.first().emulatorId)
         val ra = targets.filter { it.emulatorId == "retroarch" }
         assertEquals(PlaySystem.PS1.cores, ra.map { it.core })
-        assertEquals("RetroArch (PCSX ReARMed)", ra.first().label)
-        assertEquals("catalog:retroarch|pcsx_rearmed", ra.first().key)
+        assertEquals("RetroArch (Standard) (PCSX ReARMed)", ra.first().label)
+        assertEquals("catalog:retroarch@com.retroarch|pcsx_rearmed", ra.first().key)
         assertTrue(EmulatorCatalog.targetsFor(PlaySystem.PS1, emptySet()).isEmpty())
     }
 
@@ -96,6 +96,23 @@ class EmulatorCatalogTest {
         assertEquals("com.retroarch.aarch64", EmulatorCatalog.installedVariant(ra, setOf("com.retroarch", "com.retroarch.aarch64"))?.packageName)
         assertEquals("com.retroarch", EmulatorCatalog.installedVariant(ra, setOf("com.retroarch"))?.packageName)
         assertNull(EmulatorCatalog.installedVariant(ra, setOf("org.ppsspp.ppsspp")))
+    }
+
+    @Test fun `every installed flavour is selectable with a distinct stable key`() {
+        val targets = EmulatorCatalog.targetsFor(PlaySystem.PSP, setOf("org.ppsspp.ppssppgold", "org.ppsspp.ppsspp", "com.retroarch", "com.retroarch.ra32"))
+        val ppsspp = targets.filter { it.emulatorId == "ppsspp" }
+        assertEquals(listOf("org.ppsspp.ppssppgold", "org.ppsspp.ppsspp"), ppsspp.map { it.packageName })
+        assertEquals(listOf("PPSSPP (Gold)", "PPSSPP (Standard)"), ppsspp.map { it.label })
+        assertEquals(targets.size, targets.map { it.key }.toSet().size)
+        assertEquals(setOf("com.retroarch", "com.retroarch.ra32"), targets.filter { it.emulatorId == "retroarch" }.map { it.packageName }.toSet())
+    }
+
+    @Test fun `pc engine cd ids stay distinct from cartridge systems`() {
+        listOf("pc_engine_cd", "pcenginecd", "NEC PC Engine CD", "turbografx_cd", "tg-cd", "pcecd", "nec_turbografx_16_cd").forEach {
+            assertEquals(it, PlaySystem.PC_ENGINE_CD, EmulatorCatalog.systemOf(it))
+        }
+        assertEquals(PlaySystem.PC_ENGINE, EmulatorCatalog.systemOf("nec_pc_engine"))
+        assertTrue(PlaySystem.PC_ENGINE_CD.disc)
     }
 
     @Test fun `core labels are readable`() {

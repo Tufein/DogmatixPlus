@@ -36,8 +36,40 @@ data class VersionPreference(
     companion object {
         /** Include the disc identifier: fixing disc 1 must never redirect disc 2 to it. */
         fun key(consoleId: String, name: String): String {
+            val readable = VersionPicker.readable(name)
+            return consoleId + "|" + GameTitleCleaner.words(readable).sorted().joinToString(" ") + "|" + partKey(name)
+        }
+
+        /** The structural disc / side / tape identity, shared with grouping automatic downloads. */
+        fun partKey(name: String): String {
+            val readable = VersionPicker.readable(name)
+            val parts = DuplicateFinder.titleKey(readable).substringAfter('#', "")
+            // Keep the key of ordinary numbered discs installed by earlier versions. Other parts
+            // retain their kind: Side 1 must not share a preference with Disc 1 or Tape 1.
+            return if (Regex("d[0-9]+").matches(parts)) parts.drop(1) else parts
+        }
+
+        /** Read old pins by the file they actually fixed, never by a now-ambiguous old disc key. */
+        internal fun legacyKey(consoleId: String, name: String): String {
             val disc = Regex("(?i)\\b(?:disc|disk|cd|side)\\s*([0-9a-z]+)").find(name)?.groupValues?.get(1)?.lowercase().orEmpty()
             return consoleId + "|" + GameTitleCleaner.words(name).sorted().joinToString(" ") + "|" + disc
+        }
+
+        /** Canonical keys for stored per-game pins, including the URL-encoded keys of older builds. */
+        fun storedPins(values: Map<String, String>): Map<String, String> {
+            val out = LinkedHashMap<String, String>()
+            val current = ArrayList<Pair<String, String>>()
+            for ((storedKey, fileName) in values) {
+                val console = storedKey.substringBefore('|')
+                if (console.isBlank()) continue
+                val canonical = key(console, fileName)
+                when (storedKey) {
+                    canonical -> current += canonical to fileName
+                    legacyKey(console, fileName) -> out[canonical] = fileName
+                }
+            }
+            current.forEach { (key, fileName) -> out[key] = fileName }
+            return out
         }
 
         /** The fixed version [preferred] when it is among [candidates], else the best by [regions] and [languages]. */
@@ -46,7 +78,11 @@ data class VersionPreference(
 
         /** The fixed version [preferred] when it is among [candidates], else the best by [preference]. */
         fun pick(candidates: List<VersionPicker.Candidate>, preference: VersionPreference, preferred: String?): VersionPicker.Candidate? =
-            candidates.firstOrNull { it.id == preferred } ?: VersionPicker.best(candidates, preference)
+            candidates.firstOrNull { it.id == preferred } ?: candidates.firstOrNull { matchesPin(it.id, preferred) } ?: VersionPicker.best(candidates, preference)
+
+        /** Sources may list the very same file either as a plain or a URL-encoded name. */
+        fun matchesPin(id: String, preferred: String?): Boolean = preferred != null &&
+            (id == preferred || VersionPicker.readable(id) == VersionPicker.readable(preferred))
     }
 }
 
@@ -57,6 +93,9 @@ data class ConsoleOverride(val regions: List<String>? = null, val languages: Lis
 
 /** Defaults, wording, list editing and the stored form of a [VersionPreference]. */
 object VersionPreferences {
+
+    const val PINNED_KEY = "version_pref_pinned"
+    const val OVERRIDES_KEY = "version_pref_overrides"
 
     val DEFAULT_REGIONS = listOf("World", "Europe", "USA", "Japan", "Australia", "Asia", "Korea", "Brazil")
 

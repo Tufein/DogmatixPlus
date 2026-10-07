@@ -204,6 +204,8 @@ class ActionLogFile(private val file: File) {
     /** Replaces the whole file with [entries] (oldest first), atomically. */
     fun rewrite(entries: List<ActionEntry>) {
         if (entries.isEmpty()) {
+            // A failed atomic rename may have left a full copy of the private history here.
+            if (tmp.exists() && !tmp.delete()) throw IOException("Temporary history could not be cleared")
             if (file.exists() && !file.delete()) throw IOException("History could not be cleared")
             lines = 0
             return

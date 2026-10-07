@@ -138,4 +138,5 @@
         <item quantity="many">%d eliminazioni attendono la tua conferma</item>
         <item quantity="other">%d eliminazioni attendono la tua conferma</item>
     </plurals>
+    <string name="hist24_clear_failed">Impossibile cancellare la cronologia. Riprova.</string>
 </resources>

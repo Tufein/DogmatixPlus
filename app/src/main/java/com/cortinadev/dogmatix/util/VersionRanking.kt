@@ -33,7 +33,8 @@ class VersionRanking<T> private constructor(
             val ranked = VersionPicker.rank(candidates, preference)
             val picked = if (items.size > 1) VersionPreference.pick(candidates, preference, fixed) else null
             val pickIndex = picked?.let { p -> candidates.indexOfFirst { it === p } } ?: -1
-            val fixedIndex = candidates.indexOfFirst { it.id == fixed }
+            val fixedIndex = candidates.indexOfFirst { it.id == fixed }.takeIf { it >= 0 }
+                ?: candidates.indexOfFirst { VersionPreference.matchesPin(it.id, fixed) }
             val details = ranked.map { it.detail }
             val explanation = VersionCompare.explainBest(details)
             val whyNot = explanation?.whyNot.orEmpty().associateBy { it.version.version.id }

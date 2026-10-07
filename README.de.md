@@ -158,6 +158,10 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ---
 
+### Neu in 2.4.0
+
+Wähle einen installierten Emulator pro Konsole, vergleiche Spielversionen mit gespeicherten Sprach-, Regions- und Revisionseinstellungen und durchsuche den Aktionsverlauf. Stelle entfernte Spiele wieder her oder lade sie aus dem Verlauf erneut. Wiederherstellungskopien behalten ihre ursprünglichen Pfade und belegen Speicher bis zum Leeren des Papierkorbs.
+
 ## Installation
 
 1. Öffne die **[Releases-Seite](https://github.com/Tufein/DogmatixPlus/releases)** auf deinem Handy oder Handheld, oder lade die Datei dort herunter und kopiere sie auf dein Gerät.

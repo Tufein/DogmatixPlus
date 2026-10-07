@@ -106,6 +106,7 @@ import com.cortinadev.dogmatix.util.GamePageModel.Tab
 import com.cortinadev.dogmatix.util.TagClassifier
 import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.VersionPreferences
+import java.util.Locale
 import kotlinx.coroutines.launch
 
 /**
@@ -659,6 +660,7 @@ private fun Versions(
     val ranking by viewModel.versionRanking.collectAsState()
     val prefs by viewModel.versionPrefs.collectAsState()
     val context = LocalContext.current
+    val preferDoneTemplate = stringResource(R.string.compare24_prefer_done)
     val scope = rememberCoroutineScope()
     val scheme = MaterialTheme.colorScheme
     val current = state.item.file.fileName
@@ -732,7 +734,10 @@ private fun Versions(
                 preferTarget = null
                 scope.launch {
                     val now = viewModel.preferLike(target, r.ranked, forConsole, followRevision, clearOverride) ?: return@launch
-                    ToastUtil.showSuccess(context, context.getString(R.string.compare24_prefer_done, VersionPreferences.summary(now)))
+                    ToastUtil.showSuccess(
+                        context,
+                        String.format(Locale.getDefault(), preferDoneTemplate, VersionPreferences.summary(now))
+                    )
                 }
             }
         )

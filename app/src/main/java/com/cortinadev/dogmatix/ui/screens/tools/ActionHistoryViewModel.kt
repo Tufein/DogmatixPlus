@@ -13,6 +13,7 @@ import com.cortinadev.dogmatix.util.ActionHistory
 import com.cortinadev.dogmatix.util.UndoAction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -101,7 +102,13 @@ class ActionHistoryViewModel @Inject constructor(
         }
     }
 
-    fun clear() { viewModelScope.launch { log.clear() } }
+    fun clear(onFailure: () -> Unit = {}) {
+        viewModelScope.launch {
+            try { log.clear() }
+            catch (e: CancellationException) { throw e }
+            catch (_: Exception) { onFailure() }
+        }
+    }
 
     val ui: StateFlow<ActionHistoryUi> = combine(log.entries, filter, query, available, busy) { lines, f, q, undo, busyKey ->
         if (lines == null) return@combine ActionHistoryUi(loading = true, filter = f, query = q)

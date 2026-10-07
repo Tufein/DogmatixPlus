@@ -52,7 +52,8 @@ enum class PlaySystem(
     SEGA_32X("32X", listOf("sega_32x", "32x"), listOf("picodrive")),
     SATURN("Saturn", listOf("saturn", "sega_saturn"), listOf("mednafen_saturn", "yabasanshiro", "yabause"), disc = true),
     DREAMCAST("Dreamcast", listOf("dreamcast", "sega_dreamcast", "dc"), listOf("flycast"), disc = true),
-    PC_ENGINE("PC Engine", listOf("pc_engine", "pcengine", "turbografx_16", "turbografx16", "turbografx", "pc_engine_cd", "turbografx_cd", "supergrafx", "pce", "tg16"), listOf("mednafen_pce_fast", "mednafen_pce", "mednafen_supergrafx")),
+    PC_ENGINE("PC Engine", listOf("pc_engine", "pcengine", "turbografx_16", "turbografx16", "turbografx", "supergrafx", "pce", "tg16"), listOf("mednafen_pce_fast", "mednafen_pce", "mednafen_supergrafx")),
+    PC_ENGINE_CD("PC Engine CD", listOf("pc_engine_cd", "pcenginecd", "turbografx_cd", "turbografxcd", "turbografx_16_cd", "tg_cd", "tg16cd", "pce_cd", "pcecd"), listOf("mednafen_pce", "mednafen_pce_fast", "mednafen_supergrafx"), disc = true),
     NEO_GEO("Neo Geo", listOf("neo_geo", "neogeo", "neo_geo_aes", "neo_geo_mvs"), listOf("fbneo")),
     NEO_GEO_CD("Neo Geo CD", listOf("neo_geo_cd", "neogeocd"), listOf("neocd"), disc = true),
     ARCADE("Arcade", listOf("arcade", "mame", "fbneo", "fba", "cps1", "cps2", "cps3"), listOf("fbneo", "mame2003_plus", "mamearcade")),
@@ -112,7 +113,7 @@ data class LaunchTemplate(
  * activity starting with `.` is relative to the package (as in ES-DE's find rules). No activities =
  * only the generic `ACTION_VIEW` to the package.
  */
-data class Variant(val packageName: String, val activities: List<String> = emptyList())
+data class Variant(val packageName: String, val activities: List<String> = emptyList(), val label: String? = null)
 
 /**
  * A known Android emulator.
@@ -142,7 +143,7 @@ data class PlayTarget(
     val core: String? = null
 ) {
     /** What [GameLaunchKeys] stores for this target. */
-    val key: String get() = GameLaunchKeys.catalogue(emulatorId, core)
+    val key: String get() = GameLaunchKeys.catalogue(emulatorId, core, packageName)
 }
 
 /** The catalogue of well-known Android emulators and the rules that map a console to them. */
@@ -200,8 +201,8 @@ object EmulatorCatalog {
         Emulator(
             "ppsspp", "PPSSPP",
             listOf(
-                Variant("org.ppsspp.ppssppgold", listOf("org.ppsspp.ppsspp.PpssppActivity")),
-                Variant("org.ppsspp.ppsspp", listOf(".PpssppActivity"))
+                Variant("org.ppsspp.ppssppgold", listOf("org.ppsspp.ppsspp.PpssppActivity"), "Gold"),
+                Variant("org.ppsspp.ppsspp", listOf(".PpssppActivity"), "Standard")
             ),
             setOf(PlaySystem.PSP),
             viewSaf(category = listOf("android.intent.category.DEFAULT")),
@@ -218,8 +219,8 @@ object EmulatorCatalog {
         Emulator(
             "dolphin_mmjr", "Dolphin MMJR",
             listOf(
-                Variant("org.mm.jr", listOf("org.dolphinemu.dolphinemu.ui.main.MainActivity")),
-                Variant("org.dolphinemu.mmjr", listOf("org.dolphinemu.dolphinemu.ui.main.MainActivity"))
+                Variant("org.mm.jr", listOf("org.dolphinemu.dolphinemu.ui.main.MainActivity"), "MMJR"),
+                Variant("org.dolphinemu.mmjr", listOf("org.dolphinemu.dolphinemu.ui.main.MainActivity"), "MMJR2")
             ),
             setOf(PlaySystem.GAMECUBE, PlaySystem.WII),
             LaunchTemplate("$NS.VIEW", extras = listOf(ExtraSpec("AutoStartFile", ExtraValue.Of(Slot.SAF_URI)))),
@@ -260,9 +261,13 @@ object EmulatorCatalog {
             Confidence.SURE, archives = setOf("zip", "7z")
         ),
         Emulator(
-            "watermelonds", "WatermelonDS", listOf(Variant("me.magnum.melondualds", listOf("me.magnum.melonds.ui.emulator.EmulatorActivity"))), setOf(PlaySystem.NDS),
-            LaunchTemplate("me.magnum.melonds.LAUNCH_ROM", extras = listOf(ExtraSpec("uri", ExtraValue.Of(Slot.SAF_URI)))),
-            Confidence.SURE, archives = setOf("zip", "7z")
+            "watermelonds", "WatermelonDS",
+            listOf(
+                Variant("me.magnum.melondualds", listOf("me.magnum.melonds.ui.emulator.EmulatorActivity"), "Standard"),
+                Variant("me.magnum.melondualds.nightly", listOf("me.magnum.melonds.ui.emulator.EmulatorActivity"), "Nightly")
+            ), setOf(PlaySystem.NDS),
+            // The project's frontend documentation prefers intent data over the deprecated uri extra.
+            viewSaf(), Confidence.LIKELY, archives = setOf("zip", "7z")
         ),
         Emulator(
             "drastic", "DraStic", listOf(Variant("com.dsemu.drastic", listOf(".DraSticActivity"))), setOf(PlaySystem.NDS),
@@ -369,7 +374,7 @@ object EmulatorCatalog {
         explus("nes_emu", "NES.emu", "com.explusalpha.NesEmu", PlaySystem.NES),
         explus("gba_emu", "GBA.emu", "com.explusalpha.GbaEmu", PlaySystem.GBA),
         explus("gbc_emu", "GBC.emu", "com.explusalpha.GbcEmu", PlaySystem.GB, PlaySystem.GBC),
-        explus("pce_emu", "PCE.emu", "com.PceEmu", PlaySystem.PC_ENGINE),
+        explus("pce_emu", "PCE.emu", "com.PceEmu", PlaySystem.PC_ENGINE, PlaySystem.PC_ENGINE_CD),
         explus("neo_emu", "NEO.emu", "com.explusalpha.NeoEmu", PlaySystem.NEO_GEO),
         explus("ngp_emu", "NGP.emu", "com.explusalpha.NgpEmu", PlaySystem.NEO_GEO_POCKET),
         explus("lynx_emu", "Lynx.emu", "com.explusalpha.LynxEmu", PlaySystem.ATARI_LYNX),
@@ -379,9 +384,9 @@ object EmulatorCatalog {
         Emulator(
             "retroarch", "RetroArch",
             listOf(
-                Variant("com.retroarch.aarch64", listOf(RA_ACTIVITY)),
-                Variant("com.retroarch.ra32", listOf(RA_ACTIVITY)),
-                Variant("com.retroarch", listOf(RA_ACTIVITY))
+                Variant("com.retroarch.aarch64", listOf(RA_ACTIVITY), "64-bit"),
+                Variant("com.retroarch.ra32", listOf(RA_ACTIVITY), "32-bit"),
+                Variant("com.retroarch", listOf(RA_ACTIVITY), "Standard")
             ),
             withCores,
             LaunchTemplate(
@@ -462,14 +467,21 @@ object EmulatorCatalog {
     )
 
     /**
-     * The targets Play can offer for [system] with the packages in [installed]: one per installed
-     * emulator, RetroArch once per core of the system (best core first). The order is the catalogue's.
+     * The targets Play can offer for [system] with the packages in [installed]: every installed
+     * flavour, RetroArch once per core and package. Explicit picks keep their package when another
+     * flavour is installed later. The order is the catalogue's, preferred flavour/core first.
      */
     fun targetsFor(system: PlaySystem, installed: Set<String>): List<PlayTarget> = emulatorsFor(system).flatMap { e ->
-        val variant = installedVariant(e, installed) ?: return@flatMap emptyList()
-        if (e.libretro) system.cores.map { core -> PlayTarget(e.id, "${e.label} (${coreLabel(core)})", variant.packageName, core) }
-        else listOf(PlayTarget(e.id, e.label, variant.packageName))
+        e.variants.filter { it.packageName in installed }.flatMap { variant ->
+            val label = variantLabel(e, variant)
+            if (e.libretro) system.cores.map { core -> PlayTarget(e.id, "$label (${coreLabel(core)})", variant.packageName, core) }
+            else listOf(PlayTarget(e.id, label, variant.packageName))
+        }
     }
+
+    /** Stable, distinct labels when an emulator has multiple installable flavours. */
+    fun variantLabel(emulator: Emulator, variant: Variant): String =
+        if (emulator.variants.size == 1) emulator.label else "${emulator.label} (${variant.label ?: variant.packageName})"
 
     /** The manifest snippet that makes every catalogue package visible to the app (Android 11+ package visibility). */
     fun queriesXml(): String = buildString {

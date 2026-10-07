@@ -123,4 +123,5 @@
         <item quantity="one">%d Löschung wartet auf deine Bestätigung</item>
         <item quantity="other">%d Löschungen warten auf deine Bestätigung</item>
     </plurals>
+    <string name="hist24_clear_failed">Der Verlauf konnte nicht gelöscht werden. Versuche es erneut.</string>
 </resources>

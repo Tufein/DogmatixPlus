@@ -1,7 +1,6 @@
 package com.cortinadev.dogmatix.data.service
 
 import android.content.ActivityNotFoundException
-import android.content.ClipData
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -17,12 +16,10 @@ import com.cortinadev.dogmatix.util.DiskScanner
 import com.cortinadev.dogmatix.util.EmulatorCatalog
 import com.cortinadev.dogmatix.util.FileRef
 import com.cortinadev.dogmatix.util.GameLaunchKeys
-import com.cortinadev.dogmatix.util.GameRemoval
-import com.cortinadev.dogmatix.util.IntentSpec
+import com.cortinadev.dogmatix.util.GameArtifacts
 import com.cortinadev.dogmatix.util.PlayRecipe
 import com.cortinadev.dogmatix.util.PlaySystem
 import com.cortinadev.dogmatix.util.PlayTarget
-import com.cortinadev.dogmatix.util.SpecExtra
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -85,19 +82,12 @@ class GameLaunchService @Inject constructor(
 ) {
     private val preferences = context.getSharedPreferences("game_launchers", Context.MODE_PRIVATE)
 
-    /** The plain `ACTION_VIEW` of 2.3.0, now granting the game's other files as well. */
-    private fun intent(uri: String, siblings: List<String> = emptyList()) =
-        Intent(Intent.ACTION_VIEW).setDataAndType(Uri.parse(uri), "application/octet-stream")
-            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION).apply { clipData = clipOf((listOf(uri) + siblings).distinct()) }
-
-    private fun clipOf(uris: List<String>): ClipData =
-        ClipData.newRawUri("Game", Uri.parse(uris.first())).also { clip -> uris.drop(1).forEach { clip.addItem(ClipData.Item(Uri.parse(it))) } }
-
     suspend fun choices(file: DownloadableFileEntity): List<GameLaunch> = withContext(Dispatchers.IO) {
-        val artifacts = library.removalPlan(file).filter { GameRemoval.safeReference(it.name) }
-        val playable = artifacts.filter { it.name.substringAfterLast('.').lowercase() !in setOf("zip", "7z", "rar", "bin", "img") }
-            .ifEmpty { artifacts }
-            .sortedBy { PlayRecipe.entryRank(it.name) }
+        val artifacts = library.launchPlan(file).filter { GameArtifacts.safeLaunchReference(it.name) }
+        val playable = artifacts.groupBy { it.parent }.values.flatMap { folder ->
+            val entries = PlayRecipe.entryFiles(folder.map { it.name }).toSet()
+            folder.filter { it.name in entries }
+        }.sortedBy { PlayRecipe.entryRank(it.name) }
         val system = EmulatorCatalog.systemOf(file.consoleId)
         val targets = system?.let { EmulatorCatalog.targetsFor(it, installedPackages()) }.orEmpty()
         val root = externalRoot()
@@ -114,7 +104,7 @@ class GameLaunchService @Inject constructor(
                 GameHandler(target.key, target.label, target.packageName, target.emulatorId, target.core)
             }
             @Suppress("DEPRECATION")
-            val activities = context.packageManager.queryIntentActivities(intent(artifact.uri), PackageManager.MATCH_DEFAULT_ONLY)
+            val activities = context.packageManager.queryIntentActivities(GameLaunchIntents.view(artifact.uri, artifact.name), PackageManager.MATCH_DEFAULT_ONLY)
             val generic = activities.filter { it.activityInfo.packageName != context.packageName }.map {
                 GameHandler(ComponentName(it.activityInfo.packageName, it.activityInfo.name).flattenToString(), it.loadLabel(context.packageManager).toString(), it.activityInfo.packageName)
             }
@@ -145,7 +135,10 @@ class GameLaunchService @Inject constructor(
     fun labelOf(stored: String?): String? {
         GameLaunchKeys.parseCatalogue(stored)?.let { (id, core) ->
             val emulator = EmulatorCatalog.byId(id) ?: return null
-            return if (core != null) "${emulator.label} (${EmulatorCatalog.coreLabel(core)})" else emulator.label
+            val packageName = GameLaunchKeys.cataloguePackage(stored)
+            val variant = emulator.variants.firstOrNull { it.packageName == packageName }
+            val label = variant?.let { EmulatorCatalog.variantLabel(emulator, it) } ?: emulator.label
+            return if (core != null) "$label (${EmulatorCatalog.coreLabel(core)})" else label
         }
         val pkg = GameLaunchKeys.componentPackage(stored) ?: return null
         return try {
@@ -165,7 +158,7 @@ class GameLaunchService @Inject constructor(
         check(game.handlers.any { it.key == handler.key })
         val outcome = if (handler.emulatorId != null) launchCatalogue(context, game, handler) else {
             val component = ComponentName.unflattenFromString(handler.key) ?: error("Application unavailable")
-            if (start(context, intent(game.uri, game.siblings).setComponent(component))) LaunchOutcome.STARTED else LaunchOutcome.FAILED
+            if (start(context, GameLaunchIntents.view(game.uri, game.name, game.siblings).setComponent(component))) LaunchOutcome.STARTED else LaunchOutcome.FAILED
         }
         if (outcome == LaunchOutcome.STARTED) actionLog.played(consoleId, game.name)
         if (outcome == LaunchOutcome.STARTED && remember) setPreferred(consoleId, if (automatic) GameLaunchKeys.AUTOMATIC else handler.key)
@@ -178,7 +171,7 @@ class GameLaunchService @Inject constructor(
         val system = game.system
         if (system != null && PlayRecipe.needsExtract(emulator, system, game.name)) return LaunchOutcome.NEEDS_EXTRACT
         val built = PlayRecipe.build(emulator, variant, handler.core, game.file, externalRoot(), game.siblings)
-        return if (built.attempts.any { start(context, toIntent(it)) }) LaunchOutcome.STARTED else LaunchOutcome.FAILED
+        return if (built.attempts.any { start(context, GameLaunchIntents.fromSpec(it)) }) LaunchOutcome.STARTED else LaunchOutcome.FAILED
     }
 
     /** False when no activity takes [intent] or the app refuses it (not exported, a permission). */
@@ -190,29 +183,6 @@ class GameLaunchService @Inject constructor(
     } catch (e: SecurityException) {
         Log.w(TAG, "Launch refused: ${e.message}")
         false
-    }
-
-    /** The Android intent for [spec]: read grants for every content URI, in the data and in the clip (extras need the clip). */
-    private fun toIntent(spec: IntentSpec): Intent {
-        val intent = Intent()
-        spec.action?.let { intent.action = it }
-        if (spec.className != null) intent.setClassName(spec.packageName, spec.className) else intent.setPackage(spec.packageName)
-        spec.categories.forEach { intent.addCategory(it) }
-        spec.dataUri?.let(Uri::parse)?.let { data -> if (spec.mime != null) intent.setDataAndType(data, spec.mime) else intent.data = data }
-        spec.extras.forEach { extra ->
-            when (extra) {
-                is SpecExtra.Text -> intent.putExtra(extra.key, extra.value)
-                is SpecExtra.Flag -> intent.putExtra(extra.key, extra.value)
-            }
-        }
-        if (spec.grantUris.isNotEmpty()) {
-            intent.clipData = clipOf(spec.grantUris)
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-        // The emulator runs in its own task; CLEAR_TASK (a fresh start, not the running game) needs NEW_TASK.
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        if (spec.clearTask) intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        return intent
     }
 
     /** Where [artifact] is: its document URI, the path its document id spells, and a FileProvider URI when this app can read that path. */

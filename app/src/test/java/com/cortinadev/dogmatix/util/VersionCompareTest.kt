@@ -155,4 +155,25 @@ class VersionCompareTest {
         assertFalse(VersionCompare.planPin(facts, english, null, false, true, isNewestRevision = false, clearOverride = false).global.preferLatestRevision)
         assertTrue(VersionCompare.planPin(facts, english, null, false, false, isNewestRevision = false, clearOverride = false).global.preferLatestRevision)
     }
+
+    @Test fun `revision facts and the follow rule remain usable while revision scoring is off`() {
+        val p = english.copy(preferLatestRevision = false)
+        val ranked = VersionCompare.rank(listOf(v("G (USA) (Rev 1).gba"), v("G (USA) (Rev 2).gba")), p)
+        val old = ranked.first { it.facts.revision == "Rev 1" }
+        val newest = ranked.first { it.facts.revision == "Rev 2" }
+        assertTrue(VersionCompare.hasRevisionChoice(ranked))
+        assertFalse(VersionCompare.isNewestRevision(old, ranked))
+        assertTrue(VersionCompare.isNewestRevision(newest, ranked))
+        assertTrue(VersionCompare.planPin(newest.facts, p, null, false, true,
+            VersionCompare.isNewestRevision(newest, ranked), false).global.preferLatestRevision)
+        assertFalse(VersionCompare.planPin(old.facts, p, null, false, true,
+            VersionCompare.isNewestRevision(old, ranked), false).global.preferLatestRevision)
+    }
+
+    @Test fun `an untagged version is the original baseline even while scoring is off`() {
+        val ranked = VersionCompare.rank(listOf(v("G (USA).gba"), v("G (USA) (v1.1).gba")), english.copy(preferLatestRevision = false))
+        assertFalse(VersionCompare.isNewestRevision(ranked.first { it.facts.revision == null }, ranked))
+        assertTrue(VersionCompare.isNewestRevision(ranked.first { it.facts.revision == "v1.1" }, ranked))
+        assertFalse(VersionCompare.hasRevisionChoice(VersionCompare.rank(listOf(v("G (USA).gba")), english)))
+    }
 }

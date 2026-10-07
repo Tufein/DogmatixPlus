@@ -45,4 +45,27 @@ class BulkPlannerTest {
         assertEquals(200L, plan.totalBytes)
         assertEquals(0, plan.skippedVersions)
     }
+
+    @Test fun `best games planning keeps a fixed version over the global preference`() {
+        val rows = listOf(c(1, "ra123", "Game (USA).zip"), c(2, "ra123", "Game (Japan).zip"))
+        val preference = VersionPreferences.defaultFor(setOf("EN"), null, null)
+        val plan = BulkPlanner.plan(rows, true, { preference }, null,
+            preferredVersion = { "Game (Japan).zip" })
+        assertEquals(listOf(2L), plan.chosen.map { it.id })
+        assertEquals(listOf(1L), BulkPlanner.plan(rows, true, { preference }, null,
+            preferredVersion = { "Game (Europe).zip" }).chosen.map { it.id })
+    }
+
+    @Test fun `a pin for one disc does not replace the other disc even with one RA game key`() {
+        val rows = listOf(c(1, "ra123", "Game (USA) (Disc 1).zip"),
+            c(2, "ra123", "Game (Japan) (Disc 1).zip"), c(3, "ra123", "Game (USA) (Disc 2).zip"),
+            c(4, "ra123", "Game (Japan) (Disc 2).zip"))
+        val preference = VersionPreferences.defaultFor(setOf("EN"), null, null)
+        val fixed = rows[1].fileName
+        val pins = mapOf(VersionPreference.key(rows[1].consoleId, fixed) to fixed)
+        val plan = BulkPlanner.plan(rows, true, { preference }, null,
+            preferredVersion = { pins[VersionPreference.key(it.consoleId, it.fileName)] })
+        assertEquals(listOf(2L, 3L), plan.chosen.map { it.id })
+        assertEquals(2, plan.skippedVersions)
+    }
 }

@@ -19,6 +19,9 @@
          the setups wrongly report "not installed". -->
     <queries>
         <intent><action android:name="android.intent.action.VIEW" /><data android:mimeType="application/octet-stream" /></intent>
+        <intent><action android:name="android.intent.action.VIEW" /><data android:mimeType="application/zip" /></intent>
+        <intent><action android:name="android.intent.action.VIEW" /><data android:mimeType="application/x-7z-compressed" /></intent>
+        <intent><action android:name="android.intent.action.VIEW" /><data android:mimeType="application/vnd.rar" /></intent>
         <package android:name="org.es_de.frontend" />
         <package android:name="com.iisulauncher" />
         <!-- Emulators Play can start directly (EmulatorCatalog) -->
@@ -44,6 +47,7 @@
         <package android:name="com.panda3ds.pandroid" />
         <package android:name="me.magnum.melonds" />
         <package android:name="me.magnum.melondualds" />
+        <package android:name="me.magnum.melondualds.nightly" />
         <package android:name="com.dsemu.drastic" />
         <package android:name="com.hydra.noods" />
         <package android:name="org.mupen64plusae.v3.fzurita.pro" />

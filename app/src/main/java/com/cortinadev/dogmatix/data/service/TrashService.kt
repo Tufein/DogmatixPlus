@@ -85,28 +85,43 @@ class TrashService @Inject constructor(
     }
 
     suspend fun restore(id: String) = withContext(Dispatchers.IO) { gate.lock.withLock {
-        var operation = history.get(id)?.takeIf { it.kind == "trash" && it.phase !in setOf("done", "purging") } ?: return@withLock
-        history.put(operation.copy(phase = "restoring"))
-        for (receipt in operation.files) {
-            val parent = StorageHelper.getDocumentFile(context, receipt.parent) ?: error("Original folder unavailable")
-            val source = DocumentFile.fromSingleUri(context, Uri.parse(receipt.target)) ?: error("Backup unavailable")
-            if (!source.exists()) {
-                val restored = parent.findFile(receipt.name.substringAfterLast('/')) ?: error("Backup unavailable")
-                check(copier.hash(restored.uri) == receipt.hash)
-                continue
+        val operation = history.get(id)?.takeIf { it.kind == "trash" && it.phase !in setOf("done", "purging") } ?: return@withLock
+        gate.hold("*")
+        try {
+            history.put(operation.copy(phase = "restoring"))
+            for (receipt in operation.files) {
+                val parent = StorageHelper.getDocumentFile(context, receipt.parent) ?: error("Original folder unavailable")
+                val source = DocumentFile.fromSingleUri(context, Uri.parse(receipt.target)) ?: error("Backup unavailable")
+                if (!source.exists()) {
+                    val restored = parent.findFile(receipt.name.substringAfterLast('/')) ?: error("Backup unavailable")
+                    check(copier.hash(restored.uri) == receipt.hash)
+                    continue
+                }
+                check(copier.hash(source.uri) == receipt.hash) { "Backup changed" }
+                val target = copier.copy(source.uri, parent, receipt.name.substringAfterLast('/'))
+                check(copier.mayRemove(source.uri, target.uri, receipt.hash))
+                check(source.delete()) { "Restored, but backup cleanup failed" }
             }
-            check(copier.hash(source.uri) == receipt.hash) { "Backup changed" }
-            val target = copier.copy(source.uri, parent, receipt.name.substringAfterLast('/'))
-            check(copier.mayRemove(source.uri, target.uri, receipt.hash))
-            check(source.delete()) { "Restored, but backup cleanup failed" }
-        }
-        history.put(operation.copy(phase = "done"))
-        val removal = actionLog.entries.value?.lastOrNull { it.opId == id && it.kind == ActionKind.REMOVED }
-        actionLog.record(
-            ActionKind.RESTORED, operation.title, consoleId = removal?.consoleId, fileName = removal?.fileName,
-            opId = id, count = operation.files.size, bytes = operation.files.sumOf { it.bytes }
-        )
+            history.put(operation.copy(phase = "done"))
+            val removal = actionLog.removal(id)
+            actionLog.record(
+                ActionKind.RESTORED, operation.title, consoleId = removal?.consoleId, fileName = removal?.fileName,
+                opId = id, count = operation.files.size, bytes = operation.files.sumOf { it.bytes }
+            )
+        } finally { gate.release("*") }
     } }
+
+    /** Verifies the original contents, rather than assuming an absent backup was restored. */
+    suspend fun restoredFiles(id: String): Int = withContext(Dispatchers.IO) {
+        val operation = history.get(id)?.takeIf { it.kind == "trash" && it.phase != "done" } ?: return@withContext 0
+        operation.files.count { receipt ->
+            runCatching {
+                val parent = StorageHelper.getDocumentFile(context, receipt.parent) ?: return@runCatching false
+                val original = parent.findFile(receipt.name.substringAfterLast('/')) ?: return@runCatching false
+                copier.hash(original.uri) == receipt.hash
+            }.getOrDefault(false)
+        }
+    }
 
     /** Permanent purge: called only after explicit confirmation, or the opt-in retention policy. */
     suspend fun purge(id: String): Unit = purge(id, ActionReason.BY_USER)
@@ -125,7 +140,7 @@ class TrashService @Inject constructor(
         history.put(operation.copy(phase = "done"))
         if (!record) return@withLock
         // The removal line knows the game; the purge line repeats it so Download again can find it.
-        val removal = actionLog.entries.value?.lastOrNull { it.opId == id && it.kind == ActionKind.REMOVED }
+        val removal = actionLog.removal(id)
         actionLog.record(
             ActionKind.PURGED, operation.title, consoleId = removal?.consoleId, fileName = removal?.fileName,
             opId = id, reason = reason, count = operation.files.size, bytes = operation.files.sumOf { it.bytes }

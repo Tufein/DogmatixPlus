@@ -138,4 +138,5 @@
         <item quantity="many">%d suppressions en attente de votre confirmation</item>
         <item quantity="other">%d suppressions en attente de votre confirmation</item>
     </plurals>
+    <string name="hist24_clear_failed">Impossible d’effacer l’historique. Réessayez.</string>
 </resources>

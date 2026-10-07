@@ -1,1 +1,15 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"><application><provider android:name="com.cortinadev.dogmatix.TestStorageProvider" android:authorities="com.tufein.dogmatixplus.test.storage" android:exported="true" android:grantUriPermissions="true"><intent-filter><action android:name="android.content.action.DOCUMENTS_PROVIDER" /></intent-filter></provider></application></manifest>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <provider android:name="com.cortinadev.dogmatix.TestStorageProvider" android:authorities="com.tufein.dogmatixplus.test.storage" android:exported="true" android:grantUriPermissions="true">
+            <intent-filter><action android:name="android.content.action.DOCUMENTS_PROVIDER" /></intent-filter>
+        </provider>
+        <activity android:name="com.cortinadev.dogmatix.PlayGrantProbeActivity" android:exported="true" android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" android:mimeType="application/octet-stream" />
+                <data android:scheme="content" android:mimeType="application/zip" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

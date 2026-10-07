@@ -40,7 +40,8 @@ data class DuplicatesUiState(
 class DuplicatesViewModel @Inject constructor(
     private val scanService: LibraryScanService,
     private val settingsRepository: SettingsRepository,
-    private val versionSettings: com.cortinadev.dogmatix.data.local.VersionPreferenceSettings
+    private val versionSettings: com.cortinadev.dogmatix.data.local.VersionPreferenceSettings,
+    private val versionPreference: com.cortinadev.dogmatix.data.service.VersionPreferenceService
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DuplicatesUiState())
@@ -108,7 +109,10 @@ class DuplicatesViewModel @Inject constructor(
 
     private suspend fun suggest(groups: List<DuplicateGroup>): List<KeepSuggestion> {
         val preferences = versionSettings.snapshot()
-        return KeepSuggester.suggest(groups) { preferences.of(it.consoleId) }
+        val fixed = versionPreference.snapshot()
+        return KeepSuggester.suggest(groups, { preferences.of(it.consoleId) }, {
+            it.consoleId?.let { console -> fixed.preferred(console, it.baseName) }
+        })
     }
 
     private fun DuplicatesUiState.without(entry: GameEntry): DuplicatesUiState {

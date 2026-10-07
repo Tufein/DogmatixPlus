@@ -32,7 +32,7 @@ These remain distinct from automated success:
 - A provider that refuses a safe rename is refused. The original remains available.
 - The trash uses space on the original volume. Retention cleanup is opt-in and runs when the app opens, and during an enabled smart-storage weekly run.
 - Restore uses the original folder and refuses a conflicting restored file. If the grant or original volume is unavailable, it keeps the recovery copy for another attempt.
-- Play lists applications declaring support for ACTION_VIEW with a binary content URI. Applications requiring their own proprietary launch protocol are not advertised as compatible.
+- From 2.4.0, Play offers known emulator recipes and compatible ACTION_VIEW handlers, with an explicit installed application variant. See [emulator launch checks](emulator-launch.md) for tested URI grants, archive handling and the remaining device/emulator limits.
 - A fixed version wins automatic selection when present in the candidate set; source reliability still chooses between sources of the same file. Missing versions use the normal ranking.
 - DAT results come from a completed DAT check; a filename's good-dump marker is explicitly a claim, not a hash verification. RetroAchievements reports hash versus title matching separately.
 - Exported action reports contain only time, kind, phase and file count. They exclude paths, server URLs, game names and exception messages.

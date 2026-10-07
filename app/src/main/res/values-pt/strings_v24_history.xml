@@ -138,4 +138,5 @@
         <item quantity="many">%d remoções aguardam a sua confirmação</item>
         <item quantity="other">%d remoções aguardam a sua confirmação</item>
     </plurals>
+    <string name="hist24_clear_failed">Não foi possível limpar o histórico. Tente novamente.</string>
 </resources>

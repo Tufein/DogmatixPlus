@@ -51,6 +51,8 @@ object BackupJson {
             SettingsKeys.ROMM_PLATFORM_MAP, SettingsKeys.CONSOLE_SCANNED_AT
         ).forEach { put(it.name, "ss") }
         putAll(CloudSettingKeys.TYPES)
+        put(VersionPreferences.PINNED_KEY, "s")
+        put(VersionPreferences.OVERRIDES_KEY, "s")
     }
 
     /** Sets whose entries are `id:value`; their readers split on ':' and fail on anything else. */

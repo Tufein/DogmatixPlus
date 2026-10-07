@@ -158,6 +158,10 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ---
 
+### Novedades en 2.4.0
+
+Elige un emulador instalado por consola, compara versiones con preferencias de idioma, región y revisión y busca en el historial de acciones. Restaura juegos eliminados o descárgalos de nuevo desde el historial. Las copias conservan sus rutas originales y ocupan espacio hasta vaciar la papelera.
+
 ## Instalar
 
 1. Abre la **[página de Releases](https://github.com/Tufein/DogmatixPlus/releases)** en tu móvil o en tu consola portátil, o descarga el archivo allí y cópialo al dispositivo.

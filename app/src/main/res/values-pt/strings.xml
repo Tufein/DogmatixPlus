@@ -1270,9 +1270,9 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Pesquisar downloads pelo título ou nome do arquivo e filtrar por estado.</item>
-        <item>Selecionar resultados e mover os downloads em espera para o início.</item>
-        <item>Retomada mais segura, deteção de arquivos incompletos e cancelamento de tentativas antigas.</item>
+        <item>Escolha um emulador compatível por consola e abra os seus jogos diretamente.</item>
+        <item>Compare versões e guarde preferências de idioma, região e revisão.</item>
+        <item>Pesquise e filtre o histórico, restaure jogos removidos ou volte a transferi-los.</item>
     </string-array>
 
     <!-- 4.0 -->

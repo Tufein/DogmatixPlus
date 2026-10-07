@@ -1320,9 +1320,9 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Search downloads by title or file name and filter by status.</item>
-        <item>Select matching downloads and move waiting selections to the front together.</item>
-        <item>Safer download resuming, incomplete-file detection and automatic retry cancellation.</item>
+        <item>Choose a compatible emulator per console and launch owned games directly.</item>
+        <item>Compare versions and save language, region and revision preferences.</item>
+        <item>Search and filter action history, restore removed games or download them again.</item>
     </string-array>
 
     <!-- 4.0 -->

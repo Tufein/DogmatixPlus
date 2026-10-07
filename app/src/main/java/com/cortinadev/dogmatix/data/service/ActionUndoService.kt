@@ -1,15 +1,11 @@
 package com.cortinadev.dogmatix.data.service
 
-import android.content.Context
-import android.net.Uri
-import androidx.documentfile.provider.DocumentFile
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.util.ActionEntry
 import com.cortinadev.dogmatix.util.SearchNormalizer
 import com.cortinadev.dogmatix.util.UndoAction
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,13 +22,14 @@ enum class UndoResult { DONE, PARTIAL, FAILED }
  */
 @Singleton
 class ActionUndoService @Inject constructor(
-    @param:ApplicationContext private val context: Context,
     private val journal: OperationHistoryService,
     private val trash: TrashService,
     private val fileDao: DownloadableFileDao,
     private val downloadService: DownloadService,
     private val sourceTrack: SourceTrackService,
-    private val actionLog: ActionLogService
+    private val actionLog: ActionLogService,
+    private val libraryIndex: LibraryIndexService,
+    private val profiles: ProfileService
 ) {
     /** Whether [action] of [entry] works right now (the files are still in the trash, the game is still in the library). */
     suspend fun available(entry: ActionEntry, action: UndoAction): Boolean = withContext(Dispatchers.IO) {
@@ -51,9 +48,12 @@ class ActionUndoService @Inject constructor(
             UndoAction.DOWNLOAD_AGAIN -> {
                 try {
                     val row = libraryRow(entry)
-                    if (row == null) UndoResult.FAILED else {
-                        downloadService.startDownload(sourceTrack.pickBest(row, sameNameOnly = true))
-                        actionLog.markUndone(entry.id)
+                    if (row == null || queued(row.fileName)) UndoResult.FAILED else {
+                        val selected = sourceTrack.pickBest(row, sameNameOnly = true)
+                        if (!allowed(selected) || queued(selected.fileName)) return@withContext UndoResult.FAILED
+                        downloadService.startDownload(selected)
+                        // Queueing is the successful action; a history write cannot undo it.
+                        try { actionLog.markUndone(entry.id) } catch (e: CancellationException) { throw e } catch (_: Exception) { }
                         UndoResult.DONE
                     }
                 } catch (e: CancellationException) { throw e } catch (_: Exception) { UndoResult.FAILED }
@@ -68,14 +68,15 @@ class ActionUndoService @Inject constructor(
             trash.restore(id)
             false
         } catch (e: CancellationException) { throw e } catch (_: Exception) { true }
+        finally {
+            // Partial restores change ownership too, including cancellation after one file.
+            libraryIndex.requestRefresh()
+        }
         val after = journal.get(id)
         // Back as a whole only when the journal says so; TrashService then wrote the "restored" line.
         if (!failed && after?.phase == "done") return UndoResult.DONE
-        // Restore moves a file back and only then deletes its trash copy: a missing copy is a file that came back.
-        val someBack = after?.files?.any { receipt ->
-            runCatching { DocumentFile.fromSingleUri(context, Uri.parse(receipt.target))?.exists() == false }.getOrDefault(false)
-        } ?: false
-        return if (someBack) UndoResult.PARTIAL else UndoResult.FAILED
+        // A missing backup alone proves nothing: it may have been deleted outside the app.
+        return if (trash.restoredFiles(id) > 0) UndoResult.PARTIAL else UndoResult.FAILED
     }
 
     private fun restorable(opId: String?): Boolean {
@@ -94,7 +95,9 @@ class ActionUndoService @Inject constructor(
      */
     private suspend fun libraryRow(entry: ActionEntry): DownloadableFileEntity? {
         val file = entry.fileName?.takeIf { it.isNotBlank() } ?: return null
-        fileDao.getFileByFileName(file)?.takeIf { entry.consoleId.isNullOrBlank() || it.consoleId == entry.consoleId }?.let { return it }
+        val exact = fileDao.filesByFileNames(listOf(file)).filter { entry.consoleId.isNullOrBlank() || it.consoleId == entry.consoleId }
+        val row = exact.takeIf { rows -> rows.map { it.consoleId }.distinct().size == 1 }?.firstOrNull()
+        if (row != null) return row.takeIf { allowed(it) }
         val console = entry.consoleId?.takeIf { it.isNotBlank() } ?: return null
         val title = SearchNormalizer.key(entry.title.ifBlank { file.substringBeforeLast('.') })
         if (title.isEmpty()) return null
@@ -102,6 +105,9 @@ class ActionUndoService @Inject constructor(
         val same = fileDao.filesMatching(title, console, 20).filter {
             it.fileName.substringBeforeLast('.').equals(stem, ignoreCase = true) || SearchNormalizer.key(it.name) == title
         }
-        return same.singleOrNull()
+        return same.singleOrNull()?.takeIf { allowed(it) }
     }
+
+    private suspend fun allowed(row: DownloadableFileEntity): Boolean =
+        profiles.current().allows(row.consoleId, fileDao.getTagsForFile(row.id))
 }
