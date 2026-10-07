@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.dao.CollectionWithCount
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
+import com.cortinadev.dogmatix.data.local.VersionPreferenceSettings
 import com.cortinadev.dogmatix.data.model.DownloadableFileWithTags
 import com.cortinadev.dogmatix.data.repository.CollectionsRepository
 import com.cortinadev.dogmatix.data.repository.DownloadableFileRepository
@@ -22,19 +23,31 @@ import com.cortinadev.dogmatix.util.DownloadCondition
 import com.cortinadev.dogmatix.util.RommMarks
 import com.cortinadev.dogmatix.util.StorageHelper
 import com.cortinadev.dogmatix.util.ToastUtil
+import com.cortinadev.dogmatix.util.VersionCompare
+import com.cortinadev.dogmatix.util.ConsoleOverride
+import com.cortinadev.dogmatix.util.VersionPicker
+import com.cortinadev.dogmatix.util.VersionPreference
+import com.cortinadev.dogmatix.util.VersionPreferences
+import com.cortinadev.dogmatix.util.VersionRanking
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 /** Where the page stands: finding the library row, showing it, or the row is gone (re-indexed away). */
@@ -60,7 +73,8 @@ class GamePageViewModel @Inject constructor(
     val gameLauncher: com.cortinadev.dogmatix.data.service.GameLaunchService,
     private val versionPreference: com.cortinadev.dogmatix.data.service.VersionPreferenceService,
     datService: com.cortinadev.dogmatix.data.service.DatService,
-    private val profiles: com.cortinadev.dogmatix.data.service.ProfileService
+    private val profiles: com.cortinadev.dogmatix.data.service.ProfileService,
+    private val versionSettings: VersionPreferenceSettings
 ) : ViewModel() {
 
     private val _phase = MutableStateFlow(GamePagePhase.LOADING)
@@ -76,6 +90,7 @@ class GamePageViewModel @Inject constructor(
     fun load(consoleId: String, fileName: String) {
         if (key == consoleId to fileName) return
         key = consoleId to fileName
+        console.value = consoleId
         preferredJob?.cancel()
         preferredJob = viewModelScope.launch { versionPreference.observe(consoleId, fileName).collect { _preferred.value = it } }
         job?.cancel()
@@ -157,23 +172,72 @@ class GamePageViewModel @Inject constructor(
     }
 
     val datReports = datService.reports
-    val languages = settingsRepository.favoriteLanguages.stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
     private val _preferred = MutableStateFlow<String?>(null)
+    /** The version fixed for this game (VersionPreferenceService), by file name. */
     val preferred = _preferred.asStateFlow()
     private var preferredJob: Job? = null
+
+    private val console = MutableStateFlow<String?>(null)
+
+    /** The preference for all consoles and this console's own order, live (the pin dialog's base). */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val versionPrefs: StateFlow<VersionPrefs?> = console.flatMapLatest { id ->
+        if (id == null) flowOf(null)
+        else combine(versionSettings.global, versionSettings.overrides) { global, overrides -> VersionPrefs(id, global, overrides[id]) }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /**
+     * The versions ranked by the live preference with the fixed version on top: the Versions tab and
+     * the header's "Download best version" both read this, so a pin or a preference change shows at
+     * once in both. The pick is [VersionPreference.pick], the same call every other picker makes.
+     */
+    val versionRanking: StateFlow<VersionRanking<DownloadableFileWithTags>?> = combine(
+        _details.map { d -> d?.let { it.item to it.versions } }.distinctUntilChanged(),
+        _preferred,
+        versionPrefs
+    ) { versions, fixed, prefs ->
+        if (versions == null || prefs == null) null
+        else VersionRanking.of(
+            versions.second.ifEmpty { listOf(versions.first) },
+            { VersionPicker.Candidate(it.file.fileName, it.file.fileName, it.tags, it.file.fileSize) },
+            prefs.effective, fixed
+        )
+    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    private val prefWrites = Mutex()
+
+    /**
+     * "Prefer versions like this": stores what [VersionCompare.planPin] plans from the stored values
+     * (the dialog's preview comes from the same function on the same values). Returns what now
+     * applies to the chosen scope, null when the page has no console yet.
+     */
+    suspend fun preferLike(target: VersionCompare.Ranked, ranked: List<VersionCompare.Ranked>, forConsole: Boolean, followRevision: Boolean, clearOverride: Boolean): VersionPreference? {
+        val consoleId = console.value ?: return null
+        return prefWrites.withLock {
+            val override = versionSettings.overrides.first()[consoleId]
+            val plan = VersionCompare.planPin(
+                target.facts, versionSettings.global.first(), override, forConsole, followRevision,
+                VersionCompare.isNewestRevision(target, ranked), clearOverride
+            )
+            if (!forConsole) versionSettings.pin(plan.global)
+            if (plan.override != override) versionSettings.setOverride(consoleId, plan.override)
+            plan.shown
+        }
+    }
 
     suspend fun removalPlan(item: DownloadableFileWithTags) = libraryIndex.removalPlan(item.file)
     suspend fun remove(plan: List<com.cortinadev.dogmatix.data.service.RemovalFile>, title: String) = libraryIndex.deletePlan(plan, title)
     suspend fun setPreferred(item: DownloadableFileWithTags, pinned: Boolean) {
         versionPreference.set(item.file.consoleId, item.file.fileName, if (pinned) item.file.fileName else null)
+        // The ranking follows on its own (see versionRanking).
         _preferred.value = if (pinned) item.file.fileName else null
-        val current = _details.value ?: return
-        val candidates = current.versions.map { com.cortinadev.dogmatix.util.VersionPicker.Candidate(it.file.fileName, it.file.fileName, it.tags, it.file.fileSize) }
-        val languages = settingsRepository.favoriteLanguages.first()
-        val best = com.cortinadev.dogmatix.util.VersionPreference.pick(candidates, com.cortinadev.dogmatix.util.VersionPicker.regionPreference(languages), languages, _preferred.value)?.id
-        _details.value = current.copy(bestFileName = best, best = current.versions.firstOrNull { it.file.fileName == best })
     }
 
     /** Removes the game from the download folder (the screen confirms first). */
     suspend fun deleteOwned(item: DownloadableFileWithTags): Boolean = libraryIndex.deleteOwned(item.file)
+}
+
+/** The version preference around one game page: for all consoles, and [consoleId]'s own order. */
+data class VersionPrefs(val consoleId: String, val global: VersionPreference, val override: ConsoleOverride?) {
+    val effective: VersionPreference get() = VersionPreferences.withOverride(global, override)
 }

@@ -58,11 +58,11 @@ class WishlistRepository @Inject constructor(
     rescanStateHolder: RescanStateHolder,
     private val appSettings: AppSettings,
     private val versionPreference: com.cortinadev.dogmatix.data.service.VersionPreferenceService,
-    private val settingsRepository: SettingsRepository,
     private val downloadService: DownloadService,
     private val libraryIndex: dagger.Lazy<LibraryIndexService>,
     private val rommLibrary: dagger.Lazy<RommLibraryService>,
-    private val alertSettings: WishlistAlertSettings
+    private val alertSettings: WishlistAlertSettings,
+    private val versionSettings: com.cortinadev.dogmatix.data.local.VersionPreferenceSettings
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -167,8 +167,7 @@ class WishlistRepository @Inject constructor(
      * languages), unless a version is already on the device or downloading. One per console.
      */
     suspend fun autoDownload(found: List<WishlistEntity>): Int {
-        val languages = settingsRepository.favoriteLanguages.first()
-        val regions = VersionPicker.regionPreference(languages)
+        val versionPrefs = versionSettings.snapshot()
         val preferences = versionPreference.snapshot()
         val index = libraryIndex.get()
         val picks = found.flatMap { item ->
@@ -178,7 +177,7 @@ class WishlistRepository @Inject constructor(
                 if (files.any { index.isOwned(it) || downloadService.isActive(it.fileName) }) return@mapNotNull null
                 val best = com.cortinadev.dogmatix.util.VersionPreference.pick(
                     files.map { VersionPicker.Candidate(it.fileName, it.fileName, fileDao.tagsOf(it.id), it.fileSize) },
-                    regions, languages, preferences.preferred(files.first().consoleId, files.first().fileName)
+                    versionPrefs.of(files.first().consoleId), preferences.preferred(files.first().consoleId, files.first().fileName)
                 ) ?: return@mapNotNull null
                 files.first { it.fileName == best.id }
             }
