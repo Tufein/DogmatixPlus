@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="play24_automatic">Automatique : %1$s</string>
+    <string name="play24_needs_extract">%1$s ne peut pas ouvrir cette archive pour cette console. Extrayez d\'abord le jeu, puis appuyez de nouveau sur Jouer.</string>
+    <string name="play24_launch_failed">Impossible de lancer %1$s. Choisissez une autre application.</string>
+    <string name="play24_remembered_missing">L\'application mémorisée pour cette console n\'est plus installée. Choisissez-en une autre.</string>
+    <string name="play24_core_hint">RetroArch ne lance le jeu que si ce core est installé (Online Updater, Core Downloader).</string>
+    <string name="play24_settings_title">Émulateur par console</string>
+    <string name="play24_settings_hint">L\'application que Jouer lance pour chaque console. Les émulateurs connus comme RetroArch, DuckStation, Dolphin et PPSSPP sont lancés avec leurs propres réglages de lancement.</string>
+    <string name="play24_settings_loading">Recherche des émulateurs…</string>
+    <string name="play24_settings_empty">Aucun émulateur connu n\'est encore installé pour vos consoles. Installez-en un (RetroArch, DuckStation, Dolphin, PPSSPP…) puis revenez.</string>
+    <string name="play24_settings_ask">Demander à chaque fois</string>
+    <string name="play24_settings_ask_hint">Jouer affiche la liste des applications</string>
+    <string name="play24_settings_automatic">Automatique</string>
+    <string name="play24_settings_automatic_hint">Actuellement : %1$s</string>
+    <string name="play24_settings_not_installed">%1$s (non installé)</string>
+</resources>
