@@ -949,6 +949,7 @@ fun SettingsScreen(
                 PillButton(stringResource(R.string.settings_daijisho_action)) { viewModel.onPrepareDaijisho(context) }
             }
         },
+        SettingsRow(SettingsSection.FRONTENDS, key = SettingKeys.EMULATORS) { EmulatorChoiceSettingsRow() },
         SettingsRow(SettingsSection.ROMM) {
             SettingRow(
                 icon = R.drawable.ic_cloud,

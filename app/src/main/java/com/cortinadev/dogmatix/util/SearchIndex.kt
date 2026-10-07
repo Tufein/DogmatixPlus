@@ -75,6 +75,7 @@ object SettingKeys {
     const val ESDE = "esde"
     const val IISU = "iisu"
     const val DAIJISHO = "daijisho"
+    const val EMULATORS = "emulators"
     const val SHELF = "shelf"
     const val COCOON = "cocoon"
     const val BACKUP_EXPORT = "backup_export"
@@ -175,6 +176,7 @@ object SearchIndex {
             setting(SettingKeys.ESDE, FRONTENDS, R.string.settings_esde, R.string.settings_esde_hint, R.drawable.ic_frontends, R.string.find8_kw_frontends),
             setting(SettingKeys.IISU, FRONTENDS, R.string.settings_iisu, R.string.settings_iisu_hint, R.drawable.ic_grid, R.string.find8_kw_frontends),
             setting(SettingKeys.DAIJISHO, FRONTENDS, R.string.settings_daijisho, R.string.settings_daijisho_hint, R.drawable.ic_dashboard, R.string.find8_kw_frontends),
+            setting(SettingKeys.EMULATORS, FRONTENDS, R.string.play24_settings_title, R.string.play24_settings_hint, R.drawable.ic_controller, R.string.find8_kw_frontends),
 
             setting(SettingKeys.SHELF, CLOUD, R.string.csave_shelf_setting_title, R.string.csave_shelf_setting_hint, R.drawable.ic_play_circle),
             setting(SettingKeys.COCOON, PROFILES, R.string.settings_cocoon, R.string.settings_cocoon_hint, R.drawable.ic_help),
