@@ -65,7 +65,7 @@
     <string name="compare24_r_smaller">File più piccolo (%1$s)</string>
     <string name="compare24_r_translation">Traduzione dei fan</string>
     <string name="compare24_r_unlicensed">Non licenziato o homebrew</string>
-    <string name="compare24_r_verified">Dump verificato</string>
+    <string name="compare24_r_verified">Segnato come dump buono [!]</string>
     <string name="compare24_regions_empty">Nessuna regione scelta: la regione non conta.</string>
     <string name="compare24_regions_hint">La prima è la migliore. Un\'edizione mondiale conta come una regione a sé.</string>
     <string name="compare24_regions_title">Regioni</string>
@@ -113,5 +113,4 @@
     <string name="compare24_v_unknown">sconosciuta</string>
     <string name="compare24_version_a">Versione A</string>
     <string name="compare24_version_b">Versione B</string>
-    <string name="compare24_versions_hint">Prima la corrispondenza migliore. Seleziona una versione per scaricarla; le note sotto spiegano perché si trova in quella posizione.</string>
 </resources>

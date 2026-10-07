@@ -374,7 +374,7 @@ private fun GamePageContent(
             }
             val switch = state.switch
             // The live ranking (the same as the Versions tab), so a pin or a preference change shows at once.
-            val best = ranking?.let { it.pick } ?: state.best
+            val best = ranking?.pick ?: state.best
             GamePageModel.actions(
                 owned = owned,
                 downloading = downloading,
@@ -639,7 +639,7 @@ private fun Versions(
     val scheme = MaterialTheme.colorScheme
     val current = state.item.file.fileName
     val consoleName = ConsoleFormatter.getConsoleShortName(state.item.file.consoleId)
-    Text(stringResource(R.string.compare24_versions_hint), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+    Text(stringResource(R.string.page8_versions_hint), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
     val r = ranking ?: return
     // Up to two versions for the side-by-side, by ranking id; the oldest pick goes first.
     var picked by remember(r.ranked.map { it.version.name }) { mutableStateOf(emptyList<String>()) }

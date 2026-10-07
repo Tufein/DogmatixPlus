@@ -65,7 +65,7 @@
     <string name="compare24_r_smaller">Kleiner bestand (%1$s)</string>
     <string name="compare24_r_translation">Vertaling door fans</string>
     <string name="compare24_r_unlicensed">Zonder licentie of homebrew</string>
-    <string name="compare24_r_verified">Geverifieerde dump</string>
+    <string name="compare24_r_verified">Gemarkeerd als goede dump [!]</string>
     <string name="compare24_regions_empty">Geen regio gekozen: regio telt niet mee.</string>
     <string name="compare24_regions_hint">De eerste is de beste. Een wereldwijde uitgave telt als een eigen regio.</string>
     <string name="compare24_regions_title">Regio\'s</string>
@@ -113,5 +113,4 @@
     <string name="compare24_v_unknown">onbekend</string>
     <string name="compare24_version_a">Versie A</string>
     <string name="compare24_version_b">Versie B</string>
-    <string name="compare24_versions_hint">Beste match eerst. Kies een versie om haar te downloaden; de notities eronder vertellen waarom ze op die plek staat.</string>
 </resources>

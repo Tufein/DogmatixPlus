@@ -65,7 +65,7 @@
     <string name="compare24_r_smaller">Archivo más pequeño (%1$s)</string>
     <string name="compare24_r_translation">Traducción de aficionados</string>
     <string name="compare24_r_unlicensed">Sin licencia o homebrew</string>
-    <string name="compare24_r_verified">Volcado verificado</string>
+    <string name="compare24_r_verified">Marcado como buen volcado [!]</string>
     <string name="compare24_regions_empty">Ninguna región elegida: la región no cuenta.</string>
     <string name="compare24_regions_hint">La primera es la mejor. Una edición mundial cuenta como una región propia.</string>
     <string name="compare24_regions_title">Regiones</string>
@@ -113,5 +113,4 @@
     <string name="compare24_v_unknown">desconocido</string>
     <string name="compare24_version_a">Versión A</string>
     <string name="compare24_version_b">Versión B</string>
-    <string name="compare24_versions_hint">La mejor coincidencia primero. Selecciona una versión para descargarla; las notas debajo explican por qué ocupa ese lugar.</string>
 </resources>
