@@ -5,6 +5,7 @@ import androidx.core.net.toUri
 import com.cortinadev.dogmatix.data.local.dao.ConsoleDao
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.model.ResolvedDownloadPath
+import com.cortinadev.dogmatix.util.ActionReason
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.DuplicateFinder
 import com.cortinadev.dogmatix.util.LibraryKeys
@@ -182,8 +183,8 @@ class LibraryScanService @Inject constructor(
      * (leaving the screen), so a game is never left half deleted. The owned-index refresh is
      * only requested: it walks the whole library and must not hold up the caller.
      */
-    suspend fun delete(entry: GameEntry): Int = withContext(NonCancellable + Dispatchers.IO) {
-        val removed = removeFiles(entry)
+    suspend fun delete(entry: GameEntry, reason: String = ActionReason.BY_USER): Int = withContext(NonCancellable + Dispatchers.IO) {
+        val removed = removeFiles(entry, reason)
         if (removed > 0) libraryIndexService.requestRefresh()
         removed
     }
@@ -192,14 +193,18 @@ class LibraryScanService @Inject constructor(
      * [delete] for several games: the same removal, one owned-index refresh at the end instead of
      * one per game. Returns how many files each entry lost, in the order of [entries].
      */
-    suspend fun deleteAll(entries: List<GameEntry>): List<Int> = withContext(NonCancellable + Dispatchers.IO) {
-        val removed = entries.map { removeFiles(it) }
+    suspend fun deleteAll(entries: List<GameEntry>, reason: String = ActionReason.BY_USER): List<Int> = withContext(NonCancellable + Dispatchers.IO) {
+        val removed = entries.map { removeFiles(it, reason) }
         if (removed.any { it > 0 }) libraryIndexService.requestRefresh()
         removed
     }
 
-    private suspend fun removeFiles(entry: GameEntry): Int {
-        val removed = trash.move(entry.files.map { RemovalFile(it.uri, it.dirUri, it.name, it.size, "${it.folder}/${it.name}") }, entry.baseName)
+    /** [reason]: an [ActionReason] code for the action history. */
+    private suspend fun removeFiles(entry: GameEntry, reason: String): Int {
+        val removed = trash.move(
+            entry.files.map { RemovalFile(it.uri, it.dirUri, it.name, it.size, "${it.folder}/${it.name}") }, entry.baseName,
+            consoleId = entry.consoleId, reason = reason
+        )
         if (entry.isFolderGame && removed == entry.files.size) {
             entry.files.first().dirUri.takeIf { it.isNotEmpty() }?.toUri()?.let { dirUri ->
                 // Providers delete folders recursively: only when a complete listing says it is empty

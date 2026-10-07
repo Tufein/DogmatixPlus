@@ -191,13 +191,14 @@ class LibraryIndexService @Inject constructor(
         result.distinctBy { it.uri }
     }
 
-    suspend fun deletePlan(plan: List<RemovalFile>, title: String): Boolean = withContext(Dispatchers.IO) {
-        val removed = trash.move(plan, title)
+    /** [consoleId] and [fileName] (the library row's) only go to the action history. */
+    suspend fun deletePlan(plan: List<RemovalFile>, title: String, consoleId: String? = null, fileName: String? = null): Boolean = withContext(Dispatchers.IO) {
+        val removed = trash.move(plan, title, consoleId, fileName)
         if (removed > 0) requestRefresh()
         removed > 0
     }
 
-    suspend fun deleteOwned(file: DownloadableFileEntity): Boolean = deletePlan(removalPlan(file), file.name)
+    suspend fun deleteOwned(file: DownloadableFileEntity): Boolean = deletePlan(removalPlan(file), file.name, file.consoleId, file.fileName)
 
     private fun collect(dir: DiskDir, scope: String, into: MutableSet<String>, depth: Int) {
         for (child in DiskScanner.list(context, dir)) {

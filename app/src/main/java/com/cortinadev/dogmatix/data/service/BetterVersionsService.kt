@@ -205,7 +205,7 @@ class BetterVersionsService @Inject constructor(
             ReplaceState.KEPT
         }
         val state = if (outcome == ReplaceState.REMOVED) {
-            val removed = runCatching { scanService.delete(s.owned) }.getOrDefault(0)
+            val removed = runCatching { scanService.delete(s.owned, com.cortinadev.dogmatix.util.ActionReason.BETTER_VERSION) }.getOrDefault(0)
             if (removed > 0) ReplaceState.REMOVED else ReplaceState.FAILED
         } else outcome
         setState(s.id, state)

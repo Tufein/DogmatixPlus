@@ -49,7 +49,7 @@ class SafRecoveryTest {
         val original = write(source,"Game.gba","original")
         val save = write(source,"Game.srm","save progress")
         val history = OperationHistoryService(context)
-        val trash = TrashService(context,copier,history,StorageMoveGate())
+        val trash = TrashService(context,copier,history,StorageMoveGate(),ActionLogService(context))
         assertEquals(1,trash.move(listOf(RemovalFile(original.uri.toString(),source.uri.toString(),"Game.gba",8)),"Game"))
         assertFalse(original.exists())
         assertEquals("save progress",StorageHelper.readText(context,save))

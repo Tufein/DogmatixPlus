@@ -5,6 +5,10 @@ import android.net.Uri
 import android.util.Log
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.util.ActionCount
+import com.cortinadev.dogmatix.util.ActionKind
+import com.cortinadev.dogmatix.util.ActionReason
+import com.cortinadev.dogmatix.util.ActionTopic
 import com.cortinadev.dogmatix.util.DiskDir
 import com.cortinadev.dogmatix.util.DiskScanner
 import com.cortinadev.dogmatix.util.LibraryMove
@@ -65,7 +69,8 @@ class LibraryMoveService @Inject constructor(
     private val libraryIndex: LibraryIndexService,
     private val moveGate: StorageMoveGate,
     private val copier: VerifiedDocumentCopy,
-    private val history: OperationHistoryService
+    private val history: OperationHistoryService,
+    private val actionLog: ActionLogService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var job: Job? = null
@@ -155,6 +160,10 @@ class LibraryMoveService @Inject constructor(
             history.put(operation)
             libraryIndex.requestRefresh()
             val total = cleaned.sumOf { it.bytes }
+            actionLog.record(
+                ActionKind.MOVED, topic = ActionTopic.LIBRARY_FOLDER, reason = if (failed > 0) ActionReason.ORIGINALS_LEFT else null,
+                counts = mapOf(ActionCount.FILES to cleaned.size, ActionCount.LEFT to failed), bytes = total
+            )
             _state.value = MoveState(filesDone = cleaned.size, filesTotal = cleaned.size, bytesDone = total, bytesTotal = total, failed = failed, finished = true)
         } catch (e: CancellationException) {
             operation?.takeIf { it.phase == "copying" }?.let { history.put(it.copy(phase = "interrupted")) }
@@ -162,6 +171,7 @@ class LibraryMoveService @Inject constructor(
             throw e
         } catch (e: Exception) {
             Log.e(TAG, "Move failed", e)
+            actionLog.record(ActionKind.MOVE_FAILED, topic = ActionTopic.LIBRARY_FOLDER)
             operation?.takeIf { it.phase == "copying" }?.let { history.put(it.copy(phase = "interrupted")) }
             _state.update { it.copy(running = false, scanning = false, finished = true, failed = it.failed.coerceAtLeast(1)) }
         } finally { moveGate.release("*") }

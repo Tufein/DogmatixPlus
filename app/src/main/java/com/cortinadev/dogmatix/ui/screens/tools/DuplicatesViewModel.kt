@@ -90,7 +90,7 @@ class DuplicatesViewModel @Inject constructor(
         _uiState.update { state -> state.without(entry) }
         viewModelScope.launch {
             val removed = try {
-                scanService.delete(entry)
+                scanService.delete(entry, com.cortinadev.dogmatix.util.ActionReason.DUPLICATE)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -131,7 +131,7 @@ class DuplicatesViewModel @Inject constructor(
         viewModelScope.launch {
             var removed = 0
             targets.forEach { entry ->
-                try { if (scanService.delete(entry) > 0) removed++ } catch (e: CancellationException) { throw e } catch (_: Exception) { }
+                try { if (scanService.delete(entry, com.cortinadev.dogmatix.util.ActionReason.DUPLICATE) > 0) removed++ } catch (e: CancellationException) { throw e } catch (_: Exception) { }
             }
             ToastUtil.showSuccess(app, app.resources.getQuantityString(R.plurals.duplicates_suggest_done, removed, removed))
             rescan()
