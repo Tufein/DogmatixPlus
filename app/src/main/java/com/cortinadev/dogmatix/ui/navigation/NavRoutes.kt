@@ -57,6 +57,7 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
 
     /** 8.0: one search for settings, tools, screens and games. */
     object Recovery : NavRoutes("recovery", R.string.recovery_title, R.drawable.ic_history)
+    object VersionPreference : NavRoutes("version_preference", R.string.compare24_title, R.drawable.ic_compare)
     object ActionHistory : NavRoutes(com.cortinadev.dogmatix.ui.screens.tools.ACTION_HISTORY_ROUTE, R.string.hist24_title, R.drawable.ic_manage_history)
 
     object SearchAll : NavRoutes("search_all", R.string.find8_title, R.drawable.ic_search)
@@ -64,7 +65,7 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     companion object {
         /** The four sections shown as tabs; Contact, RomM and the library tools are reached from Settings. */
         val tabs by lazy { listOf(Home, Downloads, Sources, Settings) }
-        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions + FreeSpace + SearchAll + Recovery + ActionHistory }
+        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions + FreeSpace + SearchAll + Recovery + ActionHistory + VersionPreference }
     }
 }
 

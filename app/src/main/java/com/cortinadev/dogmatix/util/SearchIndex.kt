@@ -68,6 +68,7 @@ object SettingKeys {
     const val AUTOSCAN = "autoscan"
     const val MAX_RESULTS = "max_results"
     const val FAVORITE_LANGUAGES = "favorite_languages"
+    const val VERSION_PREF = "version_pref"
     const val WISHLIST_AUTO = "wishlist_auto"
     const val DIGEST = "digest"
     const val META_AUTO = "meta_auto"
@@ -117,6 +118,7 @@ object SearchIndex {
     val entries: List<SearchEntry> by lazy {
         listOf(
         SearchEntry("recovery", SearchGroup.TOOLS, R.string.recovery_title, R.string.recovery_hint, R.drawable.ic_history, SearchTarget(NavRoutes.Recovery.route)),
+        SearchEntry("version_preference", SearchGroup.TOOLS, R.string.compare24_title, R.string.compare24_row_hint, R.drawable.ic_compare, SearchTarget(NavRoutes.VersionPreference.route), keywords = R.string.find8_kw_regions),
         SearchEntry("action_history", SearchGroup.TOOLS, R.string.hist24_title, R.string.hist24_hint, R.drawable.ic_manage_history, SearchTarget(NavRoutes.ActionHistory.route), keywords = R.string.hist24_kw),
             // Settings, card by card.
             setting(SettingKeys.THEME, LOOK, R.string.settings_theme, R.string.settings_theme_hint, R.drawable.ic_dark_mode, R.string.find8_kw_theme),
@@ -169,6 +171,7 @@ object SearchIndex {
             setting(SettingKeys.AUTOSCAN, LIBRARY, R.string.settings_autoscan_every, null, R.drawable.ic_timer, R.string.find8_kw_scan, id = "autoscan_every"),
             setting(SettingKeys.MAX_RESULTS, LIBRARY, R.string.settings_max_results, R.string.settings_max_results_hint, R.drawable.ic_format_list_numbered),
             setting(SettingKeys.FAVORITE_LANGUAGES, LIBRARY, R.string.settings_favorite_languages, null, R.drawable.ic_translate, R.string.find8_kw_regions),
+            setting(SettingKeys.VERSION_PREF, LIBRARY, R.string.compare24_title, R.string.compare24_row_hint, R.drawable.ic_compare, R.string.find8_kw_regions),
             setting(SettingKeys.WISHLIST_AUTO, LIBRARY, R.string.settings_wishlist_auto, R.string.settings_wishlist_auto_hint, R.drawable.ic_wishlist, R.string.find8_kw_wishlist),
             setting(SettingKeys.DIGEST, LIBRARY, R.string.upg7_digest_setting, R.string.upg7_digest_setting_hint, R.drawable.ic_notifications, R.string.find8_kw_notifications),
 

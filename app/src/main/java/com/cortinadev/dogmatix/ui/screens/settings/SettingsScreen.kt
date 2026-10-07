@@ -864,6 +864,9 @@ fun SettingsScreen(
                 ActionPill(stringResource(R.string.settings_change), { showLanguagesDialog = true }, icon = R.drawable.ic_edit)
             }
         },
+        SettingsRow(SettingsSection.LIBRARY, key = SettingKeys.VERSION_PREF) {
+            VersionPreferenceRow(onOpen = { navController.navigate(NavRoutes.VersionPreference.route) })
+        },
         SettingsRow(SettingsSection.LIBRARY, key = SettingKeys.WISHLIST_AUTO) {
             SettingRow(
                 icon = R.drawable.ic_wishlist,

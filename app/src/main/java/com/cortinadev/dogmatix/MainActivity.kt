@@ -545,9 +545,11 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                             consoleId = entry.arguments?.getString(GamePageModel.ARG_CONSOLE).orEmpty(),
                             fileName = entry.arguments?.getString(GamePageModel.ARG_FILE).orEmpty(),
                             onBack = { navController.popBackStack() },
-                            onOpenGame = { c, f -> navController.navigate(GamePageModel.route(c, f)) }
+                            onOpenGame = { c, f -> navController.navigate(GamePageModel.route(c, f)) },
+                            onOpenVersionPreference = { navController.navigate(NavRoutes.VersionPreference.route) }
                         )
                     }
+                    composable(NavRoutes.VersionPreference.route) { com.cortinadev.dogmatix.ui.screens.settings.VersionPreferenceScreen() }
                     composable(NavRoutes.Downloads.route) { DownloadScreen(navController) }
                     composable(NavRoutes.Sources.route) { SourcesScreen() }
                     composable(NavRoutes.Settings.route) { SettingsScreen(navController) }

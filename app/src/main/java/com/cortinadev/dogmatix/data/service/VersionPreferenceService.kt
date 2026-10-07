@@ -13,7 +13,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class VersionPreferenceService @Inject constructor(@param:ApplicationContext private val context: Context) {
+class VersionPreferenceService @Inject constructor(
+    @param:ApplicationContext private val context: Context,
+    private val actionLog: ActionLogService
+) {
     /** One immutable read for a whole console, rather than a DataStore subscription per row. */
     class Snapshot internal constructor(private val preferences: Preferences) {
         fun preferred(consoleId: String, name: String): String? = preferences[key(consoleId, name)]
@@ -25,6 +28,7 @@ class VersionPreferenceService @Inject constructor(@param:ApplicationContext pri
     suspend fun preferred(consoleId: String, name: String): String? = observe(consoleId, name).first()
     suspend fun set(consoleId: String, name: String, fileName: String?) {
         context.dataStore.edit { if (fileName == null) it.remove(key(consoleId, name)) else it[key(consoleId, name)] = fileName }
+        actionLog.versionPin(consoleId, name, fileName)
     }
 
     private companion object {
