@@ -89,7 +89,8 @@ class SaveSyncService @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val rommClient: RommClient,
     private val appSettings: AppSettings,
-    private val history: OperationHistoryService
+    private val history: OperationHistoryService,
+    private val actionLog: ActionLogService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val lock = Mutex()
@@ -166,10 +167,12 @@ class SaveSyncService @Inject constructor(
                     val (result, conflicts) = engine.sync(records, confirmDeletions)
                     saveRecords(records)
                     history.event("save_sync", "${result.uploaded} / ${result.downloaded} / ${result.conflicts}", if (result.conflicts > 0) "conflict" else if (result.failed > 0) "failed" else "done")
+                    actionLog.saveSync(result.uploaded, result.downloaded, result.conflicts, result.failed, result.deletedOnDevice, result.deletedOnServer)
                     _state.update { it.copy(last = result, conflicts = conflicts) }
                     result
                 }.onFailure { e ->
                     Log.w(TAG, "Save sync failed", e)
+                    actionLog.saveSyncFailed()
                     _state.update { it.copy(error = e.message ?: e.javaClass.simpleName) }
                 }.getOrNull()
             }

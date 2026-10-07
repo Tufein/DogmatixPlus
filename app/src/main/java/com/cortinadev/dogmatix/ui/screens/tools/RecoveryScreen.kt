@@ -111,6 +111,8 @@ fun RecoveryScreen(viewModel: RecoveryViewModel = hiltViewModel(), onNavigate: (
             ActionPill(stringResource(R.string.recovery_share), {
                 context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, viewModel.history.report()), shareTitle))
             }, icon = R.drawable.ic_share)
+            // 2.4.0: the readable history of what the app did, with Restore / Download again.
+            ActionPill(stringResource(R.string.hist24_title), { onNavigate(ACTION_HISTORY_ROUTE) }, icon = R.drawable.ic_manage_history)
         }
         if (busy) item { CircularProgressIndicator() }
         if (failed || viewModel.history.unreadable) item { Text(stringResource(R.string.recovery_action_failed), color = MaterialTheme.colorScheme.error) }

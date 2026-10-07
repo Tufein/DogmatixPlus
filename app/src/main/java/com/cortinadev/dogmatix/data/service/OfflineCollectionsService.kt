@@ -295,7 +295,7 @@ class OfflineCollectionsService @Inject constructor(
                 if (item.entries.isEmpty()) { done += item.game.game; continue }
                 var deleted = 0
                 for (entry in item.entries) {
-                    deleted += try { scanService.delete(entry) } catch (e: CancellationException) { throw e } catch (e: Exception) { 0 }
+                    deleted += try { scanService.delete(entry, com.cortinadev.dogmatix.util.ActionReason.OFFLINE_COLLECTION) } catch (e: CancellationException) { throw e } catch (e: Exception) { 0 }
                 }
                 if (deleted > 0) { removed++; done += item.game.game }
             }

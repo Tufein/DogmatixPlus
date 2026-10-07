@@ -104,7 +104,7 @@ class DownloadFileManager @Inject constructor(
             val plan = names.filter { com.cortinadev.dogmatix.util.GameRemoval.safeReference(it) }.mapNotNull { name ->
                 directory.findFile(name)?.takeIf { it.isFile }?.let { RemovalFile(it.uri.toString(), directory.uri.toString(), name, it.length()) }
             }
-            trash.move(plan, file.name) > 0
+            trash.move(plan, file.name, file.consoleId, file.fileName) > 0
         } catch (_: Exception) {
             false
         }

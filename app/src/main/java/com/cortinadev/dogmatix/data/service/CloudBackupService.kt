@@ -51,7 +51,8 @@ class CloudBackupService @Inject constructor(
     private val connection: CloudConnection,
     private val backupService: BackupService,
     private val deviceSync: DeviceSyncService,
-    private val history: OperationHistoryService
+    private val history: OperationHistoryService,
+    private val actionLog: ActionLogService
 ) {
     /** A downloaded, decrypted and checked backup waiting for the user's confirmation. */
     class Prepared(val name: String, val backup: JsonObject, val createdAt: Long, val appVersion: String)
@@ -105,6 +106,7 @@ class CloudBackupService @Inject constructor(
             settings.recordBackup(System.currentTimeMillis(), uploaded.name, uploaded.bytes)
             Log.i(TAG, "Backup sent: ${uploaded.bytes} bytes, ${uploaded.deleted.size} old removed")
             history.event("cloud_backup", "")
+            actionLog.record(com.cortinadev.dogmatix.util.ActionKind.BACKED_UP, topic = com.cortinadev.dogmatix.util.ActionTopic.CLOUD_BACKUP, bytes = uploaded.bytes)
             CloudResult.Ok(uploaded)
         } catch (e: CancellationException) {
             throw e
@@ -114,6 +116,7 @@ class CloudBackupService @Inject constructor(
             if (!(quietTransient && CloudErrors.isTransient(e))) {
                 settings.recordBackupError(startedAt, CloudErrors.encode(e))
                 connection.noteFailure(e)
+                actionLog.cloudFailed(com.cortinadev.dogmatix.util.ActionKind.BACKUP_FAILED, com.cortinadev.dogmatix.util.ActionTopic.CLOUD_BACKUP, e)
             }
             CloudResult.Failed(e)
         } finally {
@@ -178,6 +181,7 @@ class CloudBackupService @Inject constructor(
                 runCatching { settings.restoreSnapshot(cloud) }
             }
             runCatching { deviceSync.resetBase() }
+            actionLog.record(com.cortinadev.dogmatix.util.ActionKind.BACKUP_RESTORED, topic = com.cortinadev.dogmatix.util.ActionTopic.CLOUD_BACKUP)
             CloudResult.Ok(summary)
         } catch (e: Exception) {
             Log.w(TAG, "Restore failed: ${e.javaClass.simpleName}")

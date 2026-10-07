@@ -18,6 +18,10 @@ import com.cortinadev.dogmatix.data.local.dao.ConsoleDao
 import com.cortinadev.dogmatix.data.local.dao.FavouriteDao
 import com.cortinadev.dogmatix.data.model.ResolvedDownloadPath
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.util.ActionCount
+import com.cortinadev.dogmatix.util.ActionKind
+import com.cortinadev.dogmatix.util.ActionReason
+import com.cortinadev.dogmatix.util.ActionTopic
 import com.cortinadev.dogmatix.util.ApkAssets
 import com.cortinadev.dogmatix.util.ConsoleFolderAliases
 import com.cortinadev.dogmatix.util.ConsoleFormatter
@@ -100,7 +104,8 @@ class SmartStorageService @Inject constructor(
     private val esdePlay: EsdePlayService,
     private val copier: VerifiedDocumentCopy,
     private val history: OperationHistoryService,
-    private val trash: TrashService
+    private val trash: TrashService,
+    private val actionLog: ActionLogService
 ) {
     enum class Trigger { MANUAL, AUTO }
 
@@ -308,6 +313,7 @@ class SmartStorageService @Inject constructor(
                     null
                 }
                 if (outcome != null) { moved++; bytes += move.console.bytes; if (!outcome) esdeUnchanged += move.console.id } else failed++
+                recordMove(move, outcome)
                 _state.update { it.copy(moved = moved, failed = failed, esdeUnchanged = esdeUnchanged.toList()) }
             }
             if (moved > 0) libraryIndex.requestRefresh()
@@ -328,6 +334,21 @@ class SmartStorageService @Inject constructor(
         } finally {
             moveGate.lock.unlock()
         }
+    }
+
+    /** The action history line of one console's move ([outcome] as [moveConsole] returns it). */
+    private fun recordMove(move: SmartStorage.Move, outcome: Boolean?) {
+        val toSd = move.to == SmartStorage.Place.SD
+        val reason = when (outcome) {
+            null -> if (toSd) ActionReason.TO_SD else ActionReason.TO_INTERNAL
+            true -> if (toSd) ActionReason.TO_SD else ActionReason.TO_INTERNAL
+            false -> if (toSd) ActionReason.TO_SD_ESDE_LEFT else ActionReason.TO_INTERNAL_ESDE_LEFT
+        }
+        actionLog.record(
+            if (outcome == null) ActionKind.MOVE_FAILED else ActionKind.MOVED, topic = ActionTopic.SMART_STORAGE,
+            consoleId = move.console.id, reason = reason, counts = mapOf(ActionCount.FILES to move.console.files),
+            bytes = if (outcome == null) 0L else move.console.bytes
+        )
     }
 
     /**
