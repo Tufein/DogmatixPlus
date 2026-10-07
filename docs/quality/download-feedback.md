@@ -12,4 +12,6 @@ Verification covers pure rate/ETA/error/update policy regressions, a real tracke
 
 Local validation on 2026-10-07: 1,213 JVM tests, zero failures/errors and two existing skips; debug APK and Android-test APK built; lint passed against the unchanged baseline. Seven numbering-policy tests and five migration simulations passed. The GitHub migration independently verified every release ID, asset/checksum, publication date, canonical source commit and archived tag object.
 
+The first CI emulator run caught an Android ICU regex incompatibility in the new release metadata parser. The closing JSON brace is now escaped explicitly, and four Android regressions verify metadata parsing, invalid inputs, build-number updates and publication-date selection. The failed candidate was never published; the corrected candidate must pass the full emulator suite before release.
+
 Physical handhelds, long live transfers and individual SAF providers still need device acceptance. On a device, check HTTP and torrent transfer speed, pause/resume, unknown-size links, a disconnected connection, expired source access, revoked folder access, low space and malformed archives. Confirm that each message offers the appropriate next step and that bulk UI controls remain responsive.

@@ -7,7 +7,7 @@ import java.time.Instant
 /** Release labels can be renumbered; Android's build number still increases between APKs. */
 object ReleaseUpdates {
     private val metadata = Regex(
-        """<!--\s*dogmatix-release:\s*(\{.*?})\s*-->""",
+        """<!--\s*dogmatix-release:\s*(\{.*?\})\s*-->""",
         RegexOption.DOT_MATCHES_ALL,
     )
 
