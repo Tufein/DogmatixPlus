@@ -37,6 +37,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -200,12 +201,14 @@ class DownloadViewModel @Inject constructor(
     init {
         // Rows deleted elsewhere (or by us) must not linger in the selection.
         viewModelScope.launch {
-            downloads.collect { list ->
-                if (_selection.value.isNotEmpty()) {
-                    val alive = list.mapTo(mutableSetOf()) { it.fileName }
-                    _selection.value = _selection.value.intersect(alive)
+            downloads.map { list -> list.mapTo(HashSet()) { it.fileName } }
+                .distinctUntilChanged()
+                .flowOn(Dispatchers.Default)
+                .collect { alive ->
+                    if (_selection.value.isNotEmpty()) {
+                        _selection.update { it.intersect(alive) }
+                    }
                 }
-            }
         }
     }
 
@@ -226,7 +229,13 @@ class DownloadViewModel @Inject constructor(
     private fun selectedItems(): List<DownloadItemModel> =
         downloads.value.filter { it.fileName in _selection.value }
 
-    fun retrySelected() = runOnSelection({ it.status.canRetry }) { repository.retryDownload(it.fileName) }
+    fun retrySelected() {
+        val selected = _selection.value
+        viewModelScope.launch(Dispatchers.Default) {
+            val names = downloads.value.filter { it.fileName in selected && it.status.canRetry }.map { it.fileName }
+            downloadService.retryDownloads(names)
+        }
+    }
 
     fun stopSelected() = runOnSelection({ it.status.canStop }) { repository.cancelDownload(it.fileName) }
 
@@ -243,8 +252,10 @@ class DownloadViewModel @Inject constructor(
         accepts: (DownloadItemModel) -> Boolean,
         action: suspend (DownloadItemModel) -> Unit
     ) {
-        val targets = selectedItems().filter(accepts)
-        viewModelScope.launch { targets.forEach { action(it) } }
+        val selected = _selection.value
+        viewModelScope.launch(Dispatchers.Default) {
+            downloads.value.filter { it.fileName in selected && accepts(it) }.forEach { action(it) }
+        }
     }
 
     /** Deleting the selection asks about the files only when some of them finished. */
@@ -264,17 +275,17 @@ class DownloadViewModel @Inject constructor(
     val showDeleteConfirmation: StateFlow<List<String>?> = _showDeleteConfirmation.asStateFlow()
 
     fun cancelDownload(fileName: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             repository.cancelDownload(fileName)
         }
     }
 
     fun pauseDownload(fileName: String) {
-        viewModelScope.launch { repository.pauseDownload(fileName) }
+        viewModelScope.launch(Dispatchers.Default) { repository.pauseDownload(fileName) }
     }
 
     fun retryDownload(fileName: String) {
-        viewModelScope.launch { 
+        viewModelScope.launch(Dispatchers.Default) {
             repository.retryDownload(fileName) 
         }
     }
@@ -284,7 +295,7 @@ class DownloadViewModel @Inject constructor(
     }
 
     private fun deleteDownloads(fileNames: List<String>, deleteFile: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             fileNames.forEach { repository.deleteDownload(it, deleteFile) }
         }
     }

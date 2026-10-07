@@ -492,7 +492,7 @@ fun HomeScreen(
                 { viewModel.downloadRow(row); showMessage(updateQueuedMessage.format(row.name)) }
             },
             onDownloadDlc = switch?.missingDlc?.takeIf { it.isNotEmpty() }?.let { rows ->
-                { rows.forEach(viewModel::downloadRow); showMessage(bulkQueuedMessage.replace("%d", rows.size.toString())) }
+                { viewModel.downloadRows(rows); showMessage(bulkQueuedMessage.replace("%d", rows.size.toString())) }
             },
             state = state,
             consoleName = ConsoleFormatter.getConsoleShortName(state.item.file.consoleId),

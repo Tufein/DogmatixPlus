@@ -263,35 +263,42 @@ class HomeViewModel @Inject constructor(
 
     /** What "Download all" would queue for the current filters ([bestOnly]: one version per game). */
     suspend fun planBulk(bestOnly: Boolean): BulkPlan {
-        val rows = fetchFiltered(currentParams(), 0, BulkPlanner.MAX_FILES * 4).rows
-        val owned = ownedKeys.value
-        val active = activeDownloads.value
-        val languages = settingsRepository.favoriteLanguages.first()
-        val whitespace = Regex("\\s+")
-        // 7.5: the same file from several sources is queued from the best one.
-        val pickBest = sourceTrack.enabled.first()
-        val records = sourceTrack.records.value
-        val orders = if (pickBest) rows.map { it.file.consoleId }.distinct().associateWith { sourceTrack.sourceOrder(it) } else emptyMap()
-        val now = System.currentTimeMillis()
-        val pinned = rows.associate { it.file.id to versionPreference.preferred(it.file.consoleId, it.file.fileName) }
-        // Thousands of rows for a whole console: plan them off the UI thread (the dialog asks from it).
-        return withContext(Dispatchers.Default) { BulkPlanner.plan(
-            rows.map {
-                BulkCandidate(
-                    // The cleaned title itself (tags are already stripped from it): the search key folds
-                    // repeated characters, so "Game 001" and "Game 011" would count as one game.
-                    it.file.id, it.file.consoleId, it.file.name.lowercase().replace(whitespace, " ").trim(),
-                    it.file.fileName, it.file.fileSize, it.tags, isOwned(it.file, owned), isDownloading(it.file, active),
-                    it.file.sourceUrl
-                )
-            },
-            bestOnly, VersionPicker.regionPreference(languages), languages, libraryIndex.freeBytes.value,
-            pickSource = { group ->
-                if (!pickBest) group.first()
-                else SourceRanking.best(group, { it.sourceUrl }, records, orders[group.first().consoleId].orEmpty(), now) ?: group.first()
-            },
-            preferredVersion = { pinned[it.id] }
-        ) }.also { lastBulkRows = rows.associateBy { it.file.id } }
+        val params = currentParams()
+        // Query-result mapping, preference keys and source ranking all scale with the whole console.
+        val (plan, byId) = withContext(Dispatchers.Default) {
+            val rows = fetchFiltered(params, 0, BulkPlanner.MAX_FILES * 4).rows
+            val owned = ownedKeys.value
+            val active = activeDownloads.value
+            val languages = settingsRepository.favoriteLanguages.first()
+            val whitespace = Regex("\\s+")
+            // 7.5: the same file from several sources is queued from the best one.
+            val pickBest = sourceTrack.enabled.first()
+            val records = sourceTrack.records.value
+            val orders = if (pickBest) rows.map { it.file.consoleId }.distinct().associateWith { sourceTrack.sourceOrder(it) } else emptyMap()
+            val now = System.currentTimeMillis()
+            val preferences = versionPreference.snapshot()
+            val pinned = rows.associate { it.file.id to preferences.preferred(it.file.consoleId, it.file.fileName) }
+            BulkPlanner.plan(
+                rows.map {
+                    BulkCandidate(
+                        // The cleaned title itself (tags are already stripped from it): the search key folds
+                        // repeated characters, so "Game 001" and "Game 011" would count as one game.
+                        it.file.id, it.file.consoleId, it.file.name.lowercase().replace(whitespace, " ").trim(),
+                        it.file.fileName, it.file.fileSize, it.tags, isOwned(it.file, owned), isDownloading(it.file, active),
+                        it.file.sourceUrl
+                    )
+                },
+                bestOnly, VersionPicker.regionPreference(languages), languages, libraryIndex.freeBytes.value,
+                pickSource = { group ->
+                    if (!pickBest) group.first()
+                    else SourceRanking.best(group, { it.sourceUrl }, records, orders[group.first().consoleId].orEmpty(), now) ?: group.first()
+                },
+                preferredVersion = { pinned[it.id] }
+            ) to rows.associateBy { it.file.id }
+        }
+        // A cancelled older plan must not replace the rows belonging to the visible dialog.
+        lastBulkRows = byId
+        return plan
     }
 
     private var lastBulkRows: Map<Long, DownloadableFileWithTags> = emptyMap()
@@ -301,7 +308,8 @@ class HomeViewModel @Inject constructor(
         val rows = plan.chosen.mapNotNull { lastBulkRows[it.id] }
         if (rows.isEmpty()) return 0
         val downloadDirectory = settingsRepository.downloadDirectory.first()
-        if (downloadDirectory.isEmpty() || !StorageHelper.isValidUri(context, downloadDirectory)) {
+        val valid = withContext(Dispatchers.IO) { StorageHelper.isValidUri(context, downloadDirectory) }
+        if (!valid) {
             ToastUtil.showError(context, context.getString(R.string.error_download_dir_missing))
             return 0
         }
@@ -312,11 +320,17 @@ class HomeViewModel @Inject constructor(
     /** Starts the download of a library row found by the Switch section (an update or a DLC). */
     /** 6.0: queues [file] with a condition (Wi-Fi, charging, tonight, at a time); null = right away. */
     fun downloadWhen(file: DownloadableFileEntity, condition: com.cortinadev.dogmatix.util.DownloadCondition?) {
-        viewModelScope.launch { downloadService.startDownload(sourceTrack.pickBest(file, sameNameOnly = true), condition) }
+        viewModelScope.launch(Dispatchers.Default) { downloadService.startDownload(sourceTrack.pickBest(file, sameNameOnly = true), condition) }
     }
 
-    fun downloadRow(file: DownloadableFileEntity) {
-        viewModelScope.launch { downloadService.startDownload(sourceTrack.pickBest(file, sameNameOnly = true)) }
+    fun downloadRow(file: DownloadableFileEntity) = downloadRows(listOf(file))
+
+    /** Switch updates and DLC from the details sheet are enqueued as one batch too. */
+    fun downloadRows(files: List<DownloadableFileEntity>) {
+        viewModelScope.launch(Dispatchers.Default) {
+            val chosen = files.map { sourceTrack.pickBest(it, sameNameOnly = true) }
+            downloadService.startDownloads(chosen)
+        }
     }
 
     private fun newSince(): Long = if (_newOnly.value) NewGames.since(System.currentTimeMillis()) else 0L
@@ -721,13 +735,15 @@ class HomeViewModel @Inject constructor(
             return
         }
 
-        if (!StorageHelper.isValidUri(context, downloadDirectory)) {
+        if (!withContext(Dispatchers.IO) { StorageHelper.isValidUri(context, downloadDirectory) }) {
             ToastUtil.showError(context, context.getString(R.string.error_download_dir_inaccessible))
             return
         }
 
         // 7.5: the copy of the game from the source with the best track record (same game, version and region).
-        downloadService.startDownload(sourceTrack.pickBest(fileWithTags.file, sameNameOnly = true))
+        withContext(Dispatchers.Default) {
+            downloadService.startDownload(sourceTrack.pickBest(fileWithTags.file, sameNameOnly = true))
+        }
     }
 }
 

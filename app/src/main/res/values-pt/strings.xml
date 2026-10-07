@@ -1270,9 +1270,9 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Transferências verificadas com recuperação retomável.</item>
-        <item>Lixo com restauro e expiração opcional; esvazie para libertar espaço.</item>
-        <item>Abra os seus jogos e fixe uma versão preferida para a seleção automática.</item>
+        <item>A seleção e as novas tentativas de transferências em lote decorrem em segundo plano.</item>
+        <item>Progresso de torrents e filas mais eficientes.</item>
+        <item>Pausar transferências HTTP interrompe a transferência; os ficheiros são verificados um de cada vez.</item>
     </string-array>
 
     <!-- 4.0 -->

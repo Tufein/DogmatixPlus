@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /** Where the download of a suggested file stands. */
@@ -126,9 +127,11 @@ class BetterVersionsViewModel @Inject constructor(
     fun download(context: Context, ids: Collection<String>) {
         val items = startable(ids)
         if (items.isEmpty()) return
-        service.download(items)
         started(items)
-        ToastUtil.showSuccess(context.applicationContext, context.resources.getQuantityString(R.plurals.upg7_download_started, items.size, items.size))
+        viewModelScope.launch {
+            withContext(Dispatchers.Default) { service.download(items) }
+            ToastUtil.showSuccess(context.applicationContext, context.resources.getQuantityString(R.plurals.upg7_download_started, items.size, items.size))
+        }
     }
 
     /**
@@ -146,9 +149,11 @@ class BetterVersionsViewModel @Inject constructor(
                 failed = context.getString(R.string.upg7_remove_failed, s.title)
             )
         }
-        service.downloadAndReplace(items, messages)
         started(items)
-        ToastUtil.showSuccess(context.applicationContext, context.resources.getQuantityString(R.plurals.upg7_download_started, items.size, items.size))
+        viewModelScope.launch {
+            withContext(Dispatchers.Default) { service.downloadAndReplace(items, messages) }
+            ToastUtil.showSuccess(context.applicationContext, context.resources.getQuantityString(R.plurals.upg7_download_started, items.size, items.size))
+        }
     }
 
     /** Hides the suggestion for good (until the ignored ones are brought back). */

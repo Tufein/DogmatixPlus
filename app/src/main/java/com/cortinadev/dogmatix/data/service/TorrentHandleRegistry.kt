@@ -29,18 +29,25 @@ import javax.inject.Singleton
 @Singleton
 class TorrentHandleRegistry @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val progressBridge: TorrentProgressBridge
 ) {
 
     private val session = SessionManager()
+    private val sessionLock = Any()
+    private var listenerRegistered = false
     private val handles = ConcurrentHashMap<String, TorrentHandle>()
     private val fetchMutexes = ConcurrentHashMap<String, Mutex>()
 
     var handleCount: Int = 0
         private set
 
-    fun start() {
+    private fun start() = synchronized(sessionLock) {
         if (!session.isRunning) {
+            if (!listenerRegistered) {
+                session.addListener(progressBridge)
+                listenerRegistered = true
+            }
             session.start()
             // libtorrent rejects info dicts above 3 MiB by default (peers get disconnected with
             // "metadata too large" and re-tried forever); multi-TB collection torrents need more.
@@ -59,14 +66,14 @@ class TorrentHandleRegistry @Inject constructor(
     /** Download limit of the whole torrent session in bytes per second; 0 = none. Kept for a session started later. */
     @Volatile private var rateLimit: Long = 0
 
-    fun setDownloadRateLimit(bytesPerSecond: Long) {
+    fun setDownloadRateLimit(bytesPerSecond: Long) = synchronized(sessionLock) {
         rateLimit = bytesPerSecond
         if (session.isRunning) {
             session.applySettings(SettingsPack().downloadRateLimit(bytesPerSecond.coerceIn(0, Int.MAX_VALUE.toLong()).toInt()))
         }
     }
 
-    fun stop() {
+    fun stop() = synchronized(sessionLock) {
         if (session.isRunning) {
             handles.values.forEach { if (it.isValid) it.pause() }
             handles.clear()
@@ -161,8 +168,6 @@ class TorrentHandleRegistry @Inject constructor(
         }
         if (deleted > 0) Log.i(TAG, "Deleted $deleted partial file(s) from torrent cache")
     }
-
-    fun session(): SessionManager = session
 
     /** Metadata of magnets fetched before, so a rescan does not ask the swarm again (a magnet's content never changes). */
     private val metadataCache = File(context.filesDir, "torrent_meta")

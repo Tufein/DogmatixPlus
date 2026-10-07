@@ -21,7 +21,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -47,6 +49,7 @@ class QueueTileService : TileService() {
         watching = scope.launch {
             combine(downloadService.downloads, downloadService.gate.held) { list, held -> QueueTile.state(list, held) }
                 .distinctUntilChanged()
+                .flowOn(Dispatchers.Default)
                 .collect { render(it) }
         }
     }
@@ -64,11 +67,16 @@ class QueueTileService : TileService() {
 
     override fun onClick() {
         super.onClick()
-        val gate = downloadService.gate
-        when (QueueTile.tap(QueueTile.state(downloadService.downloads.value, gate.held.value))) {
-            QueueTileTap.HOLD -> gate.setHeld(true)
-            QueueTileTap.RESUME -> gate.setHeld(false)
-            QueueTileTap.OPEN_DOWNLOADS -> openDownloads()
+        scope.launch {
+            val gate = downloadService.gate
+            val action = withContext(Dispatchers.Default) {
+                QueueTile.tap(QueueTile.state(downloadService.downloads.value, gate.held.value))
+            }
+            when (action) {
+                QueueTileTap.HOLD -> gate.setHeld(true)
+                QueueTileTap.RESUME -> gate.setHeld(false)
+                QueueTileTap.OPEN_DOWNLOADS -> openDownloads()
+            }
         }
     }
 

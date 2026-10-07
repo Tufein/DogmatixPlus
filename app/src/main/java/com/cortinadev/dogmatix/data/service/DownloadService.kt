@@ -27,6 +27,7 @@ import com.cortinadev.dogmatix.util.ArchiveExtractionUtils
 import com.cortinadev.dogmatix.util.Constants
 import com.cortinadev.dogmatix.util.DownloadCondition
 import com.cortinadev.dogmatix.util.DownloadQueue
+import com.cortinadev.dogmatix.util.DownloadStreams
 import com.cortinadev.dogmatix.util.WaitInfo
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.MirrorUrls
@@ -44,9 +45,11 @@ import com.cortinadev.dogmatix.util.SourcesJson
 import com.cortinadev.dogmatix.util.StorageHelper
 import com.cortinadev.dogmatix.util.VerifyState
 import java.net.URI
+import java.net.HttpURLConnection
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -58,6 +61,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -152,6 +157,8 @@ class DownloadService @Inject constructor(
     private val headerHashes = ConcurrentHashMap<String, String>()
 
     private val downloadJobs = ConcurrentHashMap<String, Job>()
+    private val cleanupJobs = ConcurrentHashMap<String, Job>()
+    private val sourceSelections = ConcurrentHashMap<String, CompletableDeferred<DownloadableFileEntity>>()
     /** The download slots and the order of what waits for one (the user can reorder it). */
     private val queue = DownloadQueue(3)
 
@@ -212,18 +219,31 @@ class DownloadService @Inject constructor(
     // so jobs are not orphaned if the service is destroyed.
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    init {
-        serviceScope.launch {
-            settingsRepository.concurrentDownloads.collect { max -> queue.setSlots(max) }
-        }
-        serviceScope.launch { appSettings.perServerLimit.collect { queue.setPerHost(it) } }
-        serviceScope.launch { restoreHistory() }
-    }
-
-    /** Downloads that were queued or running when the process ended, oldest first (filled by [restoreHistory]). */
+    /** Downloads interrupted by process death, oldest first (filled by [restoreHistory]). */
     private val interrupted = CopyOnWriteArrayList<String>()
     private val restored = CompletableDeferred<Unit>()
     private val requeueDone = AtomicBoolean(false)
+    // Hashing must not grow without a bound as small files finish during a bulk download.
+    private val verificationSlots = Semaphore(1)
+
+    /** Operational storage/network failures in housekeeping must not reach Android's crash handler. */
+    private fun launchBackground(operation: String, block: suspend () -> Unit): Job = serviceScope.launch {
+        try {
+            block()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "$operation failed: ${e.message}", e)
+        }
+    }
+
+    init {
+        launchBackground("Download slot settings") {
+            settingsRepository.concurrentDownloads.collect { max -> queue.setSlots(max) }
+        }
+        launchBackground("Per-server settings") { appSettings.perServerLimit.collect { queue.setPerHost(it) } }
+        launchBackground("Download history restore") { restoreHistory() }
+    }
 
     /**
      * Puts the downloads that were interrupted by the app closing back in the queue (once per
@@ -262,6 +282,8 @@ class DownloadService @Inject constructor(
             // Conditions of downloads that are gone (removed while the app was closed) are dropped.
             conditionGate.prune { downloadEntities.containsKey(it) }
             Log.d(TAG, "Restored ${rows.size} download(s) from history")
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Could not restore download history: ${e.message}")
         } finally {
@@ -285,46 +307,101 @@ class DownloadService @Inject constructor(
      * at 14:30: `DownloadConditions.atTime(14 * 60 + 30, System.currentTimeMillis())`.
      */
     fun startDownloads(files: List<DownloadableFileEntity>, condition: DownloadCondition? = null) {
+        lateinit var sources: List<CompletableDeferred<DownloadableFileEntity>>
+        lateinit var jobs: List<Job>
+        lateinit var priorCleanups: List<Job>
         val fresh = synchronized(startLock) {
             // One set of the active names instead of a walk over the whole list per file.
             val active = downloadProgressTracker.activeNames()
             val items = files.distinctBy { it.fileName }
                 .filterNot { it.fileName in active }
                 .map { it to downloadFileManager.createDownloadItem(it) }
+            if (items.isEmpty()) return
+            val names = items.mapTo(HashSet()) { it.first.fileName }
+            _verification.update { it - names }
+            _switchedTo.update { it - names }
+            switchedOnce.removeAll(names)
+            items.forEach { (file, _) -> downloadEntities[file.fileName] = file }
+            if (condition != null) conditionGate.setAll(names, condition)
+            priorCleanups = names.mapNotNull { cleanupJobs[it] }.distinct()
+            sources = items.map { CompletableDeferred<DownloadableFileEntity>() }
+            items.forEachIndexed { i, (file, _) -> sourceSelections[file.fileName] = sources[i] }
+            jobs = items.mapIndexed { i, (file, _) -> launchJob(file, sources[i], startImmediately = false) }
+            // Publish only after every accepted row has an entity and a cancellable job. Stop/
+            // pause uses this same lock, so it cannot miss the later rows in a bulk registration.
             downloadProgressTracker.addDownloads(items.map { it.second })
             items
         }
-        if (fresh.isEmpty()) return
-        // A new download of a name starts without the verdict of an earlier one (startDownload goes through here too).
-        val names = fresh.mapTo(HashSet()) { it.first.fileName }
-        _verification.update { it - names }
-        _switchedTo.update { it - names }
-        switchedOnce.removeAll(names)
-        fresh.forEach { (file, _) -> downloadEntities[file.fileName] = file }
-        // Before the jobs start, so none of them runs unconditioned for a moment.
-        if (condition != null) conditionGate.setAll(fresh.map { it.first.fileName }, condition)
-        // The jobs are registered at once (pause / stop work right away) but take their source from here.
-        val sources = fresh.map { CompletableDeferred<DownloadableFileEntity>() }
-        serviceScope.launch {
-            // One coroutine picks the sources and then writes the history, so the row stored is the source used.
-            val chosen = fresh.mapIndexed { i, (file, _) ->
-                (runCatching { chooseSource(file) }.getOrNull() ?: file).also { sources[i].complete(it) }
+        launchBackground("Storing new downloads") {
+            // Insert history before any transfer starts: a fast download's status UPDATE used
+            // to arrive before its row existed, then the late batch insert restored DOWNLOADING.
+            val chosen = try {
+                priorCleanups.forEach { it.join() }
+                fresh.mapIndexed { i, (file, _) ->
+                    try {
+                        chooseSource(file, sources[i])
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Could not choose a source for ${file.fileName}: ${e.message}")
+                        file
+                    }
+                }
+            } catch (e: CancellationException) {
+                sources.forEach { it.cancel(e) }
+                throw e
             }
-            runCatching { historyDao.upsertAll(fresh.mapIndexed { i, (_, item) -> DownloadHistoryEntity.from(chosen[i], item) }) }
-                .onFailure { Log.w(TAG, "Could not store the new downloads: ${it.message}") }
+            try {
+                // A pause/stop/delete during source selection wins over the original batch row.
+                val latest = downloadProgressTracker.getDownloads().associateBy { it.fileName }
+                val rows = chosen.mapIndexedNotNull { i, entity ->
+                    latest[entity.fileName]?.takeIf { downloadEntities[entity.fileName] == entity && sourceSelections[entity.fileName] === sources[i] }
+                        ?.let { DownloadHistoryEntity.from(entity, it) }
+                }
+                historyDao.upsertAll(rows)
+                // Changes while Room was inserting may already have been updated against a
+                // nonexistent row. Re-persist the canonical statuses through the tracker actor.
+                downloadProgressTracker.persistCurrentStatuses(rows.map { it.fileName })
+                chosen.filter { !downloadEntities.containsKey(it.fileName) }.forEach { historyDao.delete(it.fileName) }
+            } catch (e: CancellationException) {
+                sources.forEach { it.cancel(e) }
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not store the new downloads: ${e.message}", e)
+            } finally {
+                // A recoverable persistence failure must not strand every download in the batch.
+                chosen.forEachIndexed { i, file ->
+                    sources[i].complete(file)
+                    sourceSelections.remove(file.fileName, sources[i])
+                }
+            }
         }
         startForegroundService()
-        fresh.forEachIndexed { i, (file, _) -> launchJob(file, sources[i]) }
+        jobs.forEach { it.start() }
     }
 
     /** [source]: a new download waits for the source picked for it (see [chooseSource]). */
-    private fun launchJob(file: DownloadableFileEntity, source: CompletableDeferred<DownloadableFileEntity>? = null) {
+    private fun launchJob(file: DownloadableFileEntity, source: CompletableDeferred<DownloadableFileEntity>? = null, startImmediately: Boolean = true): Job = synchronized(startLock) {
+        val previous = downloadJobs[file.fileName]
+        val cleanup = cleanupJobs[file.fileName]
+        val selection = source ?: sourceSelections[file.fileName]
         // Registered before it starts, so a download that ends at once cannot leave a stale entry.
         val job = serviceScope.launch(start = CoroutineStart.LAZY) {
             // The row actually downloaded: the same file name, possibly from another source.
             var current = file
+            val owner = coroutineContext[Job]!!
             try {
-                if (source != null) current = source.await()
+                previous?.join()
+                cleanup?.join()
+                selection?.await()
+                currentCoroutineContext().ensureActive()
+                current = downloadEntities[file.fileName] ?: return@launch
+                synchronized(startLock) {
+                    if (downloadJobs[file.fileName] !== owner || !owner.isActive) return@launch
+                    // A previous native preflight may have reported failure while this retry
+                    // waited for its cleanup. This generation now owns the row and its state.
+                    downloadProgressTracker.updateDownloadStatus(file.fileName, DownloadStatus.DOWNLOADING)
+                }
                 val chosen = current
                 var ran = false
                 while (!ran) {
@@ -339,6 +416,8 @@ class DownloadService @Inject constructor(
                         // Brief delay to allow the foreground service and initial UI state to settle
                         // before network/torrent activity begins.
                         delay(1000L)
+                        currentCoroutineContext().ensureActive()
+                        if (downloadJobs[file.fileName] !== owner) return@withSlot
                         transferring += file.fileName
                         perform(chosen)
                         ran = true
@@ -353,34 +432,71 @@ class DownloadService @Inject constructor(
                     // A torrent that could not be moved into place failed here, not at its source.
                     DownloadStatus.FAILED -> if (!localFailures.remove(file.fileName)) {
                         sourceTrack.recordFailure(chosen, null)
-                        serviceScope.launch { switchSourceOnce(file.fileName) }
+                        launchBackground("Switching source for ${file.fileName}") { switchSourceOnce(file.fileName) }
                     }
                     else -> Unit
                 }
             } catch (e: kotlinx.coroutines.CancellationException) {
-                updateStatus(file.fileName, if (pausingFiles.remove(file.fileName)) DownloadStatus.PAUSED else DownloadStatus.STOPPED)
+                synchronized(startLock) {
+                    if (downloadJobs[file.fileName] === owner) {
+                        downloadProgressTracker.updateDownloadStatus(file.fileName, if (file.fileName in pausingFiles) DownloadStatus.PAUSED else DownloadStatus.STOPPED)
+                    }
+                }
                 throw e
             } catch (e: LowStorageException) {
-                updateStatus(file.fileName, DownloadStatus.STOPPED)
+                synchronized(startLock) { if (downloadJobs[file.fileName] === owner) downloadProgressTracker.updateDownloadStatus(file.fileName, DownloadStatus.STOPPED) }
                 notifyLowStorage()
             } catch (e: Exception) {
                 Log.e(TAG, "Download failed for ${file.fileName}: ${e.message}")
-                updateStatus(file.fileName, DownloadStatus.FAILED)
+                synchronized(startLock) { if (downloadJobs[file.fileName] === owner) downloadProgressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED) }
                 // A missing folder or a full disk says nothing about the source.
                 if (SourceFailures.isSourceSide(e)) sourceTrack.recordFailure(current, e)
                 scheduleAutoRetry(file.fileName, e)
             } finally {
-                transferring.remove(file.fileName)
-                viaDebrid.remove(file.fileName)
-                parkable.remove(file.fileName)
-                localFailures.remove(file.fileName)
-                proceeding.remove(file.fileName)
-                conditionGate.clear(file.fileName)
-                downloadJobs.remove(file.fileName, coroutineContext[Job]!!)
+                finishJob(file.fileName, owner)
             }
         }
+        job.invokeOnCompletion {
+            // A LAZY job may be canceled before its body/finally is entered.
+            finishJob(file.fileName, job)
+        }
         downloadJobs[file.fileName] = job
+        if (startImmediately) job.start()
+        job
+    }
+
+    private fun finishJob(fileName: String, owner: Job) = synchronized(startLock) {
+        if (downloadJobs.remove(fileName, owner)) {
+            transferring.remove(fileName)
+            viaDebrid.remove(fileName)
+            parkable.remove(fileName)
+            localFailures.remove(fileName)
+            proceeding.remove(fileName)
+            conditionGate.clear(fileName)
+        }
+    }
+
+    /** Replacements wait for both the old IO worker and its serialized native/account cleanup. */
+    private fun launchCleanup(fileName: String, operation: String, transfer: Job?, block: suspend () -> Unit): Job {
+        val previous = cleanupJobs[fileName]
+        val job = serviceScope.launch(start = CoroutineStart.LAZY) {
+            try {
+                previous?.join()
+                transfer?.join()
+                block()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "$operation failed: ${e.message}", e)
+            } finally {
+                synchronized(startLock) {
+                    if (cleanupJobs.remove(fileName, coroutineContext[Job]!!)) pausingFiles.remove(fileName)
+                }
+            }
+        }
+        cleanupJobs[fileName] = job
         job.start()
+        return job
     }
 
     /** Automatic retries done so far per download; a retry by the user starts the count again. */
@@ -393,12 +509,12 @@ class DownloadService @Inject constructor(
     private fun scheduleAutoRetry(fileName: String, error: Exception) {
         val done = autoRetries[fileName] ?: 0
         val wait = if (AutoRetry.isTemporary(error)) AutoRetry.waitBeforeRetry(done) else null
-        serviceScope.launch {
+        launchBackground("Automatic retry for $fileName") {
             // No (more) retries: the download failed for good here; another source may have it
             // (not when the device was the problem: no folder, the file could not be written).
             if (wait == null || !appSettings.autoRetryFailed.first()) {
                 if (SourceFailures.isSourceSide(error)) switchSourceOnce(fileName)
-                return@launch
+                return@launchBackground
             }
             autoRetries[fileName] = done + 1
             Log.i(TAG, "Retrying $fileName by itself in ${wait / 1000}s (retry ${done + 1} of ${AutoRetry.WAITS_MS.size})")
@@ -420,10 +536,12 @@ class DownloadService @Inject constructor(
      * With "Pick the best source" on, a new download takes the copy of the same file from the source
      * with the best track record (see [SourceTrackService.ranked]); [file] itself otherwise.
      */
-    private suspend fun chooseSource(file: DownloadableFileEntity): DownloadableFileEntity {
+    private suspend fun chooseSource(file: DownloadableFileEntity, selection: CompletableDeferred<DownloadableFileEntity>): DownloadableFileEntity {
         val best = sourceTrack.pickBest(file)
         if (best.downloadUrl == file.downloadUrl || best.fileName != file.fileName) return file
-        if (!downloadEntities.replace(file.fileName, file, best)) return file
+        synchronized(startLock) {
+            if (sourceSelections[file.fileName] !== selection || !downloadEntities.replace(file.fileName, file, best)) return file
+        }
         Log.i(TAG, "Taking ${file.fileName} from ${SourceRanking.label(best.sourceUrl)}")
         // A part left by the other server is not continued (the caller stores the new history row).
         partials.remove(file.fileName)
@@ -511,19 +629,25 @@ class DownloadService @Inject constructor(
 
     fun cancelDownload(fileName: String) {
         userActed(fileName)
-        downloadJobs.remove(fileName)?.cancel()
-        val entity = downloadEntities[fileName] ?: return
-        serviceScope.launch {
+        synchronized(startLock) {
+            pausingFiles.remove(fileName)
+            val entity = downloadEntities[fileName] ?: return
+            // The old worker's finally may be superseded by an immediate retry. A stop must
+            // still remove its time/charging condition before that replacement is registered.
+            conditionGate.clear(fileName)
+            val transfer = downloadJobs[fileName]
             val debrid = debridTorrents.remove(fileName)
-            when {
-                debrid != null -> {
-                    updateStatus(fileName, DownloadStatus.STOPPED)
-                    historyDao.setDebrid(fileName, null, null, null)
-                    debrid.first.delete(debrid.second)
+            downloadProgressTracker.updateDownloadStatus(fileName, DownloadStatus.STOPPED)
+            launchCleanup(fileName, "Stopping $fileName", transfer) {
+                when {
+                    debrid != null -> {
+                        historyDao.setDebrid(fileName, null, null, null)
+                        debrid.first.delete(debrid.second)
+                    }
+                    entity.isTorrent -> torrentDownloadService.cancelDownload(entity, reportStatus = false)
                 }
-                entity.isTorrent -> torrentDownloadService.cancelDownload(entity)
-                else -> updateStatus(fileName, DownloadStatus.STOPPED)
             }
+            transfer?.cancel()
         }
     }
 
@@ -536,21 +660,18 @@ class DownloadService @Inject constructor(
      * the first landed is ignored, so the download still ends on PAUSED.
      */
     fun pauseDownload(fileName: String, byUser: Boolean = true) {
-        val entity = downloadEntities[fileName] ?: return
-        val status = downloadProgressTracker.getDownloads().firstOrNull { it.fileName == fileName }?.status ?: return
-        if (!QueueActions.canPause(status, entity.isTorrent)) return
         if (byUser) userActed(fileName)
-        if (!pausingFiles.add(fileName)) return
-        val job = downloadJobs.remove(fileName)
-        // Web without a job: nothing runs, so nothing to pause.
-        if (job == null && !entity.isTorrent) { pausingFiles.remove(fileName); return }
-        job?.cancel()
-        // Web: the cancelled job lands on PAUSED itself (see launchJob).
-        if (entity.isTorrent) serviceScope.launch {
-            torrentDownloadService.pauseDownload(entity)
-            updateStatus(fileName, DownloadStatus.PAUSED)
-            // With a job, launchJob takes the name off when the job ends.
-            if (job == null) pausingFiles.remove(fileName)
+        synchronized(startLock) {
+            val entity = downloadEntities[fileName] ?: return
+            val status = downloadProgressTracker.getDownloads().firstOrNull { it.fileName == fileName }?.status ?: return
+            if (!QueueActions.canPause(status, entity.isTorrent)) return
+            pausingFiles.add(fileName)
+            val transfer = downloadJobs[fileName]
+            downloadProgressTracker.updateDownloadStatus(fileName, DownloadStatus.PAUSED)
+            launchCleanup(fileName, "Pausing $fileName", transfer) {
+                if (entity.isTorrent) torrentDownloadService.pauseDownload(entity)
+            }
+            transfer?.cancel()
         }
     }
 
@@ -562,19 +683,20 @@ class DownloadService @Inject constructor(
     }
 
     private fun restartDownload(fileName: String) {
-        val entity = synchronized(startLock) {
+        val job = synchronized(startLock) {
             if (!downloadProgressTracker.canRetryDownload(fileName)) return
             val entity = downloadEntities[fileName] ?: return
             // Reset the existing list entry in place — calling startDownload would add a duplicate.
             downloadProgressTracker.resetDownloadForRetry(fileName)
-            entity
+            launchJob(entity, startImmediately = false)
         }
         _verification.update { it - fileName }
-        serviceScope.launch {
+        launchBackground("Storing restart for $fileName") {
             historyDao.markRestarted(fileName, DownloadStatus.DOWNLOADING.name, System.currentTimeMillis())
+            downloadProgressTracker.persistCurrentStatuses(listOf(fileName))
         }
         startForegroundService()
-        launchJob(entity)
+        job.start()
     }
 
     /**
@@ -584,43 +706,50 @@ class DownloadService @Inject constructor(
     fun retryDownloads(fileNames: List<String>, byUser: Boolean = true): Int {
         if (byUser) fileNames.forEach(::userActed)
         fileNames.forEach { autoRetries.remove(it); switchedOnce.remove(it) }
+        lateinit var jobs: List<Job>
         val entities = synchronized(startLock) {
-            downloadProgressTracker.resetDownloadsForRetry(fileNames).mapNotNull { downloadEntities[it] }
+            downloadProgressTracker.resetDownloadsForRetry(fileNames).mapNotNull { downloadEntities[it] }.also { entities ->
+                jobs = entities.map { launchJob(it, startImmediately = false) }
+            }
         }
         if (entities.isEmpty()) return 0
         _verification.update { it - entities.mapTo(HashSet()) { e -> e.fileName } }
         val now = System.currentTimeMillis()
-        serviceScope.launch {
+        launchBackground("Storing bulk restart") {
             entities.map { it.fileName }.chunked(500).forEach { historyDao.markRestartedAll(it, DownloadStatus.DOWNLOADING.name, now) }
+            downloadProgressTracker.persistCurrentStatuses(entities.map { it.fileName })
         }
         startForegroundService()
-        entities.forEach { launchJob(it) }
+        jobs.forEach { it.start() }
         return entities.size
     }
 
     fun deleteDownload(fileName: String, deleteFile: Boolean = false) {
         userActed(fileName)
-        downloadJobs.remove(fileName)?.cancel()
-        autoRetries.remove(fileName)
-        switchedOnce.remove(fileName)
-        _switchedTo.update { it - fileName }
-        conditionGate.clear(fileName)
-        val entity = downloadEntities.remove(fileName)
-        val extracted = extractedFilesMap.remove(fileName) ?: emptyList()
-        val debrid = debridTorrents.remove(fileName)
-        _verification.update { it - fileName }
-        serviceScope.launch {
-            if (debrid != null) debrid.first.delete(debrid.second)
-            else if (entity?.isTorrent == true) torrentDownloadService.cancelDownload(entity)
-            if (deleteFile && entity != null) downloadFileManager.deleteFileByName(entity, true, extracted)
-            historyDao.delete(fileName)
+        synchronized(startLock) {
+            pausingFiles.remove(fileName)
+            val transfer = downloadJobs[fileName]
+            autoRetries.remove(fileName)
+            switchedOnce.remove(fileName)
+            _switchedTo.update { it - fileName }
+            conditionGate.clear(fileName)
+            val entity = downloadEntities.remove(fileName)
+            val extracted = extractedFilesMap.remove(fileName) ?: emptyList()
+            val debrid = debridTorrents.remove(fileName)
+            _verification.update { it - fileName }
+            downloadProgressTracker.removeDownload(fileName)
+            launchCleanup(fileName, "Removing $fileName", transfer) {
+                if (debrid != null) debrid.first.delete(debrid.second)
+                else if (entity?.isTorrent == true) torrentDownloadService.cancelDownload(entity, reportStatus = false)
+                if (deleteFile && entity != null) downloadFileManager.deleteFileByName(entity, true, extracted)
+                historyDao.delete(fileName)
+            }
+            transfer?.cancel()
         }
-        downloadProgressTracker.removeDownload(fileName)
     }
 
     fun cancelAllDownloads() {
-        downloadJobs.values.forEach { it.cancel() }
-        downloadJobs.clear()
+        getDownloads().filterNot { it.isFinished }.forEach { cancelDownload(it.fileName) }
     }
 
     fun getDownloads(): List<DownloadItemModel> = downloadProgressTracker.getDownloads()
@@ -720,17 +849,16 @@ class DownloadService @Inject constructor(
                 } ?: throw Exception("Could not open output stream for ${documentFile.uri}")
             }
 
-            // Clean up cache
-            internalFile.delete()
-            internalFile.parentFile?.takeIf { it.list()?.isEmpty() == true }?.delete()
-
-            // Release handle only when no sibling files still downloading from same torrent
+            // Siblings can share torrent pieces with this file. Keep the native session's
+            // backing files until the last tracked sibling releases the handle and its cache.
             torrentDownloadService.finishDownload(file)
 
             Log.i(TAG, "Torrent processed successfully: ${file.fileName}")
             updateStatus(file.fileName, DownloadStatus.COMPLETED)
             _finished.tryEmit(file.fileName)
 
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Error processing torrent file for ${file.fileName}: ${e.message}", e)
             localFailures += file.fileName
@@ -763,7 +891,7 @@ class DownloadService @Inject constructor(
     /** Removes the torrent from the debrid account, detached from the (cancellable) download job. */
     private fun releaseDebrid(fileName: String) {
         val (client, id) = debridTorrents.remove(fileName) ?: return
-        serviceScope.launch { client.delete(id) }
+        launchBackground("Removing remote torrent for $fileName") { client.delete(id) }
     }
 
     private suspend fun performDebridDownloadInner(file: DownloadableFileEntity, client: DebridClient, magnet: String) {
@@ -919,6 +1047,7 @@ class DownloadService @Inject constructor(
         var inputStream: InputStream? = null
         var outputStream: OutputStream? = null
         var documentFile: DocumentFile? = null
+        var activeConnection: HttpURLConnection? = null
 
         try {
             val subPath = downloadFileManager.getSubPath(file)
@@ -934,6 +1063,7 @@ class DownloadService @Inject constructor(
             val auth = if (RommSource.isDownloadFrom(rommClient.configuredBaseUrl(), downloadUrl)) rommClient.downloadHeaders() else emptyMap()
             val headers = if (partialBytes > 0 && record?.validator != null) auth + ("If-Range" to record.validator) else auth
             val connection = downloadHttpClient.createConnection(downloadUrl, rangeStart = partialBytes, headers = headers)
+                .also { activeConnection = it }
             inputStream = connection.inputStream
 
             val startOffset: Long
@@ -965,6 +1095,12 @@ class DownloadService @Inject constructor(
             }
 
             streamWithProgress(inputStream, outputStream, file, contentLength, startOffset)
+            // SAF providers can finalize a write only on close. Extraction/checksums must see a
+            // finished file, and a canceled transfer must never run the completion steps.
+            currentCoroutineContext().ensureActive()
+            try { outputStream.close() } catch (e: java.io.IOException) { throw StorageException("Could not finish ${file.fileName}: ${e.message}", e) }
+            outputStream = null
+            currentCoroutineContext().ensureActive()
             partials.remove(file.fileName)
             handlePostDownload(file, documentFile, subPath)
 
@@ -982,8 +1118,11 @@ class DownloadService @Inject constructor(
             throw e
         } finally {
             parkable.remove(file.fileName)
-            inputStream?.close()
-            outputStream?.close()
+            // Close independently: one provider error must not leak the other descriptor or
+            // replace the CancellationException which makes a pause land on PAUSED.
+            try { inputStream?.close() } catch (e: java.io.IOException) { Log.w(TAG, "Could not close input for ${file.fileName}: ${e.message}") }
+            try { outputStream?.close() } catch (e: java.io.IOException) { Log.w(TAG, "Could not close output for ${file.fileName}: ${e.message}") }
+            try { activeConnection?.disconnect() } catch (e: Exception) { Log.w(TAG, "Could not disconnect ${file.fileName}: ${e.message}") }
         }
     }
 
@@ -994,23 +1133,13 @@ class DownloadService @Inject constructor(
         contentLength: Long,
         startOffset: Long = 0L
     ) {
-        val buffer = ByteArray(Constants.BUFFER_SIZE)
         var sinceSpaceCheck = 0L
         var downloaded = startOffset
         val startTime = System.currentTimeMillis()
         var lastUpdateTime = startTime
         var lastDownloaded = startOffset
 
-        while (true) {
-            val bytesRead = input.read(buffer)
-            if (bytesRead == -1) break
-            if (downloadJobs[file.fileName]?.isCancelled == true) {
-                updateStatus(file.fileName, DownloadStatus.STOPPED)
-                return
-            }
-
-            // A write that fails is the device's storage (full, removed), not the source.
-            try { output.write(buffer, 0, bytesRead) } catch (e: java.io.IOException) { throw StorageException("Could not write ${file.fileName}: ${e.message}", e) }
+        DownloadStreams.copy(input, output, Constants.BUFFER_SIZE) { bytesRead ->
             downloaded += bytesRead
             // One limit for all downloads together (and it follows the setting while downloading).
             bandwidthLimiter.acquire(bytesRead)
@@ -1044,6 +1173,7 @@ class DownloadService @Inject constructor(
         documentFile: DocumentFile,
         subPath: String
     ) {
+        currentCoroutineContext().ensureActive()
         if (!ArchiveUtils.isExtractable(file.fileExtension) || !settingsRepository.autoUnzip.first()) {
             updateStatus(file.fileName, DownloadStatus.COMPLETED)
             _finished.tryEmit(file.fileName)
@@ -1061,9 +1191,12 @@ class DownloadService @Inject constructor(
             } else {
                 Log.w(TAG, "Extraction produced no files for ${file.fileName}")
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "Extraction failed for ${file.fileName}: ${e.message}")
         }
+        currentCoroutineContext().ensureActive()
         updateStatus(file.fileName, DownloadStatus.COMPLETED)
         _finished.tryEmit(file.fileName)
     }
@@ -1076,17 +1209,21 @@ class DownloadService @Inject constructor(
     private fun verifyInBackground(file: DownloadableFileEntity, documentFile: DocumentFile) {
         val expected: ExpectedHash = Checksums.parse(file.expectedHash) ?: Checksums.parse(headerHashes.remove(file.fileName))
             ?: run { checkAgainstDat(file, documentFile); return }
-        serviceScope.launch {
-            _verification.update { it + (file.fileName to VerifyState.CHECKING) }
-            val state = runCatching {
-                val actual = context.contentResolver.openInputStream(documentFile.uri)?.use { Checksums.hexOf(it, expected.algo) }
-                if (actual != null && Checksums.matches(expected, actual)) VerifyState.VERIFIED else VerifyState.MISMATCH
-            }.getOrElse { e ->
-                Log.w(TAG, "Could not check ${file.fileName}: ${e.message}")
-                null
+        launchBackground("Checking ${file.fileName}") {
+            verificationSlots.withPermit {
+                _verification.update { it + (file.fileName to VerifyState.CHECKING) }
+                val state = try {
+                    val actual = context.contentResolver.openInputStream(documentFile.uri)?.use { Checksums.hexOf(it, expected.algo) }
+                    if (actual != null && Checksums.matches(expected, actual)) VerifyState.VERIFIED else VerifyState.MISMATCH
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not check ${file.fileName}: ${e.message}")
+                    null
+                }
+                _verification.update { if (state == null) it - file.fileName else it + (file.fileName to state) }
+                if (state == VerifyState.MISMATCH) Log.w(TAG, "Checksum of ${file.fileName} differs from the one the source published")
             }
-            _verification.update { if (state == null) it - file.fileName else it + (file.fileName to state) }
-            if (state == VerifyState.MISMATCH) Log.w(TAG, "Checksum of ${file.fileName} differs from the one the source published")
         }
     }
 
@@ -1095,12 +1232,19 @@ class DownloadService @Inject constructor(
      * looked up in it (see [DatService.checkDownloaded]). No DAT, or a format DATs do not cover = nothing shown.
      */
     private fun checkAgainstDat(file: DownloadableFileEntity, documentFile: DocumentFile) {
-        serviceScope.launch {
-            val check = runCatching {
-                datService.checkDownloaded(file.consoleId, documentFile.name ?: file.fileName, documentFile.uri, documentFile.length(), documentFile.lastModified())
-            }.onFailure { Log.w(TAG, "Could not check ${file.fileName} against the DAT: ${it.message}") }.getOrNull() ?: return@launch
-            val state = if (check.status == DatStatus.UNKNOWN) VerifyState.DAT_UNKNOWN else VerifyState.DAT_OK
-            _verification.update { it + (file.fileName to state) }
+        launchBackground("Checking ${file.fileName} against the DAT") {
+            verificationSlots.withPermit {
+                val check = try {
+                    datService.checkDownloaded(file.consoleId, documentFile.name ?: file.fileName, documentFile.uri, documentFile.length(), documentFile.lastModified())
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not check ${file.fileName} against the DAT: ${e.message}")
+                    null
+                } ?: return@withPermit
+                val state = if (check.status == DatStatus.UNKNOWN) VerifyState.DAT_UNKNOWN else VerifyState.DAT_OK
+                _verification.update { it + (file.fileName to state) }
+            }
         }
     }
 
@@ -1122,8 +1266,12 @@ class DownloadService @Inject constructor(
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
     }
 
-    private suspend fun updateStatus(fileName: String, status: DownloadStatus) =
-        downloadProgressTracker.updateDownloadStatus(fileName, status)
+    private suspend fun updateStatus(fileName: String, status: DownloadStatus) {
+        val owner = currentCoroutineContext()[Job]
+        synchronized(startLock) {
+            if (downloadJobs[fileName] === owner) downloadProgressTracker.updateDownloadStatus(fileName, status)
+        }
+    }
 
     /**
      * Starts the foreground service if it is not running; it stops itself once nothing is active

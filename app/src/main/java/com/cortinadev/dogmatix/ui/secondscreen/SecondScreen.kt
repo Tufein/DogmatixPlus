@@ -126,6 +126,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 
 /**
  * What the second screen shows: the game under the cursor in the library (set by Home) and the
@@ -219,6 +222,14 @@ class SecondScreenPresenter(
 /** The cover shown, with the console it belongs to (for the placeholder when there is no picture). */
 private data class Art(val url: String?, val consoleId: String)
 
+/** Keep queue scans off the UI thread and only deliver the four rows this display can show. */
+private data class SecondScreenQueue(
+    val glance: QueueGlance.Glance = QueueGlance.Idle,
+    val controls: SecondScreenControls.View = SecondScreenControls.view(emptyList(), false),
+    val totalRows: Int = 0,
+    val held: Boolean = false
+)
+
 /** Wraps everything in the app's own theme, accent, glow and motion setting. */
 @Composable
 private fun SecondScreenRoot(
@@ -260,8 +271,18 @@ private fun SecondScreenContent(
 ) {
     val focused by SecondScreenState.focused.collectAsState()
     val route by SecondScreenState.route.collectAsState()
-    val list by downloads.collectAsState()
-    val glance = remember(list) { QueueGlance.of(list) }
+    val queue by remember(downloads, service) {
+        combine(downloads, service.gate.held) { list, held ->
+            val controls = SecondScreenControls.view(list, held)
+            SecondScreenQueue(
+                glance = QueueGlance.of(list),
+                controls = controls.copy(rows = controls.rows.take(4)),
+                totalRows = controls.rows.size,
+                held = held
+            )
+        }.distinctUntilChanged().flowOn(Dispatchers.Default)
+    }.collectAsState(initial = SecondScreenQueue())
+    val glance = queue.glance
     val covers = rememberCoverRepository()
     val reduce = LocalReduceMotion.current
     val spec: FiniteAnimationSpec<Float> = if (reduce) snap() else tween(Motion.SLOW, easing = FastOutSlowInEasing)
@@ -294,7 +315,7 @@ private fun SecondScreenContent(
             Backdrop(art.url, spec)
             GameView(item, details, art, glance, spec)
         } else {
-            DownloadsDashboard(list, glance, files, service)
+            DownloadsDashboard(queue, files, service)
         }
     }
 }
@@ -497,14 +518,14 @@ private fun brandText(accent: Color): AnnotatedString {
  */
 @Composable
 private fun DownloadsDashboard(
-    list: List<DownloadItemModel>,
-    glance: QueueGlance.Glance,
+    queue: SecondScreenQueue,
     files: DownloadableFileDao,
     service: DownloadService
 ) {
     val scheme = MaterialTheme.colorScheme
-    val held by service.gate.held.collectAsState()
-    val view = remember(list, held) { SecondScreenControls.view(list, held) }
+    val held = queue.held
+    val view = queue.controls
+    val glance = queue.glance
     // The service calls are quick, but they never run on the UI thread here.
     val scope = rememberCoroutineScope()
     val act: (DownloadService.() -> Unit) -> Unit = { action ->
@@ -552,7 +573,7 @@ private fun DownloadsDashboard(
                 else Pill(text = stringResource(R.string.second_screen_downloads, glance.active), tone = PillTone.Accent, icon = R.drawable.ic_download)
             }
             if (pausedLook) {
-                PausedPanel(view, panelPad, onResumeAll = if (view.holdButton == SecondScreenControls.HoldButton.RESUME_ALL) holdToggle else null)
+                PausedPanel(view, queue.totalRows, panelPad, onResumeAll = if (view.holdButton == SecondScreenControls.HoldButton.RESUME_ALL) holdToggle else null)
             } else {
                 Panel(Modifier.fillMaxWidth(), contentPadding = PaddingValues(panelPad)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(if (compact) 14.dp else 20.dp)) {
@@ -594,7 +615,7 @@ private fun DownloadsDashboard(
                             }
                         }
                     }
-                    val more = view.rows.size - shown.size
+                    val more = queue.totalRows - shown.size
                     if (more > 0) {
                         Text(
                             stringResource(R.string.second_screen_more, more),
@@ -618,12 +639,12 @@ private val BIG_BUTTON = 56.dp
  * and, when the user holds the queue, *Resume all* as the one big thing to tap.
  */
 @Composable
-private fun PausedPanel(view: SecondScreenControls.View, panelPad: Dp, onResumeAll: (() -> Unit)?) {
+private fun PausedPanel(view: SecondScreenControls.View, totalRows: Int, panelPad: Dp, onResumeAll: (() -> Unit)?) {
     val scheme = MaterialTheme.colorScheme
     val held = view.mode == SecondScreenControls.Mode.HELD
     val hint = when {
         !held -> stringResource(R.string.screen75_paused_items_hint)
-        view.rows.size > view.waiting + view.paused -> stringResource(R.string.screen75_held_running_hint)
+        totalRows > view.waiting + view.paused -> stringResource(R.string.screen75_held_running_hint)
         view.waiting > 0 -> stringResource(R.string.screen75_held_waiting, view.waiting)
         else -> stringResource(R.string.screen75_held_empty_hint)
     }

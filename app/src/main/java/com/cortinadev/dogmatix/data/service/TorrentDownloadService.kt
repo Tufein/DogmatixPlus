@@ -5,9 +5,12 @@ import android.util.Log
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.util.StorageHelper
+import com.cortinadev.dogmatix.util.FileParsingUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.libtorrent4j.Priority
 import org.libtorrent4j.TorrentFlags
 import java.io.File
@@ -18,7 +21,7 @@ import javax.inject.Singleton
 /**
  * Starts a selective torrent file download:
  * 1. Gets the handle from [TorrentHandleRegistry] (instant cache hit after indexing).
- * 2. Sets every file to IGNORE except [DownloadableFileEntity.torrentFileIndex].
+ * 2. Selects [DownloadableFileEntity.torrentFileIndex] while keeping selected siblings active.
  * 3. Resumes the torrent and hands off to [TorrentProgressBridge] for updates.
  */
 @Singleton
@@ -34,12 +37,22 @@ class TorrentDownloadService @Inject constructor(
     // Caches file path/size at download-start time so moveTorrentFile can proceed even if the
     // handle is later invalidated (e.g. session stopped during app shutdown before copy finishes).
     private val fileInfoCache = ConcurrentHashMap<String, TorrentFileInfo>()
+    // A queued sibling can start while another finishes. Keep same-torrent priority/tracking/
+    // release operations together; copying/extraction runs outside these locks.
+    private val downloadMutexes = ConcurrentHashMap<String, Mutex>()
+
+    private fun mutexFor(magnet: String): Mutex =
+        downloadMutexes.getOrPut(FileParsingUtils.optimizeMagnetUri(magnet)) { Mutex() }
 
     fun getFileInfo(fileName: String): TorrentFileInfo? = fileInfoCache[fileName]
 
     suspend fun startDownload(file: DownloadableFileEntity) = withContext(Dispatchers.IO) {
         val magnet = file.torrentMagnet
             ?: throw IllegalArgumentException("No torrentMagnet on ${file.fileName}")
+        mutexFor(magnet).withLock { startDownloadLocked(file, magnet) }
+    }
+
+    private suspend fun startDownloadLocked(file: DownloadableFileEntity, magnet: String) {
         val fileIndex = file.torrentFileIndex
             ?: throw IllegalArgumentException("No torrentFileIndex on ${file.fileName}")
 
@@ -48,19 +61,19 @@ class TorrentDownloadService @Inject constructor(
         } catch (e: TorrentMetadataTimeoutException) {
             Log.e(TAG, "Metadata timeout: ${e.message}")
             progressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED)
-            return@withContext
+            return
         }
 
         val torrentInfo = handle.torrentFile() ?: run {
             Log.e(TAG, "No TorrentInfo for ${file.fileName}")
             progressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED)
-            return@withContext
+            return
         }
 
-        if (fileIndex >= torrentInfo.numFiles()) {
+        if (fileIndex < 0 || fileIndex >= torrentInfo.numFiles()) {
             Log.e(TAG, "fileIndex $fileIndex out of range")
             progressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED)
-            return@withContext
+            return
         }
 
         val downloadDirUri = downloadFileManager.getDownloadDirectoryUri(file)
@@ -70,7 +83,7 @@ class TorrentDownloadService @Inject constructor(
         if (finalDir == null) {
             Log.e(TAG, "Could not create/access download directory")
             progressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED)
-            return@withContext
+            return
         }
 
         // Cache file path/size before tracking so moveTorrentFile can find the file
@@ -79,17 +92,12 @@ class TorrentDownloadService @Inject constructor(
         val expectedSize = torrentInfo.files().fileSize(fileIndex)
         fileInfoCache[file.fileName] = TorrentFileInfo(relativePath, expectedSize)
 
-        // Track first so getTrackedFileIndicesForHandle includes this file when building priorities.
         progressBridge.trackDownload(file.fileName, fileIndex, handle)
 
-        // Build merged priorities: IGNORE all files, then DEFAULT for every file currently tracked
-        // from this torrent (including the one we just added). This prevents concurrent startDownload
-        // calls from clobbering each other's priority and leaving sibling files un-downloaded.
-        val priorities = Array(torrentInfo.numFiles()) { Priority.IGNORE }
-        for (idx in progressBridge.getTrackedFileIndicesForHandle(handle)) {
-            if (idx < priorities.size) priorities[idx] = Priority.DEFAULT
-        }
-        handle.prioritizeFiles(priorities)
+        // The registry initialized every file to IGNORE once. Select only this file: building
+        // an all-files priority vector for every bulk entry repeatedly copies huge collections
+        // over JNI and can overwrite a sibling's priorities during concurrent start/finish.
+        handle.filePriority(fileIndex, Priority.DEFAULT)
         // The registry fetched metadata in upload mode (no piece requests); lift it now that
         // only the wanted files have a priority.
         handle.unsetFlags(TorrentFlags.UPLOAD_MODE)
@@ -110,7 +118,11 @@ class TorrentDownloadService @Inject constructor(
 
     suspend fun finishDownload(file: DownloadableFileEntity) = withContext(Dispatchers.IO) {
         val magnet = file.torrentMagnet ?: return@withContext
-        val fileIndex = file.torrentFileIndex ?: return@withContext
+        mutexFor(magnet).withLock { finishDownloadLocked(file, magnet) }
+    }
+
+    private fun finishDownloadLocked(file: DownloadableFileEntity, magnet: String) {
+        val fileIndex = file.torrentFileIndex ?: return
 
         fileInfoCache.remove(file.fileName)
         val handle = registry.getCachedHandle(magnet)
@@ -132,24 +144,27 @@ class TorrentDownloadService @Inject constructor(
      */
     suspend fun pauseDownload(file: DownloadableFileEntity) = withContext(Dispatchers.IO) {
         val magnet = file.torrentMagnet ?: return@withContext
-        val fileIndex = file.torrentFileIndex ?: return@withContext
+        mutexFor(magnet).withLock { pauseDownloadLocked(file, magnet) }
+    }
+
+    private fun pauseDownloadLocked(file: DownloadableFileEntity, magnet: String) {
+        val fileIndex = file.torrentFileIndex ?: return
         progressBridge.untrackDownload(file.fileName, fileIndex)
-        val handle = registry.getCachedHandle(magnet) ?: return@withContext
-        val torrentInfo = handle.torrentFile() ?: return@withContext
-        val priorities = Array(torrentInfo.numFiles()) { Priority.IGNORE }
-        for (idx in progressBridge.getTrackedFileIndicesForHandle(handle)) {
-            if (idx < priorities.size) priorities[idx] = Priority.DEFAULT
-        }
-        handle.prioritizeFiles(priorities)
+        val handle = registry.getCachedHandle(magnet) ?: return
+        handle.filePriority(fileIndex, Priority.IGNORE)
         if (progressBridge.countTrackedForHandle(handle) == 0) {
             try { handle.pause() } catch (e: Exception) { Log.w(TAG, "pause: ${e.message}") }
         }
         Log.i(TAG, "Paused ${file.fileName} (cache kept)")
     }
 
-    suspend fun cancelDownload(file: DownloadableFileEntity) = withContext(Dispatchers.IO) {
+    suspend fun cancelDownload(file: DownloadableFileEntity, reportStatus: Boolean = true) = withContext(Dispatchers.IO) {
         val magnet = file.torrentMagnet ?: return@withContext
-        val fileIndex = file.torrentFileIndex ?: return@withContext
+        mutexFor(magnet).withLock { cancelDownloadLocked(file, magnet, reportStatus) }
+    }
+
+    private fun cancelDownloadLocked(file: DownloadableFileEntity, magnet: String, reportStatus: Boolean) {
+        val fileIndex = file.torrentFileIndex ?: return
 
         fileInfoCache.remove(file.fileName)
         val handle = registry.getCachedHandle(magnet)
@@ -160,10 +175,11 @@ class TorrentDownloadService @Inject constructor(
             registry.releaseHandle(magnet)
             Log.i(TAG, "Stopped and purged torrent download for ${file.fileName}")
         } else {
+            handle?.filePriority(fileIndex, Priority.IGNORE)
             Log.i(TAG, "Stopped tracking ${file.fileName}, handle kept alive ($remainingForThisTorrent files still active)")
         }
 
-        progressTracker.updateDownloadStatus(file.fileName, DownloadStatus.STOPPED)
+        if (reportStatus) progressTracker.updateDownloadStatus(file.fileName, DownloadStatus.STOPPED)
     }
 
     companion object { private const val TAG = "TorrentDownloadService" }

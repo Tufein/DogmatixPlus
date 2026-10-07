@@ -9,6 +9,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
@@ -57,6 +59,7 @@ class BandwidthLimiter @Inject constructor(
 
     /** Waits as long as [bytes] more would take under the limit; returns at once without one. */
     suspend fun acquire(bytes: Int) {
+        currentCoroutineContext().ensureActive()
         if (bytesPerSecond <= 0) return
         val wait = lock.withLock { bucket.take(bytes) }
         if (wait > 0) delay(wait)

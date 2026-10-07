@@ -44,6 +44,7 @@ class ListImportService @Inject constructor(
     suspend fun match(titles: List<String>, consoleId: String?, onProgress: (Int) -> Unit = {}): ListMatch = withContext(Dispatchers.IO) {
         val languages = settingsRepository.favoriteLanguages.first()
         val regions = VersionPicker.regionPreference(languages)
+        val preferences = versionPreference.snapshot()
         val picks = mutableListOf<DownloadableFileEntity>()
         val have = mutableListOf<String>()
         val missing = mutableListOf<String>()
@@ -59,7 +60,7 @@ class ListImportService @Inject constructor(
                 else -> files.groupBy { it.consoleId }.values.forEach { perConsole ->
                     val best = com.cortinadev.dogmatix.util.VersionPreference.pick(
                         perConsole.map { VersionPicker.Candidate(it.fileName, it.fileName, fileDao.tagsOf(it.id), it.fileSize) },
-                        regions, languages, versionPreference.preferred(perConsole.first().consoleId, perConsole.first().fileName)
+                        regions, languages, preferences.preferred(perConsole.first().consoleId, perConsole.first().fileName)
                     )
                     perConsole.firstOrNull { it.fileName == best?.id }?.let(picks::add)
                 }

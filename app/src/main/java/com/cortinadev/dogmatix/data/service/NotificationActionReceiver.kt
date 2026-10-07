@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.cortinadev.dogmatix.MainActivity
 import com.cortinadev.dogmatix.R
@@ -16,6 +17,10 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /** What the notification buttons need from the app graph (a manifest receiver has no constructor injection). */
 @EntryPoint
@@ -37,12 +42,24 @@ class NotificationActionReceiver : BroadcastReceiver() {
         when (intent.action) {
             ACTION_PAUSE_ALL -> downloads.gate.setHeld(true)
             ACTION_RESUME_ALL -> downloads.gate.setHeld(false)
-            // Cancelling only cancels jobs and launches the clean-up, so this is quick even for a long queue.
-            ACTION_STOP_ALL -> QueueActions.stoppable(downloads.downloads.value).forEach(downloads::cancelDownload)
+            ACTION_STOP_ALL -> {
+                // A whole console may need thousands of cancellations and list updates.
+                val pending = goAsync()
+                actionScope.launch {
+                    try {
+                        QueueActions.stoppable(downloads.downloads.value).forEach(downloads::cancelDownload)
+                    } catch (e: Exception) {
+                        Log.w("NotificationActions", "Could not stop the queue: ${e.message}")
+                    } finally {
+                        pending.finish()
+                    }
+                }
+            }
         }
     }
 
     companion object {
+        private val actionScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         const val ACTION_PAUSE_ALL = "com.cortinadev.dogmatix.action.NOTIF_PAUSE_ALL"
         const val ACTION_RESUME_ALL = "com.cortinadev.dogmatix.action.NOTIF_RESUME_ALL"
         const val ACTION_STOP_ALL = "com.cortinadev.dogmatix.action.NOTIF_STOP_ALL"

@@ -169,6 +169,7 @@ class WishlistRepository @Inject constructor(
     suspend fun autoDownload(found: List<WishlistEntity>): Int {
         val languages = settingsRepository.favoriteLanguages.first()
         val regions = VersionPicker.regionPreference(languages)
+        val preferences = versionPreference.snapshot()
         val index = libraryIndex.get()
         val picks = found.flatMap { item ->
             fileDao.filesMatching(item.key, item.consoleId)
@@ -177,7 +178,7 @@ class WishlistRepository @Inject constructor(
                 if (files.any { index.isOwned(it) || downloadService.isActive(it.fileName) }) return@mapNotNull null
                 val best = com.cortinadev.dogmatix.util.VersionPreference.pick(
                     files.map { VersionPicker.Candidate(it.fileName, it.fileName, fileDao.tagsOf(it.id), it.fileSize) },
-                    regions, languages, versionPreference.preferred(files.first().consoleId, files.first().fileName)
+                    regions, languages, preferences.preferred(files.first().consoleId, files.first().fileName)
                 ) ?: return@mapNotNull null
                 files.first { it.fileName == best.id }
             }

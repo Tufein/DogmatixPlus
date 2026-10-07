@@ -7,8 +7,10 @@ import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.util.Constants
 import com.cortinadev.dogmatix.util.ProgressBatch
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +30,33 @@ class DownloadProgressTracker @Inject constructor(
     val downloads: StateFlow<List<DownloadItemModel>> = _downloads
 
     private val persistScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    // Pending progress and the list publication form one operation: an older flush must not
+    // overtake a completion or retry and restore stale bytes afterward.
+    private val progressLock = Any()
+
+    // One writer keeps rapid COPYING -> COMPLETED transitions in order. Launching an IO
+    // coroutine for every row could write an older status last and exhaust the IO pool in bulk.
+    private val statusNames = ConcurrentHashMap.newKeySet<String>()
+    private val statusWrites = Channel<Unit>(Channel.CONFLATED)
+
+    init {
+        persistScope.launch {
+            for (signal in statusWrites) {
+                val names = statusNames.toList().filter { statusNames.remove(it) }
+                val current = _downloads.value.associateBy { it.fileName }
+                for (name in names) {
+                    val item = current[name] ?: continue
+                    try {
+                        historyDao.updateStatus(name, item.status.name, item.finishedAt)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.e("DownloadProgressTracker", "Could not persist status for $name: ${e.message}")
+                    }
+                }
+            }
+        }
+    }
 
     /** Seeds the list with entries persisted from previous runs (see [DownloadService]). */
     fun restore(items: List<DownloadItemModel>) {
@@ -37,13 +66,15 @@ class DownloadProgressTracker @Inject constructor(
         }
     }
 
-    fun updateDownloadStatus(fileName: String, status: DownloadStatus) {
+    /** [allowedFrom] atomically prevents stale native observations from replacing worker states. */
+    fun updateDownloadStatus(fileName: String, status: DownloadStatus, allowedFrom: Set<DownloadStatus>? = null): Unit = synchronized(progressLock) {
         var changed: DownloadItemModel? = null
         // Progress still waiting for the next batch lands together with the new status.
-        val late = pending.remove(fileName)
+        val late = pending[fileName]
         _downloads.update { list ->
+            changed = null
             list.map { item ->
-                if (item.fileName != fileName) item
+                if (item.fileName != fileName || (allowedFrom != null && item.status !in allowedFrom)) item
                 else {
                     val base = late?.let { item.copy(progress = it.progress, downloadSpeed = it.speed, downloadedBytes = it.downloadedBytes) } ?: item
                     val updated = base.copy(status = status)
@@ -52,17 +83,21 @@ class DownloadProgressTracker @Inject constructor(
                 }
             }
         }
-        changed?.let { persistStatus(it) }
+        changed?.let {
+            pending.remove(fileName)
+            persistStatus(it)
+        }
     }
 
     private fun persistStatus(item: DownloadItemModel) {
-        persistScope.launch {
-            try {
-                historyDao.updateStatus(item.fileName, item.status.name, item.finishedAt)
-            } catch (e: Exception) {
-                Log.e("DownloadProgressTracker", "Could not persist status for ${item.fileName}: ${e.message}")
-            }
-        }
+        persistCurrentStatuses(listOf(item.fileName))
+    }
+
+    /** Reconcile statuses changed while a new batch's initial history rows were being inserted. */
+    fun persistCurrentStatuses(fileNames: Collection<String>) {
+        if (fileNames.isEmpty()) return
+        statusNames.addAll(fileNames)
+        statusWrites.trySend(Unit)
     }
 
     private val lastUpdateTimes = ConcurrentHashMap<String, Long>()
@@ -71,7 +106,7 @@ class DownloadProgressTracker @Inject constructor(
     private val pending = ConcurrentHashMap<String, ProgressBatch.Progress>()
     private val flushScheduled = AtomicBoolean(false)
 
-    fun updateDownloadProgress(fileName: String, progress: Float, speed: Float, downloadedBytes: Long) {
+    fun updateDownloadProgress(fileName: String, progress: Float, speed: Float, downloadedBytes: Long): Unit = synchronized(progressLock) {
         val now = System.currentTimeMillis()
         val lastUpdate = lastUpdateTimes[fileName] ?: 0L
 
@@ -91,7 +126,7 @@ class DownloadProgressTracker @Inject constructor(
     }
 
     /** Applies all gathered progress in one list update. */
-    fun flushProgress() {
+    fun flushProgress(): Unit = synchronized(progressLock) {
         if (pending.isEmpty()) return
         val batch = HashMap<String, ProgressBatch.Progress>()
         for (name in pending.keys.toList()) pending.remove(name)?.let { batch[name] = it }
@@ -109,17 +144,18 @@ class DownloadProgressTracker @Inject constructor(
     }
 
     fun addDownload(downloadItem: DownloadItemModel) {
-        _downloads.update { list -> list.filter { it.fileName != downloadItem.fileName } + downloadItem }
+        addDownloads(listOf(downloadItem))
     }
 
     /** Adds many downloads in one list update (a bulk start). */
-    fun addDownloads(items: List<DownloadItemModel>) {
+    fun addDownloads(items: List<DownloadItemModel>): Unit = synchronized(progressLock) {
         if (items.isEmpty()) return
         val names = items.mapTo(HashSet()) { it.fileName }
+        names.forEach { pending.remove(it); lastUpdateTimes.remove(it) }
         _downloads.update { list -> list.filter { it.fileName !in names } + items }
     }
 
-    fun removeDownload(fileName: String) {
+    fun removeDownload(fileName: String): Unit = synchronized(progressLock) {
         pending.remove(fileName)
         _downloads.update { list -> list.filter { it.fileName != fileName } }
         lastUpdateTimes.remove(fileName)
@@ -129,7 +165,7 @@ class DownloadProgressTracker @Inject constructor(
         return _downloads.value
     }
 
-    fun resetDownloadForRetry(fileName: String) {
+    fun resetDownloadForRetry(fileName: String): Unit = synchronized(progressLock) {
         pending.remove(fileName)
         _downloads.update { list ->
             list.map { item ->
@@ -147,10 +183,11 @@ class DownloadProgressTracker @Inject constructor(
                 }
             }
         }
+        persistCurrentStatuses(listOf(fileName))
     }
 
     /** [resetDownloadForRetry] for many rows in one list update; returns the names that could be retried. */
-    fun resetDownloadsForRetry(fileNames: Collection<String>): List<String> {
+    fun resetDownloadsForRetry(fileNames: Collection<String>): List<String> = synchronized(progressLock) {
         val wanted = fileNames.toHashSet()
         wanted.forEach { pending.remove(it) }
         val reset = ArrayList<String>()
@@ -165,6 +202,7 @@ class DownloadProgressTracker @Inject constructor(
                 } else item
             }
         }
+        persistCurrentStatuses(reset)
         return reset
     }
 

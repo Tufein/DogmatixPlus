@@ -1270,9 +1270,9 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Spostamenti verificati con recupero riprendibile.</item>
-        <item>Cestino con ripristino e scadenza facoltativa; svuotalo per liberare spazio.</item>
-        <item>Avvia i tuoi giochi e fissa una versione preferita per la selezione automatica.</item>
+        <item>La selezione e i nuovi tentativi di download in gruppo vengono eseguiti in background.</item>
+        <item>Avanzamento dei torrent e code più efficienti.</item>
+        <item>Mettere in pausa un download HTTP interrompe il trasferimento; i file vengono verificati uno alla volta.</item>
     </string-array>
 
     <!-- 4.0 -->

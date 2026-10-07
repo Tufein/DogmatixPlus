@@ -2,8 +2,11 @@ package com.cortinadev.dogmatix.util
 
 import java.util.Collections
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
@@ -58,5 +61,54 @@ class DownloadQueueOrderTest {
         queue.release(); d.await(); queue.release(); c.await(); queue.release(); b.await()
         assertEquals(listOf("d", "c", "b"), order)
         delay(1)
+    }
+
+    @Test fun `a large blocked batch coalesces queue snapshots and settles in order`() = runBlocking {
+        val queue = DownloadQueue(1)
+        queue.acquire("running")
+        var emissions = 0
+        val watcher = launch(Dispatchers.Unconfined) { queue.waiting.collect { emissions++ } }
+        val count = 2_000
+        val waiters = (0 until count).map { i ->
+            launch(start = CoroutineStart.UNDISPATCHED) { queue.acquire("g$i") }
+        }
+        val snapshot = withTimeout(5_000) { queue.waiting.first { it.size == count } }
+        assertEquals((0 until count).map { "g$it" }, snapshot)
+        assertTrue("Bulk enqueue emitted $emissions complete snapshots", emissions < count / 2)
+        // A user reorder remains immediate even while large queue snapshots are batched.
+        queue.moveToFront("g1999")
+        assertEquals("g1999", queue.waiting.value.first())
+        waiters.forEach { it.cancel() }
+        waiters.forEach { it.join() }
+        assertTrue(queue.waiting.value.isEmpty())
+        queue.release()
+        watcher.cancel()
+    }
+
+    @Test fun `canceling a waiter does not consume a slot or a host allowance`() = runBlocking {
+        val queue = DownloadQueue(1, perHost = 1)
+        queue.acquire("running", "server")
+        val canceled = launch(start = CoroutineStart.UNDISPATCHED) { queue.acquire("canceled", "server") }
+        canceled.cancel()
+        canceled.join()
+        val next = async(start = CoroutineStart.UNDISPATCHED) { queue.acquire("next", "server"); "next" }
+        assertEquals(listOf("next"), queue.waiting.value)
+        queue.release("server")
+        assertEquals("next", withTimeout(2_000) { next.await() })
+        queue.release("server")
+        assertTrue(queue.waiting.value.isEmpty())
+    }
+
+    @Test fun `a busy server does not block other hosts`() = runBlocking {
+        val queue = DownloadQueue(2, perHost = 1)
+        queue.acquire("first", "one")
+        val blocked = async(start = CoroutineStart.UNDISPATCHED) { queue.acquire("second", "one"); "second" }
+        val other = async(start = CoroutineStart.UNDISPATCHED) { queue.acquire("other", "two"); "other" }
+        assertEquals("other", withTimeout(2_000) { other.await() })
+        assertEquals(listOf("second"), queue.waiting.value)
+        queue.release("one")
+        assertEquals("second", withTimeout(2_000) { blocked.await() })
+        queue.release("two")
+        queue.release("one")
     }
 }

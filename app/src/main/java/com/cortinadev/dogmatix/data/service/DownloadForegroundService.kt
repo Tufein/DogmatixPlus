@@ -40,8 +40,6 @@ import javax.inject.Inject
 class DownloadForegroundService : Service() {
 
     @Inject lateinit var downloadService: DownloadService
-    @Inject lateinit var torrentHandleRegistry: TorrentHandleRegistry
-    @Inject lateinit var torrentProgressBridge: TorrentProgressBridge
     @Inject lateinit var powerHold: PowerHoldService
 
     private var wakeLock: PowerManager.WakeLock? = null
@@ -62,9 +60,6 @@ class DownloadForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        torrentHandleRegistry.start()
-        torrentHandleRegistry.session().addListener(torrentProgressBridge)
-
         // Keep the CPU awake so downloads continue when the screen is off.
         val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "dogmatix:DownloadWakeLock").apply {
@@ -105,10 +100,8 @@ class DownloadForegroundService : Service() {
     override fun onDestroy() {
         running = false
         scope.cancel()
-        torrentHandleRegistry.session().removeListener(torrentProgressBridge)
-        // Only an idle service is normally destroyed; if Android ended it while downloads still run
-        // (the time limit), leave the torrent session to them.
-        if (!downloadService.hasActiveDownloads()) torrentHandleRegistry.stop()
+        // The application-scoped registry owns the native session and its alert listener.
+        // Starting/stopping libtorrent here blocks Main and races the next queued download.
         wakeLock?.let { if (it.isHeld) it.release() }
         wakeLock = null
         super.onDestroy()

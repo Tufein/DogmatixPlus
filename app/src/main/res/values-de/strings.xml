@@ -1319,9 +1319,9 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Geprüfte Bibliotheksumzüge mit fortsetzbarer Wiederherstellung.</item>
-        <item>Papierkorb mit Wiederherstellung und optionaler Aufbewahrungsfrist; zum Freigeben von Speicher leeren.</item>
-        <item>Eigene Spiele starten und eine bevorzugte Version für die automatische Auswahl festlegen.</item>
+        <item>Download-Sammelauswahl und erneute Versuche laufen im Hintergrund.</item>
+        <item>Effizientere Torrent-Fortschrittsanzeigen und Warteschlangen.</item>
+        <item>Das Pausieren von HTTP-Downloads stoppt die Übertragung; Dateien werden einzeln geprüft.</item>
     </string-array>
 
     <!-- 4.0 -->

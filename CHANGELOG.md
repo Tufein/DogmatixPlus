@@ -3,6 +3,18 @@
 All notable changes to Dogmatix are listed here. Dogmatix is a fork of
 [Milou](https://github.com/santiifm/milou) focused on UI/UX for Android handhelds.
 
+## [8.2.0-beta.2] – 2026-10-07 · Dogmatix+
+
+- Bulk download selection, retry and queue controls run off the main thread; retries and suggestion downloads use the batch enqueue path.
+- Large waiting queues coalesce automatic list updates instead of copying the entire queue for every added item.
+- Torrent progress is polled once per torrent instead of once per selected file. Native session startup and shutdown no longer block the foreground service lifecycle on the main thread.
+- HTTP transfers observe coroutine cancellation directly, including when the speed limit is disabled; cancelled transfers cannot continue writing or report completion.
+- Serialize stop/pause cleanup before replacement transfers, preventing rapid retries from being stopped by an older torrent operation.
+- Finished-file verification is limited to one file at a time to reduce storage contention during bulk downloads.
+- Fix a download-history initialization race and handle background persistence failures without crashing the process.
+- Store history before transfers can finish and serialize status writes, preventing stale in-flight rows from being requeued after a restart.
+- Database remains version 13. These fixes address code-level failure paths; the photographed crash still requires device diagnostics to identify its exact stack trace.
+
 ## [8.2.0-beta.1] – 2026-10-07 · Dogmatix+
 
 - Verified file copies, protected destination conflicts, durable move receipts and recovery actions.

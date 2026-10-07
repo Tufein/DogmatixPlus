@@ -128,9 +128,13 @@ class ImportListViewModel @Inject constructor(
 
     fun download(context: Context) {
         val match = _ui.value.match ?: return
-        service.download(match)
-        ToastUtil.showSuccess(context, context.getString(R.string.bulk_queued, match.toDownload.size.toString()))
+        if (match.toDownload.isEmpty()) return
+        // Clear the pending picks immediately so another tap cannot enqueue the same batch.
         _ui.update { it.copy(match = match.copy(toDownload = emptyList(), have = match.have + match.toDownload.map { f -> f.name })) }
+        viewModelScope.launch {
+            withContext(Dispatchers.Default) { service.download(match) }
+            ToastUtil.showSuccess(context, context.getString(R.string.bulk_queued, match.toDownload.size.toString()))
+        }
     }
 
     fun wishMissing(context: Context) {

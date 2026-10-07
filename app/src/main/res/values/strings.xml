@@ -1320,9 +1320,9 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Verified library moves with resumable recovery.</item>
-        <item>Trash with restore and optional expiry; empty it to free space.</item>
-        <item>Play owned games and fix a preferred version for automatic selection.</item>
+        <item>Bulk download selection and retries run in the background.</item>
+        <item>More efficient torrent progress and waiting queues.</item>
+        <item>Pausing HTTP downloads really stops the transfer; file checks run one at a time.</item>
     </string-array>
 
     <!-- 4.0 -->

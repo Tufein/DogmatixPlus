@@ -39,8 +39,9 @@ object TorrentModule {
     @Singleton
     fun provideTorrentHandleRegistry(
         @ApplicationContext context: Context,
-        settingsRepository: SettingsRepository
-    ): TorrentHandleRegistry = TorrentHandleRegistry(context, settingsRepository)
+        settingsRepository: SettingsRepository,
+        progressBridge: TorrentProgressBridge
+    ): TorrentHandleRegistry = TorrentHandleRegistry(context, settingsRepository, progressBridge)
 
     @Provides
     @Singleton
@@ -53,9 +54,8 @@ object TorrentModule {
     fun provideTorrentFileIndexer(): TorrentFileIndexer = TorrentFileIndexer()
 
     /**
-     * Progress bridge needs an explicit @Provides because it is also registered
-     * as an AlertListener on the session in DownloadForegroundService — the
-     * injected instance and the listener must be the same object.
+     * The application-scoped registry registers this bridge once as an AlertListener;
+     * notification service restarts do not interrupt torrent progress or error alerts.
      */
     @Provides
     @Singleton

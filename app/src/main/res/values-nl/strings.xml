@@ -1319,9 +1319,9 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Gecontroleerd verplaatsen met hervatbaar herstel.</item>
-        <item>Prullenbak met herstel en optionele bewaartermijn; leeg hem om ruimte vrij te maken.</item>
-        <item>Start eigen spellen en zet een voorkeursversie vast voor automatische selectie.</item>
+        <item>Bulkselectie en opnieuw proberen van downloads draaien op de achtergrond.</item>
+        <item>Efficiëntere torrentvoortgang en wachtrijen.</item>
+        <item>HTTP-downloads pauzeren stopt de overdracht echt; bestandscontroles lopen één voor één.</item>
     </string-array>
 
     <!-- 4.0 -->

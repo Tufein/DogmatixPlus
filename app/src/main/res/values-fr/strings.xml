@@ -1324,9 +1324,9 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Déplacements vérifiés avec récupération reprenable.</item>
-        <item>Corbeille avec restauration et expiration facultative ; videz-la pour libérer de l’espace.</item>
-        <item>Lancez vos jeux et fixez une version préférée pour la sélection automatique.</item>
+        <item>La sélection groupée et les nouvelles tentatives de téléchargement passent en arrière-plan.</item>
+        <item>Progression des torrents et files d’attente plus efficaces.</item>
+        <item>Mettre un téléchargement HTTP en pause arrête le transfert ; les fichiers sont vérifiés un par un.</item>
     </string-array>
 
     <!-- 4.0 -->

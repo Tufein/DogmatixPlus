@@ -374,7 +374,7 @@ class BestGamesViewModel @Inject constructor(
         val rows = plan.chosen.mapNotNull { plannedRows[it.id] }
         if (rows.isEmpty()) return 0
         val directory = settingsRepository.downloadDirectory.first()
-        if (directory.isEmpty() || !StorageHelper.isValidUri(context, directory)) {
+        if (!withContext(Dispatchers.IO) { StorageHelper.isValidUri(context, directory) }) {
             ToastUtil.showError(context, context.getString(R.string.error_download_dir_missing))
             return 0
         }

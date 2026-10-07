@@ -1293,9 +1293,9 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Traslados verificados con recuperación reanudable.</item>
-        <item>Papelera con restauración y caducidad opcional; vacíala para liberar espacio.</item>
-        <item>Abre tus juegos y fija una versión preferida para la selección automática.</item>
+        <item>La selección y los reintentos de descargas en lote se ejecutan en segundo plano.</item>
+        <item>Progreso de torrents y colas más eficientes.</item>
+        <item>Pausar descargas HTTP detiene la transferencia; los archivos se verifican uno a uno.</item>
     </string-array>
 
     <!-- 4.0 -->
