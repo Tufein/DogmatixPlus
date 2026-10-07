@@ -80,7 +80,8 @@ enum class LaunchOutcome {
 @Singleton
 class GameLaunchService @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val library: LibraryIndexService
+    private val library: LibraryIndexService,
+    private val actionLog: ActionLogService
 ) {
     private val preferences = context.getSharedPreferences("game_launchers", Context.MODE_PRIVATE)
 
@@ -166,6 +167,7 @@ class GameLaunchService @Inject constructor(
             val component = ComponentName.unflattenFromString(handler.key) ?: error("Application unavailable")
             if (start(context, intent(game.uri, game.siblings).setComponent(component))) LaunchOutcome.STARTED else LaunchOutcome.FAILED
         }
+        if (outcome == LaunchOutcome.STARTED) actionLog.played(consoleId, game.name)
         if (outcome == LaunchOutcome.STARTED && remember) setPreferred(consoleId, if (automatic) GameLaunchKeys.AUTOMATIC else handler.key)
         return outcome
     }

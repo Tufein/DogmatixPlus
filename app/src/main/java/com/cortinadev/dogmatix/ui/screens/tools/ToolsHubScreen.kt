@@ -152,6 +152,7 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { Tool(go, NavRoutes.Files, R.string.nav_files, R.string.tools_files_hint) }
             item { Tool(go, NavRoutes.Storage, R.string.nav_storage, R.string.tools_storage_hint) }
             item { Tool(go, NavRoutes.Recovery, R.string.recovery_title, R.string.recovery_hint) }
+            item { Tool(go, NavRoutes.ActionHistory, R.string.hist24_title, R.string.hist24_hint) }
             item { Tool(go, NavRoutes.FreeSpace, R.string.space7_title, R.string.space7_hint) }
             item { Tool(go, NavRoutes.Stats, R.string.nav_stats, R.string.tools_stats_hint) }
             item { Tool(go, NavRoutes.CollectionGoals, R.string.coll6_goals_title, R.string.lead6_goals_hint) }
