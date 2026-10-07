@@ -34,7 +34,6 @@ import com.cortinadev.dogmatix.util.RankBasis
 import com.cortinadev.dogmatix.util.SearchNormalizer
 import com.cortinadev.dogmatix.util.StorageHelper
 import com.cortinadev.dogmatix.util.ToastUtil
-import com.cortinadev.dogmatix.util.VersionPicker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -120,7 +119,8 @@ class BestGamesViewModel @Inject constructor(
     private val wishlist: WishlistRepository,
     private val pendingFilters: PendingLibraryFilters,
     private val settingsRepository: SettingsRepository,
-    private val rescan: RescanStateHolder
+    private val rescan: RescanStateHolder,
+    private val versionSettings: com.cortinadev.dogmatix.data.local.VersionPreferenceSettings
 ) : ViewModel() {
 
     private data class Loaded(val consoleId: String, val games: List<BestGame>, val players: Map<Int, Int>, val stale: Boolean)
@@ -351,9 +351,9 @@ class BestGamesViewModel @Inject constructor(
      * for the user's languages), skipping what already downloads. Shown to the user before anything starts.
      */
     suspend fun planDownload(): BulkPlan {
-        val languages = settingsRepository.favoriteLanguages.first()
+        val preferences = versionSettings.snapshot()
         val free = libraryIndex.freeBytes.value
-        val m = matched.value ?: return BulkPlanner.plan(emptyList(), true, VersionPicker.regionPreference(languages), languages, free)
+        val m = matched.value ?: return BulkPlanner.plan(emptyList(), true, { preferences.of(it) }, free)
         val gameOfFile = HashMap<String, Int>()
         for (gm in BestGames.downloadable(m.matches)) for (i in gm.sourceIndices) gameOfFile[m.rawNames[i]] = gm.ranked.game.id
         return withContext(Dispatchers.IO) {
@@ -365,7 +365,7 @@ class BestGamesViewModel @Inject constructor(
                 // The RA game stands in for the cleaned title: versions of one game are picked among.
                 BulkCandidate(row.id, row.consoleId, "ra$game", row.fileName, row.fileSize, tags[row.id].orEmpty(), owned = false, downloading = downloadService.isActive(row.fileName))
             }
-            BulkPlanner.plan(candidates, bestOnly = true, VersionPicker.regionPreference(languages), languages, free)
+            BulkPlanner.plan(candidates, bestOnly = true, { preferences.of(it) }, free)
         }
     }
 

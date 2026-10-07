@@ -42,7 +42,6 @@ import com.cortinadev.dogmatix.util.RaGame
 import com.cortinadev.dogmatix.util.RommMarks
 import com.cortinadev.dogmatix.util.RommSource
 import com.cortinadev.dogmatix.util.SwitchTitles
-import com.cortinadev.dogmatix.util.VersionPicker
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.service.DownloadService
 import com.cortinadev.dogmatix.data.service.GameMetadataService
@@ -101,6 +100,7 @@ class HomeViewModel @Inject constructor(
     private val appSettings: AppSettings,
     private val profiles: ProfileService,
     private val versionPreference: com.cortinadev.dogmatix.data.service.VersionPreferenceService,
+    private val versionSettings: com.cortinadev.dogmatix.data.local.VersionPreferenceSettings,
     private val retroAchievements: RetroAchievementsService,
     private val libraryTools: LibraryToolsService,
     private val metadataDao: GameMetadataDao,
@@ -269,7 +269,6 @@ class HomeViewModel @Inject constructor(
             val rows = fetchFiltered(params, 0, BulkPlanner.MAX_FILES * 4).rows
             val owned = ownedKeys.value
             val active = activeDownloads.value
-            val languages = settingsRepository.favoriteLanguages.first()
             val whitespace = Regex("\\s+")
             // 7.5: the same file from several sources is queued from the best one.
             val pickBest = sourceTrack.enabled.first()
@@ -277,6 +276,7 @@ class HomeViewModel @Inject constructor(
             val orders = if (pickBest) rows.map { it.file.consoleId }.distinct().associateWith { sourceTrack.sourceOrder(it) } else emptyMap()
             val now = System.currentTimeMillis()
             val preferences = versionPreference.snapshot()
+            val versionPrefs = versionSettings.snapshot()
             val pinned = rows.associate { it.file.id to preferences.preferred(it.file.consoleId, it.file.fileName) }
             BulkPlanner.plan(
                 rows.map {
@@ -288,7 +288,7 @@ class HomeViewModel @Inject constructor(
                         it.file.sourceUrl
                     )
                 },
-                bestOnly, VersionPicker.regionPreference(languages), languages, libraryIndex.freeBytes.value,
+                bestOnly, { versionPrefs.of(it) }, libraryIndex.freeBytes.value,
                 pickSource = { group ->
                     if (!pickBest) group.first()
                     else SourceRanking.best(group, { it.sourceUrl }, records, orders[group.first().consoleId].orEmpty(), now) ?: group.first()

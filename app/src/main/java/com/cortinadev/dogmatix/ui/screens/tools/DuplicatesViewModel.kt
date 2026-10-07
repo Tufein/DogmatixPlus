@@ -11,7 +11,6 @@ import com.cortinadev.dogmatix.util.DuplicateGroup
 import com.cortinadev.dogmatix.util.GameEntry
 import com.cortinadev.dogmatix.util.KeepSuggester
 import com.cortinadev.dogmatix.util.KeepSuggestion
-import com.cortinadev.dogmatix.util.VersionPicker
 import com.cortinadev.dogmatix.util.ToastUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -40,7 +39,8 @@ data class DuplicatesUiState(
 @HiltViewModel
 class DuplicatesViewModel @Inject constructor(
     private val scanService: LibraryScanService,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val versionSettings: com.cortinadev.dogmatix.data.local.VersionPreferenceSettings
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DuplicatesUiState())
@@ -107,8 +107,8 @@ class DuplicatesViewModel @Inject constructor(
     }
 
     private suspend fun suggest(groups: List<DuplicateGroup>): List<KeepSuggestion> {
-        val languages = settingsRepository.favoriteLanguages.first()
-        return KeepSuggester.suggest(groups, VersionPicker.regionPreference(languages), languages)
+        val preferences = versionSettings.snapshot()
+        return KeepSuggester.suggest(groups) { preferences.of(it.consoleId) }
     }
 
     private fun DuplicatesUiState.without(entry: GameEntry): DuplicatesUiState {
