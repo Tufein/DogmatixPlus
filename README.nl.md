@@ -33,7 +33,12 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
-### Nieuw in 8.0
+### Nieuw in 2.2.0
+- **Duidelijkere downloads:** snelheid en resterende tijd per bestand, eerlijke informatie bij onbekende grootte of stilstand, en foutmeldingen met een vervolgstap.
+- **Alle releases zijn regulier:** 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. Zie de [versietabel](docs/releases/numbering.md).
+- **Overstappen vanaf de oude 8.x-versies:** installeer eenmalig de [ondertekende APK van 2.2.0](https://github.com/Tufein/DogmatixPlus/releases/download/v2.2.0/DogmatixPlus-release.apk). Daarna gebruikt de updatecontrole Android-buildnummers.
+
+### Nieuw in 1.8.0
 - **Een pagina voor elke game**: A of een tik in de bibliotheek opent een pagina over het hele scherm met de art, een grote downloadknop, de beste versie, favoriet, collecties, delen en verwijderen, en tabbladen **Over**, **Versies**, **Voortgang** (achievements, cloud-saves) en **Meer zoals dit**. X of lang indrukken opent nog steeds de snelle detailkaart.
 - **Snelmenu**: houd SELECT ingedrukt voor een ring met Zoeken, Alles doorzoeken, Verras me, Downloads, Alles pauzeren / hervatten, Tools en Instellingen. Kort drukken maakt nog steeds een favoriet.
 - **Slimme opslag** (optioneel, *Tools → Opslag*): consoles die je een tijd niet speelde en waarin geen favoriet staat verhuizen als hele map naar de SD-kaart, en komen terug zodra je ze weer speelt. Elk bestand wordt gekopieerd en gecontroleerd voordat het origineel weggaat; *Bekijken* laat eerst zien wat zou verhuizen. ES-DE volgt vanzelf, andere launchers moet je zelf naar de nieuwe map wijzen.
@@ -42,7 +47,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 - **Tekst in de instellingen wordt nooit meer afgekapt**: titels, uitleg en waarden lopen volledig door.
 - Nog niet getest op een echt apparaat, een tv of een SD-kaart.
 
-### Nieuw in 7.0
+### Nieuw in 1.6.0
 - **Houd een collectie op je toestel** (*Tools → Collecties*): zet hem aan en nieuwe games in die collectie worden vanzelf gedownload, een paar per keer en alleen als er ruimte is. Er wordt niets automatisch verwijderd; games die uit de collectie zijn gehaald staan in een controlelijst.
 - **Ruimte vrijmaken** (*Tools*): games die je nooit speelde, grootste eerst, met de ruimte die je wint. Favorieten, games in een collectie, RomM-saves en achievements zijn beschermd. Verwijder ze, of verwijder en zet ze op de verlanglijst.
 - **Beschrijvingen voor je launcher** (*Tools*): schrijft beschrijving, genre, jaar en waardering in de gamelist.xml van ES-DE en de metadata.txt van Pegasus, zonder te raken aan wat er staat (eerst komt er een reservekopie).
@@ -52,7 +57,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 - **Dezelfde look in elke rij van de instellingen**, en jouw eigen icoon op het tweede scherm.
 - Nog niet getest op een echt apparaat of tegen een echte RomM-, WebDAV- of RetroAchievements-server.
 
-### Nieuw in 6.0
+### Nieuw in 1.5.0
 - **Zoeken op gevoel**: filters voor **genre en decennium** (uit de gameinformatie die je al hebt), **Meer zoals dit** in de detailkaart, **Verras me** op de Start-knop van de controller en een optie voor **compacte lijsten**.
 - **Verzamelingsdoelen en speelgeschiedenis** (*Tools*): hoe compleet elke console is, met de ontbrekende titels klaar om te importeren, en een tijdlijn per dag van wat je downloadde en speelde.
 - **Een game delen** als kaart met cover, de verlanglijst delen als tekst, en een **Verder spelen**-widget voor het startscherm. Een gewenste game die op je RomM-server verschijnt wordt gemeld.
@@ -61,7 +66,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 - **Alles controleren** (*Tools*): één rapport over bronnen, opslag, BIOS, RomM, back-ups, meldingen en batterij, met een oplossing per probleem.
 - Nog niet getest op een echt apparaat of tegen een echte RomM- of WebDAV-server.
 
-### Nieuw in 5.0
+### Nieuw in 1.4.0
 - **Een nieuw uiterlijk**: panelen met diepte, een zachte gloed in je accentkleur, consolekleuren, een focus die je vanaf de bank ziet, **covers** (RomM, libretro-boxart of een gekleurde tegel), grafieken, nieuwe pictogrammen en rustige beweging. Schakelaars voor animaties, gloed en covers in de lijst staan in *Instellingen → Uiterlijk en bediening*. Indeling en knoppen zijn niet veranderd.
 - **Cloud-overzicht** (*Instellingen → Cloud*): RomM, save-sync, cloud-back-up, apparaten synchroniseren, RetroAchievements en Debrid op één scherm, en een klein **wolkje in de bovenbalk** dat rust, synchroniseren of "heeft jou nodig" toont.
 - **RomM bij elke game**: samenvatting, genres, beoordeling en screenshots in de detailkaart, je **speelstatus en cijfer** teruggeschreven naar RomM, **favorieten gelijk met RomM** en **BIOS-bestanden uit RomM** (gecontroleerd met MD5).
@@ -70,7 +75,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 - **RetroAchievements-voortgang** per game (ring en badges) en je profiel in het overzicht.
 - Nog niet getest op een echt apparaat of tegen een echte RomM-, WebDAV- of RetroAchievements-server.
 
-### Nieuw in 4.0
+### Nieuw in 1.3.0
 - **Hele consolesets in één keer**: *Alles downloaden* neemt tot 3000 games, zonder "app reageert niet" tijdens of na de batch. Grote wachtrijen blijven vlot, kunnen **gepauzeerd** worden, tonen de **resterende tijd** en hebben knoppen voor de hele wachtrij (alles stoppen, mislukte opnieuw, voltooide wissen).
 - **Downloads zorgen voor zichzelf**: mislukte downloads **proberen het zelf opnieuw**, webdownloads kun je **pauzeren**, een klaar bestand wordt **met je DAT vergeleken**, en je krijgt **een melding als de wachtrij klaar is**.
 - **Lijst importeren** (*Tools*): een tekstbestand of het klembord met één game per regel. Van elke game wordt de beste versie in één keer gedownload, de rest kan op de verlanglijst. De DAT-controle gebruikt dit voor de games die je mist.
@@ -78,7 +83,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 - **Instellingen en Tools in duidelijke groepen**, een kort **wat is nieuw** na een update, en een **frontend-check** in Tools.
 - **Covers voor Pegasus en RetroArch** naast die voor ES-DE, een **verlanglijst die weet wat je al hebt** (en als bestand te delen), **de bibliotheek verplaatsen** naar een andere opslag, **uploaden wat RomM mist**, en **save-sync voor losse emulators** (DraStic, melonDS, mGBA, Snes9x EX+ en meer).
 
-### Nieuw in 3.0
+### Nieuw in 1.2.0
 - **Downloads gaan verder waar ze stopten** (volle opslag, gesloten app, herstart) en **de wachtrij overleeft een herstart**; een **limiet per server** houdt strenge servers tevreden. **Herschik de wachtrij** (▲ ▼, of **Y** om er een vooraan te zetten) en **houd ruimte vrij** zodat downloads stoppen voor de opslag vol is.
 - **Verlanglijst op de automatische piloot**, **.m3u-playlists** voor games met meerdere schijven, en een **opslagadvies** als "Alles downloaden" niet past.
 - **Covers voor ES-DE** (en de ES-DE-koppeling van Cocoon) na elke download, van libretro-thumbnails. **Cocoon**: voeg Dogmatix+ toe als tegels per console, opgeslagen weergave of Downloads.
@@ -86,7 +91,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 - **BIOS-controle** voor zo'n twintig systemen, **IPS / UPS / BPS-patches** vanuit de bestandsverkenner, en **links die je met de app deelt** gaan meteen in de map van een console.
 - **RomM-collecties** in beide richtingen, **DAT rechtstreeks van Redump**, een **tweede scherm** voor handhelds met twee schermen en tv's, een wekelijkse **automatische back-up**, en een nieuw icoon.
 
-### Nieuw in 2.0
+### Nieuw in 1.1.0
 - **Snellere herscans**: bronnen waarvan de lijst niet veranderde, worden overgeslagen (6 bronnen van 4.000 games: van 18 naar 2 seconden). Een bron die faalt, houdt zijn games, en een webbron kan **reserve-adressen** hebben.
 - **Scannen op de achtergrond** (dagelijks, via wifi, tijdens het laden, 's nachts) met een melding als er nieuwe games opduiken; nieuwe games krijgen een badge **Nieuw**, een filter en de sortering *Nieuwste eerst*.
 - **Collecties**: je eigen lijsten naast de favorieten.
@@ -188,7 +193,7 @@ Alles werkt ook met het touchscreen. De hints verschijnen alleen als er een cont
 - **Een back-upbestand bevat je accountsleutels** (TorBox, Real-Debrid, RomM). Houd het privé.
 - **Het venster met game-info blijft leeg in de versies van de app die je hier downloadt**, omdat het een gratis sleutel van een gamedatabase nodig heeft die wordt toegevoegd wanneer de app wordt gebouwd.
 - DogmatixPlus zoekt zelf niet naar games. Het leest alleen de bronnen die **jij** toevoegt.
-- **Sommige versies zijn voorlopige versies.** De updatecontrole in de app slaat ze over, tenzij je *Instellingen → Voorlopige versies meenemen* aanzet.
+- **Alle publieke releases zijn reguliere releases.** Versies volgen 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. Zie de [releasenummering](docs/releases/numbering.md).
 - **Werkt iets niet?** *Instellingen → Diagnose delen* maakt een tekstrapport voor een foutmelding; tokens, serveradressen en magnetlinks worden eerst verwijderd.
 
 ---

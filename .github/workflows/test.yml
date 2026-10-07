@@ -23,6 +23,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Public release numbering tests
+        run: python3 -m unittest discover -s tools -p 'test_release_policy.py'
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

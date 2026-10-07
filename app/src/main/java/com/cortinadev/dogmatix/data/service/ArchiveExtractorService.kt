@@ -5,8 +5,14 @@ import android.net.Uri
 import android.util.Log
 import com.cortinadev.dogmatix.util.ArchiveExtractionUtils
 import com.cortinadev.dogmatix.util.Constants
+import com.cortinadev.dogmatix.util.DownloadExtractionException
+import com.cortinadev.dogmatix.util.StorageException
+import com.cortinadev.dogmatix.util.StorageAccessException
 import com.cortinadev.dogmatix.util.StorageHelper
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import net.sf.sevenzipjbinding.ExtractAskMode
 import net.sf.sevenzipjbinding.ExtractOperationResult
@@ -23,6 +29,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.OutputStream
 import java.nio.ByteBuffer
+import java.nio.file.Files
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,32 +47,36 @@ class ArchiveExtractorService @Inject constructor() {
         archiveUri: Uri,
         destinationUri: Uri,
         subPath: String = "",
+        failOnError: Boolean = false,
         onProgress: (Float) -> Unit = {}
     ): List<String> = withContext(Dispatchers.IO) {
-        val extractDir = File(context.cacheDir, "extraction_temp/${System.currentTimeMillis()}")
-        extractDir.mkdirs()
+        var extractDir: File? = null
+        val extractionContext = currentCoroutineContext()
 
         try {
+            val currentExtractDir = createExtractionDirectory(context).also { extractDir = it }
             // Open the SAF archive as a seekable FileChannel — no need to copy the archive
             // to a temp file first, saving potentially gigabytes of cache space.
             val pfd = context.contentResolver.openFileDescriptor(archiveUri, "r")
-                ?: return@withContext emptyList<String>().also {
-                    Log.e(TAG, "Could not open file descriptor for $archiveUri")
-                }
+                ?: throw StorageAccessException()
 
             val cachedFiles = pfd.use {
                 FileInputStream(it.fileDescriptor).use { fis ->
-                    extractToCache(fis, extractDir, onProgress)
+                    extractToCache(fis, currentExtractDir, onProgress, failOnError) { extractionContext.ensureActive() }
                 }
             }
             if (cachedFiles.isEmpty()) return@withContext emptyList<String>()
 
-            copyToSaf(context, cachedFiles, destinationUri, subPath)
+            copyToSaf(context, cachedFiles, destinationUri, subPath, failOnError) { extractionContext.ensureActive() }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Throwable) {
+            extractionContext.ensureActive()
             Log.e(TAG, "Extraction failed: ${e.message}", e)
+            if (failOnError) throw if (e is StorageException || e is SecurityException || e is DownloadExtractionException) e else DownloadExtractionException(e)
             emptyList()
         } finally {
-            extractDir.deleteRecursively()
+            extractDir?.deleteRecursively()
         }
     }
 
@@ -79,30 +90,50 @@ class ArchiveExtractorService @Inject constructor() {
         archiveFile: File,
         destinationUri: Uri,
         subPath: String = "",
+        failOnError: Boolean = false,
         onProgress: (Float) -> Unit = {}
     ): List<String> = withContext(Dispatchers.IO) {
-        val extractDir = File(context.cacheDir, "extraction_temp/${System.currentTimeMillis()}")
-        extractDir.mkdirs()
+        var extractDir: File? = null
+        val extractionContext = currentCoroutineContext()
 
         try {
+            val currentExtractDir = createExtractionDirectory(context).also { extractDir = it }
             val cachedFiles = FileInputStream(archiveFile).use { fis ->
-                extractToCache(fis, extractDir, onProgress)
+                extractToCache(fis, currentExtractDir, onProgress, failOnError) { extractionContext.ensureActive() }
             }
             if (cachedFiles.isEmpty()) return@withContext emptyList<String>()
 
-            copyToSaf(context, cachedFiles, destinationUri, subPath)
+            copyToSaf(context, cachedFiles, destinationUri, subPath, failOnError) { extractionContext.ensureActive() }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Throwable) {
+            extractionContext.ensureActive()
             Log.e(TAG, "Extraction of ${archiveFile.name} failed: ${e.message}", e)
+            if (failOnError) throw if (e is StorageException || e is SecurityException || e is DownloadExtractionException) e else DownloadExtractionException(e)
             emptyList()
         } finally {
-            extractDir.deleteRecursively()
+            extractDir?.deleteRecursively()
+        }
+    }
+
+    private fun createExtractionDirectory(context: Context): File {
+        // A timestamp is shared by simultaneous bulk completions; each extraction needs its
+        // own directory so another worker cannot overwrite/delete its temporary files.
+        val parent = File(context.cacheDir, "extraction_temp")
+        if (!parent.mkdirs() && !parent.isDirectory) throw StorageException("Could not create extraction cache")
+        return try {
+            Files.createTempDirectory(parent.toPath(), "archive-").toFile()
+        } catch (e: java.io.IOException) {
+            throw StorageException("Could not create extraction cache", e)
         }
     }
 
     private fun extractToCache(
         fis: FileInputStream,
         extractDir: File,
-        onProgress: (Float) -> Unit
+        onProgress: (Float) -> Unit,
+        failOnError: Boolean,
+        checkActive: () -> Unit
     ): List<File> {
         val results = mutableListOf<File>()
         val channel = fis.channel
@@ -112,11 +143,13 @@ class ArchiveExtractorService @Inject constructor() {
         // without requiring a copy to a RandomAccessFile.
         val inStream = object : IInStream {
             override fun read(data: ByteArray): Int {
+                checkActive()
                 val n = channel.read(ByteBuffer.wrap(data))
                 return if (n == -1) 0 else n
             }
 
             override fun seek(offset: Long, seekOrigin: Int): Long {
+                checkActive()
                 val newPos = when (seekOrigin) {
                     ISeekableStream.SEEK_SET -> offset
                     ISeekableStream.SEEK_CUR -> channel.position() + offset
@@ -136,13 +169,14 @@ class ArchiveExtractorService @Inject constructor() {
             SevenZip.openInArchive(null, inStream).use { archive ->
                 val total = archive.numberOfItems
 
-                archive.extract(null, false, object : IArchiveExtractCallback {
+                val callback = object : IArchiveExtractCallback {
                     var out: OutputStream? = null
                     var dest: File? = null
                     var skip = false
                     var done = 0
 
                     override fun getStream(index: Int, mode: ExtractAskMode): ISequentialOutStream? {
+                        checkActive()
                         val isFolder = archive.getProperty(index, PropID.IS_FOLDER) as? Boolean ?: false
                         if (isFolder) { skip = true; return null }
 
@@ -153,17 +187,30 @@ class ArchiveExtractorService @Inject constructor() {
 
                         val file = File(extractDir, name)
                         dest = file
-                        val stream = BufferedOutputStream(FileOutputStream(file), Constants.EXTRACTION_BUFFER_SIZE)
+                        val stream = try {
+                            BufferedOutputStream(FileOutputStream(file), Constants.EXTRACTION_BUFFER_SIZE)
+                        } catch (e: java.io.IOException) {
+                            throw StorageException("Could not create extracted cache file", e)
+                        }
                         out = stream
                         skip = false
 
-                        return ISequentialOutStream { data -> stream.write(data); data.size }
+                        return ISequentialOutStream { data ->
+                            checkActive()
+                            try { stream.write(data) } catch (e: java.io.IOException) {
+                                throw StorageException("Could not write extracted cache file", e)
+                            }
+                            data.size
+                        }
                     }
 
                     override fun prepareOperation(mode: ExtractAskMode) {}
 
                     override fun setOperationResult(result: ExtractOperationResult) {
-                        try { out?.close() } catch (_: Exception) {}
+                        checkActive()
+                        try { out?.close() } catch (e: java.io.IOException) {
+                            if (failOnError) throw StorageException("Could not finish extracted cache file", e)
+                        }
                         out = null
 
                         if (!skip && result == ExtractOperationResult.OK) {
@@ -171,6 +218,7 @@ class ArchiveExtractorService @Inject constructor() {
                             onProgress(if (total > 0) done.toFloat() / total else 1f)
                         } else if (!skip) {
                             Log.w(TAG, "Entry result: $result for ${dest?.name}")
+                            if (failOnError) throw DownloadExtractionException()
                         }
                         dest = null
                         skip = false
@@ -178,10 +226,22 @@ class ArchiveExtractorService @Inject constructor() {
 
                     override fun setCompleted(complete: Long) {}
                     override fun setTotal(total: Long) {}
-                })
+                }
+                try {
+                    archive.extract(null, false, callback)
+                } finally {
+                    // Native extraction can abort before setOperationResult. Close its current
+                    // output even on a stopped download or a damaged archive.
+                    try { callback.out?.close() } catch (e: Exception) {
+                        Log.w(TAG, "Could not close interrupted extraction output", e)
+                    }
+                    callback.out = null
+                }
             }
         } catch (e: SevenZipException) {
+            checkActive()
             Log.e(TAG, "7-zip extraction error: ${e.message}")
+            if (failOnError) throw DownloadExtractionException(e)
         }
 
         return results
@@ -191,29 +251,45 @@ class ArchiveExtractorService @Inject constructor() {
         context: Context,
         files: List<File>,
         destinationUri: Uri,
-        subPath: String
+        subPath: String,
+        failOnError: Boolean,
+        checkActive: () -> Unit
     ): List<String> {
         val destUri = ArchiveExtractionUtils.prepareExtractionDestination(context, destinationUri, subPath)
         val copied = mutableListOf<String>()
         val buffer = ByteArray(Constants.EXTRACTION_BUFFER_SIZE)
 
         for (file in files) {
+            checkActive()
             val outUri = StorageHelper.createFile(
                 context = context,
                 uriString = destUri.toString(),
                 subPath = "",
                 fileName = file.name,
                 overwrite = true
-            )?.uri ?: continue
+            )?.uri ?: if (failOnError) throw StorageException("Could not create extracted destination file") else continue
 
-            context.contentResolver.openOutputStream(outUri)?.use { raw ->
-                BufferedOutputStream(raw, Constants.EXTRACTION_BUFFER_SIZE).use { buffOut ->
-                    file.inputStream().use { input ->
-                        var n: Int
-                        while (input.read(buffer).also { n = it } != -1) buffOut.write(buffer, 0, n)
+            val copiedFile = try {
+                context.contentResolver.openOutputStream(outUri)?.use { raw ->
+                    BufferedOutputStream(raw, Constants.EXTRACTION_BUFFER_SIZE).use { buffOut ->
+                        file.inputStream().use { input ->
+                            var n: Int
+                            while (input.read(buffer).also { n = it } != -1) {
+                                checkActive()
+                                buffOut.write(buffer, 0, n)
+                            }
+                        }
                     }
+                    true
                 }
+            } catch (e: java.io.IOException) {
+                throw StorageException("Could not copy extracted file to storage", e)
             }
+            if (copiedFile != true) {
+                if (failOnError) throw StorageException("Could not open extracted destination file")
+                continue
+            }
+            checkActive()
             copied.add(file.name)
             Log.d(TAG, "Copied to SAF: ${file.name}")
         }

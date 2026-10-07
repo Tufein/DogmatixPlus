@@ -1270,9 +1270,9 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>La selezione e i nuovi tentativi di download in gruppo vengono eseguiti in background.</item>
-        <item>Avanzamento dei torrent e code più efficienti.</item>
-        <item>Mettere in pausa un download HTTP interrompe il trasferimento; i file vengono verificati uno alla volta.</item>
+        <item>Velocità in tempo reale e tempo rimanente stimato per ogni download.</item>
+        <item>Errori chiari con azioni per spazio, fonti e nuovi tentativi.</item>
+        <item>Versioni regolari da 2.2.0 con la nuova numerazione 1.0.0 → 1.1.0 → … → 2.0.0.</item>
     </string-array>
 
     <!-- 4.0 -->

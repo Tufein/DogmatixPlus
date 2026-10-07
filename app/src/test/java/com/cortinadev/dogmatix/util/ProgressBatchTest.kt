@@ -25,4 +25,14 @@ class ProgressBatchTest {
         assertSame(list, ProgressBatch.apply(list, mapOf("gone" to ProgressBatch.Progress(1f, 0f, 100))))
         assertSame(list, ProgressBatch.apply(list, emptyMap()))
     }
+
+    @Test fun pendingNetworkRateCannotLeakIntoPausedOrPostProcessingRows() {
+        val statuses = listOf(DownloadStatus.PAUSED, DownloadStatus.COPYING, DownloadStatus.UNZIPPING, DownloadStatus.COMPLETED)
+        val list = statuses.map { item(it.name).copy(status = it) }
+        val out = ProgressBatch.apply(list, statuses.associate { it.name to ProgressBatch.Progress(0.5f, 2f, 50L) })
+        out.forEach { row ->
+            assertEquals(0f, row.downloadSpeed)
+            assertEquals(50L, row.downloadedBytes)
+        }
+    }
 }

@@ -83,11 +83,11 @@ fun DownloadScreen(
     val uploads by viewModel.uploads.collectAsState()
     val waitingFiles by viewModel.waitingFiles.collectAsState()
     val waitingReasons by viewModel.waitingReasons.collectAsState()
-    val queued by viewModel.queued.collectAsState()
+    val queuePositions by viewModel.queuePositions.collectAsState()
     val itemWaits by viewModel.itemWaits.collectAsState()
     val itemConditions by viewModel.itemConditions.collectAsState()
     // Names still in line, to offer "Wait for..." on the rows that have not started.
-    val queuedSet = remember(queued) { queued.toHashSet() }
+    val queuedSet = queuePositions.keys
     // Rows the "Download when..." dialog is open for (one row, or the ticked ones); null = closed.
     var whenTargets by remember { mutableStateOf<List<String>?>(null) }
     fun notStarted(row: DownloadItemModel) = row.status == DownloadStatus.DOWNLOADING &&
@@ -314,10 +314,13 @@ fun DownloadScreen(
                         canSchedule = notStarted(item),
                         onWaitFor = { whenTargets = listOf(item.fileName) },
                         waitingReason = waitingShort.takeIf { it.isNotEmpty() && item.fileName in waitingFiles },
-                        queuePosition = queued.indexOf(item.fileName).takeIf { it >= 0 }?.plus(1),
+                        queuePosition = queuePositions[item.fileName],
                         verify = verification[item.fileName],
                         compact = isLandscape,
                         viewModel = viewModel,
+                        onOpenSettings = { navController.navigate(NavRoutes.Settings.route) { launchSingleTop = true } },
+                        onOpenSources = { navController.navigate(NavRoutes.Sources.route) { launchSingleTop = true } },
+                        onOpenStorage = { navController.navigate(NavRoutes.Storage.route) { launchSingleTop = true } },
                         selectionMode = selectionMode,
                         selected = item.fileName in selection,
                         onToggleSelection = { viewModel.toggleSelection(item.fileName) },

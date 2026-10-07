@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="download_time_left">Transferência: faltam %1$s</string>
+    <string name="download_eta_unknown">Tempo restante ainda desconhecido</string>
+    <string name="download_waiting_data">A aguardar dados…</string>
+    <string name="download_size_unknown">Tamanho total desconhecido</string>
+    <string name="download_bytes_unknown_total">%1$s transferidos · tamanho total desconhecido</string>
+    <string name="download_fix_folder">Escolher pasta de downloads</string>
+    <string name="download_free_storage">Libertar armazenamento</string>
+    <string name="download_check_sources">Verificar fontes</string>
+    <string name="download_http_status">(HTTP %1$d)</string>
+    <string name="download_error_network">A ligação foi interrompida. Verifica a ligação à Internet e tenta novamente.</string>
+    <string name="download_error_timeout">A fonte não respondeu a tempo. Tenta novamente ou escolhe outra fonte.</string>
+    <string name="download_error_storage_full">Não há espaço livre suficiente. Liberta armazenamento e tenta novamente.</string>
+    <string name="download_error_storage_permission">Não é possível aceder à pasta de downloads. Seleciona-a novamente nas Definições.</string>
+    <string name="download_error_storage_write">Não foi possível gravar o ficheiro. Verifica o espaço livre e a pasta de downloads nas Definições.</string>
+    <string name="download_error_authentication">A fonte requer acesso. Verifica as definições da fonte ou da tua conta debrid.</string>
+    <string name="download_error_not_found">Este ficheiro já não está disponível nesta fonte. Atualiza-a ou escolhe outra.</string>
+    <string name="download_error_rate_limit">A fonte está a limitar os downloads. Aguarda um pouco e tenta novamente.</string>
+    <string name="download_error_server">A fonte tem um erro de servidor. Tenta mais tarde ou escolhe outra fonte.</string>
+    <string name="download_error_http">A fonte rejeitou o download. Verifica as definições ou tenta outra fonte.</string>
+    <string name="download_error_torrent">Não foi possível descarregar o torrent. Verifica a ligação ou tenta outra fonte.</string>
+    <string name="download_error_extraction">Não foi possível extrair o arquivo. Verifica o espaço livre e descarrega o ficheiro novamente.</string>
+    <string name="download_error_verification">O ficheiro descarregado não passou na verificação. Descarrega-o novamente de uma fonte de confiança.</string>
+    <string name="download_error_unknown">Não foi possível concluir o download. Tenta novamente ou escolhe outra fonte.</string>
+    <plurals name="download_queue_unknown_sizes">
+        <item quantity="one">%1$d ficheiro tem tamanho desconhecido</item>
+        <item quantity="other">%1$d ficheiros têm tamanho desconhecido</item>
+    </plurals>
+</resources>

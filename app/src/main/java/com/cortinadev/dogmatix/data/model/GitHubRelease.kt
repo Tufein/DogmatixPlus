@@ -12,5 +12,7 @@ data class GitHubRelease(
     @SerializedName("prerelease")
     val prerelease: Boolean,
     @SerializedName("draft")
-    val draft: Boolean
+    val draft: Boolean,
+    @SerializedName("body")
+    val body: String? = null
 )

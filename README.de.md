@@ -33,7 +33,12 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
-### Neu in 8.0
+### Neu in 2.2.0
+- Geschwindigkeit und Restzeit pro Download, ehrliche Anzeigen bei unbekannter Größe und Fehlermeldungen mit konkreten nächsten Schritten.
+- Nur reguläre Releases: 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. [Versionstabelle](docs/releases/numbering.md).
+- Von alten 8.x-Versionen einmal die [signierte APK 2.2.0](https://github.com/Tufein/DogmatixPlus/releases/download/v2.2.0/DogmatixPlus-release.apk) manuell installieren. Danach vergleichen Updates Android-Buildnummern.
+
+### Neu in 1.8.0
 - **Eine Seite für jedes Spiel**: A oder Tippen in der Bibliothek öffnet eine Vollbildseite mit dem Artwork, einer großen Download-Taste, der besten Version, Favorit, Sammlungen, Teilen und Entfernen, und Reitern für **Info**, **Versionen**, **Fortschritt** (Erfolge, Cloud-Spielstände) und **Mehr davon**. X oder langes Drücken öffnet weiterhin die schnelle Detailkarte.
 - **Schnellmenü**: SELECT halten für einen Ring mit Suchen, Alles durchsuchen, Überrasch mich, Downloads, Alle pausieren / fortsetzen, Tools und Einstellungen. Kurz drücken setzt weiterhin einen Favoriten.
 - **Intelligenter Speicher** (optional, *Tools → Speicher*): Konsolen, die du länger nicht gespielt hast und in denen kein Favorit liegt, ziehen als ganzer Ordner auf die SD-Karte und kommen zurück, sobald du sie wieder spielst. Jede Datei wird kopiert und geprüft, bevor das Original geht; *Prüfen* zeigt vorher, was verschoben würde. ES-DE folgt von selbst, andere Launcher musst du selbst auf den neuen Ordner zeigen lassen.
@@ -42,7 +47,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 - **Text in den Einstellungen wird nie mehr abgeschnitten**: Titel, Hinweise und Werte brechen vollständig um.
 - Noch nicht auf einem echten Gerät, einem Fernseher oder einer SD-Karte getestet.
 
-### Neu in 7.0
+### Neu in 1.6.0
 - **Eine Sammlung auf dem Gerät halten** (*Tools → Sammlungen*): einschalten, und neue Spiele darin werden von selbst geladen, wenige pro Durchlauf und nur bei genug Platz. Nichts wird automatisch gelöscht; Spiele, die die Sammlung verlassen haben, stehen in einer Prüfliste.
 - **Speicher freigeben** (*Tools*): nie gespielte Spiele, größte zuerst, mit dem gewonnenen Platz. Favoriten, Sammlungsspiele, RomM-Spielstände und Erfolge sind geschützt. Entfernen, oder entfernen und auf die Wunschliste setzen.
 - **Beschreibungen für deinen Launcher** (*Tools*): schreibt Beschreibung, Genre, Jahr und Wertung in die gamelist.xml von ES-DE und die metadata.txt von Pegasus, ohne Vorhandenes anzutasten (vorher entsteht eine Sicherungskopie).
@@ -52,7 +57,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 - **Dasselbe Aussehen in jeder Zeile der Einstellungen** und dein eigenes Symbol auf dem zweiten Bildschirm.
 - Noch nicht auf einem echten Gerät oder gegen einen echten RomM-, WebDAV- oder RetroAchievements-Server getestet.
 
-### Neu in 6.0
+### Neu in 1.5.0
 - **Suchen nach Gefühl**: Filter für **Genre und Jahrzehnt** (aus den vorhandenen Spielinfos), **Mehr davon** in der Detailkarte, **Überrasch mich** auf der Start-Taste des Controllers und **kompakte Listen**.
 - **Sammlungsziele und Spielverlauf** (*Tools*): wie vollständig jede Konsole ist, mit den fehlenden Titeln zum Import, und eine Zeitleiste pro Tag mit Geladenem und Gespieltem.
 - **Spiel teilen** als Karte mit Cover, Wunschliste als Text teilen und ein Widget **Weiterspielen**. Ein gewünschtes Spiel, das auf deinem RomM-Server auftaucht, wird gemeldet.
@@ -61,7 +66,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 - **Alles prüfen** (*Tools*): ein Bericht zu Quellen, Speicher, BIOS, RomM, Backups, Benachrichtigungen und Akku, mit einer Lösung je Problem.
 - Noch nicht auf einem echten Gerät oder gegen einen echten RomM- oder WebDAV-Server getestet.
 
-### Neu in 5.0
+### Neu in 1.4.0
 - **Ein neues Aussehen**: Panels mit Tiefe, ein sanftes Leuchten in deiner Akzentfarbe, Konsolenfarben, ein Fokus, den man vom Sofa aus sieht, **Cover** (RomM, libretro-Boxart oder eine farbige Kachel), Diagramme, neue Symbole und ruhige Bewegung. Schalter für Animationen, Leuchten und Cover in der Liste stehen unter *Einstellungen → Aussehen und Bedienung*. Aufbau und Tasten sind unverändert.
 - **Cloud-Übersicht** (*Einstellungen → Cloud*): RomM, Savesync, Cloud-Backup, Geräteabgleich, RetroAchievements und Debrid auf einem Bildschirm, dazu eine kleine **Wolke in der Leiste oben**, die Ruhe, Abgleich oder „braucht dich“ zeigt.
 - **RomM bei jedem Spiel**: Zusammenfassung, Genres, Bewertung und Screenshots in der Detailkarte, dein **Spielstatus und deine Bewertung** werden zu RomM zurückgeschrieben, **Favoriten im Gleichschritt mit RomM** und **BIOS-Dateien aus RomM** (per MD5 geprüft).
@@ -70,7 +75,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 - **RetroAchievements-Fortschritt** pro Spiel (Ring und Abzeichen) und dein Profil in der Übersicht.
 - Noch nicht auf einem echten Gerät oder gegen einen echten RomM-, WebDAV- oder RetroAchievements-Server getestet.
 
-### Neu in 4.0
+### Neu in 1.3.0
 - **Ganze Konsolen-Sets auf einmal**: *Alle laden* nimmt bis zu 3000 Spiele, ohne „App reagiert nicht“ während oder nach dem Stapel. Große Warteschlangen bleiben flüssig, lassen sich **anhalten**, zeigen die **Restzeit** und haben Knöpfe für die ganze Warteschlange (alle stoppen, fehlgeschlagene wiederholen, fertige entfernen).
 - **Downloads kümmern sich selbst**: Fehlgeschlagene Downloads **versuchen es von selbst erneut**, Web-Downloads lassen sich **pausieren**, eine fertige Datei wird **mit deiner DAT verglichen**, und du bekommst **eine Benachrichtigung, wenn die Warteschlange fertig ist**.
 - **Liste importieren** (*Tools*): eine Textdatei oder die Zwischenablage mit einem Spiel pro Zeile. Von jedem Spiel wird die beste Version auf einmal geladen, der Rest kann auf die Wunschliste. Die DAT-Prüfung nutzt das für die Spiele, die dir fehlen.
@@ -78,7 +83,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 - **Einstellungen und Tools in klaren Gruppen**, ein kurzes **Was ist neu** nach einem Update und ein **Frontend-Check** in den Tools.
 - **Cover für Pegasus und RetroArch** neben denen für ES-DE, eine **Wunschliste, die weiß, was du schon hast** (und sich als Datei teilen lässt), **die Bibliothek auf einen anderen Speicher verschieben**, **hochladen, was RomM fehlt**, und **Spielstand-Sync für eigenständige Emulatoren** (DraStic, melonDS, mGBA, Snes9x EX+ und mehr).
 
-### Neu in 3.0
+### Neu in 1.2.0
 - **Downloads machen dort weiter, wo sie aufgehört haben** (voller Speicher, geschlossene App, Neustart), und **die Warteschlange übersteht einen Neustart**; ein **Limit pro Server** hält strenge Server zufrieden. **Ordne die Warteschlange um** (▲ ▼, oder **Y**, um einen nach vorne zu holen) und **halte Speicher frei**, damit Downloads stoppen, bevor der Speicher voll ist.
 - **Wunschliste auf Autopilot**, **.m3u-Playlists** für Spiele mit mehreren Discs und ein **Speicher-Ratgeber**, wenn „Alles Angezeigte laden“ nicht passt.
 - **Cover für ES-DE** (und Cocoons ES-DE-Anbindung) nach jedem Download, von libretro-thumbnails. **Cocoon**: Dogmatix+ als Kacheln pro Konsole, gespeicherter Ansicht oder Downloads hinzufügen.
@@ -86,7 +91,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 - **BIOS-Prüfung** für etwa zwanzig Systeme, **IPS- / UPS- / BPS-Patches** aus dem Dateimanager, und **an die App geteilte Links** landen direkt im Ordner einer Konsole.
 - **RomM-Sammlungen** in beide Richtungen, **DAT direkt von Redump**, ein **zweiter Bildschirm** für Handhelds mit zwei Bildschirmen und Fernseher, eine wöchentliche **automatische Sicherung** und ein neues Symbol.
 
-### Neu in 2.0
+### Neu in 1.1.0
 - **Schnellere Scans**: Quellen, deren Liste sich nicht geändert hat, werden übersprungen (6 Quellen mit 4.000 Spielen: von 18 s auf 2 s). Eine Quelle, die scheitert, behält ihre Spiele, und eine Webquelle kann **Ausweichadressen** haben.
 - **Scannen im Hintergrund** (täglich, über WLAN, beim Laden, nachts) mit einer Meldung, wenn neue Spiele auftauchen; neue Spiele bekommen ein **Neu**-Abzeichen, einen Filter und die Sortierung *Neueste zuerst*.
 - **Sammlungen**: eigene Listen neben den Favoriten.
@@ -188,7 +193,7 @@ Alles funktioniert auch per Touch. Die Hinweise erscheinen nur, solange ein Cont
 - **Eine Sicherungsdatei enthält deine Kontoschlüssel** (TorBox, Real-Debrid, RomM). Gib sie nicht weiter.
 - **Das Fenster mit den Spielinfos bleibt in den hier angebotenen Downloads leer**, weil es einen kostenlosen Schlüssel aus einer Spieldatenbank braucht, der erst beim Erstellen der App hinzugefügt wird.
 - DogmatixPlus sucht nicht von selbst nach Spielen. Es liest nur die Quellen, die **du** hinzufügst.
-- **Manche Versionen sind Vorabversionen.** Die Update-Prüfung der App überspringt sie, außer du schaltest *Einstellungen → Vorabversionen einbeziehen* ein.
+- **Alle öffentlichen Releases sind reguläre Releases.** Die Versionen folgen 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. Siehe [Versionsnummerierung](docs/releases/numbering.md).
 - **Etwas funktioniert nicht?** *Einstellungen → Diagnose teilen* erstellt einen Textbericht für eine Fehlermeldung; Tokens, Serveradressen und Magnet-Links werden vorher entfernt.
 
 ---

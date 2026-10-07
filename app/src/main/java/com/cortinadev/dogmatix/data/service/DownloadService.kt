@@ -17,6 +17,8 @@ import com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao
 import com.cortinadev.dogmatix.data.local.entity.DownloadHistoryEntity
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.model.DebridProvider
+import com.cortinadev.dogmatix.data.model.DownloadFailure
+import com.cortinadev.dogmatix.data.model.DownloadFailureCategory
 import com.cortinadev.dogmatix.data.model.DownloadItemModel
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
@@ -28,6 +30,8 @@ import com.cortinadev.dogmatix.util.Constants
 import com.cortinadev.dogmatix.util.DownloadCondition
 import com.cortinadev.dogmatix.util.DownloadQueue
 import com.cortinadev.dogmatix.util.DownloadStreams
+import com.cortinadev.dogmatix.util.DownloadFailures
+import com.cortinadev.dogmatix.util.DownloadExtractionException
 import com.cortinadev.dogmatix.util.WaitInfo
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.MirrorUrls
@@ -40,6 +44,7 @@ import com.cortinadev.dogmatix.util.HoldParking
 import com.cortinadev.dogmatix.util.PartialOwner
 import com.cortinadev.dogmatix.util.SourceFailures
 import com.cortinadev.dogmatix.util.StorageException
+import com.cortinadev.dogmatix.util.StorageAccessException
 import com.cortinadev.dogmatix.util.ExpectedHash
 import com.cortinadev.dogmatix.util.SourcesJson
 import com.cortinadev.dogmatix.util.StorageHelper
@@ -85,6 +90,12 @@ import kotlinx.coroutines.withContext
 private const val TAG = "DownloadService"
 /** Upper bound for an uncached torrent to be fetched by the debrid service before we give up. */
 private const val DEBRID_MAX_WAIT_MS = 6 * 60 * 60 * 1000L
+private val DEVICE_FAILURES = setOf(
+    DownloadFailureCategory.STORAGE_FULL,
+    DownloadFailureCategory.STORAGE_PERMISSION,
+    DownloadFailureCategory.STORAGE_WRITE,
+    DownloadFailureCategory.EXTRACTION
+)
 
 /** A download stopped because free space fell below the limit set in Settings; it can be retried. */
 class LowStorageException(fileName: String) : Exception("Not enough free space for $fileName")
@@ -430,7 +441,8 @@ class DownloadService @Inject constructor(
                         sourceTrack.recordSuccess(chosen, s?.first ?: 0L, s?.second ?: 0L)
                     }
                     // A torrent that could not be moved into place failed here, not at its source.
-                    DownloadStatus.FAILED -> if (!localFailures.remove(file.fileName)) {
+                    DownloadStatus.FAILED -> if (!localFailures.remove(file.fileName) &&
+                        downloadProgressTracker.getDownloads().firstOrNull { it.fileName == file.fileName }?.failure?.category !in DEVICE_FAILURES) {
                         sourceTrack.recordFailure(chosen, null)
                         launchBackground("Switching source for ${file.fileName}") { switchSourceOnce(file.fileName) }
                     }
@@ -444,11 +456,11 @@ class DownloadService @Inject constructor(
                 }
                 throw e
             } catch (e: LowStorageException) {
-                synchronized(startLock) { if (downloadJobs[file.fileName] === owner) downloadProgressTracker.updateDownloadStatus(file.fileName, DownloadStatus.STOPPED) }
+                synchronized(startLock) { if (downloadJobs[file.fileName] === owner) downloadProgressTracker.updateDownloadStatus(file.fileName, DownloadStatus.STOPPED, failure = DownloadFailures.classify(e)) }
                 notifyLowStorage()
             } catch (e: Exception) {
                 Log.e(TAG, "Download failed for ${file.fileName}: ${e.message}")
-                synchronized(startLock) { if (downloadJobs[file.fileName] === owner) downloadProgressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED) }
+                synchronized(startLock) { if (downloadJobs[file.fileName] === owner) downloadProgressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED, failure = DownloadFailures.classify(e)) }
                 // A missing folder or a full disk says nothing about the source.
                 if (SourceFailures.isSourceSide(e)) sourceTrack.recordFailure(current, e)
                 scheduleAutoRetry(file.fileName, e)
@@ -785,7 +797,7 @@ class DownloadService @Inject constructor(
         try {
             val downloadDirUri = downloadFileManager.getDownloadDirectoryUri(file)
             if (downloadDirUri == Uri.EMPTY)
-                throw Exception("Download directory not configured or no longer accessible.")
+                throw StorageAccessException()
 
             // Use the info cached at download-start time so this works even if the handle was
             // invalidated (e.g. session stopped during app shutdown before the copy finishes).
@@ -799,7 +811,7 @@ class DownloadService @Inject constructor(
             Log.d(TAG, "Internal torrent file: ${internalFile.absolutePath}, exists: ${internalFile.exists()}")
 
             if (!internalFile.exists())
-                throw Exception("Internal torrent file not found at ${internalFile.absolutePath}")
+                throw StorageException("Internal torrent file not found")
 
             // libtorrent marks a file complete (via fileProgress) after hash-verification,
             // but its disk thread flushes writes asynchronously. Poll until the OS-visible
@@ -815,7 +827,7 @@ class DownloadService @Inject constructor(
             if (internalFile.length() < expectedSize) {
                 // Copying a truncated file to the ROMs folder would mark a broken download as
                 // completed (seen with ENOSPC on the cache partition: 0 bytes were "flushed").
-                throw Exception(
+                throw StorageException(
                     "Incomplete torrent data for ${file.fileName}: " +
                     "${internalFile.length()}/$expectedSize bytes (disk full or write error)"
                 )
@@ -829,24 +841,29 @@ class DownloadService @Inject constructor(
                 Log.d(TAG, "Extracting torrent archive directly from cache: ${internalFile.name}")
                 updateStatus(file.fileName, DownloadStatus.UNZIPPING)
                 val extracted = archiveExtractorService.extractArchiveFile(
-                    context, internalFile, downloadDirUri, subPath
+                    context, internalFile, downloadDirUri, subPath, failOnError = true
                 )
                 if (extracted.isNotEmpty()) {
                     extractedFilesMap[file.fileName] = extracted
                 } else {
-                    Log.w(TAG, "Extraction produced no files for ${file.fileName}")
+                    throw DownloadExtractionException()
                 }
             } else {
                 // Non-archive or auto-unzip disabled: copy directly from cache to SAF
                 val documentFile = downloadFileManager.createDocumentFile(file, downloadDirUri.toString(), subPath)
-                    ?: throw Exception("Failed to create destination file in storage.")
+                    ?: throw StorageException("Failed to create destination file in storage.")
                 Log.d(TAG, "Copying torrent file to SAF: ${documentFile.uri}")
                 updateStatus(file.fileName, DownloadStatus.COPYING)
-                context.contentResolver.openOutputStream(documentFile.uri)?.use { out ->
-                    BufferedOutputStream(out, Constants.EXTRACTION_BUFFER_SIZE).use { buffOut ->
-                        internalFile.inputStream().use { it.copyTo(buffOut, Constants.EXTRACTION_BUFFER_SIZE) }
+                try {
+                    context.contentResolver.openOutputStream(documentFile.uri)?.use { out ->
+                        BufferedOutputStream(out, Constants.EXTRACTION_BUFFER_SIZE).use { buffOut ->
+                            internalFile.inputStream().use { input -> DownloadStreams.copy(input, buffOut, Constants.EXTRACTION_BUFFER_SIZE) {} }
+                        }
                     }
-                } ?: throw Exception("Could not open output stream for ${documentFile.uri}")
+                        ?: throw StorageException("Could not open destination output stream")
+                } catch (e: java.io.IOException) {
+                    throw StorageException("Could not copy downloaded torrent to storage", e)
+                }
             }
 
             // Siblings can share torrent pieces with this file. Keep the native session's
@@ -862,7 +879,7 @@ class DownloadService @Inject constructor(
         } catch (e: Exception) {
             Log.e(TAG, "Error processing torrent file for ${file.fileName}: ${e.message}", e)
             localFailures += file.fileName
-            updateStatus(file.fileName, DownloadStatus.FAILED)
+            updateStatus(file.fileName, DownloadStatus.FAILED, DownloadFailures.classify(e))
             // Untrack and, if nothing else uses the torrent, release it (deletes the cached data);
             // a retry re-fetches the metadata and starts clean instead of leaving a partial behind.
             runCatching { torrentDownloadService.finishDownload(file) }
@@ -927,7 +944,7 @@ class DownloadService @Inject constructor(
             var pollErrors = 0
             while (!done(torrent)) {
                 torrent.failure?.let { throw Exception(it) }
-                if (System.currentTimeMillis() - started > DEBRID_MAX_WAIT_MS) throw Exception("$label did not finish fetching ${file.fileName} in time")
+                if (System.currentTimeMillis() - started > DEBRID_MAX_WAIT_MS) throw java.net.SocketTimeoutException("Debrid fetch timed out")
                 downloadProgressTracker.updateDownloadProgress(file.fileName, torrent.progress, 0f, (torrent.progress * file.fileSize).toLong())
                 val elapsed = System.currentTimeMillis() - started
                 delay(when { cached || elapsed < 30_000L -> 3_000L; elapsed < 5 * 60_000L -> 10_000L; else -> 30_000L })
@@ -1041,7 +1058,8 @@ class DownloadService @Inject constructor(
     private suspend fun performHttpDownloadAttempt(file: DownloadableFileEntity, downloadUrl: String, resumable: Boolean = false, trustRecord: Boolean = false) {
         val downloadDirUri = downloadFileManager.getDownloadDirectoryUri(file)
         if (downloadDirUri == Uri.EMPTY)
-            throw StorageException("Download directory not configured or no longer accessible.")
+            throw StorageAccessException()
+        updateStatus(file.fileName, DownloadStatus.DOWNLOADING)
         parkable.remove(file.fileName)
 
         var inputStream: InputStream? = null
@@ -1114,7 +1132,7 @@ class DownloadService @Inject constructor(
             throw e
         } catch (e: Exception) {
             if (!resumable) documentFile?.let { downloadFileManager.deleteFile(it) }
-            updateStatus(file.fileName, DownloadStatus.FAILED)
+            updateStatus(file.fileName, DownloadStatus.FAILED, DownloadFailures.classify(e))
             throw e
         } finally {
             parkable.remove(file.fileName)
@@ -1135,7 +1153,7 @@ class DownloadService @Inject constructor(
     ) {
         var sinceSpaceCheck = 0L
         var downloaded = startOffset
-        val startTime = System.currentTimeMillis()
+        val startTime = System.nanoTime() / 1_000_000L
         var lastUpdateTime = startTime
         var lastDownloaded = startOffset
 
@@ -1150,7 +1168,7 @@ class DownloadService @Inject constructor(
                 if (downloadGate.lowOnSpace()) throw LowStorageException(file.fileName)
             }
 
-            val now = System.currentTimeMillis()
+            val now = System.nanoTime() / 1_000_000L
 
             val progress = if (contentLength > 0)
                 ArchiveExtractionUtils.calculateProgress(downloaded, contentLength) else 0f
@@ -1158,14 +1176,12 @@ class DownloadService @Inject constructor(
             if (downloadProgressTracker.shouldUpdateProgress(progress, lastUpdateTime, now)) {
                 val elapsed = (now - lastUpdateTime) / 1000f
                 val speedMBs = downloadSpeedController.calculateSpeed(downloaded - lastDownloaded, elapsed)
-                    .takeIf { it > 0 }
-                    ?: downloadSpeedController.calculateSpeed(downloaded, (now - startTime) / 1000f)
                 downloadProgressTracker.updateDownloadProgress(file.fileName, progress, speedMBs, downloaded)
                 lastUpdateTime = now
                 lastDownloaded = downloaded
             }
         }
-        transferSamples[file.fileName] = (downloaded - startOffset) to (System.currentTimeMillis() - startTime)
+        transferSamples[file.fileName] = (downloaded - startOffset) to (System.nanoTime() / 1_000_000L - startTime)
     }
 
     private suspend fun handlePostDownload(
@@ -1184,17 +1200,18 @@ class DownloadService @Inject constructor(
         updateStatus(file.fileName, DownloadStatus.UNZIPPING)
         try {
             val extracted = archiveExtractorService.extractArchive(
-                context, documentFile.uri, downloadFileManager.getDownloadDirectoryUri(file), subPath)
+                context, documentFile.uri, downloadFileManager.getDownloadDirectoryUri(file), subPath, failOnError = true)
             if (extracted.isNotEmpty()) {
                 downloadFileManager.deleteFile(documentFile)
                 extractedFilesMap[file.fileName] = extracted
             } else {
-                Log.w(TAG, "Extraction produced no files for ${file.fileName}")
+                throw DownloadExtractionException()
             }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             Log.e(TAG, "Extraction failed for ${file.fileName}: ${e.message}")
+            throw if (e is StorageException || e is DownloadExtractionException || e is SecurityException) e else DownloadExtractionException(e)
         }
         currentCoroutineContext().ensureActive()
         updateStatus(file.fileName, DownloadStatus.COMPLETED)
@@ -1266,10 +1283,10 @@ class DownloadService @Inject constructor(
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
     }
 
-    private suspend fun updateStatus(fileName: String, status: DownloadStatus) {
+    private suspend fun updateStatus(fileName: String, status: DownloadStatus, failure: DownloadFailure? = null) {
         val owner = currentCoroutineContext()[Job]
         synchronized(startLock) {
-            if (downloadJobs[fileName] === owner) downloadProgressTracker.updateDownloadStatus(fileName, status)
+            if (downloadJobs[fileName] === owner) downloadProgressTracker.updateDownloadStatus(fileName, status, failure = failure)
         }
     }
 

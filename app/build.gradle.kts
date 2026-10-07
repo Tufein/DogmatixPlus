@@ -23,8 +23,8 @@ android {
         applicationId = "com.tufein.dogmatixplus"
         minSdk = 29
         targetSdk = 36
-        versionCode = 33
-        versionName = "8.2.0-beta.2"
+        versionCode = 34
+        versionName = "2.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

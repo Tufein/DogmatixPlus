@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -68,14 +69,14 @@ fun QueueHeader(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             ProgressRing(
-                fraction = if (busy) summary.fraction else if (summary.completed > 0) 1f else 0f,
+                fraction = if (busy && eta.unknownSizes > 0) 0f else if (busy) summary.fraction else if (summary.completed > 0) 1f else 0f,
                 size = 72.dp,
                 stroke = 7.dp,
                 color = ringColor
             ) {
                 if (busy) {
                     Text(
-                        "${(summary.fraction * 100).toInt()}%",
+                        if (eta.unknownSizes > 0) "—" else "${(summary.fraction * 100).toInt()}%",
                         style = MaterialTheme.typography.titleMedium.tabular(),
                         color = scheme.onSurface,
                         maxLines = 1
@@ -93,7 +94,8 @@ fun QueueHeader(
                 SectionTitle(stringResource(R.string.q5_queue_title), icon = R.drawable.ic_download)
                 if (busy) {
                     Text(
-                        stringResource(R.string.q5_of, formatBytes(summary.doneBytes), formatBytes(summary.totalBytes)),
+                        if (summary.totalBytes <= 0L && eta.unknownSizes > 0) stringResource(R.string.download_size_unknown)
+                        else stringResource(R.string.q5_of, formatBytes(summary.doneBytes), formatBytes(summary.totalBytes)),
                         style = MaterialTheme.typography.titleLarge.tabular(),
                         color = scheme.onSurface,
                         maxLines = 1,
@@ -196,12 +198,17 @@ fun QueueHeader(
 /** "12.4 MB/s · 3.1 GB left · about 1 h 20 min": the speed, what is left and how long it takes. */
 @Composable
 private fun progressLine(eta: QueueEta.Eta): String {
-    val parts = ArrayList<String>(3)
+    val parts = ArrayList<String>(4)
     if (eta.bytesPerSecond > 0L) parts += stringResource(R.string.q5_per_second, formatBytes(eta.bytesPerSecond))
     if (eta.remainingBytes > 0L) parts += stringResource(R.string.downloads_left, formatBytes(eta.remainingBytes))
+    if (eta.unknownSizes > 0) {
+        parts += pluralStringResource(R.plurals.download_queue_unknown_sizes, eta.unknownSizes, eta.unknownSizes)
+    }
     eta.seconds?.let { seconds ->
         val (hours, minutes) = QueueEta.hoursMinutes(seconds)
         parts += if (hours > 0) stringResource(R.string.downloads_eta_hours, hours, minutes) else stringResource(R.string.downloads_eta_minutes, minutes)
+    } ?: run {
+        if (eta.remainingBytes > 0L || eta.unknownSizes > 0) parts += stringResource(R.string.download_eta_unknown)
     }
     return parts.joinToString(" · ")
 }

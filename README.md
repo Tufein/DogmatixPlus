@@ -33,7 +33,12 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
-### New in 8.0
+### New in 2.1.1.0
+- **Clearer downloads:** per-file speed and estimated remaining time, honest feedback for unknown sizes or stalled transfers, and failure messages with a next step.
+- **Regular releases only:** the history now follows 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. Original APK identities are recorded in the [version mapping](docs/releases/numbering.md).
+- **Upgrading from the former 8.x labels:** install the [signed 2.2.0 APK](https://github.com/Tufein/DogmatixPlus/releases/download/v2.2.0/DogmatixPlus-release.apk) manually once; subsequent update checks use Android build numbers.
+
+### New in 1.8.0
 - **A page for every game**: A or a tap in the library opens a full-screen page with the art, a big Download button, the best version, favourite, collections, share and remove, and tabs for **About**, **Versions**, **Progress** (achievements, cloud saves) and **More like this**. X or a long press still opens the quick details card.
 - **Quick menu**: hold SELECT for a ring with Search, Search everything, Surprise me, Downloads, Pause all / Resume all, Tools and Settings. A short press still marks a favourite.
 - **Smart storage** (optional, *Tools → Storage*): consoles you have not played lately and have no favourites in move as a whole folder to the SD card, and come back when you play them again. Every file is copied and checked before the original goes; *Check* shows what would move first. ES-DE follows by itself, other launchers need the new folder by hand.
@@ -42,7 +47,7 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 - **Settings text is never cut off** any more: titles, hints and values wrap in full.
 - Not tried yet on a real device, a TV or an SD card.
 
-### New in 7.0
+### New in 1.6.0
 - **Keep a collection on your device** (*Tools → Collections*): switch it on and new games in that collection download by themselves, a few per run, only when there is room. Nothing is deleted automatically; games that left the collection are offered in a review list.
 - **Free up space** (*Tools*): games you never played, biggest first, with the space you would win. Favourites, collection games, RomM saves and achievements are protected. Remove them, or remove and put them on the wishlist.
 - **Descriptions for your launcher** (*Tools*): writes description, genre, year and rating into ES-DE's gamelist.xml and Pegasus' metadata.txt, without touching what is there (a backup copy is made first).
@@ -52,7 +57,7 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 - **The same look in every Settings row**, and your own icon on the second screen.
 - Not tried yet on a real device or against a real RomM, WebDAV or RetroAchievements server.
 
-### New in 6.0
+### New in 1.5.0
 - **Search by feel**: filters for **genre and decade** (from the game information you already have), **More like this** in the details card, **Surprise me** on the controller's Start button and a **compact list** option.
 - **Collection goals and play history** (*Tools*): how complete each console is, with the missing titles ready to import, and a day-by-day timeline of what you downloaded and played.
 - **Share a game** as a card with its cover, share the wishlist as text, and a **Continue playing** widget for the home screen. A wanted game that appears on your RomM server is announced.
@@ -61,7 +66,7 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 - **Check everything** (*Tools*): one report on sources, storage, BIOS, RomM, backups, notifications and battery, with a fix button for each problem.
 - Not tried yet on a real device or against a real RomM or WebDAV server.
 
-### New in 5.0
+### New in 1.4.0
 - **A new look**: panels with depth, a soft glow of your accent colour, console colours, a focus you can see from the couch, **covers** (RomM, libretro box art or a coloured tile), charts, new icons and calm motion. Switches for animations, glow and covers in the list sit in *Settings → Look and controls*. Layout and buttons are unchanged.
 - **Cloud hub** (*Settings → Cloud*): RomM, save sync, cloud backup, device sync, RetroAchievements and Debrid on one screen, and a small **cloud icon in the top bar** that shows idle, syncing or "needs you".
 - **RomM on every game**: summary, genres, rating and screenshots in the details card, your **play status and rating** written back to RomM, **favourites in step with RomM**, and **BIOS files fetched from RomM** (checked by MD5).
@@ -70,7 +75,7 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 - **RetroAchievements progress** per game (ring and badges) and your profile in the hub.
 - Not tried yet on a real device or against a real RomM, WebDAV or RetroAchievements server.
 
-### New in 4.0
+### New in 1.3.0
 - **Whole console sets in one go**: *Download all* takes up to 3000 games, without "app isn't responding" during or after the batch. Big queues stay smooth, can be **held**, show the **time left**, and have whole-queue buttons (*Stop all*, *Retry failed*, *Clear finished*).
 - **Downloads look after themselves**: failed downloads **retry by themselves**, web downloads can be **paused**, a finished file is **checked against your DAT**, and you get **a notification when the queue is done**.
 - **Import a list** (*Tools*): a text file or the clipboard with one game per line. The best version of each game is downloaded in one go, and the rest can go on the wishlist. The DAT check uses it for the games you are missing.
@@ -78,7 +83,7 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 - **Settings and Tools in clear groups**, a short **what's new** after an update, and a **frontend check** in Tools.
 - **Covers for Pegasus and RetroArch** next to ES-DE, a **wishlist that knows what you already have** (and can be shared as a file), **move the library** to another storage, **upload what RomM lacks**, and **save sync for standalone emulators** (DraStic, melonDS, mGBA, Snes9x EX+ and more).
 
-### New in 3.0
+### New in 1.2.0
 - **Downloads continue where they stopped** (full storage, closed app, reboot) and **the queue survives a restart**; a **per-server limit** keeps strict servers happy. **Reorder the queue** (▲ ▼, or **Y** to put one first) and **keep free space** so downloads stop before the storage is full.
 - **Wishlist on autopilot**, **.m3u playlists** for multi-disc games, and a **storage advisor** when "Download everything shown" does not fit.
 - **Covers for ES-DE** (and Cocoon's ES-DE link) after every download, from libretro-thumbnails. **Cocoon**: add Dogmatix+ as tiles per console, saved view or Downloads.
@@ -86,7 +91,7 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 - **BIOS check** for about twenty systems, **IPS / UPS / BPS patches** from the file explorer, and **links shared to the app** go straight into a console's folder.
 - **RomM collections** both ways, **DAT straight from Redump**, a **second screen** for dual-screen handhelds and TVs, a weekly **automatic backup**, and a new icon.
 
-### New in 2.0
+### New in 1.1.0
 - **Faster rescans**: sources whose list did not change are skipped (6 sources of 4,000 games: from 18 s to 2 s). A source that fails keeps its games, and a web source can have **reserve addresses**.
 - **Scan in the background** (daily, on Wi-Fi, while charging, at night) with a notification when new games turn up; new games get a **New** badge, a filter and a *Newest first* sort.
 - **Collections**: your own lists next to the favourites.
@@ -188,7 +193,7 @@ Everything also works by touch. The hints only show while a controller is connec
 - **A backup file contains your account keys** (TorBox, Real-Debrid, RomM). Keep it private.
 - **The game info window stays empty in the downloads here**, because it needs a free key from a game database that is added when the app is built.
 - DogmatixPlus does not look for games on its own. It only reads the sources **you** add.
-- **Some versions are pre-releases.** The in-app update check skips them unless you switch on *Settings → Include pre-releases*.
+- **All public releases are regular releases.** Versions follow 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. See [release numbering](docs/releases/numbering.md).
 - **Something not working?** *Settings → Share diagnostics* makes a text report for a bug report; tokens, server addresses and magnet links are removed first.
 
 ---

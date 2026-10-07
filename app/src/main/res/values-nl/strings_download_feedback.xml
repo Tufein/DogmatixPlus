@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="download_time_left">Download: nog %1$s</string>
+    <string name="download_eta_unknown">Resterende tijd nog onbekend</string>
+    <string name="download_waiting_data">Wachten op gegevens…</string>
+    <string name="download_size_unknown">Totale grootte onbekend</string>
+    <string name="download_bytes_unknown_total">%1$s gedownload · totale grootte onbekend</string>
+    <string name="download_fix_folder">Downloadmap kiezen</string>
+    <string name="download_free_storage">Opslagruimte vrijmaken</string>
+    <string name="download_check_sources">Bronnen controleren</string>
+    <string name="download_http_status">(HTTP %1$d)</string>
+    <string name="download_error_network">De verbinding werd onderbroken. Controleer je internetverbinding en probeer opnieuw.</string>
+    <string name="download_error_timeout">De bron reageerde niet op tijd. Probeer opnieuw of kies een andere bron.</string>
+    <string name="download_error_storage_full">Er is onvoldoende vrije ruimte. Maak opslagruimte vrij en probeer opnieuw.</string>
+    <string name="download_error_storage_permission">De downloadmap is niet toegankelijk. Kies de map opnieuw in Instellingen.</string>
+    <string name="download_error_storage_write">Het bestand kon niet worden geschreven. Controleer de vrije ruimte en de downloadmap in Instellingen.</string>
+    <string name="download_error_authentication">De bron vereist toegang. Controleer de instellingen van je bron of debridaccount.</string>
+    <string name="download_error_not_found">Dit bestand is niet meer beschikbaar bij deze bron. Werk de bron bij of kies een andere.</string>
+    <string name="download_error_rate_limit">De bron beperkt het aantal downloads. Wacht even en probeer opnieuw.</string>
+    <string name="download_error_server">De bron heeft een serverfout. Probeer later opnieuw of kies een andere bron.</string>
+    <string name="download_error_http">De bron heeft de download geweigerd. Controleer de instellingen of probeer een andere bron.</string>
+    <string name="download_error_torrent">De torrent kon niet worden gedownload. Controleer je verbinding of probeer een andere bron.</string>
+    <string name="download_error_extraction">Het archief kon niet worden uitgepakt. Controleer de vrije ruimte en download het bestand opnieuw.</string>
+    <string name="download_error_verification">Het gedownloade bestand kwam niet door de verificatie. Download het opnieuw van een betrouwbare bron.</string>
+    <string name="download_error_unknown">De download kon niet worden voltooid. Probeer opnieuw of kies een andere bron.</string>
+    <plurals name="download_queue_unknown_sizes">
+        <item quantity="one">%1$d bestand heeft een onbekende grootte</item>
+        <item quantity="other">%1$d bestanden hebben een onbekende grootte</item>
+    </plurals>
+</resources>

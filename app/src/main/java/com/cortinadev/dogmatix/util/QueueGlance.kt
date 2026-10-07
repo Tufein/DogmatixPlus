@@ -36,19 +36,17 @@ object QueueGlance {
     fun of(list: List<DownloadItemModel>): Glance {
         val running = list.filter { isRunning(it) }
         if (running.isEmpty()) return Idle
-        val total = running.sumOf { it.fileSize.coerceAtLeast(0L) }
-        val done = running.sumOf { it.downloadedBytes.coerceAtLeast(0L) }
+        val total = running.fold(0L) { sum, item -> DownloadMetrics.addSaturated(sum, item.fileSize.coerceAtLeast(0L)) }
+        val done = running.fold(0L) { sum, item ->
+            DownloadMetrics.addSaturated(sum, item.downloadedBytes.coerceIn(0L, item.fileSize.coerceAtLeast(0L)))
+        }
         // Without sizes (a torrent still fetching its metadata) the average of the progress values has to do.
         val percent = if (total > 0) {
-            (done.coerceIn(0L, total) * 100 / total).toInt()
+            (done.coerceIn(0L, total).toDouble() * 100 / total).toInt()
         } else {
             (running.map { it.progress.coerceIn(0f, 1f) }.average() * 100).toInt().coerceIn(0, 100)
         }
-        val eta = QueueEta.of(
-            running
-                .filter { it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.QUEUED }
-                .map { QueueEta.Item((it.fileSize - it.downloadedBytes).coerceAtLeast(0L), it.downloadSpeed, it.status == DownloadStatus.DOWNLOADING) }
-        )
+        val eta = QueueEta.ofDownloads(running)
         return Glance(
             active = running.size,
             percent = percent,

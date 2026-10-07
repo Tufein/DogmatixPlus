@@ -4,6 +4,11 @@ import android.content.Context
 import android.util.Log
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.model.DownloadStatus
+import com.cortinadev.dogmatix.data.model.DownloadFailure
+import com.cortinadev.dogmatix.data.model.DownloadFailureCategory
+import com.cortinadev.dogmatix.util.DownloadFailures
+import com.cortinadev.dogmatix.util.StorageAccessException
+import com.cortinadev.dogmatix.util.TorrentProgress
 import com.cortinadev.dogmatix.util.StorageHelper
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -60,19 +65,19 @@ class TorrentDownloadService @Inject constructor(
             registry.getOrFetch(magnet)
         } catch (e: TorrentMetadataTimeoutException) {
             Log.e(TAG, "Metadata timeout: ${e.message}")
-            progressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED)
+            progressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED, allowedFrom = TorrentProgress.NETWORK_STATUSES, failure = DownloadFailures.classify(e))
             return
         }
 
         val torrentInfo = handle.torrentFile() ?: run {
             Log.e(TAG, "No TorrentInfo for ${file.fileName}")
-            progressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED)
+            progressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED, allowedFrom = TorrentProgress.NETWORK_STATUSES, failure = DownloadFailure(DownloadFailureCategory.TORRENT))
             return
         }
 
         if (fileIndex < 0 || fileIndex >= torrentInfo.numFiles()) {
             Log.e(TAG, "fileIndex $fileIndex out of range")
-            progressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED)
+            progressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED, allowedFrom = TorrentProgress.NETWORK_STATUSES, failure = DownloadFailure(DownloadFailureCategory.TORRENT))
             return
         }
 
@@ -82,8 +87,7 @@ class TorrentDownloadService @Inject constructor(
         val finalDir = StorageHelper.createDirectory(context, downloadDirUri.toString(), subPath)
         if (finalDir == null) {
             Log.e(TAG, "Could not create/access download directory")
-            progressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED)
-            return
+            throw StorageAccessException()
         }
 
         // Cache file path/size before tracking so moveTorrentFile can find the file

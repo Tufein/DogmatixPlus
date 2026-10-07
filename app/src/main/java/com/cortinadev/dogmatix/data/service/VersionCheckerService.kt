@@ -3,14 +3,15 @@ package com.cortinadev.dogmatix.data.service
 import com.cortinadev.dogmatix.R
 import android.content.Context
 import android.content.pm.PackageManager
-import android.util.Log
+import com.cortinadev.dogmatix.BuildConfig
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.cortinadev.dogmatix.data.model.GitHubRelease
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import kotlinx.coroutines.flow.first
 import com.cortinadev.dogmatix.util.ToastUtil
-import com.cortinadev.dogmatix.util.VersionUtils
+import com.cortinadev.dogmatix.util.ReleaseUpdates
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
@@ -24,7 +25,7 @@ class VersionCheckerService @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) {
 
-    /** What a check found. [latest] is the newest tag the update channel offers. */
+    /** What a check found. The tag identifies the newest release the update channel offers. */
     sealed interface Result {
         data class Available(val tag: String, val preRelease: Boolean) : Result
         data class UpToDate(val tag: String) : Result
@@ -32,7 +33,7 @@ class VersionCheckerService @Inject constructor(
     }
     
     companion object {
-        private const val GITHUB_API_URL = "https://api.github.com/repos/Tufein/DogmatixPlus/releases"
+        private const val GITHUB_API_URL = "https://api.github.com/repos/Tufein/DogmatixPlus/releases?per_page=100"
         private const val REQUEST_TIMEOUT = 10000 // 10 seconds
     }
     
@@ -47,15 +48,17 @@ class VersionCheckerService @Inject constructor(
 
     /**
      * Looks at the releases of this repository: the newest full release, or the newest of any kind
-     * when Settings → Updates includes pre-releases. A pre-release of a version counts as older than
-     * the version itself, so someone on 1.2.0-alpha.1 is told when 1.2.0 comes out.
+     * when Settings → Updates includes pre-releases. Published Android build numbers take priority
+     * over labels, so renumbering a release cannot hide an update or offer an older APK.
      */
     suspend fun check(context: Context): Result {
         return try {
             val currentVersion = getCurrentVersion(context)
             val release = fetchLatestRelease(settingsRepository.updatePreReleases.first()) ?: return Result.Failed
-            if (isNewerVersion(release.tagName, currentVersion)) Result.Available(release.tagName, release.prerelease)
+            if (ReleaseUpdates.isNewer(release, currentVersion, BuildConfig.VERSION_CODE.toLong())) Result.Available(release.tagName, release.prerelease)
             else Result.UpToDate(release.tagName)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
         } catch (_: Exception) {
             Result.Failed
         }
@@ -79,31 +82,26 @@ class VersionCheckerService @Inject constructor(
                 connection.connectTimeout = REQUEST_TIMEOUT
                 connection.readTimeout = REQUEST_TIMEOUT
                 connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
-                connection.setRequestProperty("User-Agent", "Milou-Android-App")
-                
-                if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                connection.setRequestProperty("User-Agent", "DogmatixPlus/${BuildConfig.VERSION_NAME}")
+
+                try {
+                    if (connection.responseCode != HttpURLConnection.HTTP_OK) return@withContext null
                     val response = connection.inputStream.bufferedReader().use { it.readText() }
                     val releases = gson.fromJson<List<GitHubRelease>>(
                         response, 
                         object : TypeToken<List<GitHubRelease>>() {}.type
                     )
                     
-                    // The first release of the chosen channel: GitHub lists the newest first.
-                    releases.firstOrNull { (includePreReleases || !it.prerelease) && !it.draft }
-                } else {
-                    null
+                    ReleaseUpdates.latest(releases, includePreReleases)
+                } finally {
+                    connection.disconnect()
                 }
-            } catch (e: Exception) {
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
                 null
             }
         }
     }
     
-    private fun isNewerVersion(latestVersion: String, currentVersion: String): Boolean {
-        return try {
-            VersionUtils.compareVersions(latestVersion, currentVersion) > 0
-        } catch (e: Exception) {
-            false
-        }
-    }
 }

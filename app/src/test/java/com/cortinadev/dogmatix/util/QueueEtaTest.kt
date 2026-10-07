@@ -36,4 +36,26 @@ class QueueEtaTest {
         assertEquals(1L to 30L, QueueEta.hoursMinutes(90 * 60))
         assertEquals(26L to 0L, QueueEta.hoursMinutes(26 * 3600))
     }
+
+    @Test fun `one unknown sized file suppresses time for the whole queue`() {
+        val eta = QueueEta.of(listOf(
+            QueueEta.Item(10 * mib, 2f, running = true),
+            QueueEta.Item(0L, 0f, running = false, sizeKnown = false)
+        ))
+        assertEquals(10 * mib, eta.remainingBytes)
+        assertEquals(2 * mib, eta.bytesPerSecond)
+        assertEquals(1, eta.unknownSizes)
+        assertNull(eta.seconds)
+    }
+
+    @Test fun `large sizes and speeds saturate without overflow`() {
+        val eta = QueueEta.of(listOf(
+            QueueEta.Item(Long.MAX_VALUE, Float.MAX_VALUE, running = true),
+            QueueEta.Item(Long.MAX_VALUE, Float.MAX_VALUE, running = true)
+        ))
+        assertEquals(Long.MAX_VALUE, eta.remainingBytes)
+        assertEquals(Long.MAX_VALUE, eta.bytesPerSecond)
+        assertEquals(1L, eta.seconds)
+        assertEquals(Long.MAX_VALUE / 60 / 60, QueueEta.hoursMinutes(Long.MAX_VALUE).first)
+    }
 }

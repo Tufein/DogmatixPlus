@@ -1324,9 +1324,9 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>La sélection groupée et les nouvelles tentatives de téléchargement passent en arrière-plan.</item>
-        <item>Progression des torrents et files d’attente plus efficaces.</item>
-        <item>Mettre un téléchargement HTTP en pause arrête le transfert ; les fichiers sont vérifiés un par un.</item>
+        <item>Vitesse en direct et temps restant estimé pour chaque téléchargement.</item>
+        <item>Erreurs claires avec des actions pour le stockage, les sources et les nouvelles tentatives.</item>
+        <item>Versions régulières à partir de 2.2.0 avec la nouvelle numérotation 1.0.0 → 1.1.0 → … → 2.0.0.</item>
     </string-array>
 
     <!-- 4.0 -->

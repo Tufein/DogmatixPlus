@@ -1,6 +1,7 @@
 package com.cortinadev.dogmatix.util
 
 import com.cortinadev.dogmatix.data.model.DownloadItemModel
+import com.cortinadev.dogmatix.data.model.DownloadStatus
 
 /**
  * Progress of running downloads, gathered between two list updates. Every running download used
@@ -18,7 +19,11 @@ object ProgressBatch {
         val out = list.map { item ->
             val p = batch[item.fileName] ?: return@map item
             changed = true
-            item.copy(progress = p.progress, downloadSpeed = p.speed, downloadedBytes = p.downloadedBytes)
+            item.copy(
+                progress = p.progress,
+                downloadSpeed = if (item.status == DownloadStatus.DOWNLOADING) p.speed else 0f,
+                downloadedBytes = p.downloadedBytes
+            )
         }
         return if (changed) out else list
     }

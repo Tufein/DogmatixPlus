@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="download_time_left">Transfert : encore %1$s</string>
+    <string name="download_eta_unknown">Temps restant encore inconnu</string>
+    <string name="download_waiting_data">En attente de données…</string>
+    <string name="download_size_unknown">Taille totale inconnue</string>
+    <string name="download_bytes_unknown_total">%1$s téléchargés · taille totale inconnue</string>
+    <string name="download_fix_folder">Choisir le dossier de téléchargement</string>
+    <string name="download_free_storage">Libérer de l’espace</string>
+    <string name="download_check_sources">Vérifier les sources</string>
+    <string name="download_http_status">(HTTP %1$d)</string>
+    <string name="download_error_network">La connexion a été interrompue. Vérifie ta connexion Internet et réessaie.</string>
+    <string name="download_error_timeout">La source n’a pas répondu à temps. Réessaie ou choisis une autre source.</string>
+    <string name="download_error_storage_full">L’espace libre est insuffisant. Libère de l’espace, puis réessaie.</string>
+    <string name="download_error_storage_permission">Le dossier de téléchargement est inaccessible. Sélectionne-le à nouveau dans les paramètres.</string>
+    <string name="download_error_storage_write">Le fichier n’a pas pu être écrit. Vérifie l’espace libre et le dossier de téléchargement dans les paramètres.</string>
+    <string name="download_error_authentication">La source nécessite un accès. Vérifie les paramètres de ta source ou de ton compte debrid.</string>
+    <string name="download_error_not_found">Ce fichier n’est plus disponible auprès de cette source. Actualise-la ou choisis une autre source.</string>
+    <string name="download_error_rate_limit">La source limite les téléchargements. Attends un peu, puis réessaie.</string>
+    <string name="download_error_server">La source rencontre une erreur serveur. Réessaie plus tard ou choisis une autre source.</string>
+    <string name="download_error_http">La source a refusé le téléchargement. Vérifie ses paramètres ou essaie une autre source.</string>
+    <string name="download_error_torrent">Le torrent n’a pas pu être téléchargé. Vérifie ta connexion ou essaie une autre source.</string>
+    <string name="download_error_extraction">L’archive n’a pas pu être extraite. Vérifie l’espace libre et télécharge à nouveau le fichier.</string>
+    <string name="download_error_verification">Le fichier téléchargé a échoué à la vérification. Télécharge-le à nouveau depuis une source fiable.</string>
+    <string name="download_error_unknown">Le téléchargement n’a pas pu se terminer. Réessaie ou choisis une autre source.</string>
+    <plurals name="download_queue_unknown_sizes">
+        <item quantity="one">%1$d fichier a une taille inconnue</item>
+        <item quantity="other">%1$d fichiers ont une taille inconnue</item>
+    </plurals>
+</resources>

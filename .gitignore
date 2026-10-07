@@ -61,3 +61,7 @@ compose.*.yaml
 
 # Artefactos de release locales
 /dist/
+
+# Release tooling caches
+__pycache__/
+*.pyc

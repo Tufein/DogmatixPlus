@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="download_time_left">Übertragung: noch %1$s</string>
+    <string name="download_eta_unknown">Verbleibende Zeit noch unbekannt</string>
+    <string name="download_waiting_data">Warten auf Daten…</string>
+    <string name="download_size_unknown">Gesamtgröße unbekannt</string>
+    <string name="download_bytes_unknown_total">%1$s heruntergeladen · Gesamtgröße unbekannt</string>
+    <string name="download_fix_folder">Downloadordner auswählen</string>
+    <string name="download_free_storage">Speicherplatz freigeben</string>
+    <string name="download_check_sources">Quellen prüfen</string>
+    <string name="download_http_status">(HTTP %1$d)</string>
+    <string name="download_error_network">Die Verbindung wurde unterbrochen. Prüfe deine Internetverbindung und versuche es erneut.</string>
+    <string name="download_error_timeout">Die Quelle hat nicht rechtzeitig geantwortet. Versuche es erneut oder wähle eine andere Quelle.</string>
+    <string name="download_error_storage_full">Es ist nicht genug Speicherplatz frei. Gib Speicherplatz frei und versuche es erneut.</string>
+    <string name="download_error_storage_permission">Auf den Downloadordner kann nicht zugegriffen werden. Wähle ihn in den Einstellungen erneut aus.</string>
+    <string name="download_error_storage_write">Die Datei konnte nicht geschrieben werden. Prüfe den freien Speicherplatz und den Downloadordner in den Einstellungen.</string>
+    <string name="download_error_authentication">Die Quelle erfordert Zugriff. Prüfe die Einstellungen deiner Quelle oder deines Debrid-Kontos.</string>
+    <string name="download_error_not_found">Diese Datei ist bei dieser Quelle nicht mehr verfügbar. Aktualisiere die Quelle oder wähle eine andere.</string>
+    <string name="download_error_rate_limit">Die Quelle begrenzt Downloads. Warte kurz und versuche es erneut.</string>
+    <string name="download_error_server">Die Quelle hat einen Serverfehler. Versuche es später erneut oder wähle eine andere Quelle.</string>
+    <string name="download_error_http">Die Quelle hat den Download abgelehnt. Prüfe ihre Einstellungen oder wähle eine andere Quelle.</string>
+    <string name="download_error_torrent">Der Torrent konnte nicht heruntergeladen werden. Prüfe deine Verbindung oder wähle eine andere Quelle.</string>
+    <string name="download_error_extraction">Das Archiv konnte nicht entpackt werden. Prüfe den freien Speicherplatz und lade die Datei erneut herunter.</string>
+    <string name="download_error_verification">Die heruntergeladene Datei hat die Prüfung nicht bestanden. Lade sie erneut von einer vertrauenswürdigen Quelle herunter.</string>
+    <string name="download_error_unknown">Der Download konnte nicht abgeschlossen werden. Versuche es erneut oder wähle eine andere Quelle.</string>
+    <plurals name="download_queue_unknown_sizes">
+        <item quantity="one">Die Größe von %1$d Datei ist unbekannt</item>
+        <item quantity="other">Die Größe von %1$d Dateien ist unbekannt</item>
+    </plurals>
+</resources>

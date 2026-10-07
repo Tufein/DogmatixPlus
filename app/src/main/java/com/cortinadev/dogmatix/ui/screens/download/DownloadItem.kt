@@ -56,6 +56,8 @@ import com.cortinadev.dogmatix.data.model.DownloadableFileWithTags
 import com.cortinadev.dogmatix.data.service.UploadState
 import com.cortinadev.dogmatix.data.service.UploadStatus
 import com.cortinadev.dogmatix.ui.components.CoverImage
+import com.cortinadev.dogmatix.ui.components.ActionPill
+import com.cortinadev.dogmatix.ui.components.ActionTone
 import com.cortinadev.dogmatix.ui.components.tvSized
 import com.cortinadev.dogmatix.ui.components.GameCover
 import com.cortinadev.dogmatix.ui.components.Panel
@@ -69,7 +71,9 @@ import com.cortinadev.dogmatix.ui.components.stripExtension
 import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
 import com.cortinadev.dogmatix.ui.theme.tabular
 import com.cortinadev.dogmatix.util.ConsoleFormatter
+import com.cortinadev.dogmatix.util.DownloadMetrics
 import com.cortinadev.dogmatix.util.QueueActions
+import com.cortinadev.dogmatix.util.QueueEta
 import com.cortinadev.dogmatix.util.VerifyState
 import com.cortinadev.dogmatix.util.WaitInfo
 import java.text.DateFormat
@@ -92,7 +96,10 @@ class DownloadRowActions(
     /** Opens "Download when..." for this row. */
     val waitFor: () -> Unit = {},
     /** Lifts the row's own condition: it starts now. */
-    val startNow: () -> Unit = {}
+    val startNow: () -> Unit = {},
+    val openSettings: () -> Unit = {},
+    val openSources: () -> Unit = {},
+    val openStorage: () -> Unit = {}
 )
 
 /**
@@ -118,11 +125,14 @@ fun DownloadItem(
     /** Not started yet, so a condition can still be set. */
     canSchedule: Boolean = false,
     onWaitFor: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
+    onOpenSources: () -> Unit = {},
+    onOpenStorage: () -> Unit = {},
     onToggleSelection: () -> Unit = {},
     onRowFocused: (DownloadItemModel, Boolean) -> Unit = { _, _ -> }
 ) {
     val fileName = item.fileName
-    val actions = remember(viewModel, fileName) {
+    val actions = remember(viewModel, fileName, onWaitFor, onOpenSettings, onOpenSources, onOpenStorage) {
         DownloadRowActions(
             pause = { viewModel.pauseDownload(fileName) },
             cancel = { viewModel.cancelDownload(fileName) },
@@ -133,7 +143,10 @@ fun DownloadItem(
             moveUp = { viewModel.moveUp(fileName) },
             moveDown = { viewModel.moveDown(fileName) },
             waitFor = onWaitFor,
-            startNow = { viewModel.setCondition(listOf(fileName), null) }
+            startNow = { viewModel.setCondition(listOf(fileName), null) },
+            openSettings = onOpenSettings,
+            openSources = onOpenSources,
+            openStorage = onOpenStorage
         )
     }
     // Only rows handed to a debrid service show its name.
@@ -213,8 +226,21 @@ fun DownloadRow(
     val conditionText = condition?.let { conditionPillText(it) }
     val waiting = (waitingReason != null || condition != null) && status == DownloadStatus.DOWNLOADING
     val inQueue = queuePosition != null && condition == null && status == DownloadStatus.DOWNLOADING
+    val transferring = status == DownloadStatus.DOWNLOADING && !waiting && !inQueue
+    val metrics = remember(item) { DownloadMetrics.of(item) }
+    val feedback = if (status == DownloadStatus.FAILED || (status == DownloadStatus.STOPPED && item.failure != null)) {
+        item.failure.feedback()
+    } else null
+    val recover: () -> Unit = {
+        when (feedback?.action) {
+            DownloadRecoveryAction.SETTINGS -> actions.openSettings()
+            DownloadRecoveryAction.STORAGE -> actions.openStorage()
+            DownloadRecoveryAction.SOURCES -> actions.openSources()
+            DownloadRecoveryAction.RETRY, null -> actions.retry()
+        }
+    }
     val statusLabel = if (waiting) conditionText ?: waitingReason.orEmpty()
-    else if (inQueue) stringResource(R.string.status_in_queue, queuePosition ?: 0)
+    else if (inQueue) stringResource(R.string.status_in_queue, queuePosition)
     else when (status) {
         DownloadStatus.QUEUED -> stringResource(R.string.status_queued_debrid, debridLabel, (item.progress * 100).toInt())
         DownloadStatus.COMPLETED -> stringResource(R.string.status_completed)
@@ -243,11 +269,14 @@ fun DownloadRow(
         if (item.isFinished) stringResource(R.string.download_finished_at, it)
         else stringResource(R.string.download_started_at, it)
     }
-    val detail = when (status) {
-        DownloadStatus.DOWNLOADING -> stringResource(R.string.download_speed, item.downloadSpeed) +
-            "  ·  ${formatBytes(item.downloadedBytes)} / ${formatBytes(item.fileSize)}"
-        else -> formatBytes(item.fileSize)
-    } + (timeLabel?.let { "  ·  $it" } ?: "") +
+    val sizeText = if (item.fileSize > 0L) {
+        if (status == DownloadStatus.DOWNLOADING || status == DownloadStatus.PAUSED || status == DownloadStatus.STOPPED || status == DownloadStatus.FAILED) {
+            "${formatBytes(item.downloadedBytes.coerceAtLeast(0L))} / ${formatBytes(item.fileSize)}"
+        } else formatBytes(item.fileSize)
+    } else if (item.downloadedBytes > 0L) {
+        stringResource(R.string.download_bytes_unknown_total, formatBytes(item.downloadedBytes))
+    } else stringResource(R.string.download_size_unknown)
+    val detail = sizeText + (timeLabel?.let { "  ·  $it" } ?: "") +
         (switchedTo?.let { "  ·  " + stringResource(R.string.src75_switched_to, it) } ?: "")
     val busy = status == DownloadStatus.COPYING || status == DownloadStatus.UNZIPPING ||
         (status == DownloadStatus.QUEUED && item.progress <= 0f) || waiting || inQueue
@@ -259,6 +288,7 @@ fun DownloadRow(
     val isTorrent = details?.file?.isTorrent == true
     val primaryAction: () -> Unit = {
         when {
+            feedback != null -> recover()
             details != null && QueueActions.canPause(status, isTorrent) -> actions.pause()
             status == DownloadStatus.QUEUED || status == DownloadStatus.DOWNLOADING || status == DownloadStatus.UNZIPPING ->
                 actions.cancel()
@@ -317,8 +347,10 @@ fun DownloadRow(
                             actions.retryUpload()
                         }
                     }
-                    ActionButton(R.drawable.ic_retry, stringResource(R.string.download_retry), actionSize, scheme.onSurface) {
-                        actions.retry()
+                    if (feedback == null || feedback.action != DownloadRecoveryAction.RETRY) {
+                        ActionButton(R.drawable.ic_retry, stringResource(R.string.download_retry), actionSize, scheme.onSurface) {
+                            actions.retry()
+                        }
                     }
                     ActionButton(R.drawable.ic_trash, stringResource(R.string.download_delete), actionSize, scheme.error) {
                         actions.delete(status == DownloadStatus.COMPLETED)
@@ -404,6 +436,15 @@ fun DownloadRow(
                     sweep = sweep,
                     animateFraction = status == DownloadStatus.DOWNLOADING
                 )
+                if (transferring) {
+                    Text(
+                        transferLine(metrics),
+                        style = MaterialTheme.typography.bodySmall.tabular(),
+                        color = scheme.primary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
                 Text(
                     detail,
                     style = MaterialTheme.typography.bodySmall.tabular(),
@@ -411,6 +452,23 @@ fun DownloadRow(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
+                feedback?.let { failure ->
+                    Text(
+                        stringResource(failure.message) + (item.failure?.httpStatusCode?.let {
+                            " " + stringResource(R.string.download_http_status, it)
+                        } ?: ""),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = scheme.error
+                    )
+                    if (!selectionMode) {
+                        ActionPill(
+                            stringResource(failure.action.label),
+                            onClick = recover,
+                            icon = failure.action.icon,
+                            tone = ActionTone.Accent
+                        )
+                    }
+                }
                 if (upload?.status == UploadStatus.FAILED && upload.message.isNotBlank()) {
                     Text(upload.message, style = MaterialTheme.typography.bodySmall, color = scheme.error, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
@@ -430,6 +488,21 @@ fun DownloadRow(
             if (!actionsBelow && hasActions) actionButtons()
         }
     }
+}
+
+/** The estimate belongs to this file; a waiting/paused row never displays a stale transfer speed. */
+@Composable
+private fun transferLine(metrics: DownloadMetrics.Metrics): String {
+    val speed = if (metrics.bytesPerSecond > 0L) {
+        stringResource(R.string.q5_per_second, formatBytes(metrics.bytesPerSecond))
+    } else stringResource(R.string.download_waiting_data)
+    val eta = metrics.etaSeconds?.let { seconds ->
+        val (hours, minutes) = QueueEta.hoursMinutes(seconds)
+        val duration = if (hours > 0L) stringResource(R.string.downloads_eta_hours, hours, minutes)
+        else stringResource(R.string.downloads_eta_minutes, minutes)
+        stringResource(R.string.download_time_left, duration)
+    } ?: stringResource(R.string.download_eta_unknown)
+    return "$speed · $eta"
 }
 
 /**

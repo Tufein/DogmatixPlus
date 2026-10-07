@@ -85,4 +85,27 @@ class QueueGlanceTest {
     @Test fun `more downloaded than the size does not pass 100`() {
         assertEquals(100, QueueGlance.of(listOf(item(size = 10 * mib, done = 20 * mib))).percent)
     }
+
+    @Test fun `unknown sized transfer suppresses queue ETA without inflating known progress`() {
+        val glance = QueueGlance.of(listOf(
+            item(size = 100 * mib, done = 50 * mib, speed = 2f),
+            item(size = 0L, done = 200 * mib, speed = 1f)
+        ))
+        assertEquals(50, glance.percent)
+        assertEquals(3 * mib, glance.bytesPerSecond)
+        assertNull(glance.etaSeconds)
+    }
+
+    @Test fun `one file overrun cannot count as bytes completed by a different file`() {
+        val glance = QueueGlance.of(listOf(
+            item(size = 100 * mib, done = 200 * mib),
+            item(size = 100 * mib, done = 0L)
+        ))
+        assertEquals(50, glance.percent)
+    }
+
+    @Test fun `very large queues do not overflow percentage arithmetic`() {
+        val glance = QueueGlance.of(listOf(item(size = Long.MAX_VALUE, done = Long.MAX_VALUE / 2)))
+        assertEquals(50, glance.percent)
+    }
 }

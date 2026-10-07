@@ -93,13 +93,15 @@ class DownloadViewModel @Inject constructor(
 
     /** What is left of the queue and how long it takes at the current speed. */
     val queueEta: StateFlow<QueueEta.Eta> = downloadService.downloads.map { list ->
-        QueueEta.of(list.filter { it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.QUEUED }.map {
-            QueueEta.Item((it.fileSize - it.downloadedBytes).coerceAtLeast(0), it.downloadSpeed, running = it.status == DownloadStatus.DOWNLOADING)
-        })
+        QueueEta.ofDownloads(list)
     }.distinctUntilChanged().flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), QueueEta.Eta(0, 0, null))
 
     /** Downloads waiting for a free slot, in the order they will start. */
     val queued: StateFlow<List<String>> = downloadService.queued
+    /** Indexed off the UI thread: each visible row can read its place without scanning a bulk queue. */
+    val queuePositions: StateFlow<Map<String, Int>> = queued.map { names ->
+        names.mapIndexed { index, name -> name to index + 1 }.toMap()
+    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
     fun moveUp(fileName: String) = downloadService.moveUp(fileName)
     fun moveDown(fileName: String) = downloadService.moveDown(fileName)
     fun moveToFront(fileName: String) = downloadService.moveToFront(fileName)

@@ -2,6 +2,7 @@ package com.cortinadev.dogmatix.data.service
 
 import android.util.Log
 import com.cortinadev.dogmatix.data.model.DownloadStatus
+import com.cortinadev.dogmatix.util.DownloadFailures
 import com.cortinadev.dogmatix.util.TorrentProgress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +36,7 @@ class TorrentProgressBridge @Inject constructor(
     )
 
     private val tracked = mutableMapOf<String, TrackedFile>()
-    private class RateState(var bytes: Long, var nanos: Long, var emaBytesPerSec: Float = 0f)
+    private class RateState(var bytes: Long, var nanos: Long, var bytesPerSec: Float = 0f)
     private val rates = mutableMapOf<String, RateState>()
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val refreshRequests = Channel<Unit>(Channel.CONFLATED)
@@ -119,13 +120,12 @@ class TorrentProgressBridge @Inject constructor(
             val rate = rates.getOrPut(fileName) { RateState(downloaded, now) }
             val dtSeconds = (now - rate.nanos) / 1e9f
             if (dtSeconds > 0.2f) {
-                val instant = (downloaded - rate.bytes).coerceAtLeast(0L) / dtSeconds
-                rate.emaBytesPerSec =
-                    if (rate.emaBytesPerSec == 0f) instant else rate.emaBytesPerSec * 0.6f + instant * 0.4f
+                // The tracker applies the same time-based smoothing to HTTP and torrents.
+                rate.bytesPerSec = (downloaded - rate.bytes).coerceAtLeast(0L) / dtSeconds
                 rate.bytes = downloaded
                 rate.nanos = now
             }
-            val speedMBs = rate.emaBytesPerSec / (1024f * 1024f)
+            val speedMBs = rate.bytesPerSec / (1024f * 1024f)
             // Keep the identity check and publication together: untrack/retrack must not let
             // an old snapshot complete a newer download of the same name. No JNI under this lock.
             TorrentProgress.statusUpdate(currentStatus, downloaded, total)?.let {
@@ -160,8 +160,8 @@ class TorrentProgressBridge @Inject constructor(
                 // A finish alert can precede a new sibling being selected. Recheck exact per-file
                 // verified bytes instead of declaring every currently tracked sibling complete.
                 AlertType.TORRENT_FINISHED -> refreshRequests.trySend(Unit)
-                AlertType.FILE_ERROR -> onError((alert as FileErrorAlert).handle(), alert.message())
-                AlertType.TORRENT_ERROR -> onError((alert as TorrentErrorAlert).handle(), alert.message())
+                AlertType.FILE_ERROR -> onError((alert as FileErrorAlert).handle(), alert.message(), fileError = true)
+                AlertType.TORRENT_ERROR -> onError((alert as TorrentErrorAlert).handle(), alert.message(), fileError = false)
                 else -> Unit
             }
         } catch (e: Exception) {
@@ -169,7 +169,7 @@ class TorrentProgressBridge @Inject constructor(
         }
     }
 
-    private fun onError(handle: TorrentHandle?, message: String) {
+    private fun onError(handle: TorrentHandle?, message: String, fileError: Boolean) {
         if (handle == null) return
         Log.e(TAG, message)
         val torrentId = handle.infoHash().toString()
@@ -179,7 +179,8 @@ class TorrentProgressBridge @Inject constructor(
         snapshot.forEach { (fileName, info) ->
             synchronized(this) {
                 if (tracked[fileName] !== info) return@forEach
-                progressTracker.updateDownloadStatus(fileName, DownloadStatus.FAILED, allowedFrom = TorrentProgress.NETWORK_STATUSES)
+                progressTracker.updateDownloadStatus(fileName, DownloadStatus.FAILED, allowedFrom = TorrentProgress.NETWORK_STATUSES,
+                    failure = DownloadFailures.torrentAlert(message, fileError))
             }
         }
     }

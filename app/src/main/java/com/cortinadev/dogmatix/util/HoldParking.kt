@@ -2,6 +2,7 @@ package com.cortinadev.dogmatix.util
 
 import com.cortinadev.dogmatix.data.model.DownloadItemModel
 import com.cortinadev.dogmatix.data.model.DownloadStatus
+import com.cortinadev.dogmatix.data.model.DownloadFailureCategory
 import com.cortinadev.dogmatix.data.service.HttpStatusException
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -57,14 +58,19 @@ object SourceFailures {
      * anything else the transfer threw. Not: storage or configuration errors ([StorageException],
      * a lost folder permission, a full or read-only disk).
      */
-    fun isSourceSide(error: Throwable?): Boolean = when (error) {
-        null -> true
-        is StorageException -> false
-        is SecurityException -> false
-        is HttpStatusException -> true
-        is FileNotFoundException -> true
-        is IOException -> !looksLikeDisk(error.message)
-        else -> !looksLikeDisk(error.message)
+    fun isSourceSide(error: Throwable?): Boolean {
+        // The archive/native layer may wrap a storage exception; that still says nothing
+        // about the server and must not trigger a second source download onto a full disk.
+        if (error != null && DownloadFailures.classify(error)?.category in DEVICE_CATEGORIES) return false
+        return when (error) {
+            null -> true
+            is StorageException -> false
+            is SecurityException -> false
+            is HttpStatusException -> true
+            is FileNotFoundException -> true
+            is IOException -> !looksLikeDisk(error.message)
+            else -> !looksLikeDisk(error.message)
+        }
     }
 
     private fun looksLikeDisk(message: String?): Boolean {
@@ -73,10 +79,12 @@ object SourceFailures {
     }
 
     private val DISK_HINTS = listOf("ENOSPC", "No space left", "EROFS", "Read-only file system", "EDQUOT", "Disk quota")
+    private val DEVICE_CATEGORIES = setOf(DownloadFailureCategory.STORAGE_FULL,
+        DownloadFailureCategory.STORAGE_PERMISSION, DownloadFailureCategory.STORAGE_WRITE)
 }
 
 /** A download stopped by this device's storage (no folder, cannot create or write the file), not by its source. */
-class StorageException(message: String, cause: Throwable? = null) : Exception(message, cause)
+open class StorageException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
 /** Whether a partial file noted for one address may be continued from another. Pure JVM for the tests. */
 object PartialOwner {

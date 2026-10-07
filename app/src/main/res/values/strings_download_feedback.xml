@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="download_time_left">Transfer: %1$s left</string>
+    <string name="download_eta_unknown">Time remaining not yet known</string>
+    <string name="download_waiting_data">Waiting for data…</string>
+    <string name="download_size_unknown">Total size unknown</string>
+    <string name="download_bytes_unknown_total">%1$s downloaded · total size unknown</string>
+    <string name="download_fix_folder">Select download folder</string>
+    <string name="download_free_storage">Free up storage</string>
+    <string name="download_check_sources">Check sources</string>
+    <string name="download_http_status">(HTTP %1$d)</string>
+    <string name="download_error_network">The connection was interrupted. Check your internet connection and retry.</string>
+    <string name="download_error_timeout">The source did not respond in time. Try again or choose another source.</string>
+    <string name="download_error_storage_full">There is not enough free space. Free up storage, then retry.</string>
+    <string name="download_error_storage_permission">The download folder cannot be accessed. Select the folder again in Settings.</string>
+    <string name="download_error_storage_write">The file could not be written. Check free space and the download folder in Settings.</string>
+    <string name="download_error_authentication">The source requires access. Check your source or debrid account settings.</string>
+    <string name="download_error_not_found">This file is no longer available at this source. Update or choose another source.</string>
+    <string name="download_error_rate_limit">The source is limiting downloads. Wait a little, then retry.</string>
+    <string name="download_error_server">The source has a server error. Try again later or choose another source.</string>
+    <string name="download_error_http">The source rejected this download. Check its settings or try another source.</string>
+    <string name="download_error_torrent">The torrent could not be downloaded. Check your connection or try another source.</string>
+    <string name="download_error_extraction">The archive could not be unpacked. Check free space and download the file again.</string>
+    <string name="download_error_verification">The downloaded file failed verification. Download it again from a trusted source.</string>
+    <string name="download_error_unknown">The download could not finish. Try again or choose another source.</string>
+    <plurals name="download_queue_unknown_sizes">
+        <item quantity="one">%1$d file has an unknown size</item>
+        <item quantity="other">%1$d files have an unknown size</item>
+    </plurals>
+</resources>

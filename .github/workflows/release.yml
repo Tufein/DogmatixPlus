@@ -3,8 +3,8 @@
 #  - when a push changes docs/release-notes/ (or this file) and the version in
 #    app/build.gradle.kts has notes (docs/release-notes/v<versionName>.md) but no release yet:
 #    the release and its tag are created on the pushed commit.
-# A version with a suffix (v1.1.0-beta.1) or a half version (v4.5.0) becomes a pre-release; the text is the notes file,
-# with the SHA-256 checksums appended.
+# Public releases follow v1.0.0, v1.1.0, …, v1.9.0, v2.0.0. Every release is regular.
+# The text is the notes file, with Android build metadata and SHA-256 checksums appended.
 #
 # Signing: with the repository secrets RELEASE_KEYSTORE_BASE64, RELEASE_STORE_PASSWORD,
 # RELEASE_KEY_ALIAS and RELEASE_KEY_PASSWORD the release APK is signed with that key (the same
@@ -16,7 +16,7 @@ on:
   push:
     tags: ['v*']
     branches: [master]
-    paths: ['docs/release-notes/**', '.github/workflows/release.yml']
+    paths: ['docs/release-notes/**', '.github/workflows/release.yml', 'tools/release_policy.py']
   workflow_dispatch:
 
 permissions:
@@ -48,6 +48,13 @@ jobs:
               exit 0
             fi
           fi
+          apk_version=$(sed -n 's/^ *versionName = "\(.*\)"/\1/p' app/build.gradle.kts | head -1)
+          version_code=$(sed -n 's/^ *versionCode = \([0-9]*\)/\1/p' app/build.gradle.kts | head -1)
+          test "$tag" = "v$apk_version" || { echo "Tag and APK version disagree."; exit 1; }
+          gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" --paginate --slurp > releases-pages.json
+          python3 -c 'import json; print(json.dumps([r for page in json.load(open("releases-pages.json")) for r in page]))' > releases.json
+          python3 -m unittest discover -s tools -p 'test_release_policy.py'
+          python3 tools/release_policy.py "$tag" "$version_code" releases.json
           echo "Publishing $tag"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
@@ -129,6 +136,10 @@ jobs:
           if [ -f "$notes" ]; then cp "$notes" dist/notes.md; else echo "DogmatixPlus $TAG. See CHANGELOG.md." > dist/notes.md; fi
           {
             echo
+            VERSION_CODE=$(sed -n 's/^ *versionCode = \([0-9]*\)/\1/p' app/build.gradle.kts | head -1)
+            VERSION_NAME=$(sed -n 's/^ *versionName = "\(.*\)"/\1/p' app/build.gradle.kts | head -1)
+            echo "<!-- dogmatix-release: {\"versionCode\":$VERSION_CODE,\"versionName\":\"$VERSION_NAME\"} -->"
+            echo
             echo "Source: commit \`${GITHUB_SHA::7}\`."
             echo
             echo '### Checksums (SHA-256)'
@@ -143,7 +154,8 @@ jobs:
           target_commitish: ${{ github.sha }}
           name: DogmatixPlus ${{ env.TAG }}
           body_path: dist/notes.md
-          prerelease: ${{ contains(env.TAG, '-') || endsWith(env.TAG, '.5.0') }}
+          prerelease: false
+          make_latest: "true"
           files: |
             dist/DogmatixPlus-debug.apk
             dist/DogmatixPlus-release.apk
