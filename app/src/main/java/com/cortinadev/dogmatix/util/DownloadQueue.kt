@@ -79,6 +79,22 @@ class DownloadQueue(slots: Int, perHost: Int = 0) {
     fun moveDown(name: String) = reorder(name) { i -> if (i < tickets.lastIndex) Collections.swap(tickets, i, i + 1) }
     fun moveToFront(name: String) = reorder(name) { i -> tickets.add(0, tickets.removeAt(i)) }
 
+    /** Move a selection in one publication, preserving the existing order within both groups. */
+    fun moveToFront(names: Collection<String>) {
+        if (names.isEmpty()) return
+        val selected = names.toHashSet()
+        synchronized(lock) {
+            val front = tickets.filter { it.name in selected }
+            if (front.isEmpty()) return
+            val rest = tickets.filter { it.name !in selected }
+            tickets.clear()
+            tickets.addAll(front)
+            tickets.addAll(rest)
+            grantLocked()
+            publishLocked(immediate = true)
+        }
+    }
+
     private fun reorder(name: String, change: (Int) -> Unit) {
         synchronized(lock) {
             val i = tickets.indexOfFirst { it.name == name }

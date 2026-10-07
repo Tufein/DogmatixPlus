@@ -3,6 +3,7 @@ package com.cortinadev.dogmatix.util
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.EOFException
 import java.io.InputStream
 import java.io.OutputStream
 import kotlinx.coroutines.CoroutineStart
@@ -91,5 +92,40 @@ class DownloadStreamsTest {
         DownloadStreams.copy(ByteArrayInputStream(bytes), output, 13) { reported += it }
         assertEquals(bytes.size, reported)
         assertArrayEquals(bytes, output.toByteArray())
+    }
+
+    @Test fun `a clean short EOF cannot report a complete download`() = runBlocking {
+        val output = ByteArrayOutputStream()
+        var completed = false
+        try {
+            DownloadStreams.copy(ByteArrayInputStream(byteArrayOf(1, 2, 3)), output, 8, expectedBytes = 4) {}
+            completed = true
+        } catch (_: EOFException) { }
+        assertFalse(completed)
+        assertArrayEquals(byteArrayOf(1, 2, 3), output.toByteArray())
+    }
+
+    @Test fun `an oversized response is refused before writing beyond the announced body`() = runBlocking {
+        val output = ByteArrayOutputStream()
+        var reported = 0
+        try {
+            DownloadStreams.copy(ByteArrayInputStream(byteArrayOf(1, 2, 3)), output, 1, expectedBytes = 2) { reported += it }
+            error("Expected oversized response failure")
+        } catch (_: IOException) { }
+        assertEquals(2, reported)
+        assertArrayEquals(byteArrayOf(1, 2), output.toByteArray())
+    }
+
+    @Test fun `a resumed body is checked against remaining bytes rather than the whole file`() = runBlocking {
+        val output = ByteArrayOutputStream().apply { write(byteArrayOf(1, 2)) }
+        DownloadStreams.copy(ByteArrayInputStream(byteArrayOf(3, 4)), output, 8, expectedBytes = 2) {}
+        assertArrayEquals(byteArrayOf(1, 2, 3, 4), output.toByteArray())
+    }
+
+    @Test fun `zero length and unknown length full responses remain supported`() = runBlocking {
+        DownloadStreams.copy(ByteArrayInputStream(byteArrayOf()), ByteArrayOutputStream(), 8, expectedBytes = 0) {}
+        val output = ByteArrayOutputStream()
+        DownloadStreams.copy(ByteArrayInputStream(byteArrayOf(1, 2, 3)), output, 8, expectedBytes = null) {}
+        assertEquals(3, output.size())
     }
 }

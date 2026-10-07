@@ -33,6 +33,11 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveau dans 2.3.0
+
+- Rechercher les téléchargements par titre ou nom, filtrer par état et appliquer des actions aux résultats. Placer la sélection en attente en tête.
+- Reprise plus sûre et contrôle des fichiers complets ; les anciens minuteurs ne relancent plus de nouvelles tentatives.
+
 ### Nouveau dans 2.2.0
 - Vitesse et temps restant par téléchargement, indications fiables pour les tailles inconnues et erreurs avec une action à suivre.
 - Toutes les versions sont régulières : 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. [Correspondance des versions](docs/releases/numbering.md).

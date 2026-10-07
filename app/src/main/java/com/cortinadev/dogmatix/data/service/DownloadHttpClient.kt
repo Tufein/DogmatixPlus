@@ -1,6 +1,8 @@
 package com.cortinadev.dogmatix.data.service
 
 import com.cortinadev.dogmatix.util.Constants
+import com.cortinadev.dogmatix.util.ResumePlan
+import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
@@ -9,10 +11,32 @@ import javax.inject.Singleton
 /** A server answer other than 200 / 206; the message is what the diagnostics have always shown. */
 class HttpStatusException(val code: Int) : Exception("HTTP Error after redirect: $code")
 
+data class HttpDownloadResponse(val connection: HttpURLConnection, val transfer: ResumePlan.Transfer)
+
 @Singleton
 class DownloadHttpClient @Inject constructor() {
-    /** [rangeStart] > 0 asks for the rest of the file; the caller checks for 206 before appending. */
-    fun createConnection(downloadUrl: String, rangeStart: Long = 0L, headers: Map<String, String> = emptyMap()): HttpURLConnection {
+    /** Only return a body that is safe to write from [HttpDownloadResponse.transfer]'s offset. */
+    fun openDownload(downloadUrl: String, rangeStart: Long = 0L, headers: Map<String, String> = emptyMap(), expectedTotal: Long = -1L): HttpDownloadResponse {
+        val connection = createConnection(downloadUrl, rangeStart, headers)
+        try {
+            val transfer = ResumePlan.transfer(rangeStart, connection.responseCode,
+                connection.getHeaderField("Content-Range"), connection.contentLengthLong, expectedTotal)
+            if (transfer != null) return HttpDownloadResponse(connection, transfer)
+            // A server may ignore/misinterpret a Range or advertise a changed/capped file. Do
+            // not write that response at offset zero: fetch a full body before replacing disk data.
+            if (rangeStart > 0) {
+                connection.disconnect()
+                return openDownload(downloadUrl, 0L, headers - "If-Range", expectedTotal)
+            }
+            throw IOException("Server returned an invalid download response")
+        } catch (e: Exception) {
+            try { connection.disconnect() } catch (_: Exception) { }
+            throw e
+        }
+    }
+
+    /** [rangeStart] > 0 asks for the rest of the file; [openDownload] validates it before writing. */
+    private fun createConnection(downloadUrl: String, rangeStart: Long, headers: Map<String, String>): HttpURLConnection {
         val url = URL(downloadUrl)
         val connection = url.openConnection() as HttpURLConnection
         TlsTrust.apply(connection)
@@ -28,13 +52,10 @@ class DownloadHttpClient @Inject constructor() {
         
         try {
             val redirectResponseCode = connection.responseCode
-            // 416: the partial file is already as long as the file (or longer), so there is nothing to
-            // continue from. Ask for the whole file instead; the caller then starts over (a 200, not a 206).
-            if (rangeStart > 0L && redirectResponseCode == 416) {
-                connection.disconnect()
-                return createConnection(downloadUrl, 0L, headers - "If-Range")
-            }
-            if (redirectResponseCode != HttpURLConnection.HTTP_OK && redirectResponseCode != HttpURLConnection.HTTP_PARTIAL) {
+            // A 416 for a saved partial needs a new full request. openDownload handles that
+            // together with malformed 206 replies, validating the new response at offset zero.
+            if (redirectResponseCode != HttpURLConnection.HTTP_OK && redirectResponseCode != HttpURLConnection.HTTP_PARTIAL &&
+                !(rangeStart > 0 && redirectResponseCode == 416)) {
                 throw HttpStatusException(redirectResponseCode)
             }
 

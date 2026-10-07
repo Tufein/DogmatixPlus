@@ -33,6 +33,11 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 2.3.0
+
+- Zoek downloads op titel of bestandsnaam, filter op status en voer batchacties uit op de resultaten. Zet wachtende selecties samen vooraan.
+- Veiliger hervatten en controle op volledige bestanden; oude retrytimers kunnen een nieuwe poging niet onverwacht herstarten.
+
 ### Nieuw in 2.2.0
 - **Duidelijkere downloads:** snelheid en resterende tijd per bestand, eerlijke informatie bij onbekende grootte of stilstand, en foutmeldingen met een vervolgstap.
 - **Alle releases zijn regulier:** 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. Zie de [versietabel](docs/releases/numbering.md).

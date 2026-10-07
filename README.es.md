@@ -33,6 +33,11 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 2.3.0
+
+- Buscar descargas por título o nombre, filtrar por estado y aplicar acciones a los resultados. Mover la selección en espera al principio.
+- Reanudación más segura y comprobación de archivos completos; los temporizadores antiguos no reinician intentos nuevos.
+
 ### Novedades de 2.2.0
 - Velocidad y tiempo restante por descarga, indicaciones claras para tamaños desconocidos y errores con una acción concreta.
 - Todas las versiones son regulares: 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. [Correspondencia de versiones](docs/releases/numbering.md).

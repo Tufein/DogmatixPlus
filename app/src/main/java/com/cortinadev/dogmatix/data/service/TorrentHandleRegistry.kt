@@ -9,6 +9,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.security.MessageDigest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -233,42 +235,63 @@ class TorrentHandleRegistry @Inject constructor(
             val swigParams = params.swig()
             swigParams.save_path = torrentDataDir.absolutePath
 
-            val ec = org.libtorrent4j.swig.error_code()
-            val swigHandle = try {
-                session.swig().add_torrent(swigParams, ec)
-            } catch (e: Exception) {
-                null
-            }
-            
-            val handle = if (swigHandle != null && swigHandle.is_valid) {
-                TorrentHandle(swigHandle)
-            } else {
+            // add_torrent may return an existing native handle for another magnet spelling.
+            // Ownership must be decided together with the add, rather than removing a sibling's
+            // active handle when this metadata request is canceled.
+            val (handle, newlyAdded) = synchronized(sessionLock) {
                 val infoHash = swigParams.info_hashes.v1
-                val existingSwig = session.swig().find_torrent(infoHash)
-                if (existingSwig != null && existingSwig.is_valid) {
-                    TorrentHandle(existingSwig)
-                } else {
-                    val errorMsg = if (ec.value() != 0) ec.message() else "unknown error"
-                    throw Exception("Failed to add torrent: $errorMsg [$uri]")
+                val existingBefore = session.swig().find_torrent(infoHash)
+                val existed = existingBefore != null && existingBefore.is_valid
+                val ec = org.libtorrent4j.swig.error_code()
+                val swigHandle = try {
+                    session.swig().add_torrent(swigParams, ec)
+                } catch (e: Exception) {
+                    null
                 }
+                val resolved = if (swigHandle != null && swigHandle.is_valid) {
+                    TorrentHandle(swigHandle)
+                } else {
+                    val existingSwig = session.swig().find_torrent(infoHash)
+                    if (existingSwig != null && existingSwig.is_valid) {
+                        TorrentHandle(existingSwig)
+                    } else {
+                        val errorMsg = if (ec.value() != 0) ec.message() else "unknown error"
+                        throw Exception("Failed to add torrent: $errorMsg [$uri]")
+                    }
+                }
+                resolved to !existed
             }
 
-            // Immediately pause to prevent background downloading
-            try {
-                handle.pause()
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to pause handle: ${e.message}")
-            }
+            withMetadataPreflight(handle, newlyAdded, ::discardUncachedMetadataHandle) { pending ->
+                // Immediately pause to prevent background downloading.
+                try {
+                    pending.pause()
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to pause handle: ${e.message}")
+                }
 
-            // Upload mode still exchanges metadata but never requests pieces: otherwise the
-            // swarm starts filling the cache with random files until we get to set priorities.
-            try { handle.setFlags(TorrentFlags.UPLOAD_MODE) } catch (e: Exception) { Log.w(TAG, "upload_mode: ${e.message}") }
-            handle.resume() // Resume just to fetch metadata
-            val ready = waitForMetadata(handle, uri)
-            if (cached != null) Log.i(TAG, "Metadata from cache for $uri")
-            else if (uri.startsWith("magnet:")) ready.torrentFile()?.let { storeInfo(uri, it) }
-            ready
+                // Upload mode still exchanges metadata but never requests pieces.
+                try { pending.setFlags(TorrentFlags.UPLOAD_MODE) } catch (e: Exception) { Log.w(TAG, "upload_mode: ${e.message}") }
+                pending.resume()
+                val ready = waitForMetadata(pending, uri)
+                if (cached != null) Log.i(TAG, "Metadata from cache for $uri")
+                else if (uri.startsWith("magnet:")) ready.torrentFile()?.let { storeInfo(uri, it) }
+                // Cancellation while writing a metadata cache must not publish an orphan.
+                currentCoroutineContext().ensureActive()
+                ready
+            }
         }
+
+    /** Only an unpublished handle created by this fetch can be removed; backing files stay. */
+    private fun discardUncachedMetadataHandle(handle: TorrentHandle) = synchronized(sessionLock) {
+        if (!handle.isValid) return
+        val torrentId = handle.infoHash().toString()
+        val cachedElsewhere = handles.values.any { it.isValid && it.infoHash().toString() == torrentId }
+        if (cachedElsewhere || progressBridge.countTrackedForHandle(handle) > 0) return
+        // Upload mode fetched no pieces. DELETE_FILES would race another fetch and could erase
+        // siblings' cached data, so cancellation only removes this unowned native handle.
+        session.swig().remove_torrent(handle.swig())
+    }
 
     /**
      * Waits for the torrent's metadata. The configured timeout is an *inactivity* timeout: it is
@@ -319,11 +342,6 @@ class TorrentHandleRegistry @Inject constructor(
         }
 
         if (result == null) {
-            try {
-                // Upload mode wrote nothing, so a plain remove is enough (and DELETE_FILES
-                // could race a concurrent re-add of the same magnet; see releaseHandle).
-                if (handle.isValid) session.swig().remove_torrent(handle.swig())
-            } catch (_: Exception) {}
             throw TorrentMetadataTimeoutException(
                 "Metadata fetch timed out after ${timeoutS}s without progress for: $uri"
             )
@@ -340,3 +358,22 @@ class TorrentHandleRegistry @Inject constructor(
 }
 
 class TorrentMetadataTimeoutException(message: String) : Exception(message)
+
+/** The native preflight owns its newly created resource until it succeeds and can be cached. */
+internal suspend fun <T> withMetadataPreflight(
+    handle: T,
+    newlyAdded: Boolean,
+    discard: (T) -> Unit,
+    fetch: suspend (T) -> T
+): T = try {
+    fetch(handle)
+} catch (failure: Throwable) {
+    if (newlyAdded) {
+        try {
+            discard(handle)
+        } catch (cleanupFailure: Exception) {
+            failure.addSuppressed(cleanupFailure)
+        }
+    }
+    throw failure
+}

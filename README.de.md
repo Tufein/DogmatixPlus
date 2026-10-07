@@ -33,6 +33,11 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 2.3.0
+
+- Downloads nach Titel oder Dateiname suchen, nach Status filtern und Sammelaktionen auf Treffer anwenden. Wartende Auswahl gemeinsam nach vorne verschieben.
+- Sicheres Fortsetzen und Prüfung vollständiger Dateien; alte Wiederholungs-Timer können neue Versuche nicht unerwartet starten.
+
 ### Neu in 2.2.0
 - Geschwindigkeit und Restzeit pro Download, ehrliche Anzeigen bei unbekannter Größe und Fehlermeldungen mit konkreten nächsten Schritten.
 - Nur reguläre Releases: 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. [Versionstabelle](docs/releases/numbering.md).

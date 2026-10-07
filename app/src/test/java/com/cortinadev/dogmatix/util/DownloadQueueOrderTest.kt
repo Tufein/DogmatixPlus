@@ -15,6 +15,45 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DownloadQueueOrderTest {
+    @Test fun `batch priority preserves queue order and leaves running downloads alone`() = runBlocking {
+        val queue = DownloadQueue(1)
+        queue.acquire("running")
+        val names = listOf("a", "b", "c", "d", "e")
+        val waiters = names.map { name -> launch(start = CoroutineStart.UNDISPATCHED) { queue.acquire(name) } }
+        queue.moveToFront(listOf("e", "c", "running", "missing", "c"))
+        assertEquals(listOf("c", "e", "a", "b", "d"), queue.waiting.value)
+        queue.release()
+        waiters[2].join()
+        assertEquals(listOf("e", "a", "b", "d"), queue.waiting.value)
+        queue.release()
+        waiters[4].join()
+        assertEquals(listOf("a", "b", "d"), queue.waiting.value)
+        waiters.forEach { it.cancel() }
+        waiters.forEach { it.join() }
+        queue.release()
+    }
+
+    @Test fun `batch priority keeps per host fairness and canceled selections release their slot`() = runBlocking {
+        val queue = DownloadQueue(2, perHost = 1)
+        queue.acquire("running-one", "one")
+        queue.acquire("running-two", "two")
+        val blocked = launch(start = CoroutineStart.UNDISPATCHED) { queue.acquire("blocked", "one") }
+        val other = launch(start = CoroutineStart.UNDISPATCHED) { queue.acquire("other", "three") }
+        val last = launch(start = CoroutineStart.UNDISPATCHED) { queue.acquire("last", "two") }
+        queue.moveToFront(listOf("last", "blocked"))
+        assertEquals(listOf("blocked", "last", "other"), queue.waiting.value)
+        queue.release("two")
+        last.join()
+        assertEquals(listOf("blocked", "other"), queue.waiting.value)
+        blocked.cancel()
+        blocked.join()
+        queue.release("two")
+        withTimeout(2_000) { other.join() }
+        assertTrue(queue.waiting.value.isEmpty())
+        queue.release("three")
+        queue.release("one")
+    }
+
     @Test fun `a thousand waiters are served in order without waking each other`() = runBlocking {
         val queue = DownloadQueue(2)
         val order = Collections.synchronizedList(mutableListOf<Int>())

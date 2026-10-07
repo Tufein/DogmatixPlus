@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="queue23_search_hint">Pesquisar transferências</string>
+    <string name="queue23_search">Pesquisar</string>
+    <string name="queue23_all">Todas</string>
+    <string name="queue23_active">Em curso</string>
+    <string name="queue23_waiting">Em espera</string>
+    <string name="queue23_paused">Em pausa</string>
+    <string name="queue23_problems">Falhadas / interrompidas</string>
+    <string name="queue23_completed">Concluídas</string>
+    <string name="queue23_showing">%1$d de %2$d transferências visíveis</string>
+    <string name="queue23_select_shown">Selecionar visíveis</string>
+    <string name="queue23_clear_filters">Limpar filtros</string>
+    <string name="queue23_no_matches">Nenhuma transferência correspondente</string>
+    <string name="queue23_no_matches_hint">Experimenta outro nome ou estado.</string>
+    <string name="queue23_whole_queue">Fila completa: resumo e ações</string>
+    <string name="queue23_prioritize">Mover a seleção para o início</string>
+</resources>

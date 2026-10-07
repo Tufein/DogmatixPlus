@@ -10,6 +10,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -42,6 +44,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -79,6 +82,8 @@ fun DownloadScreen(
     viewModel: DownloadViewModel = hiltViewModel()
 ) {
     val downloads by viewModel.downloads.collectAsState()
+    val queueView by viewModel.queueView.collectAsState()
+    val filterCriteria by viewModel.queueFilters.collectAsState()
     val details by viewModel.downloadDetails.collectAsState()
     val uploads by viewModel.uploads.collectAsState()
     val waitingFiles by viewModel.waitingFiles.collectAsState()
@@ -141,11 +146,12 @@ fun DownloadScreen(
     val showDeleteConfirmation by viewModel.showDeleteConfirmation.collectAsState()
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val selectionMode = selection.isNotEmpty()
-    val selected = remember(downloads, selection) { downloads.filter { it.fileName in selection } }
+    val selected by viewModel.selectedDownloads.collectAsState()
 
     // Row under the D-pad cursor: SELECT ticks it, X deletes it (the in-row buttons are touch-only —
     // they sit inside the focused row's bounds, out of reach of directional focus search).
     var focusedRow by remember { mutableStateOf<DownloadItemModel?>(null) }
+    LaunchedEffect(filterCriteria) { focusedRow = null }
     val barFocus = remember { FocusRequester() }
     var barFocused by remember { mutableStateOf(false) }
     // Clearing the selection takes the bar away under the cursor (B clears it from a row instead,
@@ -164,12 +170,13 @@ fun DownloadScreen(
                 // Select ticks the row under the cursor; that is what opens selection mode with a pad.
                 GamepadButton.FAVOURITE -> focusedRow?.let { viewModel.toggleSelection(it.fileName) }
                 // Y: select all while ticking; otherwise a waiting download jumps to the front of the queue.
-                GamepadButton.Y -> if (selectionMode) viewModel.toggleSelectAll() else focusedRow?.let { viewModel.moveToFront(it.fileName) }
+                GamepadButton.Y -> if (selectionMode) viewModel.toggleSelectAll() else focusedRow
+                    ?.takeIf { it.fileName in queueView.visibleNames }?.let { viewModel.moveToFront(it.fileName) }
                 GamepadButton.X -> if (selectionMode) {
                     viewModel.deleteSelected()
-                } else {
+                } else if (queueView.criteria == filterCriteria) {
                     // Re-read the live status: it may have changed since the row took focus.
-                    downloads.find { it.fileName == focusedRow?.fileName }?.let { row ->
+                    queueView.rows.find { it.fileName == focusedRow?.fileName }?.let { row ->
                         if (row.status.canDelete) {
                             viewModel.deleteDownloadWithConfirmation(row.fileName, row.status == DownloadStatus.COMPLETED)
                         }
@@ -241,6 +248,8 @@ fun DownloadScreen(
                 onRetry = viewModel::retrySelected,
                 onPause = viewModel::pauseSelected,
                 onStop = viewModel::stopSelected,
+                canPrioritize = selected.any { it.fileName in queuedSet },
+                onPrioritize = viewModel::moveSelectedToFront,
                 canWait = selected.any(::notStarted),
                 canStartNow = selected.any { it.fileName in itemWaits },
                 onWaitFor = { whenTargets = selected.filter(::notStarted).map { it.fileName } },
@@ -269,8 +278,27 @@ fun DownloadScreen(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                item(key = "queue-filters") {
+                    QueueFilters(
+                        view = queueView,
+                        criteria = filterCriteria,
+                        allShownSelected = queueView.visibleNames.isNotEmpty() && selection.containsAll(queueView.visibleNames),
+                        onSearch = viewModel::setQueueSearch,
+                        onFilter = viewModel::setQueueFilter,
+                        onClear = viewModel::clearQueueFilters,
+                        onSelectShown = viewModel::toggleSelectAll
+                    )
+                }
                 if (!selectionMode) {
                     item(key = "queue-header") {
+                        if (queueView.filtered) {
+                            Text(
+                                stringResource(R.string.queue23_whole_queue),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(bottom = 6.dp)
+                            )
+                        }
                         QueueHeader(
                             summary = progress,
                             eta = eta,
@@ -305,7 +333,10 @@ fun DownloadScreen(
                         NoticeRow(text = stringResource(R.string.downloads_low_space, formatBytes(shortfall)), icon = R.drawable.ic_warning, error = true)
                     }
                 }
-                itemsIndexed(downloads, key = { _, it -> it.fileName }) { index, item ->
+                if (queueView.rows.isEmpty()) {
+                    item(key = "queue-no-matches") { QueueNoMatches(viewModel::clearQueueFilters) }
+                }
+                itemsIndexed(queueView.rows, key = { _, it -> it.fileName }) { index, item ->
                     DownloadItem(
                         item = item,
                         details = details[item.fileName],
@@ -422,6 +453,8 @@ private fun SelectionBar(
     onRetry: () -> Unit,
     onPause: () -> Unit,
     onStop: () -> Unit,
+    canPrioritize: Boolean,
+    onPrioritize: () -> Unit,
     canWait: Boolean,
     canStartNow: Boolean,
     onWaitFor: () -> Unit,
@@ -441,6 +474,9 @@ private fun SelectionBar(
         }
         if (selected.any { it.status.canStop }) {
             add(BulkAction(R.drawable.ic_stop, stringResource(R.string.download_cancel), scheme.onSurface, onStop))
+        }
+        if (canPrioritize) {
+            add(BulkAction(R.drawable.ic_arrow_upward, stringResource(R.string.queue23_prioritize), scheme.primary, onPrioritize))
         }
         if (canStartNow) {
             add(BulkAction(R.drawable.ic_play_arrow, stringResource(R.string.plan6_start_now), scheme.primary, onStartNow))
@@ -475,8 +511,15 @@ private fun SelectionBar(
                 pluralStringResource(R.plurals.downloads_selected, selected.size, selected.size),
                 style = MaterialTheme.typography.titleSmall,
                 color = scheme.onPrimaryContainer,
-                modifier = Modifier.weight(1f).padding(start = 2.dp)
+                modifier = Modifier.widthIn(max = 100.dp).padding(start = 2.dp),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
+            // Controller focus scrolls its action into view instead of overflowing a small handheld.
+            Row(
+                modifier = Modifier.weight(1f).horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
             actions.forEachIndexed { index, action ->
                 ActionButton(
                     action.icon, action.description, size, action.tint,
@@ -484,6 +527,7 @@ private fun SelectionBar(
                     modifier = if (index == 0) Modifier.focusRequester(focusRequester) else Modifier,
                     onClick = action.onClick
                 )
+            }
             }
         }
     }

@@ -1320,9 +1320,9 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Live speed and estimated time remaining for each download.</item>
-        <item>Clear download errors with actions for storage, sources and retrying.</item>
-        <item>Regular releases from 2.2.0, with the new 1.0.0 → 1.1.0 → … → 2.0.0 numbering.</item>
+        <item>Search downloads by title or file name and filter by status.</item>
+        <item>Select matching downloads and move waiting selections to the front together.</item>
+        <item>Safer download resuming, incomplete-file detection and automatic retry cancellation.</item>
     </string-array>
 
     <!-- 4.0 -->

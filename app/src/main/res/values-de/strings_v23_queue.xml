@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="queue23_search_hint">Downloads suchen</string>
+    <string name="queue23_search">Suchen</string>
+    <string name="queue23_all">Alle</string>
+    <string name="queue23_active">Laufend</string>
+    <string name="queue23_waiting">Wartend</string>
+    <string name="queue23_paused">Pausiert</string>
+    <string name="queue23_problems">Fehlgeschlagen / gestoppt</string>
+    <string name="queue23_completed">Fertig</string>
+    <string name="queue23_showing">%1$d von %2$d Downloads angezeigt</string>
+    <string name="queue23_select_shown">Angezeigte auswählen</string>
+    <string name="queue23_clear_filters">Filter zurücksetzen</string>
+    <string name="queue23_no_matches">Keine passenden Downloads</string>
+    <string name="queue23_no_matches_hint">Versuche einen anderen Namen oder Status.</string>
+    <string name="queue23_whole_queue">Gesamte Warteschlange: Übersicht und Aktionen</string>
+    <string name="queue23_prioritize">Auswahl nach vorne verschieben</string>
+</resources>

@@ -33,7 +33,12 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ## What can it do?
 
-### New in 2.1.1.0
+### New in 2.3.0
+
+- Search Downloads by title or file name, filter by status and apply batch actions to matching rows. Move waiting selections to the front together.
+- Safer HTTP resuming and complete-file checks; outdated automatic-retry timers cannot restart newer attempts.
+
+### New in 2.2.0
 - **Clearer downloads:** per-file speed and estimated remaining time, honest feedback for unknown sizes or stalled transfers, and failure messages with a next step.
 - **Regular releases only:** the history now follows 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. Original APK identities are recorded in the [version mapping](docs/releases/numbering.md).
 - **Upgrading from the former 8.x labels:** install the [signed 2.2.0 APK](https://github.com/Tufein/DogmatixPlus/releases/download/v2.2.0/DogmatixPlus-release.apk) manually once; subsequent update checks use Android build numbers.

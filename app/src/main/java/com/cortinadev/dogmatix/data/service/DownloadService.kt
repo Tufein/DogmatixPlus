@@ -24,6 +24,7 @@ import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.ArchiveUtils
 import com.cortinadev.dogmatix.util.AutoRetry
+import com.cortinadev.dogmatix.util.DownloadAttemptRegistry
 import com.cortinadev.dogmatix.util.DatStatus
 import com.cortinadev.dogmatix.util.ArchiveExtractionUtils
 import com.cortinadev.dogmatix.util.Constants
@@ -169,6 +170,7 @@ class DownloadService @Inject constructor(
 
     private val downloadJobs = ConcurrentHashMap<String, Job>()
     private val cleanupJobs = ConcurrentHashMap<String, Job>()
+    private val attempts = DownloadAttemptRegistry()
     private val sourceSelections = ConcurrentHashMap<String, CompletableDeferred<DownloadableFileEntity>>()
     /** The download slots and the order of what waits for one (the user can reorder it). */
     private val queue = DownloadQueue(3)
@@ -179,6 +181,7 @@ class DownloadService @Inject constructor(
     fun moveUp(fileName: String) = queue.moveUp(fileName)
     fun moveDown(fileName: String) = queue.moveDown(fileName)
     fun moveToFront(fileName: String) = queue.moveToFront(fileName)
+    fun moveToFront(fileNames: Collection<String>) = queue.moveToFront(fileNames)
     private val downloadEntities = ConcurrentHashMap<String, DownloadableFileEntity>()
     private val extractedFilesMap = ConcurrentHashMap<String, List<String>>()
     /** Debrid client + torrent id per file being fetched through the debrid route (see [performDebridDownload]). */
@@ -224,7 +227,10 @@ class DownloadService @Inject constructor(
     /** [listener] hears the file name whenever the user pauses, resumes, stops or removes a download. */
     fun addUserActionListener(listener: (String) -> Unit) { userActionListeners += listener }
 
-    private fun userActed(fileName: String) = userActionListeners.forEach { it(fileName) }
+    private fun userActed(fileName: String) = synchronized(startLock) {
+        attempts.invalidate(fileName)
+        userActionListeners.forEach { it(fileName) }
+    }
 
     // Single supervised scope for all internal coroutines — tied to this singleton's lifetime
     // so jobs are not orphaned if the service is destroyed.
@@ -396,6 +402,7 @@ class DownloadService @Inject constructor(
         val previous = downloadJobs[file.fileName]
         val cleanup = cleanupJobs[file.fileName]
         val selection = source ?: sourceSelections[file.fileName]
+        val attempt = attempts.begin(file.fileName)
         // Registered before it starts, so a download that ends at once cannot leave a stale entry.
         val job = serviceScope.launch(start = CoroutineStart.LAZY) {
             // The row actually downloaded: the same file name, possibly from another source.
@@ -444,7 +451,7 @@ class DownloadService @Inject constructor(
                     DownloadStatus.FAILED -> if (!localFailures.remove(file.fileName) &&
                         downloadProgressTracker.getDownloads().firstOrNull { it.fileName == file.fileName }?.failure?.category !in DEVICE_FAILURES) {
                         sourceTrack.recordFailure(chosen, null)
-                        launchBackground("Switching source for ${file.fileName}") { switchSourceOnce(file.fileName) }
+                        launchRecovery(file.fileName, attempt, "Switching source for ${file.fileName}") { switchSourceOnce(file.fileName, attempt) }
                     }
                     else -> Unit
                 }
@@ -460,10 +467,18 @@ class DownloadService @Inject constructor(
                 notifyLowStorage()
             } catch (e: Exception) {
                 Log.e(TAG, "Download failed for ${file.fileName}: ${e.message}")
-                synchronized(startLock) { if (downloadJobs[file.fileName] === owner) downloadProgressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED, failure = DownloadFailures.classify(e)) }
-                // A missing folder or a full disk says nothing about the source.
-                if (SourceFailures.isSourceSide(e)) sourceTrack.recordFailure(current, e)
-                scheduleAutoRetry(file.fileName, e)
+                val failedHere = synchronized(startLock) {
+                    if (downloadJobs[file.fileName] !== owner || !owner.isActive) false
+                    else {
+                        downloadProgressTracker.updateDownloadStatus(file.fileName, DownloadStatus.FAILED, failure = DownloadFailures.classify(e))
+                        true
+                    }
+                }
+                if (failedHere) {
+                    // A missing folder or a full disk says nothing about the source.
+                    if (SourceFailures.isSourceSide(e)) sourceTrack.recordFailure(current, e)
+                    scheduleAutoRetry(file.fileName, e, attempt)
+                }
             } finally {
                 finishJob(file.fileName, owner)
             }
@@ -518,22 +533,49 @@ class DownloadService @Inject constructor(
      * A failure that may pass (see [AutoRetry]) is started again after a growing wait, unless the
      * user did something with the row in the meantime or switched this off.
      */
-    private fun scheduleAutoRetry(fileName: String, error: Exception) {
+    private fun scheduleAutoRetry(fileName: String, error: Exception, attempt: DownloadAttemptRegistry.Attempt) {
         val done = autoRetries[fileName] ?: 0
         val wait = if (AutoRetry.isTemporary(error)) AutoRetry.waitBeforeRetry(done) else null
-        launchBackground("Automatic retry for $fileName") {
-            // No (more) retries: the download failed for good here; another source may have it
-            // (not when the device was the problem: no folder, the file could not be written).
+        launchRecovery(fileName, attempt, "Automatic retry for $fileName") {
+            // No (more) retries: another source may have the same file. Device failures do
+            // not say anything about the source and must not trigger a source switch.
             if (wait == null || !appSettings.autoRetryFailed.first()) {
-                if (SourceFailures.isSourceSide(error)) switchSourceOnce(fileName)
-                return@launchBackground
+                if (SourceFailures.isSourceSide(error)) switchSourceOnce(fileName, attempt)
+                return@launchRecovery
             }
-            autoRetries[fileName] = done + 1
+            synchronized(startLock) {
+                if (!attempts.isCurrent(fileName, attempt)) return@launchRecovery
+                autoRetries[fileName] = done + 1
+            }
             Log.i(TAG, "Retrying $fileName by itself in ${wait / 1000}s (retry ${done + 1} of ${AutoRetry.WAITS_MS.size})")
             delay(wait)
-            val stillFailed = downloadProgressTracker.getDownloads().any { it.fileName == fileName && it.status == DownloadStatus.FAILED }
-            if (stillFailed && downloadEntities.containsKey(fileName)) restartDownload(fileName)
+            // A setting changed during the wait is authoritative too. The token is checked
+            // again atomically with replacement registration inside restartDownload.
+            if (!appSettings.autoRetryFailed.first()) return@launchRecovery
+            currentCoroutineContext().ensureActive()
+            restartDownload(fileName, expectedAttempt = attempt)
         }
+    }
+
+    /** Recovery is registered before execution and canceled by every superseding user action. */
+    private fun launchRecovery(
+        fileName: String,
+        attempt: DownloadAttemptRegistry.Attempt,
+        operation: String,
+        block: suspend () -> Unit
+    ): Unit = synchronized(startLock) {
+        val job = serviceScope.launch(start = CoroutineStart.LAZY) {
+            try {
+                if (attempts.isCurrent(fileName, attempt)) block()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "$operation failed: ${e.message}", e)
+            }
+        }
+        job.invokeOnCompletion { attempts.finishRecovery(fileName, attempt, job) }
+        if (attempts.registerRecovery(fileName, attempt, job)) job.start()
+        Unit
     }
 
     /** Bytes moved and milliseconds taken by the last finished web transfer per file, for the source's speed. */
@@ -564,19 +606,35 @@ class DownloadService @Inject constructor(
      * A download that failed for good (no automatic retry left) starts again once from the next-best
      * source of the same file, with "Switched to <source>" on its row.
      */
-    private suspend fun switchSourceOnce(fileName: String) {
-        if (fileName in switchedOnce) return
+    private suspend fun switchSourceOnce(fileName: String, attempt: DownloadAttemptRegistry.Attempt) {
+        if (!attempts.isCurrent(fileName, attempt) || fileName in switchedOnce) return
         val current = downloadEntities[fileName] ?: return
         val next = sourceTrack.nextBest(current)?.takeIf { it.fileName == fileName } ?: return
-        val stillFailed = downloadProgressTracker.getDownloads().any { it.fileName == fileName && it.status == DownloadStatus.FAILED }
-        if (!stillFailed || !downloadEntities.replace(fileName, current, next) || !switchedOnce.add(fileName)) return
+        val recoveryContext = currentCoroutineContext()
+        val cleanup = synchronized(startLock) {
+            recoveryContext.ensureActive()
+            val stillFailed = downloadProgressTracker.getDownloads().any { it.fileName == fileName && it.status == DownloadStatus.FAILED }
+            if (!attempts.isCurrent(fileName, attempt) || !stillFailed ||
+                !downloadEntities.replace(fileName, current, next) || !switchedOnce.add(fileName)) return
+            // Register the source's disk/history changes before releasing ownership. A manual
+            // restart can supersede this recovery, but its transfer and initial history write
+            // must wait for these changes so an old source cannot erase the new partial file.
+            launchCleanup(fileName, "Preparing the next source for $fileName", transfer = null) {
+                partials.remove(fileName)
+                rewriteHistory(next)
+            }
+        }
+        cleanup.join()
+        recoveryContext.ensureActive()
+        synchronized(startLock) {
+            if (!attempts.isCurrent(fileName, attempt)) return
+            _switchedTo.update { it + (fileName to SourceRanking.label(next.sourceUrl)) }
+            autoRetries.remove(fileName)
+        }
         Log.i(TAG, "Switching $fileName to ${SourceRanking.label(next.sourceUrl)}")
-        // A part written from the other server is not continued.
-        partials.remove(fileName)
-        _switchedTo.update { it + (fileName to SourceRanking.label(next.sourceUrl)) }
-        rewriteHistory(next)
-        autoRetries.remove(fileName)
-        restartDownload(fileName)
+        // begin() cancels this recovery when replacement is registered; restart registration
+        // and service/job starts do not suspend, so the new attempt still starts in full.
+        restartDownload(fileName, expectedAttempt = attempt)
     }
 
     /** The history row follows the source actually used, so a restart picks it up again. */
@@ -605,7 +663,9 @@ class DownloadService @Inject constructor(
             .setContentText(context.getString(R.string.storage_low_text))
             .setAutoCancel(true)
             .build()
-        context.getSystemService(NotificationManager::class.java).notify(4221, notification)
+        try {
+            context.getSystemService(NotificationManager::class.java).notify(4221, notification)
+        } catch (_: SecurityException) { /* Notification permission changed after the check. */ }
     }
 
     /** Waits while the user's schedule (Wi-Fi only, charging only, night only) says no. */
@@ -694,8 +754,10 @@ class DownloadService @Inject constructor(
         restartDownload(fileName)
     }
 
-    private fun restartDownload(fileName: String) {
+    private fun restartDownload(fileName: String, expectedAttempt: DownloadAttemptRegistry.Attempt? = null) {
         val job = synchronized(startLock) {
+            if (expectedAttempt != null && (!attempts.isCurrent(fileName, expectedAttempt) ||
+                    downloadProgressTracker.getDownloads().none { it.fileName == fileName && it.status == DownloadStatus.FAILED })) return
             if (!downloadProgressTracker.canRetryDownload(fileName)) return
             val entity = downloadEntities[fileName] ?: return
             // Reset the existing list entry in place — calling startDownload would add a duplicate.
@@ -1080,31 +1142,34 @@ class DownloadService @Inject constructor(
             // Files served by the RomM library need the account's credentials.
             val auth = if (RommSource.isDownloadFrom(rommClient.configuredBaseUrl(), downloadUrl)) rommClient.downloadHeaders() else emptyMap()
             val headers = if (partialBytes > 0 && record?.validator != null) auth + ("If-Range" to record.validator) else auth
-            val connection = downloadHttpClient.createConnection(downloadUrl, rangeStart = partialBytes, headers = headers)
-                .also { activeConnection = it }
+            currentCoroutineContext().ensureActive()
+            val response = downloadHttpClient.openDownload(downloadUrl, rangeStart = partialBytes, headers = headers, expectedTotal = file.fileSize)
+            val connection = response.connection.also { activeConnection = it }
             inputStream = connection.inputStream
+            currentCoroutineContext().ensureActive()
 
-            val startOffset: Long
-            val action = ResumePlan.decide(partialBytes, connection.responseCode, connection.getHeaderField("Content-Range"), file.fileSize)
-            if (partial != null && action == ResumePlan.Action.APPEND) {
-                documentFile = partial
-                outputStream = downloadFileManager.getAppendOutputStream(partial)
-                    ?: throw StorageException("Failed to open output stream for ${partial.uri}")
-                startOffset = partialBytes
+            // The client has discarded invalid partial responses and obtained a full response
+            // before a restart can replace the old file. Its validated offset owns this write.
+            val startOffset = response.transfer.startOffset
+            val appending = partial != null && startOffset > 0
+            if (appending) {
+                val continued = requireNotNull(partial)
+                documentFile = continued
+                outputStream = downloadFileManager.getAppendOutputStream(continued)
+                    ?: throw StorageException("Failed to open output stream for ${continued.uri}")
                 Log.d(TAG, "Resuming ${file.fileName} from $partialBytes bytes")
             } else {
                 documentFile = downloadFileManager.createDocumentFile(file, downloadDirUri.toString(), subPath)
                     ?: throw StorageException("Failed to create file in storage.")
                 outputStream = downloadFileManager.getOutputStream(documentFile)
                     ?: throw StorageException("Failed to open output stream for ${documentFile.uri}")
-                startOffset = 0L
                 if (resume) partials.put(file.fileName, PartialDownloads.Record(downloadUrl,
                     ResumePlan.validator(connection.getHeaderField("ETag"), connection.getHeaderField("Last-Modified"))))
             }
             // A hold may park this transfer only when its part is kept and continued (7.5 power rules, Pause all).
             if (HoldParking.webResumable(resume, partials.get(file.fileName) != null, connection.getHeaderField("Accept-Ranges"),
-                    partialBytes, partial != null && action == ResumePlan.Action.APPEND)) parkable += file.fileName
-            val contentLength = connection.contentLengthLong.let { if (it > 0) it + startOffset else it }
+                    partialBytes, appending)) parkable += file.fileName
+            val contentLength = response.transfer.totalBytes
             if (file.fileSize <= 0) downloadProgressTracker.learnFileSize(file.fileName, contentLength)
             // A server that announces the hash of the whole body lets the finished file be checked.
             if (startOffset == 0L) {
@@ -1112,7 +1177,7 @@ class DownloadService @Inject constructor(
                     ?.let { headerHashes[file.fileName] = it } ?: headerHashes.remove(file.fileName)
             }
 
-            streamWithProgress(inputStream, outputStream, file, contentLength, startOffset)
+            streamWithProgress(inputStream, outputStream, file, contentLength, startOffset, response.transfer.bodyBytes)
             // SAF providers can finalize a write only on close. Extraction/checksums must see a
             // finished file, and a canceled transfer must never run the completion steps.
             currentCoroutineContext().ensureActive()
@@ -1149,7 +1214,8 @@ class DownloadService @Inject constructor(
         output: OutputStream,
         file: DownloadableFileEntity,
         contentLength: Long,
-        startOffset: Long = 0L
+        startOffset: Long = 0L,
+        expectedBodyBytes: Long? = null
     ) {
         var sinceSpaceCheck = 0L
         var downloaded = startOffset
@@ -1157,7 +1223,7 @@ class DownloadService @Inject constructor(
         var lastUpdateTime = startTime
         var lastDownloaded = startOffset
 
-        DownloadStreams.copy(input, output, Constants.BUFFER_SIZE) { bytesRead ->
+        DownloadStreams.copy(input, output, Constants.BUFFER_SIZE, expectedBytes = expectedBodyBytes) { bytesRead ->
             downloaded += bytesRead
             // One limit for all downloads together (and it follows the setting while downloading).
             bandwidthLimiter.acquire(bytesRead)

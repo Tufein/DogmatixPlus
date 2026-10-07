@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="queue23_search_hint">Search downloads</string>
+    <string name="queue23_search">Search</string>
+    <string name="queue23_all">All</string>
+    <string name="queue23_active">In progress</string>
+    <string name="queue23_waiting">Waiting</string>
+    <string name="queue23_paused">Paused</string>
+    <string name="queue23_problems">Failed / stopped</string>
+    <string name="queue23_completed">Finished</string>
+    <string name="queue23_showing">%1$d of %2$d downloads shown</string>
+    <string name="queue23_select_shown">Select shown</string>
+    <string name="queue23_clear_filters">Clear filters</string>
+    <string name="queue23_no_matches">No matching downloads</string>
+    <string name="queue23_no_matches_hint">Try another name or status.</string>
+    <string name="queue23_whole_queue">Whole queue: summary and actions</string>
+    <string name="queue23_prioritize">Move selected to front</string>
+</resources>

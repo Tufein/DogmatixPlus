@@ -103,7 +103,9 @@ class QueueSummaryService @Inject constructor(
             else -> Unit
         }
         val manager = context.getSystemService(NotificationManager::class.java)
-        manager.notify(id, builder.build())
+        try {
+            manager.notify(id, builder.build())
+        } catch (_: SecurityException) { return }
         // Two or more notices of games: one group header keeps them together.
         val shown = runCatching { manager.activeNotifications.count { it.notification.group == GAME_GROUP && it.id != GAME_SUMMARY_ID } }.getOrDefault(0)
         if (shown >= 2) {
@@ -116,7 +118,9 @@ class QueueSummaryService @Inject constructor(
                 .setAutoCancel(true)
                 .setContentIntent(NotificationButtons.openDownloads(context, GAME_SUMMARY_CODE))
                 .build()
-            manager.notify(GAME_SUMMARY_ID, header)
+            try {
+                manager.notify(GAME_SUMMARY_ID, header)
+            } catch (_: SecurityException) { /* Notification permission changed after the check. */ }
         }
     }
 
@@ -145,7 +149,9 @@ class QueueSummaryService @Inject constructor(
             .setAutoCancel(true)
             .also { b -> NotificationActions.queueDone().forEach { if (it == NotifAction.OPEN_DOWNLOADS) NotificationButtons.addOpenDownloads(b, context) } }
             .build()
-        context.getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification)
+        try {
+            context.getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification)
+        } catch (_: SecurityException) { /* Notification permission changed after the check. */ }
     }
 
     private companion object {

@@ -2,6 +2,16 @@
 
 Public releases follow 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. See [release numbering](docs/releases/numbering.md) for the migration and original APK versions.
 
+## [2.3.0] – 2026-10-07 · Dogmatix+
+
+- Search Downloads by title or file name and filter active, waiting, paused, problem and completed rows.
+- Select matching rows for batch actions and move waiting selections to the front while preserving their queue order.
+- Validate resumed HTTP responses before changing a partial file and reject incomplete transfers before completion or extraction.
+- Cancel outdated automatic-retry timers when a download is restarted, stopped or removed; disabled automatic retry no longer starts scheduled attempts.
+- Download completion and low-space notifications tolerate notification permission being revoked during a transfer.
+- Cancelled torrent metadata fetches release their unowned native handles without deleting cached files.
+- Android build 35; database version remains 13.
+
 ## [2.2.0] – 2026-10-07 · Dogmatix+
 
 - Smoothed per-download speed and remaining-time estimates; unknown sizes and stalled transfers are shown without misleading estimates.

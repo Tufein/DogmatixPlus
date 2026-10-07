@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="queue23_search_hint">Zoek downloads</string>
+    <string name="queue23_search">Zoeken</string>
+    <string name="queue23_all">Alles</string>
+    <string name="queue23_active">Bezig</string>
+    <string name="queue23_waiting">Wachtend</string>
+    <string name="queue23_paused">Gepauzeerd</string>
+    <string name="queue23_problems">Mislukt / gestopt</string>
+    <string name="queue23_completed">Voltooid</string>
+    <string name="queue23_showing">%1$d van %2$d downloads zichtbaar</string>
+    <string name="queue23_select_shown">Selecteer zichtbare</string>
+    <string name="queue23_clear_filters">Wis filters</string>
+    <string name="queue23_no_matches">Geen passende downloads</string>
+    <string name="queue23_no_matches_hint">Probeer een andere naam of status.</string>
+    <string name="queue23_whole_queue">Hele wachtrij: overzicht en acties</string>
+    <string name="queue23_prioritize">Zet selectie vooraan</string>
+</resources>

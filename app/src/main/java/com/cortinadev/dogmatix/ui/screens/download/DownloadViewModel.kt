@@ -12,6 +12,8 @@ import com.cortinadev.dogmatix.data.service.RommUploadService
 import com.cortinadev.dogmatix.data.service.DownloadService
 import com.cortinadev.dogmatix.data.service.LibraryIndexService
 import com.cortinadev.dogmatix.util.DownloadCondition
+import com.cortinadev.dogmatix.util.DownloadQueueFilter
+import com.cortinadev.dogmatix.util.QueueFilter
 import com.cortinadev.dogmatix.util.QueueActions
 import com.cortinadev.dogmatix.util.WaitInfo
 import com.cortinadev.dogmatix.util.QueueEta
@@ -141,6 +143,34 @@ class DownloadViewModel @Inject constructor(
 
     val downloads: StateFlow<List<DownloadItemModel>> = repository.downloads
 
+    private val _queueFilters = MutableStateFlow(DownloadQueueFilter.Criteria())
+    val queueFilters: StateFlow<DownloadQueueFilter.Criteria> = _queueFilters.asStateFlow()
+
+    /** Slot waiters and schedule waiters share DOWNLOADING with actual transfers. */
+    private val queueWaiting = combine(queued, waitingFiles, itemWaits) { slots, schedule, conditions ->
+        HashSet<String>(slots.size + schedule.size + conditions.size).apply {
+            addAll(slots)
+            addAll(schedule)
+            addAll(conditions.keys)
+        }
+    }
+
+    /** Search and state projection stay off Main even for a whole console's download history. */
+    val queueView: StateFlow<DownloadQueueFilter.View> = combine(downloads, _queueFilters, queueWaiting) { list, criteria, waiting ->
+        DownloadQueueFilter.project(list, criteria, waiting)
+    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DownloadQueueFilter.View())
+
+    fun setQueueSearch(query: String) = setQueueFilters(_queueFilters.value.copy(query = query.take(200)))
+    fun setQueueFilter(status: QueueFilter) = setQueueFilters(_queueFilters.value.copy(status = status))
+    fun clearQueueFilters() = setQueueFilters(DownloadQueueFilter.Criteria())
+
+    private fun setQueueFilters(criteria: DownloadQueueFilter.Criteria) {
+        if (criteria == _queueFilters.value) return
+        // A filter change must never leave a hidden row selected for a destructive action.
+        clearSelection()
+        _queueFilters.value = criteria
+    }
+
     /** Queued or downloading, for the tab badge: changes with the status, not with every progress tick. */
     val activeCount: StateFlow<Int> = downloads.map { list -> list.count { it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.QUEUED } }
         .distinctUntilChanged().flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
@@ -200,10 +230,14 @@ class DownloadViewModel @Inject constructor(
     private val _selection = MutableStateFlow<Set<String>>(emptySet())
     val selection: StateFlow<Set<String>> = _selection.asStateFlow()
 
+    val selectedDownloads: StateFlow<List<DownloadItemModel>> = combine(queueView, _selection) { view, selected ->
+        view.rows.filter { it.fileName in selected }
+    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     init {
-        // Rows deleted elsewhere (or by us) must not linger in the selection.
+        // Deleted rows and rows that leave the current view must not linger in the selection.
         viewModelScope.launch {
-            downloads.map { list -> list.mapTo(HashSet()) { it.fileName } }
+            queueView.map { it.visibleNames }
                 .distinctUntilChanged()
                 .flowOn(Dispatchers.Default)
                 .collect { alive ->
@@ -215,24 +249,40 @@ class DownloadViewModel @Inject constructor(
     }
 
     fun toggleSelection(fileName: String) {
+        if (queueView.value.criteria != _queueFilters.value || fileName !in queueView.value.visibleNames) return
         _selection.value = _selection.value.let { if (fileName in it) it - fileName else it + fileName }
     }
 
-    /** Y on the list: tick everything, or clear it when everything is already ticked. */
+    /** Y on the list: tick the shown matches, or clear them when they are already ticked. */
     fun toggleSelectAll() {
-        val all = downloads.value.mapTo(mutableSetOf()) { it.fileName }
-        _selection.value = if (_selection.value.containsAll(all)) emptySet() else all
+        val view = queueView.value
+        if (view.criteria != _queueFilters.value) return
+        _selection.value = DownloadQueueFilter.toggleVisibleSelection(_selection.value, view.visibleNames)
     }
 
     fun clearSelection() {
         _selection.value = emptySet()
     }
 
-    private fun selectedItems(): List<DownloadItemModel> =
-        downloads.value.filter { it.fileName in _selection.value }
+    private fun visibleSelection(): Set<String> = queueView.value.let { view ->
+        if (view.criteria == _queueFilters.value) _selection.value.intersect(view.visibleNames) else emptySet()
+    }
+
+    private fun selectedItems(): List<DownloadItemModel> {
+        val selected = visibleSelection()
+        return downloads.value.filter { it.fileName in selected }
+    }
+
+    /** Move the selected slot waiters in one operation, keeping their actual queue order. */
+    fun moveSelectedToFront() {
+        val selected = visibleSelection()
+        viewModelScope.launch(Dispatchers.Default) {
+            downloadService.moveToFront(queued.value.filter { it in selected })
+        }
+    }
 
     fun retrySelected() {
-        val selected = _selection.value
+        val selected = visibleSelection()
         viewModelScope.launch(Dispatchers.Default) {
             val names = downloads.value.filter { it.fileName in selected && it.status.canRetry }.map { it.fileName }
             downloadService.retryDownloads(names)
@@ -254,7 +304,7 @@ class DownloadViewModel @Inject constructor(
         accepts: (DownloadItemModel) -> Boolean,
         action: suspend (DownloadItemModel) -> Unit
     ) {
-        val selected = _selection.value
+        val selected = visibleSelection()
         viewModelScope.launch(Dispatchers.Default) {
             downloads.value.filter { it.fileName in selected && accepts(it) }.forEach { action(it) }
         }
