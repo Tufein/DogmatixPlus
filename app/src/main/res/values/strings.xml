@@ -1320,9 +1320,10 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Choose a compatible emulator per console and launch owned games directly.</item>
-        <item>Compare versions and save language, region and revision preferences.</item>
-        <item>Search and filter action history, restore removed games or download them again.</item>
+        <item>Check game files, disc references, BIOS and emulator setup before testing a launch.</item>
+        <item>Create smart collections and preview offline downloads with collection limits and free-space reserves.</item>
+        <item>Review bulk version upgrades and keep favourites, preferences and history separate per profile.</item>
+        <item>Get help with failed actions and restore verified recovery copies of files removed in the explorer.</item>
     </string-array>
 
     <!-- 4.0 -->

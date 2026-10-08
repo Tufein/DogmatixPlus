@@ -40,7 +40,10 @@
     <string name="off25_quota_hint">Begrenzt vorhandene Dateien, Downloads und Platz zum Entpacken. Geteilte Spiele zählen in jeder Sammlung. Unbekannte Größen warten bei gesetztem Limit. Das Senken des Limits löscht keine Spiele.</string>
     <string name="off25_unlimited">Unbegrenzt</string>
     <string name="off25_preview">Offline-Downloads prüfen</string>
-    <string name="off25_preview_hint">%1$d Spiele · ungefähr %2$s einschließlich Entpacken. Limits, freier Platz und Warteschlange werden vor dem Start erneut geprüft.</string>
+    <plurals name="off25_preview_hint">
+        <item quantity="one">%1$d Spiel · etwa %2$s inklusive Entpacken. Limits, freier Speicher und Warteschlange werden vor dem Start erneut geprüft.</item>
+        <item quantity="other">%1$d Spiele · etwa %2$s inklusive Entpacken. Limits, freier Speicher und Warteschlange werden vor dem Start erneut geprüft.</item>
+    </plurals>
     <string name="off25_unknown">Einige Größen oder freier Platz sind unbekannt. Die angezeigte Summe ist eine Schätzung.</string>
     <string name="off25_reserve">Speicherplatz freihalten</string>
     <string name="off25_reserve_hint">Reserve je Speichervolume. Der größere Wert aus dieser Reserve und dem allgemeinen Minimum gilt zusätzlich zum Platz für wartende Downloads.</string>

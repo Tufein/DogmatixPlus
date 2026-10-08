@@ -40,7 +40,10 @@
     <string name="off25_quota_hint">Begrenst bestaande bestanden, downloads en uitpakruimte in deze collectie. Gedeelde spellen tellen in elke collectie mee. Onbekende groottes wachten bij een limiet. Verlagen verwijdert geen spellen.</string>
     <string name="off25_unlimited">Onbegrensd</string>
     <string name="off25_preview">Offline downloads bekijken</string>
-    <string name="off25_preview_hint">%1$d spellen · ongeveer %2$s inclusief uitpakken. Limieten, vrije ruimte en wachtrij worden opnieuw gecontroleerd vóór de start.</string>
+    <plurals name="off25_preview_hint">
+        <item quantity="one">%1$d spel · ongeveer %2$s inclusief uitpakken. Limieten, vrije ruimte en wachtrij worden vóór de start opnieuw gecontroleerd.</item>
+        <item quantity="other">%1$d spellen · ongeveer %2$s inclusief uitpakken. Limieten, vrije ruimte en wachtrij worden vóór de start opnieuw gecontroleerd.</item>
+    </plurals>
     <string name="off25_unknown">Sommige groottes of vrije ruimte zijn onbekend. Het getoonde totaal is een schatting.</string>
     <string name="off25_reserve">Ruimte vrijhouden</string>
     <string name="off25_reserve_hint">Reserve per opslagvolume. De hoogste waarde van deze reserve en het algemene minimum geldt, plus ruimte voor wachtende downloads.</string>

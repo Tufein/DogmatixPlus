@@ -40,7 +40,11 @@
     <string name="off25_quota_hint">Limita file esistenti, download e spazio di estrazione. I giochi condivisi contano in ogni raccolta. Le dimensioni sconosciute attendono se è impostato un limite. Ridurlo non elimina giochi.</string>
     <string name="off25_unlimited">Senza limite</string>
     <string name="off25_preview">Controlla download offline</string>
-    <string name="off25_preview_hint">%1$d giochi · circa %2$s con estrazione. Limiti, spazio libero e coda vengono ricontrollati prima dell’avvio.</string>
+    <plurals name="off25_preview_hint">
+        <item quantity="one">%1$d gioco · circa %2$s con estrazione. Limiti, spazio libero e coda vengono ricontrollati prima di iniziare.</item>
+        <item quantity="many">%1$d giochi · circa %2$s con estrazione. Limiti, spazio libero e coda vengono ricontrollati prima di iniziare.</item>
+        <item quantity="other">%1$d giochi · circa %2$s con estrazione. Limiti, spazio libero e coda vengono ricontrollati prima di iniziare.</item>
+    </plurals>
     <string name="off25_unknown">Alcune dimensioni o lo spazio disponibile sono sconosciuti. Il totale è una stima.</string>
     <string name="off25_reserve">Mantieni spazio libero</string>
     <string name="off25_reserve_hint">Riserva per volume. Vale il maggiore fra questa riserva e il minimo generale, oltre allo spazio per i download in coda.</string>

@@ -40,7 +40,10 @@
     <string name="off25_quota_hint">Limits existing files, queued downloads and extraction space in this collection. Shared games count in each collection. Unknown sizes wait when a limit is set. Lowering the limit never deletes games.</string>
     <string name="off25_unlimited">Unlimited</string>
     <string name="off25_preview">Review offline downloads</string>
-    <string name="off25_preview_hint">%1$d games · about %2$s including extraction. Limits, free space and the queue are checked again before starting.</string>
+    <plurals name="off25_preview_hint">
+        <item quantity="one">%1$d game · about %2$s including extraction. Limits, free space and the queue are checked again before starting.</item>
+        <item quantity="other">%1$d games · about %2$s including extraction. Limits, free space and the queue are checked again before starting.</item>
+    </plurals>
     <string name="off25_unknown">Some sizes or available space are unknown. The displayed total is an estimate.</string>
     <string name="off25_reserve">Keep space free</string>
     <string name="off25_reserve_hint">Reserve per storage volume. The larger of this reserve and the general minimum free space applies, plus room for queued downloads.</string>

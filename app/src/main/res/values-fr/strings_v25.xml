@@ -40,7 +40,11 @@
     <string name="off25_quota_hint">Limite les fichiers existants, les téléchargements et l’espace d’extraction. Les jeux partagés comptent dans chaque collection. Les tailles inconnues attendent si une limite est définie. Réduire la limite ne supprime aucun jeu.</string>
     <string name="off25_unlimited">Sans limite</string>
     <string name="off25_preview">Vérifier les téléchargements hors ligne</string>
-    <string name="off25_preview_hint">%1$d jeux · environ %2$s avec extraction. Les limites, l’espace libre et la file sont revérifiés avant le démarrage.</string>
+    <plurals name="off25_preview_hint">
+        <item quantity="one">%1$d jeu · environ %2$s avec extraction. Les limites, l’espace libre et la file sont revérifiés avant le démarrage.</item>
+        <item quantity="many">%1$d jeux · environ %2$s avec extraction. Les limites, l’espace libre et la file sont revérifiés avant le démarrage.</item>
+        <item quantity="other">%1$d jeux · environ %2$s avec extraction. Les limites, l’espace libre et la file sont revérifiés avant le démarrage.</item>
+    </plurals>
     <string name="off25_unknown">Certaines tailles ou l’espace disponible sont inconnus. Le total affiché est une estimation.</string>
     <string name="off25_reserve">Garder de l’espace libre</string>
     <string name="off25_reserve_hint">Réserve par volume. La plus grande valeur entre cette réserve et le minimum général s’applique, en plus de la file de téléchargements.</string>

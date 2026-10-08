@@ -8,7 +8,7 @@
     <string name="ready25_ok">Verificação concluída</string>
     <string name="ready25_unavailable">Este jogo não está disponível no perfil atual.</string>
     <string name="ready25_missing">Há ficheiros ausentes, vazios ou ilegíveis. Transfira ou restaure o jogo e verifique o acesso à pasta.</string>
-    <string name="ready25_disc_problem">Uma lista de discos referencia um ficheiro ausente ou inseguro. Abra a verificação de conjuntos.</string>
+    <string name="ready25_disc_problem">Uma lista de discos contém uma referência a um ficheiro ausente ou inseguro. Abra a verificação de conjuntos.</string>
     <string name="ready25_bios_problem">Verifique a pasta BIOS e os ficheiros necessários para esta consola.</string>
     <string name="ready25_choose">Escolha um emulador instalado abaixo e guarde-o para esta consola.</string>
     <string name="ready25_no_emulator">Nenhum emulador instalado abre estes ficheiros. Instale um compatível e atualize a verificação.</string>
@@ -40,7 +40,11 @@
     <string name="off25_quota_hint">Limita ficheiros existentes, transferências e espaço de extração. Jogos partilhados contam em cada coleção. Tamanhos desconhecidos aguardam se houver limite. Reduzir o limite não elimina jogos.</string>
     <string name="off25_unlimited">Sem limite</string>
     <string name="off25_preview">Rever transferências offline</string>
-    <string name="off25_preview_hint">%1$d jogos · cerca de %2$s com extração. Limites, espaço livre e fila são verificados novamente antes de iniciar.</string>
+    <plurals name="off25_preview_hint">
+        <item quantity="one">%1$d jogo · cerca de %2$s com extração. Limites, espaço livre e fila são verificados novamente antes de iniciar.</item>
+        <item quantity="many">%1$d jogos · cerca de %2$s com extração. Limites, espaço livre e fila são verificados novamente antes de iniciar.</item>
+        <item quantity="other">%1$d jogos · cerca de %2$s com extração. Limites, espaço livre e fila são verificados novamente antes de iniciar.</item>
+    </plurals>
     <string name="off25_unknown">Alguns tamanhos ou o espaço disponível são desconhecidos. O total apresentado é uma estimativa.</string>
     <string name="off25_reserve">Manter espaço livre</string>
     <string name="off25_reserve_hint">Reserva por volume. Aplica-se o maior valor entre esta reserva e o mínimo geral, mais o espaço das transferências em fila.</string>

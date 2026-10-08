@@ -1319,9 +1319,10 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Wähle einen passenden Emulator pro Konsole und starte eigene Spiele direkt.</item>
-        <item>Vergleiche Versionen und speichere Einstellungen für Sprache, Region und Revision.</item>
-        <item>Durchsuche und filtere den Aktionsverlauf, stelle entfernte Spiele wieder her oder lade sie erneut.</item>
+        <item>Prüfe Spieldateien, Disc-Verweise, BIOS und Emulator-Einstellungen vor einem Teststart.</item>
+        <item>Erstelle intelligente Sammlungen und prüfe Offline-Downloads mit Sammlungslimits und Speicherreserven.</item>
+        <item>Prüfe mehrere Versions-Upgrades und verwalte Favoriten, Einstellungen und Verlauf getrennt pro Profil.</item>
+        <item>Erhalte Hilfe bei fehlgeschlagenen Aktionen und stelle geprüfte Sicherungskopien aus dem Dateiexplorer wieder her.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -111,7 +111,7 @@ fun rememberOfflineCollections(): OfflineCollectionsUi {
         AlertDialog(modifier = Modifier.closeOnGamepadB(vm::dismissFetch), onDismissRequest = vm::dismissFetch,
             title = { Text(stringResource(R.string.off25_preview)) },
             text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(stringResource(R.string.off25_preview_hint, picks.size, formatBytes(picks.sumOf { it.need })))
+                Text(pluralStringResource(R.plurals.off25_preview_hint, picks.size, picks.size, formatBytes(picks.sumOf { it.need })))
                 if (picks.any { it.size <= 0 }) Text(stringResource(R.string.off25_unknown))
                 picks.forEach { pick -> Text("• " + FileParsingUtils.decodeUrlEncodedFileName(pick.game.fileName) + " · " + formatBytes(pick.need), style = MaterialTheme.typography.bodySmall) }
             } },
