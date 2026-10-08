@@ -69,7 +69,7 @@ class ActionHistoryViewModel @Inject constructor(
     init {
         // A line written or a trash operation changed (also from Trash and recovery): check the buttons again.
         viewModelScope.launch {
-            combine(log.entries, journal.entries) { lines, _ -> lines }.debounce(300).collect { lines ->
+            combine(log.entries, journal.entries, profiles.activeId) { lines, _, profile -> lines?.filter { it.profileId == profile } }.debounce(300).collect { lines ->
                 if (lines != null) available.value = check(lines.asReversed())
             }
         }
@@ -79,7 +79,7 @@ class ActionHistoryViewModel @Inject constructor(
     private suspend fun check(newestFirst: List<ActionEntry>): Map<String, UndoAction> {
         val byId = newestFirst.associateBy { it.id }
         val out = HashMap<String, UndoAction>()
-        for ((id, action) in ActionHistory.undoCandidates(newestFirst).entries.take(MAX_UNDO_CHECKS)) {
+        for ((id, action) in ActionHistory.undoCandidates(newestFirst.filter { it.profileId == profiles.activeId.value }).entries.take(MAX_UNDO_CHECKS)) {
             val entry = byId[id] ?: continue
             if (undoService.available(entry, action)) out[id] = action
         }

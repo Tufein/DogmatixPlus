@@ -113,7 +113,7 @@ class GameLaunchService @Inject constructor(
         }
     }
 
-    private fun preferenceKey(consoleId: String) = com.cortinadev.dogmatix.data.local.PersonalPreferences.prefix(profiles.activeId.value) + consoleId
+    private fun preferenceKey(consoleId: String) = com.cortinadev.dogmatix.data.local.PersonalPreferences.prefix(profiles.currentIdNow()) + consoleId
     fun preferred(consoleId: String): String? = preferences.getString(preferenceKey(consoleId), null)
     fun clear(consoleId: String) { preferences.edit().remove(preferenceKey(consoleId)).apply() }
 

@@ -55,6 +55,23 @@ class PersonalProfilesRegressionTest {
         } finally { context.deleteDatabase(name) }
     }
 
+    @Test fun queuedActionsKeepTheInitiatingProfileAcrossAnImmediateSwitch() = runBlocking {
+        val settings = AppSettings(context)
+        val before = settings.activeProfile.first()
+        val dir = File(context.cacheDir, "history-switch-${UUID.randomUUID()}").apply { mkdirs() }
+        val isolated = object : ContextWrapper(context) { override fun getFilesDir() = dir }
+        try {
+            settings.setActiveProfile("profile-a")
+            val log = ActionLogService(isolated, settings)
+            repeat(120) { log.record(ActionKind.PLAYED, "A$it") }
+            settings.setActiveProfile("profile-b")
+            log.record(ActionKind.PLAYED, "B")
+            val all = withTimeout(10000) { log.entries.first { it?.size == 121 }!! }
+            assertTrue(all.take(120).all { it.profileId == "profile-a" })
+            assertEquals("profile-b", all.last().profileId)
+        } finally { settings.setActiveProfile(before); dir.deleteRecursively() }
+    }
+
     @Test fun clearingOneProfilesHistoryRetainsOtherProfilesAfterRestart() = runBlocking {
         val settings = AppSettings(context)
         val before = settings.activeProfile.first()

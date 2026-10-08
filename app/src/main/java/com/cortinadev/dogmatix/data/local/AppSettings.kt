@@ -11,6 +11,10 @@ import com.cortinadev.dogmatix.util.EmulatorSaveFolders
 import com.cortinadev.dogmatix.util.RecentSearches
 import com.cortinadev.dogmatix.util.TextSize
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -19,6 +23,17 @@ import javax.inject.Singleton
 /** Settings stored next to [SettingsDataStore], in the same preferences file. */
 @Singleton
 class AppSettings @Inject constructor(@param:ApplicationContext private val context: Context) {
+
+    private val profileLock = Mutex()
+    @Volatile var activeProfileSnapshot: String? = null
+        private set
+    init {
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            context.dataStore.data.collect {
+                profileLock.withLock { activeProfileSnapshot = context.dataStore.data.first()[Keys.ACTIVE_PROFILE].orEmpty() }
+            }
+        }
+    }
 
     private object Keys {
         val AUTO_SCAN = booleanPreferencesKey("auto_scan")
@@ -147,7 +162,9 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
     suspend fun setSaveSyncEmulatorFolders(folders: List<EmulatorSaveFolder>) =
         context.dataStore.edit { it[Keys.SAVE_SYNC_EMULATOR_FOLDERS] = EmulatorSaveFolders.toJson(folders) }
     suspend fun setProfiles(json: String) = context.dataStore.edit { it[Keys.PROFILES] = json }
-    suspend fun setActiveProfile(id: String) = context.dataStore.edit { it[Keys.ACTIVE_PROFILE] = id }
+    suspend fun setActiveProfile(id: String) = profileLock.withLock {
+        context.dataStore.edit { it[Keys.ACTIVE_PROFILE] = id }.also { activeProfileSnapshot = id }
+    }
     suspend fun setProfilePinHash(hash: String) = context.dataStore.edit { it[Keys.PROFILE_PIN] = hash }
 
     suspend fun setBiosDir(uri: String) = context.dataStore.edit { it[Keys.BIOS_DIR] = uri }

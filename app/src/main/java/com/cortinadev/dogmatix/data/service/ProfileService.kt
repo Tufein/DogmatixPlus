@@ -52,6 +52,8 @@ class ProfileService @Inject constructor(private val settings: AppSettings, priv
         Profiles.restrictionsOf(Profiles.fromJson(json), id)
     }.first()
 
+    fun currentIdNow(): String = settings.activeProfileSnapshot ?: activeId.value
+
     val pinHash: StateFlow<String> = settings.profilePinHash.stateIn(scope, SharingStarted.Eagerly, "")
 
     suspend fun save(profile: Profile) {

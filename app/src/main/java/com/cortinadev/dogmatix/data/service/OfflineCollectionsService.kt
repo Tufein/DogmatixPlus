@@ -102,7 +102,8 @@ class OfflineCollectionsService @Inject constructor(
     private val appSettings: AppSettings,
     rescan: RescanStateHolder,
     rommLibrary: RommLibraryService,
-    private val smartCollections: SmartCollectionsService
+    private val smartCollections: SmartCollectionsService,
+    private val profiles: ProfileService
 ) {
     enum class Trigger { MANUAL, AUTO }
 
@@ -127,7 +128,7 @@ class OfflineCollectionsService @Inject constructor(
      */
     val changes: Flow<Unit> = merge(
         settings.collectionIds.map { }, settings.cap.map { }, settings.fetched.map { }, settings.quotas.map { }, settings.reserveGb.map { },
-        collectionDao.observeAll().map { }, libraryIndex.ownedKeys.map { }
+        collectionDao.observeAll().map { }, libraryIndex.ownedKeys.map { }, profiles.activeId.map { }
     )
 
     init {
@@ -247,9 +248,10 @@ class OfflineCollectionsService @Inject constructor(
         val kept = all.filter { it.id in keptIds }.map { c ->
             OfflineCollections.Kept(c.id, c.name, collectionDao.itemsOf(c.id).map { Game(it.consoleId, it.fileName) }.distinct())
         }
+        val restrictions = profiles.current()
         val entities = HashMap<Game, DownloadableFileEntity>()
         kept.flatMap { k -> k.games.map { it.consoleId } }.toSet().forEach { console ->
-            fileDao.filesOf(console).forEach { entities.putIfAbsent(Game(console, it.fileName), it) }
+            fileDao.filesOf(console).forEach { if (restrictions.allows(console, fileDao.tagsOf(it.id))) entities.putIfAbsent(Game(console, it.fileName), it) }
         }
         val root = settingsRepository.downloadDirectory.first()
         val folders = settingsRepository.consoleDownloadDirectories.first()

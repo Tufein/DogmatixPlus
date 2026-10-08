@@ -202,7 +202,7 @@ class BetterVersionsService @Inject constructor(
         if (items.isEmpty() || !allowed(items)) return
         for (item in items) {
             val m = messages[item.id] ?: continue
-            pending[item.candidate.fileName] = Pending(item, m, profiles.activeId.value)
+            pending[item.candidate.fileName] = Pending(item, m, profiles.currentIdNow())
             setState(item.id, ReplaceState.WAITING)
         }
         downloadService.startDownloads(items.map { it.candidate })
@@ -257,7 +257,7 @@ class BetterVersionsService @Inject constructor(
     private suspend fun finishReplace(p: Pending) {
         val s = p.suggestion
         val outcome = try {
-            if (profiles.activeId.value != p.profile || !allowed(listOf(s))) ReplaceState.KEPT else decide(s)
+            if (profiles.currentIdNow() != p.profile || !allowed(listOf(s))) ReplaceState.KEPT else decide(s)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

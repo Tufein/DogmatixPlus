@@ -2,7 +2,7 @@ package com.cortinadev.dogmatix
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -14,7 +14,6 @@ import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
 class CollectionRulesUiTest {
     @get:Rule val compose = createComposeRule()
     private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
@@ -45,7 +44,14 @@ class CollectionRulesUiTest {
             SmartRuleDialog("Smart", SmartCollectionRule(), emptyList(), onSave = { _, _ -> saved = true }, onDismiss = { closed = true })
         } }
         compose.waitForIdle()
-        compose.onNodeWithText(context.getString(R.string.dialog_cancel)).performKeyInput { pressKey(Key.ButtonB) }
+        // D-pad input switches Android out of touch mode, like using a real controller.
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_DPAD_DOWN)
+        compose.waitForIdle()
+        compose.onNodeWithText(context.getString(R.string.dialog_cancel))
+            .performSemanticsAction(SemanticsActions.RequestFocus) { it() }
+            .assertIsFocused()
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BUTTON_B)
+        compose.waitUntil(3000) { closed }
         compose.runOnIdle { assertTrue(closed); assertFalse(saved) }
     }
 }
