@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.cortinadev.dogmatix.data.local.dataStore
+import com.cortinadev.dogmatix.data.local.PersonalPreferences
 import com.cortinadev.dogmatix.util.VersionPreference
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
@@ -19,8 +20,9 @@ class VersionPreferenceService @Inject constructor(
 ) {
     /** One immutable read for a whole console, rather than a DataStore subscription per row. */
     class Snapshot internal constructor(private val preferences: Preferences) {
+        private val prefix = PersonalPreferences.prefix(preferences) + "fixed_version:"
         private val pins = VersionPreference.storedPins(preferences.asMap().mapNotNull { (key, value) ->
-            if (key.name.startsWith("fixed_version:") && value is String) key.name.removePrefix("fixed_version:") to value else null
+            if (key.name.startsWith(prefix) && value is String) key.name.removePrefix(prefix) to value else null
         }.toMap())
         fun preferred(consoleId: String, name: String): String? = pins[VersionPreference.key(consoleId, name)]
     }
@@ -32,13 +34,14 @@ class VersionPreferenceService @Inject constructor(
     suspend fun set(consoleId: String, name: String, fileName: String?) {
         context.dataStore.edit { prefs ->
             val canonical = VersionPreference.key(consoleId, name)
+            val prefix = PersonalPreferences.prefix(prefs) + "fixed_version:"
             // Remove every legacy spelling of this pin so clearing it cannot revive an old value.
             prefs.asMap().keys.filter { stored ->
                 val value = prefs[stored] as? String
-                stored.name.startsWith("fixed_version:") && value != null &&
-                    VersionPreference.storedPins(mapOf(stored.name.removePrefix("fixed_version:") to value)).containsKey(canonical)
+                stored.name.startsWith(prefix) && value != null &&
+                    VersionPreference.storedPins(mapOf(stored.name.removePrefix(prefix) to value)).containsKey(canonical)
             }.forEach { prefs.remove(it) }
-            if (fileName != null) prefs[key(consoleId, name)] = fileName
+            if (fileName != null) prefs[stringPreferencesKey(prefix + canonical)] = fileName
         }
         actionLog.versionPin(consoleId, name, fileName)
     }

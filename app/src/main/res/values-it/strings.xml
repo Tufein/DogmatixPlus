@@ -1270,9 +1270,10 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Scegli un emulatore compatibile per console e avvia direttamente i tuoi giochi.</item>
-        <item>Confronta le versioni e salva le preferenze di lingua, regione e revisione.</item>
-        <item>Cerca e filtra la cronologia, ripristina i giochi rimossi o scaricali di nuovo.</item>
+        <item>Verifica file di gioco, riferimenti ai dischi, BIOS e impostazioni dell’emulatore prima di provare l’avvio.</item>
+        <item>Crea raccolte intelligenti e controlla i download offline con limiti e riserve di spazio libero.</item>
+        <item>Esamina gli aggiornamenti di versione in gruppo e separa preferiti, preferenze e cronologia per profilo.</item>
+        <item>Ricevi aiuto dopo un errore e ripristina le copie verificate dei file rimossi nell’esplora file.</item>
     </string-array>
 
     <!-- 4.0 -->

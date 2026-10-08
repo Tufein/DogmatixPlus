@@ -60,7 +60,9 @@ data class ConsoleEmulator(
 @HiltViewModel
 class EmulatorSettingsViewModel @Inject constructor(
     private val consoles: ConsoleRepository,
-    private val launcher: GameLaunchService
+    private val launcher: GameLaunchService,
+    private val files: com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao,
+    private val library: com.cortinadev.dogmatix.data.service.LibraryIndexService
 ) : ViewModel() {
 
     private val _rows = MutableStateFlow<List<ConsoleEmulator>?>(null)
@@ -82,6 +84,14 @@ class EmulatorSettingsViewModel @Inject constructor(
         }
     }
 
+    fun wizard(consoleId: String, onReady: (String) -> Unit) {
+        viewModelScope.launch {
+            val rows = files.filesOf(consoleId)
+            val file = rows.firstOrNull { com.cortinadev.dogmatix.util.LibraryKeys.isOwned(it.consoleId, it.fileName, library.ownedKeys.value) } ?: rows.firstOrNull()
+            if (file != null) onReady(com.cortinadev.dogmatix.ui.screens.tools.ReadinessRoute.of(consoleId, file.fileName))
+        }
+    }
+
     /** Stores [key] for [consoleId]; null = ask on the game page. */
     fun set(consoleId: String, key: String?) {
         launcher.setPreferred(consoleId, key)
@@ -95,7 +105,7 @@ class EmulatorSettingsViewModel @Inject constructor(
  * catalogue's preferred installed emulator) or one emulator, RetroArch per core.
  */
 @Composable
-fun EmulatorChoiceSettingsRow(viewModel: EmulatorSettingsViewModel = hiltViewModel()) {
+fun EmulatorChoiceSettingsRow(viewModel: EmulatorSettingsViewModel = hiltViewModel(), onWizard: (String) -> Unit = {}) {
     var open by remember { mutableStateOf(false) }
     val show = { viewModel.load(); open = true }
     SettingRow(
@@ -106,17 +116,17 @@ fun EmulatorChoiceSettingsRow(viewModel: EmulatorSettingsViewModel = hiltViewMod
     ) {
         PillButton(stringResource(R.string.settings_change), show)
     }
-    if (open) EmulatorsDialog(viewModel) { open = false }
+    if (open) EmulatorsDialog(viewModel, onWizard = { route -> open = false; onWizard(route) }) { open = false }
 }
 
 @Composable
-private fun EmulatorsDialog(viewModel: EmulatorSettingsViewModel, onDismiss: () -> Unit) {
+private fun EmulatorsDialog(viewModel: EmulatorSettingsViewModel, onWizard: (String) -> Unit, onDismiss: () -> Unit) {
     val rows by viewModel.rows.collectAsState()
     var editing by remember { mutableStateOf<String?>(null) }
     val list = rows
     val edit = editing?.let { id -> list?.firstOrNull { it.consoleId == id } }
     if (edit != null) {
-        ConsoleDialog(edit, onPick = { key -> viewModel.set(edit.consoleId, key); editing = null }, onDismiss = { editing = null })
+        ConsoleDialog(edit, onPick = { key -> viewModel.set(edit.consoleId, key); editing = null }, onDismiss = { editing = null }, onWizard = { viewModel.wizard(edit.consoleId, onWizard) })
         return
     }
     val closeFocus = rememberInitialFocus()
@@ -152,7 +162,7 @@ private fun currentText(row: ConsoleEmulator): String = when (row.stored) {
 }
 
 @Composable
-private fun ConsoleDialog(row: ConsoleEmulator, onPick: (String?) -> Unit, onDismiss: () -> Unit) {
+private fun ConsoleDialog(row: ConsoleEmulator, onPick: (String?) -> Unit, onDismiss: () -> Unit, onWizard: () -> Unit) {
     val cancelFocus = rememberInitialFocus()
     AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
@@ -160,6 +170,7 @@ private fun ConsoleDialog(row: ConsoleEmulator, onPick: (String?) -> Unit, onDis
         title = { Text(row.name) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
+                OptionRow(stringResource(R.string.ready25_title), stringResource(R.string.ready25_wizard), false, chevron = true, onClick = onWizard)
                 OptionRow(stringResource(R.string.play24_settings_ask), stringResource(R.string.play24_settings_ask_hint), row.stored == null) { onPick(null) }
                 OptionRow(
                     stringResource(R.string.play24_settings_automatic),

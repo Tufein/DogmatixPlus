@@ -78,7 +78,8 @@ enum class LaunchOutcome {
 class GameLaunchService @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val library: LibraryIndexService,
-    private val actionLog: ActionLogService
+    private val actionLog: ActionLogService,
+    private val profiles: ProfileService
 ) {
     private val preferences = context.getSharedPreferences("game_launchers", Context.MODE_PRIVATE)
 
@@ -112,12 +113,13 @@ class GameLaunchService @Inject constructor(
         }
     }
 
-    fun preferred(consoleId: String): String? = preferences.getString(consoleId, null)
-    fun clear(consoleId: String) { preferences.edit().remove(consoleId).apply() }
+    private fun preferenceKey(consoleId: String) = com.cortinadev.dogmatix.data.local.PersonalPreferences.prefix(profiles.currentIdNow()) + consoleId
+    fun preferred(consoleId: String): String? = preferences.getString(preferenceKey(consoleId), null)
+    fun clear(consoleId: String) { preferences.edit().remove(preferenceKey(consoleId)).apply() }
 
     /** Stores [key] ([GameLaunchKeys]) for [consoleId]; null forgets it (Play asks again). */
     fun setPreferred(consoleId: String, key: String?) {
-        if (key.isNullOrBlank()) clear(consoleId) else preferences.edit().putString(consoleId, key).apply()
+        if (key.isNullOrBlank()) clear(consoleId) else preferences.edit().putString(preferenceKey(consoleId), key).apply()
     }
 
     /** The handler of [game] the remembered [stored] value means, or null when it names nothing installed now. */

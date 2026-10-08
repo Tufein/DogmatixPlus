@@ -159,6 +159,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    @Inject lateinit var smartCollections: com.cortinadev.dogmatix.data.service.SmartCollectionsService
     @Inject lateinit var pendingFilters: PendingLibraryFilters
     @Inject lateinit var saveSyncService: SaveSyncService
     @Inject lateinit var appSettings: AppSettings
@@ -546,8 +547,15 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                             fileName = entry.arguments?.getString(GamePageModel.ARG_FILE).orEmpty(),
                             onBack = { navController.popBackStack() },
                             onOpenGame = { c, f -> navController.navigate(GamePageModel.route(c, f)) },
-                            onOpenVersionPreference = { navController.navigate(NavRoutes.VersionPreference.route) }
+                            onOpenVersionPreference = { navController.navigate(NavRoutes.VersionPreference.route) },
+                            onReadiness = { c, f -> navController.navigate(com.cortinadev.dogmatix.ui.screens.tools.ReadinessRoute.of(c, f)) }
                         )
+                    }
+                    composable(com.cortinadev.dogmatix.ui.screens.tools.ReadinessRoute.route,
+                        arguments = listOf(navArgument("consoleId") { type = NavType.StringType }, navArgument("fileName") { type = NavType.StringType })) { entry ->
+                        com.cortinadev.dogmatix.ui.screens.tools.GameReadinessScreen(
+                            entry.arguments?.getString("consoleId").orEmpty(), entry.arguments?.getString("fileName").orEmpty(),
+                            onNavigate = { navController.navigate(it) })
                     }
                     composable(NavRoutes.VersionPreference.route) { com.cortinadev.dogmatix.ui.screens.settings.VersionPreferenceScreen() }
                     composable(NavRoutes.Downloads.route) { DownloadScreen(navController) }
@@ -599,7 +607,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.FrontendMetadata.route) {
                         FrontendMetadataScreen(onOpenSettings = { navController.navigate(NavRoutes.Settings.route) })
                     }
-                    composable(NavRoutes.BetterVersions.route) { BetterVersionsScreen() }
+                    composable(NavRoutes.BetterVersions.route) { BetterVersionsScreen(onRecovery = { navController.navigate(NavRoutes.Recovery.route) }) }
                     composable(NavRoutes.SearchAll.route) { SearchAllScreen(navController) }
                 }
             }

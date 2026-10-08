@@ -40,3 +40,7 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+# Durable recovery data must remain readable across signed app updates.
+-keep class com.cortinadev.dogmatix.data.service.LibraryOperation { *; }
+-keep class com.cortinadev.dogmatix.data.service.OperationFile { *; }
+-keep class com.cortinadev.dogmatix.data.service.OperationDirectory { *; }

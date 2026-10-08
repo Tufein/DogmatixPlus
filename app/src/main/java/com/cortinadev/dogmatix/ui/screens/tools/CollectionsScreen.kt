@@ -70,7 +70,9 @@ class CollectionsViewModel @Inject constructor(
     private val appSettings: AppSettings,
     private val shortcuts: FrontendShortcutService,
     private val rommCollections: RommCollectionsService,
-    settings: SettingsRepository
+    settings: SettingsRepository,
+    private val smart: com.cortinadev.dogmatix.data.service.SmartCollectionsService,
+    files: com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 ) : ViewModel() {
     val views: StateFlow<List<LibraryView>> = appSettings.libraryViews
         .map { LibraryViews.fromJson(it) }
@@ -112,9 +114,27 @@ class CollectionsViewModel @Inject constructor(
     val collections: StateFlow<List<CollectionWithCount>?> = repository.collections
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
+    val rules = smart.rules
+    val ruleFailed = smart.failed
+    val consoles = files.observeLibraryChanges().map { files.indexedSources().map { it.consoleId }.distinct().sorted() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    fun saveRule(context: Context, id: Long?, name: String, rule: com.cortinadev.dogmatix.util.SmartCollectionRule?) {
+        viewModelScope.launch {
+            try {
+                if (id == null && collections.value.orEmpty().any { it.name.equals(name.trim(), true) }) {
+                    ToastUtil.showError(context, context.getString(R.string.smart25_name_exists))
+                    return@launch
+                }
+                val target = id ?: repository.create(name) ?: return@launch
+                smart.save(target, rule)
+                smart.refresh()
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (_: Exception) { ToastUtil.showError(context, context.getString(R.string.smart25_failed)) }
+        }
+    }
     fun create(name: String) { viewModelScope.launch { repository.create(name) } }
     fun rename(id: Long, name: String) { viewModelScope.launch { repository.rename(id, name) } }
-    fun delete(id: Long) { viewModelScope.launch { repository.delete(id) } }
+    fun delete(id: Long) { viewModelScope.launch { smart.save(id, null); repository.delete(id) } }
 
     /** Shows the collection in the library (the shell switches to the Library tab). */
     fun open(id: Long) = pendingFilters.submit(LibraryFilterRequest(collectionId = id))
@@ -126,6 +146,11 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
     val collections by viewModel.collections.collectAsState()
     val views by viewModel.views.collectAsState()
     val rommReady by viewModel.rommReady.collectAsState()
+    val rules by viewModel.rules.collectAsState()
+    val ruleFailed by viewModel.ruleFailed.collectAsState()
+    val consoles by viewModel.consoles.collectAsState()
+    var smartCreating by remember { mutableStateOf(false) }
+    var editingRule by remember { mutableStateOf<CollectionWithCount?>(null) }
     val offline = rememberOfflineCollections()
     val context = LocalContext.current
     var naming by remember { mutableStateOf<CollectionWithCount?>(null) }
@@ -134,6 +159,11 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(collections?.size) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
 
+    if (smartCreating || editingRule != null) {
+        SmartRuleDialog(editingRule?.name.orEmpty(), editingRule?.id?.let { rules[it] }, consoles,
+            onSave = { name, rule -> viewModel.saveRule(context, editingRule?.id, name, rule); smartCreating = false; editingRule = null },
+            onDismiss = { smartCreating = false; editingRule = null })
+    }
     if (creating || naming != null) {
         NameDialog(
             title = stringResource(if (creating) R.string.collections_new else R.string.collections_rename),
@@ -160,6 +190,7 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
                 ToolAction(stringResource(R.string.romm_collections_push), icon = R.drawable.ic_cloud_upload) { viewModel.syncRomm(context, push = true) }
             }
             offline.FetchNowAction()
+            ToolAction(stringResource(R.string.smart25_new), icon = R.drawable.ic_filter) { smartCreating = true }
             ToolAction(stringResource(R.string.collections_new), icon = R.drawable.ic_plus, tone = ActionTone.Accent) { creating = true }
         }
         val list = collections
@@ -177,16 +208,18 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
                         actionFocus = firstFocus
                     )
                 }
+                if (ruleFailed) item { InfoCard(listOf(stringResource(R.string.smart25_failed)), icon = R.drawable.ic_warning, danger = true) }
                 items(list, key = { it.id }) { c -> Column {
                     ToolRow(
                         title = c.name,
-                        lines = listOf(pluralStringResource(R.plurals.collections_games, c.count, c.count)),
+                        lines = listOfNotNull(pluralStringResource(R.plurals.collections_games, c.count, c.count), if (c.id in rules) stringResource(R.string.smart25_dynamic) else null),
                         onClick = { viewModel.open(c.id) },
                         modifier = if (c == list.first()) Modifier.focusRequester(firstFocus) else Modifier,
                         icon = R.drawable.ic_collections,
                         chevron = true
                     ) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            ToolAction(stringResource(R.string.smart25_rules)) { editingRule = c }
                             ToolAction(stringResource(R.string.collections_rename)) { naming = c }
                             ToolAction(stringResource(R.string.dialog_delete), tone = ActionTone.Danger) { deleting = c }
                         }

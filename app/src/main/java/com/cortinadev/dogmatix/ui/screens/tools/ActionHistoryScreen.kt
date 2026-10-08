@@ -65,6 +65,7 @@ import com.cortinadev.dogmatix.ui.screens.download.feedback
 import com.cortinadev.dogmatix.ui.screens.home.components.SearchField
 import com.cortinadev.dogmatix.ui.theme.consoleColor
 import com.cortinadev.dogmatix.ui.theme.tabular
+import com.cortinadev.dogmatix.util.ActionHelp
 import com.cortinadev.dogmatix.util.ActionCount
 import com.cortinadev.dogmatix.util.ActionEntry
 import com.cortinadev.dogmatix.util.ActionFilter
@@ -112,6 +113,7 @@ fun ActionHistoryScreen(
     val timeFormat = remember(locale) { DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale) }
     val dateFormat = remember(locale) { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale) }
     val zone = remember { ZoneId.systemDefault() }
+    var help by remember { mutableStateOf<ActionRowUi?>(null) }
     var confirmClear by remember { mutableStateOf(false) }
     var searching by remember { mutableStateOf(false) }
     var focusedKey by remember { mutableStateOf<String?>(null) }
@@ -153,6 +155,7 @@ fun ActionHistoryScreen(
     val row = focusedKey?.let { ui.rows[it] }
     val padAction = when {
         row == null -> null
+        ActionHelp.of(row.entry) != null -> stringResource(R.string.help25_title)
         row.undo != null && ui.busyKey == null -> stringResource(if (row.undo == UndoAction.RESTORE) R.string.hist24_restore else R.string.hist24_download_again)
         row.undo == null && ActionHistory.openable(row.entry) -> stringResource(R.string.pad_open)
         else -> null
@@ -188,6 +191,49 @@ fun ActionHistoryScreen(
         }
     }
 
+    help?.let { selected ->
+        val guidance = ActionHelp.of(selected.entry)
+        val cancelFocus = rememberInitialFocus()
+        AlertDialog(modifier = Modifier.closeOnGamepadB { help = null }, onDismissRequest = { help = null },
+            title = { Text(stringResource(R.string.help25_title)) },
+            text = { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(selected.entry.title)
+                Text(stringResource(when (guidance) {
+                    ActionHelp.NETWORK -> R.string.help25_network
+                    ActionHelp.SPACE -> R.string.help25_space
+                    ActionHelp.PERMISSION -> R.string.help25_permission
+                    ActionHelp.SOURCE -> R.string.help25_source
+                    ActionHelp.AUTH -> R.string.help25_auth
+                    ActionHelp.EXTRACT -> R.string.help25_extract
+                    ActionHelp.VERIFY -> R.string.help25_verify
+                    ActionHelp.MOVE -> R.string.help25_move
+                    ActionHelp.SYNC -> R.string.help25_sync
+                    ActionHelp.BACKUP -> R.string.help25_backup
+                    else -> R.string.help25_general
+                }))
+                ToolAction(stringResource(R.string.help25_fix)) {
+                    help = null
+                    onNavigate(when (guidance) {
+                        ActionHelp.SPACE -> NavRoutes.Storage.route
+                        ActionHelp.PERMISSION, ActionHelp.AUTH, ActionHelp.NETWORK -> NavRoutes.Settings.route
+                        ActionHelp.SOURCE -> NavRoutes.Sources.route
+                        ActionHelp.EXTRACT -> NavRoutes.Files.route
+                        ActionHelp.VERIFY -> NavRoutes.Dat.route
+                        ActionHelp.MOVE -> NavRoutes.Recovery.route
+                        ActionHelp.SYNC -> if (selected.entry.topic == ActionTopic.SAVE_SYNC) NavRoutes.SaveSync.route else NavRoutes.Cloud.route
+                        ActionHelp.BACKUP -> NavRoutes.CloudBackup.route
+                        else -> NavRoutes.Health.route
+                    })
+                }
+                if (ActionHistory.openable(selected.entry)) ToolAction(stringResource(R.string.ready25_title)) {
+                    help = null
+                    onNavigate(ReadinessRoute.of(selected.entry.consoleId.orEmpty(), selected.entry.fileName.orEmpty()))
+                }
+            } },
+            confirmButton = { if (selected.undo != null) DialogButton(stringResource(if (selected.undo == UndoAction.RESTORE) R.string.hist24_restore else R.string.hist24_download_again),
+                onClick = { help = null; undo(selected) }, enabled = ui.busyKey == null) },
+            dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), { help = null }, initialFocus = cancelFocus) })
+    }
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         ToolsTitle(stringResource(R.string.hist24_title), icon = R.drawable.ic_manage_history, subtitle = stringResource(R.string.hist24_subtitle))
         when {
@@ -242,6 +288,7 @@ fun ActionHistoryScreen(
                                 modifier = Modifier.onFocusChanged { state ->
                                     if (state.isFocused) focusedKey = r.key else if (focusedKey == r.key) focusedKey = null
                                 },
+                                onHelp = { help = r },
                                 onUndo = { undo(r) },
                                 onOpen = { e -> onOpenGame(e.consoleId.orEmpty(), e.fileName.orEmpty()) }
                             )
@@ -421,6 +468,7 @@ private fun ActionRow(
     busy: Boolean,
     modifier: Modifier,
     onUndo: () -> Unit,
+    onHelp: () -> Unit,
     onOpen: (ActionEntry) -> Unit
 ) {
     val e = row.entry
@@ -447,6 +495,7 @@ private fun ActionRow(
         lines = lines,
         onClick = {
             when {
+                ActionHelp.of(e) != null -> onHelp()
                 undo != null -> if (!busy) onUndo()
                 ActionHistory.openable(e) -> onOpen(e)
             }
@@ -469,7 +518,8 @@ private fun ActionRow(
             // For touch; on a gamepad A on the row does the same (see the legend), so focus never
             // sits on a button that goes away once the game is back.
             val noFocus = Modifier.focusProperties { canFocus = false }
-            when (undo) {
+            if (ActionHelp.of(e) != null) ActionPill(stringResource(R.string.help25_title), onHelp, noFocus, icon = R.drawable.ic_info)
+            else when (undo) {
                 UndoAction.RESTORE -> ActionPill(stringResource(R.string.hist24_restore), onUndo, noFocus, icon = R.drawable.ic_restore, tone = ActionTone.Accent, enabled = !busy)
                 UndoAction.DOWNLOAD_AGAIN -> ActionPill(stringResource(R.string.hist24_download_again), onUndo, noFocus, icon = R.drawable.ic_download, tone = ActionTone.Accent, enabled = !busy)
                 null -> Unit

@@ -17,6 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -74,6 +76,14 @@ class OfflineCollectionsUi internal constructor(
             modifier = modifier.padding(start = 20.dp),
             icon = R.drawable.ic_download
         ) { ThemedSwitch(on) { vm.setKept(collectionId, it) } }
+        if (on) ToolRow(stringResource(R.string.off25_quota), listOf(stringResource(R.string.off25_quota_hint)),
+            onClick = { vm.setQuota(collectionId, (data.quotas[collectionId] ?: 0) + 1) }, icon = R.drawable.ic_storage,
+            modifier = modifier.padding(start = 20.dp)) {
+            val gb = data.quotas[collectionId] ?: 0
+            Stepper(if (gb == 0) stringResource(R.string.off25_unlimited) else "$gb GB",
+                onDecrement = { vm.setQuota(collectionId, (gb - 1).coerceAtLeast(0)) },
+                onIncrement = { vm.setQuota(collectionId, gb + 1) })
+        }
     }
 
     /** "Fetch now" for the actions strip; shown while at least one collection is on. */
@@ -81,7 +91,7 @@ class OfflineCollectionsUi internal constructor(
     fun FetchNowAction() {
         if (!anyKept) return
         ToolAction(stringResource(R.string.offline7_fetch_now), icon = R.drawable.ic_download, tone = ActionTone.Accent) {
-            if (!data.state.running) vm.fetchNow()
+            if (!data.state.running) vm.askFetch()
         }
     }
 }
@@ -95,6 +105,19 @@ fun rememberOfflineCollections(): OfflineCollectionsUi {
     val vm: OfflineCollectionsViewModel = hiltViewModel()
     val data by vm.data.collectAsState()
     val removal by vm.removal.collectAsState()
+    val fetch by vm.fetchPreview.collectAsState()
+    fetch?.let { picks ->
+        val cancelFocus = rememberInitialFocus()
+        AlertDialog(modifier = Modifier.closeOnGamepadB(vm::dismissFetch), onDismissRequest = vm::dismissFetch,
+            title = { Text(stringResource(R.string.off25_preview)) },
+            text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(pluralStringResource(R.plurals.off25_preview_hint, picks.size, picks.size, formatBytes(picks.sumOf { it.need })))
+                if (picks.any { it.size <= 0 }) Text(stringResource(R.string.off25_unknown))
+                picks.forEach { pick -> Text("• " + FileParsingUtils.decodeUrlEncodedFileName(pick.game.fileName) + " · " + formatBytes(pick.need), style = MaterialTheme.typography.bodySmall) }
+            } },
+            confirmButton = { DialogButton(stringResource(R.string.offline7_fetch_now), vm::confirmFetch, enabled = picks.isNotEmpty() && !data.state.noFolder && !data.state.running) },
+            dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), vm::dismissFetch, initialFocus = cancelFocus) })
+    }
     val context = LocalContext.current
     removal?.let { plan -> RemovalDialog(plan, onConfirm = { vm.confirmRemoval(context) }, onDismiss = vm::dismissRemoval) }
     return remember(vm, data) { OfflineCollectionsUi(vm, data) }
@@ -122,6 +145,13 @@ fun LazyListScope.offlineCollectionsItems(offline: OfflineCollectionsUi) {
                     onDecrement = { offline.vm.setCap(data.cap - OfflineCollections.CAP_STEP) },
                     onIncrement = { offline.vm.setCap(data.cap + OfflineCollections.CAP_STEP) }
                 )
+            }
+        }
+        item(key = "offline-reserve") {
+            ToolRow(stringResource(R.string.off25_reserve), listOf(stringResource(R.string.off25_reserve_hint)),
+                onClick = { offline.vm.setReserveGb(data.reserveGb + 1) }, icon = R.drawable.ic_storage) {
+                Stepper("${data.reserveGb} GB", onDecrement = { offline.vm.setReserveGb(data.reserveGb - 1) },
+                    onIncrement = { offline.vm.setReserveGb(data.reserveGb + 1) })
             }
         }
         item(key = "offline-wifi") {
@@ -156,6 +186,7 @@ private fun tallyLine(t: OfflineCollections.Tally): String {
         t.queued.takeIf { it > 0 }?.let { stringResource(R.string.offline7_status_queued, it) },
         t.fetch.takeIf { it > 0 }?.let { stringResource(R.string.offline7_status_fetch, it) },
         t.noSpace.takeIf { it > 0 }?.let { stringResource(R.string.offline7_status_space, it) },
+        t.quota.takeIf { it > 0 }?.let { stringResource(R.string.off25_quota_held, it) },
         t.overCap.takeIf { it > 0 }?.let { stringResource(R.string.offline7_status_cap, it) },
         t.notInLibrary.takeIf { it > 0 }?.let { stringResource(R.string.offline7_status_not_listed, it) }
     )

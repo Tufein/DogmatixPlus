@@ -73,7 +73,7 @@ fun rememberInitialFocus(): FocusRequester {
     val requester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         repeat(5) {
-            if (runCatching { requester.requestFocus() }.isSuccess) return@LaunchedEffect
+            if (runCatching { requester.requestFocus() }.getOrDefault(false)) return@LaunchedEffect
             withFrameNanos { }
         }
     }

@@ -17,7 +17,7 @@ import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
-data class RemovalFile(val uri: String, val parent: String, val name: String, val bytes: Long, val path: String = name)
+data class RemovalFile(val uri: String, val parent: String, val name: String, val bytes: Long, val path: String = name, val relativePath: String? = null)
 
 /** Backups stay on the original volume. Their durable receipt is saved before the source is unlinked. */
 @Singleton
@@ -47,21 +47,25 @@ class TrashService @Inject constructor(
         title: String,
         consoleId: String? = null,
         fileName: String? = null,
-        reason: String = ActionReason.BY_USER
+        reason: String = ActionReason.BY_USER,
+        directories: List<OperationDirectory> = emptyList()
     ): Int = withContext(Dispatchers.IO) {
         gate.lock.withLock {
-            if (files.isEmpty()) return@withLock 0
-            var operation = LibraryOperation(kind = "trash", title = title)
+            if (files.isEmpty() && directories.isEmpty()) return@withLock 0
+            require(files.all { it.relativePath == null || safePath(it.relativePath) } && directories.all { safePath(it.name) })
+            var operation = LibraryOperation(kind = "trash", title = title, directories = directories)
             history.put(operation)
             gate.hold("*")
             try {
                 for (file in files.distinctBy { it.uri }) {
                     val parent = StorageHelper.getDocumentFile(context, file.parent) ?: error("Original folder unavailable")
-                    val trash = StorageHelper.createDirectory(parent, ".dogmatix-trash/${operation.id}") ?: error("Trash unavailable")
+                    val relativeParent = file.relativePath?.substringBeforeLast('/', "").orEmpty()
+                    val trash = StorageHelper.createDirectory(parent, ".dogmatix-trash/${operation.id}" +
+                        relativeParent.takeIf { it.isNotEmpty() }?.let { "/$it" }.orEmpty()) ?: error("Trash unavailable")
                     val target = copier.copy(Uri.parse(file.uri), trash, file.name)
                     val hash = copier.hash(Uri.parse(file.uri))
                     check(copier.mayRemove(Uri.parse(file.uri), target.uri, hash)) { "Source changed" }
-                    operation = operation.copy(files = operation.files + OperationFile(file.uri, target.uri.toString(), file.path, file.bytes, hash, file.parent))
+                    operation = operation.copy(files = operation.files + OperationFile(file.uri, target.uri.toString(), file.path, file.bytes, hash, file.parent, relativePath = file.relativePath))
                     history.put(operation)
                 }
                 operation = operation.copy(phase = "ready")
@@ -73,7 +77,7 @@ class TrashService @Inject constructor(
                 }
                 history.put(operation.copy(phase = "stored"))
                 actionLog.record(
-                    ActionKind.REMOVED, title, consoleId = consoleId, fileName = fileName ?: files.first().name,
+                    ActionKind.REMOVED, title, consoleId = consoleId, fileName = fileName ?: files.firstOrNull()?.name,
                     opId = operation.id, reason = reason, count = count, bytes = operation.files.sumOf { it.bytes }
                 )
                 count
@@ -89,8 +93,14 @@ class TrashService @Inject constructor(
         gate.hold("*")
         try {
             history.put(operation.copy(phase = "restoring"))
+            operation.directories.orEmpty().forEach { directory ->
+                val root = StorageHelper.getDocumentFile(context, directory.parent) ?: error("Original folder unavailable")
+                check(StorageHelper.createDirectory(root, directory.name) != null) { "Original folder unavailable" }
+            }
             for (receipt in operation.files) {
-                val parent = StorageHelper.getDocumentFile(context, receipt.parent) ?: error("Original folder unavailable")
+                val root = StorageHelper.getDocumentFile(context, receipt.parent) ?: error("Original folder unavailable")
+                val path = receipt.relativePath?.substringBeforeLast('/', "").orEmpty()
+                val parent = if (path.isEmpty()) root else StorageHelper.createDirectory(root, path) ?: error("Original folder unavailable")
                 val source = DocumentFile.fromSingleUri(context, Uri.parse(receipt.target)) ?: error("Backup unavailable")
                 if (!source.exists()) {
                     val restored = parent.findFile(receipt.name.substringAfterLast('/')) ?: error("Backup unavailable")
@@ -116,7 +126,9 @@ class TrashService @Inject constructor(
         val operation = history.get(id)?.takeIf { it.kind == "trash" && it.phase != "done" } ?: return@withContext 0
         operation.files.count { receipt ->
             runCatching {
-                val parent = StorageHelper.getDocumentFile(context, receipt.parent) ?: return@runCatching false
+                val root = StorageHelper.getDocumentFile(context, receipt.parent) ?: return@runCatching false
+                val path = receipt.relativePath?.substringBeforeLast('/', "").orEmpty()
+                val parent = if (path.isEmpty()) root else StorageHelper.findFile(root, path) ?: return@runCatching false
                 val original = parent.findFile(receipt.name.substringAfterLast('/')) ?: return@runCatching false
                 copier.hash(original.uri) == receipt.hash
             }.getOrDefault(false)
@@ -166,5 +178,7 @@ class TrashService @Inject constructor(
 
     private companion object {
         const val EXPIRED_LINES = 8
+        fun safePath(path: String): Boolean = path.isNotBlank() && !path.contains('\\') &&
+            path.split('/').all { it.isNotBlank() && it !in setOf(".", "..", ".dogmatix-trash") }
     }
 }

@@ -51,6 +51,9 @@ object BackupJson {
             SettingsKeys.ROMM_PLATFORM_MAP, SettingsKeys.CONSOLE_SCANNED_AT
         ).forEach { put(it.name, "ss") }
         putAll(CloudSettingKeys.TYPES)
+        put("profiles", "s")
+        put("active_profile", "s")
+        put("profile_pin_hash", "s")
         put(VersionPreferences.PINNED_KEY, "s")
         put(VersionPreferences.OVERRIDES_KEY, "s")
     }
@@ -86,8 +89,12 @@ object BackupJson {
         if (CloudSettingKeys.isSecret(name)) return null
         val obj = element as? JsonObject ?: return null
         val type = (obj.get("t") as? JsonPrimitive)?.takeIf { it.isString }?.asString ?: return null
-        expectedTypes[name]?.let { if (it != type) return null }
-        if (name.startsWith("fixed_version:") && type != "s") return null
+        val local = if (name.startsWith("personal:")) name.substringAfter(':').substringAfter(':') else name
+        expectedTypes[local]?.let { if (it != type) return null }
+        if (local.startsWith("fixed_version:") && type != "s") return null
+        if (name == "smart_collection_rules" && type != "s") return null
+        if (name == "offline_collections_quotas" && type != "ss") return null
+        if (name == "offline_collections_reserve_gb" && type != "i") return null
         val v = obj.get("v") ?: return null
         val value: Any = runCatching {
             when (type) {
@@ -126,6 +133,7 @@ object BackupJson {
                 addProperty("consoleId", f.consoleId)
                 addProperty("fileName", f.fileName)
                 addProperty("addedAt", f.addedAt)
+                addProperty("profileId", f.profileId)
             })
         }
     }
@@ -136,7 +144,8 @@ object BackupJson {
             FavouriteEntity(
                 consoleId = o.string("consoleId") ?: return@mapNotNull null,
                 fileName = o.string("fileName") ?: return@mapNotNull null,
-                addedAt = o.long("addedAt") ?: System.currentTimeMillis()
+                addedAt = o.long("addedAt") ?: System.currentTimeMillis(),
+                profileId = o.string("profileId").orEmpty()
             )
         }
 

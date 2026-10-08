@@ -12,11 +12,13 @@ import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
-data class OperationFile(val source: String, val target: String, val name: String, val bytes: Long, val hash: String, val parent: String = "", val removed: Boolean = false)
+data class OperationFile(@field:com.google.gson.annotations.SerializedName(value = "source", alternate = ["a"]) val source: String, @field:com.google.gson.annotations.SerializedName(value = "target", alternate = ["b"]) val target: String, @field:com.google.gson.annotations.SerializedName(value = "name", alternate = ["c"]) val name: String, @field:com.google.gson.annotations.SerializedName(value = "bytes", alternate = ["d"]) val bytes: Long, @field:com.google.gson.annotations.SerializedName(value = "hash", alternate = ["e"]) val hash: String, @field:com.google.gson.annotations.SerializedName(value = "parent", alternate = ["f"]) val parent: String = "", @field:com.google.gson.annotations.SerializedName(value = "removed", alternate = ["g"]) val removed: Boolean = false, @field:com.google.gson.annotations.SerializedName(value = "relativePath") val relativePath: String? = null)
+data class OperationDirectory(@field:com.google.gson.annotations.SerializedName(value = "parent") val parent: String, @field:com.google.gson.annotations.SerializedName(value = "name") val name: String)
 data class LibraryOperation(
-    val id: String = UUID.randomUUID().toString(), val kind: String, val title: String,
-    val time: Long = System.currentTimeMillis(), val phase: String = "copying",
-    val source: String = "", val target: String = "", val files: List<OperationFile> = emptyList(), val consoleId: String = "", val totalFiles: Int = 0, val destinationPlace: String = ""
+    @field:com.google.gson.annotations.SerializedName(value = "id", alternate = ["a"]) val id: String = UUID.randomUUID().toString(), @field:com.google.gson.annotations.SerializedName(value = "kind", alternate = ["b"]) val kind: String, @field:com.google.gson.annotations.SerializedName(value = "title", alternate = ["c"]) val title: String,
+    @field:com.google.gson.annotations.SerializedName(value = "time", alternate = ["d"]) val time: Long = System.currentTimeMillis(), @field:com.google.gson.annotations.SerializedName(value = "phase", alternate = ["e"]) val phase: String = "copying",
+    @field:com.google.gson.annotations.SerializedName(value = "source", alternate = ["f"]) val source: String = "", @field:com.google.gson.annotations.SerializedName(value = "target", alternate = ["g"]) val target: String = "", @field:com.google.gson.annotations.SerializedName(value = "files", alternate = ["h"]) val files: List<OperationFile> = emptyList(), @field:com.google.gson.annotations.SerializedName(value = "consoleId", alternate = ["i"]) val consoleId: String = "", @field:com.google.gson.annotations.SerializedName(value = "totalFiles", alternate = ["j"]) val totalFiles: Int = 0, @field:com.google.gson.annotations.SerializedName(value = "destinationPlace", alternate = ["k"]) val destinationPlace: String = "",
+    @field:com.google.gson.annotations.SerializedName(value = "directories") val directories: List<OperationDirectory>? = null
 )
 
 /** Atomic durable journal. Save failures propagate before any destructive step. */

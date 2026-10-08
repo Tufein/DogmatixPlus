@@ -19,6 +19,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.UUID
@@ -39,12 +40,13 @@ private const val TAG = "ActionLog"
  */
 @Singleton
 class ActionLogService @Inject constructor(
-    @param:ApplicationContext context: Context
+    @param:ApplicationContext context: Context,
+    private val settings: com.cortinadev.dogmatix.data.local.AppSettings? = null
 ) {
     private sealed interface Op {
-        class Append(val entry: ActionEntry) : Op
+        class Append(val entry: ActionEntry, val profileId: String?) : Op
         class MarkUndone(val id: String, val done: CompletableDeferred<Unit>) : Op
-        class Clear(val done: CompletableDeferred<Unit>) : Op
+        class Clear(val profileId: String, val done: CompletableDeferred<Unit>) : Op
         class FindRemoval(val id: String, val done: CompletableDeferred<ActionEntry?>) : Op
     }
 
@@ -72,7 +74,8 @@ class ActionLogService @Inject constructor(
                 when (op) {
                     is Op.Append -> {
                         // Also keep ordering after a restart while the device clock moved back.
-                        val entry = op.entry.copy(at = maxOf(op.entry.at, all.lastOrNull()?.at ?: 0L))
+                        val entry = op.entry.copy(at = maxOf(op.entry.at, all.lastOrNull()?.at ?: 0L),
+                            profileId = op.profileId ?: settings?.activeProfile?.first() ?: op.entry.profileId)
                         all = all + entry
                         runCatching { store.append(entry) }.onFailure { Log.w(TAG, "Could not write history: ${it.javaClass.simpleName}") }
                         if (store.lines > ActionLogFormat.COMPACT_AT || all.size > ActionLogFormat.COMPACT_AT) {
@@ -91,8 +94,9 @@ class ActionLogService @Inject constructor(
                     is Op.Clear -> {
                         // An explicit privacy action only succeeds once the on-disk history is gone.
                         try {
-                            store.rewrite(emptyList())
-                            all = emptyList()
+                            val next = all.filter { it.profileId != op.profileId }
+                            store.rewrite(next)
+                            all = next
                             op.done.complete(Unit)
                         } catch (e: Exception) { op.done.completeExceptionally(e) }
                     }
@@ -124,9 +128,9 @@ class ActionLogService @Inject constructor(
                 lastAt = maxOf(System.currentTimeMillis(), lastAt)
                 val entry = ActionEntry(
                     newId(), lastAt, kind, title.take(300), topic, consoleId?.take(64), fileName?.take(300), opId, reason?.take(80),
-                    counts.filterValues { it > 0 }, count, bytes.coerceAtLeast(0L)
+                    counts.filterValues { it > 0 }, count, bytes.coerceAtLeast(0L), profileId = settings?.activeProfileSnapshot.orEmpty()
                 )
-                ops.trySend(Op.Append(entry))
+                ops.trySend(Op.Append(entry, settings?.activeProfileSnapshot))
             }
         }
     }
@@ -146,7 +150,7 @@ class ActionLogService @Inject constructor(
     /** Empties the history. Games, the trash and the recovery journal are not touched. */
     suspend fun clear() {
         val done = CompletableDeferred<Unit>()
-        ops.trySend(Op.Clear(done)).getOrThrow()
+        ops.trySend(Op.Clear(settings?.activeProfile?.first() ?: "", done)).getOrThrow()
         done.await()
     }
 

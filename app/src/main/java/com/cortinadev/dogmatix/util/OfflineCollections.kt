@@ -26,13 +26,13 @@ object OfflineCollections {
     data class Kept(val id: Long, val name: String, val games: List<Game>)
 
     /** What the library lists for a game: its size (0 = unknown) and whether it is an archive that needs room to unpack. */
-    data class Offer(val size: Long, val extractable: Boolean)
+    data class Offer(val size: Long, val extractable: Boolean, val volume: String = "")
 
     /** A game to queue, and the collections (switched on) that hold it. */
     data class Pick(val game: Game, val collectionIds: List<Long>, val size: Long, val need: Long)
 
     /** What happened to a game of a collection in one plan. */
-    enum class Outcome { ON_DEVICE, QUEUED, NOT_IN_LIBRARY, FETCH, NO_SPACE, OVER_CAP }
+    enum class Outcome { ON_DEVICE, QUEUED, NOT_IN_LIBRARY, FETCH, NO_SPACE, OVER_CAP, QUOTA }
 
     /** The games of one collection by outcome; [fetch] is what this run queues for it. */
     data class Tally(
@@ -43,10 +43,11 @@ object OfflineCollections {
         val notInLibrary: Int,
         val fetch: Int,
         val noSpace: Int,
-        val overCap: Int
+        val overCap: Int,
+        val quota: Int = 0
     ) {
         /** Games still to come to the device (queued, about to be, or held back). */
-        val missing: Int get() = queued + fetch + noSpace + overCap
+        val missing: Int get() = queued + fetch + noSpace + overCap + quota
     }
 
     data class Plan(
@@ -61,7 +62,7 @@ object OfflineCollections {
     )
 
     /** Bytes a game needs on disk: the file, and again to unpack an archive. */
-    fun need(offer: Offer): Long = offer.size.coerceAtLeast(0) * (if (offer.extractable) 2 else 1)
+    fun need(offer: Offer): Long = SpaceMath.need(offer.size, offer.extractable)
 
     /**
      * Which games to queue. [offers] holds the games the library lists (absent = not in the library
@@ -78,31 +79,43 @@ object OfflineCollections {
         queued: (Game) -> Boolean,
         freeBytes: Long?,
         reserveBytes: Long,
-        cap: Int
+        cap: Int,
+        quotaBytes: Map<Long, Long> = emptyMap(),
+        occupiedBytes: Map<Long, Long> = emptyMap(),
+        freeByVolume: Map<String, Long?> = emptyMap(),
+        reserveByVolume: Map<String, Long> = emptyMap()
     ): Plan {
         val limit = cap.coerceAtLeast(0)
         val outcomes = LinkedHashMap<Game, Outcome>()
         val holders = HashMap<Game, MutableList<Long>>()
+        kept.forEach { c -> c.games.distinct().forEach { holders.getOrPut(it) { ArrayList() }.add(c.id) } }
+        val spent = occupiedBytes.toMutableMap()
         val picks = ArrayList<Pick>()
-        var budget = freeBytes?.let { it - reserveBytes.coerceAtLeast(0) - SPACE_MARGIN }
+        val budgets = ((mapOf("" to freeBytes) + freeByVolume).mapValues { (volume, free) ->
+            free?.let { SpaceMath.available(it, reserveByVolume[volume] ?: reserveBytes, SPACE_MARGIN) }
+        }).toMutableMap()
         var missingBytes = 0L
         for (c in kept) for (game in c.games) {
-            val ids = holders.getOrPut(game) { ArrayList() }
-            if (c.id !in ids) ids += c.id
             if (game in outcomes) continue
             val offer = offers[game]
             outcomes[game] = when {
                 onDevice(game) -> Outcome.ON_DEVICE
                 queued(game) -> Outcome.QUEUED
                 offer == null -> Outcome.NOT_IN_LIBRARY
+                holders.getValue(game).any { id ->
+                    val quota = quotaBytes[id] ?: return@any false
+                    quota > 0 && (offer.size <= 0 || need(offer) > quota - (spent[id] ?: 0))
+                } -> Outcome.QUOTA
                 picks.size >= limit -> Outcome.OVER_CAP
                 else -> {
                     val need = need(offer)
+                    val budget = budgets[offer.volume]
                     if (budget != null && need > budget) {
-                        missingBytes += need
+                        missingBytes = SpaceMath.add(missingBytes, need)
                         Outcome.NO_SPACE
                     } else {
-                        budget = budget?.minus(need)
+                        budgets[offer.volume] = budget?.minus(need)
+                        holders.getValue(game).forEach { id -> spent[id] = SpaceMath.add(spent[id] ?: 0, need) }
                         picks += Pick(game, emptyList(), offer.size.coerceAtLeast(0), need)
                         Outcome.FETCH
                     }
@@ -115,7 +128,8 @@ object OfflineCollections {
             Tally(
                 c.id, mine.size,
                 mine.count { it == Outcome.ON_DEVICE }, mine.count { it == Outcome.QUEUED }, mine.count { it == Outcome.NOT_IN_LIBRARY },
-                mine.count { it == Outcome.FETCH }, mine.count { it == Outcome.NO_SPACE }, mine.count { it == Outcome.OVER_CAP }
+                mine.count { it == Outcome.FETCH }, mine.count { it == Outcome.NO_SPACE }, mine.count { it == Outcome.OVER_CAP },
+                mine.count { it == Outcome.QUOTA }
             )
         }
         return Plan(withHolders, tallies, outcomes.values.count { it == Outcome.OVER_CAP }, outcomes.values.count { it == Outcome.NO_SPACE }, missingBytes)

@@ -56,7 +56,8 @@ data class ActionHistoryUi(
 class ActionHistoryViewModel @Inject constructor(
     private val log: ActionLogService,
     private val undoService: ActionUndoService,
-    journal: OperationHistoryService
+    journal: OperationHistoryService,
+    private val profiles: com.cortinadev.dogmatix.data.service.ProfileService
 ) : ViewModel() {
 
     private val filter = MutableStateFlow(ActionFilter.ALL)
@@ -68,7 +69,7 @@ class ActionHistoryViewModel @Inject constructor(
     init {
         // A line written or a trash operation changed (also from Trash and recovery): check the buttons again.
         viewModelScope.launch {
-            combine(log.entries, journal.entries) { lines, _ -> lines }.debounce(300).collect { lines ->
+            combine(log.entries, journal.entries, profiles.activeId) { lines, _, profile -> lines?.filter { it.profileId == profile } }.debounce(300).collect { lines ->
                 if (lines != null) available.value = check(lines.asReversed())
             }
         }
@@ -78,7 +79,7 @@ class ActionHistoryViewModel @Inject constructor(
     private suspend fun check(newestFirst: List<ActionEntry>): Map<String, UndoAction> {
         val byId = newestFirst.associateBy { it.id }
         val out = HashMap<String, UndoAction>()
-        for ((id, action) in ActionHistory.undoCandidates(newestFirst).entries.take(MAX_UNDO_CHECKS)) {
+        for ((id, action) in ActionHistory.undoCandidates(newestFirst.filter { it.profileId == profiles.activeId.value }).entries.take(MAX_UNDO_CHECKS)) {
             val entry = byId[id] ?: continue
             if (undoService.available(entry, action)) out[id] = action
         }
@@ -110,7 +111,7 @@ class ActionHistoryViewModel @Inject constructor(
         }
     }
 
-    val ui: StateFlow<ActionHistoryUi> = combine(log.entries, filter, query, available, busy) { lines, f, q, undo, busyKey ->
+    val ui: StateFlow<ActionHistoryUi> = combine(combine(log.entries, profiles.activeId) { all, profile -> all?.filter { it.profileId == profile } }, filter, query, available, busy) { lines, f, q, undo, busyKey ->
         if (lines == null) return@combine ActionHistoryUi(loading = true, filter = f, query = q)
         val newestFirst = lines.asReversed()
         val filtered = ActionHistory.filter(newestFirst, f, q)

@@ -31,6 +31,11 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 
 ---
 
+The latest release is [2.5.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.5.0) (Android build 37).
+Use **Ready to play?** on a game page for console setup, create smart collections from **Collections**, and review offline/upgrade download space before starting.
+Profiles keep personal favourites, language/version rules, emulators and action history. File-explorer removals are recoverable by default; empty source folders remain.
+See [release notes](docs/release-notes/v2.5.0.md) for usage and storage details.
+
 ## What can it do?
 
 ### New in 2.3.0

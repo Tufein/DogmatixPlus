@@ -110,7 +110,8 @@ data class ActionEntry(
     val counts: Map<String, Int> = emptyMap(),
     val count: Int = 0,
     val bytes: Long = 0L,
-    val undone: Boolean = false
+    val undone: Boolean = false,
+    val profileId: String = ""
 ) {
     val isSummary: Boolean get() = title.isEmpty() && count > 0
 }
@@ -139,6 +140,7 @@ object ActionLogFormat {
         if (e.count > 0) addProperty("n", e.count)
         if (e.bytes > 0) addProperty("bytes", e.bytes)
         if (e.undone) addProperty("undone", true)
+        if (e.profileId.isNotEmpty()) addProperty("profile", e.profileId)
     }.toString()
 
     fun parseLine(line: String): ActionEntry? = runCatching {
@@ -157,7 +159,8 @@ object ActionLogFormat {
             counts = o.getAsJsonObject("c")?.entrySet()?.associate { it.key to it.value.asInt }.orEmpty(),
             count = o.get("n")?.asInt ?: 0,
             bytes = o.get("bytes")?.asLong ?: 0L,
-            undone = o.get("undone")?.asBoolean ?: false
+            undone = o.get("undone")?.asBoolean ?: false,
+            profileId = o.get("profile")?.asString.orEmpty()
         )
     }.getOrNull()
 

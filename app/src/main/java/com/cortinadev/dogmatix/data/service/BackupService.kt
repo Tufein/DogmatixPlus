@@ -89,7 +89,7 @@ class BackupService @Inject constructor(
         }
 
         val sources = JsonParser.parseString(sourcesRepository.exportDocument()).asJsonObject
-        val favourites = favouriteDao.getAll()
+        val favourites = favouriteDao.allProfiles()
         val history = downloadHistoryDao.getAll()
 
         val root = JsonObject().apply {
@@ -98,8 +98,14 @@ class BackupService @Inject constructor(
             addProperty("createdAt", System.currentTimeMillis())
             addProperty("appVersion", BuildConfig.VERSION_NAME)
             add("settings", settings)
+            add("emulatorChoices", JsonObject().apply {
+                context.getSharedPreferences("game_launchers", Context.MODE_PRIVATE).all.forEach { (key, value) ->
+                    if (value is String) addProperty(key, value)
+                }
+            })
             add("sources", sources)
             add("favourites", BackupJson.favouritesToJson(favourites))
+            add("collectionIdentities", JsonObject().apply { collections.identities().forEach { (id, name) -> addProperty(id.toString(), name) } })
             add("wishlist", BackupJson.wishlistToJson(wishlistDao.getAll()))
             collections.export().takeIf { it.isNotEmpty() }?.let { list ->
                 com.google.gson.JsonParser.parseString(SourcesJson.serializeDocument(emptyList(), collections = list)).asJsonObject.get("_collections")
@@ -166,18 +172,47 @@ class BackupService @Inject constructor(
         val savedCollections = backup.get("collections")?.let { SourcesJson.parseCollections(JsonObject().apply { add("_collections", it) }.toString()) }.orEmpty()
 
         return withContext(NonCancellable) {
-            val (restored, repick) = settings?.let { restoreSettings(it) } ?: (0 to 0)
+            // Restore collection names before their settings: numeric ids differ on another install.
+            collections.import(savedCollections)
+            val identities = collections.identities().entries.associate { it.value to it.key }
+            val idMap = (backup.get("collectionIdentities") as? JsonObject)?.entrySet()?.mapNotNull { (old, name) ->
+                val oldId = old.toLongOrNull()
+                if (oldId != null && name.isJsonPrimitive && name.asJsonPrimitive.isString) identities[name.asString]?.let { oldId to it } else null
+            }?.toMap().orEmpty()
+            val mapped = settings?.mapNotNull { (name, value) -> when (name) {
+                "smart_collection_rules" -> {
+                    val rules = com.cortinadev.dogmatix.util.SmartCollectionRules.decode(value as? String) ?: return@mapNotNull null
+                    name to com.cortinadev.dogmatix.util.SmartCollectionRules.encode(rules.mapNotNull { (id, rule) -> idMap[id]?.let { it to rule } }.toMap())
+                }
+                "offline_collections_ids" -> name to (value as? Set<*>).orEmpty().mapNotNull { (it as? String)?.toLongOrNull()?.let(idMap::get)?.toString() }.toSet()
+                "offline_collections_quotas" -> name to (value as? Set<*>).orEmpty().mapNotNull {
+                    val text = it as? String ?: return@mapNotNull null
+                    idMap[text.substringBefore(':').toLongOrNull()]?.let { id -> "$id:${text.substringAfter(':')}" }
+                }.toSet()
+                "offline_collections_fetched" -> name to (value as? Set<*>).orEmpty().mapNotNull {
+                    val fetched = (it as? String)?.let(com.cortinadev.dogmatix.util.OfflineCollections::decodeFetched) ?: return@mapNotNull null
+                    idMap[fetched.collectionId]?.let { id -> com.cortinadev.dogmatix.util.OfflineCollections.encode(fetched.copy(collectionId = id)) }
+                }.toSet()
+                else -> name to value
+            } }
+            val (restored, repick) = mapped?.let { restoreSettings(it) } ?: (0 to 0)
+            (backup.get("emulatorChoices") as? JsonObject)?.let { choices ->
+                val editor = context.getSharedPreferences("game_launchers", Context.MODE_PRIVATE).edit().clear()
+                choices.entrySet().forEach { (key, value) ->
+                    if (value.isJsonPrimitive && value.asJsonPrimitive.isString) editor.putString(key, value.asString)
+                }
+                check(editor.commit()) { "Emulator preferences could not be restored" }
+            }
             val consoles = sourcesText?.let { sourcesRepository.importFromText(it, keepLocalTorrents = true) } ?: 0
             // The sources are committed by now: a failure of the smaller parts (a full disk…) must
             // not hide that, or the restored sources would never be scanned.
-            val favouritesDone = runCatching { favouriteDao.upsertAll(favourites) }.isSuccess
+            val favouritesDone = runCatching { favourites.forEach { favouriteDao.insertRaw(it) } }.isSuccess
             val downloadsDone = runCatching { downloadHistoryDao.insertMissing(downloads) }.isSuccess
             // Only wanted games this install does not list yet (same title and console) are added.
             runCatching {
                 val have = wishlistDao.getAll().map { it.key to it.consoleId }.toSet()
                 wishlistDao.upsertAll(wishlist.filter { (it.key to it.consoleId) !in have })
             }
-            runCatching { collections.import(savedCollections) }
             Summary(restored, consoles, if (favouritesDone) favourites.size else 0, if (downloadsDone) downloads.size else 0, repick)
         }
     }

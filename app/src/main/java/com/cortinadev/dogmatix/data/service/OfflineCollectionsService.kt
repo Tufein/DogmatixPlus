@@ -61,6 +61,7 @@ data class StaleGame(val game: Game, val collectionNames: List<String>)
 
 /** What the screen shows: whether a run is going, what each switched-on collection stands at, and the games to review. */
 data class OfflineState(
+    val planned: List<OfflineCollections.Pick> = emptyList(),
     val running: Boolean = false,
     /** A plan has been worked out since the app started (before that the lines say nothing). */
     val checked: Boolean = false,
@@ -100,7 +101,9 @@ class OfflineCollectionsService @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val appSettings: AppSettings,
     rescan: RescanStateHolder,
-    rommLibrary: RommLibraryService
+    rommLibrary: RommLibraryService,
+    private val smartCollections: SmartCollectionsService,
+    private val profiles: ProfileService
 ) {
     enum class Trigger { MANUAL, AUTO }
 
@@ -114,14 +117,18 @@ class OfflineCollectionsService @Inject constructor(
     val cap: Flow<Int> = settings.cap
     val wifiOnly: Flow<Boolean> = settings.wifiOnly
     val lastRun: Flow<OfflineCollections.RunInfo?> = settings.lastRun
+    val quotas = settings.quotas
+    val reserveGb = settings.reserveGb
+    fun setQuota(id: Long, gb: Int) { scope.launch { settings.setQuota(id, gb); preview() } }
+    fun setReserveGb(gb: Int) { scope.launch { settings.setReserveGb(gb); preview() } }
 
     /**
      * Moves when what [preview] is made of moves. The screen collects it (debounced) while it is
      * open, so nothing is worked out while nobody looks.
      */
     val changes: Flow<Unit> = merge(
-        settings.collectionIds.map { }, settings.cap.map { }, settings.fetched.map { },
-        collectionDao.observeAll().map { }, libraryIndex.ownedKeys.map { }
+        settings.collectionIds.map { }, settings.cap.map { }, settings.fetched.map { }, settings.quotas.map { }, settings.reserveGb.map { },
+        collectionDao.observeAll().map { }, libraryIndex.ownedKeys.map { }, profiles.activeId.map { }
     )
 
     init {
@@ -140,19 +147,15 @@ class OfflineCollectionsService @Inject constructor(
     fun setKept(id: Long, on: Boolean) {
         scope.launch {
             settings.setKept(id, on)
-            if (on) {
-                try { run(Trigger.MANUAL) } catch (e: CancellationException) { throw e } catch (e: Exception) { Log.w(TAG, "Run failed: ${e.javaClass.simpleName}") }
-            } else {
-                settings.forgetCollection(id)
-                preview()
-            }
+            if (!on) settings.forgetCollection(id)
+            preview()
         }
     }
 
     /** "Fetch now": a run on the service's own scope, so it finishes when the screen is left. */
-    fun fetchNow() {
+    fun fetchNow(approved: Set<Game>? = null) {
         scope.launch {
-            try { run(Trigger.MANUAL) } catch (e: CancellationException) { throw e } catch (e: Exception) { Log.w(TAG, "Run failed: ${e.javaClass.simpleName}") }
+            try { run(Trigger.MANUAL, approved) } catch (e: CancellationException) { throw e } catch (e: Exception) { Log.w(TAG, "Run failed: ${e.javaClass.simpleName}") }
         }
     }
 
@@ -170,14 +173,14 @@ class OfflineCollectionsService @Inject constructor(
             null
         }
         if (snap == null || lock.isLocked) return@withContext
-        _state.update { it.copy(checked = true, tallies = snap.tallies, review = snap.review, noFolder = snap.noFolder) }
+        _state.update { it.copy(checked = true, tallies = snap.tallies, review = snap.review, noFolder = snap.noFolder, planned = snap.plan.picks) }
     }
 
     /**
      * Queues what is missing for every collection that is on, and returns how it went (null when
      * nothing is on, no download folder is set, or the collections could not be read). One run at a time.
      */
-    suspend fun run(trigger: Trigger = Trigger.AUTO): OfflineCollections.RunInfo? = withContext(Dispatchers.IO) {
+    suspend fun run(trigger: Trigger = Trigger.AUTO, approved: Set<Game>? = null): OfflineCollections.RunInfo? = withContext(Dispatchers.IO) {
         lock.withLock {
             if (settings.keptNow().isEmpty()) {
                 // Nothing on (maybe just switched off): the lines and the review still need to be current.
@@ -191,9 +194,10 @@ class OfflineCollectionsService @Inject constructor(
                     _state.update { it.copy(checked = true, noFolder = true, tallies = snap.tallies, review = snap.review) }
                     return@withLock null
                 }
-                val files = snap.plan.picks.mapNotNull { snap.entities[it.game] }
+                val picks = snap.plan.picks.filter { approved == null || it.game in approved }
+                val files = picks.mapNotNull { snap.entities[it.game] }
                 // Recorded before the downloads start: a game the record misses is never offered for removal.
-                settings.addFetched(snap.plan.picks.flatMap { p -> p.collectionIds.map { OfflineCollections.Fetched(it, p.game) } })
+                settings.addFetched(picks.flatMap { p -> p.collectionIds.map { OfflineCollections.Fetched(it, p.game) } })
                 settings.removeFetched(snap.forget)
                 if (files.isNotEmpty()) {
                     val condition = if (settings.wifiOnly.first()) DownloadCondition(ConditionKind.WIFI) else null
@@ -202,7 +206,7 @@ class OfflineCollectionsService @Inject constructor(
                 val info = OfflineCollections.RunInfo(System.currentTimeMillis(), files.size, snap.plan.noSpace, snap.plan.overCap, snap.plan.missingBytes)
                 val previous = settings.lastRun.first()
                 settings.setLastRun(info)
-                _state.update { it.copy(checked = true, noFolder = false, tallies = snap.tallies, review = snap.review) }
+                _state.update { it.copy(checked = true, noFolder = false, tallies = snap.tallies, review = snap.review, planned = emptyList()) }
                 if (files.isNotEmpty() || (trigger == Trigger.AUTO && info.noSpace > 0 && !sameSpaceProblem(previous, info))) notify(info)
                 info
             } finally {
@@ -225,6 +229,7 @@ class OfflineCollectionsService @Inject constructor(
     )
 
     private suspend fun compute(refreshIndex: Boolean): Snapshot? {
+        smartCollections.refresh()
         val all = collectionDao.getAll()
         val existing = all.map { it.id }.toSet()
         settings.retainKept(existing)
@@ -243,26 +248,45 @@ class OfflineCollectionsService @Inject constructor(
         val kept = all.filter { it.id in keptIds }.map { c ->
             OfflineCollections.Kept(c.id, c.name, collectionDao.itemsOf(c.id).map { Game(it.consoleId, it.fileName) }.distinct())
         }
+        val restrictions = profiles.current()
         val entities = HashMap<Game, DownloadableFileEntity>()
         kept.flatMap { k -> k.games.map { it.consoleId } }.toSet().forEach { console ->
-            fileDao.filesOf(console).forEach { entities.putIfAbsent(Game(console, it.fileName), it) }
+            fileDao.filesOf(console).forEach { if (restrictions.allows(console, fileDao.tagsOf(it.id))) entities.putIfAbsent(Game(console, it.fileName), it) }
         }
+        val root = settingsRepository.downloadDirectory.first()
+        val folders = settingsRepository.consoleDownloadDirectories.first()
+        fun folder(console: String) = folders[console]?.takeIf { it.isNotBlank() } ?: root
+        fun volume(uri: String): String = runCatching {
+            val parsed = android.net.Uri.parse(uri)
+            parsed.authority + ":" + android.provider.DocumentsContract.getTreeDocumentId(parsed).substringBefore(':')
+        }.getOrDefault(uri)
         val offers = entities.mapValues { (_, e) ->
-            OfflineCollections.Offer(e.fileSize, StorageInsights.isExtractable(e.fileExtension.ifEmpty { e.fileName.substringAfterLast('.', "") }))
+            OfflineCollections.Offer(e.fileSize, StorageInsights.isExtractable(e.fileExtension.ifEmpty { e.fileName.substringAfterLast('.', "") }), volume(folder(e.consoleId)))
+        }
+        val freeByVolume = entities.values.groupBy { volume(folder(it.consoleId)) }.mapValues { (_, group) ->
+            com.cortinadev.dogmatix.util.StorageHelper.getFreeBytes(context, folder(group.first().consoleId))
         }
 
-        val queueNeed = StorageInsights.queueNeed(
-            downloadService.getDownloads()
-                .filter { it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.QUEUED }
-                .map { StorageInsights.QueueItem((it.fileSize - it.downloadedBytes).coerceAtLeast(0), StorageInsights.isExtractable(it.fileName.substringAfterLast('.', ""))) }
-        )
-        val reserve = appSettings.minFreeGb.first() * GB + queueNeed.total
-        val plan = OfflineCollections.plan(kept, offers, onDevice, queued, libraryIndex.freeBytes.value, reserve, settings.cap.first())
+        val activeQueue = downloadService.getDownloads().filter { it.status in setOf(DownloadStatus.DOWNLOADING, DownloadStatus.QUEUED, DownloadStatus.COPYING, DownloadStatus.UNZIPPING, DownloadStatus.PAUSED) }
+        val queueByVolume = activeQueue.groupBy { volume(folder(downloadService.entityFor(it.fileName)?.consoleId.orEmpty())) }
+            .mapValues { (_, rows) -> com.cortinadev.dogmatix.util.SpaceMath.sum(rows.map { item ->
+                val remaining = (item.fileSize - item.downloadedBytes).coerceAtLeast(0)
+                com.cortinadev.dogmatix.util.SpaceMath.add(remaining, if (StorageInsights.isExtractable(item.fileName.substringAfterLast('.'))) item.fileSize else 0)
+            }) }
+        val reserve = maxOf(appSettings.minFreeGb.first().toLong(), settings.reserveGb.first().toLong()) * GB
+        val reserveByVolume = freeByVolume.keys.associateWith { com.cortinadev.dogmatix.util.SpaceMath.add(reserve, queueByVolume[it] ?: 0) }
+        val quotas = settings.quotas.first().mapValues { it.value.toLong() * GB }
+        val disk = if (quotas.isEmpty() || noFolder) emptyList() else DuplicateFinder.entries(scanService.scan().files)
+        val occupied = kept.associate { c -> c.id to c.games.distinct().sumOf { game ->
+            if (onDevice(game)) OfflineCollections.entriesOf(game, disk).sumOf { it.size }
+            else if (queued(game)) offers[game]?.let(OfflineCollections::need) ?: quotas[c.id] ?: 0L else 0L
+        } }
+        val plan = OfflineCollections.plan(kept, offers, onDevice, queued, libraryIndex.freeBytes.value, reserve, settings.cap.first(), quotas, occupied, freeByVolume, reserveByVolume)
 
         val review = OfflineCollections.review(settings.fetched.first(), contents, keptIds, onDevice, queued)
         val names = all.associate { it.id to it.name }
         val stale = review.stale.map { s -> StaleGame(s.game, s.collectionIds.mapNotNull { names[it] }.sorted()) }
-        return Snapshot(plan, entities, plan.tallies.associateBy { it.collectionId }, stale, review.forget, noFolder)
+        return Snapshot(plan, entities, plan.tallies.associateBy { it.collectionId }, stale, review.forget, noFolder || kept.any { c -> c.games.any { folder(it.consoleId).isBlank() } })
     }
 
     // ---- removing what left a collection (only ever after the user confirmed the listed files) ----
