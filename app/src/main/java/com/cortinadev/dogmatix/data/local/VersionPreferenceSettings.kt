@@ -41,11 +41,11 @@ class VersionPreferenceSettings @Inject constructor(
     }
 
     /** The pinned preference for all consoles; null = nothing pinned, the default applies. */
-    val pinned: Flow<VersionPreference?> = context.dataStore.data.map { VersionPreferences.fromJson(it[Keys.PINNED]) }.distinctUntilChanged()
+    val pinned: Flow<VersionPreference?> = context.dataStore.data.map { VersionPreferences.fromJson(it[PersonalPreferences.stringKey(it, VersionPreferences.PINNED_KEY)]) }.distinctUntilChanged()
 
     /** Console id → that console's own regions / languages. */
     val overrides: Flow<Map<String, ConsoleOverride>> =
-        context.dataStore.data.map { VersionPreferences.overridesFromJson(it[Keys.OVERRIDES]) }.distinctUntilChanged()
+        context.dataStore.data.map { VersionPreferences.overridesFromJson(it[PersonalPreferences.stringKey(it, VersionPreferences.OVERRIDES_KEY)]) }.distinctUntilChanged()
 
     /** What applies without anything pinned: the favourite languages, as the app always chose. */
     val default: Flow<VersionPreference> = settingsRepository.favoriteLanguages.map { favourites ->
@@ -69,26 +69,35 @@ class VersionPreferenceSettings @Inject constructor(
         fun of(consoleId: String?): VersionPreference = VersionPreferences.withOverride(global, consoleId?.let { overrides[it] })
     }
 
-    suspend fun snapshot(): Snapshot = Snapshot(global.first(), overrides.first())
+    suspend fun snapshot(): Snapshot {
+        val prefs = context.dataStore.data.first()
+        val device = runCatching { Resources.getSystem().configuration.locales[0] }.getOrNull() ?: Locale.getDefault()
+        val app = runCatching { AppCompatDelegate.getApplicationLocales()[0] }.getOrNull()
+        val favourites = prefs[androidx.datastore.preferences.core.stringSetPreferencesKey(PersonalPreferences.prefix(prefs) + SettingsKeys.FAVORITE_LANGUAGES.name)]
+            ?: setOf("EN", device.language.uppercase(Locale.ROOT))
+        val base = VersionPreferences.fromJson(prefs[PersonalPreferences.stringKey(prefs, VersionPreferences.PINNED_KEY)])
+            ?: VersionPreferences.defaultFor(favourites, app?.language, device.language)
+        return Snapshot(base, VersionPreferences.overridesFromJson(prefs[PersonalPreferences.stringKey(prefs, VersionPreferences.OVERRIDES_KEY)]))
+    }
 
     // ---- Changing it -----------------------------------------------------------------------------
 
     /** Pins [preference] for every console. */
     suspend fun pin(preference: VersionPreference) {
-        context.dataStore.edit { it[Keys.PINNED] = VersionPreferences.toJson(preference) }
+        context.dataStore.edit { it[PersonalPreferences.stringKey(it, VersionPreferences.PINNED_KEY)] = VersionPreferences.toJson(preference) }
     }
 
     /** Back to the default from the favourite languages. */
     suspend fun clearPinned() {
-        context.dataStore.edit { it.remove(Keys.PINNED) }
+        context.dataStore.edit { it.remove(PersonalPreferences.stringKey(it, VersionPreferences.PINNED_KEY)) }
     }
 
     /** Gives [consoleId] its own order; null or an empty [ConsoleOverride] removes it. */
     suspend fun setOverride(consoleId: String, override: ConsoleOverride?) {
         context.dataStore.edit { prefs ->
-            val all = VersionPreferences.overridesFromJson(prefs[Keys.OVERRIDES]).toMutableMap()
+            val all = VersionPreferences.overridesFromJson(prefs[PersonalPreferences.stringKey(prefs, VersionPreferences.OVERRIDES_KEY)]).toMutableMap()
             if (override == null || override.isEmpty) all.remove(consoleId) else all[consoleId] = override
-            if (all.isEmpty()) prefs.remove(Keys.OVERRIDES) else prefs[Keys.OVERRIDES] = VersionPreferences.overridesToJson(all)
+            if (all.isEmpty()) prefs.remove(PersonalPreferences.stringKey(prefs, VersionPreferences.OVERRIDES_KEY)) else prefs[PersonalPreferences.stringKey(prefs, VersionPreferences.OVERRIDES_KEY)] = VersionPreferences.overridesToJson(all)
         }
     }
 }

@@ -130,7 +130,8 @@ fun GamePage(
     onBack: () -> Unit,
     onOpenGame: (consoleId: String, fileName: String) -> Unit,
     onOpenVersionPreference: (() -> Unit)? = null,
-    viewModel: GamePageViewModel = hiltViewModel()
+    viewModel: GamePageViewModel = hiltViewModel(),
+    onReadiness: ((String, String) -> Unit)? = null
 ) {
     LaunchedEffect(consoleId, fileName) { viewModel.load(consoleId, fileName) }
     val phase by viewModel.phase.collectAsState()
@@ -153,7 +154,7 @@ fun GamePage(
         current == null -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 3.dp)
         }
-        else -> GamePageContent(current, viewModel, onBack, onOpenGame, onOpenVersionPreference)
+        else -> GamePageContent(current, viewModel, onBack, onOpenGame, onOpenVersionPreference, onReadiness)
     }
 }
 
@@ -164,7 +165,8 @@ private fun GamePageContent(
     viewModel: GamePageViewModel,
     onBack: () -> Unit,
     onOpenGame: (String, String) -> Unit,
-    onOpenVersionPreference: (() -> Unit)?
+    onOpenVersionPreference: (() -> Unit)?,
+    onReadiness: ((String, String) -> Unit)?
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -393,6 +395,7 @@ private fun GamePageContent(
                 modifier = Modifier.focusRequester(firstFocus),
                 icon = if (busy) R.drawable.ic_downloading else if (owned) R.drawable.ic_controller else R.drawable.ic_download
             )
+            onReadiness?.let { open -> ActionPill(stringResource(R.string.ready25_title), { open(rom.consoleId, rom.fileName) }, icon = R.drawable.ic_controller) }
             if (owned && !downloading) {
                 ActionPill(stringResource(R.string.owned_download_again), { download(item, null) }, icon = R.drawable.ic_download)
                 ActionPill(stringResource(R.string.play_change_handler), { viewModel.gameLauncher.clear(rom.consoleId); play() }, icon = R.drawable.ic_settings)

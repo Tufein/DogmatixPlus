@@ -2,6 +2,18 @@
 
 Public releases follow 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. See [release numbering](docs/releases/numbering.md) for the migration and original APK versions.
 
+## [2.5.0] – 2026-10-08 · Dogmatix+
+
+- Ready-to-play file/disc/BIOS/emulator checks, guided console setup and a test launch.
+- Dynamic collections by console, language tags, cached genre/year and profile played status.
+- Offline quotas in GB, download previews and separate reserve budgets per storage volume.
+- Batch version previews account for downloads, extraction and verified recovery copies.
+- Personal favourites, language/version preferences, emulator choices and action history; existing general-profile data retained.
+- Contextual troubleshooting from failed actions; default recoverable file-explorer removal including nested paths.
+- Backups preserve per-profile favourites/emulators and map collection rules/quotas by name.
+- Stable recovery serialization reads the previous signed release's field aliases.
+- Android build 37, database 14; seven translated interface languages.
+
 ## [2.4.0] – 2026-10-08 · Dogmatix+
 
 - Compatible emulator choices per console, with application-specific launch recipes and explicit installed variants.

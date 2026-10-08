@@ -60,7 +60,8 @@ data class BetterUi(
 class BetterVersionsViewModel @Inject constructor(
     private val service: BetterVersionsService,
     private val settings: BetterVersionsSettings,
-    downloadService: DownloadService
+    downloadService: DownloadService,
+    profiles: com.cortinadev.dogmatix.data.service.ProfileService
 ) : ViewModel() {
 
     private data class Base(
@@ -93,7 +94,21 @@ class BetterVersionsViewModel @Inject constructor(
 
     private var scanJob: Job? = null
 
-    init { rescan() }
+    val preview = MutableStateFlow<com.cortinadev.dogmatix.data.service.UpgradePreview?>(null)
+    private var previewJob: Job? = null
+    fun preview(ids: List<String>, replacing: Boolean) {
+        previewJob?.cancel()
+        preview.value = null
+        previewJob = viewModelScope.launch {
+            try { preview.value = service.preview(startable(ids), replacing) }
+            catch (e: CancellationException) { throw e }
+            catch (_: Exception) { preview.value = com.cortinadev.dogmatix.data.service.UpgradePreview(0, 0, 0, 0, true) }
+        }
+    }
+    init {
+        rescan()
+        viewModelScope.launch { profiles.activeId.collect { rescan() } }
+    }
 
     fun rescan() {
         scanJob?.cancel()
@@ -129,6 +144,7 @@ class BetterVersionsViewModel @Inject constructor(
         if (items.isEmpty()) return
         started(items)
         viewModelScope.launch {
+            if (!service.preview(items, false).fits) { ToastUtil.showError(context, context.getString(R.string.upg25_blocked)); return@launch }
             withContext(Dispatchers.Default) { service.download(items) }
             ToastUtil.showSuccess(context.applicationContext, context.resources.getQuantityString(R.plurals.upg7_download_started, items.size, items.size))
         }
@@ -151,6 +167,7 @@ class BetterVersionsViewModel @Inject constructor(
         }
         started(items)
         viewModelScope.launch {
+            if (!service.preview(items, true).fits) { ToastUtil.showError(context, context.getString(R.string.upg25_blocked)); return@launch }
             withContext(Dispatchers.Default) { service.downloadAndReplace(items, messages) }
             ToastUtil.showSuccess(context.applicationContext, context.resources.getQuantityString(R.plurals.upg7_download_started, items.size, items.size))
         }

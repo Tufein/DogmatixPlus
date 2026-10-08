@@ -59,18 +59,28 @@ import com.cortinadev.dogmatix.util.ConsoleFormatter
  * files that go), or ignored. Gamepad: A selects, X downloads, Y ignores.
  */
 @Composable
-fun BetterVersionsScreen(viewModel: BetterVersionsViewModel = hiltViewModel()) {
+fun BetterVersionsScreen(viewModel: BetterVersionsViewModel = hiltViewModel(), onRecovery: () -> Unit = {}) {
     val ui by viewModel.ui.collectAsState()
     val context = LocalContext.current
 
     // The files named in the confirmation are the ones this screen will ask to be removed.
     var confirmIds by remember { mutableStateOf<List<String>?>(null) }
+    var replace by remember { mutableStateOf(true) }
+    val preview by viewModel.preview.collectAsState()
+    fun ask(ids: List<String>, removeOld: Boolean) { replace = removeOld; confirmIds = ids; viewModel.preview(ids, removeOld) }
     confirmIds?.let { ids ->
         val rows = ui.rows.filter { it.id in ids && it.canDownload }
         if (rows.isEmpty()) confirmIds = null
         else ReplaceDialog(
-            message = stringResource(R.string.upg7_replace_message) + "\n\n" + removalList(rows),
-            onConfirm = { viewModel.downloadAndReplace(context, rows.map { it.id }) },
+            message = (if (replace) stringResource(R.string.upg7_replace_message) + "\n" + stringResource(R.string.upg25_recovery) else stringResource(R.string.upg25_keep)) +
+                "\n\n" + removalList(rows) + "\n\n" + (preview?.let { p ->
+                    stringResource(R.string.upg25_space, formatBytes(p.bytes)) +
+                        (if (p.shortfall > 0) "\n" + stringResource(R.string.upg25_short, formatBytes(p.shortfall)) else "") +
+                        (if (p.unknownSizes > 0 || p.unknownVolumes > 0) "\n" + stringResource(R.string.off25_unknown) else "") +
+                        (if (p.unavailable) "\n" + stringResource(R.string.upg25_blocked) else "")
+                } ?: stringResource(R.string.tools_scanning)),
+            enabled = preview?.fits == true,
+            onConfirm = { if (replace) viewModel.downloadAndReplace(context, rows.map { it.id }) else viewModel.download(context, rows.map { it.id }) },
             onDismiss = { confirmIds = null }
         )
     }
@@ -90,7 +100,7 @@ fun BetterVersionsScreen(viewModel: BetterVersionsViewModel = hiltViewModel()) {
             val row = current.rows.firstOrNull { it.id == focused } ?: return@collect
             if (!row.canDownload || confirmIds != null) return@collect
             when (button) {
-                GamepadButton.X -> viewModel.download(context, listOf(row.id))
+                GamepadButton.X -> ask(listOf(row.id), false)
                 GamepadButton.Y -> viewModel.ignore(context, row.id)
                 else -> Unit
             }
@@ -121,6 +131,7 @@ fun BetterVersionsScreen(viewModel: BetterVersionsViewModel = hiltViewModel()) {
             contentPadding = PaddingValues(bottom = 16.dp),
             modifier = Modifier.fillMaxSize()
         ) {
+            item(key = "recovery") { ToolAction(stringResource(R.string.recovery_title), icon = R.drawable.ic_restore, onClick = onRecovery) }
             item(key = "summary") {
                 ToolRow(
                     title = summary,
@@ -154,8 +165,8 @@ fun BetterVersionsScreen(viewModel: BetterVersionsViewModel = hiltViewModel()) {
                         icon = R.drawable.ic_checkbox_on,
                         below = {
                             ToolsActions(horizontalPadding = 0.dp) {
-                                ToolAction(stringResource(R.string.upg7_sel_download), icon = R.drawable.ic_download, tone = ActionTone.Accent) { viewModel.download(context, ids) }
-                                ToolAction(stringResource(R.string.upg7_sel_replace), icon = R.drawable.ic_trash, tone = ActionTone.Danger) { confirmIds = ids }
+                                ToolAction(stringResource(R.string.upg7_sel_download), icon = R.drawable.ic_download, tone = ActionTone.Accent) { ask(ids, false) }
+                                ToolAction(stringResource(R.string.upg7_sel_replace), icon = R.drawable.ic_trash, tone = ActionTone.Danger) { ask(ids, true) }
                                 ToolAction(stringResource(R.string.upg7_sel_clear), onClick = viewModel::clearSelection)
                             }
                         }
@@ -198,8 +209,8 @@ fun BetterVersionsScreen(viewModel: BetterVersionsViewModel = hiltViewModel()) {
                         leading = { GameCover(s.consoleId, s.owned.coverFileName(), s.title, Modifier.size(width = 42.dp, height = 56.dp)) },
                         below = if (row.canDownload) ({
                             ToolsActions(horizontalPadding = 0.dp) {
-                                ToolAction(stringResource(R.string.upg7_action_download), icon = R.drawable.ic_download, tone = ActionTone.Accent) { viewModel.download(context, listOf(row.id)) }
-                                ToolAction(stringResource(R.string.upg7_action_replace), icon = R.drawable.ic_trash, tone = ActionTone.Danger) { confirmIds = listOf(row.id) }
+                                ToolAction(stringResource(R.string.upg7_action_download), icon = R.drawable.ic_download, tone = ActionTone.Accent) { ask(listOf(row.id), false) }
+                                ToolAction(stringResource(R.string.upg7_action_replace), icon = R.drawable.ic_trash, tone = ActionTone.Danger) { ask(listOf(row.id), true) }
                                 ToolAction(stringResource(R.string.upg7_action_ignore), icon = R.drawable.ic_block) { viewModel.ignore(context, row.id) }
                             }
                         }) else null
@@ -277,7 +288,7 @@ private fun removalList(rows: List<BetterRow>): String {
 
 /** Confirmation that lists what goes; focus starts on Cancel and B cancels, like the other delete dialogs, and a long list scrolls. */
 @Composable
-private fun ReplaceDialog(message: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+private fun ReplaceDialog(message: String, enabled: Boolean, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     val cancelFocus = rememberInitialFocus()
     val scheme = androidx.compose.material3.MaterialTheme.colorScheme
     AlertDialog(
@@ -286,11 +297,11 @@ private fun ReplaceDialog(message: String, onConfirm: () -> Unit, onDismiss: () 
         title = {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 IconTile(R.drawable.ic_trash, size = 36.dp, container = scheme.errorContainer, tint = scheme.onErrorContainer)
-                Text(stringResource(R.string.upg7_replace_title))
+                Text(stringResource(R.string.upg25_title))
             }
         },
         text = { Column(Modifier.verticalScroll(rememberScrollState())) { Text(message) } },
-        confirmButton = { DialogButton(text = stringResource(R.string.upg7_replace_confirm), onClick = { onConfirm(); onDismiss() }) },
+        confirmButton = { DialogButton(text = stringResource(R.string.upg7_action_download), onClick = { onConfirm(); onDismiss() }, enabled = enabled) },
         dismissButton = { DialogButton(text = stringResource(R.string.dialog_cancel), onClick = onDismiss, initialFocus = cancelFocus) }
     )
 }

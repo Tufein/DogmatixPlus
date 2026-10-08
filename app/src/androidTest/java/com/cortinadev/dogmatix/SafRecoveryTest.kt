@@ -62,6 +62,48 @@ class SafRecoveryTest {
         assertEquals("original",StorageHelper.readText(context,source.findFile("Game.gba")!!))
         assertEquals("save progress",StorageHelper.readText(context,save))
     }
+    @Test fun nestedExplorerTrashRestoresSameNamedFilesToTheirOwnFolders() = fixture { source, _, copier ->
+        val one = requireNotNull(source.createDirectory("one"))
+        val two = requireNotNull(source.createDirectory("two"))
+        val first = write(one, "Game.sav", "first progress")
+        val second = write(two, "Game.sav", "second progress")
+        val history = OperationHistoryService(context)
+        val trash = TrashService(context, copier, history, StorageMoveGate(), ActionLogService(context))
+        val title = "nested-${UUID.randomUUID()}"
+        assertEquals(2, trash.move(listOf(
+            RemovalFile(first.uri.toString(), source.uri.toString(), "Game.sav", 14, "one/Game.sav", "one/Game.sav"),
+            RemovalFile(second.uri.toString(), source.uri.toString(), "Game.sav", 15, "two/Game.sav", "two/Game.sav")
+        ), title, directories = listOf(OperationDirectory(source.uri.toString(), "one"), OperationDirectory(source.uri.toString(), "two"))))
+        assertNull(one.findFile("Game.sav"))
+        assertNull(two.findFile("Game.sav"))
+        val op = history.entries.value.first { it.title == title }
+        assertEquals(2, op.files.map { it.target }.distinct().size)
+        // Simulate folders being removed externally after their contents went to recovery.
+        assertTrue(one.delete())
+        assertTrue(two.delete())
+        trash.restore(op.id)
+        assertEquals("first progress", StorageHelper.readText(context, StorageHelper.findFile(source, "one/Game.sav")!!))
+        assertEquals("second progress", StorageHelper.readText(context, StorageHelper.findFile(source, "two/Game.sav")!!))
+    }
+
+    @Test fun failedCopyLeavesAllNestedOriginalsAndSaveDataIntact() = fixture { source, _, copier ->
+        val folder = requireNotNull(source.createDirectory("nested"))
+        val first = write(folder, "First.gba", "first")
+        val second = write(folder, "Fail.gba", "second")
+        val save = write(folder, "Game.srm", "save progress")
+        val history = OperationHistoryService(context)
+        val trash = TrashService(context, copier, history, StorageMoveGate(), ActionLogService(context))
+        context.contentResolver.call(tree, "fixture:fail_read", "Fail.gba", null)
+        assertTrue(runCatching { trash.move(listOf(
+            RemovalFile(first.uri.toString(), source.uri.toString(), "First.gba", 5, "nested/First.gba", "nested/First.gba"),
+            RemovalFile(second.uri.toString(), source.uri.toString(), "Fail.gba", 6, "nested/Fail.gba", "nested/Fail.gba")
+        ), "failed-nested") }.isFailure)
+        context.contentResolver.call(tree, "fixture:fail_read", null, null)
+        assertEquals("first", StorageHelper.readText(context, first))
+        assertEquals("second", StorageHelper.readText(context, second))
+        assertEquals("save progress", StorageHelper.readText(context, save))
+    }
+
     @Test fun changedSourceCannotBeDeletedAfterVerifiedSafCopy() = fixture { source,target,copier ->
         val original=write(source,"Game.gba","original")
         val result=copier.copy(original.uri,target,"Game.gba")

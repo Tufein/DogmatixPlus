@@ -23,6 +23,8 @@ import javax.inject.Singleton
 class OfflineCollectionsSettings @Inject constructor(@param:ApplicationContext private val context: Context) {
 
     private object Keys {
+        val QUOTAS = stringSetPreferencesKey("offline_collections_quotas")
+        val RESERVE = intPreferencesKey("offline_collections_reserve_gb")
         val IDS = stringSetPreferencesKey("offline_collections_ids")
         val CAP = intPreferencesKey("offline_collections_cap")
         val WIFI = booleanPreferencesKey("offline_collections_wifi")
@@ -35,6 +37,18 @@ class OfflineCollectionsSettings @Inject constructor(@param:ApplicationContext p
 
     /** The most games one run queues, so a huge collection never floods the queue. */
     val cap: Flow<Int> = context.dataStore.data.map { OfflineCollections.clampCap(it[Keys.CAP] ?: OfflineCollections.DEFAULT_CAP) }
+    val quotas: Flow<Map<Long, Int>> = context.dataStore.data.map { prefs ->
+        prefs[Keys.QUOTAS].orEmpty().mapNotNull {
+            val bits = it.split(':'); val id = bits.getOrNull(0)?.toLongOrNull(); val gb = bits.getOrNull(1)?.toIntOrNull()
+            if (id != null && gb != null && gb in 1..2048) id to gb else null
+        }.toMap()
+    }
+    val reserveGb: Flow<Int> = context.dataStore.data.map { (it[Keys.RESERVE] ?: 1).coerceIn(0, 100) }
+    suspend fun setQuota(id: Long, gb: Int) { context.dataStore.edit { p ->
+        val others = p[Keys.QUOTAS].orEmpty().filterNot { it.substringBefore(':') == id.toString() }.toSet()
+        p[Keys.QUOTAS] = if (gb <= 0) others else others + "$id:${gb.coerceIn(1, 2048)}"
+    } }
+    suspend fun setReserveGb(gb: Int) { context.dataStore.edit { it[Keys.RESERVE] = gb.coerceIn(0, 100) } }
 
     /** The games it queues wait for an unmetered network (the "download when" condition Wi-Fi). */
     val wifiOnly: Flow<Boolean> = context.dataStore.data.map { it[Keys.WIFI] ?: true }

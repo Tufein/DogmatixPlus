@@ -120,7 +120,7 @@ class SettingsDataStore @Inject constructor(
     val accentColor: Flow<String> = context.dataStore.data.map { it[SettingsKeys.ACCENT_COLOR] ?: "" }
     /** Language tags shown first in the filter; defaults to the device language plus English. */
     val favoriteLanguages: Flow<Set<String>> = context.dataStore.data.map {
-        it[SettingsKeys.FAVORITE_LANGUAGES] ?: defaultFavoriteLanguages()
+        it[stringSetPreferencesKey(PersonalPreferences.prefix(it) + "favorite_languages")] ?: defaultFavoriteLanguages()
     }
     /** Null until DataStore has been read, so the shell is not flashed before the onboarding decision. */
     val onboardingDone: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.ONBOARDING_DONE] ?: false }
@@ -184,7 +184,7 @@ class SettingsDataStore @Inject constructor(
     suspend fun setGamepadLayout(layout: String) = context.dataStore.edit { it[SettingsKeys.GAMEPAD_LAYOUT] = layout }
     suspend fun setSwapFaceButtons(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.SWAP_FACE_BUTTONS] = enabled }
     suspend fun setAccentColor(hex: String) = context.dataStore.edit { it[SettingsKeys.ACCENT_COLOR] = hex }
-    suspend fun setFavoriteLanguages(tags: Set<String>) = context.dataStore.edit { it[SettingsKeys.FAVORITE_LANGUAGES] = tags }
+    suspend fun setFavoriteLanguages(tags: Set<String>) = context.dataStore.edit { it[stringSetPreferencesKey(PersonalPreferences.prefix(it) + "favorite_languages")] = tags }
     suspend fun setOnboardingDone(done: Boolean) = context.dataStore.edit { it[SettingsKeys.ONBOARDING_DONE] = done }
     suspend fun setDebridProvider(provider: DebridProvider) = context.dataStore.edit { it[SettingsKeys.DEBRID_PROVIDER] = provider.name }
     suspend fun setTorboxApiKey(key: String) = context.dataStore.edit { it[SettingsKeys.TORBOX_API_KEY] = key.trim() }

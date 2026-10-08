@@ -86,6 +86,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 /** A starting point of the file explorer: one of the folders the app was given access to. */
@@ -125,7 +126,10 @@ class FileExplorerViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val settings: SettingsRepository,
     private val extractor: ArchiveExtractorService,
-    private val verifiedCopy: com.cortinadev.dogmatix.data.service.VerifiedDocumentCopy
+    private val verifiedCopy: com.cortinadev.dogmatix.data.service.VerifiedDocumentCopy,
+    private val trash: com.cortinadev.dogmatix.data.service.TrashService,
+    private val library: com.cortinadev.dogmatix.data.service.LibraryIndexService,
+    private val moveGate: com.cortinadev.dogmatix.data.service.StorageMoveGate
 ) : ViewModel() {
     private val _state = MutableStateFlow(ExplorerState())
     val state: StateFlow<ExplorerState> = _state.asStateFlow()
@@ -172,7 +176,7 @@ class FileExplorerViewModel @Inject constructor(
     private fun open(path: List<Pair<String, DiskDir>>) {
         _state.update { it.copy(path = path, loading = true, folderSize = null, problems = null) }
         viewModelScope.launch {
-            val entries = withContext(Dispatchers.IO) { DiskScanner.list(context, path.last().second).filterNot { it.name.endsWith(".tmp") && it.name.startsWith(".") } }
+            val entries = withContext(Dispatchers.IO) { DiskScanner.list(context, path.last().second).filterNot { it.name == ".dogmatix-trash" || it.name.endsWith(".tmp") && it.name.startsWith(".") } }
             if (_state.value.path == path) _state.update { it.copy(entries = entries, loading = false) }
         }
     }
@@ -320,13 +324,36 @@ class FileExplorerViewModel @Inject constructor(
         }
     }
 
-    fun delete(context: Context, entry: DiskEntry) {
+    fun delete(context: Context, entry: DiskEntry, permanent: Boolean = false) {
+        if (_state.value.busy != null) return
+        val parent = _state.value.path.lastOrNull()?.second ?: return
         val app = context.applicationContext
+        _state.update { it.copy(busy = app.getString(R.string.files25_trash)) }
         viewModelScope.launch {
-            val ok = withContext(Dispatchers.IO) { DiskScanner.delete(app, entry.uri) }
-            if (ok) ToastUtil.showSuccess(app, app.getString(R.string.duplicates_deleted, entry.name))
-            else ToastUtil.showError(app, app.getString(R.string.duplicates_delete_failed, entry.name))
-            refresh()
+            try {
+                withContext(Dispatchers.IO) {
+                    if (permanent) moveGate.lock.withLock { check(DiskScanner.delete(app, entry.uri)) }
+                    else {
+                        val root = DiskScanner.uriOf(parent).toString()
+                        val files = ArrayList<com.cortinadev.dogmatix.data.service.RemovalFile>()
+                        val dirs = ArrayList<com.cortinadev.dogmatix.data.service.OperationDirectory>()
+                        fun gather(current: DiskEntry, at: DiskDir, path: String, depth: Int) {
+                            check(depth <= 20 && files.size <= 10000) { "Folder too large" }
+                            if (current.isDirectory) {
+                                check(current.name != ".dogmatix-trash") { "Recovery directory" }
+                                dirs += com.cortinadev.dogmatix.data.service.OperationDirectory(root, path)
+                                val sub = DiskScanner.dirOf(at, current)
+                                (DiskScanner.listOrNull(app, sub, true) ?: error("Folder unavailable")).forEach { gather(it, sub, "$path/${it.name}", depth + 1) }
+                            } else files += com.cortinadev.dogmatix.data.service.RemovalFile(current.uri.toString(), root, current.name, current.size, path, path)
+                        }
+                        gather(entry, parent, entry.name, 0)
+                        trash.move(files, entry.name, directories = dirs)
+                    }
+                }
+                ToastUtil.showSuccess(app, app.getString(if (permanent) R.string.duplicates_deleted else if (entry.isDirectory) R.string.files25_folder_stored else R.string.files25_stored, entry.name))
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (_: Exception) { ToastUtil.showError(app, app.getString(R.string.duplicates_delete_failed, entry.name)) }
+            finally { _state.update { it.copy(busy = null) }; library.requestRefresh(); refresh() }
         }
     }
 }
@@ -337,6 +364,7 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
     val context = LocalContext.current
     var selected by remember { mutableStateOf<DiskEntry?>(null) }
     var confirmDelete by remember { mutableStateOf<DiskEntry?>(null) }
+    var permanently by remember { mutableStateOf(false) }
     BackHandler(enabled = !ui.atRoots) { viewModel.up() }
 
     var renaming by remember { mutableStateOf<DiskEntry?>(null) }
@@ -350,7 +378,7 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
         FileDetailsDialog(
             entry = entry,
             onOpen = { selected = null; viewModel.openFile(context, entry) },
-            onDelete = { selected = null; confirmDelete = entry },
+            onDelete = { selected = null; permanently = false; confirmDelete = entry },
             onRename = { selected = null; renaming = entry },
             onMove = { selected = null; viewModel.startMove(entry) },
             onPatch = { selected = null; patching = entry; patchPicker.launch(arrayOf("*/*")) },
@@ -362,14 +390,19 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
         RenameDialog(entry.name, onSave = { viewModel.rename(context, entry, it); renaming = null }, onDismiss = { renaming = null })
     }
     confirmDelete?.let { entry ->
-        ConfirmDialog(
-            title = stringResource(R.string.files_delete_title),
-            message = if (entry.isDirectory) stringResource(R.string.files_delete_folder_message, entry.name)
-            else stringResource(R.string.files_delete_file_message, entry.name, formatBytes(entry.size)),
-            confirmText = stringResource(R.string.duplicates_delete),
-            onConfirm = { viewModel.delete(context, entry) },
-            onDismiss = { confirmDelete = null }
-        )
+        val cancel = rememberInitialFocus()
+        AlertDialog(modifier = Modifier.closeOnGamepadB { confirmDelete = null },
+            onDismissRequest = { confirmDelete = null }, title = { Text(entry.name) },
+            text = { Column {
+                Text(stringResource(if (permanently) R.string.files25_permanent_hint else R.string.files25_trash_hint))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    androidx.compose.material3.Checkbox(permanently, { permanently = it })
+                    Text(stringResource(R.string.files25_permanent))
+                }
+            } },
+            confirmButton = { DialogButton(stringResource(if (permanently) R.string.dialog_delete else R.string.files25_trash),
+                { viewModel.delete(context, entry, permanently); confirmDelete = null }) },
+            dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), { confirmDelete = null }, initialFocus = cancel) })
     }
 
     val firstFocus = remember { FocusRequester() }

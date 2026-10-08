@@ -1,6 +1,7 @@
 package com.cortinadev.dogmatix.data.local
 
 import androidx.room.Database
+import com.cortinadev.dogmatix.data.local.entity.PersonalProfileEntity
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -30,8 +31,8 @@ import com.cortinadev.dogmatix.data.local.entity.ManufacturerEntity
 import com.cortinadev.dogmatix.data.local.queries.DownloadableFileFts
 
 @Database(
-    entities = [ManufacturerEntity::class, ConsoleEntity::class, DownloadableFileEntity::class, FileTagEntity::class, DownloadableFileFts::class, DownloadHistoryEntity::class, GameMetadataEntity::class, FavouriteEntity::class, WishlistEntity::class, CollectionEntity::class, CollectionItemEntity::class, DatSetEntity::class, DatRomEntity::class, CoverEntity::class],
-    version = 13,
+    entities = [ManufacturerEntity::class, ConsoleEntity::class, DownloadableFileEntity::class, FileTagEntity::class, DownloadableFileFts::class, DownloadHistoryEntity::class, GameMetadataEntity::class, FavouriteEntity::class, WishlistEntity::class, CollectionEntity::class, CollectionItemEntity::class, DatSetEntity::class, DatRomEntity::class, CoverEntity::class, PersonalProfileEntity::class],
+    version = 14,
     exportSchema = false
 )
 abstract class DogmatixDatabase : RoomDatabase() {
@@ -47,6 +48,16 @@ abstract class DogmatixDatabase : RoomDatabase() {
     abstract fun coverDao(): CoverDao
 
     companion object {
+        val MIGRATION_13_14 = object : Migration(13, 14) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE favourites_v14 (consoleId TEXT NOT NULL, fileName TEXT NOT NULL, addedAt INTEGER NOT NULL, profileId TEXT NOT NULL DEFAULT '', PRIMARY KEY(consoleId, fileName, profileId))")
+                db.execSQL("INSERT INTO favourites_v14 (consoleId, fileName, addedAt) SELECT consoleId, fileName, addedAt FROM favourites")
+                db.execSQL("DROP TABLE favourites")
+                db.execSQL("ALTER TABLE favourites_v14 RENAME TO favourites")
+                db.execSQL("CREATE TABLE personal_profile (id INTEGER NOT NULL PRIMARY KEY, activeId TEXT NOT NULL)")
+                db.execSQL("INSERT INTO personal_profile VALUES (0, '')")
+            }
+        }
         /** 5.0: covers found for library games (see CoverEntity). */
         val MIGRATION_12_13 = object : Migration(12, 13) {
             override fun migrate(db: SupportSQLiteDatabase) {

@@ -25,6 +25,8 @@ import javax.inject.Inject
 
 /** Everything the collections screen shows about "Keep on this device". */
 data class OfflineData(
+    val quotas: Map<Long, Int> = emptyMap(),
+    val reserveGb: Int = 1,
     val kept: Set<Long> = emptySet(),
     val cap: Int = OfflineCollections.DEFAULT_CAP,
     val wifiOnly: Boolean = true,
@@ -39,8 +41,12 @@ class OfflineCollectionsViewModel @Inject constructor(
 ) : ViewModel() {
 
     val data: StateFlow<OfflineData> = combine(service.keptIds, service.cap, service.wifiOnly, service.lastRun, service.state) { kept, cap, wifi, last, state ->
-        OfflineData(kept, cap, wifi, last, state)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), OfflineData())
+        OfflineData(kept = kept, cap = cap, wifiOnly = wifi, last = last, state = state)
+    }.let { base -> combine(base, service.quotas, service.reserveGb) { data, quotas, reserve -> data.copy(quotas = quotas, reserveGb = reserve) } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), OfflineData())
+
+    fun setQuota(id: Long, gb: Int) = service.setQuota(id, gb)
+    fun setReserveGb(gb: Int) = service.setReserveGb(gb)
 
     private val _removal = MutableStateFlow<RemovalPlan?>(null)
     /** The files a removal would delete, while the confirmation is up. */
@@ -52,7 +58,15 @@ class OfflineCollectionsViewModel @Inject constructor(
     }
 
     fun setKept(id: Long, on: Boolean) = service.setKept(id, on)
-    fun fetchNow() = service.fetchNow()
+    private val _preview = MutableStateFlow<List<OfflineCollections.Pick>?>(null)
+    val fetchPreview = _preview.asStateFlow()
+    fun askFetch() { viewModelScope.launch { service.preview(); _preview.value = service.state.value.planned } }
+    fun dismissFetch() { _preview.value = null }
+    fun confirmFetch() {
+        val picks = _preview.value ?: return
+        _preview.value = null
+        service.fetchNow(picks.map { it.game }.toSet())
+    }
     fun setCap(cap: Int) = service.setCap(cap)
     fun setWifiOnly(on: Boolean) = service.setWifiOnly(on)
 

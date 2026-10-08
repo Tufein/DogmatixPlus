@@ -158,6 +158,20 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ---
 
+### Nieuw in 2.5.0
+
+- **Speelklaarcontrole** op de spelpagina: bestanden, discs, BIOS, emulatorinstelling en een teststart.
+- **Slimme collecties** met regels voor console, taaltags, genre, jaar en speelstatus.
+- **Offline limieten in GB** met downloadvoorbeeld en vrijeruimtereserve per opslagvolume.
+- **Versie-upgrades in groepen** met vergelijking, ruimtecontrole en herstelbare oude bestanden.
+- **Persoonlijke profielen** met eigen favorieten, taal-/versieregels, emulators en actiegeschiedenis.
+- **Hulp bij fouten** vanuit de actiegeschiedenis en standaard **herstelbaar verwijderen** in de bestandsverkenner.
+- Back-ups bewaren profielvoorkeuren en emulatorkeuzes; collectieregels en limieten volgen de collectienaam bij herstel.
+- Android build **37**, database **14**. De update vanaf 2.4.0 behoudt favorieten en herstelgegevens.
+
+De definitieve APK staat bij [release 2.5.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.5.0).
+Ruimteberekeningen blijven schattingen bij onbekende groottes. Lege bronmappen blijven staan na herstelbaar verwijderen. Controleer echte emulators en externe diensten op je eigen toestel.
+
 ### Nieuw in 2.4.0
 
 Kies een geïnstalleerde emulator per console, vergelijk gameversies met bewaarde taal-, regio- en revisievoorkeuren en doorzoek de actiegeschiedenis. Herstel verwijderde spellen of download ze opnieuw vanuit de geschiedenis. Herstelkopieën behouden hun oorspronkelijke pad en kosten ruimte totdat je de prullenbak leegt.

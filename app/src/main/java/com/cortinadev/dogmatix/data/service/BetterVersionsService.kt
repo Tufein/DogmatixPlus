@@ -56,6 +56,10 @@ data class BetterSuggestion(
 data class BetterScan(val folderSet: Boolean, val gamesChecked: Int, val suggestions: List<BetterSuggestion>)
 
 /** The messages of a removal, resolved by the screen (it carries the in-app language) before the work starts. */
+data class UpgradePreview(val bytes: Long, val shortfall: Long, val unknownSizes: Int, val unknownVolumes: Int, val unavailable: Boolean) {
+    val fits get() = shortfall == 0L && !unavailable
+}
+
 data class ReplaceMessages(val removed: String, val kept: String, val failed: String)
 
 /** How the "download, then remove the old file" of one suggestion stands. */
@@ -79,11 +83,14 @@ class BetterVersionsService @Inject constructor(
     private val datService: DatService,
     private val settingsRepository: SettingsRepository,
     private val settings: BetterVersionsSettings,
-    private val versionPreference: VersionPreferenceService
+    private val versionPreference: VersionPreferenceService,
+    private val preferences: com.cortinadev.dogmatix.data.local.VersionPreferenceSettings,
+    private val profiles: ProfileService,
+    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    private class Pending(val suggestion: BetterSuggestion, val messages: ReplaceMessages)
+    private class Pending(val suggestion: BetterSuggestion, val messages: ReplaceMessages, val profile: String)
 
     /** Pending removals by the file name of the download they wait for. */
     private val pending = ConcurrentHashMap<String, Pending>()
@@ -126,13 +133,15 @@ class BetterVersionsService @Inject constructor(
             settingsRepository.consoleDownloadDirectories.first().isNotEmpty()
         val snapshot = scanService.scan()
         val games = DuplicateFinder.entries(snapshot.files).filter { eligible(it) && versionPreference.preferred(it.consoleId.orEmpty(), it.baseName) == null }
+        val restrictions = profiles.current()
+        val pref = preferences.snapshot()
         val reports = datService.reports.value
         val ownedKeys = libraryIndex.ownedKeys.value
         val ignored = settings.ignored.first()
         val out = ArrayList<BetterSuggestion>()
         for ((consoleId, group) in games.groupBy { it.consoleId!! }) {
             ensureActive()
-            val rows = fileDao.filesOf(consoleId)
+            val rows = fileDao.filesOf(consoleId).filter { restrictions.allows(consoleId, fileDao.tagsOf(it.id)) }
             if (rows.isEmpty()) continue
             val rowById = rows.associateBy { it.id.toString() }
             val offers = rows.map { BetterVersions.Offer(it.id.toString(), consoleId, FileParsingUtils.decodeUrlEncodedFileName(it.fileName)) }
@@ -145,10 +154,17 @@ class BetterVersionsService @Inject constructor(
                 CollectionGoals.isOwned(scopes, row.fileName, ownedKeys) || downloadService.isActive(row.fileName)
             }
             for (m in matches) {
+                val candidate = rowById.getValue(m.offer.id)
+                val ranking = com.cortinadev.dogmatix.util.VersionCompare.rank(listOf(
+                    com.cortinadev.dogmatix.util.VersionCompare.Version("old", m.owned.name),
+                    com.cortinadev.dogmatix.util.VersionCompare.Version("new", FileParsingUtils.decodeUrlEncodedFileName(candidate.fileName), fileDao.tagsOf(candidate.id), candidate.fileSize)
+                ), pref.of(consoleId))
+                if (ranking.firstOrNull()?.version?.id != "new") continue
                 out += BetterSuggestion(m.owned.id + "::" + m.offer.id, consoleId, byId.getValue(m.owned.id), rowById.getValue(m.offer.id), m.upgrade)
             }
         }
-        BetterScan(folderSet, games.size, out)
+        val unambiguous = out.groupBy { it.candidate.fileName }.values.filter { group -> group.map { it.consoleId }.distinct().size == 1 }.map { it.first() }
+        BetterScan(folderSet, games.size, unambiguous)
     }
 
     /** A game worth comparing: known console, a real game (not a playlist, not a BIOS). */
@@ -174,22 +190,66 @@ class BetterVersionsService @Inject constructor(
     // ---- Downloading -------------------------------------------------------------------------
 
     /** Starts the downloads of [items]; nothing is removed. */
-    fun download(items: List<BetterSuggestion>) {
-        if (items.isNotEmpty()) downloadService.startDownloads(items.map { it.candidate })
+    suspend fun download(items: List<BetterSuggestion>) {
+        if (items.isNotEmpty() && allowed(items)) downloadService.startDownloads(items.map { it.candidate })
     }
 
     /**
      * Starts the downloads of [items] and, for each, removes the old file once the new one is
      * complete and checked. [messages] belong to each suggestion by id.
      */
-    fun downloadAndReplace(items: List<BetterSuggestion>, messages: Map<String, ReplaceMessages>) {
-        if (items.isEmpty()) return
+    suspend fun downloadAndReplace(items: List<BetterSuggestion>, messages: Map<String, ReplaceMessages>) {
+        if (items.isEmpty() || !allowed(items)) return
         for (item in items) {
             val m = messages[item.id] ?: continue
-            pending[item.candidate.fileName] = Pending(item, m)
+            pending[item.candidate.fileName] = Pending(item, m, profiles.activeId.value)
             setState(item.id, ReplaceState.WAITING)
         }
         downloadService.startDownloads(items.map { it.candidate })
+    }
+
+    private suspend fun allowed(items: List<BetterSuggestion>): Boolean {
+        val restrictions = profiles.current()
+        return items.all { s -> restrictions.allows(s.consoleId, fileDao.tagsOf(s.candidate.id)) &&
+            versionPreference.preferred(s.consoleId, s.owned.baseName) == null }
+    }
+
+    suspend fun preview(items: List<BetterSuggestion>, replacing: Boolean): UpgradePreview = withContext(Dispatchers.IO) {
+        val root = settingsRepository.downloadDirectory.first()
+        val folders = settingsRepository.consoleDownloadDirectories.first()
+        val reserves = appSettings.minFreeGb.first().toLong() * 1024 * 1024 * 1024
+        fun folder(console: String) = folders[console]?.takeIf { it.isNotBlank() } ?: root
+        fun volume(uri: String): String = runCatching {
+            val parsed = android.net.Uri.parse(uri)
+            parsed.authority + ":" + android.provider.DocumentsContract.getTreeDocumentId(parsed).substringBefore(':')
+        }.getOrDefault(uri)
+        val queue = downloadService.getDownloads().filter { it.status in setOf(DownloadStatus.QUEUED, DownloadStatus.DOWNLOADING, DownloadStatus.COPYING, DownloadStatus.UNZIPPING, DownloadStatus.PAUSED) }
+            .groupBy { volume(folder(downloadService.entityFor(it.fileName)?.consoleId.orEmpty())) }.mapValues { (_, rows) -> com.cortinadev.dogmatix.util.SpaceMath.sum(rows.map { item ->
+                com.cortinadev.dogmatix.util.SpaceMath.add(
+                    (item.fileSize - item.downloadedBytes).coerceAtLeast(0),
+                    if (com.cortinadev.dogmatix.util.StorageInsights.isExtractable(item.fileName.substringAfterLast('.'))) item.fileSize else 0L)
+            }) }
+        var unknownVolumes = 0
+        var short = 0L
+        var needed = 0L
+        val missingFolder = items.any { folder(it.consoleId).isBlank() }
+        for ((_, group) in items.groupBy { volume(folder(it.consoleId)) }) {
+            val uri = folder(group.first().consoleId)
+            val required = com.cortinadev.dogmatix.util.SpaceMath.sum(group.map { s -> com.cortinadev.dogmatix.util.OfflineCollections.need(
+                com.cortinadev.dogmatix.util.OfflineCollections.Offer(s.candidate.fileSize,
+                    com.cortinadev.dogmatix.util.StorageInsights.isExtractable(s.candidate.fileExtension))) .let { need ->
+                    com.cortinadev.dogmatix.util.SpaceMath.add(need, if (replacing) s.owned.size else 0L)
+                } })
+            needed = com.cortinadev.dogmatix.util.SpaceMath.add(needed, required)
+            val free = com.cortinadev.dogmatix.util.StorageHelper.getFreeBytes(context, uri)
+            if (free == null) unknownVolumes++
+            else {
+                val reserve = com.cortinadev.dogmatix.util.SpaceMath.add(reserves, queue[volume(uri)] ?: 0)
+                val available = com.cortinadev.dogmatix.util.SpaceMath.available(free, reserve, com.cortinadev.dogmatix.util.OfflineCollections.SPACE_MARGIN).coerceAtLeast(0)
+                short = com.cortinadev.dogmatix.util.SpaceMath.add(short, (required - available).coerceAtLeast(0))
+            }
+        }
+        UpgradePreview(needed, short, items.count { it.candidate.fileSize <= 0 }, unknownVolumes, missingFolder || !allowed(items))
     }
 
     // ---- Removing the old file ---------------------------------------------------------------
@@ -197,7 +257,7 @@ class BetterVersionsService @Inject constructor(
     private suspend fun finishReplace(p: Pending) {
         val s = p.suggestion
         val outcome = try {
-            decide(s)
+            if (profiles.activeId.value != p.profile || !allowed(listOf(s))) ReplaceState.KEPT else decide(s)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {

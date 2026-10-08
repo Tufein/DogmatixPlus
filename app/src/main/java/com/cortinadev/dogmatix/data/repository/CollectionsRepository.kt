@@ -45,6 +45,8 @@ class CollectionsRepository @Inject constructor(private val dao: CollectionDao) 
         return !inIt
     }
 
+    suspend fun identities(): Map<Long, String> = dao.getAll().associate { it.id to it.name }
+
     /** All collections with their games, for an export. */
     suspend fun export(): List<SourceCollection> {
         val items = dao.getAllItems().groupBy { it.collectionId }

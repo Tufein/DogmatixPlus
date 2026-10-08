@@ -12,6 +12,9 @@ import com.cortinadev.dogmatix.util.SearchNormalizer
 @Dao
 interface DownloadableFileDao {
 
+    @Query("SELECT COUNT(*) FROM downloadable_files")
+    fun observeLibraryChanges(): kotlinx.coroutines.flow.Flow<Int>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFiles(files: List<DownloadableFileEntity>)
 
@@ -51,6 +54,7 @@ interface DownloadableFileDao {
           ))
           AND (:favouritesOnly = 0 OR EXISTS (
                 SELECT 1 FROM favourites f WHERE f.consoleId = df.consoleId AND f.fileName = df.fileName
+                AND f.profileId = COALESCE((SELECT activeId FROM personal_profile WHERE id = 0), '')
           ))
           AND (:newSince = 0 OR df.firstSeenAt >= :newSince)
           AND (:hiddenConsolesCount = 0 OR df.consoleId NOT IN (:hiddenConsoles))

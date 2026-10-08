@@ -55,6 +55,13 @@ interface CollectionDao {
     @Query("DELETE FROM collection_items WHERE collectionId = :collectionId")
     suspend fun clearItems(collectionId: Long)
 
+    @Transaction
+    suspend fun replaceItems(id: Long, items: List<CollectionItemEntity>) {
+        if (itemsOf(id).map { it.consoleId to it.fileName }.toSet() == items.map { it.consoleId to it.fileName }.toSet()) return
+        clearItems(id)
+        addItems(items)
+    }
+
     @Query("DELETE FROM collections WHERE id = :id")
     suspend fun deleteCollection(id: Long)
 

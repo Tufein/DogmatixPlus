@@ -16,14 +16,21 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.filterNotNull
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.cortinadev.dogmatix.data.local.dao.FavouriteDao
+import com.cortinadev.dogmatix.data.local.entity.PersonalProfileEntity
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * The profiles and which one is active. [restrictions] is what the library query leaves out;
  * switching away from a restricted profile asks for the PIN when one is set.
  */
 @Singleton
-class ProfileService @Inject constructor(private val settings: AppSettings) {
+class ProfileService @Inject constructor(private val settings: AppSettings, private val favourites: FavouriteDao) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val switchLock = Mutex()
+    init { scope.launch { settings.activeProfile.collect { switchLock.withLock { favourites.setActive(PersonalProfileEntity(activeId = settings.activeProfile.first())) } } } }
 
     val profiles: StateFlow<List<Profile>> = settings.profiles.map { Profiles.fromJson(it) }
         .stateIn(scope, SharingStarted.Eagerly, emptyList())
@@ -41,26 +48,41 @@ class ProfileService @Inject constructor(private val settings: AppSettings) {
      * The restrictions once the stored settings are read — the library waits for this, so the
      * first screen after starting the app never shows what a profile hides (no blocking read at startup).
      */
-    suspend fun current(): LibraryRestrictions = loaded.filterNotNull().first()
+    suspend fun current(): LibraryRestrictions = combine(settings.profiles, settings.activeProfile) { json, id ->
+        Profiles.restrictionsOf(Profiles.fromJson(json), id)
+    }.first()
 
     val pinHash: StateFlow<String> = settings.profilePinHash.stateIn(scope, SharingStarted.Eagerly, "")
 
     suspend fun save(profile: Profile) {
-        val others = profiles.value.filterNot { it.id == profile.id }
+        val others = Profiles.fromJson(settings.profiles.first()).filterNot { it.id == profile.id }
         settings.setProfiles(Profiles.toJson(others + profile))
     }
 
     suspend fun delete(id: String) {
-        settings.setProfiles(Profiles.toJson(profiles.value.filterNot { it.id == id }))
-        if (activeId.value == id) settings.setActiveProfile("")
+        switchLock.withLock {
+            settings.setProfiles(Profiles.toJson(Profiles.fromJson(settings.profiles.first()).filterNot { it.id == id }))
+            if (settings.activeProfile.first() == id) {
+                favourites.setActive(PersonalProfileEntity(activeId = ""))
+                settings.setActiveProfile("")
+            }
+            favourites.deleteProfile(id)
+        }
     }
 
     /** Switches to [id] ("" = everything). Leaving a restricted profile needs [pin] when a PIN is set; false when it is wrong. */
     suspend fun switchTo(id: String, pin: String = ""): Boolean {
-        val leavingRestricted = current().active && id != activeId.value
-        if (leavingRestricted && !Profiles.pinMatches(pin, settings.profilePinHash.first())) return false
-        settings.setActiveProfile(id)
-        return true
+        return switchLock.withLock {
+            val stored = settings.activeProfile.first()
+            val all = Profiles.fromJson(settings.profiles.first())
+            if (id.isNotEmpty() && all.none { it.id == id }) return@withLock false
+            val leavingRestricted = Profiles.restrictionsOf(all, stored).active && id != stored
+            if (leavingRestricted && !Profiles.pinMatches(pin, settings.profilePinHash.first())) return@withLock false
+            favourites.setActive(PersonalProfileEntity(activeId = id))
+            try { settings.setActiveProfile(id) }
+            catch (e: Exception) { favourites.setActive(PersonalProfileEntity(activeId = stored)); throw e }
+            true
+        }
     }
 
     /** Sets the PIN (empty removes it). Only allowed while no restricted profile is active. */

@@ -56,7 +56,8 @@ data class ActionHistoryUi(
 class ActionHistoryViewModel @Inject constructor(
     private val log: ActionLogService,
     private val undoService: ActionUndoService,
-    journal: OperationHistoryService
+    journal: OperationHistoryService,
+    private val profiles: com.cortinadev.dogmatix.data.service.ProfileService
 ) : ViewModel() {
 
     private val filter = MutableStateFlow(ActionFilter.ALL)
@@ -110,7 +111,7 @@ class ActionHistoryViewModel @Inject constructor(
         }
     }
 
-    val ui: StateFlow<ActionHistoryUi> = combine(log.entries, filter, query, available, busy) { lines, f, q, undo, busyKey ->
+    val ui: StateFlow<ActionHistoryUi> = combine(combine(log.entries, profiles.activeId) { all, profile -> all?.filter { it.profileId == profile } }, filter, query, available, busy) { lines, f, q, undo, busyKey ->
         if (lines == null) return@combine ActionHistoryUi(loading = true, filter = f, query = q)
         val newestFirst = lines.asReversed()
         val filtered = ActionHistory.filter(newestFirst, f, q)
