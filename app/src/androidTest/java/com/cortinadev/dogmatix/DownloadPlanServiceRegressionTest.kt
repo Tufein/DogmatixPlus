@@ -10,9 +10,11 @@ import com.cortinadev.dogmatix.util.DownloadCondition
 import com.cortinadev.dogmatix.util.DownloadPlan
 import com.cortinadev.dogmatix.util.DownloadPlanItem
 import com.cortinadev.dogmatix.util.DownloadPlanStatus
+import com.cortinadev.dogmatix.util.DownloadPlans
 import com.cortinadev.dogmatix.util.Profile
 import com.cortinadev.dogmatix.util.Profiles
 import com.cortinadev.dogmatix.util.SourcesJson
+import com.cortinadev.dogmatix.ui.screens.download.DownloadPlanViewModel
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -119,6 +121,187 @@ class DownloadPlanServiceRegressionTest {
             assertTrue(after.items.all { it.condition == null })
             assertTrue(files.none { f.graph.downloads().isTransferring(it.fileName) })
             assertEquals(original, f.settingsSnapshot())
+        }
+    }
+
+    @Test fun hrefExportOmitsCredentialsAndImportUsesReceiverNamesUrlsAndConditions() = runBlocking {
+        fixture { f ->
+            val dao = f.graph.database().downloadableFileDao()
+            val downloads = f.graph.downloads()
+            // Occupy the only slot under the global hold. A WIFI condition then remains
+            // registered regardless of the emulator's actual network capabilities.
+            val blocker = f.file("blocker.zip")
+            dao.insertFiles(listOf(blocker))
+            downloads.startDownload(blocker)
+            eventually { blocker.fileName in downloads.waitingFiles.value }
+
+            val basenames = listOf(f.name("query%20Game.zip"), f.name("relative.zip"), f.name("absolute.zip"))
+            val senderNames = listOf(
+                basenames[0] + "?token=SENDER_QUERY_SECRET",
+                "./" + basenames[1],
+                "https://sender:SENDER_USERINFO_SECRET@sender.invalid/library/" + basenames[2] + "?token=SENDER_QUERY_SECRET"
+            )
+            val senders = senderNames.mapIndexed { i, raw ->
+                f.names += raw
+                DownloadableFileEntity(name = if (i == 0 || i == 2) raw else "Relative game", fileName = raw,
+                    consoleId = f.console, downloadUrl = f.visibleSource + "/" + basenames[i],
+                    sourceUrl = f.visibleSource, fileSize = 1024L)
+            }
+            downloads.startDownloads(senders, f.condition(2))
+            eventually { senders.all { it.fileName in downloads.itemWaits.value } }
+            val exported = f.graph.plans().export(senderNames.toSet())
+            val json = DownloadPlans.encode(exported)
+            assertEquals(basenames, exported.items.map { it.fileName })
+            assertFalse(json.contains("SENDER_"))
+            assertFalse(json.contains("sender.invalid"))
+            assertFalse(json.contains("https://"))
+            assertEquals(basenames[0], exported.items[0].displayName)
+            assertEquals(basenames[2], exported.items[2].displayName)
+            senderNames.forEach { downloads.deleteDownload(it, deleteFile = false) }
+            eventually { downloads.downloads.value.none { it.fileName in senderNames } }
+
+            val receiverNames = listOf(
+                "./" + basenames[0] + "?token=RECEIVER_QUERY_SECRET",
+                "folder/" + basenames[1] + "?auth=RECEIVER_QUERY_SECRET",
+                f.visibleSource + "/" + basenames[2] + "?key=RECEIVER_QUERY_SECRET"
+            )
+            val receivers = receiverNames.mapIndexed { i, raw ->
+                f.names += raw
+                DownloadableFileEntity(name = "Receiving game $i", fileName = raw, consoleId = f.console,
+                    downloadUrl = f.visibleSource + "/" + basenames[i] + "?token=RECEIVER_QUERY_SECRET",
+                    sourceUrl = f.visibleSource, fileSize = 1024L)
+            }
+            dao.insertFiles(receivers)
+            val wifi = DownloadCondition(ConditionKind.WIFI)
+            val received = DownloadPlan(exported.items.mapIndexed { i, item -> item.copy(condition = if (i == 0) wifi else f.condition(3)) })
+            val preview = f.graph.plans().preview(received)
+            assertEquals(3, preview.readyCount)
+            assertEquals(3, f.graph.plans().confirm(received).readyCount)
+            assertEquals(wifi, downloads.itemConditions.value[receiverNames[0]])
+            assertFalse(basenames[0] in downloads.itemConditions.value)
+            receivers.forEach { receiver ->
+                assertEquals(receiver.fileName, downloads.entityFor(receiver.fileName)?.fileName)
+                assertEquals(receiver.downloadUrl, downloads.entityFor(receiver.fileName)?.downloadUrl)
+            }
+            assertTrue(receivers.none { downloads.isTransferring(it.fileName) })
+            assertTrue(f.graph.plans().preview(received).rows.all { it.status == DownloadPlanStatus.ALREADY_QUEUED })
+        }
+    }
+
+    @Test fun differentLocalFoldersWithTheSamePortableNameAreNotChosenAutomatically() = runBlocking {
+        fixture { f ->
+            val basename = f.name("ambiguous.zip")
+            val rows = listOf("folderA", "folderB").map { folder ->
+                val raw = "$folder/$basename?token=RECEIVER_SECRET"
+                f.names += raw
+                DownloadableFileEntity(name = "Matching title", fileName = raw, consoleId = f.console,
+                    downloadUrl = f.visibleSource + "/" + raw, sourceUrl = f.visibleSource, fileSize = 1024L)
+            }
+            f.graph.database().downloadableFileDao().insertFiles(rows)
+            val plan = DownloadPlan(listOf(DownloadPlanItem(f.console, basename, "Ambiguous game", f.condition(2))))
+            val preview = f.graph.plans().preview(plan)
+            assertEquals(DownloadPlanStatus.AMBIGUOUS, preview.rows.single().status)
+            assertEquals(0, f.graph.plans().confirm(plan).readyCount)
+            assertTrue(rows.none { f.graph.downloads().entityFor(it.fileName) != null })
+        }
+    }
+
+    @Test fun disabledAndRestrictedVariantsCannotTurnAnAmbiguousNameIntoAnotherDownload() = runBlocking {
+        fixture { f ->
+            val dao = f.graph.database().downloadableFileDao()
+            for (restricted in listOf(false, true)) {
+                val basename = f.name(if (restricted) "restricted-variant.zip" else "disabled-variant.zip")
+                val originalSource = if (restricted) f.hiddenSource else f.disabledSource
+                val original = DownloadableFileEntity(name = "Original variant", fileName = "original/$basename",
+                    consoleId = f.console, downloadUrl = originalSource + "/original/" + basename,
+                    sourceUrl = originalSource, fileSize = 1024L)
+                val replacement = original.copy(id = 0, name = "Different variant", fileName = "replacement/$basename",
+                    downloadUrl = f.visibleSource + "/replacement/" + basename, sourceUrl = f.visibleSource)
+                f.names += original.fileName
+                f.names += replacement.fileName
+                dao.insertFiles(listOf(original, replacement))
+                if (restricted) {
+                    val row = dao.filesByFileNames(listOf(original.fileName)).single()
+                    dao.insertTags(listOf(FileTagEntity(row.id, "Adult")))
+                }
+                val plan = DownloadPlan(listOf(DownloadPlanItem(f.console, basename, "Original variant", f.condition(2))))
+                assertEquals(DownloadPlanStatus.AMBIGUOUS, f.graph.plans().preview(plan).rows.single().status)
+                assertEquals(0, f.graph.plans().confirm(plan).readyCount)
+                assertEquals(null, f.graph.downloads().entityFor(replacement.fileName))
+            }
+        }
+    }
+
+    @Test fun portableLookupCrossesPageBoundariesAndFailsClosedForExcessiveCopies() = runBlocking {
+        fixture { f ->
+            val dao = f.graph.database().downloadableFileDao()
+            val filler = (0 until 400).map { index ->
+                DownloadableFileEntity(name = "Unrelated $index", fileName = "unrelated-$index.zip", consoleId = f.console,
+                    downloadUrl = f.visibleSource + "/unrelated-$index.zip", sourceUrl = f.visibleSource)
+            }
+            dao.insertFiles(filler)
+            val basename = f.name("after-page.zip")
+            val actual = DownloadableFileEntity(name = "After page", fileName = "./$basename?token=RECEIVER_SECRET",
+                consoleId = f.console, downloadUrl = f.visibleSource + "/" + basename + "?token=RECEIVER_SECRET",
+                sourceUrl = f.visibleSource)
+            dao.insertFiles(listOf(actual))
+            val item = DownloadPlanItem(f.console, basename, "After page", f.condition(2))
+            assertEquals(DownloadPlanStatus.READY, f.graph.plans().preview(DownloadPlan(listOf(item))).rows.single().status)
+            val copies = (0 until 32).map { index -> actual.copy(id = 0, fileName = "$basename?token=OTHER_$index",
+                downloadUrl = f.visibleSource + "/" + basename + "?token=OTHER_$index") }
+            dao.insertFiles(copies)
+            assertEquals(DownloadPlanStatus.AMBIGUOUS, f.graph.plans().preview(DownloadPlan(listOf(item))).rows.single().status)
+            assertEquals(0, f.graph.plans().confirm(DownloadPlan(listOf(item))).readyCount)
+        }
+    }
+
+    @Test fun duplicateExportKeepsMatchingMirrorsAndReportsConflictingGroupsWithoutLosingValidRows() = runBlocking {
+        fixture { f ->
+            val downloads = f.graph.downloads()
+            val duplicate = f.name("matching-mirror.zip")
+            val differentFolder = f.name("different-folder.zip")
+            val differentSchedule = f.name("different-schedule.zip")
+            val valid = f.name("valid.zip")
+            fun row(raw: String, missingSource: Boolean = false): DownloadableFileEntity {
+                f.names += raw
+                return DownloadableFileEntity(name = "Export test", fileName = raw, consoleId = f.console,
+                    downloadUrl = if (raw.startsWith("https://")) raw else f.visibleSource + "/" + raw,
+                    sourceUrl = if (missingSource) "" else f.visibleSource, fileSize = 1024L)
+            }
+            // These different raw names describe the same source-relative file and schedule.
+            // The missing sourceUrl case uses the configured source prefix, as old queue rows do.
+            val first = row("./$duplicate", missingSource = true)
+            val mirror = row(f.visibleSource + "/$duplicate?token=RECEIVER_SECRET", missingSource = true)
+            val folderA = row("A/$differentFolder?token=RECEIVER_SECRET")
+            val folderB = row("B/$differentFolder?token=RECEIVER_SECRET")
+            val scheduleA = row("./$differentSchedule?token=A")
+            val scheduleB = row(f.visibleSource + "/$differentSchedule?token=B")
+            val last = row(valid)
+            val rows = listOf(first, folderA, scheduleA, mirror, folderB, scheduleB, last)
+            val conditions = rows.associate { it.fileName to if (it === scheduleB) f.condition(3) else f.condition(2) }
+            downloads.startDownloads(rows, conditions)
+            eventually { rows.all { it.fileName in downloads.itemWaits.value } }
+            val selected = rows.mapTo(HashSet()) { it.fileName }
+            val prepared = f.graph.plans().prepareExport(selected)
+            assertEquals(listOf(duplicate, valid), prepared.plan.items.map { it.fileName })
+            assertEquals(conditions[first.fileName], prepared.plan.items.first().condition)
+            assertEquals(4, prepared.skippedCount)
+            assertFalse(DownloadPlans.encode(prepared.plan).contains("RECEIVER_SECRET"))
+            assertEquals(prepared.plan, f.graph.plans().export(selected))
+
+            val model = DownloadPlanViewModel(f.graph.plans())
+            var pickerCalls = 0
+            model.exportFile(selected) { pickerCalls++ }
+            eventually { !model.ui.value.busy && pickerCalls == 1 }
+            assertEquals(4, model.ui.value.exportSkipped)
+            model.savePending(null) // Cancelling the system picker must not hide the omissions.
+            model.clearMessage()
+            assertEquals(4, model.ui.value.exportSkipped)
+            assertTrue(rows.none { downloads.isTransferring(it.fileName) })
+            val unusable = runCatching {
+                f.graph.plans().prepareExport(setOf(folderA.fileName, folderB.fileName, scheduleA.fileName, scheduleB.fileName))
+            }
+            assertTrue(unusable.exceptionOrNull() is IllegalArgumentException)
         }
     }
 

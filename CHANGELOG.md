@@ -11,6 +11,8 @@ Public releases follow 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. See [release numbering](
 - Share/import reviewed download plans with ordered selections and per-item conditions, using receiver-local sources and settings.
 - Profile-scoped emulator variants/cores per game, effective-choice readiness checks and backup support.
 - Seven translated interfaces, Android build 38 and database migration 14 → 15.
+- Credential-free portable plan identities support relative/absolute source links and reject ambiguous recipient files; imported scheduling follows the recipient's actual filename.
+- Retry settings are observed safely from startup; readiness displays and tests the effective emulator for each playable file.
 
 ## [2.5.0] – 2026-10-08 · Dogmatix+
 

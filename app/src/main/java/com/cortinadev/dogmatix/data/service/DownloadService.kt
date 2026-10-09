@@ -244,6 +244,9 @@ class DownloadService @Inject constructor(
         userActionListeners.forEach { it(fileName) }
     }
 
+    // Startup collectors can handle stored settings before the rest of the constructor finishes.
+    private val startLock = Any()
+
     // Single supervised scope for all internal coroutines — tied to this singleton's lifetime
     // so jobs are not orphaned if the service is destroyed.
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -331,8 +334,6 @@ class DownloadService @Inject constructor(
             restored.complete(Unit)
         }
     }
-
-    private val startLock = Any()
 
     fun startDownload(file: DownloadableFileEntity, condition: DownloadCondition? = null) = startDownloads(listOf(file), condition)
 

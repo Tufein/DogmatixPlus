@@ -88,4 +88,62 @@ class DownloadPlansTest {
         assertEquals(listOf(DownloadPlanStatus.MISSING), DownloadPlans.statuses(DownloadPlan(listOf(first)), availability, emptySet()))
         assertTrue(DownloadPlans.decode("\uFEFF${DownloadPlans.encode(plan)}").items == plan.items)
     }
+
+    @Test fun `listing href identities become portable without credentials or decoded percent names`() {
+        for (href in listOf(
+            "Game%20Name.zip?token=SENDER_SECRET#fragment",
+            "./Game%20Name.zip?token=SENDER_SECRET",
+            "subdir/Game%20Name.zip?password=SENDER_SECRET",
+            "https://user:SENDER_SECRET@sender.invalid/library/Game%20Name.zip?token=SENDER_SECRET",
+            "//sender.invalid/library/Game%20Name.zip?token=SENDER_SECRET"
+        )) assertEquals("Game%20Name.zip", DownloadPlans.portableFileName(href))
+        assertEquals("Game Name.zip", DownloadPlans.portableFileName("Game Name.zip"))
+        assertEquals("Literal%2520Name.zip", DownloadPlans.portableFileName("Literal%2520Name.zip"))
+        assertEquals(null, DownloadPlans.portableFileName("https://user:SECRET@sender.invalid/"))
+        assertEquals(null, DownloadPlans.portableFileName("../"))
+
+        val href = "https://user:SENDER_SECRET@sender.invalid/Game.zip?token=SENDER_SECRET"
+        val name = requireNotNull(DownloadPlans.portableFileName(href))
+        val item = first.copy(fileName = name, displayName = DownloadPlans.portableDisplayName(href, href, name))
+        val encoded = DownloadPlans.encode(DownloadPlan(listOf(item)))
+        assertFalse(encoded.contains("SENDER_SECRET"))
+        assertFalse(encoded.contains("sender.invalid"))
+        assertFalse(encoded.contains("https://"))
+        assertEquals("Game.zip", DownloadPlans.decode(encoded).items.single().displayName)
+    }
+
+    @Test fun `plan schema rejects address and query credentials even inside allowed text fields`() {
+        for (unsafe in listOf(
+            first.copy(fileName = "Game.zip?token=SECRET"),
+            first.copy(fileName = "Game.zip#SECRET"),
+            first.copy(displayName = "https://user:SECRET@sender.invalid/Game.zip"),
+            first.copy(displayName = "Download https://user:SECRET@sender.invalid/Game.zip"),
+            first.copy(displayName = "Game.zip?token=SECRET")
+        )) assertThrows(IllegalArgumentException::class.java) { DownloadPlans.encode(DownloadPlan(listOf(unsafe))) }
+        val good = DownloadPlans.encode(DownloadPlan(listOf(first)))
+        for (unsafe in listOf(
+            good.replace("Game (Europe).zip", "Game.zip?token=SECRET"),
+            good.replace("\"displayName\":\"Game\"", "\"displayName\":\"https://user:SECRET@sender.invalid/Game.zip\"")
+        )) assertThrows(IllegalArgumentException::class.java) { DownloadPlans.decode(unsafe) }
+    }
+
+    @Test fun `receiver distinguishes folder collisions but recognizes matching mirror paths`() {
+        assertEquals("subdir/Game.zip", DownloadPlans.localLocation("./subdir/Game.zip?token=A", "https://a.invalid/library"))
+        assertEquals("subdir/Game.zip", DownloadPlans.localLocation("https://b.invalid/other/subdir/Game.zip?token=B", "https://b.invalid/other"))
+        assertFalse(DownloadPlans.localLocation("A/Game.zip", "") == DownloadPlans.localLocation("B/Game.zip", ""))
+        val availability = mapOf(first.key to DownloadPlanAvailability(true, true, ambiguous = true))
+        assertEquals(listOf(DownloadPlanStatus.AMBIGUOUS), DownloadPlans.statuses(DownloadPlan(listOf(first)), availability, emptySet()))
+    }
+
+    @Test fun `queue collision checks use the original receiving names`() {
+        val other = first.copy(consoleId = "sony_psp")
+        val localName = "./${first.fileName}?token=RECEIVER"
+        val availability = listOf(first, other).associate { it.key to DownloadPlanAvailability(true, true, queueFileName = localName) }
+        assertEquals(listOf(DownloadPlanStatus.ALREADY_QUEUED),
+            DownloadPlans.statuses(DownloadPlan(listOf(first)), availability, setOf(localName)))
+        assertEquals(listOf(DownloadPlanStatus.READY, DownloadPlanStatus.NAME_CONFLICT),
+            DownloadPlans.statuses(DownloadPlan(listOf(first, other)), availability, emptySet()))
+        assertEquals(listOf(DownloadPlanStatus.ALREADY_QUEUED), DownloadPlans.statuses(DownloadPlan(listOf(first)),
+            mapOf(first.key to DownloadPlanAvailability(true, true, alreadyQueued = true)), emptySet()))
+    }
 }

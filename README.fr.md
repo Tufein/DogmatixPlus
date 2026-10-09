@@ -158,6 +158,14 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ---
 
+### Nouveautés de 2.6.0
+
+- Nouvelle tentative automatique avec compte à rebours et annulation ; les informations sur les erreurs restent disponibles après redémarrage.
+- Enregistrez des préréglages de téléchargement et choisissez une autre source après confirmation.
+- Partagez des plans avec leur ordre et leurs conditions. Le destinataire utilise ses propres sources ; les jetons d'accès ne sont pas partagés.
+- Choisissez un émulateur par jeu et vérifiez le choix effectif pour chaque fichier jouable.
+- Android build **38**, base de données **15**. La [version signée 2.6.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.6.0) met à jour 2.5.0 en conservant les données.
+
 ### Nouveautés de 2.4.0
 
 Choisissez un émulateur installé par console, comparez les versions avec des préférences de langue, région et révision et recherchez dans les actions. Restaurez les jeux retirés ou téléchargez-les depuis l’historique. Les copies gardent leurs chemins d’origine et occupent de l’espace jusqu’au vidage de la corbeille.

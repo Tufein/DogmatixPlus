@@ -158,6 +158,14 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ---
 
+### Novedades en 2.6.0
+
+- Reintento automático con cuenta atrás y cancelación; la información de los errores se conserva al reiniciar.
+- Guarda ajustes de descarga y elige otra fuente tras confirmarlo.
+- Comparte planes con su orden y condiciones. El destinatario usa sus propias fuentes; los tokens de acceso no se comparten.
+- Elige un emulador por juego y comprueba la selección efectiva para cada archivo jugable.
+- Android build **38**, base de datos **15**. La [versión firmada 2.6.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.6.0) actualiza 2.5.0 conservando los datos.
+
 ### Novedades en 2.4.0
 
 Elige un emulador instalado por consola, compara versiones con preferencias de idioma, región y revisión y busca en el historial de acciones. Restaura juegos eliminados o descárgalos de nuevo desde el historial. Las copias conservan sus rutas originales y ocupan espacio hasta vaciar la papelera.

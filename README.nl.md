@@ -33,6 +33,14 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 2.6.0
+
+- Automatisch opnieuw proberen met aftellen, direct opnieuw proberen en annuleren; foutinformatie blijft na herstart beschikbaar.
+- Bewaar downloadpresets en kies na bevestiging een andere bron voor een download.
+- Deel downloadplannen met volgorde en voorwaarden. De ontvanger gebruikt eigen bronnen; toegangstokens worden niet meegestuurd.
+- Bewaar een emulator per spel en controleer de werkelijke keuze per speelbaar bestand.
+- Android build **38**, database **15**. De [ondertekende release 2.6.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.6.0) werkt 2.5.0 bij met behoud van gegevens.
+
 ### Nieuw in 2.3.0
 
 - Zoek downloads op titel of bestandsnaam, filter op status en voer batchacties uit op de resultaten. Zet wachtende selecties samen vooraan.

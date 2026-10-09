@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream
 import java.io.StringReader
 import java.nio.ByteBuffer
 import java.nio.charset.CodingErrorAction
+import java.net.URI
 
 /** Portable queue identities and per-item scheduling. Addresses and local paths never belong here. */
 data class DownloadPlanItem(
@@ -23,14 +24,18 @@ data class DownloadPlanItem(
 
 data class DownloadPlan(val items: List<DownloadPlanItem>)
 
-enum class DownloadPlanStatus { READY, MISSING, UNAVAILABLE, RESTRICTED, ALREADY_QUEUED, OWNED, NAME_CONFLICT }
+enum class DownloadPlanStatus { READY, MISSING, UNAVAILABLE, RESTRICTED, ALREADY_QUEUED, OWNED, NAME_CONFLICT, AMBIGUOUS }
 
 /** Local facts, evaluated again at confirmation so stale previews cannot bypass restrictions. */
 data class DownloadPlanAvailability(
     val indexed: Boolean,
     val sourceAvailable: Boolean = false,
     val allowed: Boolean = true,
-    val owned: Boolean = false
+    val owned: Boolean = false,
+    /** Queue slots use the receiving index's original name, which can include a path or query. */
+    val queueFileName: String? = null,
+    val alreadyQueued: Boolean = false,
+    val ambiguous: Boolean = false
 )
 
 object DownloadPlans {
@@ -38,6 +43,52 @@ object DownloadPlans {
     const val VERSION = 1
     const val MAX_ITEMS = 3_000
     const val MAX_BYTES = 2 * 1024 * 1024
+    private val addressPrefix = Regex("^[A-Za-z][A-Za-z0-9+.-]*://")
+
+    /**
+     * A listing may store its raw href as the file identity. Only the final path component is
+     * portable: hosts, user-info, folders, fragments and query credentials never leave the device.
+     * Keep percent escapes literal; a real `Game%20Name.zip` is not `Game Name.zip`.
+     */
+    fun portableFileName(indexedName: String): String? {
+        val path = linkPath(indexedName) ?: return null
+        val name = path.substringAfterLast('/').substringAfterLast('\\')
+        return name.takeIf { it.safeFileName() }
+    }
+
+    /** Distinguishes different folders locally; this value is never exported. */
+    fun localLocation(indexedName: String, sourceUrl: String): String? {
+        val path = linkPath(indexedName) ?: return null
+        val relative = if (isAddress(indexedName)) {
+            val sourcePath = runCatching { URI(sourceUrl).rawPath }.getOrNull()?.trimEnd('/').orEmpty()
+            if (sourcePath.isNotEmpty() && path.startsWith("$sourcePath/")) path.removePrefix("$sourcePath/")
+            else path.trimStart('/')
+        } else path.trimStart('/')
+        return relative.replace('\\', '/').split('/').filter { it.isNotEmpty() && it != "." }.joinToString("/")
+    }
+
+    /** Raw link text used as a title must not reintroduce the omitted address or credentials. */
+    fun portableDisplayName(displayName: String, indexedName: String, fileName: String): String =
+        displayName.takeIf {
+            it.validText(512) && !isAddress(it) && '?' !in it && '#' !in it && '/' !in it && '\\' !in it &&
+                (it != indexedName || indexedName == fileName)
+        } ?: fileName.take(512)
+
+    private fun isAddress(value: String) = value.startsWith("//") ||
+        addressPrefix.containsMatchIn(value)
+
+    private fun linkPath(value: String): String? {
+        if (!value.validText(16_384)) return null
+        val withoutSecrets = value.substringBefore('?').substringBefore('#')
+        if (!isAddress(withoutSecrets)) return withoutSecrets
+        // HTTP listings can contain spaces, so do not require URI parsing just to omit an authority.
+        val authorityAndPath = if (withoutSecrets.startsWith("//")) withoutSecrets.drop(2)
+            else withoutSecrets.substringAfter("://")
+        return authorityAndPath.substringAfter('/', "").takeIf { it.isNotEmpty() }?.let { "/$it" }
+    }
+
+    private fun String.safeFileName() = validText(1024) && this !in setOf(".", "..") &&
+        none { it == '/' || it == '\\' || it == '?' || it == '#' } && !isAddress(this)
 
     /** Array order is the relative order; no device-global queue positions are exported. */
     fun encode(plan: DownloadPlan): String {
@@ -119,13 +170,15 @@ object DownloadPlans {
         val reserved = mutableSetOf<String>()
         return plan.items.map { item ->
             val local = availability[item.key]
+            val queueName = local?.queueFileName ?: item.fileName
             when {
                 local == null || !local.indexed -> DownloadPlanStatus.MISSING
                 !local.allowed -> DownloadPlanStatus.RESTRICTED
-                item.fileName in existingNames -> DownloadPlanStatus.ALREADY_QUEUED
+                local.alreadyQueued || queueName in existingNames -> DownloadPlanStatus.ALREADY_QUEUED
                 local.owned -> DownloadPlanStatus.OWNED
+                local.ambiguous -> DownloadPlanStatus.AMBIGUOUS
                 !local.sourceAvailable -> DownloadPlanStatus.UNAVAILABLE
-                !reserved.add(item.fileName) -> DownloadPlanStatus.NAME_CONFLICT
+                !reserved.add(queueName) -> DownloadPlanStatus.NAME_CONFLICT
                 else -> DownloadPlanStatus.READY
             }
         }
@@ -136,8 +189,9 @@ object DownloadPlans {
         val seen = mutableSetOf<Pair<String, String>>()
         plan.items.forEach { item ->
             require(item.consoleId.validText(128) && item.consoleId.all { it.isLetterOrDigit() || it == '_' || it == '-' })
-            require(item.fileName.validText(1024) && item.fileName !in setOf(".", "..") && '/' !in item.fileName && '\\' !in item.fileName)
+            require(item.fileName.safeFileName())
             require(item.displayName.validText(512))
+            require(!isAddress(item.displayName) && item.displayName.none { it == '?' || it == '#' || it == '/' || it == '\\' })
             require(seen.add(item.key)) { "Duplicate game" }
             item.condition?.let { condition ->
                 require(condition.minuteOfDay in 0..1439)

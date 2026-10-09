@@ -3,6 +3,7 @@ package com.cortinadev.dogmatix
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
@@ -10,6 +11,8 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
@@ -43,6 +46,7 @@ class DownloadPresetsUiTest {
         compose.runOnIdle { assertEquals("Evening", saved?.name); assertEquals(options, saved?.options) }
     }
 
+    @OptIn(androidx.compose.ui.test.ExperimentalTestApi::class)
     @Test fun controllerBClosesTheEditorWithoutApplyingIt() {
         var closed = false
         var saved = false
@@ -54,8 +58,8 @@ class DownloadPresetsUiTest {
         InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_DPAD_DOWN)
         compose.onNodeWithText(context.getString(R.string.dialog_cancel))
             .performSemanticsAction(SemanticsActions.RequestFocus) { it() }.assertIsFocused()
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BUTTON_B)
-        compose.waitUntil(3000) { closed }
+            // Route B through this dialog's focused root, independent of native window timing.
+            .performKeyInput { pressKey(Key.ButtonB) }
         compose.runOnIdle { assertTrue(closed); assertFalse(saved) }
     }
 }

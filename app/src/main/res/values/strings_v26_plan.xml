@@ -20,4 +20,9 @@
     <string name="plan26_import_failed">This plan could not be read or applied. Choose a valid Dogmatix download-plan JSON file of at most 2 MiB.</string>
     <string name="plan26_imported">%1$d games added to the queue</string>
     <string name="plan26_saved">Download plan saved</string>
+    <string name="plan26_ambiguous">Several different files match this name on this device; nothing will be queued</string>
+    <plurals name="plan26_export_skipped">
+        <item quantity="one">Last plan: %1$d download skipped. Check its filename and conditions.</item>
+        <item quantity="other">Last plan: %1$d downloads skipped. Check their filenames and conditions.</item>
+    </plurals>
 </resources>

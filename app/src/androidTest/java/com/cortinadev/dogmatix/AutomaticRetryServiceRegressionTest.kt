@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix
 
+import android.content.Intent
 import android.os.SystemClock
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
@@ -45,8 +46,12 @@ class AutomaticRetryServiceRegressionTest {
         val baseTree = DocumentsContract.buildTreeDocumentUri("com.tufein.dogmatixplus.test.storage", "root")
         val root = requireNotNull(DocumentFile.fromTreeUri(context, baseTree)?.createDirectory(console))
         val tree = DocumentsContract.buildTreeDocumentUri(baseTree.authority, DocumentsContract.getDocumentId(root.uri))
+        val fixtureContext = InstrumentationRegistry.getInstrumentation().context
+        val grantFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
         val names = (0 until 3).map { "$console-$it.gba" }
         try {
+            fixtureContext.grantUriPermission(context.packageName, tree, grantFlags)
+            assertTrue("Retry fixture must be writable before testing HTTP failures", requireNotNull(DocumentFile.fromTreeUri(context, tree)).canWrite())
             repository.updateConsoleDownloadDirectory(console, tree.toString())
             repository.setConcurrentDownloads(3)
             repository.setDownloadWifiOnly(false)
@@ -108,18 +113,22 @@ class AutomaticRetryServiceRegressionTest {
                 assertNotNull(globallyCanceled.failureAt)
             }
         } finally {
-            names.forEach { downloads.deleteDownload(it, deleteFile = false) }
-            eventually { downloads.downloads.value.none { it.fileName in names } }
-            repository.updateConsoleDownloadDirectory(console, "")
-            repository.setConcurrentDownloads(slotsBefore)
-            repository.setDownloadWifiOnly(wifiBefore)
-            repository.setDownloadChargingOnly(chargingBefore)
-            repository.setDownloadNightOnly(nightBefore)
-            settings.setMinFreeGb(freeBefore)
-            settings.setAutoRetryFailed(autoBefore)
-            downloads.gate.setHeld(heldBefore)
-            eventually { downloads.gate.held.value == heldBefore }
-            root.delete()
+            try {
+                names.forEach { downloads.deleteDownload(it, deleteFile = false) }
+                eventually { downloads.downloads.value.none { it.fileName in names } }
+                repository.updateConsoleDownloadDirectory(console, "")
+                repository.setConcurrentDownloads(slotsBefore)
+                repository.setDownloadWifiOnly(wifiBefore)
+                repository.setDownloadChargingOnly(chargingBefore)
+                repository.setDownloadNightOnly(nightBefore)
+                settings.setMinFreeGb(freeBefore)
+                settings.setAutoRetryFailed(autoBefore)
+                downloads.gate.setHeld(heldBefore)
+                eventually { downloads.gate.held.value == heldBefore }
+                root.delete()
+            } finally {
+                fixtureContext.revokeUriPermission(tree, grantFlags)
+            }
         }
     }
 
