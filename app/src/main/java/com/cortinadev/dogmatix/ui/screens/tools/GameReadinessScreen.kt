@@ -29,7 +29,8 @@ import javax.inject.Inject
 
 data class ReadyRow(val label: Int, val message: Int, val ok: Boolean, val fix: String?)
 data class ReadyUi(val loading: Boolean = true, val rows: List<ReadyRow> = emptyList(),
-    val games: List<GameLaunch> = emptyList(), val selected: String? = null, val result: Int? = null)
+    val games: List<GameLaunch> = emptyList(), val selected: String? = null, val result: Int? = null,
+    val gameOverride: String? = null, val consoleDefault: String? = null, val missingGameOverride: Boolean = false)
 
 @HiltViewModel
 class GameReadinessViewModel @Inject constructor(
@@ -69,22 +70,32 @@ class GameReadinessViewModel @Inject constructor(
                     val report = if (biosSystems.isEmpty()) null else bios.check(true)
                     val biosOk = report == null || report.results.filter { it.system.name in biosSystems }.all { it.allGood }
                     val handlers = games.any { it.handlers.isNotEmpty() }
+                    val resolution = games.firstOrNull { it.handlers.isNotEmpty() }?.let { launcher.effective(console, name, it) }
                     ReadyUi(false, listOf(
                         ReadyRow(R.string.ready25_files, if (readable) R.string.ready25_ok else R.string.ready25_missing, readable, NavRoutes.Files.route),
                         ReadyRow(R.string.ready25_discs, if (sheetsOk) R.string.ready25_ok else R.string.ready25_disc_problem, sheetsOk, NavRoutes.Sets.route),
                         ReadyRow(R.string.ready25_bios, if (biosOk) R.string.ready25_ok else R.string.ready25_bios_problem, biosOk, NavRoutes.Bios.route),
                         ReadyRow(R.string.ready25_emulator, if (handlers) R.string.ready25_choose else R.string.ready25_no_emulator, handlers, NavRoutes.Settings.route)
-                    ), games, launcher.preferred(console))
+                    ), games, selected = resolution?.handler?.key, gameOverride = launcher.gamePreferred(console, name),
+                        consoleDefault = launcher.preferred(console), missingGameOverride = resolution?.missingGameOverride == true)
                 }
                 _ui.value = next
             } catch (e: CancellationException) { throw e }
             catch (_: Exception) { _ui.value = ReadyUi(false, listOf(ReadyRow(R.string.ready25_files, R.string.ready25_missing, false, NavRoutes.Files.route))) }
         }
     }
-    fun select(console: String, key: String) {
+    fun select(console: String, name: String, key: String, forGame: Boolean) {
         if (_ui.value.games.none { game -> game.handlers.any { it.key == key } }) return
-        launcher.setPreferred(console, key)
-        _ui.update { it.copy(selected = key, result = R.string.ready25_saved) }
+        if (forGame) launcher.setGamePreferred(console, name, key) else launcher.setPreferred(console, key)
+        val current = _ui.value
+        val resolution = current.games.firstOrNull { it.handlers.isNotEmpty() }?.let { launcher.effective(console, name, it) }
+        _ui.update { it.copy(selected = resolution?.handler?.key, result = R.string.ready25_saved,
+            gameOverride = launcher.gamePreferred(console, name), consoleDefault = launcher.preferred(console),
+            missingGameOverride = resolution?.missingGameOverride == true) }
+    }
+    fun useConsole(console: String, name: String) { launcher.setGamePreferred(console, name, null); check(console, name) }
+    fun testPreferred(context: Context, console: String, name: String, game: GameLaunch) {
+        launcher.effective(console, name, game).handler?.let { test(context, console, game, it) }
     }
     fun test(context: Context, console: String, game: GameLaunch, handler: GameHandler) {
         if (_ui.value.loading || _ui.value.rows.any { !it.ok && it.label != R.string.ready25_bios }) return
@@ -108,6 +119,7 @@ fun GameReadinessScreen(console: String, name: String, onNavigate: (String) -> U
     val context = LocalContext.current
     val first = rememberInitialFocus()
     val active by vm.activeProfile.collectAsState()
+    var rememberForGame by remember(console, name, active) { mutableStateOf(false) }
     LaunchedEffect(console, name, active) { vm.check(console, name) }
     Column(Modifier.fillMaxSize().padding(12.dp)) {
         ToolsTitle(stringResource(R.string.ready25_title), icon = R.drawable.ic_controller, subtitle = name)
@@ -121,15 +133,24 @@ fun GameReadinessScreen(console: String, name: String, onNavigate: (String) -> U
             if (!ui.loading) item {
                 Text(stringResource(R.string.ready25_wizard), style = MaterialTheme.typography.bodyMedium)
                 Text(stringResource(R.string.ready25_core_hint), style = MaterialTheme.typography.bodySmall)
+                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Checkbox(rememberForGame, { rememberForGame = it })
+                    Text(stringResource(R.string.play26_remember_game), style = MaterialTheme.typography.bodySmall)
+                }
+                if (!rememberForGame) Text(stringResource(R.string.play_remember), style = MaterialTheme.typography.bodySmall)
+                if (ui.missingGameOverride) Text(stringResource(R.string.play26_missing), color = MaterialTheme.colorScheme.error)
+                if (ui.gameOverride != null) ActionPill(stringResource(R.string.play26_use_console), { vm.useConsole(console, name) }, icon = R.drawable.ic_settings)
             }
             ui.games.forEach { game -> item {
                 Text(game.name, style = MaterialTheme.typography.titleSmall)
                 game.handlers.forEach { handler ->
-                    ToolRow(handler.label, emptyList(), onClick = { vm.select(console, handler.key) },
+                    ToolRow(handler.label, emptyList(), onClick = { vm.select(console, name, handler.key, rememberForGame) },
                         icon = if (ui.selected == handler.key) R.drawable.ic_check else R.drawable.ic_controller) {
                         ActionPill(stringResource(R.string.ready25_test), { vm.test(context, console, game, handler) }, icon = R.drawable.ic_controller, enabled = !ui.loading && ui.rows.filter { it.label != R.string.ready25_bios }.all { it.ok })
                     }
                 }
+                if (game.handlers.any { it.key == ui.selected }) ActionPill(stringResource(R.string.play26_test_effective), { vm.testPreferred(context, console, name, game) }, icon = R.drawable.ic_controller,
+                    enabled = !ui.loading && ui.rows.filter { it.label != R.string.ready25_bios }.all { it.ok })
             } }
             ui.result?.let { message -> item { Text(stringResource(message)) } }
         }

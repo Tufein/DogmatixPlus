@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="play26_game_title">Emulador para este jogo</string>
+    <string name="play26_game_hint">Escolha um emulador instalado e um núcleo para este jogo. Os outros jogos mantêm a escolha predefinida da consola.</string>
+    <string name="play26_effective">Escolha ativa: %1$s</string>
+    <string name="play26_missing">O emulador deste jogo não está disponível. É usada a escolha predefinida da consola; escolha outro emulador ou restaure a predefinição.</string>
+    <string name="play26_use_console">Usar a escolha da consola</string>
+    <string name="play26_remember_game">Guardar apenas para este jogo</string>
+    <string name="play26_test_effective">Testar a escolha ativa</string>
+    <string name="play26_remember_choice">Guardar esta escolha</string>
+</resources>

@@ -32,7 +32,7 @@ import com.cortinadev.dogmatix.data.local.queries.DownloadableFileFts
 
 @Database(
     entities = [ManufacturerEntity::class, ConsoleEntity::class, DownloadableFileEntity::class, FileTagEntity::class, DownloadableFileFts::class, DownloadHistoryEntity::class, GameMetadataEntity::class, FavouriteEntity::class, WishlistEntity::class, CollectionEntity::class, CollectionItemEntity::class, DatSetEntity::class, DatRomEntity::class, CoverEntity::class, PersonalProfileEntity::class],
-    version = 14,
+    version = 15,
     exportSchema = false
 )
 abstract class DogmatixDatabase : RoomDatabase() {
@@ -48,6 +48,15 @@ abstract class DogmatixDatabase : RoomDatabase() {
     abstract fun coverDao(): CoverDao
 
     companion object {
+        /** 2.6: safe download failure reasons survive process death. Existing rows remain readable. */
+        val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE download_history ADD COLUMN failureCategory TEXT DEFAULT NULL")
+                db.execSQL("ALTER TABLE download_history ADD COLUMN failureHttpStatusCode INTEGER DEFAULT NULL")
+                db.execSQL("ALTER TABLE download_history ADD COLUMN failureAt INTEGER DEFAULT NULL")
+            }
+        }
+
         val MIGRATION_13_14 = object : Migration(13, 14) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("CREATE TABLE favourites_v14 (consoleId TEXT NOT NULL, fileName TEXT NOT NULL, addedAt INTEGER NOT NULL, profileId TEXT NOT NULL DEFAULT '', PRIMARY KEY(consoleId, fileName, profileId))")

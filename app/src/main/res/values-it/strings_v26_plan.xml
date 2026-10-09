@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plan26_title">Piano di download</string>
+    <string name="plan26_hint">Condividi i download selezionati in attesa, in pausa o non riusciti, oppure la coda senza selezione. I trasferimenti attivi e i file completati sono esclusi.</string>
+    <string name="plan26_export">Esporta piano</string>
+    <string name="plan26_share">Condividi piano</string>
+    <string name="plan26_import">Importa piano</string>
+    <string name="plan26_review">Verifica piano di download</string>
+    <string name="plan26_review_hint">Vengono aggiunti solo i giochi disponibili nell’ordine del piano. Restano valide le tue fonti, lo spazio e le regole generali. Gli orari mantengono il momento originale.</string>
+    <string name="plan26_count">È possibile aggiungere %1$d di %2$d giochi</string>
+    <string name="plan26_enqueue">Aggiungi %1$d alla coda</string>
+    <string name="plan26_ready">Pronto da aggiungere</string>
+    <string name="plan26_missing">Non indicizzato su questo dispositivo</string>
+    <string name="plan26_unavailable">Nessuna fonte abilitata disponibile</string>
+    <string name="plan26_restricted">Nascosto dal profilo attivo</string>
+    <string name="plan26_already_queued">Già presente in Download</string>
+    <string name="plan26_owned">Già presente su questo dispositivo</string>
+    <string name="plan26_name_conflict">Un’altra console usa già questo nome di file nel piano</string>
+    <string name="plan26_export_failed">Nessun download idoneo o esportazione non riuscita. Seleziona download in attesa, in pausa o non riusciti (massimo 3.000).</string>
+    <string name="plan26_import_failed">Impossibile leggere o applicare il piano. Scegli un file JSON valido di piano Dogmatix di massimo 2 MiB.</string>
+    <string name="plan26_imported">%1$d giochi aggiunti alla coda</string>
+    <string name="plan26_saved">Piano di download salvato</string>
+</resources>

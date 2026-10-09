@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="presets26_title">Preajustes de descarga</string>
+    <string name="presets26_settings_hint">Guarda y aplica juntos los límites y las condiciones de descarga.</string>
+    <string name="presets26_hint">Los preajustes se aplican a todos los perfiles de este dispositivo. Las carpetas, las cuentas y los planes por descarga se conservan. Las descargas en curso continúan; las condiciones regulan los nuevos inicios.</string>
+    <string name="presets26_current">Ajustes actuales</string>
+    <string name="presets26_save_current">Guardar ajustes actuales</string>
+    <string name="presets26_edit">Editar preajuste</string>
+    <string name="presets26_delete">Eliminar preajuste</string>
+    <string name="presets26_daytime">Día tranquilo</string>
+    <string name="presets26_night">Noche al máximo</string>
+    <string name="presets26_speed_value">%1$d KB/s</string>
+    <string name="presets26_summary">%1$s · %2$d simultáneas</string>
+    <string name="presets26_wifi">Solo wifi</string>
+    <string name="presets26_charging">Durante la carga</string>
+    <string name="presets26_night_only">Solo en horario nocturno</string>
+    <string name="presets26_window">%1$s–%2$s</string>
+    <string name="presets26_day_limit">Quitar el límite de velocidad de noche</string>
+    <string name="presets26_start">Inicio nocturno</string>
+    <string name="presets26_end">Fin nocturno</string>
+    <string name="presets26_name">Nombre del preajuste</string>
+    <string name="presets26_edit_hint">Elige los ajustes que deseas guardar. El preajuste los aplica juntos.</string>
+    <string name="presets26_loading">Cargando preajustes…</string>
+    <string name="presets26_applied">Preajuste aplicado</string>
+    <string name="presets26_saved">Preajuste guardado</string>
+    <string name="presets26_deleted">Preajuste eliminado</string>
+    <string name="presets26_failed">No se pudo guardar o aplicar el preajuste. Inténtalo de nuevo.</string>
+</resources>

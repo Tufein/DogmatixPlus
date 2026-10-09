@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="presets26_title">Préréglages de téléchargement</string>
+    <string name="presets26_settings_hint">Enregistrez et appliquez ensemble les limites et les conditions de téléchargement.</string>
+    <string name="presets26_hint">Les préréglages concernent tous les profils de cet appareil. Les dossiers, comptes et plans individuels restent inchangés. Les téléchargements en cours continuent ; les conditions règlent les nouveaux départs.</string>
+    <string name="presets26_current">Réglages actuels</string>
+    <string name="presets26_save_current">Enregistrer les réglages actuels</string>
+    <string name="presets26_edit">Modifier le préréglage</string>
+    <string name="presets26_delete">Supprimer le préréglage</string>
+    <string name="presets26_daytime">Journée tranquille</string>
+    <string name="presets26_night">Nuit au maximum</string>
+    <string name="presets26_speed_value">%1$d Ko/s</string>
+    <string name="presets26_summary">%1$s · %2$d simultanés</string>
+    <string name="presets26_wifi">Wi-Fi uniquement</string>
+    <string name="presets26_charging">Pendant la charge</string>
+    <string name="presets26_night_only">Uniquement la nuit</string>
+    <string name="presets26_window">%1$s–%2$s</string>
+    <string name="presets26_day_limit">Lever la limite de vitesse la nuit</string>
+    <string name="presets26_start">Début de nuit</string>
+    <string name="presets26_end">Fin de nuit</string>
+    <string name="presets26_name">Nom du préréglage</string>
+    <string name="presets26_edit_hint">Choisissez les réglages à enregistrer. Le préréglage les applique ensemble.</string>
+    <string name="presets26_loading">Chargement des préréglages…</string>
+    <string name="presets26_applied">Préréglage appliqué</string>
+    <string name="presets26_saved">Préréglage enregistré</string>
+    <string name="presets26_deleted">Préréglage supprimé</string>
+    <string name="presets26_failed">Impossible de sauvegarder ou appliquer le préréglage. Réessayez.</string>
+</resources>

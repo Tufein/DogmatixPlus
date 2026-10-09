@@ -8,6 +8,7 @@ import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.util.Constants
 import com.cortinadev.dogmatix.util.DownloadRateEstimator
 import com.cortinadev.dogmatix.util.ProgressBatch
+import com.cortinadev.dogmatix.util.PersistedDownloadFailure
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +50,11 @@ class DownloadProgressTracker @Inject constructor(
                 for (name in names) {
                     val item = current[name] ?: continue
                     try {
-                        historyDao.updateStatus(name, item.status.name, item.finishedAt)
+                        historyDao.updateStatusAndFailure(
+                            name, item.status.name, item.finishedAt, item.failure?.category?.name,
+                            PersistedDownloadFailure.httpCode(item.failure?.httpStatusCode),
+                            if (item.failure != null) PersistedDownloadFailure.timestamp(item.failureAt) else null
+                        )
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
@@ -84,10 +89,13 @@ class DownloadProgressTracker @Inject constructor(
                 if (item.fileName != fileName || (allowedFrom != null && item.status !in allowedFrom)) item
                 else {
                     val base = late?.let { item.copy(progress = it.progress, downloadSpeed = it.speed, downloadedBytes = it.downloadedBytes) } ?: item
+                    val safeFailure = if (status == DownloadStatus.FAILED || status == DownloadStatus.STOPPED) failure else null
                     val updated = base.copy(
                         status = status,
                         downloadSpeed = if (status == DownloadStatus.DOWNLOADING) base.downloadSpeed else 0f,
-                        failure = if (status == DownloadStatus.FAILED || status == DownloadStatus.STOPPED) failure else null
+                        failure = safeFailure,
+                        failureAt = if (safeFailure == null) null else
+                            if (safeFailure == item.failure) item.failureAt ?: System.currentTimeMillis() else System.currentTimeMillis()
                     )
                     val finished = if (updated.isFinished) item.finishedAt ?: System.currentTimeMillis() else null
                     updated.copy(finishedAt = finished).also { changed = it }
@@ -220,7 +228,7 @@ class DownloadProgressTracker @Inject constructor(
         return _downloads.value
     }
 
-    fun resetDownloadForRetry(fileName: String): Unit = synchronized(progressLock) {
+    fun resetDownloadForRetry(fileName: String, fileSize: Long? = null): Unit = synchronized(progressLock) {
         pending.remove(fileName)
         lastUpdateTimes.remove(fileName)
         rates.remove(fileName)
@@ -232,9 +240,11 @@ class DownloadProgressTracker @Inject constructor(
                         progress = 0f,
                         downloadSpeed = 0f,
                         downloadedBytes = 0L,
+                        fileSize = fileSize ?: item.fileSize,
                         startedAt = System.currentTimeMillis(),
                         finishedAt = null,
-                        failure = null
+                        failure = null,
+                        failureAt = null
                     )
                 } else {
                     item
@@ -255,7 +265,7 @@ class DownloadProgressTracker @Inject constructor(
                 if (item.fileName in wanted && (item.status == DownloadStatus.FAILED || item.status == DownloadStatus.STOPPED ||
                         item.status == DownloadStatus.COMPLETED || item.status == DownloadStatus.PAUSED)) {
                     reset += item.fileName
-                    item.copy(status = DownloadStatus.DOWNLOADING, progress = 0f, downloadSpeed = 0f, downloadedBytes = 0L, startedAt = now, finishedAt = null, failure = null)
+                    item.copy(status = DownloadStatus.DOWNLOADING, progress = 0f, downloadSpeed = 0f, downloadedBytes = 0L, startedAt = now, finishedAt = null, failure = null, failureAt = null)
                 } else item
             }
         }

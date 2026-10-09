@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="source26_choose">Andere bron kiezen</string>
+    <string name="source26_title">Downloadbron kiezen</string>
+    <string name="source26_restart_hint">De download begint opnieuw vanaf het begin. De planning en downloadvoorwaarden blijven gelden.</string>
+    <string name="source26_current">Huidige bron</string>
+    <string name="source26_no_alternatives">Geen andere ingeschakelde bron bevat dit exacte bestand. Scan of activeer eerst een andere bron.</string>
+    <string name="source26_loading">Geïndexeerde bronnen ophalen…</string>
+    <string name="source26_confirm">Opnieuw vanaf deze bron</string>
+    <string name="source26_unavailable">Deze bron is niet meer beschikbaar. Haal de keuzes opnieuw op.</string>
+    <string name="source26_stale">De download is gewijzigd. Open de bronkeuze opnieuw.</string>
+    <string name="source26_restricted">Het actieve profiel staat deze download niet toe.</string>
+    <string name="source26_error">De bron kon niet worden gewijzigd. Probeer opnieuw.</string>
+    <string name="source26_web">Website</string>
+    <string name="source26_torrent">Torrent</string>
+    <string name="source26_romm">RomM</string>
+</resources>

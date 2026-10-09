@@ -98,11 +98,8 @@ class BackupService @Inject constructor(
             addProperty("createdAt", System.currentTimeMillis())
             addProperty("appVersion", BuildConfig.VERSION_NAME)
             add("settings", settings)
-            add("emulatorChoices", JsonObject().apply {
-                context.getSharedPreferences("game_launchers", Context.MODE_PRIVATE).all.forEach { (key, value) ->
-                    if (value is String) addProperty(key, value)
-                }
-            })
+            // Console defaults and 2.6 per-game choices share this profile-scoped file.
+            add("emulatorChoices", GameEmulatorPreferences.export(context.getSharedPreferences("game_launchers", Context.MODE_PRIVATE)))
             add("sources", sources)
             add("favourites", BackupJson.favouritesToJson(favourites))
             add("collectionIdentities", JsonObject().apply { collections.identities().forEach { (id, name) -> addProperty(id.toString(), name) } })
@@ -197,11 +194,7 @@ class BackupService @Inject constructor(
             } }
             val (restored, repick) = mapped?.let { restoreSettings(it) } ?: (0 to 0)
             (backup.get("emulatorChoices") as? JsonObject)?.let { choices ->
-                val editor = context.getSharedPreferences("game_launchers", Context.MODE_PRIVATE).edit().clear()
-                choices.entrySet().forEach { (key, value) ->
-                    if (value.isJsonPrimitive && value.asJsonPrimitive.isString) editor.putString(key, value.asString)
-                }
-                check(editor.commit()) { "Emulator preferences could not be restored" }
+                GameEmulatorPreferences.restore(context.getSharedPreferences("game_launchers", Context.MODE_PRIVATE), choices)
             }
             val consoles = sourcesText?.let { sourcesRepository.importFromText(it, keepLocalTorrents = true) } ?: 0
             // The sources are committed by now: a failure of the smaller parts (a full disk…) must

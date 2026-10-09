@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
  * starved the UI thread into "app not responding".
  */
 class DownloadQueue(slots: Int, perHost: Int = 0) {
-    private class Ticket(val name: String, val host: String) { val granted = CompletableDeferred<Unit>() }
+    private class Ticket(val name: String, val host: String, var order: Long?) { val granted = CompletableDeferred<Unit>() }
 
     private val lock = Any()
     private var slots = slots.coerceAtLeast(1)
@@ -30,12 +30,27 @@ class DownloadQueue(slots: Int, perHost: Int = 0) {
     private var running = 0
     private val runningPerHost = HashMap<String, Int>()
     private val tickets = ArrayList<Ticket>()
+    private val reservedOrder = HashMap<String, Long>()
+    private var nextOrder = 0L
     private val publisherScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var publishScheduled = false
 
     private val _waiting = MutableStateFlow<List<String>>(emptyList())
     /** Waiting downloads, first to start first. */
     val waiting: StateFlow<List<String>> = _waiting.asStateFlow()
+
+    /**
+     * Registers the relative order of a batch before its asynchronous source/condition checks.
+     * Reservations hold no slot and are absent from [waiting]: a condition-blocked download
+     * cannot prevent a ready one from starting. Once several batch items wait for slots, their
+     * order follows registration rather than coroutine arrival timing.
+     */
+    fun reserveOrder(names: Collection<String>) {
+        synchronized(lock) { names.distinct().forEach { reservedOrder[it] = nextOrder++ } }
+    }
+
+    /** A registered item cancelled before acquire must not leave an order for a later attempt. */
+    fun forgetOrder(name: String) { synchronized(lock) { reservedOrder.remove(name) } }
 
     fun setSlots(slots: Int) {
         synchronized(lock) { this.slots = slots.coerceAtLeast(1); grantLocked(); publishLocked() }
@@ -51,8 +66,15 @@ class DownloadQueue(slots: Int, perHost: Int = 0) {
      * when it failed). [host] is the server it comes from; empty = not limited per server.
      */
     suspend fun acquire(name: String, host: String = "") {
-        val ticket = Ticket(name, host.lowercase())
-        synchronized(lock) { tickets += ticket; grantLocked(); publishLocked() }
+        val ticket: Ticket
+        synchronized(lock) {
+            ticket = Ticket(name, host.lowercase(), reservedOrder.remove(name) ?: nextOrder++)
+            val position = if (tickets.isEmpty() || tickets.last().order?.let { it <= ticket.order!! } == true) -1
+                else tickets.indexOfFirst { it.order?.let { order -> order > ticket.order!! } == true }
+            if (position < 0) tickets += ticket else tickets.add(position, ticket)
+            grantLocked()
+            publishLocked()
+        }
         try {
             ticket.granted.await()
         } catch (e: Throwable) {
@@ -90,6 +112,7 @@ class DownloadQueue(slots: Int, perHost: Int = 0) {
             tickets.clear()
             tickets.addAll(front)
             tickets.addAll(rest)
+            tickets.forEach { it.order = null } // A user's priority takes precedence over arrival ranks.
             grantLocked()
             publishLocked(immediate = true)
         }
@@ -98,7 +121,7 @@ class DownloadQueue(slots: Int, perHost: Int = 0) {
     private fun reorder(name: String, change: (Int) -> Unit) {
         synchronized(lock) {
             val i = tickets.indexOfFirst { it.name == name }
-            if (i >= 0) { change(i); grantLocked() }
+            if (i >= 0) { change(i); tickets.forEach { it.order = null }; grantLocked() }
             // Reorders made by the user should be visible immediately, also in a large queue.
             publishLocked(immediate = true)
         }

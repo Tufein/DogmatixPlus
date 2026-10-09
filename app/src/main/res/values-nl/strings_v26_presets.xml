@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="presets26_title">Downloadpresets</string>
+    <string name="presets26_settings_hint">Bewaar snelheidslimieten en downloadvoorwaarden en pas ze samen toe.</string>
+    <string name="presets26_hint">Presets gelden op dit apparaat voor elk profiel. Mappen, accounts en bestaande plannen per download blijven behouden. Lopende downloads gaan door; de voorwaarden gelden voor nieuwe starts.</string>
+    <string name="presets26_current">Huidige instellingen</string>
+    <string name="presets26_save_current">Huidige instellingen bewaren</string>
+    <string name="presets26_edit">Preset bewerken</string>
+    <string name="presets26_delete">Preset verwijderen</string>
+    <string name="presets26_daytime">Overdag rustig</string>
+    <string name="presets26_night">’s nachts maximaal</string>
+    <string name="presets26_speed_value">%1$d KB/s</string>
+    <string name="presets26_summary">%1$s · %2$d tegelijk</string>
+    <string name="presets26_wifi">Alleen wifi</string>
+    <string name="presets26_charging">Tijdens opladen</string>
+    <string name="presets26_night_only">Alleen in het nachtvenster</string>
+    <string name="presets26_window">%1$s–%2$s</string>
+    <string name="presets26_day_limit">Snelheidslimiet ’s nachts opheffen</string>
+    <string name="presets26_start">Nacht begint</string>
+    <string name="presets26_end">Nacht eindigt</string>
+    <string name="presets26_name">Naam van preset</string>
+    <string name="presets26_edit_hint">Kies de downloadinstellingen om te bewaren. Bij toepassen worden ze samen bijgewerkt.</string>
+    <string name="presets26_loading">Presets laden…</string>
+    <string name="presets26_applied">Preset toegepast</string>
+    <string name="presets26_saved">Preset bewaard</string>
+    <string name="presets26_deleted">Preset verwijderd</string>
+    <string name="presets26_failed">Preset kon niet worden bewaard of toegepast. Probeer opnieuw.</string>
+</resources>

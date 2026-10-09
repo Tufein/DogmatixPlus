@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="retry26_countdown">Opnieuw proberen over %1$d seconden</string>
+    <string name="retry26_ready">De nieuwe poging staat klaar; wachten op de start…</string>
+    <string name="retry26_attempt">Automatische poging %1$d van %2$d</string>
+    <string name="retry26_now">Nu proberen</string>
+    <string name="retry26_cancel">Poging annuleren</string>
+    <string name="retry26_failure_time">Mislukt op %1$s</string>
+</resources>

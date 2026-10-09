@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.download
 
+import com.cortinadev.dogmatix.util.DownloadSourcePolicy
 import com.cortinadev.dogmatix.util.QueueActions
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
@@ -91,6 +92,8 @@ fun DownloadScreen(
     val queuePositions by viewModel.queuePositions.collectAsState()
     val itemWaits by viewModel.itemWaits.collectAsState()
     val itemConditions by viewModel.itemConditions.collectAsState()
+    val pendingRetries by viewModel.pendingAutoRetries.collectAsState()
+    val sourceChoice by viewModel.sourceChoice.collectAsState()
     // Names still in line, to offer "Wait for..." on the rows that have not started.
     val queuedSet = queuePositions.keys
     // Rows the "Download when..." dialog is open for (one row, or the ticked ones); null = closed.
@@ -248,6 +251,7 @@ fun DownloadScreen(
                 onRetry = viewModel::retrySelected,
                 onPause = viewModel::pauseSelected,
                 onStop = viewModel::stopSelected,
+                canStop = selected.any { it.status.canStop || it.fileName in pendingRetries },
                 canPrioritize = selected.any { it.fileName in queuedSet },
                 onPrioritize = viewModel::moveSelectedToFront,
                 canWait = selected.any(::notStarted),
@@ -259,10 +263,12 @@ fun DownloadScreen(
             )
         }
         if (downloads.isEmpty()) {
-            Box(
+            Column(
                 modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
-                contentAlignment = Alignment.Center
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
+                DownloadPlanActions(downloads, selection, Modifier.fillMaxWidth().padding(horizontal = 16.dp))
                 EmptyState(
                     title = stringResource(R.string.q5_empty_title),
                     message = stringResource(R.string.q5_empty_message),
@@ -278,6 +284,9 @@ fun DownloadScreen(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                item(key = "queue-plan") {
+                    DownloadPlanActions(downloads, selection, Modifier.fillMaxWidth())
+                }
                 item(key = "queue-filters") {
                     QueueFilters(
                         view = queueView,
@@ -341,6 +350,9 @@ fun DownloadScreen(
                         item = item,
                         details = details[item.fileName],
                         upload = uploads[item.fileName],
+                        pendingRetry = pendingRetries[item.fileName],
+                        canChangeSource = DownloadSourcePolicy.canChange(item.status),
+                        onChangeSource = { viewModel.chooseSource(item.fileName) },
                         condition = itemWaits[item.fileName],
                         canSchedule = notStarted(item),
                         onWaitFor = { whenTargets = listOf(item.fileName) },
@@ -367,6 +379,17 @@ fun DownloadScreen(
                 }
             }
         }
+    }
+
+    sourceChoice?.let { state ->
+        DownloadSourceChoiceDialog(
+            choices = state.choices,
+            loading = state.loading,
+            busy = state.busy,
+            error = state.errorRes?.let { stringResource(it) },
+            onDismiss = viewModel::dismissSourceChoice,
+            onConfirm = viewModel::confirmSource
+        )
     }
 
     whenTargets?.let { names ->
@@ -453,6 +476,7 @@ private fun SelectionBar(
     onRetry: () -> Unit,
     onPause: () -> Unit,
     onStop: () -> Unit,
+    canStop: Boolean,
     canPrioritize: Boolean,
     onPrioritize: () -> Unit,
     canWait: Boolean,
@@ -472,7 +496,7 @@ private fun SelectionBar(
         if (selected.any { d -> details[d.fileName]?.let { QueueActions.canPause(d.status, it.file.isTorrent) } == true }) {
             add(BulkAction(R.drawable.ic_pause, stringResource(R.string.download_pause), scheme.onSurface, onPause))
         }
-        if (selected.any { it.status.canStop }) {
+        if (canStop) {
             add(BulkAction(R.drawable.ic_stop, stringResource(R.string.download_cancel), scheme.onSurface, onStop))
         }
         if (canPrioritize) {

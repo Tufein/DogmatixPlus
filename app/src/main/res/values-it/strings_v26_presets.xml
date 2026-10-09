@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="presets26_title">Preimpostazioni download</string>
+    <string name="presets26_settings_hint">Salva e applica insieme limiti e condizioni dei download.</string>
+    <string name="presets26_hint">Le preimpostazioni valgono per tutti i profili di questo dispositivo. Cartelle, account e piani dei singoli download rimangono invariati. I download in corso continuano; le condizioni regolano i nuovi avvii.</string>
+    <string name="presets26_current">Impostazioni attuali</string>
+    <string name="presets26_save_current">Salva impostazioni attuali</string>
+    <string name="presets26_edit">Modifica preimpostazione</string>
+    <string name="presets26_delete">Elimina preimpostazione</string>
+    <string name="presets26_daytime">Giorno tranquillo</string>
+    <string name="presets26_night">Notte al massimo</string>
+    <string name="presets26_speed_value">%1$d KB/s</string>
+    <string name="presets26_summary">%1$s · %2$d simultanei</string>
+    <string name="presets26_wifi">Solo Wi-Fi</string>
+    <string name="presets26_charging">Durante la ricarica</string>
+    <string name="presets26_night_only">Solo nella fascia notturna</string>
+    <string name="presets26_window">%1$s–%2$s</string>
+    <string name="presets26_day_limit">Rimuovi il limite di velocità di notte</string>
+    <string name="presets26_start">Inizio notte</string>
+    <string name="presets26_end">Fine notte</string>
+    <string name="presets26_name">Nome della preimpostazione</string>
+    <string name="presets26_edit_hint">Scegli le impostazioni da salvare. La preimpostazione le applica insieme.</string>
+    <string name="presets26_loading">Caricamento preimpostazioni…</string>
+    <string name="presets26_applied">Preimpostazione applicata</string>
+    <string name="presets26_saved">Preimpostazione salvata</string>
+    <string name="presets26_deleted">Preimpostazione eliminata</string>
+    <string name="presets26_failed">Impossibile salvare o applicare la preimpostazione. Riprova.</string>
+</resources>

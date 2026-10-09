@@ -83,13 +83,14 @@ class GamePageViewModel @Inject constructor(
     private val _details = MutableStateFlow<DetailsState?>(null)
     val details: StateFlow<DetailsState?> = _details.asStateFlow()
 
-    private var key: Pair<String, String>? = null
+    private var key: Triple<String, String, String>? = null
     private var job: Job? = null
 
     /** Shows [fileName] of [consoleId]; a repeat call for the same game does nothing (recomposition, rotation). */
     fun load(consoleId: String, fileName: String) {
-        if (key == consoleId to fileName) return
-        key = consoleId to fileName
+        val wanted = Triple(consoleId, fileName, profiles.currentIdNow())
+        if (key == wanted) return
+        key = wanted
         console.value = consoleId
         preferredJob?.cancel()
         preferredJob = viewModelScope.launch { versionPreference.observe(consoleId, fileName).collect { _preferred.value = it } }
@@ -110,6 +111,14 @@ class GamePageViewModel @Inject constructor(
     }
 
     val ownedKeys: StateFlow<Set<String>> = libraryIndex.ownedKeys
+    val activeProfile = profiles.activeId
+
+    /** Live after a profile switch, a console settings change, or a full backup restore. */
+    val emulatorChoice: StateFlow<GameEmulatorChoice?> = combine(_details, profiles.activeId, gameLauncher.preferenceRevision) { details, _, _ ->
+        details?.item?.file?.let { file ->
+            GameEmulatorChoice(gameLauncher.gamePreferred(file.consoleId, file.fileName), gameLauncher.preferred(file.consoleId))
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
     fun isOwned(file: DownloadableFileEntity, keys: Set<String>): Boolean = libraryIndex.isOwned(file, keys)
 
     /** File names with a download in flight (queued, downloading, copying or extracting). */
@@ -241,3 +250,5 @@ class GamePageViewModel @Inject constructor(
 data class VersionPrefs(val consoleId: String, val global: VersionPreference, val override: ConsoleOverride?) {
     val effective: VersionPreference get() = VersionPreferences.withOverride(global, override)
 }
+
+data class GameEmulatorChoice(val gameOverride: String?, val consoleDefault: String?)

@@ -56,6 +56,7 @@ object BackupJson {
         put("profile_pin_hash", "s")
         put(VersionPreferences.PINNED_KEY, "s")
         put(VersionPreferences.OVERRIDES_KEY, "s")
+        put(DownloadPresets.KEY, "s")
     }
 
     /** Sets whose entries are `id:value`; their readers split on ':' and fail on anything else. */
@@ -112,6 +113,7 @@ object BackupJson {
     }
 
     private fun sanitize(name: String, value: Any): Any? = when {
+        name == DownloadPresets.KEY -> DownloadPresets.backupValue(value as String)
         name == SettingsKeys.CONCURRENT_DOWNLOADS.name -> (value as Int).coerceIn(1, 10)
         name == SettingsKeys.METADATA_TIMEOUT_S.name ->
             (value as Int).coerceIn(TorrentConstants.MIN_METADATA_TIMEOUT_S, TorrentConstants.MAX_METADATA_TIMEOUT_S)
@@ -190,6 +192,11 @@ object BackupJson {
                 addProperty("status", h.status)
                 addProperty("startedAt", h.startedAt)
                 h.finishedAt?.let { addProperty("finishedAt", it) }
+                PersistedDownloadFailure.restore(h.failureCategory, h.failureHttpStatusCode)?.let { failure ->
+                    addProperty("failureCategory", failure.category.name)
+                    failure.httpStatusCode?.let { addProperty("failureHttpStatusCode", it) }
+                    PersistedDownloadFailure.timestamp(h.failureAt)?.let { addProperty("failureAt", it) }
+                }
             })
         }
     }
@@ -198,6 +205,9 @@ object BackupJson {
         (array as? JsonArray).orEmpty().mapNotNull { el ->
             val o = el as? JsonObject ?: return@mapNotNull null
             val status = o.string("status")?.takeIf { s -> DownloadStatus.entries.any { it.name == s } } ?: return@mapNotNull null
+            val failure = PersistedDownloadFailure.restore(
+                o.string("failureCategory"), o.long("failureHttpStatusCode")?.takeIf { it in 100L..599L }?.toInt()
+            )
             DownloadHistoryEntity(
                 fileName = o.string("fileName") ?: return@mapNotNull null,
                 name = o.string("name") ?: return@mapNotNull null,
@@ -209,7 +219,10 @@ object BackupJson {
                 torrentMagnet = o.string("torrentMagnet"),
                 status = status,
                 startedAt = o.long("startedAt") ?: 0L,
-                finishedAt = o.long("finishedAt")
+                finishedAt = o.long("finishedAt"),
+                failureCategory = failure?.category?.name,
+                failureHttpStatusCode = failure?.httpStatusCode,
+                failureAt = if (failure != null) PersistedDownloadFailure.timestamp(o.long("failureAt")) else null
             )
         }
 

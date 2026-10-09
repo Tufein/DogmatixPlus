@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="retry26_countdown">Nuevo intento en %1$d segundos</string>
+    <string name="retry26_ready">El nuevo intento está listo; esperando para empezar…</string>
+    <string name="retry26_attempt">Intento automático %1$d de %2$d</string>
+    <string name="retry26_now">Intentar ahora</string>
+    <string name="retry26_cancel">Cancelar intento</string>
+    <string name="retry26_failure_time">Falló el %1$s</string>
+</resources>

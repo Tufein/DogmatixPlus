@@ -2,6 +2,8 @@ package com.cortinadev.dogmatix.ui.screens.download
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cortinadev.dogmatix.data.model.DownloadSourceChoices
+import com.cortinadev.dogmatix.data.model.SourceChangeResult
 import com.cortinadev.dogmatix.data.model.DownloadItemModel
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.model.DownloadableFileWithTags
@@ -21,6 +23,8 @@ import com.cortinadev.dogmatix.util.QueueProgress
 import com.cortinadev.dogmatix.util.StorageInsights
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.withContext
 import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.VerifyState
 import com.cortinadev.dogmatix.util.WaitReason
@@ -58,6 +62,14 @@ internal val DownloadStatus.canDelete: Boolean get() = canRetry
 /** Download names looked up in the library per batch (see [DownloadViewModel.downloadDetails]). */
 private const val DETAILS_BATCH = 400
 
+data class SourceChoiceUi(
+    val fileName: String,
+    val choices: DownloadSourceChoices? = null,
+    val loading: Boolean = false,
+    val busy: Boolean = false,
+    val errorRes: Int? = null
+)
+
 @HiltViewModel
 class DownloadViewModel @Inject constructor(
     private val repository: DownloadRepository,
@@ -85,6 +97,69 @@ class DownloadViewModel @Inject constructor(
     val verification: StateFlow<Map<String, VerifyState>> = downloadService.verification
     /** 7.5: file name -> source a failed download moved to by itself ("Switched to <source>"). */
     val switchedSources: StateFlow<Map<String, String>> = downloadService.switchedSources
+
+    val pendingAutoRetries = downloadService.pendingAutoRetries
+
+    fun retryNow(fileName: String) {
+        viewModelScope.launch(Dispatchers.Default) { downloadService.retryNow(fileName) }
+    }
+
+    fun cancelAutomaticRetry(fileName: String) {
+        viewModelScope.launch(Dispatchers.Default) { downloadService.cancelAutomaticRetry(fileName) }
+    }
+
+    private val _sourceChoice = MutableStateFlow<SourceChoiceUi?>(null)
+    val sourceChoice: StateFlow<SourceChoiceUi?> = _sourceChoice.asStateFlow()
+    private var sourceRequest = 0L
+
+    fun dismissSourceChoice() {
+        if (_sourceChoice.value?.busy == true) return
+        sourceRequest++
+        _sourceChoice.value = null
+    }
+
+    fun chooseSource(fileName: String) {
+        if (_sourceChoice.value?.busy == true) return
+        val request = ++sourceRequest
+        _sourceChoice.value = SourceChoiceUi(fileName, loading = true)
+        viewModelScope.launch {
+            try {
+                val choices = withContext(Dispatchers.IO) { downloadService.sourceChoices(fileName) }
+                if (sourceRequest == request) _sourceChoice.value = SourceChoiceUi(
+                    fileName, choices, errorRes = R.string.source26_unavailable.takeIf { choices == null }
+                )
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                if (sourceRequest == request) _sourceChoice.value = SourceChoiceUi(fileName, errorRes = R.string.source26_error)
+            }
+        }
+    }
+
+    fun confirmSource(optionId: String) {
+        val state = _sourceChoice.value ?: return
+        val choices = state.choices ?: return
+        if (state.busy || state.loading) return
+        val request = sourceRequest
+        _sourceChoice.value = state.copy(busy = true, errorRes = null)
+        viewModelScope.launch {
+            try {
+                val result = withContext(Dispatchers.IO) { downloadService.changeSource(choices, optionId) }
+                if (request != sourceRequest) return@launch
+                val message = when (result) {
+                    SourceChangeResult.STARTED -> null
+                    SourceChangeResult.STALE -> R.string.source26_stale
+                    SourceChangeResult.UNAVAILABLE -> R.string.source26_unavailable
+                    SourceChangeResult.RESTRICTED -> R.string.source26_restricted
+                }
+                _sourceChoice.value = if (result == SourceChangeResult.STARTED) null else state.copy(errorRes = message)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                if (request == sourceRequest) _sourceChoice.value = state.copy(errorRes = R.string.source26_error)
+            }
+        }
+    }
 
     /** Lets everything that is waiting for the schedule start now. */
     fun startWaitingNow() = downloadService.gate.startNow()
@@ -176,12 +251,17 @@ class DownloadViewModel @Inject constructor(
         .distinctUntilChanged().flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     /** What the whole-queue buttons would act on. */
-    val queueCounts: StateFlow<QueueActions.Counts> = downloads.map { QueueActions.counts(it) }
+    val queueCounts: StateFlow<QueueActions.Counts> = combine(downloads, pendingAutoRetries) { list, pending ->
+        QueueActions.counts(list).copy(stoppable = (QueueActions.stoppable(list).toSet() + pending.keys).size)
+    }
         .flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), QueueActions.Counts())
 
     // The whole-queue actions touch hundreds of rows: off the UI thread, so a big queue never freezes the screen.
     fun stopAll() {
-        viewModelScope.launch(Dispatchers.Default) { QueueActions.stoppable(downloads.value).forEach { repository.cancelDownload(it) } }
+        viewModelScope.launch(Dispatchers.Default) {
+            pendingAutoRetries.value.keys.toList().forEach(downloadService::cancelAutomaticRetry)
+            QueueActions.stoppable(downloads.value).forEach { repository.cancelDownload(it) }
+        }
     }
 
     /** Failed and stopped downloads go back in the queue as one batch (they continue from their partial file when they can). */
@@ -289,7 +369,10 @@ class DownloadViewModel @Inject constructor(
         }
     }
 
-    fun stopSelected() = runOnSelection({ it.status.canStop }) { repository.cancelDownload(it.fileName) }
+    fun stopSelected() = runOnSelection({ it.status.canStop || it.fileName in pendingAutoRetries.value }) {
+        if (it.status.canStop) repository.cancelDownload(it.fileName)
+        else downloadService.cancelAutomaticRetry(it.fileName)
+    }
 
     /** Torrents while they transfer, web downloads also while queued (they keep their partial file). */
     fun pauseSelected() = runOnSelection({ item ->

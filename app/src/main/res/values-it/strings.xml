@@ -1270,10 +1270,10 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Verifica file di gioco, riferimenti ai dischi, BIOS e impostazioni dell’emulatore prima di provare l’avvio.</item>
-        <item>Crea raccolte intelligenti e controlla i download offline con limiti e riserve di spazio libero.</item>
-        <item>Esamina gli aggiornamenti di versione in gruppo e separa preferiti, preferenze e cronologia per profilo.</item>
-        <item>Ricevi aiuto dopo un errore e ripristina le copie verificate dei file rimossi nell’esplora file.</item>
+        <item>Visualizza il conto alla rovescia, riprova subito o annulla; gli errori di download restano dopo il riavvio.</item>
+        <item>Salva impostazioni di velocità, download simultanei e pianificazione; conferma una fonte diversa per un file bloccato.</item>
+        <item>Condividi e importa piani con una selezione ordinata, condizioni per file e verifica prima di iniziare.</item>
+        <item>Scegli un emulatore per gioco e profilo, con la scelta della console come alternativa.</item>
     </string-array>
 
     <!-- 4.0 -->

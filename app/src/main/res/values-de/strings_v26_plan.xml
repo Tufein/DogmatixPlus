@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plan26_title">Downloadplan</string>
+    <string name="plan26_hint">Ausgewählte wartende, pausierte oder fehlgeschlagene Downloads teilen, sonst die Warteschlange. Laufende Übertragungen und fertige Dateien werden ausgelassen.</string>
+    <string name="plan26_export">Plan exportieren</string>
+    <string name="plan26_share">Plan teilen</string>
+    <string name="plan26_import">Plan importieren</string>
+    <string name="plan26_review">Downloadplan prüfen</string>
+    <string name="plan26_review_hint">Nur verfügbare Spiele werden in Planreihenfolge hinzugefügt. Deine Quellen, Speicherorte und allgemeinen Downloadregeln gelten weiter. Geplante Zeiten behalten ihren ursprünglichen Zeitpunkt.</string>
+    <string name="plan26_count">%1$d von %2$d Spielen können hinzugefügt werden</string>
+    <string name="plan26_enqueue">%1$d zur Warteschlange hinzufügen</string>
+    <string name="plan26_ready">Bereit zum Hinzufügen</string>
+    <string name="plan26_missing">Auf diesem Gerät nicht indexiert</string>
+    <string name="plan26_unavailable">Keine aktivierte Quelle verfügbar</string>
+    <string name="plan26_restricted">Vom aktiven Profil verborgen</string>
+    <string name="plan26_already_queued">Bereits in Downloads vorhanden</string>
+    <string name="plan26_owned">Auf diesem Gerät bereits vorhanden</string>
+    <string name="plan26_name_conflict">Eine andere Konsole verwendet diesen Dateinamen bereits im Plan</string>
+    <string name="plan26_export_failed">Keine geeigneten Downloads oder Export fehlgeschlagen. Wartende, pausierte oder fehlgeschlagene Downloads auswählen (höchstens 3.000).</string>
+    <string name="plan26_import_failed">Der Plan konnte nicht gelesen oder angewendet werden. Eine gültige Dogmatix-Downloadplan-JSON-Datei mit höchstens 2 MiB auswählen.</string>
+    <string name="plan26_imported">%1$d Spiele zur Warteschlange hinzugefügt</string>
+    <string name="plan26_saved">Downloadplan gespeichert</string>
+</resources>

@@ -1324,10 +1324,10 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Vérifiez les fichiers du jeu, les références des disques, le BIOS et les réglages de l’émulateur avant un essai.</item>
-        <item>Créez des collections intelligentes et vérifiez les téléchargements hors ligne avec des limites et des réserves d’espace.</item>
-        <item>Examinez les mises à niveau groupées et gardez favoris, préférences et historique séparés par profil.</item>
-        <item>Obtenez de l’aide après un échec et restaurez les copies vérifiées des fichiers supprimés dans l’explorateur.</item>
+        <item>Consultez le compte à rebours, réessayez maintenant ou annulez ; les erreurs de téléchargement restent après un redémarrage.</item>
+        <item>Enregistrez des préréglages de vitesse, de téléchargements simultanés et de planification ; confirmez une autre source pour un fichier bloqué.</item>
+        <item>Partagez et importez des plans avec une sélection ordonnée, des conditions par fichier et une vérification avant le démarrage.</item>
+        <item>Choisissez un émulateur par jeu et profil, avec le choix de la console en secours.</item>
     </string-array>
 
     <!-- 4.0 -->

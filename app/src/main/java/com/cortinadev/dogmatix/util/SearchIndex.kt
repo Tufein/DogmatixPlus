@@ -42,6 +42,7 @@ object SettingKeys {
     const val LIST_COVERS = "list_covers"
     const val COMPACT = "compact"
     const val COVERS_RETRY = "covers_retry"
+    const val DOWNLOAD_PRESETS = "download_presets"
     const val DOWNLOAD_DIR = "download_dir"
     const val SEPARATE_CONSOLE = "separate_console"
     const val CONCURRENT = "concurrent"
@@ -138,6 +139,7 @@ object SearchIndex {
 
             setting(SettingKeys.DOWNLOAD_DIR, DOWNLOADS, R.string.settings_download_directory, null, R.drawable.ic_folder_open, R.string.find8_kw_folder),
             setting(SettingKeys.SEPARATE_CONSOLE, DOWNLOADS, R.string.settings_separate_by_console, R.string.settings_separate_hint, R.drawable.ic_account_tree, R.string.find8_kw_folder),
+            setting(SettingKeys.DOWNLOAD_PRESETS, DOWNLOADS, R.string.presets26_title, R.string.presets26_settings_hint, R.drawable.ic_schedule, R.string.find8_kw_speed),
             setting(SettingKeys.CONCURRENT, DOWNLOADS, R.string.settings_concurrent_label, null, R.drawable.ic_downloading, R.string.find8_kw_concurrent),
             setting(SettingKeys.PER_SERVER, DOWNLOADS, R.string.settings_per_server, R.string.settings_per_server_hint, R.drawable.ic_hub, R.string.find8_kw_concurrent),
             setting(SettingKeys.SPEED_LIMIT, DOWNLOADS, R.string.settings_limit_label, R.string.settings_limit_hint, R.drawable.ic_speed, R.string.find8_kw_speed),

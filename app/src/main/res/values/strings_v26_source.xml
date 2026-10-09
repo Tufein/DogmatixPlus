@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="source26_choose">Choose another source</string>
+    <string name="source26_title">Choose download source</string>
+    <string name="source26_restart_hint">The download restarts from the beginning. Its schedule and download rules still apply.</string>
+    <string name="source26_current">Current source</string>
+    <string name="source26_no_alternatives">No other enabled source lists this exact file. Scan or enable another source first.</string>
+    <string name="source26_loading">Loading indexed sources…</string>
+    <string name="source26_confirm">Restart from this source</string>
+    <string name="source26_unavailable">This source is no longer available. Reload the choices.</string>
+    <string name="source26_stale">The download changed. Open source selection again.</string>
+    <string name="source26_restricted">The active profile does not allow this download.</string>
+    <string name="source26_error">The source could not be changed. Try again.</string>
+    <string name="source26_web">Website</string>
+    <string name="source26_torrent">Torrent</string>
+    <string name="source26_romm">RomM</string>
+</resources>

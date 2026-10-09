@@ -49,7 +49,9 @@ data class DownloadItemModel(
     val startedAt: Long = 0L, // epoch millis
     val finishedAt: Long? = null, // epoch millis once COMPLETED / FAILED / STOPPED
     /** Safe reason for the current attempt. Raw exception messages/URLs never enter the UI. */
-    val failure: DownloadFailure? = null
+    val failure: DownloadFailure? = null,
+    /** Epoch millis of the safe failure, retained across restarts until another attempt begins. */
+    val failureAt: Long? = null
 ) {
     val isFinished: Boolean
         get() = status == DownloadStatus.COMPLETED || status == DownloadStatus.FAILED || status == DownloadStatus.STOPPED

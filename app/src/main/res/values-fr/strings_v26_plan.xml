@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plan26_title">Plan de téléchargement</string>
+    <string name="plan26_hint">Partagez les téléchargements sélectionnés en attente, suspendus ou échoués, sinon la file. Les transferts actifs et les fichiers terminés sont exclus.</string>
+    <string name="plan26_export">Exporter le plan</string>
+    <string name="plan26_share">Partager le plan</string>
+    <string name="plan26_import">Importer le plan</string>
+    <string name="plan26_review">Vérifier le plan</string>
+    <string name="plan26_review_hint">Seuls les jeux disponibles sont ajoutés dans l’ordre du plan. Vos sources, votre stockage et vos règles générales restent applicables. Les horaires prévus conservent leur instant initial.</string>
+    <string name="plan26_count">%1$d jeux sur %2$d peuvent être ajoutés</string>
+    <string name="plan26_enqueue">Ajouter %1$d à la file</string>
+    <string name="plan26_ready">Prêt à ajouter</string>
+    <string name="plan26_missing">Non indexé sur cet appareil</string>
+    <string name="plan26_unavailable">Aucune source activée disponible</string>
+    <string name="plan26_restricted">Masqué par le profil actif</string>
+    <string name="plan26_already_queued">Déjà présent dans Téléchargements</string>
+    <string name="plan26_owned">Déjà présent sur cet appareil</string>
+    <string name="plan26_name_conflict">Une autre console utilise déjà ce nom de fichier dans le plan</string>
+    <string name="plan26_export_failed">Aucun téléchargement admissible ou export impossible. Sélectionnez des téléchargements en attente, suspendus ou échoués (3 000 maximum).</string>
+    <string name="plan26_import_failed">Ce plan ne peut pas être lu ou appliqué. Choisissez un fichier JSON de plan Dogmatix valide de 2 MiB maximum.</string>
+    <string name="plan26_imported">%1$d jeux ajoutés à la file</string>
+    <string name="plan26_saved">Plan de téléchargement enregistré</string>
+</resources>

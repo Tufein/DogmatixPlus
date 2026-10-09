@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="presets26_title">Download presets</string>
+    <string name="presets26_settings_hint">Save and apply transfer limits and download conditions together.</string>
+    <string name="presets26_hint">Presets apply to this device for every profile. Folder locations, accounts and existing per-download plans stay as they are. Running downloads finish; the conditions govern new starts.</string>
+    <string name="presets26_current">Current settings</string>
+    <string name="presets26_save_current">Save current settings</string>
+    <string name="presets26_edit">Edit preset</string>
+    <string name="presets26_delete">Delete preset</string>
+    <string name="presets26_daytime">Daytime quiet</string>
+    <string name="presets26_night">Night maximum</string>
+    <string name="presets26_speed_value">%1$d KB/s</string>
+    <string name="presets26_summary">%1$s · %2$d simultaneous</string>
+    <string name="presets26_wifi">Wi-Fi only</string>
+    <string name="presets26_charging">While charging</string>
+    <string name="presets26_night_only">Only in the night window</string>
+    <string name="presets26_window">%1$s–%2$s</string>
+    <string name="presets26_day_limit">Lift the speed limit at night</string>
+    <string name="presets26_start">Night starts</string>
+    <string name="presets26_end">Night ends</string>
+    <string name="presets26_name">Preset name</string>
+    <string name="presets26_edit_hint">Choose the transfer settings to save. Applying the preset updates them together.</string>
+    <string name="presets26_loading">Loading presets…</string>
+    <string name="presets26_applied">Preset applied</string>
+    <string name="presets26_saved">Preset saved</string>
+    <string name="presets26_deleted">Preset deleted</string>
+    <string name="presets26_failed">Could not save or apply the preset. Try again.</string>
+</resources>

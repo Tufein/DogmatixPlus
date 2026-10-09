@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plan26_title">Plano de downloads</string>
+    <string name="plan26_hint">Partilha os downloads selecionados em espera, pausados ou falhados, ou a fila sem seleção. As transferências ativas e os ficheiros concluídos são excluídos.</string>
+    <string name="plan26_export">Exportar plano</string>
+    <string name="plan26_share">Partilhar plano</string>
+    <string name="plan26_import">Importar plano</string>
+    <string name="plan26_review">Rever plano de downloads</string>
+    <string name="plan26_review_hint">Só são adicionados jogos disponíveis na ordem do plano. As tuas fontes, armazenamento e regras gerais continuam a aplicar-se. Os horários mantêm o momento original.</string>
+    <string name="plan26_count">É possível adicionar %1$d de %2$d jogos</string>
+    <string name="plan26_enqueue">Adicionar %1$d à fila</string>
+    <string name="plan26_ready">Pronto para adicionar</string>
+    <string name="plan26_missing">Não indexado neste dispositivo</string>
+    <string name="plan26_unavailable">Nenhuma fonte ativada disponível</string>
+    <string name="plan26_restricted">Oculto pelo perfil ativo</string>
+    <string name="plan26_already_queued">Já está em Downloads</string>
+    <string name="plan26_owned">Já está neste dispositivo</string>
+    <string name="plan26_name_conflict">Outra consola já usa este nome de ficheiro no plano</string>
+    <string name="plan26_export_failed">Nenhum download elegível ou exportação falhada. Seleciona downloads em espera, pausados ou falhados (máximo 3.000).</string>
+    <string name="plan26_import_failed">Não foi possível ler ou aplicar este plano. Escolhe um ficheiro JSON válido de plano Dogmatix com até 2 MiB.</string>
+    <string name="plan26_imported">%1$d jogos adicionados à fila</string>
+    <string name="plan26_saved">Plano de downloads guardado</string>
+</resources>

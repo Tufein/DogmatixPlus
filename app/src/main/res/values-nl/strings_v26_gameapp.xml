@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="play26_game_title">Emulator voor deze game</string>
+    <string name="play26_game_hint">Kies één geïnstalleerde emulator en core voor deze game. Andere games behouden de consolestandaard.</string>
+    <string name="play26_effective">Actieve keuze: %1$s</string>
+    <string name="play26_missing">De emulator voor deze game is niet beschikbaar. De consolestandaard wordt gebruikt; kies een andere emulator of herstel de standaard.</string>
+    <string name="play26_use_console">Consolestandaard gebruiken</string>
+    <string name="play26_remember_game">Alleen voor deze game onthouden</string>
+    <string name="play26_test_effective">Actieve keuze testen</string>
+    <string name="play26_remember_choice">Deze keuze onthouden</string>
+</resources>

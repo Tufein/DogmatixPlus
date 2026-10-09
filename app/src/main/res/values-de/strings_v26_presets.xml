@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="presets26_title">Download-Vorlagen</string>
+    <string name="presets26_settings_hint">Geschwindigkeitsgrenzen und Download-Bedingungen gemeinsam speichern und anwenden.</string>
+    <string name="presets26_hint">Vorlagen gelten auf diesem Gerät für alle Profile. Ordner, Konten und bestehende Pläne pro Download bleiben erhalten. Laufende Downloads gehen weiter; Bedingungen gelten für neue Starts.</string>
+    <string name="presets26_current">Aktuelle Einstellungen</string>
+    <string name="presets26_save_current">Aktuelle Einstellungen speichern</string>
+    <string name="presets26_edit">Vorlage bearbeiten</string>
+    <string name="presets26_delete">Vorlage löschen</string>
+    <string name="presets26_daytime">Tagsüber ruhig</string>
+    <string name="presets26_night">Nachts maximal</string>
+    <string name="presets26_speed_value">%1$d KB/s</string>
+    <string name="presets26_summary">%1$s · %2$d gleichzeitig</string>
+    <string name="presets26_wifi">Nur WLAN</string>
+    <string name="presets26_charging">Beim Laden</string>
+    <string name="presets26_night_only">Nur im Nachtzeitfenster</string>
+    <string name="presets26_window">%1$s–%2$s</string>
+    <string name="presets26_day_limit">Geschwindigkeitsgrenze nachts aufheben</string>
+    <string name="presets26_start">Nacht beginnt</string>
+    <string name="presets26_end">Nacht endet</string>
+    <string name="presets26_name">Name der Vorlage</string>
+    <string name="presets26_edit_hint">Die zu speichernden Download-Einstellungen wählen. Beim Anwenden werden sie gemeinsam aktualisiert.</string>
+    <string name="presets26_loading">Vorlagen werden geladen…</string>
+    <string name="presets26_applied">Vorlage angewendet</string>
+    <string name="presets26_saved">Vorlage gespeichert</string>
+    <string name="presets26_deleted">Vorlage gelöscht</string>
+    <string name="presets26_failed">Vorlage konnte nicht gespeichert oder angewendet werden. Erneut versuchen.</string>
+</resources>

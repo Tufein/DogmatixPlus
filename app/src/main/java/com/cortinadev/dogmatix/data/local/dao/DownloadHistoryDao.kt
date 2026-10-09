@@ -25,11 +25,14 @@ interface DownloadHistoryDao {
     @Query("UPDATE download_history SET status = :status, finishedAt = :finishedAt WHERE fileName = :fileName")
     suspend fun updateStatus(fileName: String, status: String, finishedAt: Long?)
 
-    @Query("UPDATE download_history SET status = :status, startedAt = :startedAt, finishedAt = NULL WHERE fileName = :fileName")
+    @Query("UPDATE download_history SET status = :status, finishedAt = :finishedAt, failureCategory = :failureCategory, failureHttpStatusCode = :failureHttpStatusCode, failureAt = :failureAt WHERE fileName = :fileName")
+    suspend fun updateStatusAndFailure(fileName: String, status: String, finishedAt: Long?, failureCategory: String?, failureHttpStatusCode: Int?, failureAt: Long?)
+
+    @Query("UPDATE download_history SET status = :status, startedAt = :startedAt, finishedAt = NULL, failureCategory = NULL, failureHttpStatusCode = NULL, failureAt = NULL WHERE fileName = :fileName")
     suspend fun markRestarted(fileName: String, status: String, startedAt: Long)
 
     /** [markRestarted] for many rows in one statement (keep [fileNames] under SQLite's variable limit). */
-    @Query("UPDATE download_history SET status = :status, startedAt = :startedAt, finishedAt = NULL WHERE fileName IN (:fileNames)")
+    @Query("UPDATE download_history SET status = :status, startedAt = :startedAt, finishedAt = NULL, failureCategory = NULL, failureHttpStatusCode = NULL, failureAt = NULL WHERE fileName IN (:fileNames)")
     suspend fun markRestartedAll(fileNames: List<String>, status: String, startedAt: Long)
 
     @Query("UPDATE download_history SET fileSize = :size WHERE fileName = :fileName")

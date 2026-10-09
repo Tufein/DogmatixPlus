@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plan26_title">Downloadplan</string>
+    <string name="plan26_hint">Deel geselecteerde wachtende, gepauzeerde of mislukte downloads, of de wachtrij als niets geselecteerd is. Lopende transfers en afgeronde bestanden worden overgeslagen.</string>
+    <string name="plan26_export">Plan exporteren</string>
+    <string name="plan26_share">Plan delen</string>
+    <string name="plan26_import">Plan importeren</string>
+    <string name="plan26_review">Downloadplan controleren</string>
+    <string name="plan26_review_hint">Alleen beschikbare games worden in planvolgorde toegevoegd. Je bronnen, opslag en algemene downloadregels blijven gelden. Geplande tijden behouden hun oorspronkelijke moment.</string>
+    <string name="plan26_count">%1$d van %2$d games kunnen worden toegevoegd</string>
+    <string name="plan26_enqueue">%1$d aan wachtrij toevoegen</string>
+    <string name="plan26_ready">Klaar om toe te voegen</string>
+    <string name="plan26_missing">Niet geïndexeerd op dit apparaat</string>
+    <string name="plan26_unavailable">Geen ingeschakelde bron beschikbaar</string>
+    <string name="plan26_restricted">Verborgen door het actieve profiel</string>
+    <string name="plan26_already_queued">Staat al in Downloads</string>
+    <string name="plan26_owned">Al aanwezig op dit apparaat</string>
+    <string name="plan26_name_conflict">Een andere console gebruikt deze bestandsnaam al in het plan</string>
+    <string name="plan26_export_failed">Geen geschikte downloads of het plan kon niet worden geëxporteerd. Selecteer wachtende, gepauzeerde of mislukte downloads (maximaal 3.000).</string>
+    <string name="plan26_import_failed">Dit plan kon niet worden gelezen of toegepast. Kies een geldig Dogmatix-downloadplan in JSON van maximaal 2 MiB.</string>
+    <string name="plan26_imported">%1$d games toegevoegd aan de wachtrij</string>
+    <string name="plan26_saved">Downloadplan opgeslagen</string>
+</resources>

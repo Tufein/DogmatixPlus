@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="source26_choose">Scegli un’altra fonte</string>
+    <string name="source26_title">Scegli la fonte del download</string>
+    <string name="source26_restart_hint">Il download ricomincia dall’inizio. La pianificazione e le condizioni restano valide.</string>
+    <string name="source26_current">Fonte attuale</string>
+    <string name="source26_no_alternatives">Nessun’altra fonte attiva contiene questo file esatto. Prima analizza o attiva un’altra fonte.</string>
+    <string name="source26_loading">Caricamento delle fonti indicizzate…</string>
+    <string name="source26_confirm">Ricomincia da questa fonte</string>
+    <string name="source26_unavailable">Questa fonte non è più disponibile. Ricarica le opzioni.</string>
+    <string name="source26_stale">Il download è cambiato. Riapri la scelta della fonte.</string>
+    <string name="source26_restricted">Il profilo attivo non consente questo download.</string>
+    <string name="source26_error">Impossibile cambiare la fonte. Riprova.</string>
+    <string name="source26_web">Sito web</string>
+    <string name="source26_torrent">Torrent</string>
+    <string name="source26_romm">RomM</string>
+</resources>

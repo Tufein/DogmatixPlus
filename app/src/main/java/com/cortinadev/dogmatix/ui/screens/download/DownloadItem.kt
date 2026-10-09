@@ -50,6 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.data.model.PendingAutoRetry
 import com.cortinadev.dogmatix.data.model.DownloadItemModel
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.model.DownloadableFileWithTags
@@ -99,7 +100,10 @@ class DownloadRowActions(
     val startNow: () -> Unit = {},
     val openSettings: () -> Unit = {},
     val openSources: () -> Unit = {},
-    val openStorage: () -> Unit = {}
+    val openStorage: () -> Unit = {},
+    val retryNow: () -> Unit = {},
+    val cancelAutomaticRetry: () -> Unit = {},
+    val changeSource: () -> Unit = {}
 )
 
 /**
@@ -129,10 +133,13 @@ fun DownloadItem(
     onOpenSources: () -> Unit = {},
     onOpenStorage: () -> Unit = {},
     onToggleSelection: () -> Unit = {},
-    onRowFocused: (DownloadItemModel, Boolean) -> Unit = { _, _ -> }
+    onRowFocused: (DownloadItemModel, Boolean) -> Unit = { _, _ -> },
+    pendingRetry: PendingAutoRetry? = null,
+    canChangeSource: Boolean = false,
+    onChangeSource: () -> Unit = {}
 ) {
     val fileName = item.fileName
-    val actions = remember(viewModel, fileName, onWaitFor, onOpenSettings, onOpenSources, onOpenStorage) {
+    val actions = remember(viewModel, fileName, onWaitFor, onOpenSettings, onOpenSources, onOpenStorage, onChangeSource) {
         DownloadRowActions(
             pause = { viewModel.pauseDownload(fileName) },
             cancel = { viewModel.cancelDownload(fileName) },
@@ -146,7 +153,10 @@ fun DownloadItem(
             startNow = { viewModel.setCondition(listOf(fileName), null) },
             openSettings = onOpenSettings,
             openSources = onOpenSources,
-            openStorage = onOpenStorage
+            openStorage = onOpenStorage,
+            retryNow = { viewModel.retryNow(fileName) },
+            cancelAutomaticRetry = { viewModel.cancelAutomaticRetry(fileName) },
+            changeSource = onChangeSource
         )
     }
     // Only rows handed to a debrid service show its name.
@@ -155,7 +165,7 @@ fun DownloadItem(
     val switchedTo = viewModel.switchedSources.collectAsState().value[fileName]
     DownloadRow(
         item, details, compact, actions, debridLabel, modifier, upload, waitingReason, queuePosition, verify,
-        selectionMode, selected, focusUp, sweep, onToggleSelection, onRowFocused, condition, canSchedule, switchedTo
+        selectionMode, selected, focusUp, sweep, onToggleSelection, onRowFocused, condition, canSchedule, switchedTo, pendingRetry, canChangeSource
     )
 }
 
@@ -202,7 +212,9 @@ fun DownloadRow(
     /** Not started yet (in line, or waiting): the *Wait for...* button shows. */
     canSchedule: Boolean = false,
     /** Short name of the source this download moved to after failing on its first one, or null. */
-    switchedTo: String? = null
+    switchedTo: String? = null,
+    pendingRetry: PendingAutoRetry? = null,
+    canChangeSource: Boolean = false
 ) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
@@ -460,7 +472,8 @@ fun DownloadRow(
                         style = MaterialTheme.typography.bodySmall,
                         color = scheme.error
                     )
-                    if (!selectionMode) {
+                    DownloadFailureTimestamp(item.failureAt)
+                    if (!selectionMode && pendingRetry == null) {
                         ActionPill(
                             stringResource(failure.action.label),
                             onClick = recover,
@@ -468,6 +481,12 @@ fun DownloadRow(
                             tone = ActionTone.Accent
                         )
                     }
+                }
+                pendingRetry?.let { pending ->
+                    DownloadRetryFeedback(pending, actions.retryNow, actions.cancelAutomaticRetry, actionsEnabled = !selectionMode)
+                }
+                if (canChangeSource && !selectionMode) {
+                    ActionPill(stringResource(R.string.source26_choose), actions.changeSource, icon = R.drawable.ic_hub)
                 }
                 if (upload?.status == UploadStatus.FAILED && upload.message.isNotBlank()) {
                     Text(upload.message, style = MaterialTheme.typography.bodySmall, color = scheme.error, maxLines = 2, overflow = TextOverflow.Ellipsis)

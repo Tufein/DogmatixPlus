@@ -21,6 +21,11 @@ import com.cortinadev.dogmatix.data.model.DownloadFailure
 import com.cortinadev.dogmatix.data.model.DownloadFailureCategory
 import com.cortinadev.dogmatix.data.model.DownloadItemModel
 import com.cortinadev.dogmatix.data.model.DownloadStatus
+import com.cortinadev.dogmatix.data.model.DownloadSourceChoices
+import com.cortinadev.dogmatix.data.model.DownloadSourceOption
+import com.cortinadev.dogmatix.data.model.SourceChangeResult
+import com.cortinadev.dogmatix.util.DownloadSourcePolicy
+import com.cortinadev.dogmatix.data.model.PendingAutoRetry
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
 import com.cortinadev.dogmatix.util.ArchiveUtils
 import com.cortinadev.dogmatix.util.AutoRetry
@@ -84,6 +89,7 @@ import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.ConcurrentHashMap
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.withContext
@@ -171,6 +177,10 @@ class DownloadService @Inject constructor(
     private val downloadJobs = ConcurrentHashMap<String, Job>()
     private val cleanupJobs = ConcurrentHashMap<String, Job>()
     private val attempts = DownloadAttemptRegistry()
+    private val retryOwners = HashMap<String, DownloadAttemptRegistry.Attempt>()
+    private val _pendingAutoRetries = MutableStateFlow<Map<String, PendingAutoRetry>>(emptyMap())
+    /** Timers waiting for another attempt. Deadlines use elapsed realtime and live only in this process. */
+    val pendingAutoRetries: StateFlow<Map<String, PendingAutoRetry>> = _pendingAutoRetries.asStateFlow()
     private val sourceSelections = ConcurrentHashMap<String, CompletableDeferred<DownloadableFileEntity>>()
     /** The download slots and the order of what waits for one (the user can reorder it). */
     private val queue = DownloadQueue(3)
@@ -229,6 +239,8 @@ class DownloadService @Inject constructor(
 
     private fun userActed(fileName: String) = synchronized(startLock) {
         attempts.invalidate(fileName)
+        clearPendingRetry(fileName)
+        queue.forgetOrder(fileName)
         userActionListeners.forEach { it(fileName) }
     }
 
@@ -259,6 +271,18 @@ class DownloadService @Inject constructor(
             settingsRepository.concurrentDownloads.collect { max -> queue.setSlots(max) }
         }
         launchBackground("Per-server settings") { appSettings.perServerLimit.collect { queue.setPerHost(it) } }
+        launchBackground("Automatic retry settings") {
+            appSettings.autoRetryFailed.distinctUntilChanged().collect { enabled ->
+                if (!enabled) synchronized(startLock) {
+                    // Turning the preference off cancels the timer itself: it cannot later switch
+                    // sources, revive a row or clear a newer attempt's feedback.
+                    retryOwners.keys.toList().forEach { name ->
+                        attempts.invalidate(name)
+                        clearPendingRetry(name)
+                    }
+                }
+            }
+        }
         launchBackground("Download history restore") { restoreHistory() }
     }
 
@@ -324,6 +348,15 @@ class DownloadService @Inject constructor(
      * at 14:30: `DownloadConditions.atTime(14 * 60 + 30, System.currentTimeMillis())`.
      */
     fun startDownloads(files: List<DownloadableFileEntity>, condition: DownloadCondition? = null) {
+        registerDownloads(files, files.associate { it.fileName to condition })
+    }
+
+    /** Import a plan as one batch; all per-item conditions exist before any job is published or started. */
+    fun startDownloads(files: List<DownloadableFileEntity>, conditions: Map<String, DownloadCondition>) {
+        registerDownloads(files, conditions)
+    }
+
+    private fun registerDownloads(files: List<DownloadableFileEntity>, conditions: Map<String, DownloadCondition?>) {
         lateinit var sources: List<CompletableDeferred<DownloadableFileEntity>>
         lateinit var jobs: List<Job>
         lateinit var priorCleanups: List<Job>
@@ -339,10 +372,13 @@ class DownloadService @Inject constructor(
             _switchedTo.update { it - names }
             switchedOnce.removeAll(names)
             items.forEach { (file, _) -> downloadEntities[file.fileName] = file }
-            if (condition != null) conditionGate.setAll(names, condition)
+            names.groupBy { conditions[it] }.forEach { (condition, group) ->
+                conditionGate.setAll(group, condition)
+            }
             priorCleanups = names.mapNotNull { cleanupJobs[it] }.distinct()
             sources = items.map { CompletableDeferred<DownloadableFileEntity>() }
             items.forEachIndexed { i, (file, _) -> sourceSelections[file.fileName] = sources[i] }
+            queue.reserveOrder(items.map { it.first.fileName })
             jobs = items.mapIndexed { i, (file, _) -> launchJob(file, sources[i], startImmediately = false) }
             // Publish only after every accepted row has an entity and a cancellable job. Stop/
             // pause uses this same lock, so it cannot miss the later rows in a bulk registration.
@@ -403,6 +439,8 @@ class DownloadService @Inject constructor(
         val cleanup = cleanupJobs[file.fileName]
         val selection = source ?: sourceSelections[file.fileName]
         val attempt = attempts.begin(file.fileName)
+        clearPendingRetry(file.fileName)
+        invalidateSourceChoices(file.fileName)
         // Registered before it starts, so a download that ends at once cannot leave a stale entry.
         val job = serviceScope.launch(start = CoroutineStart.LAZY) {
             // The row actually downloaded: the same file name, possibly from another source.
@@ -494,6 +532,7 @@ class DownloadService @Inject constructor(
 
     private fun finishJob(fileName: String, owner: Job) = synchronized(startLock) {
         if (downloadJobs.remove(fileName, owner)) {
+            queue.forgetOrder(fileName)
             transferring.remove(fileName)
             viaDebrid.remove(fileName)
             parkable.remove(fileName)
@@ -544,17 +583,46 @@ class DownloadService @Inject constructor(
                 return@launchRecovery
             }
             synchronized(startLock) {
-                if (!attempts.isCurrent(fileName, attempt)) return@launchRecovery
+                if (!attempts.isCurrent(fileName, attempt) ||
+                    downloadProgressTracker.getDownloads().none { it.fileName == fileName && it.status == DownloadStatus.FAILED }) return@launchRecovery
                 autoRetries[fileName] = done + 1
+                retryOwners[fileName] = attempt
+                _pendingAutoRetries.update { it + (fileName to PendingAutoRetry(done + 1, AutoRetry.WAITS_MS.size, SystemClock.elapsedRealtime() + wait)) }
             }
             Log.i(TAG, "Retrying $fileName by itself in ${wait / 1000}s (retry ${done + 1} of ${AutoRetry.WAITS_MS.size})")
-            delay(wait)
-            // A setting changed during the wait is authoritative too. The token is checked
-            // again atomically with replacement registration inside restartDownload.
-            if (!appSettings.autoRetryFailed.first()) return@launchRecovery
-            currentCoroutineContext().ensureActive()
-            restartDownload(fileName, expectedAttempt = attempt)
+            try {
+                // Cover a preference change whose collector ran just before timer registration.
+                if (!appSettings.autoRetryFailed.first()) return@launchRecovery
+                delay(wait)
+                // A setting changed during the wait is authoritative too. The token is checked
+                // again atomically with replacement registration inside restartDownload.
+                if (!appSettings.autoRetryFailed.first()) return@launchRecovery
+                currentCoroutineContext().ensureActive()
+                restartDownload(fileName, expectedAttempt = attempt)
+            } finally {
+                synchronized(startLock) { clearPendingRetry(fileName, attempt) }
+            }
         }
+    }
+
+    /** Cancels just the pending retry, keeping the failed row and its stored explanation. */
+    fun cancelAutomaticRetry(fileName: String) = synchronized(startLock) {
+        if (fileName !in retryOwners) return@synchronized
+        userActed(fileName)
+    }
+
+    /** Run a waiting retry immediately as a fresh user attempt. A stale UI click does nothing. */
+    fun retryNow(fileName: String) = synchronized(startLock) {
+        val owner = retryOwners[fileName] ?: return@synchronized
+        if (!attempts.isCurrent(fileName, owner)) return@synchronized
+        retryDownload(fileName)
+    }
+
+    /** [startLock] protects both the owner token and the public timer snapshot. */
+    private fun clearPendingRetry(fileName: String, expectedAttempt: DownloadAttemptRegistry.Attempt? = null) {
+        if (expectedAttempt != null && retryOwners[fileName] !== expectedAttempt) return
+        retryOwners.remove(fileName)
+        _pendingAutoRetries.update { if (fileName in it) it - fileName else it }
     }
 
     /** Recovery is registered before execution and canceled by every superseding user action. */
@@ -585,6 +653,123 @@ class DownloadService @Inject constructor(
     private val _switchedTo = MutableStateFlow<Map<String, String>>(emptyMap())
     /** 7.5: file name -> short name of the source a failed download moved to ("Switched to <source>"). */
     val switchedSources: StateFlow<Map<String, String>> = _switchedTo.asStateFlow()
+
+    private data class SourceChoiceSession(
+        val choices: DownloadSourceChoices,
+        val current: DownloadableFileEntity,
+        val candidates: Map<String, DownloadableFileEntity>
+    )
+    private val sourceChoiceSessions = ConcurrentHashMap<String, SourceChoiceSession>()
+    private val sourceChoiceEpochs = ConcurrentHashMap<String, Any>()
+
+    private fun invalidateSourceChoices(fileName: String) {
+        sourceChoiceEpochs[fileName] = Any()
+        sourceChoiceSessions.remove(fileName)
+    }
+
+    init { addUserActionListener(::invalidateSourceChoices) }
+
+    /** Reads the local index only. Opening this dialog never starts or contacts a source. */
+    suspend fun sourceChoices(fileName: String): DownloadSourceChoices? = withContext(Dispatchers.IO) {
+        val epoch = sourceChoiceEpochs[fileName]
+        val original = synchronized(startLock) {
+            val item = downloadProgressTracker.getDownloads().firstOrNull { it.fileName == fileName }
+            if (item == null || !DownloadSourcePolicy.canChange(item.status)) return@withContext null
+            downloadEntities[fileName] ?: return@withContext null
+        }
+        // A new batch may still be choosing its initial source. Display the actual source once ready.
+        sourceSelections[fileName]?.await()
+        val current = synchronized(startLock) {
+            downloadEntities[fileName]?.takeIf { it.consoleId == original.consoleId && it.fileName == original.fileName }
+                ?: return@withContext null
+        }
+        val copies = sourceTrack.manualCandidates(current)
+        currentCoroutineContext().ensureActive()
+        val currentWithSource = current.copy(sourceUrl = sourceTrack.sourceOf(current).orEmpty())
+        val rows = listOf(currentWithSource) + copies.filter { it.downloadUrl != current.downloadUrl }
+        val candidates = rows.associateBy { UUID.randomUUID().toString() }
+        val choices = DownloadSourceChoices(
+            token = UUID.randomUUID().toString(), fileName = fileName,
+            options = candidates.map { (id, entity) ->
+                DownloadSourceOption(id, DownloadSourcePolicy.host(entity), entity.downloadUrl == current.downloadUrl, DownloadSourcePolicy.kind(entity))
+            }
+        )
+        synchronized(startLock) {
+            val status = downloadProgressTracker.getDownloads().firstOrNull { it.fileName == fileName }?.status
+            if (sourceChoiceEpochs[fileName] !== epoch || downloadEntities[fileName] != current || status == null || !DownloadSourcePolicy.canChange(status)) return@withContext null
+            sourceChoiceSessions[fileName] = SourceChoiceSession(choices, current, candidates)
+        }
+        choices
+    }
+
+    /**
+     * Pins the exact confirmed indexed source. The old worker and all native/account cleanup finish
+     * before its partial is forgotten and the replacement is released; source ranking is bypassed.
+     */
+    suspend fun changeSource(choices: DownloadSourceChoices, optionId: String): SourceChangeResult = withContext(Dispatchers.IO) {
+        val session = sourceChoiceSessions[choices.fileName]?.takeIf { it.choices.token == choices.token }
+            ?: return@withContext SourceChangeResult.STALE
+        val selected = session.candidates[optionId]?.takeIf { it.downloadUrl != session.current.downloadUrl }
+            ?: return@withContext SourceChangeResult.UNAVAILABLE
+        if (!sourceTrack.permitsManualChoice(session.current) || !sourceTrack.permitsManualChoice(selected)) return@withContext SourceChangeResult.RESTRICTED
+        // A rescan, disabling a source or changing profile while the dialog was open is authoritative.
+        val next = sourceTrack.manualCandidates(session.current).firstOrNull {
+            it.downloadUrl == selected.downloadUrl && it.sourceUrl == selected.sourceUrl && DownloadSourcePolicy.sameFile(session.current, it)
+        } ?: return@withContext SourceChangeResult.UNAVAILABLE
+        currentCoroutineContext().ensureActive()
+        val job = synchronized(startLock) {
+            val fileName = choices.fileName
+            val status = downloadProgressTracker.getDownloads().firstOrNull { it.fileName == fileName }?.status
+            if (sourceChoiceSessions[fileName] !== session || downloadEntities[fileName] != session.current ||
+                status == null || !DownloadSourcePolicy.canChange(status)) return@withContext SourceChangeResult.STALE
+            userActed(fileName)
+            pausingFiles.remove(fileName)
+            autoRetries.remove(fileName)
+            switchedOnce.remove(fileName)
+            localFailures.remove(fileName)
+            val transfer = downloadJobs[fileName]
+            val debrid = debridTorrents.remove(fileName)
+            sourceSelections.remove(fileName)?.cancel()
+            val selection = CompletableDeferred<DownloadableFileEntity>()
+            sourceSelections[fileName] = selection
+            downloadEntities[fileName] = next
+            downloadProgressTracker.resetDownloadForRetry(fileName, fileSize = next.fileSize)
+            _verification.update { it - fileName }
+            _switchedTo.update { it + (fileName to DownloadSourcePolicy.safeLabel(next)) }
+            launchCleanup(fileName, "Changing the source of $fileName", transfer) {
+                try {
+                    if (debrid != null) {
+                        historyDao.setDebrid(fileName, null, null, null)
+                        debrid.first.delete(debrid.second)
+                    } else if (session.current.isTorrent) {
+                        torrentDownloadService.cancelDownload(session.current, reportStatus = false)
+                    }
+                    partials.remove(fileName)
+                    headerHashes.remove(fileName)
+                    transferSamples.remove(fileName)
+                    val item = synchronized(startLock) {
+                        downloadProgressTracker.getDownloads().firstOrNull { it.fileName == fileName }
+                            ?.takeIf { downloadEntities[fileName] == next && sourceSelections[fileName] === selection }
+                    }
+                    if (item != null) {
+                        historyDao.upsertAll(listOf(DownloadHistoryEntity.from(next, item)))
+                        downloadProgressTracker.persistCurrentStatuses(listOf(fileName))
+                    }
+                    selection.complete(next)
+                } catch (e: Exception) {
+                    selection.completeExceptionally(e)
+                    throw e
+                } finally {
+                    sourceSelections.remove(fileName, selection)
+                }
+            }
+            transfer?.cancel()
+            launchJob(next, selection, startImmediately = false)
+        }
+        startForegroundService()
+        job.start()
+        SourceChangeResult.STARTED
+    }
 
     /**
      * With "Pick the best source" on, a new download takes the copy of the same file from the source
@@ -823,6 +1008,7 @@ class DownloadService @Inject constructor(
     }
 
     fun cancelAllDownloads() {
+        synchronized(startLock) { retryOwners.keys.toList().forEach(::cancelAutomaticRetry) }
         getDownloads().filterNot { it.isFinished }.forEach { cancelDownload(it.fileName) }
     }
 

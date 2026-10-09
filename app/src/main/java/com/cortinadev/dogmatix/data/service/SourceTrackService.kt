@@ -8,6 +8,7 @@ import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.util.FailureClass
 import com.cortinadev.dogmatix.util.SourceRanking
+import com.cortinadev.dogmatix.util.DownloadSourcePolicy
 import com.cortinadev.dogmatix.util.SourceRecord
 import com.cortinadev.dogmatix.util.SourcesJson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -38,7 +39,8 @@ class SourceTrackService @Inject constructor(
     private val fileDao: DownloadableFileDao,
     private val consoleDao: ConsoleDao,
     private val settings: SourcePickSettings,
-    private val history: OperationHistoryService
+    private val history: OperationHistoryService,
+    private val profiles: ProfileService
 ) {
     private val file = File(context.filesDir, "source_track.json")
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -107,11 +109,15 @@ class SourceTrackService @Inject constructor(
             (if (sameNameOnly) emptyList() else fileDao.versionsOf(entity.consoleId, entity.searchKey))
         val others = rows.filter { it.downloadUrl != self.downloadUrl && it.sourceUrl in order }.distinctBy { it.downloadUrl }
         if (others.isEmpty()) return listOf(self)
-        val tags = if (sameNameOnly) emptyMap() else
-            fileDao.tagsOfFiles((others.map { it.id } + self.id).distinct()).groupBy({ it.fileId }, { it.tag })
+        // Automatic ranking follows the same profile visibility rule as manual choices/imports.
+        val tags = (others.map { it.id } + self.id).distinct().chunked(400)
+            .flatMap { fileDao.tagsOfFiles(it) }.groupBy({ it.fileId }, { it.tag })
+        val restrictions = profiles.current()
         fun copyOf(f: DownloadableFileEntity) = SourceRanking.Copy(f.consoleId, f.fileName, f.name, tags[f.id].orEmpty(), f.fileSize)
         val target = copyOf(self)
-        val same = others.filter { SourceRanking.sameGame(target, copyOf(it)) }
+        val same = others.filter {
+            restrictions.allows(it.consoleId, tags[it.id].orEmpty()) && SourceRanking.sameGame(target, copyOf(it))
+        }
         return SourceRanking.rank(listOf(self) + same, { it.sourceUrl }, _records.value, order, System.currentTimeMillis())
     }
 
@@ -130,6 +136,36 @@ class SourceTrackService @Inject constructor(
     suspend fun nextBest(entity: DownloadableFileEntity): DownloadableFileEntity? {
         if (!settings.pickBest.first()) return null
         return runCatching { ranked(entity, sameNameOnly = true).firstOrNull { it.downloadUrl != entity.downloadUrl } }.getOrNull()
+    }
+
+    /** Indexed, enabled copies of this exact file that the current profile allows. Ranking is advisory. */
+    suspend fun manualCandidates(entity: DownloadableFileEntity): List<DownloadableFileEntity> {
+        val order = sourceOrder(entity.consoleId)
+        val rows = fileDao.filesByFileNames(listOf(entity.fileName)).filter {
+            DownloadSourcePolicy.sameFile(entity, it) && it.sourceUrl in order
+        }.distinctBy { it.downloadUrl }
+        val tags = rows.map { it.id }.chunked(400).flatMap { fileDao.tagsOfFiles(it) }
+            .groupBy({ it.fileId }, { it.tag })
+        // Read after all index awaits: a profile switch during a database query wins.
+        val restrictions = profiles.current()
+        if (entity.consoleId in restrictions.hiddenConsoles) return emptyList()
+        // A disappeared history row has no reliable tags. With tag restrictions, fail closed.
+        val current = rows.firstOrNull { it.downloadUrl == entity.downloadUrl }
+        if (restrictions.hiddenTags.isNotEmpty() && (current == null || !restrictions.allows(current.consoleId, tags[current.id].orEmpty()))) return emptyList()
+        return SourceRanking.rank(
+            rows.filter { restrictions.allows(it.consoleId, tags[it.id].orEmpty()) },
+            { it.sourceUrl }, _records.value, order, System.currentTimeMillis()
+        )
+    }
+
+    /** Used to explain a confirmation rejected after switching profile while the dialog was open. */
+    suspend fun permitsManualChoice(entity: DownloadableFileEntity): Boolean {
+        val row = fileDao.filesByFileNames(listOf(entity.fileName)).firstOrNull {
+            it.consoleId == entity.consoleId && it.downloadUrl == entity.downloadUrl
+        }
+        val tags = row?.let { fileDao.getTagsForFile(it.id) }.orEmpty()
+        val restrictions = profiles.current()
+        return restrictions.allows(entity.consoleId, tags) && (restrictions.hiddenTags.isEmpty() || row != null)
     }
 
     /** The enabled sources of [consoleId] in the order of Sources. */

@@ -2,6 +2,16 @@
 
 Public releases follow 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. See [release numbering](docs/releases/numbering.md) for the migration and original APK versions.
 
+## [2.6.0] – 2026-10-09 · Dogmatix+
+
+- Visible automatic retry countdown with Try now and Cancel retry; old attempts cannot control a newer transfer.
+- Persist safe download failure categories, HTTP status and timestamps across restart; clear on retry.
+- Editable daytime/nighttime and custom download presets for speed, concurrency and scheduling.
+- Confirm another enabled source for the same file from Downloads; finish prior cleanup and discard incompatible partial data before restart.
+- Share/import reviewed download plans with ordered selections and per-item conditions, using receiver-local sources and settings.
+- Profile-scoped emulator variants/cores per game, effective-choice readiness checks and backup support.
+- Seven translated interfaces, Android build 38 and database migration 14 → 15.
+
 ## [2.5.0] – 2026-10-08 · Dogmatix+
 
 - Ready-to-play file/disc/BIOS/emulator checks, guided console setup and a test launch.

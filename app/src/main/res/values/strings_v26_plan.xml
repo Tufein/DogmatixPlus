@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plan26_title">Download plan</string>
+    <string name="plan26_hint">Share selected waiting, paused or failed downloads, or the queue if nothing is selected. Running transfers and finished files are excluded.</string>
+    <string name="plan26_export">Export plan</string>
+    <string name="plan26_share">Share plan</string>
+    <string name="plan26_import">Import plan</string>
+    <string name="plan26_review">Review download plan</string>
+    <string name="plan26_review_hint">Only available games are added in plan order. Your sources, storage and global download rules stay in control. Scheduled times keep their original moment.</string>
+    <string name="plan26_count">%1$d of %2$d games can be added</string>
+    <string name="plan26_enqueue">Add %1$d to queue</string>
+    <string name="plan26_ready">Ready to add</string>
+    <string name="plan26_missing">Not indexed on this device</string>
+    <string name="plan26_unavailable">No enabled source available</string>
+    <string name="plan26_restricted">Hidden by the active profile</string>
+    <string name="plan26_already_queued">Already present in Downloads</string>
+    <string name="plan26_owned">Already owned on this device</string>
+    <string name="plan26_name_conflict">Another console already uses this filename in the plan</string>
+    <string name="plan26_export_failed">No eligible downloads, or the plan could not be exported. Select waiting, paused or failed downloads (maximum 3,000).</string>
+    <string name="plan26_import_failed">This plan could not be read or applied. Choose a valid Dogmatix download-plan JSON file of at most 2 MiB.</string>
+    <string name="plan26_imported">%1$d games added to the queue</string>
+    <string name="plan26_saved">Download plan saved</string>
+</resources>

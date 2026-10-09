@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plan26_title">Plan de descargas</string>
+    <string name="plan26_hint">Comparte las descargas seleccionadas en espera, pausadas o fallidas, o la cola si no hay selección. Se excluyen las transferencias activas y los archivos terminados.</string>
+    <string name="plan26_export">Exportar plan</string>
+    <string name="plan26_share">Compartir plan</string>
+    <string name="plan26_import">Importar plan</string>
+    <string name="plan26_review">Revisar plan de descargas</string>
+    <string name="plan26_review_hint">Solo se añaden juegos disponibles en el orden del plan. Siguen vigentes tus fuentes, almacenamiento y reglas generales. Los horarios conservan su momento original.</string>
+    <string name="plan26_count">Se pueden añadir %1$d de %2$d juegos</string>
+    <string name="plan26_enqueue">Añadir %1$d a la cola</string>
+    <string name="plan26_ready">Listo para añadir</string>
+    <string name="plan26_missing">No indexado en este dispositivo</string>
+    <string name="plan26_unavailable">No hay una fuente activada disponible</string>
+    <string name="plan26_restricted">Oculto por el perfil activo</string>
+    <string name="plan26_already_queued">Ya está en Descargas</string>
+    <string name="plan26_owned">Ya está en este dispositivo</string>
+    <string name="plan26_name_conflict">Otra consola ya usa este nombre de archivo en el plan</string>
+    <string name="plan26_export_failed">No hay descargas aptas o no se pudo exportar el plan. Selecciona descargas en espera, pausadas o fallidas (máximo 3.000).</string>
+    <string name="plan26_import_failed">No se pudo leer o aplicar este plan. Elige un archivo JSON válido de plan Dogmatix de hasta 2 MiB.</string>
+    <string name="plan26_imported">%1$d juegos añadidos a la cola</string>
+    <string name="plan26_saved">Plan de descargas guardado</string>
+</resources>

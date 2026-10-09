@@ -133,7 +133,8 @@ fun GamePage(
     viewModel: GamePageViewModel = hiltViewModel(),
     onReadiness: ((String, String) -> Unit)? = null
 ) {
-    LaunchedEffect(consoleId, fileName) { viewModel.load(consoleId, fileName) }
+    val activeProfile by viewModel.activeProfile.collectAsState()
+    LaunchedEffect(consoleId, fileName, activeProfile) { viewModel.load(consoleId, fileName) }
     val phase by viewModel.phase.collectAsState()
     val state by viewModel.details.collectAsState()
     val current = state
@@ -223,7 +224,10 @@ private fun GamePageContent(
     var showCollections by remember { mutableStateOf(false) }
     var removalPlan by remember { mutableStateOf<List<com.cortinadev.dogmatix.data.service.RemovalFile>?>(null) }
     var launchChoices by remember { mutableStateOf<List<com.cortinadev.dogmatix.data.service.GameLaunch>?>(null) }
+    var emulatorChoices by remember { mutableStateOf<List<com.cortinadev.dogmatix.data.service.GameLaunch>?>(null) }
+    val emulatorChoice by viewModel.emulatorChoice.collectAsState()
     var rememberEmulator by rememberSaveable { mutableStateOf(true) }
+    var rememberForGame by rememberSaveable { mutableStateOf(false) }
     var staleChoice by remember { mutableStateOf(false) }
     var preparing by remember { mutableStateOf(false) }
     val planError = stringResource(R.string.recovery_action_failed)
@@ -241,8 +245,12 @@ private fun GamePageContent(
     val launchFailedMessage = stringResource(R.string.play24_launch_failed, "%s")
     // Starts [handler]; false when it did not start (the reason is shown).
     val start: (com.cortinadev.dogmatix.data.service.GameLaunch, com.cortinadev.dogmatix.data.service.GameHandler, Boolean, Boolean) -> Boolean = { game, handler, remember, automatic ->
-        when (viewModel.gameLauncher.launch(context, rom.consoleId, game, handler, remember, automatic)) {
-            com.cortinadev.dogmatix.data.service.LaunchOutcome.STARTED -> true
+        when (viewModel.gameLauncher.launch(context, rom.consoleId, game, handler, remember && !rememberForGame, automatic)) {
+            com.cortinadev.dogmatix.data.service.LaunchOutcome.STARTED -> {
+                if (remember && rememberForGame) viewModel.gameLauncher.setGamePreferred(rom.consoleId, rom.fileName,
+                    if (automatic) com.cortinadev.dogmatix.util.GameLaunchKeys.AUTOMATIC else handler.key)
+                true
+            }
             com.cortinadev.dogmatix.data.service.LaunchOutcome.NEEDS_EXTRACT -> { showMessage(needsExtractMessage.format(handler.label)); false }
             com.cortinadev.dogmatix.data.service.LaunchOutcome.FAILED -> { showMessage(launchFailedMessage.format(handler.label)); false }
         }
@@ -252,17 +260,18 @@ private fun GamePageContent(
             preparing = true
             try {
                 val choices = viewModel.gameLauncher.choices(rom)
-                val preferred = viewModel.gameLauncher.preferred(rom.consoleId)
                 // One file, or a playlist that holds every disc: the remembered app starts it directly.
                 val single = choices.singleOrNull() ?: choices.firstOrNull()?.takeIf { it.name.endsWith(".m3u", ignoreCase = true) }
-                val handler = single?.let { viewModel.gameLauncher.resolve(it, preferred) }
+                val resolved = single?.let { viewModel.gameLauncher.effective(rom.consoleId, rom.fileName, it) }
+                val handler = resolved?.handler
                 if (choices.isEmpty() || choices.all { it.handlers.isEmpty() }) showMessage(missingEmulator)
                 else if (single != null && handler != null) {
                     // A remembered app that fails is no dead end: the chooser opens.
                     if (!start(single, handler, false, false)) { staleChoice = false; launchChoices = choices }
                 } else {
                     // A remembered app that is not offered any more (uninstalled): say so above the choices.
-                    staleChoice = preferred != null && choices.none { viewModel.gameLauncher.resolve(it, preferred) != null }
+                    staleChoice = choices.any { viewModel.gameLauncher.effective(rom.consoleId, rom.fileName, it).missingGameOverride } ||
+                        viewModel.gameLauncher.preferred(rom.consoleId)?.let { preferred -> choices.none { viewModel.gameLauncher.resolve(it, preferred) != null } } == true
                     launchChoices = choices
                 }
             } catch (e: kotlinx.coroutines.CancellationException) { throw e }
@@ -312,8 +321,13 @@ private fun GamePageContent(
                 if (staleChoice) Text(stringResource(R.string.play24_remembered_missing), style = MaterialTheme.typography.bodySmall)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(rememberEmulator, { rememberEmulator = it })
-                    Text(stringResource(R.string.play_remember), style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.play26_remember_choice), style = MaterialTheme.typography.bodySmall)
                 }
+                if (rememberEmulator) Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(rememberForGame, { rememberForGame = it })
+                    Text(stringResource(R.string.play26_remember_game), style = MaterialTheme.typography.bodySmall)
+                }
+                if (rememberEmulator && !rememberForGame) Text(stringResource(R.string.play_remember), style = MaterialTheme.typography.bodySmall)
                 // Automatic: the best app offered (a known emulator first), now and, when remembered, every time.
                 val best = choices.firstOrNull { it.handlers.isNotEmpty() }
                 best?.let { game -> ActionPill(stringResource(R.string.play24_automatic, game.handlers.first().label), { pick(game, game.handlers.first(), true) }, icon = R.drawable.ic_controller) }
@@ -326,6 +340,11 @@ private fun GamePageContent(
                 if (choices.any { c -> c.handlers.any { it.core != null } }) Text(stringResource(R.string.play24_core_hint), style = MaterialTheme.typography.bodySmall)
             } }, confirmButton = {},
             dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), { launchChoices = null }, initialFocus = cancelFocus) })
+    }
+    emulatorChoices?.let { choices ->
+        GameEmulatorChoiceDialog(choices, emulatorChoice?.gameOverride, emulatorChoice?.consoleDefault,
+            onPick = { key -> viewModel.gameLauncher.setGamePreferred(rom.consoleId, rom.fileName, key); emulatorChoices = null },
+            onDismiss = { emulatorChoices = null })
     }
 
     // LB / RB switch tabs, Select stars the game (the shell keeps ZL / ZR for the app's sections).
@@ -398,7 +417,15 @@ private fun GamePageContent(
             onReadiness?.let { open -> ActionPill(stringResource(R.string.ready25_title), { open(rom.consoleId, rom.fileName) }, icon = R.drawable.ic_controller) }
             if (owned && !downloading) {
                 ActionPill(stringResource(R.string.owned_download_again), { download(item, null) }, icon = R.drawable.ic_download)
-                ActionPill(stringResource(R.string.play_change_handler), { viewModel.gameLauncher.clear(rom.consoleId); play() }, icon = R.drawable.ic_settings)
+                ActionPill(stringResource(R.string.play26_game_title), {
+                    if (!preparing) scope.launch {
+                        preparing = true
+                        try { emulatorChoices = viewModel.gameLauncher.choices(rom) }
+                        catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                        catch (_: Exception) { showMessage(planError) }
+                        finally { preparing = false }
+                    }
+                }, icon = R.drawable.ic_settings)
             }
             val switch = state.switch
             // The live ranking (the same as the Versions tab), so a pin or a preference change shows at once.

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="play26_game_title">Emulator for this game</string>
+    <string name="play26_game_hint">Use one installed emulator and core for this game. Other games keep their console default.</string>
+    <string name="play26_effective">Effective choice: %1$s</string>
+    <string name="play26_missing">This game’s emulator is unavailable. The console default is used; choose another emulator or restore the default.</string>
+    <string name="play26_use_console">Use console default</string>
+    <string name="play26_remember_game">Remember only for this game</string>
+    <string name="play26_test_effective">Test effective choice</string>
+    <string name="play26_remember_choice">Remember this choice</string>
+</resources>

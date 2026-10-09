@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.cortinadev.dogmatix.data.model.DownloadItemModel
 import com.cortinadev.dogmatix.data.model.DownloadStatus
+import com.cortinadev.dogmatix.util.PersistedDownloadFailure
 
 /**
  * One row per entry of the Downloads list, so the list survives app restarts.
@@ -31,7 +32,11 @@ data class DownloadHistoryEntity(
     @ColumnInfo(defaultValue = "NULL") val debridTorrentId: String? = null,
     @ColumnInfo(defaultValue = "NULL") val debridFileId: Int? = null,
     /** Hash the source published for the file (`algorithm:hex`); the finished download is checked against it. */
-    @ColumnInfo(defaultValue = "NULL") val expectedHash: String? = null
+    @ColumnInfo(defaultValue = "NULL") val expectedHash: String? = null,
+    /** Safe diagnostic metadata only; exception text, provider messages and URLs are never stored here. */
+    @ColumnInfo(defaultValue = "NULL") val failureCategory: String? = null,
+    @ColumnInfo(defaultValue = "NULL") val failureHttpStatusCode: Int? = null,
+    @ColumnInfo(defaultValue = "NULL") val failureAt: Long? = null
 ) {
     fun toEntity(): DownloadableFileEntity = DownloadableFileEntity(
         name = name,
@@ -62,7 +67,11 @@ data class DownloadHistoryEntity(
             downloadedBytes = if (restored == DownloadStatus.COMPLETED) fileSize else 0L,
             status = restored,
             startedAt = startedAt,
-            finishedAt = finishedAt ?: if (restored == DownloadStatus.STOPPED) startedAt else null
+            finishedAt = finishedAt ?: if (restored == DownloadStatus.STOPPED) startedAt else null,
+            failure = if (restored == DownloadStatus.FAILED || restored == DownloadStatus.STOPPED)
+                PersistedDownloadFailure.restore(failureCategory, failureHttpStatusCode) else null,
+            failureAt = if (restored == DownloadStatus.FAILED || restored == DownloadStatus.STOPPED)
+                PersistedDownloadFailure.timestamp(failureAt) else null
         )
     }
 
@@ -79,7 +88,10 @@ data class DownloadHistoryEntity(
             status = item.status.name,
             startedAt = item.startedAt,
             finishedAt = item.finishedAt,
-            expectedHash = file.expectedHash
+            expectedHash = file.expectedHash,
+            failureCategory = item.failure?.category?.name,
+            failureHttpStatusCode = PersistedDownloadFailure.httpCode(item.failure?.httpStatusCode),
+            failureAt = if (item.failure != null) PersistedDownloadFailure.timestamp(item.failureAt) else null
         )
     }
 }

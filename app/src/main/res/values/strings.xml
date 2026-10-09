@@ -1320,10 +1320,10 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Check game files, disc references, BIOS and emulator setup before testing a launch.</item>
-        <item>Create smart collections and preview offline downloads with collection limits and free-space reserves.</item>
-        <item>Review bulk version upgrades and keep favourites, preferences and history separate per profile.</item>
-        <item>Get help with failed actions and restore verified recovery copies of files removed in the explorer.</item>
+        <item>See the automatic retry countdown, try now or cancel, and keep download failure details after restarting.</item>
+        <item>Save download speed, concurrency and scheduling presets; confirm another source for a stalled or failed file.</item>
+        <item>Share and import download plans with an ordered selection, per-file conditions and a review before starting.</item>
+        <item>Choose an emulator for each game and profile, with the console default as fallback.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="presets26_title">Predefinições de download</string>
+    <string name="presets26_settings_hint">Guarde e aplique os limites e as condições de download em conjunto.</string>
+    <string name="presets26_hint">As predefinições abrangem todos os perfis deste dispositivo. As pastas, contas e planos individuais mantêm-se. Os downloads em curso continuam; as condições regulam os novos inícios.</string>
+    <string name="presets26_current">Definições atuais</string>
+    <string name="presets26_save_current">Guardar definições atuais</string>
+    <string name="presets26_edit">Editar predefinição</string>
+    <string name="presets26_delete">Eliminar predefinição</string>
+    <string name="presets26_daytime">Dia tranquilo</string>
+    <string name="presets26_night">Noite ao máximo</string>
+    <string name="presets26_speed_value">%1$d KB/s</string>
+    <string name="presets26_summary">%1$s · %2$d simultâneos</string>
+    <string name="presets26_wifi">Apenas Wi-Fi</string>
+    <string name="presets26_charging">Durante o carregamento</string>
+    <string name="presets26_night_only">Apenas na janela noturna</string>
+    <string name="presets26_window">%1$s–%2$s</string>
+    <string name="presets26_day_limit">Retirar limite de velocidade à noite</string>
+    <string name="presets26_start">Início da noite</string>
+    <string name="presets26_end">Fim da noite</string>
+    <string name="presets26_name">Nome da predefinição</string>
+    <string name="presets26_edit_hint">Escolha as definições a guardar. A predefinição aplica-as em conjunto.</string>
+    <string name="presets26_loading">A carregar predefinições…</string>
+    <string name="presets26_applied">Predefinição aplicada</string>
+    <string name="presets26_saved">Predefinição guardada</string>
+    <string name="presets26_deleted">Predefinição eliminada</string>
+    <string name="presets26_failed">Não foi possível guardar ou aplicar a predefinição. Tente novamente.</string>
+</resources>

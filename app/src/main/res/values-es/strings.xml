@@ -1293,10 +1293,10 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Comprueba los archivos del juego, las referencias de discos, la BIOS y el emulador antes de probar el inicio.</item>
-        <item>Crea colecciones inteligentes y revisa las descargas sin conexión con límites y reservas de espacio.</item>
-        <item>Revisa las mejoras de versión por lotes y separa favoritos, preferencias e historial por perfil.</item>
-        <item>Obtén ayuda tras los fallos y restaura las copias verificadas de archivos eliminados en el explorador.</item>
+        <item>Consulta la cuenta atrás del reintento, inténtalo ahora o cancela; los errores de descarga se conservan al reiniciar.</item>
+        <item>Guarda ajustes de velocidad, descargas simultáneas y programación; confirma otra fuente para un archivo bloqueado.</item>
+        <item>Comparte e importa planes de descarga con selección ordenada, condiciones por archivo y revisión antes de iniciar.</item>
+        <item>Elige un emulador por juego y perfil, con la opción de la consola como alternativa.</item>
     </string-array>
 
     <!-- 4.0 -->

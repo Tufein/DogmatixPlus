@@ -1319,10 +1319,10 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Prüfe Spieldateien, Disc-Verweise, BIOS und Emulator-Einstellungen vor einem Teststart.</item>
-        <item>Erstelle intelligente Sammlungen und prüfe Offline-Downloads mit Sammlungslimits und Speicherreserven.</item>
-        <item>Prüfe mehrere Versions-Upgrades und verwalte Favoriten, Einstellungen und Verlauf getrennt pro Profil.</item>
-        <item>Erhalte Hilfe bei fehlgeschlagenen Aktionen und stelle geprüfte Sicherungskopien aus dem Dateiexplorer wieder her.</item>
+        <item>Sieh den Countdown für einen neuen Versuch, starte sofort oder brich ihn ab; Downloadfehler bleiben nach einem Neustart erhalten.</item>
+        <item>Speichere Vorgaben für Geschwindigkeit, parallele Downloads und Zeitplanung; bestätige eine andere Quelle für eine stockende Datei.</item>
+        <item>Teile und importiere Downloadpläne mit Auswahlreihenfolge, Bedingungen pro Datei und Prüfung vor dem Start.</item>
+        <item>Wähle einen Emulator pro Spiel und Profil, mit der Konsolenvorgabe als Rückfalloption.</item>
     </string-array>
 
     <!-- 4.0 -->

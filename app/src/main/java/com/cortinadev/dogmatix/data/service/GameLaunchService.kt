@@ -16,12 +16,16 @@ import com.cortinadev.dogmatix.util.DiskScanner
 import com.cortinadev.dogmatix.util.EmulatorCatalog
 import com.cortinadev.dogmatix.util.FileRef
 import com.cortinadev.dogmatix.util.GameLaunchKeys
+import com.cortinadev.dogmatix.util.GameEmulatorOverrides
 import com.cortinadev.dogmatix.util.GameArtifacts
 import com.cortinadev.dogmatix.util.PlayRecipe
 import com.cortinadev.dogmatix.util.PlaySystem
 import com.cortinadev.dogmatix.util.PlayTarget
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
@@ -70,7 +74,8 @@ enum class LaunchOutcome {
  * Play: the apps that can start a downloaded game, and the start itself. Known emulators of the
  * catalogue ([EmulatorCatalog]) come first and get the launch recipe ES-DE uses for them (explicit
  * activity, action, extras); after them every other app that takes the file through
- * `ACTION_VIEW`, one entry per package. The pick can be remembered per console.
+ * `ACTION_VIEW`, one entry per package. The console preference is the fallback for each
+ * profile's per-game override; both store an explicit package/core for catalogue emulators.
  *
  * None of the recipes could be run against real emulators where this was written.
  */
@@ -82,6 +87,14 @@ class GameLaunchService @Inject constructor(
     private val profiles: ProfileService
 ) {
     private val preferences = context.getSharedPreferences("game_launchers", Context.MODE_PRIVATE)
+    private val gamePreferences = GameEmulatorPreferences(preferences, profiles::currentIdNow)
+    private val _preferenceRevision = MutableStateFlow(0L)
+    val preferenceRevision = _preferenceRevision.asStateFlow()
+    // Keep a strong reference: Android stores preference listeners weakly.
+    private val preferenceListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
+        _preferenceRevision.update { it + 1L }
+    }
+    init { preferences.registerOnSharedPreferenceChangeListener(preferenceListener) }
 
     suspend fun choices(file: DownloadableFileEntity): List<GameLaunch> = withContext(Dispatchers.IO) {
         val artifacts = library.launchPlan(file).filter { GameArtifacts.safeLaunchReference(it.name) }
@@ -114,7 +127,7 @@ class GameLaunchService @Inject constructor(
     }
 
     private fun preferenceKey(consoleId: String) = com.cortinadev.dogmatix.data.local.PersonalPreferences.prefix(profiles.currentIdNow()) + consoleId
-    fun preferred(consoleId: String): String? = preferences.getString(preferenceKey(consoleId), null)
+    fun preferred(consoleId: String): String? = gamePreferences.console(consoleId)
     fun clear(consoleId: String) { preferences.edit().remove(preferenceKey(consoleId)).apply() }
 
     /** Stores [key] ([GameLaunchKeys]) for [consoleId]; null forgets it (Play asks again). */
@@ -125,6 +138,15 @@ class GameLaunchService @Inject constructor(
     /** The handler of [game] the remembered [stored] value means, or null when it names nothing installed now. */
     fun resolve(game: GameLaunch, stored: String?): GameHandler? =
         GameLaunchKeys.resolve(stored, game.handlers, { it.key }, { it.packageName })
+
+    /** The active profile's override for the canonical game, independent of source/region/revision. */
+    fun gamePreferred(consoleId: String, fileName: String): String? = gamePreferences.game(consoleId, fileName)
+
+    /** Null returns this game to the console's default, without changing any other game. */
+    fun setGamePreferred(consoleId: String, fileName: String, key: String?) = gamePreferences.setGame(consoleId, fileName, key)
+
+    fun effective(consoleId: String, fileName: String, game: GameLaunch): GameEmulatorOverrides.Resolution<GameHandler> =
+        GameEmulatorOverrides.resolve(gamePreferred(consoleId, fileName), preferred(consoleId), game.handlers, { it.key }, { it.packageName })
 
     /** The catalogue emulators installed for each of [consoleIds] (RetroArch once per core); consoles without any are left out. */
     suspend fun catalogueTargets(consoleIds: Collection<String>): Map<String, List<PlayTarget>> = withContext(Dispatchers.IO) {

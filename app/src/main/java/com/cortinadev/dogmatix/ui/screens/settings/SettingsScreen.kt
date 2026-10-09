@@ -317,6 +317,9 @@ fun SettingsScreen(
         AccentDialog(selected = ui.accent, onPick = { viewModel.onAccentChanged(context, it); showAccentDialog = false }, onDismiss = { showAccentDialog = false })
     }
 
+    var showDownloadPresets by remember { mutableStateOf(false) }
+    if (showDownloadPresets) DownloadPresetsDialog(onDismiss = { showDownloadPresets = false })
+
     var showLanguagesDialog by remember { mutableStateOf(false) }
     if (showLanguagesDialog) {
         val available by viewModel.availableLanguages.collectAsState()
@@ -516,6 +519,16 @@ fun SettingsScreen(
                 onClick = { launcher.launch(null) }
             ) {
                 ActionPill(stringResource(R.string.settings_change), { launcher.launch(null) }, icon = R.drawable.ic_folder_open)
+            }
+        },
+        SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.DOWNLOAD_PRESETS) {
+            SettingRow(
+                icon = R.drawable.ic_schedule,
+                title = stringResource(R.string.presets26_title),
+                hint = stringResource(R.string.presets26_settings_hint),
+                onClick = { showDownloadPresets = true }
+            ) {
+                ActionPill(stringResource(R.string.settings_change), { showDownloadPresets = true }, icon = R.drawable.ic_edit)
             }
         },
         SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.SEPARATE_CONSOLE) {

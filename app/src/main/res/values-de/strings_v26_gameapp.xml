@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="play26_game_title">Emulator für dieses Spiel</string>
+    <string name="play26_game_hint">Wähle einen installierten Emulator und Core für dieses Spiel. Andere Spiele behalten die Konsolenvorgabe.</string>
+    <string name="play26_effective">Aktive Auswahl: %1$s</string>
+    <string name="play26_missing">Der Emulator dieses Spiels ist nicht verfügbar. Die Konsolenvorgabe wird verwendet; wähle einen anderen Emulator oder stelle die Vorgabe wieder her.</string>
+    <string name="play26_use_console">Konsolenvorgabe verwenden</string>
+    <string name="play26_remember_game">Nur für dieses Spiel merken</string>
+    <string name="play26_test_effective">Aktive Auswahl testen</string>
+    <string name="play26_remember_choice">Diese Auswahl merken</string>
+</resources>
