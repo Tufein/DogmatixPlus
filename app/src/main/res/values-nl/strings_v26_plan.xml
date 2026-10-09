@@ -20,4 +20,9 @@
     <string name="plan26_import_failed">Dit plan kon niet worden gelezen of toegepast. Kies een geldig Dogmatix-downloadplan in JSON van maximaal 2 MiB.</string>
     <string name="plan26_imported">%1$d games toegevoegd aan de wachtrij</string>
     <string name="plan26_saved">Downloadplan opgeslagen</string>
+    <string name="plan26_ambiguous">Meerdere verschillende bestanden op dit apparaat hebben deze naam; er wordt niets toegevoegd</string>
+    <plurals name="plan26_export_skipped">
+        <item quantity="one">Laatste plan: %1$d download overgeslagen. Controleer de bestandsnaam en voorwaarden.</item>
+        <item quantity="other">Laatste plan: %1$d downloads overgeslagen. Controleer de bestandsnamen en voorwaarden.</item>
+    </plurals>
 </resources>

@@ -9,6 +9,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -29,8 +31,12 @@ import javax.inject.Inject
 
 data class ReadyRow(val label: Int, val message: Int, val ok: Boolean, val fix: String?)
 data class ReadyUi(val loading: Boolean = true, val rows: List<ReadyRow> = emptyList(),
-    val games: List<GameLaunch> = emptyList(), val selected: String? = null, val result: Int? = null,
-    val gameOverride: String? = null, val consoleDefault: String? = null, val missingGameOverride: Boolean = false)
+    val games: List<GameLaunch> = emptyList(), val result: Int? = null,
+    val gameOverride: String? = null, val consoleDefault: String? = null) {
+    /** A path-based emulator may be available for one entry while another needs the SAF fallback. */
+    fun effective(game: GameLaunch): GameEmulatorOverrides.Resolution<GameHandler> =
+        GameEmulatorOverrides.resolve(gameOverride, consoleDefault, game.handlers, { it.key }, { it.packageName })
+}
 
 @HiltViewModel
 class GameReadinessViewModel @Inject constructor(
@@ -70,14 +76,13 @@ class GameReadinessViewModel @Inject constructor(
                     val report = if (biosSystems.isEmpty()) null else bios.check(true)
                     val biosOk = report == null || report.results.filter { it.system.name in biosSystems }.all { it.allGood }
                     val handlers = games.any { it.handlers.isNotEmpty() }
-                    val resolution = games.firstOrNull { it.handlers.isNotEmpty() }?.let { launcher.effective(console, name, it) }
                     ReadyUi(false, listOf(
                         ReadyRow(R.string.ready25_files, if (readable) R.string.ready25_ok else R.string.ready25_missing, readable, NavRoutes.Files.route),
                         ReadyRow(R.string.ready25_discs, if (sheetsOk) R.string.ready25_ok else R.string.ready25_disc_problem, sheetsOk, NavRoutes.Sets.route),
                         ReadyRow(R.string.ready25_bios, if (biosOk) R.string.ready25_ok else R.string.ready25_bios_problem, biosOk, NavRoutes.Bios.route),
                         ReadyRow(R.string.ready25_emulator, if (handlers) R.string.ready25_choose else R.string.ready25_no_emulator, handlers, NavRoutes.Settings.route)
-                    ), games, selected = resolution?.handler?.key, gameOverride = launcher.gamePreferred(console, name),
-                        consoleDefault = launcher.preferred(console), missingGameOverride = resolution?.missingGameOverride == true)
+                    ), games, gameOverride = launcher.gamePreferred(console, name),
+                        consoleDefault = launcher.preferred(console))
                 }
                 _ui.value = next
             } catch (e: CancellationException) { throw e }
@@ -87,16 +92,10 @@ class GameReadinessViewModel @Inject constructor(
     fun select(console: String, name: String, key: String, forGame: Boolean) {
         if (_ui.value.games.none { game -> game.handlers.any { it.key == key } }) return
         if (forGame) launcher.setGamePreferred(console, name, key) else launcher.setPreferred(console, key)
-        val current = _ui.value
-        val resolution = current.games.firstOrNull { it.handlers.isNotEmpty() }?.let { launcher.effective(console, name, it) }
-        _ui.update { it.copy(selected = resolution?.handler?.key, result = R.string.ready25_saved,
-            gameOverride = launcher.gamePreferred(console, name), consoleDefault = launcher.preferred(console),
-            missingGameOverride = resolution?.missingGameOverride == true) }
+        _ui.update { it.copy(result = R.string.ready25_saved,
+            gameOverride = launcher.gamePreferred(console, name), consoleDefault = launcher.preferred(console)) }
     }
     fun useConsole(console: String, name: String) { launcher.setGamePreferred(console, name, null); check(console, name) }
-    fun testPreferred(context: Context, console: String, name: String, game: GameLaunch) {
-        launcher.effective(console, name, game).handler?.let { test(context, console, game, it) }
-    }
     fun test(context: Context, console: String, game: GameLaunch, handler: GameHandler) {
         if (_ui.value.loading || _ui.value.rows.any { !it.ok && it.label != R.string.ready25_bios }) return
         val result = runCatching { launcher.launch(context, console, game, handler, false) }.getOrDefault(LaunchOutcome.FAILED)
@@ -138,21 +137,43 @@ fun GameReadinessScreen(console: String, name: String, onNavigate: (String) -> U
                     Text(stringResource(R.string.play26_remember_game), style = MaterialTheme.typography.bodySmall)
                 }
                 if (!rememberForGame) Text(stringResource(R.string.play_remember), style = MaterialTheme.typography.bodySmall)
-                if (ui.missingGameOverride) Text(stringResource(R.string.play26_missing), color = MaterialTheme.colorScheme.error)
                 if (ui.gameOverride != null) ActionPill(stringResource(R.string.play26_use_console), { vm.useConsole(console, name) }, icon = R.drawable.ic_settings)
             }
             ui.games.forEach { game -> item {
-                Text(game.name, style = MaterialTheme.typography.titleSmall)
-                game.handlers.forEach { handler ->
-                    ToolRow(handler.label, emptyList(), onClick = { vm.select(console, name, handler.key, rememberForGame) },
-                        icon = if (ui.selected == handler.key) R.drawable.ic_check else R.drawable.ic_controller) {
-                        ActionPill(stringResource(R.string.ready25_test), { vm.test(context, console, game, handler) }, icon = R.drawable.ic_controller, enabled = !ui.loading && ui.rows.filter { it.label != R.string.ready25_bios }.all { it.ok })
-                    }
-                }
-                if (game.handlers.any { it.key == ui.selected }) ActionPill(stringResource(R.string.play26_test_effective), { vm.testPreferred(context, console, name, game) }, icon = R.drawable.ic_controller,
-                    enabled = !ui.loading && ui.rows.filter { it.label != R.string.ready25_bios }.all { it.ok })
+                ReadinessGameEntry(game, ui.effective(game),
+                    enabled = !ui.loading && ui.rows.filter { it.label != R.string.ready25_bios }.all { it.ok },
+                    onSelect = { handler -> vm.select(console, name, handler.key, rememberForGame) },
+                    onTest = { handler -> vm.test(context, console, game, handler) })
             } }
             ui.result?.let { message -> item { Text(stringResource(message)) } }
         }
+    }
+}
+
+/** The displayed choice, warning and effective test all come from this entry's one resolution. */
+@Composable
+internal fun ReadinessGameEntry(
+    game: GameLaunch,
+    resolution: GameEmulatorOverrides.Resolution<GameHandler>,
+    enabled: Boolean,
+    onSelect: (GameHandler) -> Unit,
+    onTest: (GameHandler) -> Unit
+) {
+    Text(game.name, style = MaterialTheme.typography.titleSmall)
+    Text(stringResource(R.string.play26_effective,
+        resolution.handler?.label ?: stringResource(R.string.play24_settings_ask)), style = MaterialTheme.typography.bodySmall)
+    if (resolution.missingGameOverride) Text(stringResource(R.string.play26_missing), color = MaterialTheme.colorScheme.error)
+    game.handlers.forEach { handler ->
+        val effective = resolution.handler?.key == handler.key
+        ToolRow(handler.label, emptyList(), onClick = { onSelect(handler) },
+            modifier = Modifier.semantics { selected = effective },
+            icon = if (effective) R.drawable.ic_check else R.drawable.ic_controller) {
+            ActionPill(stringResource(R.string.ready25_test), { onTest(handler) },
+                icon = R.drawable.ic_controller, enabled = enabled)
+        }
+    }
+    resolution.handler?.let { handler ->
+        ActionPill(stringResource(R.string.play26_test_effective), { onTest(handler) },
+            icon = R.drawable.ic_controller, enabled = enabled)
     }
 }

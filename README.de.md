@@ -158,6 +158,14 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ---
 
+### Neu in 2.6.0
+
+- Automatische Wiederholungen mit Countdown und Abbruch; Fehlerinformationen bleiben nach einem Neustart erhalten.
+- Download-Voreinstellungen speichern und nach Bestätigung eine andere Quelle wählen.
+- Downloadpläne mit Reihenfolge und Bedingungen teilen. Der Empfänger verwendet eigene Quellen; Zugriffstokens werden nicht geteilt.
+- Einen Emulator pro Spiel speichern und die tatsächlich verwendete Auswahl für jede spielbare Datei prüfen.
+- Android build **38**, Datenbank **15**. Die [signierte Version 2.6.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.6.0) aktualisiert 2.5.0 unter Beibehaltung der Daten.
+
 ### Neu in 2.4.0
 
 Wähle einen installierten Emulator pro Konsole, vergleiche Spielversionen mit gespeicherten Sprach-, Regions- und Revisionseinstellungen und durchsuche den Aktionsverlauf. Stelle entfernte Spiele wieder her oder lade sie aus dem Verlauf erneut. Wiederherstellungskopien behalten ihre ursprünglichen Pfade und belegen Speicher bis zum Leeren des Papierkorbs.

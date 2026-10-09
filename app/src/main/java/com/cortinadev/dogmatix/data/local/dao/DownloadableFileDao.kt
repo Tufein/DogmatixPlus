@@ -145,6 +145,10 @@ interface DownloadableFileDao {
     @Query("SELECT * FROM downloadable_files WHERE fileName IN (:names)")
     suspend fun filesByFileNames(names: List<String>): List<DownloadableFileEntity>
 
+    /** Bounded scan for portable plan identities, including relative/absolute listing hrefs. */
+    @Query("SELECT * FROM downloadable_files WHERE consoleId = :consoleId AND id > :afterId ORDER BY id LIMIT :limit")
+    suspend fun planIdentityRows(consoleId: String, afterId: Long, limit: Int): List<DownloadableFileEntity>
+
     /** Tags of many files at once (keep [fileIds] under SQLite's 999 variables). */
     @Query("SELECT fileId, tag FROM downloadable_file_tags WHERE fileId IN (:fileIds) ORDER BY tag ASC")
     suspend fun tagsOfFiles(fileIds: List<Long>): List<FileTagRow>

@@ -19,7 +19,9 @@ data class DownloadPlanUi(
     val preview: DownloadPlanPreview? = null,
     val error: Int? = null,
     val imported: Int? = null,
-    val saved: Boolean = false
+    val saved: Boolean = false,
+    /** Last export preparation, retained after picker/sharing and transient messages finish. */
+    val exportSkipped: Int = 0
 )
 
 @HiltViewModel
@@ -29,7 +31,10 @@ class DownloadPlanViewModel @Inject constructor(private val service: DownloadPla
     private var pendingExport: DownloadPlan? = null
 
     fun exportFile(selected: Set<String>, onReady: () -> Unit) = operate(R.string.plan26_export_failed) {
-        pendingExport = service.export(selected)
+        _ui.value = _ui.value.copy(exportSkipped = 0)
+        val prepared = service.prepareExport(selected)
+        pendingExport = prepared.plan
+        _ui.value = _ui.value.copy(exportSkipped = prepared.skippedCount)
         onReady()
     }
 
@@ -44,8 +49,10 @@ class DownloadPlanViewModel @Inject constructor(private val service: DownloadPla
     }
 
     fun share(selected: Set<String>, onReady: (Uri) -> Unit) = operate(R.string.plan26_export_failed) {
-        val plan = service.export(selected)
-        onReady(service.shareUri(plan))
+        _ui.value = _ui.value.copy(exportSkipped = 0)
+        val prepared = service.prepareExport(selected)
+        _ui.value = _ui.value.copy(exportSkipped = prepared.skippedCount)
+        onReady(service.shareUri(prepared.plan))
     }
 
     fun read(uri: Uri) = operate(R.string.plan26_import_failed) {

@@ -5,11 +5,13 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.core.content.FileProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import com.cortinadev.dogmatix.data.service.DownloadPlanPreview
 import com.cortinadev.dogmatix.data.service.DownloadPlanPreviewRow
 import com.cortinadev.dogmatix.ui.screens.download.DownloadPlanPreviewDialog
+import com.cortinadev.dogmatix.ui.screens.download.DownloadPlanExportFeedback
 import com.cortinadev.dogmatix.ui.theme.DogmatixTheme
 import com.cortinadev.dogmatix.util.ConditionKind
 import com.cortinadev.dogmatix.util.DownloadCondition
@@ -71,5 +73,14 @@ class DownloadPlanRegressionTest {
             text.replace("\"version\":1", "\"version\":9999999999999999999999999999999999"),
             text.replace("\"displayName\":\"Portable game\"", "\"displayName\":\"Portable game\",\"sourceUrl\":\"https://private\"")
         )) assertThrows(Exception::class.java) { DownloadPlans.decode(bad) }
+    }
+
+    @Test fun exportOmissionsRemainVisibleUntilTheNextExportResetsThem() {
+        val skipped = mutableIntStateOf(4)
+        val feedback = context.resources.getQuantityString(R.plurals.plan26_export_skipped, 4, 4)
+        compose.setContent { DogmatixTheme { DownloadPlanExportFeedback(skipped.intValue) } }
+        compose.onNodeWithText(feedback).assertIsDisplayed()
+        compose.runOnIdle { skipped.intValue = 0 }
+        compose.onNodeWithText(feedback).assertDoesNotExist()
     }
 }

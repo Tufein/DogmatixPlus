@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cortinadev.dogmatix.R
@@ -88,11 +89,22 @@ fun DownloadPlanActions(
                 importPicker.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
             })
         }
+        DownloadPlanExportFeedback(ui.exportSkipped)
         if (ui.busy) Text(stringResource(R.string.tools_scanning), style = MaterialTheme.typography.bodySmall)
     }
     ui.preview?.let { preview ->
         DownloadPlanPreviewDialog(preview, ui.busy, viewModel::confirm, viewModel::dismissPreview)
     }
+}
+
+/** Unlike the save toast, omissions remain visible after returning from the picker/share sheet. */
+@Composable
+fun DownloadPlanExportFeedback(skippedCount: Int) {
+    if (skippedCount > 0) Text(
+        pluralStringResource(R.plurals.plan26_export_skipped, skippedCount, skippedCount),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
 }
 
 @Composable
@@ -141,6 +153,7 @@ private fun planStatusString(status: DownloadPlanStatus): Int = when (status) {
     DownloadPlanStatus.ALREADY_QUEUED -> R.string.plan26_already_queued
     DownloadPlanStatus.OWNED -> R.string.plan26_owned
     DownloadPlanStatus.NAME_CONFLICT -> R.string.plan26_name_conflict
+    DownloadPlanStatus.AMBIGUOUS -> R.string.plan26_ambiguous
 }
 
 @Composable

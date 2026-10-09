@@ -20,4 +20,10 @@
     <string name="plan26_import_failed">Ce plan ne peut pas être lu ou appliqué. Choisissez un fichier JSON de plan Dogmatix valide de 2 MiB maximum.</string>
     <string name="plan26_imported">%1$d jeux ajoutés à la file</string>
     <string name="plan26_saved">Plan de téléchargement enregistré</string>
+    <string name="plan26_ambiguous">Plusieurs fichiers différents sur cet appareil portent ce nom ; aucun ne sera ajouté</string>
+    <plurals name="plan26_export_skipped">
+        <item quantity="one">Dernier plan : %1$d téléchargement ignoré. Vérifiez son nom de fichier et ses conditions.</item>
+        <item quantity="many">Dernier plan : %1$d téléchargements ignorés. Vérifiez leurs noms de fichiers et leurs conditions.</item>
+        <item quantity="other">Dernier plan : %1$d téléchargements ignorés. Vérifiez leurs noms de fichiers et leurs conditions.</item>
+    </plurals>
 </resources>

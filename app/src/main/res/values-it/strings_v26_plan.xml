@@ -20,4 +20,10 @@
     <string name="plan26_import_failed">Impossibile leggere o applicare il piano. Scegli un file JSON valido di piano Dogmatix di massimo 2 MiB.</string>
     <string name="plan26_imported">%1$d giochi aggiunti alla coda</string>
     <string name="plan26_saved">Piano di download salvato</string>
+    <string name="plan26_ambiguous">Più file diversi su questo dispositivo hanno questo nome; non verrà aggiunto nulla</string>
+    <plurals name="plan26_export_skipped">
+        <item quantity="one">Ultimo piano: %1$d download ignorato. Controlla il nome del file e le condizioni.</item>
+        <item quantity="many">Ultimo piano: %1$d download ignorati. Controlla i nomi dei file e le condizioni.</item>
+        <item quantity="other">Ultimo piano: %1$d download ignorati. Controlla i nomi dei file e le condizioni.</item>
+    </plurals>
 </resources>

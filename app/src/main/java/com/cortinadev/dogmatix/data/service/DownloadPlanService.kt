@@ -25,6 +25,7 @@ data class DownloadPlanPreviewRow(val item: DownloadPlanItem, val status: Downlo
 data class DownloadPlanPreview(val plan: DownloadPlan, val rows: List<DownloadPlanPreviewRow>) {
     val readyCount: Int get() = rows.count { it.status == DownloadPlanStatus.READY }
 }
+data class DownloadPlanExport(val plan: DownloadPlan, val skippedCount: Int)
 
 /** Local source resolution and bounded document IO; receiving a plan never starts a transfer. */
 @Singleton
@@ -36,7 +37,11 @@ class DownloadPlanService @Inject constructor(
     private val profiles: ProfileService,
     private val library: LibraryIndexService
 ) {
-    suspend fun export(selected: Set<String>): DownloadPlan = withContext(Dispatchers.Default) {
+    suspend fun export(selected: Set<String>): DownloadPlan = prepareExport(selected).plan
+
+    private data class ExportRow(val item: DownloadPlanItem, val location: String?)
+
+    suspend fun prepareExport(selected: Set<String>): DownloadPlanExport = withContext(Dispatchers.Default) {
         val queue = downloads.queued.value
         val waiting = queue.toSet() + downloads.waitingFiles.value + downloads.itemWaits.value.keys
         val rows = downloads.downloads.value.filter { row ->
@@ -50,11 +55,40 @@ class DownloadPlanService @Inject constructor(
         val conditions = downloads.itemConditions.value
         // Actual slot order first; condition waiters and parked rows retain their visible order.
         val ordered = rows.sortedBy { positions[it.fileName] ?: Int.MAX_VALUE }
-        val result = ordered.mapNotNull { row -> downloads.entityFor(row.fileName)?.let { file ->
-            DownloadPlanItem(file.consoleId, file.fileName, file.name, conditions[file.fileName])
-        } }
+        val entities = ordered.mapNotNull { downloads.entityFor(it.fileName) }
+        // Older/history entities can lack sourceUrl. Infer only a matching configured prefix;
+        // an unrelated address never proves that two different queue rows are the same file.
+        val sourceBases = entities.filter { it.sourceUrl.isBlank() }.map { it.consoleId }.distinct().associateWith { id ->
+            consoles.getConsoleById(id)?.urls?.let(SourcesJson::parseUrlEntries).orEmpty().map { it.url }
+        }
+        val candidates = entities.mapNotNull { file ->
+            DownloadPlans.portableFileName(file.fileName)?.let { name ->
+                val source = file.sourceUrl.ifBlank {
+                    sourceBases[file.consoleId].orEmpty().filter { base ->
+                        val prefix = base.substringBefore('?').substringBefore('#').trimEnd('/')
+                        file.downloadUrl.startsWith("$prefix/") || file.downloadUrl.substringBefore('?').substringBefore('#') == prefix
+                    }.maxByOrNull { it.substringBefore('?').length }.orEmpty()
+                }
+                ExportRow(DownloadPlanItem(file.consoleId, name,
+                    DownloadPlans.portableDisplayName(file.name, file.fileName, name), conditions[file.fileName]),
+                    DownloadPlans.localLocation(file.fileName, source))
+            }
+        }
+        var skippedCount = ordered.size - candidates.size
+        val result = candidates.groupBy { it.item.key }.values.mapNotNull { copies ->
+            val first = copies.first()
+            if (copies.size == 1 || first.location != null && copies.all {
+                    it.location == first.location && it.item.condition == first.item.condition
+                }) first.item
+            else {
+                // Different folders or schedules cannot be represented by one portable key.
+                // Skip the whole group, keeping unrelated valid rows and their relative order.
+                skippedCount += copies.size
+                null
+            }
+        }
         require(result.isNotEmpty()) { "No exportable downloads" }
-        DownloadPlan(result).also { DownloadPlans.encode(it) }
+        DownloadPlanExport(DownloadPlan(result).also { DownloadPlans.encode(it) }, skippedCount)
     }
 
     suspend fun save(plan: DownloadPlan, uri: Uri) = withContext(Dispatchers.IO) {
@@ -87,7 +121,9 @@ class DownloadPlanService @Inject constructor(
         val resolved = resolve(plan)
         val eligible = resolved.preview.rows.filter { it.status == DownloadPlanStatus.READY }
         val entities = eligible.mapNotNull { resolved.entities[it.item.key] }
-        val conditions = eligible.mapNotNull { row -> row.item.condition?.let { row.item.fileName to it } }.toMap()
+        val conditions = eligible.mapNotNull { row ->
+            row.item.condition?.let { condition -> resolved.entities[row.item.key]?.fileName?.let { it to condition } }
+        }.toMap()
         if (entities.isNotEmpty()) downloads.startDownloads(entities, conditions)
         resolved.preview
     }
@@ -97,10 +133,50 @@ class DownloadPlanService @Inject constructor(
         val entities: Map<Pair<String, String>, DownloadableFileEntity>
     )
 
+    private data class PortableIndex(
+        val rows: Map<Pair<String, String>, List<DownloadableFileEntity>>,
+        val overflow: Set<Pair<String, String>>
+    )
+
+    /**
+     * The index stores raw hrefs, not just basenames. Scan one console at a time without loading
+     * its catalogue into memory, and retain only identities requested by this bounded plan.
+     * Excessive copies are unavailable rather than selecting from an incomplete candidate list.
+     */
+    private suspend fun portableIndex(plan: DownloadPlan): PortableIndex {
+        val rows = mutableMapOf<Pair<String, String>, MutableList<DownloadableFileEntity>>()
+        val overflow = mutableSetOf<Pair<String, String>>()
+        var retained = 0
+        plan.items.groupBy { it.consoleId }.forEach { (console, items) ->
+            val wanted = items.mapTo(HashSet()) { it.fileName }
+            var afterId = 0L
+            do {
+                val page = files.planIdentityRows(console, afterId, 400)
+                page.forEach rowLoop@ { row ->
+                    val name = DownloadPlans.portableFileName(row.fileName) ?: return@rowLoop
+                    if (name !in wanted) return@rowLoop
+                    val key = console to name
+                    if (key in overflow) return@rowLoop
+                    val copies = rows.getOrPut(key) { mutableListOf() }
+                    if (copies.size >= 32 || retained >= 12_000) {
+                        overflow += key
+                        retained -= copies.size
+                        copies.clear()
+                    } else {
+                        copies += row
+                        retained++
+                    }
+                }
+                if (page.isNotEmpty()) afterId = page.last().id
+            } while (page.size == 400)
+        }
+        return PortableIndex(rows, overflow)
+    }
+
     private suspend fun resolve(plan: DownloadPlan): Resolution {
-        // No lookup by title, and no fallback to another console with a matching filename.
-        val indexed = plan.items.map { it.fileName }.distinct().chunked(400)
-            .flatMap { files.filesByFileNames(it) }.groupBy { it.consoleId to it.fileName }
+        // No lookup by title, URI credentials or another console with a matching filename.
+        val localIndex = portableIndex(plan)
+        val indexed = localIndex.rows
         val tags = indexed.values.flatten().map { it.id }.distinct().chunked(400)
             .flatMap { files.tagsOfFiles(it) }.groupBy({ it.fileId }, { it.tag })
         val enabled = plan.items.map { it.consoleId }.distinct().associateWith { id ->
@@ -121,12 +197,22 @@ class DownloadPlanService @Inject constructor(
                 row.downloadUrl.isNotBlank() && if (row.sourceUrl.isNotBlank()) row.sourceUrl in sources
                 else sources.any { row.downloadUrl.startsWith(it.trimEnd('/') + "/") || row.downloadUrl == it }
             }
-            available.firstOrNull()?.let { entities[item.key] = it }
+            // A disabled/hidden copy in another folder still proves that this basename does
+            // not identify one file. Enabling a different copy must not silently change a plan.
+            val ambiguous = item.key in localIndex.overflow || candidates.map {
+                DownloadPlans.localLocation(it.fileName, it.sourceUrl)
+            }.distinct().size > 1
+            val selected = available.firstOrNull()?.takeUnless { ambiguous }
+            selected?.let { entities[item.key] = it }
             item.key to DownloadPlanAvailability(
-                indexed = candidates.isNotEmpty(),
+                indexed = candidates.isNotEmpty() || item.key in localIndex.overflow,
                 sourceAvailable = available.isNotEmpty(),
-                allowed = restrictions.allows(item.consoleId, emptyList()) && allowed.isNotEmpty(),
-                owned = candidates.any { library.isOwned(it, owned) }
+                allowed = restrictions.allows(item.consoleId, emptyList()) &&
+                    (allowed.isNotEmpty() || item.key in localIndex.overflow),
+                owned = candidates.any { library.isOwned(it, owned) },
+                queueFileName = selected?.fileName,
+                alreadyQueued = candidates.any { it.fileName in existing },
+                ambiguous = ambiguous
             )
         }
         val statuses = DownloadPlans.statuses(plan, availability, existing)
