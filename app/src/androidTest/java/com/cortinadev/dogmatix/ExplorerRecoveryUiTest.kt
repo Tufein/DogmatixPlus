@@ -47,7 +47,7 @@ class ExplorerRecoveryUiTest {
             assertEquals(1, StorageHelper.pendingRecoveries(context, folder).size)
             compose.runOnIdle {
                 viewModel = FileExplorerViewModel(context, settings, graph.explorer27Extractor(), graph.explorer27VerifiedCopy(),
-                    graph.explorer27Trash(), graph.explorer27Library(), graph.explorer27MoveGate())
+                    graph.explorer27Trash(), graph.explorer27Library(), graph.explorer27MoveGate(), graph.recovery28AppSettings())
             }
             val model = requireNotNull(viewModel)
             compose.setContent { DogmatixTheme { FileExplorerScreen(model) } }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="handoff_title">Changer d’appareil en sécurité</string>
+    <string name="handoff_hint">Vérifiez les sauvegardes de jeu actuelles sur cet appareil et RomM. Le transfert conserve des copies de sécurité vérifiées et compare à nouveau les deux côtés.</string>
+    <string name="handoff_states_excluded">Les états d’émulateur sont exclus. Les sauvegardes de jeu nécessitent un émulateur compatible et la même version du jeu sur l’autre appareil.</string>
+    <string name="handoff_failed">Transfert non terminé. Vérifiez RomM, le lien de la console, les dossiers de sauvegarde et le profil actif. Résolvez les conflits puis vérifiez à nouveau.</string>
+    <string name="handoff_no_saves">Aucune sauvegarde de jeu correspondante.</string>
+    <string name="handoff_upload">Envoyer vers RomM</string>
+    <string name="handoff_download">Récupérer sur cet appareil</string>
+    <string name="handoff_identical">Même contenu des deux côtés</string>
+    <string name="handoff_conflict">Contenus différents : choisissez d’abord une version</string>
+    <string name="handoff_ambiguous">Chemin de sauvegarde ambigu</string>
+    <string name="handoff_ready">Les sauvegardes correspondent et les copies de sécurité sont vérifiées.</string>
+    <string name="handoff_next_device">Ouvrez ce jeu sur l’autre appareil, vérifiez ses sauvegardes et terminez son transfert avant de jouer. Ce contrôle couvre cet appareil et le serveur.</string>
+    <string name="handoff_transfer">Synchroniser et vérifier</string>
+    <string name="handoff_resolve_first">Résolvez d’abord les conflits dans Sauvegardes cloud ou Synchronisation. Choisissez explicitement le dossier d’émulateur en cas d’ambiguïté.</string>
+    <string name="handoff_check">Vérifier les sauvegardes actuelles</string>
+    <string name="handoff_confirm">Vérifier %1$d fichiers et synchroniser les changements indiqués ? Les fichiers remplacés sont copiés au préalable. Aucun fichier supprimé ; états d’émulateur exclus.</string>
+    <string name="handoff_too_large">Le transfert entre appareils accepte les sauvegardes de jeu jusqu’à 16 MiB. Utilisez la synchronisation pour les fichiers plus volumineux.</string>
+</resources>

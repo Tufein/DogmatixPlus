@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="journal_title">Journal de jeu</string>
+    <string name="journal_hint">Vos notes appartiennent à ce jeu et à ce profil. Les sauvegardes conservent les notes et noms des pièces jointes ; choisissez à nouveau les images et manuels PDF sur un autre appareil.</string>
+    <string name="journal_empty">Aucune note pour le moment.</string>
+    <string name="journal_edit">Modifier les notes</string>
+    <string name="journal_recovered">Note récupérée depuis une sauvegarde</string>
+    <string name="journal_use_note">Modifier cette note récupérée</string>
+    <string name="journal_choose_again">Choisissez à nouveau cette pièce jointe. Le fichier original reste sur son appareil.</string>
+    <string name="journal_open">Ouvrir</string>
+    <string name="journal_reselect">Choisir à nouveau</string>
+    <string name="journal_remove">Retirer la référence</string>
+    <string name="journal_add_image">Ajouter une capture</string>
+    <string name="journal_add_manual">Ajouter un manuel PDF</string>
+    <string name="journal_failed">Impossible de sauvegarder ou ouvrir le journal. Rechargez-le ou choisissez une image PNG, JPEG ou WebP lisible (12 Mo maximum) ou un PDF (32 Mo maximum).</string>
+    <string name="journal_reload">Recharger le journal</string>
+    <string name="journal_note">Notes</string>
+    <string name="journal_save">Enregistrer les notes</string>
+    <string name="journal_remove_hint">Retirer du journal la référence à %1$s ? Le fichier original reste intact.</string>
+</resources>

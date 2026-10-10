@@ -108,6 +108,8 @@ fun SourcesScreen(
     )
 
     var showShare by remember { mutableStateOf(false) }
+    var showRomsets by remember { mutableStateOf(false) }
+    if (showRomsets) RomsetCatalogDialog(onDismiss = { showRomsets = false })
     val qrParts by viewModel.qrParts.collectAsState()
     val qrImport by viewModel.qrImport.collectAsState()
     val qrPictures = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris -> viewModel.readQr(uris) }
@@ -168,6 +170,14 @@ fun SourcesScreen(
                 downloadDirectory = downloadDirectory,
                 onChange = { rootDirectoryPicker.launch(null) }
             )
+        }
+
+        item {
+            Panel(contentPadding = PaddingValues(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.romset28_title), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.romset28_short_hint), style = MaterialTheme.typography.bodySmall)
+                ActionPill(stringResource(R.string.romset28_browse), { showRomsets = true }, icon = R.drawable.ic_globe)
+            }
         }
 
         if (manufacturers.isEmpty()) {

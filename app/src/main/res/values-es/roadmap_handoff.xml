@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="handoff_title">Cambiar de dispositivo con seguridad</string>
+    <string name="handoff_hint">Comprueba las partidas guardadas actuales en este dispositivo y RomM. La transferencia conserva copias verificadas y vuelve a comparar ambos lados.</string>
+    <string name="handoff_states_excluded">Se excluyen los estados del emulador. Las partidas guardadas requieren un emulador compatible y la misma versión del juego en el otro dispositivo.</string>
+    <string name="handoff_failed">Transferencia incompleta. Comprueba RomM, la asignación de consola, las carpetas y el perfil activo. Resuelve los conflictos y comprueba de nuevo.</string>
+    <string name="handoff_no_saves">No hay partidas guardadas coincidentes.</string>
+    <string name="handoff_upload">Enviar a RomM</string>
+    <string name="handoff_download">Traer a este dispositivo</string>
+    <string name="handoff_identical">Mismo contenido en ambos lados</string>
+    <string name="handoff_conflict">Ambos lados difieren: elige una versión primero</string>
+    <string name="handoff_ambiguous">La ruta de guardado es ambigua</string>
+    <string name="handoff_ready">Las partidas coinciden y las copias están verificadas.</string>
+    <string name="handoff_next_device">Abre este juego en el otro dispositivo, comprueba las partidas y completa allí la transferencia antes de jugar. Esta comprobación cubre este dispositivo y el servidor.</string>
+    <string name="handoff_transfer">Sincronizar y verificar</string>
+    <string name="handoff_resolve_first">Resuelve los conflictos en Partidas en la nube o Sincronización. Elige explícitamente la carpeta del emulador si es ambigua.</string>
+    <string name="handoff_check">Comprobar partidas actuales</string>
+    <string name="handoff_confirm">¿Verificar %1$d archivos y sincronizar los cambios indicados? Se copian primero los archivos reemplazados. No se elimina nada; se excluyen los estados del emulador.</string>
+    <string name="handoff_too_large">La transferencia entre dispositivos admite partidas de hasta 16 MiB. Usa la sincronización para archivos más grandes.</string>
+</resources>

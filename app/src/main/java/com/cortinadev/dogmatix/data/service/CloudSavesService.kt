@@ -4,6 +4,9 @@ import android.content.Context
 import android.util.Log
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.data.local.AppSettings
+import com.cortinadev.dogmatix.util.JournalKey
+import com.cortinadev.dogmatix.util.SaveHandoffPreview
 import com.cortinadev.dogmatix.util.CloudSaveEntry
 import com.cortinadev.dogmatix.util.CloudSaveResult
 import com.cortinadev.dogmatix.util.CloudSaveVersion
@@ -61,7 +64,8 @@ data class GameCloudSaves(
     val safetyCopies: List<SafetyCopy> = emptyList(),
     /** A device folder is picked for saves / states (restoring needs one). */
     val canRestoreSaves: Boolean = false,
-    val canRestoreStates: Boolean = false
+    val canRestoreStates: Boolean = false,
+    val profileId: String = ""
 ) {
     /** The section shows when the game is on the server or has safety copies. */
     val visible: Boolean get() = romId != null || safetyCopies.isNotEmpty()
@@ -94,7 +98,9 @@ class CloudSavesService @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val rommClient: RommClient,
     private val rommLibrary: RommLibraryService,
-    private val saveSync: SaveSyncService
+    private val saveSync: SaveSyncService,
+    private val profiles: AppSettings,
+    private val gameAccess: JournalGameAccess
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -138,6 +144,9 @@ class CloudSavesService @Inject constructor(
 
     /** First, quick part: RomM id and safety copies (no network, no folder scan). */
     suspend fun loadLocal(consoleId: String, fileName: String): GameCloudSaves = withContext(Dispatchers.IO) {
+        val profileId = profiles.activeProfile.first()
+        val key = JournalKey(profileId, consoleId, fileName)
+        guard(key)
         val records = runCatching { saveSync.syncRecords() }.getOrDefault(emptyMap())
         val romId = romIdFor(consoleId, fileName, records)
         val stem = CloudSaves.gameStem(fileName)
@@ -145,10 +154,11 @@ class CloudSavesService @Inject constructor(
             consoleId = consoleId,
             fileName = fileName,
             romId = romId,
-            safetyCopies = CloudSaves.safetyCopiesFor(safetyCopies(), stem, romId, records),
+            safetyCopies = CloudSaves.safetyCopiesFor(saveSync.localSafetyCopies(profileId), stem, romId, records),
             canRestoreSaves = saveSync.hasDeviceFolder(SaveKind.SAVE),
-            canRestoreStates = saveSync.hasDeviceFolder(SaveKind.STATE)
-        )
+            canRestoreStates = saveSync.hasDeviceFolder(SaveKind.STATE),
+            profileId = profileId
+        ).also { guard(key) }
     }
 
     /** Everything: [loadLocal] plus the server listing and the device folders, read side by side. */
@@ -171,7 +181,7 @@ class CloudSavesService @Inject constructor(
                 serverError = serverResult.exceptionOrNull()?.let { messageOf(it) },
                 device = CloudSaves.deviceSaves(locals, stem, romId, records, entries),
                 deviceError = deviceResult.exceptionOrNull()?.let { messageOf(it) }
-            )
+            ).also { guard(JournalKey(base.profileId, consoleId, fileName)) }
         }
     }
 
@@ -224,8 +234,10 @@ class CloudSavesService @Inject constructor(
 
     /** "Restore this version" of a server save / state. */
     suspend fun restore(state: GameCloudSaves, version: CloudSaveVersion): CloudSaveResult {
+        guard(state.key())
+        check(state.romId == version.entry.romId) { "Game changed; reload its cloud saves" }
         val entries = state.romId?.let { runCatching { serverEntries(it, force = true) }.getOrNull() } ?: state.server.map { it.entry }
-        val result = saveSync.restoreServerVersion(version.entry, entries, CloudSaves.gameStem(state.fileName))
+        val result = saveSync.restoreServerVersion(version.entry, entries, CloudSaves.gameStem(state.fileName), state.key())
         invalidate()
         return result
     }
@@ -235,6 +247,7 @@ class CloudSavesService @Inject constructor(
      * name the folder); null when it cannot be told or no single file fits.
      */
     suspend fun restoreTargetPath(state: GameCloudSaves, version: CloudSaveVersion): String? = withContext(Dispatchers.IO) {
+        guard(state.key())
         val listing = runCatching { deviceListing() }.getOrNull() ?: return@withContext null
         val records = runCatching { saveSync.syncRecords() }.getOrDefault(emptyMap())
         val target = CloudSaves.restoreTarget(
@@ -245,18 +258,20 @@ class CloudSavesService @Inject constructor(
 
     /** Puts a safety copy back in place. */
     suspend fun restore(state: GameCloudSaves, copy: SafetyCopy): CloudSaveResult {
-        val entries = state.romId?.let { id -> if (rommReady()) runCatching { serverEntries(id, force = true) }.getOrNull() else null }
-            ?: state.server.map { it.entry }
-        val result = saveSync.restoreSafetyCopy(copy, entries)
+        guard(state.key())
+        val preview = saveSync.previewLocalSafetyRestore(state.profileId, copy)
+        guard(state.key())
+        val result = saveSync.restoreLocalSafetyCopy(preview)
         invalidate()
         return result
     }
 
     /** "Upload now" of a device save. */
     suspend fun upload(state: GameCloudSaves, save: DeviceSave): CloudSaveResult {
+        guard(state.key())
         val romId = state.romId ?: return CloudSaveResult.Failed(context.getString(R.string.csave_error_not_on_server))
         val entries = runCatching { serverEntries(romId, force = true) }.getOrElse { e -> return CloudSaveResult.Failed(messageOf(e)) }
-        val result = saveSync.uploadDeviceSave(save.local.kind, save.local.path, romId, entries)
+        val result = saveSync.uploadDeviceSave(save.local.kind, save.local.path, romId, entries, state.key())
         invalidate()
         return result
     }
@@ -281,6 +296,20 @@ class CloudSavesService @Inject constructor(
     private fun messageOf(e: Throwable): String = when (e) {
         is JsonHttp.HttpException -> "HTTP ${e.code}"
         else -> e.message?.take(160) ?: e.javaClass.simpleName
+    }
+
+    private fun GameCloudSaves.key() = JournalKey(profileId, consoleId, fileName)
+    private suspend fun guard(key: JournalKey) = profiles.withActiveProfile(key.profileId) { gameAccess.check(key) }
+
+    suspend fun previewHandoff(key: JournalKey): SaveHandoffPreview {
+        guard(key)
+        val romId = rommLibrary.gameFor(key.consoleId, key.fileName)?.romId ?: error("Refresh RomM and add this game before transferring saves")
+        return saveSync.previewHandoff(key, romId)
+    }
+
+    suspend fun transferHandoff(preview: SaveHandoffPreview): SaveHandoffPreview {
+        guard(preview.key)
+        return try { saveSync.transferHandoff(preview) } finally { invalidate() }
     }
 }
 

@@ -1,0 +1,19 @@
+<resources>
+    <string name="pkg28_registered">Complete game package · %1$d files</string>
+    <string name="pkg28_incomplete">Game package needs attention · %1$d expected files</string>
+    <string name="off28_check">Ready for offline play?</string>
+    <string name="off28_hint">Check game files, discs, BIOS and installed emulators. Nothing is downloaded or launched.</string>
+    <string name="off28_report_title">Offline play check</string>
+    <string name="off28_loading">Checking files and game packages…</string>
+    <string name="off28_failed">The check could not finish. Try again when the folders are available.</string>
+    <string name="off28_summary">Ready: %1$d of %2$d games</string>
+    <string name="off28_limited">Not checked yet: %1$d games. This check handles up to 300 games.</string>
+    <string name="off28_ready">Ready for offline play</string>
+    <string name="off28_attention">Needs attention</string>
+    <string name="off28_unavailable">This game is no longer listed in the configured sources.</string>
+    <string name="off28_legacy">Older download: files and disc references checked; no original package hashes available.</string>
+    <string name="off28_verified">Verified package files: %1$d</string>
+    <string name="off28_files_missing">Missing, changed or unreadable package files:</string>
+    <string name="off28_more">Other files: %1$d</string>
+    <string name="off28_remaining">Still to check: %1$d games</string>
+</resources>

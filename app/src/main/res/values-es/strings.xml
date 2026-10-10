@@ -1297,10 +1297,11 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Consulta la cuenta atrás del reintento, inténtalo ahora o cancela; los errores de descarga se conservan al reiniciar.</item>
-        <item>Guarda ajustes de velocidad, descargas simultáneas y programación; confirma otra fuente para un archivo bloqueado.</item>
-        <item>Comparte e importa planes de descarga con selección ordenada, condiciones por archivo y revisión antes de iniciar.</item>
-        <item>Elige un emulador por juego y perfil, con la opción de la consola como alternativa.</item>
+        <item>Elige colecciones opcionales de Libretro para 23 sistemas sin reemplazar tus fuentes.</item>
+        <item>Conserva paquetes completos tras reiniciar y comprueba si las colecciones están listas para jugar sin conexión.</item>
+        <item>Revisa las copias de recuperación en un solo lugar y reanuda las descargas cuando vuelva el almacenamiento.</item>
+        <item>Guarda notas, capturas y manuales por juego y perfil; las notas se incluyen en las copias de seguridad.</item>
+        <item>Prepara las partidas normales antes de cambiar de dispositivo; los conflictos bloquean la transferencia.</item>
     </string-array>
 
     <!-- 4.0 -->

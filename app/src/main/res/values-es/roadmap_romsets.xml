@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="romset28_title">Más colecciones de ROM</string>
+    <string name="romset28_hint">Elige colecciones de contenido de Libretro. Contienen homebrew, demos y programas de prueba; no son colecciones comerciales completas. Tus fuentes se conservan.</string>
+    <string name="romset28_short_hint">Explora colecciones opcionales para más sistemas.</string>
+    <string name="romset28_browse">Ver colecciones</string>
+    <string name="romset28_checked">Directorios de %1$s comprobados el %2$s</string>
+    <string name="romset28_search">Buscar consola</string>
+    <string name="romset28_failed">No se pudieron cargar o añadir estas fuentes. Inténtalo de nuevo.</string>
+    <string name="romset28_added_count">Se añadieron %1$d colecciones. Se están analizando sus fuentes.</string>
+    <string name="romset28_add">Añadir selección (%1$d)</string>
+    <string name="romset28_no_match">No hay consolas coincidentes</string>
+    <string name="romset28_already_added">Ya añadida (se conserva su activación)</string>
+    <string name="romset28_files">%1$d archivos en la última comprobación</string>
+</resources>

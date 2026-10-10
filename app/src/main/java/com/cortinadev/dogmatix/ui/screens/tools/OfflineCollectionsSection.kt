@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
@@ -30,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.service.RemovalPlan
 import com.cortinadev.dogmatix.data.service.StaleGame
+import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.ui.components.ActionTone
 import com.cortinadev.dogmatix.ui.components.DialogButton
 import com.cortinadev.dogmatix.ui.components.Stepper
@@ -84,6 +86,9 @@ class OfflineCollectionsUi internal constructor(
                 onDecrement = { vm.setQuota(collectionId, (gb - 1).coerceAtLeast(0)) },
                 onIncrement = { vm.setQuota(collectionId, gb + 1) })
         }
+        ToolRow(stringResource(R.string.off28_check), listOf(stringResource(R.string.off28_hint)),
+            onClick = { vm.checkOffline(collectionId) }, icon = R.drawable.ic_controller,
+            modifier = modifier.padding(start = 20.dp))
     }
 
     /** "Fetch now" for the actions strip; shown while at least one collection is on. */
@@ -101,11 +106,14 @@ class OfflineCollectionsUi internal constructor(
  * Call once at the top of the screen.
  */
 @Composable
-fun rememberOfflineCollections(): OfflineCollectionsUi {
+fun rememberOfflineCollections(onNavigate: (String) -> Unit = {}): OfflineCollectionsUi {
     val vm: OfflineCollectionsViewModel = hiltViewModel()
     val data by vm.data.collectAsState()
     val removal by vm.removal.collectAsState()
     val fetch by vm.fetchPreview.collectAsState()
+    val ready by vm.readiness.collectAsState()
+    ready?.let { state -> OfflineReadinessDialog(state, vm::dismissReadiness,
+        onRetry = { vm.checkOffline(state.collectionId) }, onNavigate = { route -> vm.dismissReadiness(); onNavigate(route) }) }
     fetch?.let { picks ->
         val cancelFocus = rememberInitialFocus()
         AlertDialog(modifier = Modifier.closeOnGamepadB(vm::dismissFetch), onDismissRequest = vm::dismissFetch,
@@ -266,3 +274,59 @@ private fun RemovalDialog(plan: RemovalPlan, onConfirm: () -> Unit, onDismiss: (
 }
 
 private const val MAX_LISTED = 30
+
+/** The report is a dated local snapshot; every failed check links to the existing repair tool. */
+@Composable
+internal fun OfflineReadinessDialog(state: OfflineReadyUi, onDismiss: () -> Unit, onRetry: () -> Unit,
+    onNavigate: (String) -> Unit) {
+    val cancelFocus = rememberInitialFocus()
+    AlertDialog(modifier = Modifier.closeOnGamepadB(onDismiss), onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.off28_report_title)) },
+        text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (state.loading) {
+                Text(stringResource(R.string.off28_loading))
+                LinearProgressIndicator()
+            }
+            if (state.failed) Text(stringResource(R.string.off28_failed), color = MaterialTheme.colorScheme.error)
+            state.report?.let { report ->
+                Text(report.name, style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.off28_summary, report.readyCount, report.games.size + report.unchecked))
+                Text(java.text.DateFormat.getDateTimeInstance().format(java.util.Date(report.checkedAt)), style = MaterialTheme.typography.bodySmall)
+                if (report.unchecked > 0) Text(stringResource(if (state.loading) R.string.off28_remaining else R.string.off28_limited, report.unchecked))
+                report.games.forEach { game ->
+                    Text(game.title, style = MaterialTheme.typography.titleSmall)
+                    val check = game.report
+                    Text(stringResource(if (check?.ready == true) R.string.off28_ready else R.string.off28_attention),
+                        color = if (check?.ready == true) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
+                    if (game.unavailable) Text(stringResource(R.string.off28_unavailable), style = MaterialTheme.typography.bodySmall)
+                    else if (check == null) {
+                        Text(stringResource(R.string.off28_failed), style = MaterialTheme.typography.bodySmall)
+                        ToolAction(stringResource(R.string.ready25_title), icon = R.drawable.ic_controller) {
+                            onNavigate(ReadinessRoute.of(game.consoleId, game.fileName))
+                        }
+                    } else {
+                        val receipt = check.packageInspection
+                        if (receipt == null) Text(stringResource(R.string.off28_legacy), style = MaterialTheme.typography.bodySmall)
+                        else {
+                            if (receipt.complete && receipt.hashesChecked) Text(stringResource(R.string.off28_verified, receipt.files.size), style = MaterialTheme.typography.bodySmall)
+                            val problems = receipt.missing + receipt.changed
+                            if (problems.isNotEmpty()) {
+                                Text(stringResource(R.string.off28_files_missing), style = MaterialTheme.typography.bodySmall)
+                                problems.take(8).forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
+                                if (problems.size > 8) Text(stringResource(R.string.off28_more, problems.size - 8), style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                        if (!check.filesOk) ToolAction(stringResource(R.string.ready25_missing), icon = R.drawable.ic_download) { onNavigate(NavRoutes.Downloads.route) }
+                        if (!check.discsOk) ToolAction(stringResource(R.string.ready25_disc_problem), icon = R.drawable.ic_warning) { onNavigate(NavRoutes.Sets.route) }
+                        if (!check.biosOk) ToolAction(stringResource(R.string.ready25_bios_problem), icon = R.drawable.ic_settings) { onNavigate(NavRoutes.Bios.route) }
+                        if (check.needsExtract) ToolAction(stringResource(R.string.ready25_extract), icon = R.drawable.ic_folder) { onNavigate(NavRoutes.Files.route) }
+                        ToolAction(stringResource(R.string.ready25_title), icon = R.drawable.ic_controller) {
+                            onNavigate(ReadinessRoute.of(game.consoleId, game.fileName))
+                        }
+                    }
+                }
+            }
+        } },
+        confirmButton = { if (!state.loading) DialogButton(stringResource(R.string.tools_refresh), onRetry) },
+        dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), onDismiss, initialFocus = cancelFocus) })
+}

@@ -6,7 +6,7 @@
 
 DogmatixPlus keeps one big, searchable list of the games from the sources *you* add, downloads them into the right folders, and helps you keep your collection tidy. It works with touch *and* with a game controller, so it feels at home on handhelds such as the Retroid, Anbernic or Kinhank.
 
-> **The app comes without any games or download links.** You add your own sources, and you are responsible for only downloading what you are allowed to have.
+The app includes no games. **Sources → More romsets** offers optional Libretro-hosted content collections alongside your own sources.
 
 <table>
   <tr>
@@ -34,6 +34,8 @@ DogmatixPlus keeps one big, searchable list of the games from the sources *you* 
 The latest release is [2.7.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.7.0) (Android build 39).
 Downloads keep a known-good file while replacements are checked, archive extraction protects paths and existing files, and save sync verifies safety copies before deletions.
 In-app updates check the checksum, package, version and signing certificate before installation. See [release notes](docs/release-notes/v2.7.0.md) for usage and update details.
+
+The next release, **2.8.0**, connects recovery, storage reconnect, durable game packages, offline readiness, personal journals and guided save handoff. The optional romset catalog starts with **23 content collections / 134 listed files**, checked on 10 October 2026. These are dated directory counts, not a claim of complete commercial ROM sets. See the [full community-launch roadmap](docs/ROADMAP.md), [Reddit draft](docs/community/reddit-launch-draft.md) and [acceptance checks](docs/quality/v2.8.0-acceptance.md).
 
 ## What can it do?
 

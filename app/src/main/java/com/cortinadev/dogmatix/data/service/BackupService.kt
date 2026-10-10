@@ -13,6 +13,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.cortinadev.dogmatix.BuildConfig
 import com.cortinadev.dogmatix.data.local.SettingsKeys
+import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao
 import com.cortinadev.dogmatix.data.local.dao.FavouriteDao
 import com.cortinadev.dogmatix.data.local.dao.WishlistDao
@@ -58,7 +59,9 @@ class BackupService @Inject constructor(
     private val favouriteDao: FavouriteDao,
     private val downloadHistoryDao: DownloadHistoryDao,
     private val wishlistDao: WishlistDao,
-    private val collections: CollectionsRepository
+    private val collections: CollectionsRepository,
+    private val journal: GameJournalService,
+    private val profiles: AppSettings
 ) {
     data class Summary(
         val settings: Int,
@@ -103,6 +106,7 @@ class BackupService @Inject constructor(
             add("settings", settings)
             // Console defaults and 2.6 per-game choices share this profile-scoped file.
             add("emulatorChoices", GameEmulatorPreferences.export(context.getSharedPreferences("game_launchers", Context.MODE_PRIVATE)))
+            add("gameJournal", journal.export())
             add("sources", sources)
             add("favourites", BackupJson.favouritesToJson(favourites))
             add("collectionIdentities", JsonObject().apply { collections.identities().forEach { (id, name) -> addProperty(id.toString(), name) } })
@@ -113,7 +117,9 @@ class BackupService @Inject constructor(
             }
             add("downloadHistory", BackupJson.historyToJson(history))
         }
-        return gson.toJson(root) to Summary(settings.size(), consoleCount(sources), favourites.size, history.size)
+        val text = gson.toJson(root)
+        require(text.toByteArray(Charsets.UTF_8).size <= MAX_BACKUP_BYTES) { "Backup is too large" }
+        return text to Summary(settings.size(), consoleCount(sources), favourites.size, history.size)
     }
 
     /**
@@ -175,8 +181,12 @@ class BackupService @Inject constructor(
         val downloads = BackupJson.historyFromJson(backup.get("downloadHistory"))
         val wishlist = BackupJson.wishlistFromJson(backup.get("wishlist"))
         val savedCollections = backup.get("collections")?.let { SourcesJson.parseCollections(JsonObject().apply { add("_collections", it) }.toString()) }.orEmpty()
+        val journalEntries = backup.get("gameJournal")?.let(journal::validateRestore)
+        journalEntries?.let { journal.preflightRestore(it) }
 
         return withContext(NonCancellable) {
+            // A missing journal section keeps the current notes; conflicting imported notes are retained.
+            journalEntries?.let { journal.restore(it) }
             // Restore collection names before their settings: numeric ids differ on another install.
             collections.import(savedCollections)
             val identities = collections.identities().entries.associate { it.value to it.key }
@@ -223,7 +233,7 @@ class BackupService @Inject constructor(
         val granted = context.contentResolver.persistedUriPermissions.map { it.uri.toString() }.toSet()
         var restored = 0
         var repick = 0
-        context.dataStore.edit { prefs ->
+        profiles.withProfileStateLock { context.dataStore.edit { prefs ->
             val currentSkipped = prefs.asMap().filter { (key, value) -> key.name in skippedNames && SettingSchema.compatible(key.name, value) }
             // A folder the backup cannot bring back keeps whatever this install already had.
             val currentFolders = FOLDER_KEYS.associateWith { prefs[stringPreferencesKey(it)] }
@@ -283,7 +293,7 @@ class BackupService @Inject constructor(
             ) prefs[davPassword] = currentDavPassword
             // Restoring must never send the user back through the first-run tour.
             prefs[SettingsKeys.ONBOARDING_DONE] = true
-        }
+        } }
         return restored to repick
     }
 

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="journal_title">Diario di gioco</string>
+    <string name="journal_hint">Le note appartengono a questo gioco e profilo. I backup conservano note e nomi degli allegati; scegli di nuovo immagini e manuali PDF su un altro dispositivo.</string>
+    <string name="journal_empty">Nessuna nota per ora.</string>
+    <string name="journal_edit">Modifica note</string>
+    <string name="journal_recovered">Nota recuperata da un backup</string>
+    <string name="journal_use_note">Modifica questa nota recuperata</string>
+    <string name="journal_choose_again">Scegli di nuovo questo allegato. Il file originale rimane sul suo dispositivo.</string>
+    <string name="journal_open">Apri</string>
+    <string name="journal_reselect">Scegli di nuovo</string>
+    <string name="journal_remove">Rimuovi riferimento</string>
+    <string name="journal_add_image">Aggiungi schermata</string>
+    <string name="journal_add_manual">Aggiungi manuale PDF</string>
+    <string name="journal_failed">Impossibile salvare o aprire il diario. Ricaricalo o scegli un’immagine PNG, JPEG o WebP leggibile (fino a 12 MB) o un PDF (fino a 32 MB).</string>
+    <string name="journal_reload">Ricarica diario</string>
+    <string name="journal_note">Note</string>
+    <string name="journal_save">Salva note</string>
+    <string name="journal_remove_hint">Rimuovere dal diario il riferimento a %1$s? Il file originale rimane intatto.</string>
+</resources>

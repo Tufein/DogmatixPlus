@@ -91,6 +91,13 @@ class DownloadableFileRepository @Inject constructor(
         return DownloadableFileWithTags(file = file, tags = dao.getTagsForFile(file.id))
     }
 
+    /** All exact source rows matter when enforcing restrictions for a shared game journal. */
+    suspend fun exactMatches(consoleId: String, fileName: String): List<DownloadableFileWithTags> {
+        val files = dao.filesByFileNames(listOf(fileName)).filter { it.consoleId == consoleId && it.fileName == fileName }
+        val tags = files.map { it.id }.chunked(LOOKUP_CHUNK).flatMap { dao.tagsOfFiles(it) }.groupBy({ it.fileId }, { it.tag })
+        return files.map { DownloadableFileWithTags(it, tags[it.id].orEmpty()) }
+    }
+
     /**
      * [findByFileName] for many downloads: two queries per [LOOKUP_CHUNK] names instead of two per
      * name (each of those scanned the whole library table). When two consoles list the same file

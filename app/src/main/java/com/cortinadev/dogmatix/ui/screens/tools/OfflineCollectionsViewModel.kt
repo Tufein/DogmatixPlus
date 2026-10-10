@@ -8,10 +8,12 @@ import com.cortinadev.dogmatix.data.service.OfflineCollectionsService
 import com.cortinadev.dogmatix.data.service.OfflineState
 import com.cortinadev.dogmatix.data.service.RemovalPlan
 import com.cortinadev.dogmatix.data.service.StaleGame
+import com.cortinadev.dogmatix.data.service.OfflineReadyCollection
 import com.cortinadev.dogmatix.util.OfflineCollections
 import com.cortinadev.dogmatix.util.ToastUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,6 +36,9 @@ data class OfflineData(
     val last: OfflineCollections.RunInfo? = null,
     val state: OfflineState = OfflineState()
 )
+
+data class OfflineReadyUi(val collectionId: Long, val loading: Boolean = true,
+    val report: OfflineReadyCollection? = null, val failed: Boolean = false)
 
 @OptIn(FlowPreview::class)
 @HiltViewModel
@@ -51,10 +57,33 @@ class OfflineCollectionsViewModel @Inject constructor(
     private val _removal = MutableStateFlow<RemovalPlan?>(null)
     /** The files a removal would delete, while the confirmation is up. */
     val removal: StateFlow<RemovalPlan?> = _removal.asStateFlow()
+    private val _readiness = MutableStateFlow<OfflineReadyUi?>(null)
+    val readiness = _readiness.asStateFlow()
+    private var readyJob: Job? = null
+    private var readyGeneration = 0L
+
+    fun checkOffline(id: Long) {
+        readyJob?.cancel()
+        val generation = ++readyGeneration
+        _readiness.value = OfflineReadyUi(id)
+        readyJob = viewModelScope.launch {
+            try {
+                val report = service.checkCollection(id) { progress ->
+                    if (generation == readyGeneration) _readiness.value = OfflineReadyUi(id, true, progress)
+                }
+                if (generation == readyGeneration) _readiness.value = OfflineReadyUi(id, false, report)
+            }
+            catch (e: CancellationException) { throw e }
+            catch (_: Exception) { if (generation == readyGeneration) _readiness.value = OfflineReadyUi(id, false, failed = true) }
+        }
+    }
+    fun dismissReadiness() { ++readyGeneration; readyJob?.cancel(); readyJob = null; _readiness.value = null }
 
     init {
         // The status lines follow the collections, the disk index and the settings while the screen is open.
         viewModelScope.launch { service.changes.debounce(800).collect { service.preview() } }
+        viewModelScope.launch { service.activeProfile.drop(1).collect { dismissReadiness() } }
+        viewModelScope.launch { service.readinessRestrictions.drop(1).collect { dismissReadiness() } }
     }
 
     fun setKept(id: Long, on: Boolean) = service.setKept(id, on)

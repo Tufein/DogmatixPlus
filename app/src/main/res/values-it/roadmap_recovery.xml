@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="road28_recovery_title">Centro di ripristino</string>
+    <string name="road28_recovery_hint">Controlla memoria, spostamenti interrotti, cestino e copie dei salvataggi. Ogni ripristino richiede la tua conferma.</string>
+    <string name="road28_recovery_preview">Controlla ripristino</string>
+    <string name="road28_recovery_keep_current">I file esistenti sono conservati se differiscono dalla copia. Negli spostamenti, gli originali vengono rimossi solo dopo aver verificato la destinazione.</string>
+    <string name="road28_recovery_from">Da: %1$s</string>
+    <string name="road28_recovery_to">A: %1$s</string>
+    <string name="road28_recovery_folder">Cartella scelta</string>
+    <string name="road28_recovery_replacements">Sostituzioni di file interrotte</string>
+    <string name="road28_recovery_saves">Copie di sicurezza dei salvataggi</string>
+    <string name="road28_recovery_save_protected">Il salvataggio attuale viene copiato e verificato prima del ripristino. La sincronizzazione cloud dovrà poi confrontare di nuovo i dati.</string>
+    <string name="road28_recovery_partial">Alcune cartelle non sono state controllate o è stato raggiunto il limite di ricerca. Apri la cartella specifica in File.</string>
+    <string name="road28_storage_check">Controlla memoria e copie</string>
+    <string name="road28_storage_available">Memoria disponibile</string>
+    <string name="road28_storage_returned">La memoria è tornata. I trasferimenti restano in pausa finché non li riprendi.</string>
+    <string name="road28_storage_read_only">Memoria in sola lettura</string>
+    <string name="road28_storage_permission">L\'accesso alla cartella è stato perso. Selezionala di nuovo nelle Impostazioni.</string>
+    <string name="road28_storage_unavailable">Memoria non disponibile. Ricollegala e controlla di nuovo.</string>
+    <string name="road28_storage_paused">%1$d trasferimenti in pausa per questa cartella</string>
+    <string name="road28_storage_resume">Riprendi questi trasferimenti</string>
+    <string name="road28_storage_settings">Impostazioni cartelle</string>
+    <string name="road28_storage_cached">L\'ultimo elenco viene conservato. Ricollega e controlla la memoria prima di modificare i file.</string>
+</resources>

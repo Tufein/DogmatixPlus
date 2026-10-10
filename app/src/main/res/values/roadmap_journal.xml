@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="journal_title">Game journal</string>
+    <string name="journal_hint">Your notes belong to this game and profile. Backups keep notes and attachment names; choose images and PDF manuals again on another device.</string>
+    <string name="journal_empty">No notes yet.</string>
+    <string name="journal_edit">Edit notes</string>
+    <string name="journal_recovered">Note recovered from a backup</string>
+    <string name="journal_use_note">Edit this recovered note</string>
+    <string name="journal_choose_again">Choose this attachment again. The original file remains on its own device.</string>
+    <string name="journal_open">Open</string>
+    <string name="journal_reselect">Choose again</string>
+    <string name="journal_remove">Remove reference</string>
+    <string name="journal_add_image">Add screenshot</string>
+    <string name="journal_add_manual">Add PDF manual</string>
+    <string name="journal_failed">Could not save or open this journal. Reload it, or choose a readable PNG, JPEG, WebP image (up to 12 MB) or PDF (up to 32 MB).</string>
+    <string name="journal_reload">Reload journal</string>
+    <string name="journal_note">Notes</string>
+    <string name="journal_save">Save notes</string>
+    <string name="journal_remove_hint">Remove the journal reference to %1$s? The original file stays untouched.</string>
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="handoff_title">Mudar de dispositivo em segurança</string>
+    <string name="handoff_hint">Verifique as gravações atuais neste dispositivo e RomM. A transferência mantém cópias verificadas e compara novamente ambos os lados.</string>
+    <string name="handoff_states_excluded">Os estados do emulador ficam excluídos. As gravações exigem um emulador compatível e a mesma versão do jogo no outro dispositivo.</string>
+    <string name="handoff_failed">Transferência incompleta. Verifique RomM, a associação da consola, as pastas e o perfil ativo. Resolva os conflitos e verifique novamente.</string>
+    <string name="handoff_no_saves">Não foram encontradas gravações correspondentes.</string>
+    <string name="handoff_upload">Enviar para RomM</string>
+    <string name="handoff_download">Trazer para este dispositivo</string>
+    <string name="handoff_identical">Mesmo conteúdo em ambos os lados</string>
+    <string name="handoff_conflict">Os conteúdos diferem: escolha primeiro uma versão</string>
+    <string name="handoff_ambiguous">Caminho de gravação ambíguo</string>
+    <string name="handoff_ready">As gravações coincidem e as cópias estão verificadas.</string>
+    <string name="handoff_next_device">Abra este jogo no outro dispositivo, verifique as gravações e conclua aí a transferência antes de jogar. Esta verificação abrange este dispositivo e o servidor.</string>
+    <string name="handoff_transfer">Sincronizar e verificar</string>
+    <string name="handoff_resolve_first">Resolva os conflitos em Gravações na nuvem ou Sincronização. Escolha explicitamente a pasta do emulador em caso de ambiguidade.</string>
+    <string name="handoff_check">Verificar gravações atuais</string>
+    <string name="handoff_confirm">Verificar %1$d ficheiros e sincronizar as alterações indicadas? Os ficheiros substituídos são copiados primeiro. Nada é eliminado; estados do emulador excluídos.</string>
+    <string name="handoff_too_large">A transferência entre dispositivos aceita saves de até 16 MiB. Use a sincronização para arquivos maiores.</string>
+</resources>

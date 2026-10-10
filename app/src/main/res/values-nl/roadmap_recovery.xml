@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="road28_recovery_title">Herstelcentrum</string>
+    <string name="road28_recovery_hint">Controleer hier opslag, onderbroken verplaatsingen, de afvalbak en savekopieën. Elk herstel vraagt jouw bevestiging.</string>
+    <string name="road28_recovery_preview">Herstel bekijken</string>
+    <string name="road28_recovery_keep_current">Bestaande bestanden blijven behouden wanneer ze verschillen van de herstelkopie. Bij verplaatsingen worden originelen pas verwijderd nadat het doel gecontroleerd is.</string>
+    <string name="road28_recovery_from">Van: %1$s</string>
+    <string name="road28_recovery_to">Naar: %1$s</string>
+    <string name="road28_recovery_folder">Gekozen map</string>
+    <string name="road28_recovery_replacements">Onderbroken bestandsvervangingen</string>
+    <string name="road28_recovery_saves">Veiligheidskopieën van saves</string>
+    <string name="road28_recovery_save_protected">De huidige save wordt gekopieerd en gecontroleerd voordat deze versie wordt hersteld. Cloudsynchronisatie moet daarna opnieuw vergelijken.</string>
+    <string name="road28_recovery_partial">Sommige mappen konden niet worden gecontroleerd, of de zoeklimiet is bereikt. Open de betreffende map in Bestanden om verder te controleren.</string>
+    <string name="road28_storage_check">Opslag en kopieën controleren</string>
+    <string name="road28_storage_available">Opslag beschikbaar</string>
+    <string name="road28_storage_returned">Opslag is terug. Overdrachten blijven gepauzeerd totdat je ze hervat.</string>
+    <string name="road28_storage_read_only">Opslag is alleen-lezen</string>
+    <string name="road28_storage_permission">Toegang tot de map is verloren. Kies de map opnieuw in Instellingen.</string>
+    <string name="road28_storage_unavailable">Opslag is niet beschikbaar. Verbind deze opnieuw en controleer nogmaals.</string>
+    <string name="road28_storage_paused">%1$d overdrachten gepauzeerd voor deze map</string>
+    <string name="road28_storage_resume">Deze overdrachten hervatten</string>
+    <string name="road28_storage_settings">Mapinstellingen</string>
+    <string name="road28_storage_cached">De laatste bestandslijst blijft bewaard. Verbind de opslag opnieuw en controleer deze voordat je bestanden wijzigt.</string>
+</resources>

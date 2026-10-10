@@ -78,13 +78,14 @@ fun CloudSavesSection(
     modifier: Modifier = Modifier,
     viewModel: CloudSavesViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(consoleId, fileName) { viewModel.show(consoleId, fileName) }
+    val profile by viewModel.activeProfile.collectAsState()
+    LaunchedEffect(consoleId, fileName, profile) { viewModel.show(consoleId, fileName) }
     val ui by viewModel.ui.collectAsState()
-    val data = ui.data?.takeIf { it.consoleId == consoleId && it.fileName == fileName && it.visible } ?: return
+    val data = ui.data?.takeIf { it.consoleId == consoleId && it.fileName == fileName && it.profileId == profile && it.visible } ?: return
 
-    var pending by remember(consoleId, fileName) { mutableStateOf<PendingRestore?>(null) }
-    var allServer by remember(consoleId, fileName) { mutableStateOf(false) }
-    var allCopies by remember(consoleId, fileName) { mutableStateOf(false) }
+    var pending by remember(consoleId, fileName, profile) { mutableStateOf<PendingRestore?>(null) }
+    var allServer by remember(consoleId, fileName, profile) { mutableStateOf(false) }
+    var allCopies by remember(consoleId, fileName, profile) { mutableStateOf(false) }
     val busy = ui.working != null
 
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -163,6 +164,7 @@ fun CloudSavesSection(
             }
         }
         ui.notice?.let { Notice(it) }
+        SaveHandoffSection(consoleId, fileName)
     }
 
     pending?.let { p ->

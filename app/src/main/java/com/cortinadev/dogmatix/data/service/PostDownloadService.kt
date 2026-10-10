@@ -52,10 +52,13 @@ class PostDownloadService @Inject constructor(
 
     private suspend fun handle(fileName: String) {
         val entity = downloadService.entityFor(fileName) ?: return
-        val base = downloadFileManager.getDownloadDirectoryUri(entity).toString().takeIf { it.isNotEmpty() } ?: return
-        val subPath = downloadFileManager.getSubPath(entity)
-        val dir = StorageHelper.createDirectory(context, base, subPath) ?: return
-        val candidates = downloadService.uploadCandidates(fileName).filter(StorageHelper::safeRelativePath)
+        val location = downloadService.downloadedPackageLocation(entity) ?: return
+        val base = location.rootUri
+        val subPath = location.subPath
+        val root = StorageHelper.getDocumentFile(context, base) ?: return
+        val dir = if (subPath.isBlank()) root else StorageHelper.findFile(root, subPath)?.takeIf { it.isDirectory } ?: return
+        val candidates = location.paths.filter(StorageHelper::safeRelativePath)
+        val generated = mutableListOf<String>()
         val priority = listOf("m3u", "cue", "gdi", "chd", "iso", "pbp", "ccd", "mds")
         var romName = candidates.sortedBy { path -> priority.indexOf(path.substringAfterLast('.').lowercase()).takeIf { it >= 0 } ?: priority.size }.firstOrNull() ?: return
 
@@ -72,6 +75,7 @@ class PostDownloadService @Inject constructor(
                 val mine = paths.map { it.substringAfterLast('/').lowercase() }.toSet()
                 PlaylistPlanner.plan(files).filter { plan -> plan.discs.any { it.lowercase() in mine } }.forEach { plan ->
                     if (libraryTools.createPlaylist(plan)) {
+                        generated += listOf(parentPath, plan.fileName).filter(String::isNotEmpty).joinToString("/")
                         Log.i(TAG, "Wrote ${plan.fileName}")
                         if (romName.substringBeforeLast('/', "") == parentPath &&
                             plan.discs.any { it.equals(romName.substringAfterLast('/'), ignoreCase = true) }) {
@@ -81,6 +85,8 @@ class PostDownloadService @Inject constructor(
                 }
             }
         }
+
+        if (generated.isNotEmpty()) downloadService.recordPackageAfterPlaylist(entity, base, subPath, candidates + generated)
 
         // ES-DE names its systems after the console folders of the shared ROM tree.
         if (appSettings.esdeArtwork.first()) writeEsdeArtwork(entity.name, entity.consoleId, entity.fileName, dir.name.orEmpty(), romName)

@@ -1274,10 +1274,11 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Veja a contagem decrescente, tente agora ou cancele; os erros de transferência mantêm-se após reiniciar.</item>
-        <item>Guarde predefinições de velocidade, transferências simultâneas e agendamento; confirme outra fonte para um ficheiro bloqueado.</item>
-        <item>Partilhe e importe planos com uma seleção ordenada, condições por ficheiro e revisão antes de iniciar.</item>
-        <item>Escolha um emulador por jogo e perfil, com a escolha da consola como alternativa.</item>
+        <item>Escolha coleções opcionais Libretro para 23 sistemas sem substituir as suas fontes.</item>
+        <item>Mantenha jogos completos após reiniciar e verifique se as coleções estão prontas para jogar sem ligação.</item>
+        <item>Reveja as cópias de recuperação num só lugar e retome as transferências quando o armazenamento regressar.</item>
+        <item>Guarde notas, capturas e manuais por jogo e perfil; as notas são incluídas nas cópias de segurança.</item>
+        <item>Prepare os jogos guardados normais antes de mudar de dispositivo; os conflitos bloqueiam a passagem.</item>
     </string-array>
 
     <!-- 4.0 -->

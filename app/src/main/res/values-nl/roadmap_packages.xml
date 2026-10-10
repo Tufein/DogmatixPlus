@@ -1,0 +1,19 @@
+<resources>
+    <string name="pkg28_registered">Compleet gamepakket · %1$d bestanden</string>
+    <string name="pkg28_incomplete">Gamepakket vraagt aandacht · %1$d verwachte bestanden</string>
+    <string name="off28_check">Klaar voor offline spelen?</string>
+    <string name="off28_hint">Controleer gamebestanden, discs, BIOS en geïnstalleerde emulators. Er wordt niets gedownload of gestart.</string>
+    <string name="off28_report_title">Controle voor offline spelen</string>
+    <string name="off28_loading">Bestanden en gamepakketten controleren…</string>
+    <string name="off28_failed">De controle kon niet afronden. Probeer opnieuw zodra de mappen beschikbaar zijn.</string>
+    <string name="off28_summary">Klaar: %1$d van %2$d games</string>
+    <string name="off28_limited">Nog niet gecontroleerd: %1$d games. Deze controle verwerkt maximaal 300 games.</string>
+    <string name="off28_ready">Klaar voor offline spelen</string>
+    <string name="off28_attention">Vraagt aandacht</string>
+    <string name="off28_unavailable">Deze game staat niet meer in de ingestelde bronnen.</string>
+    <string name="off28_legacy">Oudere download: bestanden en discverwijzingen gecontroleerd; oorspronkelijke pakkethashes ontbreken.</string>
+    <string name="off28_verified">Geverifieerde pakketbestanden: %1$d</string>
+    <string name="off28_files_missing">Ontbrekende, gewijzigde of onleesbare pakketbestanden:</string>
+    <string name="off28_more">Overige bestanden: %1$d</string>
+    <string name="off28_remaining">Nog te controleren: %1$d games</string>
+</resources>

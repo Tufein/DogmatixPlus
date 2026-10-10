@@ -99,6 +99,23 @@ class ArchiveSafetyRegressionTest {
             }
         }
     }
+    @Test fun vanishedSelectedChildDocumentCannotWriteIntoItsGrantedParent() = runBlocking {
+        fixture { tree, dest ->
+            val selected = dest.createDirectory("selected")!!
+            val selectedUri = selected.uri
+            assertTrue(selected.delete())
+            archive("Selected.gba" to "must-not-leak") { zip ->
+                try {
+                    ArchiveExtractorService().extractArchiveFile(context, zip, selectedUri, failOnError = true)
+                    fail("Missing selected child must reject extraction")
+                } catch (_: Exception) {
+                    assertTrue(zip.exists())
+                    assertTrue(dest.listFiles().isEmpty())
+                    assertNull(StorageHelper.getDocumentFile(context, tree.toString())!!.findFile("Selected.gba"))
+                }
+            }
+        }
+    }
     @Test fun traversalIsRejectedBeforeAnyDestinationFileIsCreated() = runBlocking {
         fixture { _, dest -> archive("ok.bin" to "good", "../outside.bin" to "bad") { zip ->
             assertEquals(ArchiveSafetyException.Reason.UNSAFE_PATH, reason(expectFailure(zip, dest)))

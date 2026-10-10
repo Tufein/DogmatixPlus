@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="journal_title">Spieljournal</string>
+    <string name="journal_hint">Deine Notizen gehören zu diesem Spiel und Profil. Backups behalten Notizen und Anhangnamen; wähle Bilder und PDF-Handbücher auf einem anderen Gerät erneut aus.</string>
+    <string name="journal_empty">Noch keine Notizen.</string>
+    <string name="journal_edit">Notizen bearbeiten</string>
+    <string name="journal_recovered">Aus Backup wiederhergestellte Notiz</string>
+    <string name="journal_use_note">Wiederhergestellte Notiz bearbeiten</string>
+    <string name="journal_choose_again">Wähle diesen Anhang erneut aus. Die Originaldatei bleibt auf ihrem Gerät.</string>
+    <string name="journal_open">Öffnen</string>
+    <string name="journal_reselect">Erneut auswählen</string>
+    <string name="journal_remove">Verweis entfernen</string>
+    <string name="journal_add_image">Screenshot hinzufügen</string>
+    <string name="journal_add_manual">PDF-Handbuch hinzufügen</string>
+    <string name="journal_failed">Speichern oder Öffnen fehlgeschlagen. Lade das Journal neu oder wähle ein lesbares PNG-, JPEG- oder WebP-Bild (bis 12 MB) oder PDF (bis 32 MB).</string>
+    <string name="journal_reload">Journal neu laden</string>
+    <string name="journal_note">Notizen</string>
+    <string name="journal_save">Notizen speichern</string>
+    <string name="journal_remove_hint">Journalverweis auf %1$s entfernen? Die Originaldatei bleibt erhalten.</string>
+</resources>

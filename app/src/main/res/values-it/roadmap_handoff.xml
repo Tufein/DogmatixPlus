@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="handoff_title">Cambia dispositivo in sicurezza</string>
+    <string name="handoff_hint">Controlla i salvataggi di gioco attuali su questo dispositivo e RomM. Il trasferimento conserva copie verificate e confronta di nuovo entrambi i lati.</string>
+    <string name="handoff_states_excluded">Gli stati dell’emulatore sono esclusi. I salvataggi di gioco richiedono un emulatore compatibile e la stessa versione del gioco sull’altro dispositivo.</string>
+    <string name="handoff_failed">Trasferimento non completato. Controlla RomM, l’associazione della console, le cartelle e il profilo attivo. Risolvi i conflitti e ricontrolla.</string>
+    <string name="handoff_no_saves">Nessun salvataggio di gioco corrispondente.</string>
+    <string name="handoff_upload">Invia a RomM</string>
+    <string name="handoff_download">Scarica su questo dispositivo</string>
+    <string name="handoff_identical">Stesso contenuto su entrambi i lati</string>
+    <string name="handoff_conflict">I contenuti differiscono: scegli prima una versione</string>
+    <string name="handoff_ambiguous">Percorso del salvataggio ambiguo</string>
+    <string name="handoff_ready">I salvataggi corrispondono e le copie sono verificate.</string>
+    <string name="handoff_next_device">Apri questo gioco sull’altro dispositivo, controlla i salvataggi e completa lì il trasferimento prima di giocare. Questo controllo riguarda questo dispositivo e il server.</string>
+    <string name="handoff_transfer">Sincronizza e verifica</string>
+    <string name="handoff_resolve_first">Risolvi prima i conflitti in Salvataggi cloud o Sincronizzazione. Se ambiguo, scegli esplicitamente la cartella dell’emulatore.</string>
+    <string name="handoff_check">Controlla salvataggi attuali</string>
+    <string name="handoff_confirm">Verificare %1$d file e sincronizzare le modifiche indicate? I file sostituiti vengono prima copiati. Nulla viene eliminato; gli stati dell’emulatore sono esclusi.</string>
+    <string name="handoff_too_large">Il trasferimento tra dispositivi supporta salvataggi fino a 16 MiB. Usa la sincronizzazione per file più grandi.</string>
+</resources>

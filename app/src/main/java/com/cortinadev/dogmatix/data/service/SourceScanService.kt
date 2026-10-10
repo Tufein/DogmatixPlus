@@ -120,6 +120,23 @@ class SourceScanService @Inject constructor(
         }
     }
 
+    /** Catalog choices scan only the URLs actually added; unrelated configured sources stay untouched. */
+    fun scanSelectedUrls(selected: Map<String, Set<String>>): Job = scope.launch {
+        if (selected.isEmpty()) return@launch
+        runScan(background = false) { tally ->
+            state.startProgress(selected.values.sumOf { it.size })
+            coroutineScope {
+                selected.forEach { (consoleId, urls) ->
+                    val entity = sources.getConsoleEntity(consoleId) ?: return@forEach
+                    val chosen = SourcesJson.parseUrlEntries(entity.urls).filter { it.enabled && it.url in urls }
+                    if (chosen.isNotEmpty()) launch {
+                        scanConsole(Console(entity.id, entity.name, chosen), entity.manufacturerId, force = false, tally = tally)
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Scans again only [failed] (nothing else is touched): servers often recover within a minute,
      * and a second, calmer pass usually gets the rest.

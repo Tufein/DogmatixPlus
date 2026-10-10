@@ -6,7 +6,7 @@
 
 DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule grande liste, où l’on peut faire des recherches. Il les télécharge dans les bons dossiers et vous aide à garder votre collection bien rangée. Il fonctionne au toucher *et* avec une manette de jeu. Il est donc à l’aise sur les consoles portables comme les Retroid, Anbernic ou Kinhank.
 
-> **L’application est livrée sans aucun jeu ni lien de téléchargement.** Vous ajoutez vos propres sources, et vous êtes responsable de ne télécharger que ce que vous avez le droit d’avoir.
+> **L’application ne contient aucun jeu.** Ajoutez vos sources ou sélectionnez des collections facultatives dans **Sources → Plus de romsets** : homebrews, démos et logiciels de test proposés par leur éditeur. Vous restez responsable de ce que vous téléchargez.
 
 <table>
   <tr>

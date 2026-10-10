@@ -58,10 +58,14 @@ class LibraryIndexService @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val downloadService: DownloadService,
     private val downloadableFileDao: DownloadableFileDao,
-    private val trash: TrashService
+    private val trash: TrashService,
+    private val gamePackages: GamePackageService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val refreshLock = Mutex()
+    private data class PackageOwnership(val complete: Map<String, Boolean> = emptyMap(),
+        val names: Set<Pair<String, String>> = emptySet(), val roots: Set<String> = emptySet())
+    @Volatile private var packageOwnership = PackageOwnership()
 
     private val _ownedKeys = MutableStateFlow<Set<String>>(emptySet())
     /** `scope|name` keys of the files found on disk; see [LibraryKeys]. */
@@ -104,8 +108,25 @@ class LibraryIndexService @Inject constructor(
         return LibraryKeys.keysFor(LibraryKeys.consoleScope(consoleId), storedName)
     }
 
-    fun isOwned(file: DownloadableFileEntity, keys: Set<String> = _ownedKeys.value): Boolean =
-        LibraryKeys.isOwned(file.consoleId, file.fileName, keys)
+    fun isOwned(file: DownloadableFileEntity, keys: Set<String> = _ownedKeys.value): Boolean {
+        val packages = packageOwnership
+        return if (file.consoleId to file.fileName in packages.names || gamePackages.hasRecordedIdentity(file, packages.roots)) packages.complete[gamePackages.identity(file)] == true
+        else LibraryKeys.isOwned(file.consoleId, file.fileName, keys)
+    }
+
+    suspend fun packageInspection(file: DownloadableFileEntity, verifyHashes: Boolean = false): PackageInspection? {
+        val roots = setOf(settingsRepository.downloadDirectory.first(),
+            settingsRepository.consoleDownloadDirectories.first()[file.consoleId].orEmpty())
+        val manifests = gamePackages.recordsFor(file, roots)
+        var incomplete: PackageInspection? = null
+        for (manifest in manifests) {
+            currentCoroutineContext().ensureActive()
+            val inspection = gamePackages.inspect(manifest, verifyHashes)
+            if (inspection.complete) return inspection
+            if (incomplete == null) incomplete = inspection
+        }
+        return incomplete
+    }
 
     /** Starts a [refresh] on the service's own scope: it outlives the screen that asked for it. */
     fun requestRefresh() {
@@ -144,6 +165,17 @@ class LibraryIndexService @Inject constructor(
                 launch { limit.withPermit { collect(dir, LibraryKeys.customScope(consoleId), keys, depth = 0, visited, folderCount, checkActive) } }
             }
         }
+        val packages = gamePackages.records((listOf(root) + custom.values).toSet())
+            .filter { it.rootUri == root || it.rootUri == custom[it.consoleId] }
+        val ownership = HashMap<String, Boolean>()
+        for (inspection in gamePackages.inspectBatch(packages)) {
+            checkActive()
+            val manifest = inspection.manifest
+            val complete = inspection.complete
+            ownership[manifest.sourceIdentity] = ownership[manifest.sourceIdentity] == true || complete
+            if (complete) keys += LibraryKeys.keysFor(LibraryKeys.consoleScope(manifest.consoleId), FileParsingUtils.storageFileName(manifest.fileName))
+        }
+        packageOwnership = PackageOwnership(ownership, packages.map { it.consoleId to it.fileName }.toSet(), (listOf(root) + custom.values).toSet())
         _ownedKeys.value = HashSet(keys)
         _freeBytes.value = (listOf(root) + custom.values).firstOrNull { it.isNotBlank() }
             ?.let { StorageHelper.getFreeBytes(context, it) }
@@ -212,6 +244,13 @@ class LibraryIndexService @Inject constructor(
 
     /** Reads only selected descriptors, within a recognized console root or flat archive tree. */
     private suspend fun launchArtifacts(file: DownloadableFileEntity): List<RemovalFile> {
+        // Receipt paths may differ completely from the archive name. Read grants use only this
+        // exact source's recorded files; deletion deliberately keeps its conservative old plan.
+        packageInspection(file)?.let { receipt ->
+            return receipt.files.filter { GameArtifacts.safeLaunchPath(it.path) }
+        }
+        val selectedRoots = setOf(settingsRepository.downloadDirectory.first(), settingsRepository.consoleDownloadDirectories.first()[file.consoleId].orEmpty())
+        if (gamePackages.hasRecordedIdentity(file, selectedRoots)) return emptyList()
         val requested = FileParsingUtils.storageFileName(file.fileName)
         val scopes = LibraryKeys.scopesFor(file.consoleId)
         val knownConsoles = ConsoleFolderAliases.knownFolderScopes()

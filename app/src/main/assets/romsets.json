@@ -1,0 +1,333 @@
+{
+  "schema": 1,
+  "checkedAt": "2026-10-10",
+  "publisher": "Libretro",
+  "provenance": "https://github.com/libretro/libretro-content",
+  "entries": [
+    {
+      "id": "nintendo_nintendo_entertainment_system",
+      "manufacturerId": "nintendo",
+      "manufacturerName": "Nintendo",
+      "consoleKey": "nintendo_entertainment_system",
+      "consoleName": "Nintendo Entertainment System",
+      "shortName": "NES",
+      "aliases": [
+        "nes",
+        "famicom",
+        "fc"
+      ],
+      "folder": "Nintendo - Nintendo Entertainment System",
+      "fileCount": 26
+    },
+    {
+      "id": "nintendo_super_nintendo_entertainment_system",
+      "manufacturerId": "nintendo",
+      "manufacturerName": "Nintendo",
+      "consoleKey": "super_nintendo_entertainment_system",
+      "consoleName": "Super Nintendo Entertainment System",
+      "shortName": "SNES",
+      "aliases": [
+        "snes",
+        "sfc"
+      ],
+      "folder": "Nintendo - Super Nintendo Entertainment System",
+      "fileCount": 4
+    },
+    {
+      "id": "nintendo_nintendo_64",
+      "manufacturerId": "nintendo",
+      "manufacturerName": "Nintendo",
+      "consoleKey": "nintendo_64",
+      "consoleName": "Nintendo 64",
+      "shortName": "N64",
+      "aliases": [
+        "n64"
+      ],
+      "folder": "Nintendo - Nintendo 64",
+      "fileCount": 4
+    },
+    {
+      "id": "nintendo_gameboy",
+      "manufacturerId": "nintendo",
+      "manufacturerName": "Nintendo",
+      "consoleKey": "gameboy",
+      "consoleName": "Game Boy",
+      "shortName": "GB",
+      "aliases": [
+        "gb",
+        "gameboy",
+        "game boy"
+      ],
+      "folder": "Nintendo - GameBoy",
+      "fileCount": 11
+    },
+    {
+      "id": "nintendo_gameboy_advance",
+      "manufacturerId": "nintendo",
+      "manufacturerName": "Nintendo",
+      "consoleKey": "gameboy_advance",
+      "consoleName": "Game Boy Advance",
+      "shortName": "GBA",
+      "aliases": [
+        "gba",
+        "gameboyadvance"
+      ],
+      "folder": "Nintendo - GameBoy Advance",
+      "fileCount": 2
+    },
+    {
+      "id": "nintendo_nintendo_3ds",
+      "manufacturerId": "nintendo",
+      "manufacturerName": "Nintendo",
+      "consoleKey": "nintendo_3ds",
+      "consoleName": "Nintendo 3DS",
+      "shortName": "3DS",
+      "aliases": [
+        "3ds",
+        "n3ds"
+      ],
+      "folder": "Nintendo - Nintendo 3DS",
+      "fileCount": 1
+    },
+    {
+      "id": "nintendo_virtual_boy",
+      "manufacturerId": "nintendo",
+      "manufacturerName": "Nintendo",
+      "consoleKey": "virtual_boy",
+      "consoleName": "Virtual Boy",
+      "shortName": "VB",
+      "aliases": [
+        "vb",
+        "virtualboy"
+      ],
+      "folder": "Nintendo - Virtual Boy",
+      "fileCount": 2
+    },
+    {
+      "id": "nintendo_pokemon_mini",
+      "manufacturerId": "nintendo",
+      "manufacturerName": "Nintendo",
+      "consoleKey": "pokemon_mini",
+      "consoleName": "Pokémon Mini",
+      "shortName": "MINI",
+      "aliases": [
+        "pokemini",
+        "pokemonmini"
+      ],
+      "folder": "Nintendo - Pokemon Mini",
+      "fileCount": 1
+    },
+    {
+      "id": "sony_playstation",
+      "manufacturerId": "sony",
+      "manufacturerName": "Sony",
+      "consoleKey": "playstation",
+      "consoleName": "PlayStation",
+      "shortName": "PS1",
+      "aliases": [
+        "psx",
+        "ps1",
+        "ps",
+        "playstation"
+      ],
+      "folder": "Sony - PlayStation",
+      "fileCount": 2
+    },
+    {
+      "id": "sony_playstation_portable",
+      "manufacturerId": "sony",
+      "manufacturerName": "Sony",
+      "consoleKey": "playstation_portable",
+      "consoleName": "PlayStation Portable",
+      "shortName": "PSP",
+      "aliases": [
+        "psp"
+      ],
+      "folder": "Sony - PlayStation Portable",
+      "fileCount": 1
+    },
+    {
+      "id": "sega_master_system",
+      "manufacturerId": "sega",
+      "manufacturerName": "Sega",
+      "consoleKey": "master_system",
+      "consoleName": "Master System",
+      "shortName": "SMS",
+      "aliases": [
+        "mastersystem",
+        "sms"
+      ],
+      "folder": "Sega - Master System - Mark III",
+      "fileCount": 1
+    },
+    {
+      "id": "sega_game_gear",
+      "manufacturerId": "sega",
+      "manufacturerName": "Sega",
+      "consoleKey": "game_gear",
+      "consoleName": "Game Gear",
+      "shortName": "GG",
+      "aliases": [
+        "gamegear",
+        "gg"
+      ],
+      "folder": "Sega - Game Gear",
+      "fileCount": 1
+    },
+    {
+      "id": "sega_genesis",
+      "manufacturerId": "sega",
+      "manufacturerName": "Sega",
+      "consoleKey": "genesis",
+      "consoleName": "Mega Drive / Genesis",
+      "shortName": "MD",
+      "aliases": [
+        "genesis",
+        "megadrive",
+        "md"
+      ],
+      "folder": "Sega - Mega Drive - Genesis",
+      "fileCount": 15
+    },
+    {
+      "id": "sega_saturn",
+      "manufacturerId": "sega",
+      "manufacturerName": "Sega",
+      "consoleKey": "saturn",
+      "consoleName": "Saturn",
+      "shortName": "SAT",
+      "aliases": [
+        "saturn"
+      ],
+      "folder": "Sega - Saturn",
+      "fileCount": 1
+    },
+    {
+      "id": "sega_dreamcast",
+      "manufacturerId": "sega",
+      "manufacturerName": "Sega",
+      "consoleKey": "dreamcast",
+      "consoleName": "Dreamcast",
+      "shortName": "DC",
+      "aliases": [
+        "dreamcast",
+        "dc"
+      ],
+      "folder": "Sega - Dreamcast",
+      "fileCount": 3
+    },
+    {
+      "id": "atari_2600",
+      "manufacturerId": "atari",
+      "manufacturerName": "Atari",
+      "consoleKey": "2600",
+      "consoleName": "Atari 2600",
+      "shortName": "2600",
+      "aliases": [
+        "atari2600",
+        "2600"
+      ],
+      "folder": "Atari - 2600",
+      "fileCount": 1
+    },
+    {
+      "id": "bandai_wonderswan_color",
+      "manufacturerId": "bandai",
+      "manufacturerName": "Bandai",
+      "consoleKey": "wonderswan_color",
+      "consoleName": "WonderSwan Color",
+      "shortName": "WSC",
+      "aliases": [
+        "wonderswancolor",
+        "wsc"
+      ],
+      "folder": "Bandai - WonderSwan Color",
+      "fileCount": 1
+    },
+    {
+      "id": "coleco_colecovision",
+      "manufacturerId": "coleco",
+      "manufacturerName": "Coleco",
+      "consoleKey": "colecovision",
+      "consoleName": "ColecoVision",
+      "shortName": "CV",
+      "aliases": [
+        "coleco",
+        "colecovision"
+      ],
+      "folder": "Coleco - Colecovision",
+      "fileCount": 1
+    },
+    {
+      "id": "gce_vectrex",
+      "manufacturerId": "gce",
+      "manufacturerName": "GCE",
+      "consoleKey": "vectrex",
+      "consoleName": "Vectrex",
+      "shortName": "VEC",
+      "aliases": [
+        "vectrex"
+      ],
+      "folder": "GCE - Vectrex",
+      "fileCount": 44
+    },
+    {
+      "id": "mattel_intellivision",
+      "manufacturerId": "mattel",
+      "manufacturerName": "Mattel",
+      "consoleKey": "intellivision",
+      "consoleName": "Intellivision",
+      "shortName": "INTV",
+      "aliases": [
+        "intellivision",
+        "intv"
+      ],
+      "folder": "Mattel - Intellivision",
+      "fileCount": 1
+    },
+    {
+      "id": "nec_pc_engine",
+      "manufacturerId": "nec",
+      "manufacturerName": "NEC",
+      "consoleKey": "pc_engine",
+      "consoleName": "PC Engine / TurboGrafx-16",
+      "shortName": "PCE",
+      "aliases": [
+        "pcengine",
+        "pce",
+        "tg16"
+      ],
+      "folder": "NEC - PC Engine - TurboGrafx 16",
+      "fileCount": 5
+    },
+    {
+      "id": "nec_supergrafx",
+      "manufacturerId": "nec",
+      "manufacturerName": "NEC",
+      "consoleKey": "supergrafx",
+      "consoleName": "SuperGrafx",
+      "shortName": "SGX",
+      "aliases": [
+        "supergrafx",
+        "sgx"
+      ],
+      "folder": "NEC - PC Engine SuperGrafx",
+      "fileCount": 5
+    },
+    {
+      "id": "snk_neo_geo_pocket",
+      "manufacturerId": "snk",
+      "manufacturerName": "SNK",
+      "consoleKey": "neo_geo_pocket",
+      "consoleName": "Neo Geo Pocket",
+      "shortName": "NGP",
+      "aliases": [
+        "ngp",
+        "ngpc",
+        "neogeopocket"
+      ],
+      "folder": "SNK - Neo Geo Pocket",
+      "fileCount": 1
+    }
+  ]
+}

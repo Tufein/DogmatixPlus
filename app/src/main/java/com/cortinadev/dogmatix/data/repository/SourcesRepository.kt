@@ -25,6 +25,7 @@ import com.cortinadev.dogmatix.util.SourceConsole
 import com.cortinadev.dogmatix.util.SourceFavourite
 import com.cortinadev.dogmatix.util.SourceManufacturer
 import com.cortinadev.dogmatix.util.SourcesJson
+import com.cortinadev.dogmatix.util.RomsetCatalog
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -73,6 +74,31 @@ class SourcesRepository @Inject constructor(
     }
 
     suspend fun isEmpty(): Boolean = consoleDao.getAllConsoles().first().isEmpty()
+
+    /** Adds only chosen catalog URLs in one transaction, retaining names, disabled URLs and user sources. */
+    suspend fun mergeRomsets(entries: List<RomsetCatalog.Entry>): Map<String, Set<String>> = withContext(Dispatchers.IO) {
+        require(entries.size <= 64 && entries.map { it.id }.distinct().size == entries.size)
+        val added = linkedMapOf<String, Set<String>>()
+        database.withTransaction {
+            entries.forEach { entry ->
+                require(entry.id == "${entry.manufacturerId}_${entry.consoleKey}")
+                val current = consoleDao.getConsoleById(entry.id)
+                require(current == null || current.manufacturerId == entry.manufacturerId)
+                if (manufacturerDao.getManufacturerById(entry.manufacturerId) == null) {
+                    manufacturerDao.insertManufacturer(ManufacturerEntity(entry.manufacturerId, entry.manufacturerName))
+                }
+                val urls = current?.let { SourcesJson.parseUrlEntries(it.urls) }.orEmpty()
+                if (urls.any { it.url.trimEnd('/') == entry.url.trimEnd('/') }) return@forEach
+                val merged = SourcesJson.serializeUrlEntries(urls + UrlEntry(entry.url, ContentType.GAME))
+                if (current == null) {
+                    consoleDao.insertConsole(ConsoleEntity(entry.id, entry.consoleName, entry.manufacturerId, merged,
+                        shortName = entry.shortName, folderAliases = ConsoleAliasRegistry.serializeAliases(entry.aliases)))
+                } else consoleDao.updateConsole(current.copy(urls = merged))
+                added[entry.id] = setOf(entry.url)
+            }
+        }
+        added
+    }
 
     suspend fun getConsole(consoleId: String): Console? = consoleDao.getConsoleById(consoleId)?.toModel()
 

@@ -161,9 +161,19 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
     suspend fun clearRecentSearches() = context.dataStore.edit { it.remove(Keys.RECENT_SEARCHES) }
     suspend fun setSaveSyncEmulatorFolders(folders: List<EmulatorSaveFolder>) =
         context.dataStore.edit { it[Keys.SAVE_SYNC_EMULATOR_FOLDERS] = EmulatorSaveFolders.toJson(folders) }
-    suspend fun setProfiles(json: String) = context.dataStore.edit { it[Keys.PROFILES] = json }
+    suspend fun setProfiles(json: String) = profileLock.withLock { context.dataStore.edit { it[Keys.PROFILES] = json } }
     suspend fun setActiveProfile(id: String) = profileLock.withLock {
         context.dataStore.edit { it[Keys.ACTIVE_PROFILE] = id }.also { activeProfileSnapshot = id }
+    }
+    /** A delayed picker/dialog must never mutate the profile that replaced the one it opened in. */
+    suspend fun <T> withActiveProfile(expected: String, block: suspend () -> T): T = profileLock.withLock {
+        check(context.dataStore.data.first()[Keys.ACTIVE_PROFILE].orEmpty() == expected) { "Profile changed; open the game again" }
+        block()
+    }
+    /** Backup restoration changes profile fields as one guarded local mutation. */
+    suspend fun <T> withProfileStateLock(block: suspend () -> T): T = profileLock.withLock {
+        try { block() }
+        finally { activeProfileSnapshot = context.dataStore.data.first()[Keys.ACTIVE_PROFILE].orEmpty() }
     }
     suspend fun setProfilePinHash(hash: String) = context.dataStore.edit { it[Keys.PROFILE_PIN] = hash }
 

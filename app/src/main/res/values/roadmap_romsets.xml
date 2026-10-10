@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="romset28_title">More romsets</string>
+    <string name="romset28_hint">Choose Libretro content collections. These contain homebrew, demos and test software; they are not complete commercial ROM sets. Existing sources stay in place.</string>
+    <string name="romset28_short_hint">Browse optional content collections for more systems.</string>
+    <string name="romset28_browse">Browse romsets</string>
+    <string name="romset28_checked">%1$s listings checked on %2$s</string>
+    <string name="romset28_search">Search console</string>
+    <string name="romset28_failed">Could not load or add these sources. Please try again.</string>
+    <string name="romset28_added_count">Added %1$d collections. Their sources are being scanned.</string>
+    <string name="romset28_add">Add selected (%1$d)</string>
+    <string name="romset28_no_match">No matching consoles</string>
+    <string name="romset28_already_added">Already added (its enabled setting is kept)</string>
+    <string name="romset28_files">%1$d files listed at the last check</string>
+</resources>

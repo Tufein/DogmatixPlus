@@ -6,7 +6,7 @@
 
 DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes que *tú* añades, los descarga en las carpetas correctas y te ayuda a mantener ordenada tu colección. Funciona con la pantalla táctil *y* con un mando de juegos, así que se siente como en casa en consolas portátiles como Retroid, Anbernic o Kinhank.
 
-> **La app no incluye ningún juego ni enlace de descarga.** Tú añades tus propias fuentes y eres responsable de descargar solo lo que tienes permiso para tener.
+> **La app no incluye juegos.** Añade tus fuentes o elige colecciones opcionales en **Fuentes → Más romsets**: homebrew, demos y programas de prueba ofrecidos por su editor. Tú sigues siendo responsable de lo que descargas.
 
 <table>
   <tr>

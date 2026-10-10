@@ -2,6 +2,18 @@
 
 Public releases follow 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. See [release numbering](docs/releases/numbering.md) for the migration and original APK versions.
 
+## [2.8.0] – 2026-10-10 · Dogmatix+
+
+- Add a searchable, optional Libretro content catalog for 23 systems; adding sources preserves existing names, disabled entries and indexed games. Parse the actual size column in h5ai directory sources.
+- Persist verified game-package receipts for extracted discs, tracks and nested folders; restore exact source/root relationships after restart without broadening shared-file removal.
+- Check offline collections for readable files, disc references, BIOS and the effective selected emulator, with links to missing-item repair tools.
+- Unify trash, interrupted moves, file-replacement recovery and verified save backups in a profile-aware recovery center with fresh previews.
+- Track the exact selected storage folder, preserve partial transfers when it vanishes and resume its affected downloads only after an explicit write/read check.
+- Add per-profile game notes and selected screenshots/PDF manuals; backups retain notes and attachment metadata and require reselecting inaccessible restored documents.
+- Add a guided ordinary-save handoff with per-game identity, content hashes, stale-preview protection, conflicts and verified safety copies.
+- Document the complete hardware/server validation roadmap and prepare an unpublished Reddit draft for the wider community launch.
+- Seven translated interfaces; Android build 40, database version remains 15, established production and debug signing identities retained.
+
 ## [2.7.0] – 2026-10-10 · Dogmatix+
 
 - Preserve directory paths in archives; reject traversal, sanitized-name collisions, excessive entries and blocked destinations before publishing files.

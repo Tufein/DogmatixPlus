@@ -30,6 +30,7 @@ import com.cortinadev.dogmatix.util.OfflineCollections.Game
 import com.cortinadev.dogmatix.util.StorageInsights
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -58,6 +59,13 @@ private const val GB = 1024L * 1024 * 1024
 
 /** A fetched game that left its collection and is still on the device; [collectionNames] are the collections it came for. */
 data class StaleGame(val game: Game, val collectionNames: List<String>)
+
+data class OfflineReadyGame(val consoleId: String, val fileName: String, val title: String,
+    val report: GameReadyReport?, val unavailable: Boolean = false)
+data class OfflineReadyCollection(val id: Long, val name: String, val checkedAt: Long,
+    val games: List<OfflineReadyGame>, val unchecked: Int = 0) {
+    val readyCount: Int get() = games.count { it.report?.ready == true }
+}
 
 /** What the screen shows: whether a run is going, what each switched-on collection stands at, and the games to review. */
 data class OfflineState(
@@ -103,7 +111,8 @@ class OfflineCollectionsService @Inject constructor(
     rescan: RescanStateHolder,
     rommLibrary: RommLibraryService,
     private val smartCollections: SmartCollectionsService,
-    private val profiles: ProfileService
+    private val profiles: ProfileService,
+    private val readiness: GameReadinessService
 ) {
     enum class Trigger { MANUAL, AUTO }
 
@@ -114,6 +123,8 @@ class OfflineCollectionsService @Inject constructor(
     val state: StateFlow<OfflineState> = _state.asStateFlow()
 
     val keptIds: Flow<Set<Long>> = settings.collectionIds
+    val activeProfile: StateFlow<String> = profiles.activeId
+    val readinessRestrictions: StateFlow<com.cortinadev.dogmatix.util.LibraryRestrictions> = profiles.restrictions
     val cap: Flow<Int> = settings.cap
     val wifiOnly: Flow<Boolean> = settings.wifiOnly
     val lastRun: Flow<OfflineCollections.RunInfo?> = settings.lastRun
@@ -161,6 +172,66 @@ class OfflineCollectionsService @Inject constructor(
 
     fun setCap(cap: Int) { scope.launch { settings.setCap(cap) } }
     fun setWifiOnly(on: Boolean) { scope.launch { settings.setWifiOnly(on) } }
+
+    /** Explicit local verification, including durable package hashes. No downloads or launches. */
+    suspend fun checkCollection(collectionId: Long,
+        onProgress: (OfflineReadyCollection) -> Unit = {}): OfflineReadyCollection = withContext(Dispatchers.IO) {
+        val collection = collectionDao.getAll().firstOrNull { it.id == collectionId } ?: error("Collection unavailable")
+        val members = collectionDao.itemsOf(collectionId).distinctBy { it.consoleId to it.fileName }
+        val profile = profiles.current()
+        val profileId = profiles.currentIdNow()
+        libraryIndex.refresh()
+        val requested = members.mapTo(HashSet()) { Game(it.consoleId, it.fileName) }
+        val candidates = members.map { it.fileName }.distinct().chunked(900).flatMap { names ->
+            kotlinx.coroutines.currentCoroutineContext().ensureActive()
+            fileDao.filesByFileNames(names).filter { Game(it.consoleId, it.fileName) in requested }
+        }
+        val tags = candidates.map { it.id }.distinct().chunked(900).flatMap { fileDao.tagsOfFiles(it) }
+            .groupBy({ it.fileId }, { it.tag })
+        val rows = HashMap<Game, DownloadableFileEntity>()
+        val known = candidates.mapTo(HashSet()) { Game(it.consoleId, it.fileName) }
+        candidates.forEach { file ->
+            kotlinx.coroutines.currentCoroutineContext().ensureActive()
+            if (profile.allows(file.consoleId, tags[file.id].orEmpty())) {
+                val key = Game(file.consoleId, file.fileName)
+                if (key !in rows || libraryIndex.isOwned(file)) rows[key] = file
+            }
+        }
+        // Hidden titles do not appear as "unavailable", which would still disclose their names.
+        // With a tag restriction, an unindexed title has no trustworthy visibility metadata.
+        val visible = members.filter { member ->
+            val key = Game(member.consoleId, member.fileName)
+            key in rows || key !in known && profile.hiddenTags.isEmpty() && profile.allows(member.consoleId, emptyList())
+        }
+        val bios = if (com.cortinadev.dogmatix.util.BiosCatalog.systemsFor(visible.take(MAX_READY_GAMES).map { it.consoleId }).isEmpty()) null
+            else readiness.biosReport()
+        val reports = ArrayList<OfflineReadyGame>()
+        fun snapshot() = OfflineReadyCollection(collectionId, collection.name, System.currentTimeMillis(),
+            reports.toList(), (visible.size - reports.size).coerceAtLeast(0))
+        suspend fun requireCurrentProfile() {
+            kotlinx.coroutines.currentCoroutineContext().ensureActive()
+            if (profileId != profiles.currentIdNow() || profile != profiles.current()) throw CancellationException("Profile changed")
+            kotlinx.coroutines.currentCoroutineContext().ensureActive()
+        }
+        requireCurrentProfile()
+        onProgress(snapshot())
+        visible.take(MAX_READY_GAMES).forEach { member ->
+            kotlinx.coroutines.currentCoroutineContext().ensureActive()
+            if (profileId != profiles.currentIdNow()) throw CancellationException("Profile changed")
+            val file = rows[Game(member.consoleId, member.fileName)]
+            reports += if (file == null) OfflineReadyGame(member.consoleId, member.fileName, member.fileName, null, unavailable = true)
+            else {
+                val report = try { readiness.check(file, verifyPackageHashes = true, existingBios = bios) }
+                    catch (e: CancellationException) { throw e }
+                    catch (_: Exception) { null }
+                OfflineReadyGame(file.consoleId, file.fileName, file.name, report)
+            }
+            requireCurrentProfile()
+            onProgress(snapshot())
+        }
+        requireCurrentProfile()
+        snapshot()
+    }
 
     /** Looks at every collection that is on without queueing anything; fills [state]. Skipped while a run is going. */
     suspend fun preview() = withContext(Dispatchers.IO) {
@@ -241,7 +312,10 @@ class OfflineCollectionsService @Inject constructor(
         // A fresh look at the disk before queueing, so a game that is already there is never fetched twice.
         if (refreshIndex && !noFolder) libraryIndex.refresh()
         val owned = libraryIndex.ownedKeys.value
-        val onDevice = { g: Game -> LibraryKeys.isOwned(g.consoleId, g.fileName, owned) }
+        // The legacy collection key has no URL; once rows are loaded, prefer exact source receipts.
+        val entities = HashMap<Game, DownloadableFileEntity>()
+        val onDevice = { g: Game -> entities[g]?.let { libraryIndex.isOwned(it, owned) }
+            ?: LibraryKeys.isOwned(g.consoleId, g.fileName, owned) }
         val inQueue = downloadService.getDownloads().filter { it.status != DownloadStatus.COMPLETED }.mapTo(HashSet()) { it.fileName }
         val queued = { g: Game -> g.fileName in inQueue }
 
@@ -249,9 +323,11 @@ class OfflineCollectionsService @Inject constructor(
             OfflineCollections.Kept(c.id, c.name, collectionDao.itemsOf(c.id).map { Game(it.consoleId, it.fileName) }.distinct())
         }
         val restrictions = profiles.current()
-        val entities = HashMap<Game, DownloadableFileEntity>()
         kept.flatMap { k -> k.games.map { it.consoleId } }.toSet().forEach { console ->
-            fileDao.filesOf(console).forEach { if (restrictions.allows(console, fileDao.tagsOf(it.id))) entities.putIfAbsent(Game(console, it.fileName), it) }
+            fileDao.filesOf(console).forEach { if (restrictions.allows(console, fileDao.tagsOf(it.id))) {
+                val game = Game(console, it.fileName)
+                if (game !in entities || libraryIndex.isOwned(it, owned)) entities[game] = it
+            } }
         }
         val root = settingsRepository.downloadDirectory.first()
         val folders = settingsRepository.consoleDownloadDirectories.first()
@@ -367,4 +443,6 @@ class OfflineCollectionsService @Inject constructor(
             .build()
         context.getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification)
     }
+
+    private companion object { const val MAX_READY_GAMES = 300 }
 }

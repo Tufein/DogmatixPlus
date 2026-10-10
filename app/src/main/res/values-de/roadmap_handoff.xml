@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="handoff_title">Sicher das Gerät wechseln</string>
+    <string name="handoff_hint">Prüfe aktuelle Spielstände auf diesem Gerät und RomM. Die Übertragung behält geprüfte Sicherheitskopien und vergleicht beide Seiten erneut.</string>
+    <string name="handoff_states_excluded">Emulator-Zustände sind ausgeschlossen. Spielstände benötigen auf dem anderen Gerät einen kompatiblen Emulator und dieselbe Spielversion.</string>
+    <string name="handoff_failed">Übertragung nicht abgeschlossen. Prüfe RomM, Konsolenzuordnung, Speicherordner und aktives Profil. Löse Konflikte und prüfe erneut.</string>
+    <string name="handoff_no_saves">Keine passenden Spielstände gefunden.</string>
+    <string name="handoff_upload">An RomM senden</string>
+    <string name="handoff_download">Auf dieses Gerät laden</string>
+    <string name="handoff_identical">Gleicher Inhalt auf beiden Seiten</string>
+    <string name="handoff_conflict">Beide Seiten unterscheiden sich: zuerst Version wählen</string>
+    <string name="handoff_ambiguous">Speicherpfad ist nicht eindeutig</string>
+    <string name="handoff_ready">Spielstände stimmen überein; Sicherheitskopien sind geprüft.</string>
+    <string name="handoff_next_device">Öffne dieses Spiel auf dem anderen Gerät, prüfe die Spielstände und schließe dort die Übertragung vor dem Spielen ab. Diese Prüfung gilt für dieses Gerät und den Server.</string>
+    <string name="handoff_transfer">Synchronisieren und prüfen</string>
+    <string name="handoff_resolve_first">Löse zuerst Konflikte unter Cloud-Spielstände oder Spielstandsynchronisierung. Wähle bei Unklarheit den Emulatorordner ausdrücklich aus.</string>
+    <string name="handoff_check">Aktuelle Spielstände prüfen</string>
+    <string name="handoff_confirm">%1$d Spielstände prüfen und die oben gezeigten Änderungen synchronisieren? Ersetzte Dateien werden zuerst gesichert. Nichts wird gelöscht; Emulator-Zustände sind ausgeschlossen.</string>
+    <string name="handoff_too_large">Die Geräteübertragung unterstützt Spielstände bis 16 MiB. Verwende die Spielstandsynchronisierung für größere Dateien.</string>
+</resources>

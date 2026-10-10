@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="road28_recovery_title">Centro de recuperación</string>
+    <string name="road28_recovery_hint">Comprueba el almacenamiento, los movimientos interrumpidos, la papelera y las copias de partidas. Cada recuperación requiere tu confirmación.</string>
+    <string name="road28_recovery_preview">Revisar recuperación</string>
+    <string name="road28_recovery_keep_current">Los archivos existentes se conservan si difieren de la copia. Al mover archivos, los originales solo se eliminan tras verificar el destino.</string>
+    <string name="road28_recovery_from">Desde: %1$s</string>
+    <string name="road28_recovery_to">A: %1$s</string>
+    <string name="road28_recovery_folder">Carpeta seleccionada</string>
+    <string name="road28_recovery_replacements">Sustituciones de archivos interrumpidas</string>
+    <string name="road28_recovery_saves">Copias de seguridad de partidas</string>
+    <string name="road28_recovery_save_protected">La partida actual se copia y verifica antes de restaurar esta versión. Después, la sincronización en la nube tendrá que comparar de nuevo.</string>
+    <string name="road28_recovery_partial">Algunas carpetas no se pudieron comprobar o se alcanzó el límite de búsqueda. Abre la carpeta concreta en Archivos.</string>
+    <string name="road28_storage_check">Comprobar almacenamiento y copias</string>
+    <string name="road28_storage_available">Almacenamiento disponible</string>
+    <string name="road28_storage_returned">El almacenamiento ha vuelto. Las transferencias siguen pausadas hasta que las reanudes.</string>
+    <string name="road28_storage_read_only">Almacenamiento de solo lectura</string>
+    <string name="road28_storage_permission">Se perdió el acceso a la carpeta. Selecciónala de nuevo en Ajustes.</string>
+    <string name="road28_storage_unavailable">Almacenamiento no disponible. Reconéctalo y comprueba de nuevo.</string>
+    <string name="road28_storage_paused">%1$d transferencias pausadas para esta carpeta</string>
+    <string name="road28_storage_resume">Reanudar estas transferencias</string>
+    <string name="road28_storage_settings">Ajustes de carpetas</string>
+    <string name="road28_storage_cached">Se conserva la última lista. Reconecta y comprueba el almacenamiento antes de modificar archivos.</string>
+</resources>

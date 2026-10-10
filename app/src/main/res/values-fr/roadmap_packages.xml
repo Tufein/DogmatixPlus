@@ -1,0 +1,19 @@
+<resources>
+    <string name="pkg28_registered">Paquet de jeu complet · %1$d fichiers</string>
+    <string name="pkg28_incomplete">Paquet à vérifier · %1$d fichiers attendus</string>
+    <string name="off28_check">Prêt à jouer hors ligne ?</string>
+    <string name="off28_hint">Vérifiez les fichiers, disques, BIOS et émulateurs installés. Aucun téléchargement ni lancement.</string>
+    <string name="off28_report_title">Vérification du jeu hors ligne</string>
+    <string name="off28_loading">Vérification des fichiers et paquets de jeux…</string>
+    <string name="off28_failed">La vérification n’a pas pu se terminer. Réessayez lorsque les dossiers sont accessibles.</string>
+    <string name="off28_summary">Prêts : %1$d sur %2$d jeux</string>
+    <string name="off28_limited">Pas encore vérifiés : %1$d jeux. Cette vérification traite au maximum 300 jeux.</string>
+    <string name="off28_ready">Prêt à jouer hors ligne</string>
+    <string name="off28_attention">À vérifier</string>
+    <string name="off28_unavailable">Ce jeu ne figure plus dans les sources configurées.</string>
+    <string name="off28_legacy">Ancien téléchargement : fichiers et références des disques vérifiés ; empreintes originales du paquet indisponibles.</string>
+    <string name="off28_verified">Fichiers du paquet vérifiés : %1$d</string>
+    <string name="off28_files_missing">Fichiers du paquet absents, modifiés ou illisibles :</string>
+    <string name="off28_more">Autres fichiers : %1$d</string>
+    <string name="off28_remaining">Restant à vérifier : %1$d jeux</string>
+</resources>

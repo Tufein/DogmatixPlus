@@ -25,6 +25,11 @@ import javax.inject.Singleton
 
 class RommException(message: String) : IOException(message)
 
+/** A save transfer never switches endpoint or credentials while a settings edit is in flight. */
+class RommSaveEndpoint internal constructor(internal val base: String, internal val auth: Map<String, String>) {
+    override fun toString(): String = "RommSaveEndpoint"
+}
+
 data class RommRom(
     val id: Int,
     val fsName: String,
@@ -59,6 +64,8 @@ class RommClient @Inject constructor(
 
     /** Headers a plain HTTP download from this server needs. */
     suspend fun downloadHeaders(): Map<String, String> = headers()
+
+    suspend fun saveEndpoint(): RommSaveEndpoint = RommSaveEndpoint(baseUrl(), headers())
 
     /** Every ROM of [platformId], paged through `/api/roms`. */
     suspend fun roms(platformId: Int): List<RommRom> = withContext(Dispatchers.IO) {
@@ -229,8 +236,9 @@ class RommClient @Inject constructor(
      * Every save (or state) of the account, newest server version per name is picked by the
      * caller. Slot saves (a dated history other clients keep) are left out.
      */
-    suspend fun saves(kind: SaveKind): List<RemoteSaveFile> = withContext(Dispatchers.IO) {
-        val response = JsonHttp.requireOk(JsonHttp.request("GET", "${baseUrl()}/api/${kind.apiPath}", headers(), readTimeoutMs = 60_000))
+    suspend fun saves(kind: SaveKind, endpoint: RommSaveEndpoint? = null): List<RemoteSaveFile> = withContext(Dispatchers.IO) {
+        val selected = endpoint ?: saveEndpoint()
+        val response = JsonHttp.requireOk(JsonHttp.request("GET", "${selected.base}/api/${kind.apiPath}", selected.auth, readTimeoutMs = 60_000))
         val items = when {
             response.json?.isJsonArray == true -> response.json.asJsonArray
             response.json?.isJsonObject == true -> response.json.asJsonObject.getAsJsonArray("items") ?: throw RommException("Unexpected /api/${kind.apiPath} payload")
@@ -255,15 +263,16 @@ class RommClient @Inject constructor(
     }
 
     /** The bytes of [save]: its `download_path`, or the `/content` route of newer servers. */
-    suspend fun downloadSave(save: RemoteSaveFile, maxBytes: Long): ByteArray = withContext(Dispatchers.IO) {
-        val base = baseUrl()
+    suspend fun downloadSave(save: RemoteSaveFile, maxBytes: Long, endpoint: RommSaveEndpoint? = null): ByteArray = withContext(Dispatchers.IO) {
+        val selected = endpoint ?: saveEndpoint()
+        val base = selected.base
         val primary = save.downloadPath.takeIf { it.startsWith("/") }?.let { base + it.replace(" ", "%20") }
         val fallback = "$base/api/${save.kind.apiPath}/${save.id}/content"
         try {
-            JsonHttp.download(primary ?: fallback, headers(), maxBytes)
+            JsonHttp.download(primary ?: fallback, selected.auth, maxBytes)
         } catch (e: JsonHttp.HttpException) {
             if (primary == null || e.code == 401 || e.code == 403) throw e
-            JsonHttp.download(fallback, headers(), maxBytes)
+            JsonHttp.download(fallback, selected.auth, maxBytes)
         }
     }
 
@@ -272,24 +281,26 @@ class RommClient @Inject constructor(
      * Newer servers take one `saveFile` / `stateFile` part, older ones a `saves` / `states`
      * list, so a refused first form is retried in the other. Returns the stored save.
      */
-    suspend fun uploadSave(kind: SaveKind, romId: Int, fileName: String, emulator: String?, bytes: ByteArray): RemoteSaveFile? = withContext(Dispatchers.IO) {
+    suspend fun uploadSave(kind: SaveKind, romId: Int, fileName: String, emulator: String?, bytes: ByteArray, endpoint: RommSaveEndpoint? = null): RemoteSaveFile? = withContext(Dispatchers.IO) {
+        val selected = endpoint ?: saveEndpoint()
         val query = buildString {
             append("rom_id=").append(romId)
             emulator?.let { append("&emulator=").append(URLEncoder.encode(it, "UTF-8")) }
         }
-        val url = "${baseUrl()}/api/${kind.apiPath}?$query"
-        val auth = headers()
+        val url = "${selected.base}/api/${kind.apiPath}?$query"
+        val auth = selected.auth
         fun post(field: String): JsonHttp.Response {
             val (body, contentType) = JsonHttp.multipartFileBody(field, fileName, bytes)
             return JsonHttp.request("POST", url, auth, body = body, contentType = contentType, readTimeoutMs = 120_000)
         }
         // A server that refused the newer form once (same address and version) gets the older one at once.
         val memo = "upload:${kind.apiPath}"
-        var response = post(if (remembers(memo)) kind.legacyFileField else kind.fileField)
+        val legacy = if (endpoint != null) false else remembers(memo)
+        var response = post(if (legacy) kind.legacyFileField else kind.fileField)
         if (response.code == 400 || response.code == 422) {
-            val other = if (remembers(memo)) kind.fileField else kind.legacyFileField
+            val other = if (legacy) kind.fileField else kind.legacyFileField
             response = post(other)
-            if (response.ok) remember(memo, other == kind.legacyFileField)
+            if (response.ok && endpoint == null) remember(memo, other == kind.legacyFileField)
         }
         val obj = JsonHttp.requireOk(response).json?.takeIf { it.isJsonObject }?.asJsonObject ?: return@withContext null
         remoteSave(kind, obj)
@@ -323,11 +334,12 @@ class RommClient @Inject constructor(
     }
 
     /** ROMs whose name or file name holds every word of [term] (RomM's library search). */
-    suspend fun searchRoms(term: String, limit: Int = 100): List<RomCandidate> = withContext(Dispatchers.IO) {
+    suspend fun searchRoms(term: String, limit: Int = 100, endpoint: RommSaveEndpoint? = null): List<RomCandidate> = withContext(Dispatchers.IO) {
+        val selected = endpoint ?: saveEndpoint()
         val q = URLEncoder.encode(term, "UTF-8")
-        val url = "${baseUrl()}/api/roms?search_term=$q&limit=$limit&offset=0" +
+        val url = "${selected.base}/api/roms?search_term=$q&limit=$limit&offset=0" +
             "&with_char_index=false&with_filter_values=false&with_rom_id_index=false&with_total=false"
-        val json = JsonHttp.requireOk(JsonHttp.request("GET", url, headers(), readTimeoutMs = 60_000)).json
+        val json = JsonHttp.requireOk(JsonHttp.request("GET", url, selected.auth, readTimeoutMs = 60_000)).json
         val items = when {
             json?.isJsonArray == true -> json.asJsonArray
             json?.isJsonObject == true -> json.asJsonObject.getAsJsonArray("items") ?: return@withContext emptyList()

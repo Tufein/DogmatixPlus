@@ -14,6 +14,9 @@ public class TestStorageProvider extends ContentProvider {
  private File document(Uri uri) { return file(DocumentsContract.getDocumentId(uri)); }
  public String getType(Uri uri) { return document(uri).isDirectory()?DocumentsContract.Document.MIME_TYPE_DIR:"application/octet-stream"; }
  public Cursor query(Uri uri,String[] projection,String selection,String[] args,String sort) {
+  File selected=document(uri);
+  if(fails("fixture:fail_access",selected.getName())) throw new SecurityException("Injected access failure");
+  if(fails("fixture:fail_query",selected.getName())) return null;
   String[] cols=projection!=null?projection:new String[]{"document_id","_display_name","mime_type","flags","_size","last_modified"};
   MatrixCursor c=new MatrixCursor(cols); File p=document(uri); File[] files="children".equals(uri.getLastPathSegment())?p.listFiles():p.exists()?new File[]{p}:new File[0];
   if(files!=null) for(File f:files) { Object[] row=new Object[cols.length]; for(int i=0;i<cols.length;i++) { switch(cols[i]) {
@@ -21,7 +24,9 @@ public class TestStorageProvider extends ContentProvider {
    case "mime_type":row[i]=f.isDirectory()?DocumentsContract.Document.MIME_TYPE_DIR:"application/octet-stream";break;
    case "_size":row[i]=f.length();break;case "last_modified":row[i]=f.lastModified();break;
    case "flags":row[i]=DocumentsContract.Document.FLAG_SUPPORTS_DELETE|DocumentsContract.Document.FLAG_SUPPORTS_RENAME|DocumentsContract.Document.FLAG_SUPPORTS_WRITE|(f.isDirectory()?DocumentsContract.Document.FLAG_DIR_SUPPORTS_CREATE:0);break;
-  }} c.addRow(row); } return c;
+  }} c.addRow(row); }
+  if("children".equals(uri.getLastPathSegment())&&fails("fixture:fail_loading",selected.getName())) { Bundle extras=new Bundle(); extras.putBoolean(DocumentsContract.EXTRA_LOADING,true); c.setExtras(extras); }
+  return c;
  }
  public Bundle call(String method,String arg,Bundle data) {
   if(method.startsWith("fixture:fail_")) { synchronized(faults) { if(arg==null) faults.remove(method); else faults.put(method,arg); } return new Bundle(); }

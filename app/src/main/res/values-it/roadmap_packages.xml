@@ -1,0 +1,19 @@
+<resources>
+    <string name="pkg28_registered">Pacchetto di gioco completo · %1$d file</string>
+    <string name="pkg28_incomplete">Pacchetto da controllare · %1$d file previsti</string>
+    <string name="off28_check">Pronto per giocare offline?</string>
+    <string name="off28_hint">Controlla file, dischi, BIOS ed emulatori installati. Non viene scaricato né avviato nulla.</string>
+    <string name="off28_report_title">Controllo per giocare offline</string>
+    <string name="off28_loading">Controllo di file e pacchetti di gioco…</string>
+    <string name="off28_failed">Impossibile completare il controllo. Riprova quando le cartelle sono disponibili.</string>
+    <string name="off28_summary">Pronti: %1$d di %2$d giochi</string>
+    <string name="off28_limited">Non ancora controllati: %1$d giochi. Il controllo gestisce al massimo 300 giochi.</string>
+    <string name="off28_ready">Pronto per giocare offline</string>
+    <string name="off28_attention">Da controllare</string>
+    <string name="off28_unavailable">Il gioco non è più elencato nelle fonti configurate.</string>
+    <string name="off28_legacy">Download precedente: file e riferimenti ai dischi controllati; hash originali del pacchetto non disponibili.</string>
+    <string name="off28_verified">File del pacchetto verificati: %1$d</string>
+    <string name="off28_files_missing">File del pacchetto mancanti, modificati o illeggibili:</string>
+    <string name="off28_more">Altri file: %1$d</string>
+    <string name="off28_remaining">Da controllare: %1$d giochi</string>
+</resources>

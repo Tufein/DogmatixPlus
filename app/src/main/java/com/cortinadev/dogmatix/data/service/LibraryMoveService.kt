@@ -70,7 +70,8 @@ class LibraryMoveService @Inject constructor(
     private val moveGate: StorageMoveGate,
     private val copier: VerifiedDocumentCopy,
     private val history: OperationHistoryService,
-    private val actionLog: ActionLogService
+    private val actionLog: ActionLogService,
+    private val gamePackages: GamePackageService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var job: Job? = null
@@ -131,7 +132,8 @@ class LibraryMoveService @Inject constructor(
                     val target = copier.copy(uri, directory, item.name) { bytes -> _state.update { it.copy(bytesDone = it.bytesDone + bytes) } }
                     val hash = copier.hash(uri)
                     check(copier.mayRemove(uri, target.uri, hash)) { "Source changed during copy" }
-                    val receipt = OperationFile(uri.toString(), target.uri.toString(), item.name, item.size, hash)
+                    val receipt = OperationFile(uri.toString(), target.uri.toString(), item.name, item.size, hash,
+                        relativePath = LibraryMove.join(item.dirPath, item.name))
                     val currentOperation = requireNotNull(operation)
                     operation = currentOperation.copy(files = currentOperation.files.filterNot { it.source == receipt.source } + receipt)
                     history.put(operation)
@@ -143,6 +145,14 @@ class LibraryMoveService @Inject constructor(
             for (receipt in operation.files) {
                 if (copier.hash(Uri.parse(receipt.target)) != receipt.hash) error("Destination changed; originals kept")
             }
+            val legacyPaths = if (operation.files.any { it.relativePath == null }) {
+                val found = ArrayList<Pair<LibraryMove.Item, Uri>>()
+                walk(destination, "", found)
+                found.associate { (item, uri) -> uri.toString() to LibraryMove.join(item.dirPath, item.name) }
+            } else emptyMap()
+            gamePackages.rebaseMovedFiles(setOf(sourceUri), operation.files.associate { receipt ->
+                receipt.source to (receipt.relativePath ?: legacyPaths[receipt.target] ?: error("Moved path unavailable"))
+            }, destinationUri)
             settingsRepository.updateDownloadDirectory(destinationUri)
             operation = operation.copy(phase = "cleanup")
             history.put(operation)

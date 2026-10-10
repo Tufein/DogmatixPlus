@@ -1,5 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
+        <activity android:name="com.cortinadev.dogmatix.JournalDocumentPickerActivity" android:exported="true" android:theme="@android:style/Theme.NoDisplay" />
+        <provider android:name="com.cortinadev.dogmatix.JournalAttachmentTestProvider" android:authorities="com.tufein.dogmatixplus.test.journal" android:exported="true" android:grantUriPermissions="true">
+            <intent-filter><action android:name="android.content.action.DOCUMENTS_PROVIDER" /></intent-filter>
+        </provider>
         <provider android:name="com.cortinadev.dogmatix.TestStorageProvider" android:authorities="com.tufein.dogmatixplus.test.storage" android:exported="true" android:grantUriPermissions="true">
             <intent-filter><action android:name="android.content.action.DOCUMENTS_PROVIDER" /></intent-filter>
         </provider>

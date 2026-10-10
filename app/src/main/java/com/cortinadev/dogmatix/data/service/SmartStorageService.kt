@@ -105,7 +105,8 @@ class SmartStorageService @Inject constructor(
     private val copier: VerifiedDocumentCopy,
     private val history: OperationHistoryService,
     private val trash: TrashService,
-    private val actionLog: ActionLogService
+    private val actionLog: ActionLogService,
+    private val gamePackages: GamePackageService
 ) {
     enum class Trigger { MANUAL, AUTO }
 
@@ -413,6 +414,11 @@ class SmartStorageService @Inject constructor(
         }
         var operation = LibraryOperation(kind = "smart_move", title = c.id, source = DiskScanner.uriOf(source.dir).toString(), target = target.uri.toString(), consoleId = c.id, files = receipts, phase = "ready", destinationPlace = to.name)
         history.put(operation)
+        val root = settingsRepository.downloadDirectory.first()
+        val custom = settingsRepository.consoleDownloadDirectories.first()[c.id]
+        gamePackages.rebaseMovedFiles(setOf(root, custom.orEmpty()), source.files.associate { it.uri.toString() to it.path },
+            if (to == SmartStorage.Place.SD) target.uri.toString() else root,
+            if (to == SmartStorage.Place.SD) "" else c.folder, c.id)
         // The folder setting and the record in one edit.
         settings.switchConsole(record, record.uri)
         operation = operation.copy(phase = "cleanup")

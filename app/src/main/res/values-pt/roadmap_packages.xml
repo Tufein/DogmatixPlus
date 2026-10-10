@@ -1,0 +1,19 @@
+<resources>
+    <string name="pkg28_registered">Pacote de jogo completo · %1$d ficheiros</string>
+    <string name="pkg28_incomplete">O pacote precisa de atenção · %1$d ficheiros esperados</string>
+    <string name="off28_check">Pronto para jogar offline?</string>
+    <string name="off28_hint">Verifique ficheiros, discos, BIOS e emuladores instalados. Nada é descarregado ou iniciado.</string>
+    <string name="off28_report_title">Verificação para jogar offline</string>
+    <string name="off28_loading">A verificar ficheiros e pacotes de jogos…</string>
+    <string name="off28_failed">Não foi possível concluir a verificação. Tente quando as pastas estiverem disponíveis.</string>
+    <string name="off28_summary">Prontos: %1$d de %2$d jogos</string>
+    <string name="off28_limited">Ainda não verificados: %1$d jogos. Esta verificação processa até 300 jogos.</string>
+    <string name="off28_ready">Pronto para jogar offline</string>
+    <string name="off28_attention">Precisa de atenção</string>
+    <string name="off28_unavailable">Este jogo já não aparece nas fontes configuradas.</string>
+    <string name="off28_legacy">Download anterior: ficheiros e referências de discos verificados; hashes originais do pacote indisponíveis.</string>
+    <string name="off28_verified">Ficheiros do pacote verificados: %1$d</string>
+    <string name="off28_files_missing">Ficheiros do pacote em falta, alterados ou ilegíveis:</string>
+    <string name="off28_more">Outros ficheiros: %1$d</string>
+    <string name="off28_remaining">Ainda por verificar: %1$d jogos</string>
+</resources>
