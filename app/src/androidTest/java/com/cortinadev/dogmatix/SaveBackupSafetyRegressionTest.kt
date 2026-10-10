@@ -40,7 +40,8 @@ class SaveBackupSafetyRegressionTest {
             val document = StorageHelper.writeBytesSafely(context, destination, "", name, "precious save progress".toByteArray())
             val local = LocalSaveFile(SaveKind.SAVE, name, document.length(), document.lastModified())
             val type = Class.forName("com.cortinadev.dogmatix.data.service.SaveSyncService\$SafSaveStore")
-            val real = type.declaredConstructors.single().apply { isAccessible = true }.newInstance(services.saveSafetySyncService()) as SaveStore
+            val real = type.getDeclaredConstructor(com.cortinadev.dogmatix.data.service.SaveSyncService::class.java, Long::class.javaPrimitiveType)
+                .apply { isAccessible = true }.newInstance(services.saveSafetySyncService(), 64L * 1024 * 1024) as SaveStore
             type.getDeclaredField("documents").apply { isAccessible = true }.set(real, mapOf(SaveSyncEngine.key(local) to document.uri))
             val store = object : SaveStore by real {
                 override suspend fun list() = SaveStore.Listing(listOf(local), mapOf(SaveKind.SAVE to emptySet()))
