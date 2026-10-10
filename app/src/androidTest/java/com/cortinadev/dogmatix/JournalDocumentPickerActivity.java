@@ -10,8 +10,8 @@ public class JournalDocumentPickerActivity extends Activity {
     @Override public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         Intent result = new Intent().setData(getIntent().getData())
-            .setClipData(ClipData.newRawUri("document", getIntent().getData()))
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        result.setClipData(ClipData.newRawUri("document", getIntent().getData()));
         setResult(RESULT_OK, result);
         finish();
     }

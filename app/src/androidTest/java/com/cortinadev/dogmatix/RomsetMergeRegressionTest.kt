@@ -18,7 +18,7 @@ class RomsetMergeRegressionTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val graph = EntryPointAccessors.fromApplication(context.applicationContext, RoadmapSourcesEntryPoint::class.java)
         val db = graph.database()
-        val maker = "romset_${UUID.randomUUID().toString().replace("-", "")}" 
+        val maker = "romset_${UUID.randomUUID().toString().replace("-", "")}"
         val entry = RomsetCatalog.Entry("${maker}_test", maker, "Catalog maker", "test", "Catalog name", "CAT", listOf("cat"), "Atari - 2600", 1)
         val custom = UrlEntry("https://example.test/own/", ContentType.GAME, enabled = false)
         val initial = db.downloadableFileDao().getFilesCount()
