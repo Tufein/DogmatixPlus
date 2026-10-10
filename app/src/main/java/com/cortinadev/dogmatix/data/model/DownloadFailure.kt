@@ -14,6 +14,8 @@ enum class DownloadFailureCategory {
     HTTP_OTHER,
     TORRENT,
     EXTRACTION,
+    ARCHIVE_UNSAFE,
+    ARCHIVE_CONFLICT,
     VERIFICATION,
     UNKNOWN
 }

@@ -74,18 +74,29 @@ object ArchiveExtractionUtils {
         destinationUri: Uri,
         subPath: String
     ): Uri {
-        return if (subPath.isNotEmpty()) {
-            val consoleDir = StorageHelper.createDirectory(context, destinationUri.toString(), subPath)
-            if (consoleDir != null) {
-                Log.d("ArchiveExtractorService", "Created console directory for extraction: $subPath")
-                consoleDir.uri
-            } else {
-                Log.w("ArchiveExtractorService", "Failed to create console directory: $subPath, using root destination")
-                destinationUri
-            }
-        } else {
-            Log.d("ArchiveExtractorService", "Extracting to root destination (no console separation)")
-            destinationUri
+        val root = StorageHelper.getDocumentFile(context, destinationUri.toString())
+            ?: throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE)
+        if (!root.isDirectory || !root.exists() || !root.canWrite()) {
+            throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE)
         }
+        if (subPath.isEmpty()) return root.uri
+        // Never redirect a configured console folder into its parent on a storage failure.
+        val path = ArchivePlan.safeRelativePath(subPath, directory = true)
+        if (path != subPath.replace('\\', '/').trimEnd('/')) {
+            throw ArchiveSafetyException(ArchiveSafetyException.Reason.UNSAFE_PATH)
+        }
+        var current = root
+        for (part in path.split('/')) {
+            val sameNames = current.listFiles().filter { ArchivePlan.portableKey(it.name.orEmpty()) == ArchivePlan.portableKey(part) }
+            if (sameNames.size > 1 || sameNames.any { it.name != part || !it.isDirectory }) {
+                throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE)
+            }
+            current = sameNames.singleOrNull() ?: current.createDirectory(part)
+                ?: throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE)
+            if (current.name != part || !current.isDirectory) {
+                throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE)
+            }
+        }
+        return current.uri
     }
 }

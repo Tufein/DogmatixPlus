@@ -31,6 +31,8 @@ internal fun DownloadFailure?.feedback(): DownloadFailureFeedback = when (this?.
     DownloadFailureCategory.HTTP_OTHER -> DownloadFailureFeedback(R.string.download_error_http, DownloadRecoveryAction.SOURCES)
     DownloadFailureCategory.TORRENT -> DownloadFailureFeedback(R.string.download_error_torrent)
     DownloadFailureCategory.EXTRACTION -> DownloadFailureFeedback(R.string.download_error_extraction)
+    DownloadFailureCategory.ARCHIVE_UNSAFE -> DownloadFailureFeedback(R.string.archive27_unsafe, DownloadRecoveryAction.SOURCES)
+    DownloadFailureCategory.ARCHIVE_CONFLICT -> DownloadFailureFeedback(R.string.archive27_conflict, DownloadRecoveryAction.SETTINGS)
     DownloadFailureCategory.VERIFICATION -> DownloadFailureFeedback(R.string.download_error_verification)
     DownloadFailureCategory.UNKNOWN, null -> DownloadFailureFeedback(R.string.download_error_unknown)
 }

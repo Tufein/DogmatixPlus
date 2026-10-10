@@ -25,40 +25,6 @@ object BackupJson {
 
     // ---- Settings -----------------------------------------------------------------------------
 
-    /** Type tag per known setting; a backed-up value with another type is dropped (it would crash its reader). */
-    private val expectedTypes: Map<String, String> = buildMap {
-        listOf(
-            SettingsKeys.SEPARATE_BY_CONSOLE, SettingsKeys.AUTO_UNZIP, SettingsKeys.SWAP_FACE_BUTTONS,
-            SettingsKeys.ONBOARDING_DONE, SettingsKeys.TORBOX_ENABLED, SettingsKeys.ROMM_AUTO_UPLOAD,
-            SettingsKeys.SAVE_SYNC_AUTO, SettingsKeys.ROMM_MARK_GAMES, SettingsKeys.SAVE_SYNC_DELETIONS,
-            SettingsKeys.SAVE_SYNC_BACKGROUND, SettingsKeys.SAVE_SYNC_BG_WIFI_ONLY, SettingsKeys.SAVE_SYNC_BG_CHARGING,
-            SettingsKeys.DOWNLOAD_WIFI_ONLY, SettingsKeys.DOWNLOAD_CHARGING_ONLY, SettingsKeys.DOWNLOAD_NIGHT_ONLY,
-            SettingsKeys.UPDATE_PRE_RELEASES
-        ).forEach { put(it.name, "b") }
-        listOf(
-            SettingsKeys.CONCURRENT_DOWNLOADS, SettingsKeys.METADATA_TIMEOUT_S, SettingsKeys.MAX_SEARCH_RESULTS,
-            SettingsKeys.SAVE_SYNC_BG_INTERVAL_H, SettingsKeys.DOWNLOAD_NIGHT_START, SettingsKeys.DOWNLOAD_NIGHT_END
-        ).forEach { put(it.name, "i") }
-        put(SettingsKeys.LIMIT_SPEED.name, "f")
-        listOf(
-            SettingsKeys.DOWNLOAD_DIRECTORY, SettingsKeys.THEME_MODE, SettingsKeys.GAMEPAD_LAYOUT, SettingsKeys.ACCENT_COLOR,
-            SettingsKeys.DEBRID_PROVIDER, SettingsKeys.TORBOX_API_KEY, SettingsKeys.REAL_DEBRID_API_KEY,
-            SettingsKeys.ESDE_DIRECTORY, SettingsKeys.IISU_DIRECTORY, SettingsKeys.ROMM_URL, SettingsKeys.ROMM_TOKEN,
-            SettingsKeys.SAVE_SYNC_SAVES_DIR, SettingsKeys.SAVE_SYNC_STATES_DIR, SettingsKeys.ROMM_TRUST_FINGERPRINT
-        ).forEach { put(it.name, "s") }
-        listOf(
-            SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES, SettingsKeys.FAVORITE_LANGUAGES,
-            SettingsKeys.ROMM_PLATFORM_MAP, SettingsKeys.CONSOLE_SCANNED_AT
-        ).forEach { put(it.name, "ss") }
-        putAll(CloudSettingKeys.TYPES)
-        put("profiles", "s")
-        put("active_profile", "s")
-        put("profile_pin_hash", "s")
-        put(VersionPreferences.PINNED_KEY, "s")
-        put(VersionPreferences.OVERRIDES_KEY, "s")
-        put(DownloadPresets.KEY, "s")
-    }
-
     /** Sets whose entries are `id:value`; their readers split on ':' and fail on anything else. */
     private val pairSets = setOf(
         SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES.name, SettingsKeys.ROMM_PLATFORM_MAP.name, SettingsKeys.CONSOLE_SCANNED_AT.name
@@ -87,21 +53,16 @@ object BackupJson {
      */
     fun decodeSetting(name: String, element: JsonElement?): Any? {
         // A secret that backups never carry (the WebDAV password) is ignored even when a file has it.
-        if (CloudSettingKeys.isSecret(name)) return null
+        if (CloudSettingKeys.isSecret(SettingSchema.localName(name))) return null
         val obj = element as? JsonObject ?: return null
         val type = (obj.get("t") as? JsonPrimitive)?.takeIf { it.isString }?.asString ?: return null
-        val local = if (name.startsWith("personal:")) name.substringAfter(':').substringAfter(':') else name
-        expectedTypes[local]?.let { if (it != type) return null }
-        if (local.startsWith("fixed_version:") && type != "s") return null
-        if (name == "smart_collection_rules" && type != "s") return null
-        if (name == "offline_collections_quotas" && type != "ss") return null
-        if (name == "offline_collections_reserve_gb" && type != "i") return null
+        SettingSchema.expectedType(name)?.let { if (it != type) return null }
         val v = obj.get("v") ?: return null
         val value: Any = runCatching {
             when (type) {
                 "b" -> (v as JsonPrimitive).takeIf { it.isBoolean }?.asBoolean
-                "i" -> (v as JsonPrimitive).takeIf { it.isNumber }?.asInt
-                "l" -> (v as JsonPrimitive).takeIf { it.isNumber }?.asLong
+                "i" -> (v as JsonPrimitive).takeIf { it.isNumber }?.asBigDecimal?.intValueExact()
+                "l" -> (v as JsonPrimitive).takeIf { it.isNumber }?.asBigDecimal?.longValueExact()
                 "f" -> (v as JsonPrimitive).asString.toFloat()
                 "d" -> (v as JsonPrimitive).asString.toDouble()
                 "s" -> (v as JsonPrimitive).takeIf { it.isString }?.asString
@@ -109,22 +70,22 @@ object BackupJson {
                 else -> null
             }
         }.getOrNull() ?: return null
-        return sanitize(name, value)
+        if (!SettingSchema.compatible(name, value)) return null
+        return sanitize(SettingSchema.localName(name), value)
     }
 
     private fun sanitize(name: String, value: Any): Any? = when {
         name == DownloadPresets.KEY -> DownloadPresets.backupValue(value as String)
-        name == SettingsKeys.CONCURRENT_DOWNLOADS.name -> (value as Int).coerceIn(1, 10)
-        name == SettingsKeys.METADATA_TIMEOUT_S.name ->
-            (value as Int).coerceIn(TorrentConstants.MIN_METADATA_TIMEOUT_S, TorrentConstants.MAX_METADATA_TIMEOUT_S)
-        name == SettingsKeys.MAX_SEARCH_RESULTS.name -> (value as Int).coerceAtLeast(0)
-        name == SettingsKeys.SAVE_SYNC_BG_INTERVAL_H.name -> (value as Int).coerceIn(1, 24)
-        name == SettingsKeys.DOWNLOAD_NIGHT_START.name || name == SettingsKeys.DOWNLOAD_NIGHT_END.name -> (value as Int).coerceIn(0, 1439)
-        name == SettingsKeys.LIMIT_SPEED.name -> (value as Float).let { if (it.isNaN() || it <= 0f) Float.POSITIVE_INFINITY else it }
         name in pairSets -> (value as Set<*>).filterIsInstance<String>()
             .filter { it.indexOf(':') > 0 && it.substringAfter(':').isNotEmpty() }.toSet()
         name in CloudSettingKeys.TYPES -> CloudSettingKeys.sanitize(name, value)
-        else -> value
+        name == "offline_collections_ids" -> (value as Set<*>).filterIsInstance<String>().filter { it.toLongOrNull()?.let { id -> id > 0 } == true }.toSet()
+        name == "offline_collections_quotas" -> (value as Set<*>).filterIsInstance<String>().mapNotNull { entry ->
+            val id = entry.substringBefore(':').toLongOrNull()?.takeIf { it > 0 } ?: return@mapNotNull null
+            val gb = entry.substringAfter(':', "").toIntOrNull()?.takeIf { it in 1..2048 } ?: return@mapNotNull null
+            "$id:$gb"
+        }.toSet()
+        else -> SettingSchema.sanitizeNumber(name, value)
     }
 
     // ---- Favourites ---------------------------------------------------------------------------

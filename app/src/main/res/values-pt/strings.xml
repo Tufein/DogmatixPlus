@@ -793,6 +793,10 @@
     <string name="update_no_apk">A versão não inclui %1$s</string>
     <string name="update_no_checksum">Sem soma de verificação para o APK; não instalado</string>
     <string name="update_checksum_mismatch">A transferência não corresponde à soma; não instalado</string>
+    <string name="update_invalid_apk">A atualização transferida não é um pacote Android válido; não instalada</string>
+    <string name="update_wrong_package">A atualização transferida pertence a outra aplicação; não instalada</string>
+    <string name="update_not_newer">A atualização transferida não é mais recente do que esta instalação</string>
+    <string name="update_incompatible_signature">Esta atualização usa outra chave de assinatura. Instale a versão correspondente ou exporte os seus dados antes de mudar de versão de teste.</string>
     <string name="update_install_failed">A atualização falhou: %1$s</string>
     <string name="new_badge">Novo</string>
     <string name="filter_new">Novos</string>
@@ -1313,4 +1317,24 @@
         <item quantity="one">%1$d jogo adicionado à lista de desejos</item>
         <item quantity="other">%1$d jogos adicionados à lista de desejos</item>
     </plurals>
+    <string name="update_already_downloading">Já está a ser transferida uma atualização</string>
+    <string name="csave_error_integrity">Esta cópia de segurança está danificada. O seu progresso atual foi preservado.</string>
+    <string name="archive27_unsafe">O arquivo contém caminhos inseguros, nomes em conflito ou demasiados ficheiros. Foi preservado; verifique a fonte.</string>
+    <string name="archive27_conflict">Um ficheiro existente tem conteúdo diferente e foi preservado. Escolha uma pasta vazia ou desative a extração automática.</string>
+    <string name="archive27_space">Não há espaço livre suficiente para extrair este arquivo. Foi preservado.</string>
+    <string name="recovery27_title">Recuperar ficheiros</string>
+    <string name="recovery27_hint">Cópias verificadas de substituições interrompidas. Um ficheiro atual diferente nunca é substituído.</string>
+    <string name="recovery27_confirm">Restaurar a cópia verificada de %1$s nesta pasta? Um ficheiro existente diferente é preservado.</string>
+    <string name="recovery27_done">%1$s restaurado</string>
+    <string name="recovery27_failed">Não foi possível restaurar esta cópia. Foi preservada; verifique o acesso à pasta e mova primeiro qualquer ficheiro atual diferente.</string>
+    <plurals name="backup_import_skipped_settings">
+        <item quantity="one">%1$d definição inválida ignorada; o valor atual foi preservado</item>
+        <item quantity="other">%1$d definições inválidas ignoradas; os valores atuais foram preservados</item>
+    </plurals>
+    <plurals name="recovery27_available">
+        <item quantity="one">%1$d cópia de recuperação disponível</item>
+        <item quantity="other">%1$d cópias de recuperação disponíveis</item>
+    </plurals>
+    <string name="romm_upload_nested_unsupported">Este jogo usa subpastas. Envie o arquivo compactado original para o RomM para manter os arquivos juntos.</string>
+    <string name="romm_upload_files_missing">Alguns arquivos do jogo estão faltando. Verifique a pasta de downloads antes de tentar novamente.</string>
 </resources>

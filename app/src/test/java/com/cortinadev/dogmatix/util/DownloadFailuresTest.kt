@@ -71,6 +71,27 @@ class DownloadFailuresTest {
         assertEquals(DownloadFailureCategory.EXTRACTION, DownloadFailures.classify(failedArchive)?.category)
     }
 
+    @Test fun `archive preflight reasons keep safe persistent remedies`() {
+        val cases = mapOf(
+            ArchiveSafetyException.Reason.UNSAFE_PATH to DownloadFailureCategory.ARCHIVE_UNSAFE,
+            ArchiveSafetyException.Reason.NAME_COLLISION to DownloadFailureCategory.ARCHIVE_UNSAFE,
+            ArchiveSafetyException.Reason.TOO_MANY_ENTRIES to DownloadFailureCategory.ARCHIVE_UNSAFE,
+            ArchiveSafetyException.Reason.DESTINATION_CONFLICT to DownloadFailureCategory.ARCHIVE_CONFLICT,
+            ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE to DownloadFailureCategory.STORAGE_WRITE,
+            ArchiveSafetyException.Reason.INSUFFICIENT_SPACE to DownloadFailureCategory.STORAGE_FULL
+        )
+        cases.forEach { (reason, category) ->
+            assertEquals(category, DownloadFailures.classify(DownloadExtractionException(ArchiveSafetyException(reason)))?.category)
+        }
+    }
+
+    @Test fun `verification mismatch is explicit and cannot start an automatic retry loop`() {
+        val mismatch = DownloadVerificationException()
+        assertEquals(DownloadFailureCategory.VERIFICATION, DownloadFailures.classify(mismatch)?.category)
+        assertFalse(AutoRetry.isTemporary(mismatch))
+        assertFalse(AutoRetry.isTemporary(StorageException("provider unavailable")))
+    }
+
     @Test fun `nested extraction storage errors never trigger automatic source switching`() {
         assertFalse(SourceFailures.isSourceSide(DownloadExtractionException(StorageException("provider failure"))))
         assertFalse(SourceFailures.isSourceSide(DownloadExtractionException(IOException("ENOSPC"))))

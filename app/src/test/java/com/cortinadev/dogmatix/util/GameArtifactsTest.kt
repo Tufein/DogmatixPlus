@@ -5,6 +5,42 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class GameArtifactsTest {
+    @Test fun `nested playlist grants each disc and its own same-named track`() {
+        val names = listOf("Game.m3u", "Disc 1/Disc1.cue", "Disc 1/Track.bin", "Disc 2/Disc2.cue", "Disc 2/Track.bin", "Broken.cue")
+        val refs = mapOf("Game.m3u" to listOf("Disc 1/Disc1.cue", "Disc 2/Disc2.cue"),
+            "Disc 1/Disc1.cue" to listOf("Track.bin"), "Disc 2/Disc2.cue" to listOf("Track.bin"))
+        val seen = mutableListOf<String>()
+        assertEquals(names.dropLast(1), GameArtifacts.playPaths(names, "Game.zip") { path ->
+            seen += path
+            check(path != "Broken.cue")
+            refs[path].orEmpty()
+        }.sortedBy { names.indexOf(it) })
+        assertEquals(listOf("Game.m3u", "Disc 1/Disc1.cue", "Disc 2/Disc2.cue"), seen)
+    }
+    @Test fun `nested descriptors reject outside paths private files saves and controls`() {
+        val names = listOf("Folder/Game.m3u", "Folder/Disc/Disc.cue", "Folder/Disc/Track.bin", "Other.iso", "Folder/Game.srm", "Folder/private.key", "Folder/.hidden/Game.bin")
+        val refs = mapOf("Folder/Game.m3u" to listOf("Disc/Disc.cue", "../../Other.iso", "/Other.iso", "C:\\Other.iso", "https://example.org/Other.iso", "Game.srm", "private.key", ".hidden/Game.bin", "bad\n.bin"),
+            "Folder/Disc/Disc.cue" to listOf("Track.bin"))
+        assertEquals(names.take(3), GameArtifacts.playPaths(names, "Game.m3u") { refs[it].orEmpty() })
+    }
+    @Test fun `relative dot prefix and backslash descendants work without decoding literal names`() {
+        val names = listOf("Game.m3u", "Disc/C++%20Game.cue", "Disc/C++%20Game.bin")
+        assertEquals(names, GameArtifacts.playPaths(names, "Game.m3u") {
+            if (it == "Game.m3u") listOf("./Disc\\C++%20Game.cue") else listOf("C++%20Game.bin")
+        })
+    }
+    @Test fun `ambiguous portable descendant names fail before read grants`() {
+        val names = listOf("Game.m3u", "Disc/Game.cue", "Disc/game.cue")
+        org.junit.Assert.assertThrows(IllegalStateException::class.java) {
+            GameArtifacts.playPaths(names, "Game.m3u") { listOf("Disc/Game.cue") }
+        }
+    }
+    @Test fun `descriptor cycles terminate and destructive rules remain flat`() {
+        val refs = mapOf("Game.m3u" to listOf("Game.cue", "Disc/Other.cue"), "Game.cue" to listOf("Game.m3u", "Track.bin"))
+        val names = listOf("Game.m3u", "Game.cue", "Track.bin", "Disc/Other.cue")
+        assertEquals(listOf("Game.m3u", "Game.cue", "Disc/Other.cue", "Track.bin"), GameArtifacts.playPaths(names, "Game.m3u") { refs[it].orEmpty() })
+        assertTrue(GameArtifacts.plan(names.take(3), "Game.m3u", true) { refs[it].orEmpty() }.isEmpty())
+    }
     @Test fun `play includes a cue and track shared with another playlist while removal protects them`() {
         val names = listOf("Game.cue", "Track 1.bin", "Collection.m3u")
         val refs = mapOf("Game.cue" to listOf("Track 1.bin"), "Collection.m3u" to listOf("Game.cue", "Track 1.bin"))

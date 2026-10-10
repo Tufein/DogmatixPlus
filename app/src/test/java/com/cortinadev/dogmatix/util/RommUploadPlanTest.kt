@@ -2,11 +2,21 @@ package com.cortinadev.dogmatix.util
 
 import com.cortinadev.dogmatix.util.RommUploadPlan.Candidate
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 class RommUploadPlanTest {
     private val server = RommMarks.keys("gba", listOf("Advance Wars (USA).zip"))
     private val base = "https://romm.example"
+
+    @Test fun `nested discs and portable filename collisions require an archive`() {
+        assertTrue(RommUploadPlan.requiresArchive(listOf("Disc 1/Game.cue", "Disc 1/Track.bin", "Disc 2/Game.cue", "Disc 2/Track.bin")))
+        assertTrue(RommUploadPlan.requiresArchive(listOf("Game.gba", "game.gba")))
+        assertTrue(RommUploadPlan.requiresArchive(listOf("Game.gba", "Game.gba")))
+        assertFalse(RommUploadPlan.requiresArchive(listOf("Game (Disc 1).cue", "Game (Disc 1).bin", "Game (Disc 2).cue", "Game (Disc 2).bin")))
+        assertFalse(RommUploadPlan.requiresArchive(listOf("Game.zip")))
+    }
 
     private fun plan(vararg c: Candidate, mapped: Set<String> = setOf("gba", "snes"), onDevice: (Candidate) -> Boolean = { true }) =
         RommUploadPlan.missing(c.toList(), server, mapped, base, onDevice)

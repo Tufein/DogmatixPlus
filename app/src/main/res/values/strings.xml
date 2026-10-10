@@ -843,6 +843,10 @@
     <string name="update_no_apk">The release has no %1$s</string>
     <string name="update_no_checksum">The release has no checksum for the APK; not installed</string>
     <string name="update_checksum_mismatch">The download does not match the release\'s checksum; not installed</string>
+    <string name="update_invalid_apk">The downloaded update is not a valid Android package; not installed</string>
+    <string name="update_wrong_package">The downloaded update belongs to another app; not installed</string>
+    <string name="update_not_newer">The downloaded update is not newer than this installation</string>
+    <string name="update_incompatible_signature">This update uses a different signing key. Install the matching release or export your data before changing test builds.</string>
     <string name="update_install_failed">Update failed: %1$s</string>
     <string name="new_badge">New</string>
     <string name="filter_new">New</string>
@@ -1363,4 +1367,24 @@
         <item quantity="one">%1$d game put on the wishlist</item>
         <item quantity="other">%1$d games put on the wishlist</item>
     </plurals>
+    <string name="update_already_downloading">An update is already downloading</string>
+    <string name="csave_error_integrity">This safety copy is damaged. Your current save was kept.</string>
+    <string name="archive27_unsafe">The archive contains unsafe paths, conflicting names or too many files. It was kept; check your source.</string>
+    <string name="archive27_conflict">An existing file has different content and was kept. Choose an empty folder or turn off automatic extraction.</string>
+    <string name="archive27_space">There is not enough free space to unpack this archive. It was kept.</string>
+    <string name="recovery27_title">Recover files</string>
+    <string name="recovery27_hint">Verified copies from interrupted replacements. A different current file is never overwritten.</string>
+    <string name="recovery27_confirm">Restore the verified copy of %1$s into this folder? A different existing file is kept.</string>
+    <string name="recovery27_done">Restored %1$s</string>
+    <string name="recovery27_failed">Could not restore this copy. It was kept; check folder access and move any different current file first.</string>
+    <plurals name="backup_import_skipped_settings">
+        <item quantity="one">Skipped %1$d invalid setting; your current value was kept</item>
+        <item quantity="other">Skipped %1$d invalid settings; your current values were kept</item>
+    </plurals>
+    <plurals name="recovery27_available">
+        <item quantity="one">%1$d recovery copy available</item>
+        <item quantity="other">%1$d recovery copies available</item>
+    </plurals>
+    <string name="romm_upload_nested_unsupported">This game uses folders. Upload its original archive to RomM to keep its files together.</string>
+    <string name="romm_upload_files_missing">Some game files are missing. Check the download folder before retrying.</string>
 </resources>

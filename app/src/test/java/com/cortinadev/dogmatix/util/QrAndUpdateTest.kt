@@ -40,4 +40,15 @@ class QrAndUpdateTest {
         assertEquals("0".repeat(64), UpdateAssets.checksumFor(sums, UpdateAssets.apkName(debugBuild = true)))
         assertNull(UpdateAssets.checksumFor(sums, "other.apk"))
     }
+
+    @Test fun `update certificate matching compares sha256 fingerprints`() {
+        val first = byteArrayOf(1, 2, 3)
+        val same = byteArrayOf(1, 2, 3)
+        val other = byteArrayOf(3, 2, 1)
+        assertTrue(UpdateInstallability.hasMatchingCertificate(listOf(first), listOf(same)))
+        assertFalse(UpdateInstallability.hasMatchingCertificate(listOf(first), listOf(other)))
+        assertFalse(UpdateInstallability.hasMatchingCertificate(emptyList(), listOf(first)))
+        assertFalse(UpdateInstallability.hasMatchingCertificate(listOf(first, other), listOf(first)))
+        assertTrue(UpdateInstallability.hasMatchingCertificate(listOf(first, other), listOf(other, same)))
+    }
 }

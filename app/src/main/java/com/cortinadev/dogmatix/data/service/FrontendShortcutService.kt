@@ -56,9 +56,9 @@ class FrontendShortcutService @Inject constructor(
             val baseUri = customDirs[consoleId] ?: downloadDir
             if (path.source == ResolvedDownloadPath.Source.UNSET || baseUri.isEmpty()) return@count false
             runCatching {
-                val doc = StorageHelper.createFile(context = context, uriString = baseUri, subPath = path.subPath, fileName = name,
-                    mimeType = "application/octet-stream", overwrite = true) ?: return@runCatching false
-                StorageHelper.getOutputStream(context, doc)?.use { it.write(body.toByteArray(Charsets.UTF_8)); true } ?: false
+                val root = StorageHelper.getDocumentFile(context, baseUri) ?: return@runCatching false
+                StorageHelper.writeTextSafely(context, root, path.subPath, name, body)
+                true
             }.getOrDefault(false)
         }
     }
@@ -88,20 +88,9 @@ class FrontendShortcutService @Inject constructor(
                 "${DgmtxFile.SHORTCUT_NAME}.${DgmtxFile.EXTENSION}"
             }
             val ok = runCatching {
-                val doc = StorageHelper.createFile(
-                    context = context,
-                    uriString = baseUri,
-                    subPath = path.subPath,
-                    fileName = fileName,
-                    // Not text/plain: SAF appends the mime type's extension to the display
-                    // name ("Dogmatix.dgmtx.txt"); octet-stream keeps the name untouched.
-                    mimeType = "application/octet-stream",
-                    overwrite = true
-                ) ?: return@runCatching false
-                StorageHelper.getOutputStream(context, doc)?.use { stream ->
-                    stream.write(DgmtxFile.contentForConsole(console.id, console.name).toByteArray(Charsets.UTF_8))
-                    true
-                } ?: false
+                val root = StorageHelper.getDocumentFile(context, baseUri) ?: return@runCatching false
+                StorageHelper.writeTextSafely(context, root, path.subPath, fileName, DgmtxFile.contentForConsole(console.id, console.name))
+                true
             }.getOrDefault(false)
             if (ok) written++ else failed++
         }

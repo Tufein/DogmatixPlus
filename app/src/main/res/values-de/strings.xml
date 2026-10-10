@@ -842,6 +842,10 @@
     <string name="update_no_apk">Das Release enthält keine %1$s</string>
     <string name="update_no_checksum">Keine Prüfsumme für die APK; nicht installiert</string>
     <string name="update_checksum_mismatch">Der Download passt nicht zur Prüfsumme; nicht installiert</string>
+    <string name="update_invalid_apk">Das heruntergeladene Update ist kein gültiges Android-Paket; nicht installiert</string>
+    <string name="update_wrong_package">Das heruntergeladene Update gehört zu einer anderen App; nicht installiert</string>
+    <string name="update_not_newer">Das heruntergeladene Update ist nicht neuer als diese Installation</string>
+    <string name="update_incompatible_signature">Dieses Update verwendet einen anderen Signaturschlüssel. Installiere die passende Version oder exportiere deine Daten, bevor du zwischen Testversionen wechselst.</string>
     <string name="update_install_failed">Update fehlgeschlagen: %1$s</string>
     <string name="new_badge">Neu</string>
     <string name="filter_new">Neu</string>
@@ -1362,4 +1366,24 @@
         <item quantity="one">%1$d Spiel auf die Wunschliste gesetzt</item>
         <item quantity="other">%1$d Spiele auf die Wunschliste gesetzt</item>
     </plurals>
+    <string name="update_already_downloading">Ein Update wird bereits heruntergeladen</string>
+    <string name="csave_error_integrity">Diese Sicherungskopie ist beschädigt. Dein aktueller Spielstand wurde behalten.</string>
+    <string name="archive27_unsafe">Das Archiv enthält unsichere Pfade, Namenskonflikte oder zu viele Dateien. Es wurde behalten; prüfe die Quelle.</string>
+    <string name="archive27_conflict">Eine vorhandene Datei hat anderen Inhalt und wurde behalten. Wähle einen leeren Ordner oder deaktiviere das automatische Entpacken.</string>
+    <string name="archive27_space">Es ist nicht genug freier Speicher zum Entpacken vorhanden. Das Archiv wurde behalten.</string>
+    <string name="recovery27_title">Dateien wiederherstellen</string>
+    <string name="recovery27_hint">Geprüfte Kopien unterbrochener Ersetzungen. Eine abweichende aktuelle Datei wird nie überschrieben.</string>
+    <string name="recovery27_confirm">Die geprüfte Kopie von %1$s in diesem Ordner wiederherstellen? Eine abweichende vorhandene Datei bleibt erhalten.</string>
+    <string name="recovery27_done">%1$s wiederhergestellt</string>
+    <string name="recovery27_failed">Diese Kopie konnte nicht wiederhergestellt werden. Sie wurde behalten; prüfe den Ordnerzugriff und verschiebe zuerst eine abweichende aktuelle Datei.</string>
+    <plurals name="backup_import_skipped_settings">
+        <item quantity="one">%1$d ungültige Einstellung übersprungen; dein aktueller Wert wurde behalten</item>
+        <item quantity="other">%1$d ungültige Einstellungen übersprungen; deine aktuellen Werte wurden behalten</item>
+    </plurals>
+    <plurals name="recovery27_available">
+        <item quantity="one">%1$d Wiederherstellungskopie verfügbar</item>
+        <item quantity="other">%1$d Wiederherstellungskopien verfügbar</item>
+    </plurals>
+    <string name="romm_upload_nested_unsupported">Dieses Spiel verwendet Unterordner. Lade das ursprüngliche Archiv zu RomM hoch, damit die Dateien zusammenbleiben.</string>
+    <string name="romm_upload_files_missing">Einige Spieldateien fehlen. Prüfe den Downloadordner, bevor du es erneut versuchst.</string>
 </resources>

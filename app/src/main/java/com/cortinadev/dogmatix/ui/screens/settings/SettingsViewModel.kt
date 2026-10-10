@@ -175,6 +175,9 @@ class SettingsViewModel @Inject constructor(
                         if (it.foldersToRepick > 0) {
                             ToastUtil.showInfo(appContext, context.resources.getQuantityString(R.plurals.backup_import_repick, it.foldersToRepick, it.foldersToRepick))
                         }
+                        if (it.skippedSettings > 0) {
+                            ToastUtil.showInfo(appContext, context.resources.getQuantityString(R.plurals.backup_import_skipped_settings, it.skippedSettings, it.skippedSettings))
+                        }
                         if (it.downloads > 0) ToastUtil.showInfo(appContext, context.getString(R.string.backup_import_restart))
                         if (it.consoles > 0) onSourcesRestored()
                     }

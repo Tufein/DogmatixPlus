@@ -8,6 +8,10 @@ package com.cortinadev.dogmatix.util
 object RommUploadPlan {
     data class Candidate(val fileName: String, val consoleId: String, val downloadUrl: String)
 
+    /** The current upload API cannot retain folders or distinguish portable basename collisions. */
+    fun requiresArchive(names: List<String>): Boolean = names.any { '/' in it || '\\' in it } ||
+        names.map { it.lowercase(java.util.Locale.ROOT) }.distinct().size != names.size
+
     fun missing(
         candidates: List<Candidate>,
         serverKeys: Set<String>,

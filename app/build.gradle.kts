@@ -23,8 +23,8 @@ android {
         applicationId = "com.tufein.dogmatixplus"
         minSdk = 29
         targetSdk = 36
-        versionCode = 38
-        versionName = "2.6.0"
+        versionCode = 39
+        versionName = "2.7.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -48,6 +48,17 @@ android {
                 keyPassword = secret("RELEASE_KEY_PASSWORD")
             }
         }
+        // The published debug application has its own test identity. Keeping it stable makes
+        // repeated test releases install as updates without ever reusing the production key.
+        val testDebugFile = rootProject.file("signing-dogmatix-test-debug.jks")
+        if (testDebugFile.exists()) {
+            create("testDebug") {
+                this.storeFile = testDebugFile
+                storePassword = "dogmatix-debug-test"
+                keyAlias = "dogmatix-debug"
+                keyPassword = "dogmatix-debug-test"
+            }
+        }
     }
 
     buildTypes {
@@ -55,6 +66,7 @@ android {
             // Installs alongside the release build (com.tufein.dogmatixplus.debug).
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
+            signingConfig = signingConfigs.findByName("testDebug") ?: signingConfigs.getByName("debug")
         }
         release {
             isMinifyEnabled = true

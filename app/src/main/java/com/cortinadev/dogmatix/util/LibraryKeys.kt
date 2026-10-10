@@ -21,7 +21,8 @@ object LibraryKeys {
 
     /** Both keys (full name and base name) for a file found under [scope]. */
     fun keysFor(scope: String, fileName: String): List<String> {
-        val name = FileParsingUtils.decodeUrlEncodedFileName(fileName).lowercase()
+        // These are actual on-disk names; a literal "%20" is not a URL escape here.
+        val name = fileName.lowercase()
         return listOf("$scope|$name", "$scope|${baseName(name)}")
     }
 
@@ -31,7 +32,7 @@ object LibraryKeys {
 
     fun isOwned(consoleId: String, fileName: String, keys: Set<String>): Boolean {
         if (keys.isEmpty()) return false
-        val name = FileParsingUtils.decodeUrlEncodedFileName(fileName).lowercase()
+        val name = runCatching { FileParsingUtils.storageFileName(fileName) }.getOrNull()?.lowercase() ?: return false
         val base = baseName(name)
         return scopesFor(consoleId).any { scope -> "$scope|$name" in keys || "$scope|$base" in keys }
     }
