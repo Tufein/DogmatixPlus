@@ -138,13 +138,15 @@ class DownloadFileManager @Inject constructor(
     suspend fun deleteFileByName(
         file: DownloadableFileEntity,
         deleteFile: Boolean = false,
-        extractedFiles: List<String> = emptyList()
+        extractedFiles: List<String> = emptyList(),
+        recordedRootUri: String? = null,
+        recordedSubPath: String? = null
     ): Boolean {
         if (!deleteFile) return true
 
         return try {
-            val downloadDirectoryUri = getDownloadDirectoryUri(file)
-            val subPath = getSubPath(file)
+            val downloadDirectoryUri = recordedRootUri?.toUri() ?: getDownloadDirectoryUri(file)
+            val subPath = recordedSubPath ?: getSubPath(file)
             val decodedFileName = FileParsingUtils.storageFileName(file.fileName)
 
             val directory = StorageHelper.createDirectory(

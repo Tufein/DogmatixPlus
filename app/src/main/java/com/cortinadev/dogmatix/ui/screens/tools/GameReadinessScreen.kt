@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
+import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.service.*
 import com.cortinadev.dogmatix.ui.components.ActionPill
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
@@ -24,7 +25,6 @@ import androidx.compose.ui.focus.focusRequester
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.util.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -32,7 +32,9 @@ import javax.inject.Inject
 data class ReadyRow(val label: Int, val message: Int, val ok: Boolean, val fix: String?)
 data class ReadyUi(val loading: Boolean = true, val rows: List<ReadyRow> = emptyList(),
     val games: List<GameLaunch> = emptyList(), val result: Int? = null,
-    val gameOverride: String? = null, val consoleDefault: String? = null) {
+    val gameOverride: String? = null, val consoleDefault: String? = null,
+    val packageFiles: Int? = null, val packageComplete: Boolean = false,
+    val key: JournalKey? = null, val profileConfiguration: String? = null) {
     /** A path-based emulator may be available for one entry while another needs the SAF fallback. */
     fun effective(game: GameLaunch): GameEmulatorOverrides.Resolution<GameHandler> =
         GameEmulatorOverrides.resolve(gameOverride, consoleDefault, game.handlers, { it.key }, { it.packageName })
@@ -40,70 +42,108 @@ data class ReadyUi(val loading: Boolean = true, val rows: List<ReadyRow> = empty
 
 @HiltViewModel
 class GameReadinessViewModel @Inject constructor(
-    @param:ApplicationContext private val context: Context,
     private val files: DownloadableFileDao,
     private val library: LibraryIndexService,
     private val launcher: GameLaunchService,
-    private val bios: BiosService,
-    private val profiles: ProfileService
+    private val readiness: GameReadinessService,
+    private val profiles: ProfileService,
+    private val settings: AppSettings,
+    private val access: JournalGameAccess
 ) : ViewModel() {
     private val _ui = MutableStateFlow(ReadyUi())
     val ui = _ui.asStateFlow()
     val activeProfile = profiles.activeId
+    val visibility = profiles.restrictions
     private var job: Job? = null
-    fun check(console: String, name: String) {
+    init {
+        viewModelScope.launch {
+            combine(settings.activeProfile, settings.profiles) { id, restrictions -> id to restrictions }
+                .distinctUntilChanged().collect { (id, restrictions) ->
+                    val shown = _ui.value
+                    if (shown.key != null && (shown.key.profileId != id || shown.profileConfiguration != restrictions)) _ui.value = ReadyUi()
+                }
+        }
+    }
+    fun check(console: String, name: String, result: Int? = null) {
         job?.cancel()
+        _ui.value = ReadyUi()
         job = viewModelScope.launch {
-            _ui.value = ReadyUi()
+            val key = JournalKey(settings.activeProfile.first(), console, name)
+            val profileConfiguration = settings.profiles.first()
             try {
+                settings.withActiveProfile(key.profileId) { access.check(key) }
                 val next = withContext(Dispatchers.IO) {
-                    val file = files.filesOf(console).firstOrNull { it.fileName == name }
-                    if (file == null || !profiles.current().allows(console, files.tagsOf(file.id))) {
+                    val profile = profiles.current()
+                    val candidates = files.filesOf(console).filter { it.fileName == name }
+                        .filter { profile.allows(console, files.tagsOf(it.id)) }
+                    val file = candidates.firstOrNull { library.isOwned(it) } ?: candidates.firstOrNull()
+                    if (file == null) {
                         return@withContext ReadyUi(false, listOf(ReadyRow(R.string.ready25_files, R.string.ready25_unavailable, false, null)))
                     }
-                    val plan = library.launchPlan(file)
-                    val readable = plan.isNotEmpty() && plan.all { part ->
-                        context.contentResolver.openInputStream(Uri.parse(part.uri))?.use { it.read() != -1 } == true
-                    }
-                    val sheetsOk = plan.filter { SheetParser.isSheet(it.name) }.all { part ->
-                        val text = context.contentResolver.openInputStream(Uri.parse(part.uri))?.use {
-                            BoundedStreams.read(it, SetChecker.MAX_SHEET_BYTES.toInt()).toString(Charsets.UTF_8)
-                        } ?: return@all false
-                        GameReadiness.referencesPresent(part.name, text, plan.filter { it.parent == part.parent }.map { it.name })
-                    }
-                    val games = launcher.choices(file)
-                    val biosSystems = BiosCatalog.systemsFor(listOf(console)).map { it.name }.toSet()
-                    val report = if (biosSystems.isEmpty()) null else bios.check(true)
-                    val biosOk = report == null || report.results.filter { it.system.name in biosSystems }.all { it.allGood }
-                    val handlers = games.any { it.handlers.isNotEmpty() }
+                    val report = readiness.check(file, verifyPackageHashes = true)
                     ReadyUi(false, listOf(
-                        ReadyRow(R.string.ready25_files, if (readable) R.string.ready25_ok else R.string.ready25_missing, readable, NavRoutes.Files.route),
-                        ReadyRow(R.string.ready25_discs, if (sheetsOk) R.string.ready25_ok else R.string.ready25_disc_problem, sheetsOk, NavRoutes.Sets.route),
-                        ReadyRow(R.string.ready25_bios, if (biosOk) R.string.ready25_ok else R.string.ready25_bios_problem, biosOk, NavRoutes.Bios.route),
-                        ReadyRow(R.string.ready25_emulator, if (handlers) R.string.ready25_choose else R.string.ready25_no_emulator, handlers, NavRoutes.Settings.route)
-                    ), games, gameOverride = launcher.gamePreferred(console, name),
-                        consoleDefault = launcher.preferred(console))
+                        ReadyRow(R.string.ready25_files, if (report.filesOk) R.string.ready25_ok else R.string.ready25_missing, report.filesOk, NavRoutes.Files.route),
+                        ReadyRow(R.string.ready25_discs, if (report.discsOk) R.string.ready25_ok else R.string.ready25_disc_problem, report.discsOk, NavRoutes.Sets.route),
+                        ReadyRow(R.string.ready25_bios, if (report.biosOk) R.string.ready25_ok else R.string.ready25_bios_problem, report.biosOk, NavRoutes.Bios.route),
+                        ReadyRow(R.string.ready25_emulator, if (report.needsExtract) R.string.ready25_extract else if (report.emulatorOk || report.emulatorChoiceNeeded) R.string.ready25_choose else R.string.ready25_no_emulator,
+                            report.emulatorOk && !report.needsExtract, if (report.needsExtract) NavRoutes.Files.route else NavRoutes.Settings.route)
+                    ), report.games, gameOverride = report.gameOverride, consoleDefault = report.consoleDefault,
+                        packageFiles = report.packageInspection?.manifest?.parts?.size,
+                        packageComplete = report.packageInspection?.complete == true)
                 }
-                _ui.value = next
+                settings.withActiveProfile(key.profileId) {
+                    access.check(key)
+                    kotlin.check(settings.profiles.first() == profileConfiguration)
+                    _ui.value = next.copy(result = result, key = key, profileConfiguration = profileConfiguration)
+                }
             } catch (e: CancellationException) { throw e }
-            catch (_: Exception) { _ui.value = ReadyUi(false, listOf(ReadyRow(R.string.ready25_files, R.string.ready25_missing, false, NavRoutes.Files.route))) }
+            catch (_: Exception) { _ui.value = ReadyUi(false, listOf(ReadyRow(R.string.ready25_files, R.string.ready25_missing, false, NavRoutes.Files.route)), key = key, profileConfiguration = profileConfiguration) }
         }
     }
     fun select(console: String, name: String, key: String, forGame: Boolean) {
-        if (_ui.value.games.none { game -> game.handlers.any { it.key == key } }) return
-        if (forGame) launcher.setGamePreferred(console, name, key) else launcher.setPreferred(console, key)
-        _ui.update { it.copy(result = R.string.ready25_saved,
-            gameOverride = launcher.gamePreferred(console, name), consoleDefault = launcher.preferred(console)) }
+        val shown = _ui.value
+        val owner = shown.key?.takeIf { it.consoleId == console && it.fileName == name } ?: return
+        if (shown.loading || shown.games.none { game -> game.handlers.any { it.key == key } }) return
+        act(owner, shown) {
+            if (forGame) launcher.setGamePreferred(console, name, key) else launcher.setPreferred(console, key)
+        }
     }
-    fun useConsole(console: String, name: String) { launcher.setGamePreferred(console, name, null); check(console, name) }
+    fun useConsole(console: String, name: String) {
+        val shown = _ui.value
+        val owner = shown.key?.takeIf { it.consoleId == console && it.fileName == name } ?: return
+        act(owner, shown) { launcher.setGamePreferred(console, name, null) }
+    }
     fun test(context: Context, console: String, game: GameLaunch, handler: GameHandler) {
-        if (_ui.value.loading || _ui.value.rows.any { !it.ok && it.label != R.string.ready25_bios }) return
-        val result = runCatching { launcher.launch(context, console, game, handler, false) }.getOrDefault(LaunchOutcome.FAILED)
-        _ui.update { it.copy(result = when(result) {
-            LaunchOutcome.STARTED -> R.string.ready25_opened
-            LaunchOutcome.NEEDS_EXTRACT -> R.string.ready25_extract
-            LaunchOutcome.FAILED -> R.string.ready25_launch_failed
-        }) }
+        val shown = _ui.value
+        val owner = shown.key?.takeIf { it.consoleId == console } ?: return
+        if (shown.loading || shown.games.none { it == game } || game.handlers.none { it == handler } || shown.rows.any { !it.ok && it.label != R.string.ready25_bios }) return
+        viewModelScope.launch {
+            try { settings.withActiveProfile(owner.profileId) {
+                access.check(owner)
+                kotlin.check(_ui.value == shown && settings.profiles.first() == shown.profileConfiguration)
+                // The indexed game is revalidated under the same lock as the external launch.
+                val outcome = launcher.launch(context, console, game, handler, false)
+                _ui.update { it.copy(result = when(outcome) {
+                    LaunchOutcome.STARTED -> R.string.ready25_opened
+                    LaunchOutcome.NEEDS_EXTRACT -> R.string.ready25_extract
+                    LaunchOutcome.FAILED -> R.string.ready25_launch_failed
+                }) }
+            } } catch (e: CancellationException) { throw e }
+            catch (_: Exception) { if (_ui.value.key == owner) _ui.value = ReadyUi() }
+        }
+    }
+    private fun act(owner: JournalKey, shown: ReadyUi, mutation: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                settings.withActiveProfile(owner.profileId) {
+                    access.check(owner)
+                    kotlin.check(_ui.value == shown && settings.profiles.first() == shown.profileConfiguration)
+                    mutation()
+                }
+                if (_ui.value.key == owner) check(owner.consoleId, owner.fileName, R.string.ready25_saved)
+            } catch (e: CancellationException) { throw e }
+            catch (_: Exception) { if (_ui.value.key == owner) _ui.value = ReadyUi() }
+        }
     }
 }
 
@@ -114,17 +154,23 @@ object ReadinessRoute {
 
 @Composable
 fun GameReadinessScreen(console: String, name: String, onNavigate: (String) -> Unit, vm: GameReadinessViewModel = hiltViewModel()) {
-    val ui by vm.ui.collectAsState()
+    val state by vm.ui.collectAsState()
     val context = LocalContext.current
     val first = rememberInitialFocus()
     val active by vm.activeProfile.collectAsState()
+    val visibility by vm.visibility.collectAsState()
+    val ui = state.takeIf { it.key == null || it.key == JournalKey(active, console, name) } ?: ReadyUi()
     var rememberForGame by remember(console, name, active) { mutableStateOf(false) }
-    LaunchedEffect(console, name, active) { vm.check(console, name) }
+    LaunchedEffect(console, name, active, visibility) { vm.check(console, name) }
     Column(Modifier.fillMaxSize().padding(12.dp)) {
         ToolsTitle(stringResource(R.string.ready25_title), icon = R.drawable.ic_controller, subtitle = name)
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxSize()) {
             item { ActionPill(stringResource(R.string.tools_refresh), { vm.check(console, name) }, modifier = Modifier.focusRequester(first), icon = R.drawable.ic_retry) }
             if (ui.loading) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
+            ui.packageFiles?.let { count -> item {
+                Text(stringResource(if (ui.packageComplete) R.string.pkg28_registered else R.string.pkg28_incomplete, count),
+                    style = MaterialTheme.typography.bodySmall)
+            } }
             ui.rows.forEach { row -> item {
                 ToolRow(stringResource(row.label), listOf(stringResource(row.message)),
                     onClick = { row.fix?.let(onNavigate) }, icon = if (row.ok) R.drawable.ic_check_circle else R.drawable.ic_warning)

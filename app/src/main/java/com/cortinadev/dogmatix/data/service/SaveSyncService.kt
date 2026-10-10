@@ -29,6 +29,12 @@ import com.cortinadev.dogmatix.util.SaveSyncResult
 import com.cortinadev.dogmatix.util.StorageHelper
 import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.VerifiedSafetyCopies
+import com.cortinadev.dogmatix.util.JournalKey
+import com.cortinadev.dogmatix.util.SaveHandoff
+import com.cortinadev.dogmatix.util.SaveHandoffPreview
+import com.cortinadev.dogmatix.util.SaveHandoffDirection
+import com.cortinadev.dogmatix.util.Profiles
+import com.cortinadev.dogmatix.util.ConsoleFolderAliases
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -51,6 +57,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -75,6 +82,15 @@ data class SaveSyncState(
     val conflicts: List<SaveConflict> = emptyList()
 )
 
+data class LocalSafetyRestorePreview(
+    val copy: SafetyCopy,
+    val profileId: String,
+    val backupSha256: String,
+    val currentSha256: String?,
+    val currentBytes: Long?,
+    val configuration: String
+)
+
 /**
  * Keeps the emulator saves and save states on this device and on the RomM server the same,
  * in both directions: RomM becomes the place games save to and load from, so a game can be
@@ -92,7 +108,8 @@ class SaveSyncService @Inject constructor(
     private val rommClient: RommClient,
     private val appSettings: AppSettings,
     private val history: OperationHistoryService,
-    private val actionLog: ActionLogService
+    private val actionLog: ActionLogService,
+    private val gameAccess: JournalGameAccess
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val lock = Mutex()
@@ -209,7 +226,7 @@ class SaveSyncService @Inject constructor(
      * levels deep (RetroArch sorts by core and by content folder). One folder picked for both
      * holds both kinds; the name tells which one a file is.
      */
-    private inner class SafSaveStore : SaveStore {
+    private inner class SafSaveStore(private val readLimit: Long = MAX_FILE_BYTES) : SaveStore {
         /** Document of every file of the last listing (and of later writes), by [SaveSyncEngine.key]. */
         private var documents: Map<String, Uri> = emptyMap()
 
@@ -274,7 +291,10 @@ class SaveSyncService @Inject constructor(
                     currentCoroutineContext().ensureActive()
                     val count = input.read(buffer)
                     if (count < 0) break
-                    if (out.size().toLong() + count > MAX_FILE_BYTES) throw IOException("Save file is too large")
+                    if (out.size().toLong() + count > readLimit) {
+                        if (readLimit == SaveHandoff.MAX_SAVE_BYTES) throw SaveHandoff.SaveTooLargeException()
+                        throw IOException("Save file is too large")
+                    }
                     out.write(buffer, 0, count)
                 }
                 out.toByteArray()
@@ -413,6 +433,253 @@ class SaveSyncService @Inject constructor(
     /** What the last sync recorded per device file, by [SaveSyncPlanner.key] (a copy). */
     suspend fun syncRecords(): Map<String, SaveSyncRecord> = withContext(Dispatchers.IO) { loadRecords() }
 
+    // ---- Local recovery / guided device handoff -----------------------------------------------
+
+    private suspend fun configurationSignature(): String = SaveHandoff.sha256(listOf(
+        rommClient.configuredBaseUrl(), settingsRepository.rommToken.first(),
+        settingsRepository.saveSyncSavesDir.first(), settingsRepository.saveSyncStatesDir.first(),
+        settingsRepository.rommPlatformMap.first().entries.sortedBy { it.key }.joinToString("") { "${it.key.length}:${it.key}:${it.value}" },
+        com.cortinadev.dogmatix.util.EmulatorSaveFolders.toJson(appSettings.saveSyncEmulatorFolders.first())
+    ).joinToString("") { "${it.length}:$it" }.toByteArray(Charsets.UTF_8))
+
+    private suspend fun guardGame(key: JournalKey, configuration: String? = null) = appSettings.withActiveProfile(key.profileId) {
+        gameAccess.check(key)
+        if (configuration != null) check(configurationSignature() == configuration) { "Save folders or server changed; check them again" }
+    }
+
+    /** Owner metadata is optional only for legacy/global copies; malformed metadata fails closed. */
+    private fun copyOwner(copy: SafetyCopy): JournalKey? {
+        val file = File(backupDir, copy.relative)
+        require(file.canonicalPath.startsWith(backupDir.canonicalPath + File.separator))
+        val parsed = CloudSaves.safetyCopy(copy.relative, file.length(), file.lastModified(), ZoneId.systemDefault())
+        require(parsed != null && parsed.relative == copy.relative && parsed.kind == copy.kind && parsed.path == copy.path) { "Unexpected safety copy path" }
+        val batch = copy.relative.substringBefore('/')
+        val owner = File(File(backupDir, batch), "owner.json")
+        if (!owner.exists()) return null
+        require(owner.canonicalPath.startsWith(backupDir.canonicalPath + File.separator) && owner.isFile && owner.length() in 1..8192)
+        val json = JsonParser.parseString(owner.readText(Charsets.UTF_8)).asJsonObject
+        fun string(name: String) = json.get(name).let { require(it != null && it.isJsonPrimitive && it.asJsonPrimitive.isString); it.asString }
+        return JournalKey(string("profile"), string("console"), string("file")).also {
+            require(it.profileId.length <= 128 && it.consoleId.length in 1..128 && it.fileName.length in 1..1024)
+        }
+    }
+
+    private suspend fun checkCopyAccess(profileId: String, copy: SafetyCopy) = appSettings.withActiveProfile(profileId) {
+        val owner = copyOwner(copy)
+        if (owner == null) check(profileId.isEmpty()) { "This older copy belongs to the unrestricted profile" }
+        else { check(owner.profileId == profileId) { "This copy belongs to another profile" }; gameAccess.check(owner) }
+    }
+
+    suspend fun localSafetyCopies(profileId: String): List<SafetyCopy> = withContext(Dispatchers.IO) {
+        appSettings.withActiveProfile(profileId) { Unit }
+        if (!backupDir.isDirectory) return@withContext emptyList()
+        val copies = backupDir.walkTopDown().maxDepth(8).filter { it.isFile }.take(5001).toList()
+        require(copies.size <= 5000) { "Too many safety copies; review them before restoring" }
+        copies.mapNotNull { file ->
+            val relative = file.relativeToOrNull(backupDir)?.invariantSeparatorsPath ?: return@mapNotNull null
+            CloudSaves.safetyCopy(relative, file.length(), file.lastModified(), ZoneId.systemDefault())
+        }.filter { copy ->
+            try { checkCopyAccess(profileId, copy); true }
+            catch (e: CancellationException) { throw e }
+            catch (_: Exception) { false }
+        }.sortedByDescending { it.takenAt }
+    }
+
+    suspend fun previewLocalSafetyRestore(profileId: String, copy: SafetyCopy): LocalSafetyRestorePreview = withContext(Dispatchers.IO) {
+        checkCopyAccess(profileId, copy)
+        check(hasDeviceFolder(copy.kind)) { "Choose the save folder again before restoring" }
+        val bytes = VerifiedSafetyCopies.read(backupDir, copy.relative, MAX_FILE_BYTES)
+        val store = SafSaveStore()
+        val listing = store.list()
+        require(listing.tooLarge == 0) { "A save is too large to verify safely" }
+        val matches = listing.files.filter { it.kind == copy.kind && it.path.equals(copy.path, ignoreCase = true) }
+        require(matches.size <= 1) { "Several save files match this path" }
+        val current = matches.singleOrNull()?.let { store.read(it) }
+        checkCopyAccess(profileId, copy)
+        LocalSafetyRestorePreview(copy, profileId, SaveHandoff.sha256(bytes), current?.let(SaveHandoff::sha256), current?.size?.toLong(), configurationSignature())
+    }
+
+    suspend fun restoreLocalSafetyCopy(preview: LocalSafetyRestorePreview): CloudSaveResult {
+        if (!lock.tryLock()) return CloudSaveResult.Busy
+        try { return withContext(Dispatchers.IO) {
+            try {
+                val fresh = previewLocalSafetyRestore(preview.profileId, preview.copy)
+                check(fresh == preview) { "The save or folder changed; check the restore again" }
+                val bytes = VerifiedSafetyCopies.read(backupDir, preview.copy.relative, MAX_FILE_BYTES)
+                appSettings.withActiveProfile(preview.profileId) {
+                    checkCopyAccessUnlocked(preview.profileId, preview.copy)
+                    check(configurationSignature() == preview.configuration) { "Save folder changed; check the restore again" }
+                    val store = SafSaveStore()
+                    val current = store.list().files.filter { it.kind == preview.copy.kind && it.path.equals(preview.copy.path, ignoreCase = true) }
+                    require(current.size <= 1)
+                    val old = current.singleOrNull()?.let { store.read(it) }
+                    check(old?.let(SaveHandoff::sha256) == preview.currentSha256) { "Save changed; check the restore again" }
+                    check(SaveHandoff.sha256(bytes) == preview.backupSha256)
+                    currentCoroutineContext().ensureActive()
+                    if (old != null) {
+                        val owner = copyOwner(preview.copy)
+                        if (owner == null) keepSafetyCopy(preview.copy.kind, current.single().path, old)
+                        else keepGameSafetyCopy(owner, preview.copy.kind, current.single().path, old)
+                    }
+                    val written = store.write(preview.copy.kind, current.singleOrNull()?.path ?: preview.copy.path, bytes)
+                    check(store.read(written).contentEquals(bytes)) { "Restored save could not be verified" }
+                    // Reset the baseline; the next sync compares instead of trusting stale timestamps.
+                    saveRecords(loadRecords().filterKeys { it != SaveSyncEngine.key(written) })
+                    CloudSaveResult.Done(written.path)
+                }
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) { CloudSaveResult.Failed(if (e is VerifiedSafetyCopies.IntegrityException) context.getString(R.string.csave_error_integrity) else e.message ?: "Restore failed") }
+        } } finally { lock.unlock() }
+    }
+
+    private suspend fun checkCopyAccessUnlocked(profileId: String, copy: SafetyCopy) {
+        val owner = copyOwner(copy)
+        if (owner == null) check(profileId.isEmpty()) else { check(owner.profileId == profileId); gameAccess.check(owner) }
+    }
+
+    private fun keepGameSafetyCopy(key: JournalKey, kind: SaveKind, path: String, bytes: ByteArray) {
+        val target = VerifiedSafetyCopies.keep(backupDir, kind, path, bytes)
+        val batch = File(backupDir, target.relativeTo(backupDir).invariantSeparatorsPath.substringBefore('/'))
+        val owner = File(batch, "owner.json")
+        val metadata = JsonObject().apply { addProperty("profile", key.profileId); addProperty("console", key.consoleId); addProperty("file", key.fileName) }.toString().toByteArray(Charsets.UTF_8)
+        try {
+            FileOutputStream(owner).use { it.write(metadata); it.flush(); it.fd.sync() }
+            check(owner.readBytes().contentEquals(metadata))
+            check(VerifiedSafetyCopies.read(backupDir, target.relativeTo(backupDir).invariantSeparatorsPath, MAX_FILE_BYTES).contentEquals(bytes))
+        } catch (e: Exception) { batch.deleteRecursively(); throw e }
+    }
+
+    /** Fresh ordinary saves only. No emulator state is offered as portable between devices. */
+    suspend fun previewHandoff(key: JournalKey, romId: Int): SaveHandoffPreview = withContext(Dispatchers.IO) {
+        val configuration = configurationSignature()
+        val endpoint = rommClient.saveEndpoint()
+        guardGame(key, configuration)
+        previewHandoffAt(key, romId, endpoint, configuration)
+    }
+
+    private suspend fun previewHandoffAt(key: JournalKey, romId: Int, endpoint: RommSaveEndpoint, configuration: String): SaveHandoffPreview {
+        guardGame(key)
+        check(isConfigured() && hasDeviceFolder(SaveKind.SAVE)) { "Set up RomM and an in-game save folder first" }
+        val platform = settingsRepository.rommPlatformMap.first()[key.consoleId]
+            ?: error("Map this console to RomM before transferring saves")
+        val detail = JsonHttp.requireOk(JsonHttp.request("GET", "${endpoint.base}/api/roms/$romId", endpoint.auth, readTimeoutMs = 60_000))
+        val identity = CloudSaves.romFileAndPlatform(detail.json) ?: error("Server game identity could not be verified")
+        check(identity.second == platform && com.cortinadev.dogmatix.util.RommMarks.key(key.consoleId, identity.first) == com.cortinadev.dogmatix.util.RommMarks.key(key.consoleId, key.fileName)) {
+            "Server game changed; refresh the RomM library before transferring"
+        }
+        val store = SafSaveStore(SaveHandoff.MAX_SAVE_BYTES)
+        val listing = store.list()
+        require(listing.tooLarge == 0) { "A save is too large to verify safely" }
+        val records = loadRecords()
+        val stem = CloudSaves.gameStem(key.fileName)
+        val locals = listing.files.filter { local ->
+            val record = records[SaveSyncEngine.key(local)]
+            if (record != null) record.romId == romId
+            else CloudSaves.belongsToGame(local.name, stem) && (local.platformHints.isEmpty() || ConsoleFolderAliases.normalize(key.consoleId) in local.platformHints)
+        }
+        val ordinary = locals.filter { it.kind == SaveKind.SAVE && SaveHandoff.isInGameSave(it.name) }
+        ordinary.forEach { SaveHandoff.requireBoundedSave(it.size) }
+        require(ordinary.map { it.path.lowercase() }.distinct().size == ordinary.size) { "Several save folders have the same path" }
+        // A familiar stem alone cannot distinguish (for example) NES Tetris from Game Boy Tetris.
+        // Require an established record or a unique platform-aware server match before an upload.
+        ordinary.filter { records[SaveSyncEngine.key(it)] == null }.forEach { local ->
+            val match = SaveSyncPlanner.matchRom(local, rommClient.searchRoms(SaveSyncPlanner.searchTerm(local.name), endpoint = endpoint))
+            check(match is SaveSyncPlanner.RomMatch.Found && match.romId == romId) { "Save cannot be tied to this console safely; configure its emulator folder or synchronize it first" }
+        }
+        val remotes = SaveSyncPlanner.latestPerName(rommClient.saves(SaveKind.SAVE, endpoint).filter { it.romId == romId && SaveHandoff.isInGameSave(it.fileName) })
+        remotes.forEach { SaveHandoff.requireBoundedSave(it.size) }
+        require(ordinary.size + remotes.size <= SaveHandoff.MAX_FILES * 2) { "Too many saves for one game" }
+        val localHashes = ordinary.associate { it.path to SaveHandoff.sha256(store.read(it)) }
+        val remoteHashes = remotes.associate { it.id to SaveHandoff.sha256(handoffServerBytes(it, endpoint)) }
+        guardGame(key, configuration)
+        return SaveHandoffPreview(key, romId, configuration, System.currentTimeMillis(), SaveHandoff.plan(
+            listing.copy(files = ordinary), remotes, records.values.filter { it.romId == romId }, localHashes, remoteHashes
+        ), omittedStates = locals.size - ordinary.size)
+    }
+
+    /** Re-read both sides before approval is used, back up bytes, transfer and verify both sides again. */
+    suspend fun transferHandoff(preview: SaveHandoffPreview): SaveHandoffPreview {
+        check(lock.tryLock()) { "A save synchronization is already running" }
+        try { return withContext(Dispatchers.IO) {
+            guardGame(preview.key, preview.configuration)
+            val endpoint = rommClient.saveEndpoint()
+            guardGame(preview.key, preview.configuration)
+            val fresh = previewHandoffAt(preview.key, preview.romId, endpoint, preview.configuration)
+            SaveHandoff.requireFresh(preview, fresh, System.currentTimeMillis())
+            val records = loadRecords().toMutableMap()
+            for (row in fresh.files) {
+                currentCoroutineContext().ensureActive()
+                guardGame(preview.key, preview.configuration)
+                val store = SafSaveStore(SaveHandoff.MAX_SAVE_BYTES)
+                val local = store.list().files.singleOrNull { it.kind == SaveKind.SAVE && it.path == row.path }
+                val bytes = local?.let { store.read(it) }
+                check(bytes?.let(SaveHandoff::sha256) == row.localSha256) { "Device save changed during transfer; check it again" }
+                val actualRemote = SaveSyncPlanner.latestPerName(rommClient.saves(SaveKind.SAVE, endpoint).filter { it.romId == preview.romId })
+                    .singleOrNull { it.fileName.equals(row.remote?.fileName ?: local?.name ?: row.path.substringAfterLast('/'), ignoreCase = true) }
+                check(actualRemote?.id == row.remote?.id) { "Server save changed during transfer; check it again" }
+                val remote = actualRemote
+                val serverBytes = remote?.let { handoffServerBytes(it, endpoint) }
+                check(serverBytes?.let(SaveHandoff::sha256) == row.remoteSha256) { "Server save changed during transfer; check it again" }
+                if (bytes != null) appSettings.withActiveProfile(preview.key.profileId) {
+                    gameAccess.check(preview.key)
+                    keepGameSafetyCopy(preview.key, SaveKind.SAVE, row.path, bytes)
+                }
+                if (serverBytes != null && row.direction == SaveHandoffDirection.UPLOAD) appSettings.withActiveProfile(preview.key.profileId) {
+                    gameAccess.check(preview.key)
+                    keepGameSafetyCopy(preview.key, SaveKind.SAVE, row.path, serverBytes)
+                }
+                when (row.direction) {
+                    SaveHandoffDirection.UPLOAD -> appSettings.withActiveProfile(preview.key.profileId) {
+                        // Only this final remote mutation holds the profile lock. Preview/downloads
+                        // release it, so switching cancels a delayed action before it writes anything.
+                        gameAccess.check(preview.key)
+                        check(configurationSignature() == preview.configuration) { "Server or folders changed; check saves again" }
+                        val stored = rommClient.uploadSave(SaveKind.SAVE, preview.romId, requireNotNull(local).name, SaveSyncPlanner.emulatorFor(local), requireNotNull(bytes), endpoint)
+                            ?: throw IOException("Server did not confirm the save upload")
+                        check(SaveHandoff.sha256(handoffServerBytes(stored, endpoint)) == row.localSha256) { "Uploaded save could not be verified" }
+                        check(configurationSignature() == preview.configuration) { "Server settings changed during transfer; check it again" }
+                        records[SaveSyncEngine.key(local)] = SaveSyncEngine.record(local, stored)
+                    }
+                    SaveHandoffDirection.DOWNLOAD -> appSettings.withActiveProfile(preview.key.profileId) {
+                        gameAccess.check(preview.key)
+                        check(configurationSignature() == preview.configuration)
+                        val latestLocal = store.list().files.singleOrNull { it.kind == SaveKind.SAVE && it.path == row.path }
+                        check(latestLocal?.let { SaveHandoff.sha256(store.read(it)) } == row.localSha256) { "Save changed during transfer" }
+                        val written = store.write(SaveKind.SAVE, row.path, requireNotNull(serverBytes))
+                        check(store.read(written).contentEquals(serverBytes))
+                        records[SaveSyncEngine.key(written)] = SaveSyncEngine.record(written, requireNotNull(remote))
+                    }
+                    SaveHandoffDirection.IDENTICAL -> records[SaveSyncEngine.key(requireNotNull(local))] = SaveSyncEngine.record(local, requireNotNull(remote))
+                    else -> error("Resolve save conflicts first")
+                }
+                appSettings.withActiveProfile(preview.key.profileId) { gameAccess.check(preview.key); saveRecords(records) }
+            }
+            val checked = previewHandoffAt(preview.key, preview.romId, endpoint, preview.configuration)
+            check(checked.files.isNotEmpty() && checked.files.all { it.direction == SaveHandoffDirection.IDENTICAL }) { "Some saves still differ; check them again" }
+            // Read back the backup for every current save, including files that were just downloaded.
+            val store = SafSaveStore(SaveHandoff.MAX_SAVE_BYTES)
+            val current = store.list().files
+            checked.files.forEach { row ->
+                val local = current.single { it.kind == SaveKind.SAVE && it.path == row.path }
+                val bytes = store.read(local)
+                check(SaveHandoff.sha256(bytes) == row.localSha256)
+                appSettings.withActiveProfile(preview.key.profileId) { gameAccess.check(preview.key); keepGameSafetyCopy(preview.key, SaveKind.SAVE, row.path, bytes) }
+            }
+            guardGame(preview.key, preview.configuration)
+            checked.copy(backupVerified = true)
+        } } finally { lock.unlock() }
+    }
+
+    private suspend fun handoffServerBytes(remote: RemoteSaveFile, endpoint: RommSaveEndpoint): ByteArray {
+        SaveHandoff.requireBoundedSave(remote.size)
+        return try {
+            rommClient.downloadSave(remote, SaveHandoff.MAX_SAVE_BYTES, endpoint).also { SaveHandoff.requireBoundedSave(it.size.toLong()) }
+        } catch (e: IOException) {
+            if (e.message?.contains("too large", ignoreCase = true) == true || e.message?.contains("exceed", ignoreCase = true) == true) throw SaveHandoff.SaveTooLargeException()
+            throw e
+        }
+    }
+
     /**
      * The screenshot RetroArch keeps next to a save state (`Game.state1.png`): its document URI and
      * date; null when there is none or the folder cannot be read.
@@ -435,8 +702,8 @@ class SaveSyncService @Inject constructor(
      * deleted. The next sync then sends the restored version up as the current one.
      * [serverFiles] are the game's server entries; [gameStem] is the game's file name without extension.
      */
-    suspend fun restoreServerVersion(version: CloudSaveEntry, serverFiles: List<CloudSaveEntry>, gameStem: String): CloudSaveResult =
-        restoreInto(version.kind, serverFiles, restored = version, target = { listing, records ->
+    suspend fun restoreServerVersion(version: CloudSaveEntry, serverFiles: List<CloudSaveEntry>, gameStem: String, profileKey: JournalKey? = null): CloudSaveResult =
+        restoreInto(version.kind, serverFiles, restored = version, profileKey = profileKey, target = { listing, records ->
             CloudSaves.restoreTarget(version, gameStem, listing.files, records.values, listing.topFolders, listing.noRootFolder)
         }) { rommClient.downloadSave(version.toRemote(), MAX_FILE_BYTES) }
 
@@ -454,6 +721,7 @@ class SaveSyncService @Inject constructor(
         kind: SaveKind,
         serverFiles: List<CloudSaveEntry>,
         restored: CloudSaveEntry?,
+        profileKey: JournalKey? = null,
         target: (SaveStore.Listing, Map<String, SaveSyncRecord>) -> RestoreTarget,
         bytesOf: suspend () -> ByteArray
     ): CloudSaveResult {
@@ -461,6 +729,8 @@ class SaveSyncService @Inject constructor(
         try {
             return withContext(Dispatchers.IO) {
                 runCatching<CloudSaveResult> {
+                    profileKey?.let { guardGame(it) }
+                    val configuration = configurationSignature()
                     if (!hasDeviceFolder(kind)) return@runCatching CloudSaveResult.Failed(context.getString(R.string.csave_error_no_folder))
                     val store = SafSaveStore()
                     val listing = store.list()
@@ -476,20 +746,33 @@ class SaveSyncService @Inject constructor(
                     val latest = CloudSaves.latest(serverFiles, kind, targetPath.substringAfterLast('/'))
                     val record = current?.let { records[SaveSyncEngine.key(it)] }
                     // 1. What the device has there now becomes a safety copy (if that fails, nothing is touched).
-                    if (current != null) keepSafetyCopy(kind, current.path, store.read(current))
+                    val original = current?.let { store.read(it) }
+                    if (original != null) {
+                        if (profileKey == null) keepSafetyCopy(kind, requireNotNull(current).path, original)
+                        else appSettings.withActiveProfile(profileKey.profileId) { gameAccess.check(profileKey); keepGameSafetyCopy(profileKey, kind, requireNotNull(current).path, original) }
+                    }
                     // 2. So does the server's current version, unless the device held it or it is what comes back.
                     val restoringLatest = restored != null && latest != null && restored.kind == latest.kind && restored.id == latest.id
                     if (latest != null && !restoringLatest && !CloudSaves.deviceHolds(latest, record, current)) {
-                        keepSafetyCopy(kind, targetPath, rommClient.downloadSave(latest.toRemote(), MAX_FILE_BYTES))
+                        val remoteBytes = rommClient.downloadSave(latest.toRemote(), MAX_FILE_BYTES)
+                        if (profileKey == null) keepSafetyCopy(kind, targetPath, remoteBytes)
+                        else appSettings.withActiveProfile(profileKey.profileId) { gameAccess.check(profileKey); keepGameSafetyCopy(profileKey, kind, targetPath, remoteBytes) }
                     }
                     // 3. In place; the record tells the next sync what to do with it.
-                    val written = store.write(kind, targetPath, bytes)
-                    val key = SaveSyncEngine.key(written)
-                    val next = CloudSaves.recordAfterRestore(written, restored, latest, records[key])
-                    if (next != null) records[key] = next else records.remove(key)
-                    saveRecords(records)
-                    dropConflict(kind, written.path)
-                    CloudSaveResult.Done(written.path)
+                    val commit: suspend () -> CloudSaveResult = {
+                        check(configurationSignature() == configuration) { "Save folders or server changed; check the restore again" }
+                        val actual = store.list().files.filter { it.kind == kind && it.path.equals(targetPath, ignoreCase = true) }
+                        require(actual.size <= 1)
+                        check(actual.singleOrNull()?.let { SaveHandoff.sha256(store.read(it)) } == original?.let(SaveHandoff::sha256)) { "Save changed; check the restore again" }
+                        val written = store.write(kind, targetPath, bytes)
+                        val key = SaveSyncEngine.key(written)
+                        val next = CloudSaves.recordAfterRestore(written, restored, latest, records[key])
+                        if (next != null) records[key] = next else records.remove(key)
+                        saveRecords(records)
+                        dropConflict(kind, written.path)
+                        CloudSaveResult.Done(written.path)
+                    }
+                    if (profileKey == null) commit() else appSettings.withActiveProfile(profileKey.profileId) { gameAccess.check(profileKey); commit() }
                 }.getOrElse { e ->
                     if (e is CancellationException) throw e
                     Log.w(TAG, "Restore failed", e)
@@ -506,11 +789,13 @@ class SaveSyncService @Inject constructor(
      * sync would. When the server's copy of that name is not what the last sync saw (another device
      * saved since), it is kept as a safety copy first, so nothing is lost.
      */
-    suspend fun uploadDeviceSave(kind: SaveKind, path: String, romId: Int, serverFiles: List<CloudSaveEntry>): CloudSaveResult {
+    suspend fun uploadDeviceSave(kind: SaveKind, path: String, romId: Int, serverFiles: List<CloudSaveEntry>, profileKey: JournalKey? = null): CloudSaveResult {
         if (!lock.tryLock()) return CloudSaveResult.Busy
         try {
             return withContext(Dispatchers.IO) {
                 runCatching<CloudSaveResult> {
+                    profileKey?.let { guardGame(it) }
+                    val configuration = configurationSignature()
                     val store = SafSaveStore()
                     val local = store.list().files.firstOrNull { it.kind == kind && it.path.equals(path, ignoreCase = true) }
                         ?: return@runCatching CloudSaveResult.Failed(context.getString(R.string.csave_error_gone, path.substringAfterLast('/')))
@@ -519,18 +804,24 @@ class SaveSyncService @Inject constructor(
                     val paired = record?.let { r -> serverFiles.firstOrNull { it.kind == kind && it.id == r.remoteId && it.syncable } }
                     val latest = paired ?: CloudSaves.latest(serverFiles, kind, local.name, romId)
                     if (latest != null && !CloudSaves.serverUnchangedSinceSync(latest, record)) {
-                        keepSafetyCopy(kind, local.path, rommClient.downloadSave(latest.toRemote(), MAX_FILE_BYTES))
+                        val remoteBytes = rommClient.downloadSave(latest.toRemote(), MAX_FILE_BYTES)
+                        if (profileKey == null) keepSafetyCopy(kind, local.path, remoteBytes)
+                        else appSettings.withActiveProfile(profileKey.profileId) { gameAccess.check(profileKey); keepGameSafetyCopy(profileKey, kind, local.path, remoteBytes) }
                     }
                     val bytes = store.read(local)
-                    val stored = rommClient.uploadSave(kind, romId, local.name, SaveSyncPlanner.emulatorFor(local), bytes)
-                        ?: rommClient.saves(kind).filter { it.romId == romId && it.fileName.equals(local.name, ignoreCase = true) }
-                            .maxByOrNull { SaveSyncPlanner.epochMillis(it.updatedAt) ?: Long.MIN_VALUE }
-                    if (stored != null) {
+                    profileKey?.let { guardGame(it, configuration) }
+                    val upload: suspend () -> CloudSaveResult = {
+                        check(configurationSignature() == configuration) { "Server or save folders changed" }
+                        val stored = rommClient.uploadSave(kind, romId, local.name, SaveSyncPlanner.emulatorFor(local), bytes)
+                            ?: rommClient.saves(kind).filter { it.romId == romId && it.fileName.equals(local.name, ignoreCase = true) }
+                                .maxByOrNull { SaveSyncPlanner.epochMillis(it.updatedAt) ?: Long.MIN_VALUE }
+                            ?: throw IOException("Server did not confirm the save upload")
                         records[SaveSyncEngine.key(local)] = SaveSyncEngine.record(local, stored)
                         saveRecords(records)
+                        dropConflict(kind, local.path)
+                        CloudSaveResult.Done(local.name)
                     }
-                    dropConflict(kind, local.path)
-                    CloudSaveResult.Done(local.name)
+                    if (profileKey == null) upload() else appSettings.withActiveProfile(profileKey.profileId) { gameAccess.check(profileKey); upload() }
                 }.getOrElse { e ->
                     if (e is CancellationException) throw e
                     Log.w(TAG, "Upload of $path failed", e)

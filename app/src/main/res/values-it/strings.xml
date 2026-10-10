@@ -1274,10 +1274,11 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Visualizza il conto alla rovescia, riprova subito o annulla; gli errori di download restano dopo il riavvio.</item>
-        <item>Salva impostazioni di velocità, download simultanei e pianificazione; conferma una fonte diversa per un file bloccato.</item>
-        <item>Condividi e importa piani con una selezione ordinata, condizioni per file e verifica prima di iniziare.</item>
-        <item>Scegli un emulatore per gioco e profilo, con la scelta della console come alternativa.</item>
+        <item>Scegli raccolte Libretro facoltative per 23 sistemi senza sostituire le tue fonti.</item>
+        <item>Conserva i giochi completi dopo un riavvio e verifica se le raccolte sono pronte per giocare offline.</item>
+        <item>Controlla le copie di recupero in un unico posto e riprendi i download quando torna lo spazio di archiviazione.</item>
+        <item>Conserva note, schermate e manuali per gioco e profilo; le note sono incluse nei backup.</item>
+        <item>Prepara i salvataggi ordinari prima di cambiare dispositivo; i conflitti bloccano il trasferimento.</item>
     </string-array>
 
     <!-- 4.0 -->

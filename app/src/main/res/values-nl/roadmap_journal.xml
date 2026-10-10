@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="journal_title">Speldagboek</string>
+    <string name="journal_hint">Je notities horen bij deze game en dit profiel. Back-ups bewaren notities en bijlagenamen; kies afbeeldingen en PDF-handleidingen opnieuw op een ander toestel.</string>
+    <string name="journal_empty">Nog geen notities.</string>
+    <string name="journal_edit">Notities bewerken</string>
+    <string name="journal_recovered">Notitie uit een back-up hersteld</string>
+    <string name="journal_use_note">Deze herstelde notitie bewerken</string>
+    <string name="journal_choose_again">Kies deze bijlage opnieuw. Het originele bestand blijft op het eigen toestel.</string>
+    <string name="journal_open">Openen</string>
+    <string name="journal_reselect">Opnieuw kiezen</string>
+    <string name="journal_remove">Verwijzing verwijderen</string>
+    <string name="journal_add_image">Screenshot toevoegen</string>
+    <string name="journal_add_manual">PDF-handleiding toevoegen</string>
+    <string name="journal_failed">Opslaan of openen lukte niet. Herlaad het dagboek of kies een leesbare PNG-, JPEG- of WebP-afbeelding (tot 12 MB) of PDF (tot 32 MB).</string>
+    <string name="journal_reload">Dagboek herladen</string>
+    <string name="journal_note">Notities</string>
+    <string name="journal_save">Notities opslaan</string>
+    <string name="journal_remove_hint">De dagboekverwijzing naar %1$s verwijderen? Het originele bestand blijft behouden.</string>
+</resources>

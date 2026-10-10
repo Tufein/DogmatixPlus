@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="romset28_title">Mehr ROM-Sets</string>
+    <string name="romset28_hint">Wähle Libretro-Inhaltssammlungen. Sie enthalten Homebrew, Demos und Testsoftware; keine vollständigen kommerziellen ROM-Sets. Vorhandene Quellen bleiben erhalten.</string>
+    <string name="romset28_short_hint">Optionale Inhaltssammlungen für weitere Systeme ansehen.</string>
+    <string name="romset28_browse">ROM-Sets ansehen</string>
+    <string name="romset28_checked">%1$s-Verzeichnisse geprüft am %2$s</string>
+    <string name="romset28_search">Konsole suchen</string>
+    <string name="romset28_failed">Quellen konnten nicht geladen oder hinzugefügt werden. Bitte erneut versuchen.</string>
+    <string name="romset28_added_count">%1$d Sammlungen hinzugefügt. Ihre Quellen werden eingelesen.</string>
+    <string name="romset28_add">Auswahl hinzufügen (%1$d)</string>
+    <string name="romset28_no_match">Keine passenden Konsolen</string>
+    <string name="romset28_already_added">Bereits hinzugefügt (Aktivierung bleibt erhalten)</string>
+    <string name="romset28_files">%1$d Dateien bei der letzten Prüfung</string>
+</resources>

@@ -1,0 +1,19 @@
+<resources>
+    <string name="pkg28_registered">Paquete de juego completo · %1$d archivos</string>
+    <string name="pkg28_incomplete">El paquete necesita atención · %1$d archivos esperados</string>
+    <string name="off28_check">¿Listo para jugar sin conexión?</string>
+    <string name="off28_hint">Comprueba archivos, discos, BIOS y emuladores instalados. No se descarga ni se inicia nada.</string>
+    <string name="off28_report_title">Comprobación para jugar sin conexión</string>
+    <string name="off28_loading">Comprobando archivos y paquetes de juegos…</string>
+    <string name="off28_failed">No se pudo completar la comprobación. Inténtalo cuando las carpetas estén disponibles.</string>
+    <string name="off28_summary">Listos: %1$d de %2$d juegos</string>
+    <string name="off28_limited">Sin comprobar: %1$d juegos. Esta comprobación procesa un máximo de 300 juegos.</string>
+    <string name="off28_ready">Listo para jugar sin conexión</string>
+    <string name="off28_attention">Necesita atención</string>
+    <string name="off28_unavailable">Este juego ya no aparece en las fuentes configuradas.</string>
+    <string name="off28_legacy">Descarga antigua: archivos y referencias de discos comprobados; no hay hashes originales del paquete.</string>
+    <string name="off28_verified">Archivos del paquete verificados: %1$d</string>
+    <string name="off28_files_missing">Archivos del paquete ausentes, modificados o ilegibles:</string>
+    <string name="off28_more">Otros archivos: %1$d</string>
+    <string name="off28_remaining">Por comprobar: %1$d juegos</string>
+</resources>

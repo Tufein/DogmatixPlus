@@ -151,7 +151,7 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
     val consoles by viewModel.consoles.collectAsState()
     var smartCreating by remember { mutableStateOf(false) }
     var editingRule by remember { mutableStateOf<CollectionWithCount?>(null) }
-    val offline = rememberOfflineCollections()
+    val offline = rememberOfflineCollections { navController.navigate(it) }
     val context = LocalContext.current
     var naming by remember { mutableStateOf<CollectionWithCount?>(null) }
     var creating by remember { mutableStateOf(false) }

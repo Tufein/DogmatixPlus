@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.data.service.CloudSavesService
 import com.cortinadev.dogmatix.data.service.GameCloudSaves
+import com.cortinadev.dogmatix.data.service.ProfileService
+import com.cortinadev.dogmatix.util.JournalKey
 import com.cortinadev.dogmatix.util.CloudSaveResult
 import com.cortinadev.dogmatix.util.CloudSaveVersion
 import com.cortinadev.dogmatix.util.DeviceSave
@@ -38,18 +40,20 @@ data class CloudSavesUi(
  */
 @HiltViewModel
 class CloudSavesViewModel @Inject constructor(
-    private val service: CloudSavesService
+    private val service: CloudSavesService,
+    private val profiles: ProfileService
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(CloudSavesUi())
     val ui: StateFlow<CloudSavesUi> = _ui.asStateFlow()
 
-    private var game: Pair<String, String>? = null
+    val activeProfile = profiles.activeId
+    private var game: JournalKey? = null
     private var job: Job? = null
 
     /** The dialog shows this game: read its cloud saves (unless they are the ones shown). */
     fun show(consoleId: String, fileName: String) {
-        val g = consoleId to fileName
+        val g = JournalKey(profiles.currentIdNow(), consoleId, fileName)
         if (game == g) return
         game = g
         job?.cancel()
@@ -64,9 +68,10 @@ class CloudSavesViewModel @Inject constructor(
         job = viewModelScope.launch { load(g, force = true) }
     }
 
-    private suspend fun load(g: Pair<String, String>, force: Boolean) {
+    private suspend fun load(g: JournalKey, force: Boolean) {
         // Quick part first (RomM id, safety copies): decides whether the section shows at all.
-        val local = runCatching { service.loadLocal(g.first, g.second) }.getOrNull() ?: return
+        val local = runCatching { service.loadLocal(g.consoleId, g.fileName) }.getOrNull() ?: return
+        if (local.profileId != g.profileId) return
         if (game != g) return
         if (!local.visible) {
             _ui.update { it.copy(data = local) }
@@ -74,10 +79,10 @@ class CloudSavesViewModel @Inject constructor(
         }
         _ui.update { ui ->
             // A reload keeps the lists on screen while the new ones come.
-            val shown = ui.data?.takeIf { it.consoleId == g.first && it.fileName == g.second }
+            val shown = ui.data?.takeIf { it.consoleId == g.consoleId && it.fileName == g.fileName && it.profileId == g.profileId }
             ui.copy(data = (shown ?: local).copy(loadingServer = local.romId != null, loadingDevice = true))
         }
-        val full = runCatching { service.load(g.first, g.second, force) }.getOrNull()
+        val full = runCatching { service.load(g.consoleId, g.fileName, force) }.getOrNull()?.takeIf { it.profileId == g.profileId }
         if (game != g) return
         _ui.update { it.copy(data = full ?: local) }
     }
@@ -101,10 +106,14 @@ class CloudSavesViewModel @Inject constructor(
 
     private fun act(id: String, name: String, upload: Boolean, block: suspend (GameCloudSaves) -> CloudSaveResult) {
         val data = _ui.value.data ?: return
+        val g = game ?: return
         if (_ui.value.working != null) return
         _ui.update { it.copy(working = id, notice = null) }
         viewModelScope.launch {
-            val result = runCatching { block(data) }.getOrElse { CloudSaveResult.Failed(it.message ?: it.javaClass.simpleName) }
+            val result = try { block(data) }
+            catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) { CloudSaveResult.Failed(e.message ?: e.javaClass.simpleName) }
+            if (game != g) return@launch
             val notice = when (result) {
                 is CloudSaveResult.Done -> if (upload) CloudSavesNotice.Uploaded(name) else CloudSavesNotice.Restored(result.path)
                 is CloudSaveResult.Failed -> CloudSavesNotice.Failed(name, result.message)

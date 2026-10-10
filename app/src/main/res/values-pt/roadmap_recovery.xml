@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="road28_recovery_title">Centro de recuperação</string>
+    <string name="road28_recovery_hint">Verifica o armazenamento, movimentos interrompidos, lixo e cópias das gravações. Cada recuperação exige a tua confirmação.</string>
+    <string name="road28_recovery_preview">Rever recuperação</string>
+    <string name="road28_recovery_keep_current">Os ficheiros existentes são preservados quando diferem da cópia. Nos movimentos, os originais só são removidos após verificar o destino.</string>
+    <string name="road28_recovery_from">De: %1$s</string>
+    <string name="road28_recovery_to">Para: %1$s</string>
+    <string name="road28_recovery_folder">Pasta selecionada</string>
+    <string name="road28_recovery_replacements">Substituições de ficheiros interrompidas</string>
+    <string name="road28_recovery_saves">Cópias de segurança das gravações</string>
+    <string name="road28_recovery_save_protected">A gravação atual é copiada e verificada antes do restauro. A sincronização na nuvem terá depois de comparar novamente.</string>
+    <string name="road28_recovery_partial">Algumas pastas não foram verificadas ou foi atingido o limite de pesquisa. Abre a pasta específica em Ficheiros.</string>
+    <string name="road28_storage_check">Verificar armazenamento e cópias</string>
+    <string name="road28_storage_available">Armazenamento disponível</string>
+    <string name="road28_storage_returned">O armazenamento voltou. As transferências ficam em pausa até serem retomadas.</string>
+    <string name="road28_storage_read_only">Armazenamento só de leitura</string>
+    <string name="road28_storage_permission">O acesso à pasta foi perdido. Seleciona-a novamente nas Definições.</string>
+    <string name="road28_storage_unavailable">Armazenamento indisponível. Volta a ligá-lo e verifica novamente.</string>
+    <string name="road28_storage_paused">%1$d transferências em pausa para esta pasta</string>
+    <string name="road28_storage_resume">Retomar estas transferências</string>
+    <string name="road28_storage_settings">Definições de pastas</string>
+    <string name="road28_storage_cached">A última lista é preservada. Volta a ligar e verifica o armazenamento antes de alterar ficheiros.</string>
+</resources>

@@ -113,6 +113,8 @@ private val DEVICE_FAILURES = setOf(
 /** A download stopped because free space fell below the limit set in Settings; it can be retried. */
 class LowStorageException(fileName: String) : Exception("Not enough free space for $fileName")
 
+data class DownloadedPackageLocation(val rootUri: String, val subPath: String, val paths: List<String>)
+
 @Singleton
 class DownloadService @Inject constructor(
     @param:ApplicationContext private val context: Context,
@@ -136,7 +138,10 @@ class DownloadService @Inject constructor(
     private val partials: PartialDownloads,
     private val datService: DatService,
     private val sourceTrack: SourceTrackService,
-    private val moveGate: StorageMoveGate
+    private val moveGate: StorageMoveGate,
+    private val gamePackages: GamePackageService,
+    private val storageAvailability: StorageAvailabilityService,
+    private val storageHolds: StorageDownloadHolds
 ) {
     val downloads: StateFlow<List<DownloadItemModel>> = downloadProgressTracker.downloads
 
@@ -199,7 +204,7 @@ class DownloadService @Inject constructor(
     fun moveToFront(fileName: String) = queue.moveToFront(fileName)
     fun moveToFront(fileNames: Collection<String>) = queue.moveToFront(fileNames)
     private val downloadEntities = ConcurrentHashMap<String, DownloadableFileEntity>()
-    private val extractedFilesMap = ConcurrentHashMap<String, List<String>>()
+    private val extractedFilesMap = ConcurrentHashMap<String, DownloadedPackageLocation>()
     /** Debrid client + torrent id per file being fetched through the debrid route (see [performDebridDownload]). */
     private val debridTorrents = ConcurrentHashMap<String, Pair<DebridClient, String>>()
 
@@ -318,12 +323,25 @@ class DownloadService @Inject constructor(
         try {
             val rows = historyDao.getAll()
             rows.forEach { row -> downloadEntities.putIfAbsent(row.fileName, row.toEntity()) }
-            val items = rows.map { it.toItem() }
+            val held = try { storageHolds.snapshot() } catch (_: Exception) {
+                // A damaged hold journal must not hide the user's durable download history.
+                // Transfers still fail closed when launch/resume tries to read that journal.
+                Log.w(TAG, "Storage hold history could not be read")
+                emptyMap()
+            }
+            val items = rows.map { row ->
+                val restoredItem = row.toItem()
+                val entity = row.toEntity()
+                val storageHold = row.status in setOf(DownloadStatus.PAUSED.name, DownloadStatus.STOPPED.name) &&
+                    held[gamePackages.identity(entity)] == StorageAvailabilityService.key(downloadFileManager.getDownloadDirectoryUri(entity).toString())
+                if (storageHold) restoredItem.copy(status = DownloadStatus.PAUSED, finishedAt = null, failure = null, failureAt = null)
+                else restoredItem
+            }
             // Queued or running when the process ended (not paused: that was the user's choice).
             interrupted += rows.filter { it.status in setOf(DownloadStatus.QUEUED.name, DownloadStatus.DOWNLOADING.name, DownloadStatus.COPYING.name, DownloadStatus.UNZIPPING.name) }
                 .sortedBy { it.startedAt }.map { it.fileName }
             downloadProgressTracker.restore(items)
-            items.filter { it.status == DownloadStatus.STOPPED }.forEach { item ->
+            items.filter { it.status in setOf(DownloadStatus.STOPPED, DownloadStatus.PAUSED) }.forEach { item ->
                 val row = rows.first { it.fileName == item.fileName }
                 if (row.status != item.status.name || row.finishedAt != item.finishedAt) {
                     historyDao.updateStatus(item.fileName, item.status.name, item.finishedAt)
@@ -459,6 +477,13 @@ class DownloadService @Inject constructor(
                 selection?.await()
                 currentCoroutineContext().ensureActive()
                 current = downloadEntities[file.fileName] ?: return@launch
+                val storageRoot = downloadFileManager.getDownloadDirectoryUri(current).toString()
+                if (storageHolds.snapshot()[gamePackages.identity(current)] == StorageAvailabilityService.key(storageRoot)) {
+                    synchronized(startLock) {
+                        if (downloadJobs[file.fileName] === owner) downloadProgressTracker.updateDownloadStatus(file.fileName, DownloadStatus.PAUSED)
+                    }
+                    return@launch
+                }
                 synchronized(startLock) {
                     if (downloadJobs[file.fileName] !== owner || !owner.isActive) return@launch
                     // A previous native preflight may have reported failure while this retry
@@ -894,8 +919,12 @@ class DownloadService @Inject constructor(
     fun cancelDownload(fileName: String) {
         userActed(fileName)
         synchronized(startLock) {
-            pausingFiles.remove(fileName)
             val entity = downloadEntities[fileName] ?: return
+            // A user stop supersedes a storage hold permanently, including after process death.
+            // Abort the state mutation if its durable revocation cannot be recorded.
+            try { storageHolds.release(listOf(gamePackages.identity(entity))) }
+            catch (_: Exception) { Log.w(TAG, "Could not persist storage hold cancellation"); return }
+            pausingFiles.remove(fileName)
             // The old worker's finally may be superseded by an immediate retry. A stop must
             // still remove its time/charging condition before that replacement is registered.
             conditionGate.clear(fileName)
@@ -993,6 +1022,10 @@ class DownloadService @Inject constructor(
     fun deleteDownload(fileName: String, deleteFile: Boolean = false) {
         userActed(fileName)
         synchronized(startLock) {
+            downloadEntities[fileName]?.let { entity ->
+                try { storageHolds.release(listOf(gamePackages.identity(entity))) }
+                catch (_: Exception) { Log.w(TAG, "Could not persist storage hold removal"); return }
+            }
             pausingFiles.remove(fileName)
             val transfer = downloadJobs[fileName]
             autoRetries.remove(fileName)
@@ -1000,14 +1033,17 @@ class DownloadService @Inject constructor(
             _switchedTo.update { it - fileName }
             conditionGate.clear(fileName)
             val entity = downloadEntities.remove(fileName)
-            val extracted = extractedFilesMap.remove(fileName) ?: emptyList()
+            val extracted = entity?.let { extractedFilesMap.remove(gamePackages.identity(it)) }
             val debrid = debridTorrents.remove(fileName)
             _verification.update { it - fileName }
             downloadProgressTracker.removeDownload(fileName)
             launchCleanup(fileName, "Removing $fileName", transfer) {
                 if (debrid != null) debrid.first.delete(debrid.second)
                 else if (entity?.isTorrent == true) torrentDownloadService.cancelDownload(entity, reportStatus = false)
-                if (deleteFile && entity != null) downloadFileManager.deleteFileByName(entity, true, extracted)
+                if (deleteFile && entity != null) {
+                    val location = extracted ?: downloadedPackageLocation(entity)
+                    if (location != null) downloadFileManager.deleteFileByName(entity, true, extracted?.paths.orEmpty(), location.rootUri, location.subPath)
+                }
                 historyDao.delete(fileName)
             }
             transfer?.cancel()
@@ -1024,10 +1060,98 @@ class DownloadService @Inject constructor(
     /** The indexed file behind a download in this process (restored history included). */
     fun entityFor(fileName: String): DownloadableFileEntity? = downloadEntities[fileName]
 
-    /** Names on disk for a finished download: the extracted files, or the file itself. */
-    fun uploadCandidates(fileName: String): List<String> =
-        extractedFilesMap[fileName]?.takeIf { it.isNotEmpty() }
-            ?: listOfNotNull(runCatching { FileParsingUtils.storageFileName(fileName) }.getOrNull())
+    /** Names for queue display only. File access uses the captured package location below. */
+    fun uploadCandidates(fileName: String): List<String> {
+        val entity = downloadEntities[fileName] ?: return emptyList()
+        return extractedFilesMap[gamePackages.identity(entity)]?.paths?.takeIf { it.isNotEmpty() }
+            ?: listOfNotNull(runCatching { FileParsingUtils.storageFileName(entity.fileName) }.getOrNull())
+    }
+
+    /** Capture the original receipt subfolder once; changed settings cannot redirect its paths. */
+    suspend fun downloadedPackageLocation(file: DownloadableFileEntity): DownloadedPackageLocation? {
+        val root = downloadFileManager.getDownloadDirectoryUri(file).toString()
+        if (root.isBlank()) return null
+        val receipt = gamePackages.recordFor(file, setOf(root))
+        if (receipt != null) return DownloadedPackageLocation(receipt.rootUri, receipt.subPath, receipt.parts.map { it.path })
+        // A tracked package whose root moved or receipt is corrupt cannot inherit an unrelated basename.
+        if (gamePackages.hasRecordedIdentity(file, setOf(root))) return null
+        val name = runCatching { FileParsingUtils.storageFileName(file.fileName) }.getOrNull() ?: return null
+        return DownloadedPackageLocation(root, downloadFileManager.getSubPath(file), listOf(name))
+    }
+
+    suspend fun uploadCandidates(file: DownloadableFileEntity): List<String> = downloadedPackageLocation(file)?.paths.orEmpty()
+
+    /** Newly generated playlists become part of the same exact source/root receipt. */
+    suspend fun recordPackageAfterPlaylist(file: DownloadableFileEntity, root: String, subPath: String, paths: List<String>) {
+        val receipt = gamePackages.includeGenerated(file, root, subPath, paths.distinct())
+        extractedFilesMap[gamePackages.identity(file)] = DownloadedPackageLocation(receipt.rootUri, receipt.subPath, receipt.parts.map { it.path })
+    }
+
+    /** Park only interruptible transfers using this exact selected folder, retaining partial bytes. */
+    suspend fun holdStorageUnavailable(rootUri: String) = withContext(Dispatchers.IO) {
+        val key = StorageAvailabilityService.key(rootUri)
+        val entities = downloadEntities.values.toList().filter { entity ->
+            StorageAvailabilityService.key(downloadFileManager.getDownloadDirectoryUri(entity).toString()) == key
+        }
+        for (entity in entities) {
+            currentCoroutineContext().ensureActive()
+            synchronized(startLock) {
+                if (downloadEntities[entity.fileName] != entity) return@synchronized
+                val row = downloads.value.firstOrNull { it.fileName == entity.fileName } ?: return@synchronized
+                if (row.status !in setOf(DownloadStatus.QUEUED, DownloadStatus.DOWNLOADING) ||
+                    !QueueActions.canPause(row.status, entity.isTorrent)) return@synchronized
+                storageHolds.hold(listOf(gamePackages.identity(entity)), rootUri)
+                pauseDownload(entity.fileName, byUser = true)
+            }
+        }
+    }
+
+    /** An unrelated user pause/stop or a changed game source is never offered as storage recovery. */
+    suspend fun resumableStorageDownloads(rootUri: String): List<String> = withContext(Dispatchers.IO) {
+        val rootKey = StorageAvailabilityService.key(rootUri)
+        val held = storageHolds.snapshot()
+        val rows = downloads.value.associateBy { it.fileName }
+        downloadEntities.values.toList().filter { entity ->
+            val row = rows[entity.fileName]
+            (row?.status == DownloadStatus.PAUSED && held[gamePackages.identity(entity)] == rootKey ||
+                row?.status == DownloadStatus.FAILED && row.failure?.category in setOf(
+                    DownloadFailureCategory.STORAGE_PERMISSION, DownloadFailureCategory.STORAGE_WRITE)) &&
+                StorageAvailabilityService.key(downloadFileManager.getDownloadDirectoryUri(entity).toString()) == rootKey &&
+                sourceTrack.permitsManualChoice(entity)
+        }.map { it.fileName }.sorted()
+    }
+
+    /** Explicit recovery rechecks create/write/read first, then revalidates the current queue identities. */
+    suspend fun resumeStorageDownloads(rootUri: String, expectedProfileId: String? = null): Int = withContext(Dispatchers.IO) {
+        val profile = expectedProfileId ?: appSettings.activeProfile.first()
+        appSettings.withActiveProfile(profile) { Unit }
+        if (!storageAvailability.verifyWritable(rootUri)) return@withContext 0
+        val names = resumableStorageDownloads(rootUri)
+        val entities = names.mapNotNull { downloadEntities[it] }
+        val identities = entities.map { gamePackages.identity(it) }
+        val rootKey = StorageAvailabilityService.key(rootUri)
+        currentCoroutineContext().ensureActive()
+        appSettings.withActiveProfile(profile) {
+            val eligible = entities.filter { entity ->
+                downloadEntities[entity.fileName] == entity &&
+                    StorageAvailabilityService.key(downloadFileManager.getDownloadDirectoryUri(entity).toString()) == rootKey &&
+                    sourceTrack.permitsManualChoice(entity)
+            }
+            synchronized(startLock) {
+                val held = storageHolds.snapshot()
+                val rows = downloads.value.associateBy { it.fileName }
+                val fresh = eligible.filter { entity ->
+                    val row = rows[entity.fileName]
+                    downloadEntities[entity.fileName] == entity &&
+                        (row?.status == DownloadStatus.PAUSED && held[gamePackages.identity(entity)] == rootKey ||
+                            row?.status == DownloadStatus.FAILED && row.failure?.category in setOf(
+                                DownloadFailureCategory.STORAGE_PERMISSION, DownloadFailureCategory.STORAGE_WRITE))
+                }
+                storageHolds.release(fresh.map { gamePackages.identity(it) }.filter { it in identities })
+                retryDownloads(fresh.map { it.fileName }, byUser = true)
+            }
+        }
+    }
 
     private suspend fun performTorrentDownload(file: DownloadableFileEntity) {
         Log.d(TAG, "Starting torrent download for ${file.fileName}")
@@ -1100,7 +1224,8 @@ class DownloadService @Inject constructor(
                     context, internalFile, downloadDirUri, subPath, failOnError = true
                 )
                 if (extracted.isNotEmpty()) {
-                    extractedFilesMap[file.fileName] = extracted
+                    gamePackages.record(file, downloadDirUri.toString(), subPath, extracted)
+                    extractedFilesMap[gamePackages.identity(file)] = DownloadedPackageLocation(downloadDirUri.toString(), subPath, extracted)
                 } else {
                     throw DownloadExtractionException()
                 }
@@ -1129,8 +1254,8 @@ class DownloadService @Inject constructor(
                 } finally {
                     if (downloadFileManager.isStagingFile(documentFile)) downloadFileManager.deleteFile(documentFile)
                 }
+                gamePackages.record(file, downloadDirUri.toString(), subPath, listOf(FileParsingUtils.storageFileName(file.fileName)))
             }
-
             // Siblings can share torrent pieces with this file. Keep the native session's
             // backing files until the last tracked sibling releases the handle and its cache.
             torrentDownloadService.finishDownload(file)
@@ -1414,7 +1539,7 @@ class DownloadService @Inject constructor(
             val commitContext = currentCoroutineContext()
             documentFile = downloadFileManager.commitDocumentFile(file, downloadDirUri.toString(), subPath, documentFile, expectedSha256) { commitContext.ensureActive() }
             partials.remove(file.fileName)
-            handlePostDownload(file, documentFile, subPath)
+            handlePostDownload(file, documentFile, downloadDirUri, subPath)
 
         } catch (e: kotlinx.coroutines.CancellationException) {
             if (!keepPartial) documentFile?.takeIf(downloadFileManager::isStagingFile)?.let { downloadFileManager.deleteFile(it) }
@@ -1499,10 +1624,13 @@ class DownloadService @Inject constructor(
     private suspend fun handlePostDownload(
         file: DownloadableFileEntity,
         documentFile: DocumentFile,
+        rootUri: Uri,
         subPath: String
     ) {
         currentCoroutineContext().ensureActive()
         if (!ArchiveUtils.isExtractable(file.fileExtension) || !settingsRepository.autoUnzip.first()) {
+            gamePackages.record(file, rootUri.toString(), subPath,
+                listOf(FileParsingUtils.storageFileName(file.fileName)))
             updateStatus(file.fileName, DownloadStatus.COMPLETED)
             _finished.tryEmit(file.fileName)
             verifyInBackground(file, documentFile)
@@ -1512,10 +1640,11 @@ class DownloadService @Inject constructor(
         updateStatus(file.fileName, DownloadStatus.UNZIPPING)
         try {
             val extracted = archiveExtractorService.extractArchive(
-                context, documentFile.uri, downloadFileManager.getDownloadDirectoryUri(file), subPath, failOnError = true)
+                context, documentFile.uri, rootUri, subPath, failOnError = true)
             if (extracted.isNotEmpty()) {
+                gamePackages.record(file, rootUri.toString(), subPath, extracted)
                 downloadFileManager.deleteFile(documentFile)
-                extractedFilesMap[file.fileName] = extracted
+                extractedFilesMap[gamePackages.identity(file)] = DownloadedPackageLocation(rootUri.toString(), subPath, extracted)
             } else {
                 throw DownloadExtractionException()
             }
@@ -1584,11 +1713,11 @@ class DownloadService @Inject constructor(
      */
     suspend fun openIntentFor(fileName: String): Intent? {
         val entity = downloadEntities[fileName] ?: return null
-        val dirUri = downloadFileManager.getDownloadDirectoryUri(entity)
-        if (dirUri == Uri.EMPTY) return null
-        val dir = StorageHelper.createDirectory(context, dirUri.toString(), downloadFileManager.getSubPath(entity)) ?: return null
+        val location = downloadedPackageLocation(entity) ?: return null
+        val root = StorageHelper.getDocumentFile(context, location.rootUri) ?: return null
+        val dir = if (location.subPath.isBlank()) root else StorageHelper.findFile(root, location.subPath)?.takeIf { it.isDirectory } ?: return null
         val priority = listOf("m3u", "cue", "gdi", "chd", "iso", "pbp", "ccd", "mds")
-        val names = uploadCandidates(fileName).sortedBy { n -> priority.indexOf(n.substringAfterLast('.').lowercase()).let { if (it < 0) priority.size else it } }
+        val names = location.paths.sortedBy { n -> priority.indexOf(n.substringAfterLast('.').lowercase()).let { if (it < 0) priority.size else it } }
         val doc = names.firstNotNullOfOrNull { StorageHelper.findFile(dir, it)?.takeIf { f -> f.isFile } } ?: return null
         return Intent(Intent.ACTION_VIEW)
             .setDataAndType(doc.uri, "application/octet-stream")

@@ -85,6 +85,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -106,6 +107,7 @@ data class ExplorerState(
     val sizing: Boolean = false,
     val problems: List<SetProblem>? = null,
     val recoveries: List<StorageHelper.Recovery> = emptyList(),
+    val storageStatus: com.cortinadev.dogmatix.util.StorageAccessStatus? = null,
     /** A file or folder picked up with "Move": it goes into the folder that is open when "Move here" is pressed. */
     val moving: Pair<DiskEntry, DiskDir>? = null,
     /** Something slow is running (moving, extracting); its description. */
@@ -132,27 +134,34 @@ class FileExplorerViewModel @Inject constructor(
     private val verifiedCopy: com.cortinadev.dogmatix.data.service.VerifiedDocumentCopy,
     private val trash: com.cortinadev.dogmatix.data.service.TrashService,
     private val library: com.cortinadev.dogmatix.data.service.LibraryIndexService,
-    private val moveGate: com.cortinadev.dogmatix.data.service.StorageMoveGate
+    private val moveGate: com.cortinadev.dogmatix.data.service.StorageMoveGate,
+    private val appSettings: com.cortinadev.dogmatix.data.local.AppSettings
 ) : ViewModel() {
     private val _state = MutableStateFlow(ExplorerState())
     val state: StateFlow<ExplorerState> = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
+            kotlinx.coroutines.flow.combine(appSettings.activeProfile, appSettings.profiles) { id, json ->
+                id to com.cortinadev.dogmatix.util.Profiles.restrictionsOf(com.cortinadev.dogmatix.util.Profiles.fromJson(json), id)
+            }.collect { (profile, restrictions) ->
+            _state.value = ExplorerState()
             val roots = buildList {
-                settings.downloadDirectory.first().takeIf { it.isNotBlank() }?.let { DiskScanner.rootOf(it) }
+                settings.downloadDirectory.first().takeIf { !restrictions.active && it.isNotBlank() }?.let { DiskScanner.rootOf(it) }
                     ?.let { add(ExplorerRoot(context.getString(R.string.files_root_downloads), it)) }
                 settings.consoleDownloadDirectories.first().forEach { (consoleId, uri) ->
-                    DiskScanner.rootOf(uri)?.let { add(ExplorerRoot(ConsoleFormatter.getConsoleDisplayName(consoleId), it)) }
+                    if (consoleId !in restrictions.hiddenConsoles && restrictions.hiddenTags.isEmpty())
+                        DiskScanner.rootOf(uri)?.let { add(ExplorerRoot(ConsoleFormatter.getConsoleDisplayName(consoleId), it)) }
                 }
-                settings.saveSyncSavesDir.first().takeIf { it.isNotBlank() }?.let { DiskScanner.rootOf(it) }
+                settings.saveSyncSavesDir.first().takeIf { !restrictions.active && it.isNotBlank() }?.let { DiskScanner.rootOf(it) }
                     ?.let { add(ExplorerRoot(context.getString(R.string.save_sync_saves_folder), it)) }
-                settings.saveSyncStatesDir.first().takeIf { it.isNotBlank() && it != settings.saveSyncSavesDir.first() }?.let { DiskScanner.rootOf(it) }
+                settings.saveSyncStatesDir.first().takeIf { !restrictions.active && it.isNotBlank() && it != settings.saveSyncSavesDir.first() }?.let { DiskScanner.rootOf(it) }
                     ?.let { add(ExplorerRoot(context.getString(R.string.save_sync_states_folder), it)) }
-                settings.esdeDirectory.first().takeIf { it.isNotBlank() }?.let { DiskScanner.rootOf(it) }
+                settings.esdeDirectory.first().takeIf { !restrictions.active && it.isNotBlank() }?.let { DiskScanner.rootOf(it) }
                     ?.let { add(ExplorerRoot(context.getString(R.string.files_root_esde), it)) }
-            }.distinctBy { DiskScanner.canonicalKey(it.dir) }
-            _state.update { it.copy(roots = roots) }
+            }.distinctBy { com.cortinadev.dogmatix.data.service.StorageAvailabilityService.key(DiskScanner.uriOf(it.dir).toString()) }
+            if (appSettings.activeProfile.first() == profile) _state.update { it.copy(roots = roots) }
+            }
         }
     }
 
@@ -177,14 +186,21 @@ class FileExplorerViewModel @Inject constructor(
     fun toggleSort() = _state.update { it.copy(bySize = !it.bySize) }
 
     private fun open(path: List<Pair<String, DiskDir>>) {
-        _state.update { it.copy(path = path, loading = true, folderSize = null, problems = null, recoveries = emptyList()) }
+        val root = path.first().second
+        if (_state.value.roots.none { com.cortinadev.dogmatix.data.service.StorageAvailabilityService.key(DiskScanner.uriOf(it.dir).toString()) == com.cortinadev.dogmatix.data.service.StorageAvailabilityService.key(DiskScanner.uriOf(root).toString()) }) return
+        _state.update { it.copy(path = path, entries = if (it.path == path) it.entries else emptyList(), loading = true, folderSize = null, problems = null, recoveries = emptyList(), storageStatus = null) }
         viewModelScope.launch {
-            val entries = withContext(Dispatchers.IO) { DiskScanner.list(context, path.last().second).filterNot { it.name == ".dogmatix-trash" || it.name.endsWith(".tmp") && it.name.startsWith(".") } }
+            val status = withContext(Dispatchers.IO) { com.cortinadev.dogmatix.data.service.StorageAvailabilityService.probe(context, DiskScanner.uriOf(path.last().second).toString()) }
+            val entries = withContext(Dispatchers.IO) {
+                if (com.cortinadev.dogmatix.util.StorageAvailability.readable(status)) DiskScanner.listOrNull(context, path.last().second, true)?.filterNot { it.name.startsWith(".dogmatix-") || it.name.endsWith(".tmp") && it.name.startsWith(".") }
+                else null
+            }
             val recoveries = withContext(Dispatchers.IO) {
-                StorageHelper.getDocumentFile(context, DiskScanner.uriOf(path.last().second).toString())
+                if (appSettings.activeProfile.first().isNotBlank()) emptyList() else StorageHelper.getDocumentFile(context, DiskScanner.uriOf(path.last().second).toString())
                     ?.let { runCatching { StorageHelper.pendingRecoveries(context, it) }.getOrDefault(emptyList()) }.orEmpty()
             }
-            if (_state.value.path == path) _state.update { it.copy(entries = entries, loading = false, recoveries = recoveries) }
+            if (_state.value.path == path) _state.update { it.copy(entries = entries ?: it.entries, loading = false, recoveries = recoveries,
+                storageStatus = if (entries == null && com.cortinadev.dogmatix.util.StorageAvailability.readable(status)) com.cortinadev.dogmatix.util.StorageAccessStatus.UNAVAILABLE else status) }
         }
     }
 
@@ -352,10 +368,13 @@ class FileExplorerViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 withContext(Dispatchers.IO) {
-                    moveGate.lock.withLock {
+                    appSettings.withActiveProfile("") { moveGate.lock.withLock {
+                        check(appSettings.activeProfile.first().isBlank()) { "Unowned receipt unavailable in this profile" }
+                        check(_state.value.path.lastOrNull()?.second == dir && recovery in _state.value.recoveries)
+                        check(com.cortinadev.dogmatix.util.StorageAvailability.writable(com.cortinadev.dogmatix.data.service.StorageAvailabilityService.probe(context, DiskScanner.uriOf(dir).toString())))
                         val folder = StorageHelper.getDocumentFile(context, DiskScanner.uriOf(dir).toString()) ?: error("Folder unavailable")
                         StorageHelper.restoreRecovery(context, folder, recovery)
-                    }
+                    } }
                 }
                 ToastUtil.showSuccess(context, context.getString(R.string.recovery27_done, recovery.fileName))
             } catch (e: kotlinx.coroutines.CancellationException) { throw e }
@@ -399,7 +418,7 @@ class FileExplorerViewModel @Inject constructor(
 }
 
 @Composable
-fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
+fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel(), onNavigate: (String) -> Unit = {}) {
     val ui by viewModel.state.collectAsState()
     val context = LocalContext.current
     var selected by remember { mutableStateOf<DiskEntry?>(null) }
@@ -467,6 +486,9 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
             Breadcrumb(ui.path.map { it.first })
         }
         LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 16.dp), modifier = Modifier.fillMaxSize()) {
+            item(key = "recovery-hub") {
+                ToolRow(stringResource(R.string.road28_recovery_title), listOf(stringResource(R.string.road28_recovery_hint)), { onNavigate("recovery") }, icon = R.drawable.ic_history, chevron = true)
+            }
             if (ui.atRoots) {
                 if (ui.roots.isEmpty()) item { InfoCard(listOf(stringResource(R.string.tools_no_folder)), icon = R.drawable.ic_folder_open) }
                 items(ui.roots, key = { "root:" + it.label }) { root ->
@@ -476,6 +498,12 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
                         icon = R.drawable.ic_folder, chevron = true)
                 }
             } else {
+                if (ui.storageStatus != null && !com.cortinadev.dogmatix.util.StorageAvailability.writable(ui.storageStatus!!)) item(key = "storage-status") {
+                    ToolRow(stringResource(if (ui.storageStatus == com.cortinadev.dogmatix.util.StorageAccessStatus.READ_ONLY) R.string.road28_storage_read_only else R.string.road28_storage_unavailable),
+                        listOf(stringResource(R.string.road28_storage_cached)), { viewModel.refresh() }, icon = R.drawable.ic_folder_open) {
+                        ToolAction(stringResource(R.string.road28_storage_check)) { viewModel.refresh() }
+                    }
+                }
                 ui.moving?.let { (entry, _) ->
                     item(key = "moving") {
                         ToolRow(

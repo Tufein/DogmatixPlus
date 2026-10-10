@@ -121,10 +121,15 @@ class RommUploadService @Inject constructor(
             Log.i(TAG, "No RomM platform mapped for ${file.consoleId}; skipping ${file.fileName}")
             return
         }
-        val names = downloadService.uploadCandidates(fileName)
         _uploads.update { it + (fileName to UploadState(UploadStatus.UPLOADING)) }
         uploadLock.withLock {
-            val result = runCatching { uploadAll(file, names, platformId) }
+            var names = emptyList<String>()
+            val result = runCatching {
+                val location = downloadService.downloadedPackageLocation(file)
+                    ?: throw RommException(context.getString(R.string.romm_upload_files_missing))
+                names = location.paths
+                uploadAll(file, location, platformId)
+            }
             _uploads.update {
                 it + (fileName to result.fold(
                     onSuccess = {
@@ -137,11 +142,11 @@ class RommUploadService @Inject constructor(
         }
     }
 
-    private suspend fun uploadAll(file: DownloadableFileEntity, names: List<String>, platformId: Int) {
-        val dirUri = downloadFileManager.getDownloadDirectoryUri(file)
-        if (dirUri == Uri.EMPTY) throw RommException("Download directory not accessible")
-        val directory = StorageHelper.createDirectory(context, dirUri.toString(), downloadFileManager.getSubPath(file))
+    private suspend fun uploadAll(file: DownloadableFileEntity, location: DownloadedPackageLocation, platformId: Int) {
+        val root = StorageHelper.getDocumentFile(context, location.rootUri) ?: throw RommException("Download directory not accessible")
+        val directory = if (location.subPath.isBlank()) root else StorageHelper.findFile(root, location.subPath)?.takeIf { it.isDirectory }
             ?: throw RommException("Could not open the download folder")
+        val names = location.paths
         if (names.isEmpty() || names.any { !StorageHelper.safeRelativePath(it) })
             throw RommException(context.getString(R.string.romm_upload_files_missing))
         // Resolve every file before starting any server session: a missing track cannot turn

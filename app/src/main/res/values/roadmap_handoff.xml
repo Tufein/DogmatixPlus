@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="handoff_title">Switch devices safely</string>
+    <string name="handoff_hint">Check the current in-game saves on this device and RomM. A transfer keeps verified safety copies and checks both sides again.</string>
+    <string name="handoff_states_excluded">Emulator save states are excluded. In-game save formats still require a compatible emulator and the same game version on the other device.</string>
+    <string name="handoff_failed">Transfer was not completed. Check the RomM connection, console mapping, save folders and active profile. Resolve conflicts before checking again.</string>
+    <string name="handoff_no_saves">No matching in-game saves were found.</string>
+    <string name="handoff_upload">Send to RomM</string>
+    <string name="handoff_download">Bring to this device</string>
+    <string name="handoff_identical">Same contents on both sides</string>
+    <string name="handoff_conflict">Both sides differ: choose a version first</string>
+    <string name="handoff_ambiguous">Save path is ambiguous</string>
+    <string name="handoff_ready">Saves match and safety copies have been verified.</string>
+    <string name="handoff_next_device">On the other device, open this game, check the saves and complete its transfer before playing. This check covers the current device and server.</string>
+    <string name="handoff_transfer">Synchronize and verify</string>
+    <string name="handoff_resolve_first">Resolve conflicts in Cloud saves / Save sync first. An ambiguous emulator folder must be selected explicitly.</string>
+    <string name="handoff_check">Check current saves</string>
+    <string name="handoff_confirm">Verify %1$d save files and synchronize the changes shown above? Copies of replaced files are kept first. Nothing is deleted; emulator states are excluded.</string>
+    <string name="handoff_too_large">Device handoff supports in-game saves up to 16 MiB. Use Save sync for larger files.</string>
+</resources>

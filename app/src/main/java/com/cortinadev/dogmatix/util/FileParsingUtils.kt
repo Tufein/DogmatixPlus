@@ -162,7 +162,9 @@ object FileParsingUtils {
             ?: row.getElementsByTag("a").firstOrNull()
 
     private fun sizeCellOf(row: Element): Element? =
-        row.getElementsByClass("size").firstOrNull { it.tagName() == "td" } ?: row.getElementsByTag("td").getOrNull(1)
+        row.getElementsByClass("size").firstOrNull { it.tagName() == "td" }
+            ?: row.getElementsByClass("fb-s").firstOrNull { it.tagName() == "td" }
+            ?: row.getElementsByTag("td").getOrNull(1)
 
     fun parseFileFromRow(row: Element, baseUrl: String, consoleId: String, link: Element? = null): Pair<DownloadableFileEntity?, List<FileTagEntity>> {
         val linkCell = link ?: linkOf(row)

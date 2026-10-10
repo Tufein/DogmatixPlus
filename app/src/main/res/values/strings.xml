@@ -1324,10 +1324,11 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>See the automatic retry countdown, try now or cancel, and keep download failure details after restarting.</item>
-        <item>Save download speed, concurrency and scheduling presets; confirm another source for a stalled or failed file.</item>
-        <item>Share and import download plans with an ordered selection, per-file conditions and a review before starting.</item>
-        <item>Choose an emulator for each game and profile, with the console default as fallback.</item>
+        <item>Choose optional Libretro content collections for 23 systems without replacing your sources.</item>
+        <item>Keep complete game packages after a restart and check whether collections are ready for offline play.</item>
+        <item>Review recovery copies in one place and explicitly resume downloads after storage returns.</item>
+        <item>Keep personal notes, screenshots and manuals per game and profile, with notes in your backups.</item>
+        <item>Prepare ordinary game saves before switching devices; unresolved conflicts block the handoff.</item>
     </string-array>
 
     <!-- 4.0 -->

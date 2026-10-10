@@ -13,6 +13,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
+        <activity android:name="com.cortinadev.dogmatix.JournalGrantReceiverActivity" android:exported="false" android:theme="@android:style/Theme.Material.Light.NoActionBar" />
         <activity-alias
             android:name="${applicationId}.MainActivity"
             android:exported="true"

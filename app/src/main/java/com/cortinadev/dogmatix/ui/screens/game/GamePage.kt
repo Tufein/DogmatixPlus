@@ -647,6 +647,7 @@ private fun TabContent(
             Tab.ABOUT -> {
                 GameFacts(state)
                 GameDescription(state)
+                GameJournalSection(rom.consoleId, rom.fileName)
                 // RomM's summary, genres, screenshots, play status and rating (draws nothing without RomM).
                 RommGameSection(
                     consoleId = rom.consoleId,

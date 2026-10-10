@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="journal_title">Diário de jogo</string>
+    <string name="journal_hint">As notas pertencem a este jogo e perfil. As cópias guardam notas e nomes dos anexos; escolha novamente imagens e manuais PDF noutro dispositivo.</string>
+    <string name="journal_empty">Ainda sem notas.</string>
+    <string name="journal_edit">Editar notas</string>
+    <string name="journal_recovered">Nota recuperada de uma cópia</string>
+    <string name="journal_use_note">Editar esta nota recuperada</string>
+    <string name="journal_choose_again">Escolha novamente este anexo. O ficheiro original permanece no seu dispositivo.</string>
+    <string name="journal_open">Abrir</string>
+    <string name="journal_reselect">Escolher novamente</string>
+    <string name="journal_remove">Remover referência</string>
+    <string name="journal_add_image">Adicionar captura</string>
+    <string name="journal_add_manual">Adicionar manual PDF</string>
+    <string name="journal_failed">Não foi possível guardar ou abrir o diário. Recarregue-o ou escolha uma imagem PNG, JPEG ou WebP legível (até 12 MB) ou um PDF (até 32 MB).</string>
+    <string name="journal_reload">Recarregar diário</string>
+    <string name="journal_note">Notas</string>
+    <string name="journal_save">Guardar notas</string>
+    <string name="journal_remove_hint">Remover do diário a referência a %1$s? O ficheiro original permanece intacto.</string>
+</resources>

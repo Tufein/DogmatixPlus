@@ -6,7 +6,7 @@
 
 DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Quellen, die *du* hinzufügst, lädt sie in die richtigen Ordner herunter und hilft dir, deine Sammlung in Ordnung zu halten. Es funktioniert per Touch *und* mit einem Game-Controller und passt deshalb gut zu Handhelds wie Retroid, Anbernic oder Kinhank.
 
-> **Die App enthält keine Spiele und keine Download-Links.** Du fügst deine eigenen Quellen hinzu, und du bist dafür verantwortlich, nur das herunterzuladen, was du besitzen darfst.
+> **Die App enthält keine Spiele.** Füge eigene Quellen hinzu oder wähle optionale Sammlungen unter **Quellen → Mehr Romsets**: Homebrew, Demos und Testsoftware vom Herausgeber. Du bleibst für deine Downloads verantwortlich.
 
 <table>
   <tr>

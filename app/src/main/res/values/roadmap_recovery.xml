@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="road28_recovery_title">Recovery centre</string>
+    <string name="road28_recovery_hint">Check storage, interrupted moves, trash and save copies here. Every recovery needs your confirmation.</string>
+    <string name="road28_recovery_preview">Review recovery</string>
+    <string name="road28_recovery_keep_current">Existing files are preserved when they differ from the recovery copy. Move cleanup removes originals only after their destination is verified.</string>
+    <string name="road28_recovery_from">From: %1$s</string>
+    <string name="road28_recovery_to">To: %1$s</string>
+    <string name="road28_recovery_folder">Selected folder</string>
+    <string name="road28_recovery_replacements">Interrupted file replacements</string>
+    <string name="road28_recovery_saves">Save safety copies</string>
+    <string name="road28_recovery_save_protected">The current save is copied and verified before this version is restored. Cloud synchronization needs a fresh comparison afterwards.</string>
+    <string name="road28_recovery_partial">Some folders could not be checked, or the scan limit was reached. Open the specific folder in Files to check further.</string>
+    <string name="road28_storage_check">Check storage and copies</string>
+    <string name="road28_storage_available">Storage available</string>
+    <string name="road28_storage_returned">Storage is back. Transfers stay paused until you resume them.</string>
+    <string name="road28_storage_read_only">Storage is read-only</string>
+    <string name="road28_storage_permission">Folder access was lost. Select the folder again in Settings.</string>
+    <string name="road28_storage_unavailable">Storage is unavailable. Reconnect it and check again.</string>
+    <string name="road28_storage_paused">%1$d transfers paused for this folder</string>
+    <string name="road28_storage_resume">Resume these transfers</string>
+    <string name="road28_storage_settings">Folder settings</string>
+    <string name="road28_storage_cached">The last listing is kept. Reconnect the storage and check again before changing files.</string>
+</resources>

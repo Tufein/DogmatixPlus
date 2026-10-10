@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="handoff_title">Veilig van toestel wisselen</string>
+    <string name="handoff_hint">Controleer de huidige gewone saves op dit toestel en RomM. De overdracht bewaart gecontroleerde herstelkopieën en vergelijkt beide kanten opnieuw.</string>
+    <string name="handoff_states_excluded">Emulatorbewaarstanden worden uitgesloten. Gewone saves vereisen op het andere toestel een geschikte emulator en dezelfde gameversie.</string>
+    <string name="handoff_failed">De overdracht is niet afgerond. Controleer RomM, de consolekoppeling, savemappen en het actieve profiel. Los conflicten op en controleer opnieuw.</string>
+    <string name="handoff_no_saves">Geen passende gewone saves gevonden.</string>
+    <string name="handoff_upload">Naar RomM sturen</string>
+    <string name="handoff_download">Naar dit toestel halen</string>
+    <string name="handoff_identical">Dezelfde inhoud aan beide kanten</string>
+    <string name="handoff_conflict">Beide kanten verschillen: kies eerst een versie</string>
+    <string name="handoff_ambiguous">De savemap is niet eenduidig</string>
+    <string name="handoff_ready">Saves zijn gelijk en herstelkopieën zijn gecontroleerd.</string>
+    <string name="handoff_next_device">Open deze game op het andere toestel, controleer de saves en rond daar de overdracht af vóór het spelen. Deze controle geldt voor dit toestel en de server.</string>
+    <string name="handoff_transfer">Synchroniseren en controleren</string>
+    <string name="handoff_resolve_first">Los eerst conflicten op bij Cloudsaves of Savesynchronisatie. Kies bij twijfel expliciet de juiste emulatormap.</string>
+    <string name="handoff_check">Huidige saves controleren</string>
+    <string name="handoff_confirm">%1$d saves controleren en de bovenstaande wijzigingen synchroniseren? Vervangen bestanden krijgen eerst een herstelkopie. Er wordt niets verwijderd; emulatorbewaarstanden zijn uitgesloten.</string>
+    <string name="handoff_too_large">Apparaatoverdracht ondersteunt gewone saves tot 16 MiB. Gebruik Saves synchroniseren voor grotere bestanden.</string>
+</resources>

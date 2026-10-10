@@ -1323,10 +1323,11 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Bekijk wanneer een download opnieuw probeert, probeer direct of annuleer; foutmeldingen blijven na een herstart bewaard.</item>
-        <item>Bewaar downloadinstellingen voor snelheid, gelijktijdige downloads en planning; bevestig een andere bron voor een vastgelopen bestand.</item>
-        <item>Deel en importeer downloadplannen met selectievolgorde, voorwaarden per bestand en controle vóór het starten.</item>
-        <item>Kies per game en profiel een emulator, met de consolestandaard als terugval.</item>
+        <item>Kies optionele Libretro-contentcollecties voor 23 systemen zonder je bronnen te vervangen.</item>
+        <item>Bewaar complete gamepakketten na een herstart en controleer of collecties offline speelbaar zijn.</item>
+        <item>Bekijk herstelkopieën op één plek en hervat downloads bewust wanneer de opslag terug is.</item>
+        <item>Bewaar persoonlijke notities, screenshots en handleidingen per game en profiel; notities gaan mee in backups.</item>
+        <item>Bereid gewone saves voor voordat je van toestel wisselt; onopgeloste conflicten blokkeren de overdracht.</item>
     </string-array>
 
     <!-- 4.0 -->

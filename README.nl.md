@@ -6,7 +6,7 @@
 
 DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronnen die *jij* toevoegt, downloadt ze in de juiste mappen en helpt je om je collectie netjes te houden. Het werkt met het touchscreen *en* met een gamecontroller, dus het is ook op handhelds zoals de Retroid, Anbernic of Kinhank helemaal op zijn plek.
 
-> **De app wordt zonder games of downloadlinks geleverd.** Je voegt je eigen bronnen toe en je bent er zelf verantwoordelijk voor dat je alleen downloadt wat je mag hebben.
+> **De app bevat geen games.** Voeg je eigen bronnen toe of kies optionele collecties via **Bronnen → Meer romsets**. Die catalogus verwijst naar door de uitgever aangeboden homebrew, demo’s en testsoftware. Je blijft zelf verantwoordelijk voor wat je downloadt.
 
 <table>
   <tr>
@@ -32,6 +32,16 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 ---
 
 ## Wat kan het?
+
+### Nieuw in 2.8.0
+
+- Kies optionele romsets voor **23 systemen**, naast je bestaande bronnen. De controle van 10 oktober 2026 vond **134 bestanden**; dit is geen aantal volledige commerciële games.
+- Eén herstelcentrum voor prullenbak, onderbroken verplaatsingen, vervangingskopieën en savebackups. Bekijk eerst welke bestanden worden hersteld.
+- Controleer verdwenen opslag en hervat alleen de bijbehorende downloads nadat de map weer leesbaar en schrijfbaar is.
+- Complete gamepakketten bewaren hun discs, tracks en submappen na herstart. Offline collecties tonen welke games nog bestanden, BIOS of een emulator missen.
+- Bewaar persoonlijke notities, screenshots en handleidingen per game en profiel. Bereid een toestelwissel voor met een gecontroleerde overdracht van gewone saves.
+- De [volledige roadmap](docs/ROADMAP.md) bevat de toestel- en servertests voor de bredere Reddit-release; het [Reddit-concept](docs/community/reddit-launch-draft.md) staat klaar voor verdere uitwerking.
+- Android build **40**, database **15**. Zie [release-informatie](docs/release-notes/v2.8.0.md).
 
 ### Nieuw in 2.7.0
 

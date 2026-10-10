@@ -1,0 +1,19 @@
+<resources>
+    <string name="pkg28_registered">Vollständiges Spielpaket · %1$d Dateien</string>
+    <string name="pkg28_incomplete">Spielpaket benötigt Prüfung · %1$d erwartete Dateien</string>
+    <string name="off28_check">Bereit zum Offline-Spielen?</string>
+    <string name="off28_hint">Spieldateien, Discs, BIOS und installierte Emulatoren prüfen. Es wird nichts heruntergeladen oder gestartet.</string>
+    <string name="off28_report_title">Offline-Spielprüfung</string>
+    <string name="off28_loading">Dateien und Spielpakete werden geprüft…</string>
+    <string name="off28_failed">Die Prüfung konnte nicht abgeschlossen werden. Erneut versuchen, sobald die Ordner verfügbar sind.</string>
+    <string name="off28_summary">Bereit: %1$d von %2$d Spielen</string>
+    <string name="off28_limited">Noch nicht geprüft: %1$d Spiele. Diese Prüfung verarbeitet höchstens 300 Spiele.</string>
+    <string name="off28_ready">Bereit zum Offline-Spielen</string>
+    <string name="off28_attention">Prüfung erforderlich</string>
+    <string name="off28_unavailable">Dieses Spiel ist nicht mehr in den eingerichteten Quellen aufgeführt.</string>
+    <string name="off28_legacy">Älterer Download: Dateien und Disc-Verweise geprüft; ursprüngliche Paketprüfsummen fehlen.</string>
+    <string name="off28_verified">Verifizierte Paketdateien: %1$d</string>
+    <string name="off28_files_missing">Fehlende, geänderte oder nicht lesbare Paketdateien:</string>
+    <string name="off28_more">Weitere Dateien: %1$d</string>
+    <string name="off28_remaining">Noch zu prüfen: %1$d Spiele</string>
+</resources>

@@ -178,6 +178,7 @@ fun GameDetailsDialog(
     LaunchedEffect(rom.id) { scroll.scrollTo(0) }
     val similarSection: @Composable ColumnScope.() -> Unit = {
         if (onOpenSimilar != null) SimilarSection(similar, onOpenSimilar)
+        com.cortinadev.dogmatix.ui.screens.game.GameJournalSection(rom.consoleId, rom.fileName)
     }
 
     val (frontUrl, backdropUrl) = rememberGameArt(state)

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="road28_recovery_title">Wiederherstellungszentrum</string>
+    <string name="road28_recovery_hint">Speicher, unterbrochene Verschiebungen, Papierkorb und Spielstandkopien prüfen. Jede Wiederherstellung erfordert deine Bestätigung.</string>
+    <string name="road28_recovery_preview">Wiederherstellung prüfen</string>
+    <string name="road28_recovery_keep_current">Vorhandene Dateien bleiben erhalten, wenn sie von der Kopie abweichen. Bei Verschiebungen werden Originale erst nach Prüfung des Ziels entfernt.</string>
+    <string name="road28_recovery_from">Von: %1$s</string>
+    <string name="road28_recovery_to">Nach: %1$s</string>
+    <string name="road28_recovery_folder">Ausgewählter Ordner</string>
+    <string name="road28_recovery_replacements">Unterbrochene Dateiersetzungen</string>
+    <string name="road28_recovery_saves">Sicherheitskopien der Spielstände</string>
+    <string name="road28_recovery_save_protected">Der aktuelle Spielstand wird vor der Wiederherstellung kopiert und geprüft. Die Cloud-Synchronisierung muss danach erneut vergleichen.</string>
+    <string name="road28_recovery_partial">Einige Ordner konnten nicht geprüft werden oder das Suchlimit wurde erreicht. Öffne den betreffenden Ordner unter Dateien.</string>
+    <string name="road28_storage_check">Speicher und Kopien prüfen</string>
+    <string name="road28_storage_available">Speicher verfügbar</string>
+    <string name="road28_storage_returned">Speicher ist wieder da. Übertragungen bleiben bis zum Fortsetzen pausiert.</string>
+    <string name="road28_storage_read_only">Speicher ist schreibgeschützt</string>
+    <string name="road28_storage_permission">Der Ordnerzugriff ging verloren. Wähle den Ordner in den Einstellungen erneut aus.</string>
+    <string name="road28_storage_unavailable">Speicher nicht verfügbar. Verbinde ihn erneut und prüfe noch einmal.</string>
+    <string name="road28_storage_paused">%1$d Übertragungen für diesen Ordner pausiert</string>
+    <string name="road28_storage_resume">Diese Übertragungen fortsetzen</string>
+    <string name="road28_storage_settings">Ordnereinstellungen</string>
+    <string name="road28_storage_cached">Die letzte Dateiliste bleibt erhalten. Verbinde und prüfe den Speicher, bevor du Dateien änderst.</string>
+</resources>

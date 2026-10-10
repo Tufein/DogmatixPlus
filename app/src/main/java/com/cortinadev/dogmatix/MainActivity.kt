@@ -59,6 +59,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import android.net.Uri
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.service.DownloadService
 import com.cortinadev.dogmatix.data.service.GameMetadataService
@@ -164,6 +166,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var saveSyncService: SaveSyncService
     @Inject lateinit var appSettings: AppSettings
     @Inject lateinit var downloadService: DownloadService
+    @Inject lateinit var storageAvailability: com.cortinadev.dogmatix.data.service.StorageAvailabilityService
     @Inject lateinit var metadataService: GameMetadataService
     @Inject lateinit var lookSettings: LookSettings
     @Inject lateinit var tvModeSettings: TvModeSettings
@@ -175,6 +178,22 @@ class MainActivity : AppCompatActivity() {
         hideSystemBars()
         Gamepad.startWatching(this)
         handleDeepLink(intent)
+        // While visible, report disconnected folders and park only their interruptible downloads.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                withContext(Dispatchers.IO) {
+                    while (true) {
+                        try {
+                            storageAvailability.recheck().filter {
+                                it.location.downloadRoot && !com.cortinadev.dogmatix.util.StorageAvailability.writable(it.status)
+                            }.forEach { downloadService.holdStorageUnavailable(it.location.uri) }
+                        } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                        catch (_: Exception) { android.util.Log.w("StorageAvailability", "Storage check could not finish") }
+                        kotlinx.coroutines.delay(15_000)
+                    }
+                }
+            }
+        }
         // Downloads that were cut off when the app closed join the queue again (once per run).
         lifecycleScope.launch {
             val n = downloadService.requeueInterrupted()
@@ -577,7 +596,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.Storage.route) { StorageScreen() }
                     composable(NavRoutes.Wishlist.route) { WishlistScreen(navController) }
                     composable(NavRoutes.Frontends.route) { FrontendCheckScreen(navController) }
-                    composable(NavRoutes.Files.route) { FileExplorerScreen() }
+                    composable(NavRoutes.Files.route) { FileExplorerScreen(onNavigate = { navController.navigate(it) }) }
                     composable(NavRoutes.Collections.route) { CollectionsScreen(navController) }
                     composable(NavRoutes.Switch.route) { SwitchScreen() }
                     composable(NavRoutes.Dat.route) { DatScreen(navController) }

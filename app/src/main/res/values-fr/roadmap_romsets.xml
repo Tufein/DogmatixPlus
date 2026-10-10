@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="romset28_title">Plus de collections de ROM</string>
+    <string name="romset28_hint">Choisissez les collections Libretro. Elles contiennent des créations indépendantes, des démos et des logiciels de test, pas des collections commerciales complètes. Vos sources restent conservées.</string>
+    <string name="romset28_short_hint">Découvrez des collections facultatives pour davantage de systèmes.</string>
+    <string name="romset28_browse">Voir les collections</string>
+    <string name="romset28_checked">Répertoires %1$s vérifiés le %2$s</string>
+    <string name="romset28_search">Rechercher une console</string>
+    <string name="romset28_failed">Impossible de charger ou d’ajouter ces sources. Réessayez.</string>
+    <string name="romset28_added_count">%1$d collections ajoutées. Leurs sources sont en cours d’analyse.</string>
+    <string name="romset28_add">Ajouter la sélection (%1$d)</string>
+    <string name="romset28_no_match">Aucune console correspondante</string>
+    <string name="romset28_already_added">Déjà ajoutée (son activation reste inchangée)</string>
+    <string name="romset28_files">%1$d fichiers lors de la dernière vérification</string>
+</resources>

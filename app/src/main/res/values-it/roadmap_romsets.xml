@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="romset28_title">Altre raccolte di ROM</string>
+    <string name="romset28_hint">Scegli le raccolte Libretro. Contengono homebrew, demo e software di test; non sono raccolte commerciali complete. Le tue fonti vengono conservate.</string>
+    <string name="romset28_short_hint">Scopri raccolte facoltative per altri sistemi.</string>
+    <string name="romset28_browse">Mostra raccolte</string>
+    <string name="romset28_checked">Elenchi %1$s controllati il %2$s</string>
+    <string name="romset28_search">Cerca console</string>
+    <string name="romset28_failed">Impossibile caricare o aggiungere queste fonti. Riprova.</string>
+    <string name="romset28_added_count">Aggiunte %1$d raccolte. Le loro fonti vengono analizzate.</string>
+    <string name="romset28_add">Aggiungi selezione (%1$d)</string>
+    <string name="romset28_no_match">Nessuna console corrispondente</string>
+    <string name="romset28_already_added">Già aggiunta (la sua attivazione viene conservata)</string>
+    <string name="romset28_files">%1$d file nell’ultimo controllo</string>
+</resources>

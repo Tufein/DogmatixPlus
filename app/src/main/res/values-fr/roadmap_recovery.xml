@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="road28_recovery_title">Centre de récupération</string>
+    <string name="road28_recovery_hint">Vérifie le stockage, les déplacements interrompus, la corbeille et les copies de sauvegarde. Chaque récupération demande ta confirmation.</string>
+    <string name="road28_recovery_preview">Vérifier la récupération</string>
+    <string name="road28_recovery_keep_current">Les fichiers existants sont conservés s\'ils diffèrent de la copie. Lors d\'un déplacement, les originaux ne sont supprimés qu\'après vérification de la destination.</string>
+    <string name="road28_recovery_from">Depuis : %1$s</string>
+    <string name="road28_recovery_to">Vers : %1$s</string>
+    <string name="road28_recovery_folder">Dossier choisi</string>
+    <string name="road28_recovery_replacements">Remplacements de fichiers interrompus</string>
+    <string name="road28_recovery_saves">Copies de sécurité des sauvegardes</string>
+    <string name="road28_recovery_save_protected">La sauvegarde actuelle est copiée et vérifiée avant la restauration. La synchronisation cloud devra ensuite refaire une comparaison.</string>
+    <string name="road28_recovery_partial">Certains dossiers n\'ont pas pu être vérifiés ou la limite de recherche est atteinte. Ouvre le dossier concerné dans Fichiers.</string>
+    <string name="road28_storage_check">Vérifier le stockage et les copies</string>
+    <string name="road28_storage_available">Stockage disponible</string>
+    <string name="road28_storage_returned">Le stockage est revenu. Les transferts restent en pause jusqu\'à leur reprise.</string>
+    <string name="road28_storage_read_only">Stockage en lecture seule</string>
+    <string name="road28_storage_permission">L\'accès au dossier est perdu. Choisis-le à nouveau dans les paramètres.</string>
+    <string name="road28_storage_unavailable">Stockage indisponible. Reconnecte-le et vérifie à nouveau.</string>
+    <string name="road28_storage_paused">%1$d transferts en pause pour ce dossier</string>
+    <string name="road28_storage_resume">Reprendre ces transferts</string>
+    <string name="road28_storage_settings">Paramètres des dossiers</string>
+    <string name="road28_storage_cached">La dernière liste est conservée. Reconnecte et vérifie le stockage avant de modifier les fichiers.</string>
+</resources>

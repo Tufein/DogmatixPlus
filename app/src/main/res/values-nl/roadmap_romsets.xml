@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="romset28_title">Meer romsets</string>
+    <string name="romset28_hint">Kies Libretro-contentcollecties. Ze bevatten homebrew, demo’s en testsoftware; het zijn geen volledige commerciële romsets. Je bestaande bronnen blijven behouden.</string>
+    <string name="romset28_short_hint">Bekijk optionele contentcollecties voor meer systemen.</string>
+    <string name="romset28_browse">Romsets bekijken</string>
+    <string name="romset28_checked">%1$s-bronnen gecontroleerd op %2$s</string>
+    <string name="romset28_search">Console zoeken</string>
+    <string name="romset28_failed">Deze bronnen konden niet worden geladen of toegevoegd. Probeer opnieuw.</string>
+    <string name="romset28_added_count">%1$d collecties toegevoegd. Hun bronnen worden gescand.</string>
+    <string name="romset28_add">Selectie toevoegen (%1$d)</string>
+    <string name="romset28_no_match">Geen passende consoles</string>
+    <string name="romset28_already_added">Al toegevoegd (de aan/uit-instelling blijft behouden)</string>
+    <string name="romset28_files">%1$d bestanden bij de laatste controle</string>
+</resources>
