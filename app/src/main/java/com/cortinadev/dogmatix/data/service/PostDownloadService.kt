@@ -55,19 +55,29 @@ class PostDownloadService @Inject constructor(
         val base = downloadFileManager.getDownloadDirectoryUri(entity).toString().takeIf { it.isNotEmpty() } ?: return
         val subPath = downloadFileManager.getSubPath(entity)
         val dir = StorageHelper.createDirectory(context, base, subPath) ?: return
-        var romName = downloadService.uploadCandidates(fileName).firstOrNull() ?: return
+        val candidates = downloadService.uploadCandidates(fileName).filter(StorageHelper::safeRelativePath)
+        val priority = listOf("m3u", "cue", "gdi", "chd", "iso", "pbp", "ccd", "mds")
+        var romName = candidates.sortedBy { path -> priority.indexOf(path.substringAfterLast('.').lowercase()).takeIf { it >= 0 } ?: priority.size }.firstOrNull() ?: return
 
         if (appSettings.autoM3u.first()) {
-            val children = dir.listFiles().filter { it.isFile }
-            val files = children.map {
-                DiskFile(scope = "", consoleId = entity.consoleId, folder = subPath, name = it.name.orEmpty(), size = it.length(),
-                    uri = it.uri.toString(), dirId = dir.uri.toString(), dirUri = dir.uri.toString())
-            }
-            val mine = downloadService.uploadCandidates(fileName).map { it.lowercase() }.toSet()
-            PlaylistPlanner.plan(files).filter { plan -> plan.discs.any { it.lowercase() in mine } }.forEach { plan ->
-                if (libraryTools.createPlaylist(plan)) {
-                    Log.i(TAG, "Wrote ${plan.fileName}")
-                    romName = plan.fileName
+            // Retain each archive folder's disc relationships. Never combine unrelated games
+            // from separate folders merely because an archive happened to contain them both.
+            for ((parentPath, paths) in candidates.groupBy { it.substringBeforeLast('/', "") }) {
+                val parent = if (parentPath.isEmpty()) dir else StorageHelper.findFile(dir, parentPath)?.takeIf { it.isDirectory } ?: continue
+                val children = parent.listFiles().filter { it.isFile }
+                val files = children.map {
+                    DiskFile(scope = "", consoleId = entity.consoleId, folder = listOf(subPath, parentPath).filter(String::isNotEmpty).joinToString("/"), name = it.name.orEmpty(), size = it.length(),
+                        uri = it.uri.toString(), dirId = parent.uri.toString(), dirUri = parent.uri.toString())
+                }
+                val mine = paths.map { it.substringAfterLast('/').lowercase() }.toSet()
+                PlaylistPlanner.plan(files).filter { plan -> plan.discs.any { it.lowercase() in mine } }.forEach { plan ->
+                    if (libraryTools.createPlaylist(plan)) {
+                        Log.i(TAG, "Wrote ${plan.fileName}")
+                        if (romName.substringBeforeLast('/', "") == parentPath &&
+                            plan.discs.any { it.equals(romName.substringAfterLast('/'), ignoreCase = true) }) {
+                            romName = listOf(parentPath, plan.fileName).filter(String::isNotEmpty).joinToString("/")
+                        }
+                    }
                 }
             }
         }
@@ -75,7 +85,7 @@ class PostDownloadService @Inject constructor(
         // ES-DE names its systems after the console folders of the shared ROM tree.
         if (appSettings.esdeArtwork.first()) writeEsdeArtwork(entity.name, entity.consoleId, entity.fileName, dir.name.orEmpty(), romName)
         if (appSettings.pegasusArtwork.first()) writePegasusCover(entity.name, entity.consoleId, entity.fileName, dir, romName)
-        appSettings.retroArchThumbnailsDir.first().takeIf { it.isNotBlank() }?.let { writeRetroArchCover(it, entity.consoleId, entity.fileName, romName) }
+        appSettings.retroArchThumbnailsDir.first().takeIf { it.isNotBlank() }?.let { writeRetroArchCover(it, entity.consoleId, entity.fileName, romName.substringAfterLast('/')) }
         // 7.0: description, genre, year, developer and rating into ES-DE's gamelist / Pegasus' metadata (only with "after every download" on).
         frontendMetadata.writeAfterDownload(entity.name, entity.consoleId, romName, dir, dir.name.orEmpty())
     }

@@ -20,6 +20,7 @@ object AutoRetry {
     /** A dropped or refused connection or a server that may recover; anything else is left to the user. */
     fun isTemporary(error: Throwable): Boolean = when (error) {
         is HttpStatusException -> temporaryStatus(error.code)
+        is DownloadVerificationException, is StorageException -> false
         is IOException -> true
         else -> false
     }

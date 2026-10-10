@@ -3,6 +3,7 @@ package com.cortinadev.dogmatix.data.service
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.dao.DownloadHistoryDao
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
@@ -141,13 +142,21 @@ class RommUploadService @Inject constructor(
         if (dirUri == Uri.EMPTY) throw RommException("Download directory not accessible")
         val directory = StorageHelper.createDirectory(context, dirUri.toString(), downloadFileManager.getSubPath(file))
             ?: throw RommException("Could not open the download folder")
-        val docs = names.mapNotNull { directory.findFile(it) }.filter { it.isFile }
-        if (docs.isEmpty()) throw RommException("File not found on disk: ${names.joinToString()}")
+        if (names.isEmpty() || names.any { !StorageHelper.safeRelativePath(it) })
+            throw RommException(context.getString(R.string.romm_upload_files_missing))
+        // Resolve every file before starting any server session: a missing track cannot turn
+        // a partially uploaded game into DONE. The current chunk API publishes flat filenames;
+        // folders must travel together in an archive to preserve descriptor references.
+        val docs = names.map { path ->
+            StorageHelper.findFile(directory, path)?.takeIf { it.isFile && it.name == path.substringAfterLast('/') }
+                ?: throw RommException(context.getString(R.string.romm_upload_files_missing))
+        }
+        if (RommUploadPlan.requiresArchive(names)) throw RommException(context.getString(R.string.romm_upload_nested_unsupported))
 
         val totalBytes = docs.sumOf { it.length() }
         var sent = 0L
         docs.forEach { doc ->
-            val name = doc.name ?: return@forEach
+            val name = doc.name ?: throw RommException(context.getString(R.string.romm_upload_files_missing))
             var lastError: Throwable? = null
             for (attempt in 0 until ATTEMPTS) {
                 try {

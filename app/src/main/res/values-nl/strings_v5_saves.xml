@@ -48,6 +48,5 @@
     <string name="csave_error_no_folder">Er is geen map gekozen voor dit soort bestand. Kies er een in Instellingen → Saves synchroniseren.</string>
     <string name="csave_error_ambiguous">Meerdere bestanden op dit apparaat passen bij deze save, dus er is niets hersteld. Kies in het scherm Saves synchroniseren.</string>
     <string name="csave_error_gone">%1$s is er niet meer</string>
-    <string name="csave_error_copy">Kon geen veiligheidskopie van %1$s bewaren, dus er is niets gewijzigd</string>
     <string name="csave_error_not_on_server">RomM heeft dit spel niet</string>
 </resources>

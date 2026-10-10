@@ -65,6 +65,8 @@ import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.ui.screens.sources.components.ConfirmDialog
 import com.cortinadev.dogmatix.ui.theme.tabular
 import com.cortinadev.dogmatix.util.ArchiveUtils
+import com.cortinadev.dogmatix.util.StorageHelper
+import com.cortinadev.dogmatix.util.ArchiveSafetyException
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.DatMatcher
 import com.cortinadev.dogmatix.util.DiskDir
@@ -103,6 +105,7 @@ data class ExplorerState(
     val folderSize: Pair<Long, Int>? = null,
     val sizing: Boolean = false,
     val problems: List<SetProblem>? = null,
+    val recoveries: List<StorageHelper.Recovery> = emptyList(),
     /** A file or folder picked up with "Move": it goes into the folder that is open when "Move here" is pressed. */
     val moving: Pair<DiskEntry, DiskDir>? = null,
     /** Something slow is running (moving, extracting); its description. */
@@ -164,7 +167,7 @@ class FileExplorerViewModel @Inject constructor(
     fun up(): Boolean {
         val path = _state.value.path
         if (path.isEmpty()) return false
-        if (path.size == 1) _state.update { it.copy(path = emptyList(), entries = emptyList(), folderSize = null, problems = null) }
+        if (path.size == 1) _state.update { it.copy(path = emptyList(), entries = emptyList(), folderSize = null, problems = null, recoveries = emptyList()) }
         else open(path.dropLast(1))
         return true
     }
@@ -174,10 +177,14 @@ class FileExplorerViewModel @Inject constructor(
     fun toggleSort() = _state.update { it.copy(bySize = !it.bySize) }
 
     private fun open(path: List<Pair<String, DiskDir>>) {
-        _state.update { it.copy(path = path, loading = true, folderSize = null, problems = null) }
+        _state.update { it.copy(path = path, loading = true, folderSize = null, problems = null, recoveries = emptyList()) }
         viewModelScope.launch {
             val entries = withContext(Dispatchers.IO) { DiskScanner.list(context, path.last().second).filterNot { it.name == ".dogmatix-trash" || it.name.endsWith(".tmp") && it.name.startsWith(".") } }
-            if (_state.value.path == path) _state.update { it.copy(entries = entries, loading = false) }
+            val recoveries = withContext(Dispatchers.IO) {
+                StorageHelper.getDocumentFile(context, DiskScanner.uriOf(path.last().second).toString())
+                    ?.let { runCatching { StorageHelper.pendingRecoveries(context, it) }.getOrDefault(emptyList()) }.orEmpty()
+            }
+            if (_state.value.path == path) _state.update { it.copy(entries = entries, loading = false, recoveries = recoveries) }
         }
     }
 
@@ -312,15 +319,48 @@ class FileExplorerViewModel @Inject constructor(
 
     /** Unpacks an archive into the folder it is in (the archive stays). */
     fun extract(context: Context, entry: DiskEntry) {
+        if (_state.value.busy != null) return
         val dir = _state.value.path.lastOrNull()?.second ?: return
         val app = context.applicationContext
         _state.update { it.copy(busy = app.getString(R.string.files_extracting, entry.name)) }
         viewModelScope.launch {
-            val files = extractor.extractArchive(app, entry.uri, DiskScanner.uriOf(dir))
-            _state.update { it.copy(busy = null) }
-            if (files.isNotEmpty()) ToastUtil.showSuccess(app, app.getString(R.string.files_extracted, files.size))
-            else ToastUtil.showError(app, app.getString(R.string.files_extract_failed, entry.name))
-            refresh()
+            try {
+                val files = extractor.extractArchive(app, entry.uri, DiskScanner.uriOf(dir), failOnError = true)
+                if (files.isNotEmpty()) ToastUtil.showSuccess(app, app.getString(R.string.files_extracted, files.size))
+                else ToastUtil.showError(app, app.getString(R.string.files_extract_failed, entry.name))
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) {
+                val safety = generateSequence<Throwable>(e) { it.cause }.take(16).filterIsInstance<ArchiveSafetyException>().firstOrNull()
+                val message = when (safety?.reason) {
+                    ArchiveSafetyException.Reason.UNSAFE_PATH, ArchiveSafetyException.Reason.NAME_COLLISION,
+                    ArchiveSafetyException.Reason.TOO_MANY_ENTRIES -> R.string.archive27_unsafe
+                    ArchiveSafetyException.Reason.DESTINATION_CONFLICT -> R.string.archive27_conflict
+                    ArchiveSafetyException.Reason.INSUFFICIENT_SPACE -> R.string.archive27_space
+                    else -> R.string.files_extract_failed
+                }
+                ToastUtil.showError(app, app.getString(message, entry.name))
+            } finally { _state.update { it.copy(busy = null) }; library.requestRefresh(); refresh() }
+        }
+    }
+
+    /** Restore only a verified copy in this folder; a different current file is protected. */
+    fun recover(recovery: StorageHelper.Recovery) {
+        if (_state.value.busy != null) return
+        val dir = _state.value.path.lastOrNull()?.second ?: return
+        if (recovery !in _state.value.recoveries) return
+        _state.update { it.copy(busy = context.getString(R.string.recovery27_title)) }
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    moveGate.lock.withLock {
+                        val folder = StorageHelper.getDocumentFile(context, DiskScanner.uriOf(dir).toString()) ?: error("Folder unavailable")
+                        StorageHelper.restoreRecovery(context, folder, recovery)
+                    }
+                }
+                ToastUtil.showSuccess(context, context.getString(R.string.recovery27_done, recovery.fileName))
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (_: Exception) { ToastUtil.showError(context, context.getString(R.string.recovery27_failed)) }
+            finally { _state.update { it.copy(busy = null) }; library.requestRefresh(); refresh() }
         }
     }
 
@@ -363,8 +403,18 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
     val ui by viewModel.state.collectAsState()
     val context = LocalContext.current
     var selected by remember { mutableStateOf<DiskEntry?>(null) }
+    var recovering by remember { mutableStateOf<StorageHelper.Recovery?>(null) }
     var confirmDelete by remember { mutableStateOf<DiskEntry?>(null) }
     var permanently by remember { mutableStateOf(false) }
+    recovering?.let { recovery ->
+        ConfirmDialog(
+            title = stringResource(R.string.recovery27_title),
+            message = stringResource(R.string.recovery27_confirm, recovery.fileName),
+            confirmText = stringResource(R.string.recovery27_title),
+            onConfirm = { recovering = null; viewModel.recover(recovery) },
+            onDismiss = { recovering = null }
+        )
+    }
     BackHandler(enabled = !ui.atRoots) { viewModel.up() }
 
     var renaming by remember { mutableStateOf<DiskEntry?>(null) }
@@ -440,6 +490,16 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel()) {
                     }
                 }
                 ui.busy?.let { item(key = "busy") { InfoCard(listOf(it), accent = true, icon = R.drawable.ic_hourglass) } }
+                if (ui.recoveries.isNotEmpty()) {
+                    item(key = "recovery-info") { InfoCard(listOf(
+                        pluralStringResource(R.plurals.recovery27_available, ui.recoveries.size, ui.recoveries.size),
+                        stringResource(R.string.recovery27_hint)), icon = R.drawable.ic_retry) }
+                    items(ui.recoveries, key = { "recovery:" + it.id }) { recovery ->
+                        ToolRow(recovery.fileName, emptyList(), { if (ui.busy == null) recovering = recovery }, icon = R.drawable.ic_retry) {
+                            ToolAction(stringResource(R.string.recovery27_title)) { if (ui.busy == null) recovering = recovery }
+                        }
+                    }
+                }
                 item(key = "tools") {
                     val folders = ui.entries.count { it.isDirectory }
                     val files = ui.entries.size - folders

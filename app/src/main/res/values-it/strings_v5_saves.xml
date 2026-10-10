@@ -48,6 +48,5 @@
     <string name="csave_error_no_folder">Nessuna cartella scelta per questo tipo di file. Sceglila in Impostazioni → Sincronizzazione salvataggi.</string>
     <string name="csave_error_ambiguous">Più file su questo dispositivo corrispondono a questo salvataggio, quindi non è stato ripristinato. Scegli nella schermata Sincronizzazione salvataggi.</string>
     <string name="csave_error_gone">%1$s non c\'è più</string>
-    <string name="csave_error_copy">Impossibile tenere una copia di sicurezza di %1$s, quindi non è stato cambiato nulla</string>
     <string name="csave_error_not_on_server">RomM non ha questo gioco</string>
 </resources>

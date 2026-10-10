@@ -842,6 +842,10 @@
     <string name="update_no_apk">De release bevat geen %1$s</string>
     <string name="update_no_checksum">De release heeft geen controlegetal voor de APK; niet geïnstalleerd</string>
     <string name="update_checksum_mismatch">De download klopt niet met het controlegetal van de release; niet geïnstalleerd</string>
+    <string name="update_invalid_apk">De gedownloade update is geen geldig Android-pakket; niet geïnstalleerd</string>
+    <string name="update_wrong_package">De gedownloade update hoort bij een andere app; niet geïnstalleerd</string>
+    <string name="update_not_newer">De gedownloade update is niet nieuwer dan deze installatie</string>
+    <string name="update_incompatible_signature">Deze update gebruikt een andere ondertekeningssleutel. Installeer de passende release of exporteer je gegevens vóór je van testbuild wisselt.</string>
     <string name="update_install_failed">Update mislukt: %1$s</string>
     <string name="new_badge">Nieuw</string>
     <string name="filter_new">Nieuw</string>
@@ -1362,4 +1366,24 @@
         <item quantity="one">%1$d game op de verlanglijst gezet</item>
         <item quantity="other">%1$d games op de verlanglijst gezet</item>
     </plurals>
+    <string name="update_already_downloading">Er wordt al een update gedownload</string>
+    <string name="csave_error_integrity">Deze veiligheidskopie is beschadigd. Je huidige save is behouden.</string>
+    <string name="archive27_unsafe">Het archief bevat onveilige paden, conflicterende namen of te veel bestanden. Het is behouden; controleer je bron.</string>
+    <string name="archive27_conflict">Een bestaand bestand heeft andere inhoud en is behouden. Kies een lege map of schakel automatisch uitpakken uit.</string>
+    <string name="archive27_space">Er is te weinig vrije ruimte om dit archief uit te pakken. Het is behouden.</string>
+    <string name="recovery27_title">Bestanden herstellen</string>
+    <string name="recovery27_hint">Gecontroleerde kopieën van onderbroken vervangingen. Een afwijkend huidig bestand wordt nooit overschreven.</string>
+    <string name="recovery27_confirm">De gecontroleerde kopie van %1$s in deze map herstellen? Een afwijkend bestaand bestand blijft behouden.</string>
+    <string name="recovery27_done">%1$s hersteld</string>
+    <string name="recovery27_failed">Deze kopie kon niet worden hersteld. Ze is behouden; controleer de maptoegang en verplaats eerst een eventueel afwijkend huidig bestand.</string>
+    <plurals name="backup_import_skipped_settings">
+        <item quantity="one">%1$d ongeldige instelling overgeslagen; je huidige waarde is behouden</item>
+        <item quantity="other">%1$d ongeldige instellingen overgeslagen; je huidige waarden zijn behouden</item>
+    </plurals>
+    <plurals name="recovery27_available">
+        <item quantity="one">%1$d herstelkopie beschikbaar</item>
+        <item quantity="other">%1$d herstelkopieën beschikbaar</item>
+    </plurals>
+    <string name="romm_upload_nested_unsupported">Deze game gebruikt submappen. Upload het oorspronkelijke archief naar RomM om de bestanden samen te houden.</string>
+    <string name="romm_upload_files_missing">Sommige gamebestanden ontbreken. Controleer de downloadmap voordat je opnieuw probeert.</string>
 </resources>

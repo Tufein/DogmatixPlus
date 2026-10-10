@@ -33,6 +33,15 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 2.7.0
+
+- Downloads vervangen een bestaand spel pas nadat de nieuwe bytes zijn gecontroleerd. Onderbroken vervangingen zijn te herstellen via **Tools → Bestanden**.
+- Archieven behouden hun mappen en stoppen bij onveilige paden of conflicten. Bestaande bestanden en het bronarchief blijven beschikbaar bij fouten.
+- Save-sync controleert veiligheidskopieën vóór verwijderen of vervangen. Beschadigde nieuwe kopieën worden bij herstel geweigerd.
+- Backups controleren alle instellingstypen; ongeldige waarden worden gemeld en de huidige waarde blijft behouden.
+- Updates controleren pakket, versie en ondertekening. Test-APK’s hebben vanaf nu een vaste eigen sleutel; oude testbuilds vragen eenmalig exporteren en opnieuw installeren.
+- Android build **39**, database **15**. De [ondertekende release 2.7.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.7.0) werkt 2.6.0 bij met behoud van gegevens.
+
 ### Nieuw in 2.6.0
 
 - Automatisch opnieuw proberen met aftellen, direct opnieuw proberen en annuleren; foutinformatie blijft na herstart beschikbaar.

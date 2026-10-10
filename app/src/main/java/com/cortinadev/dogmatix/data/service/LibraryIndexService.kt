@@ -11,9 +11,17 @@ import com.cortinadev.dogmatix.util.DiskDir
 import com.cortinadev.dogmatix.util.DiskScanner
 import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import com.cortinadev.dogmatix.util.ConsoleFolderAliases
+import com.cortinadev.dogmatix.util.GameArtifacts
+import com.cortinadev.dogmatix.util.DiskEntry
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import com.cortinadev.dogmatix.util.LibraryKeys
 import com.cortinadev.dogmatix.util.StorageHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -37,7 +45,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Knows what is already on disk: the file names under the download folders (two levels deep)
+ * Knows what is already on disk: the file names under the download folders (including nested archive folders)
  * so the library can mark owned games, plus the free space of the download volume.
  * Keys are scoped by the folder they were found in (see [LibraryKeys]) so a game owned for one
  * console is not marked for another console whose ROM happens to share the file name.
@@ -53,6 +61,7 @@ class LibraryIndexService @Inject constructor(
     private val trash: TrashService
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val refreshLock = Mutex()
 
     private val _ownedKeys = MutableStateFlow<Set<String>>(emptySet())
     /** `scope|name` keys of the files found on disk; see [LibraryKeys]. */
@@ -91,7 +100,8 @@ class LibraryIndexService @Inject constructor(
     private suspend fun keysForCompleted(fileName: String): List<String> {
         val consoleId = (downloadService.entityFor(fileName) ?: downloadableFileDao.getFileByFileName(fileName))?.consoleId
             ?: return emptyList()
-        return LibraryKeys.keysFor(LibraryKeys.consoleScope(consoleId), fileName)
+        val storedName = runCatching { FileParsingUtils.storageFileName(fileName) }.getOrNull() ?: return emptyList()
+        return LibraryKeys.keysFor(LibraryKeys.consoleScope(consoleId), storedName)
     }
 
     fun isOwned(file: DownloadableFileEntity, keys: Set<String> = _ownedKeys.value): Boolean =
@@ -106,21 +116,32 @@ class LibraryIndexService @Inject constructor(
      * Reads the download folders again. Each folder is listed with one provider query
      * ([DiskScanner]) instead of one per file, and the console folders are read a few at a time.
      */
-    suspend fun refresh() = withContext(Dispatchers.IO) {
+    suspend fun refresh() = refreshLock.withLock { refreshNow() }
+
+    private suspend fun refreshNow() = withContext(Dispatchers.IO) {
         val root = settingsRepository.downloadDirectory.first()
         val custom = settingsRepository.consoleDownloadDirectories.first()
         val keys = Collections.newSetFromMap(ConcurrentHashMap<String, Boolean>())
         val limit = Semaphore(PARALLEL_FOLDERS)
+        val knownConsoleFolders = ConsoleFolderAliases.knownFolderScopes()
+        val visited = Collections.newSetFromMap(ConcurrentHashMap<String, Boolean>())
+        val folderCount = AtomicInteger()
+        val coroutine = currentCoroutineContext()
+        val checkActive = { coroutine.ensureActive() }
         coroutineScope {
             if (root.isNotBlank()) DiskScanner.rootOf(root)?.let { dir ->
                 for (child in DiskScanner.list(context, dir)) {
-                    if (child.isDirectory) launch { limit.withPermit { collect(DiskScanner.dirOf(dir, child), LibraryKeys.folderScope(child.name), keys, depth = 1) } }
+                    if (child.isDirectory) launch { limit.withPermit {
+                        val folder = LibraryKeys.folderScope(child.name)
+                        val scope = if (folder in knownConsoleFolders) folder else LibraryKeys.ROOT_SCOPE
+                        collect(DiskScanner.dirOf(dir, child), scope, keys, depth = 1, visited, folderCount, checkActive)
+                    } }
                     else keys += LibraryKeys.keysFor(LibraryKeys.ROOT_SCOPE, child.name)
                 }
             }
             custom.forEach { (consoleId, uri) ->
                 val dir = uri.takeIf { it.isNotBlank() }?.let { DiskScanner.rootOf(it) } ?: return@forEach
-                launch { limit.withPermit { collect(dir, LibraryKeys.customScope(consoleId), keys, depth = 0) } }
+                launch { limit.withPermit { collect(dir, LibraryKeys.customScope(consoleId), keys, depth = 0, visited, folderCount, checkActive) } }
             }
         }
         _ownedKeys.value = HashSet(keys)
@@ -135,7 +156,8 @@ class LibraryIndexService @Inject constructor(
     suspend fun launchPlan(file: DownloadableFileEntity): List<RemovalFile> = artifactPlan(file, protectShared = false)
 
     private suspend fun artifactPlan(file: DownloadableFileEntity, protectShared: Boolean): List<RemovalFile> = withContext(Dispatchers.IO) {
-        val name = FileParsingUtils.decodeUrlEncodedFileName(file.fileName)
+        if (!protectShared) return@withContext launchArtifacts(file)
+        val name = FileParsingUtils.storageFileName(file.fileName)
         val scopes = LibraryKeys.scopesFor(file.consoleId)
         val result = ArrayList<RemovalFile>()
         fun addFiles(dir: DiskDir, entries: List<com.cortinadev.dogmatix.util.DiskEntry>, path: String) {
@@ -188,10 +210,84 @@ class LibraryIndexService @Inject constructor(
 
     suspend fun deleteOwned(file: DownloadableFileEntity): Boolean = deletePlan(removalPlan(file), file.name, file.consoleId, file.fileName)
 
-    private fun collect(dir: DiskDir, scope: String, into: MutableSet<String>, depth: Int) {
+    /** Reads only selected descriptors, within a recognized console root or flat archive tree. */
+    private suspend fun launchArtifacts(file: DownloadableFileEntity): List<RemovalFile> {
+        val requested = FileParsingUtils.storageFileName(file.fileName)
+        val scopes = LibraryKeys.scopesFor(file.consoleId)
+        val knownConsoles = ConsoleFolderAliases.knownFolderScopes()
+        val result = ArrayList<RemovalFile>()
+        val coroutine = currentCoroutineContext()
+        val checkActive = { coroutine.ensureActive() }
+        fun plan(root: DiskDir, filterTopLevel: Boolean) {
+            data class Located(val directory: DiskDir, val entry: DiskEntry)
+            val files = LinkedHashMap<String, Located>()
+            val visited = HashSet<String>()
+            var directories = 0
+            fun walk(dir: DiskDir, path: String, depth: Int) {
+                checkActive()
+                if (!visited.add(DiskScanner.canonicalKey(dir))) return
+                check(++directories <= MAX_SCANNED_FOLDERS) { "Library has too many folders" }
+                val entries = DiskScanner.listOrNull(context, dir, true) ?: error("Folder cannot be read completely")
+                for (entry in entries) {
+                    checkActive()
+                    if (entry.name.startsWith(".dogmatix-")) continue
+                    if (entry.isDirectory) {
+                        if (depth == 0 && filterTopLevel) {
+                            val scope = LibraryKeys.folderScope(entry.name)
+                            if (scope in knownConsoles && scope !in scopes) continue
+                        }
+                        if (depth < MAX_SCAN_DEPTH) walk(DiskScanner.dirOf(dir, entry), "$path${entry.name}/", depth + 1)
+                    } else {
+                        val relative = "$path${entry.name}"
+                        if (GameArtifacts.safeLaunchPath(relative)) {
+                            check(relative !in files) { "Ambiguous library file" }
+                            files[relative] = Located(dir, entry)
+                        }
+                    }
+                }
+            }
+            walk(root, "", 0)
+            val selected = GameArtifacts.playPaths(files.keys.toList(), requested) { path ->
+                val entry = files.getValue(path).entry
+                val text = context.contentResolver.openInputStream(entry.uri)?.use { input ->
+                    val output = java.io.ByteArrayOutputStream()
+                    val buffer = ByteArray(8192)
+                    while (output.size() <= MAX_DESCRIPTOR_BYTES) {
+                        checkActive()
+                        val count = input.read(buffer)
+                        if (count < 0) break
+                        output.write(buffer, 0, count)
+                    }
+                    check(output.size() <= MAX_DESCRIPTOR_BYTES) { "Descriptor too large" }
+                    output.toByteArray().toString(Charsets.UTF_8)
+                } ?: error("Descriptor unavailable")
+                when (entry.name.substringAfterLast('.').lowercase()) {
+                    "cue" -> com.cortinadev.dogmatix.util.SheetParser.cueFiles(text)
+                    "gdi" -> com.cortinadev.dogmatix.util.SheetParser.gdiFiles(text)
+                    else -> com.cortinadev.dogmatix.util.SheetParser.m3uFiles(text)
+                }
+            }
+            selected.forEach { path ->
+                val found = files.getValue(path)
+                val entry = found.entry
+                result += RemovalFile(entry.uri.toString(), DiskScanner.uriOf(found.directory).toString(), entry.name, entry.size, path)
+            }
+        }
+        DiskScanner.rootOf(settingsRepository.downloadDirectory.first())?.let { plan(it, filterTopLevel = true) }
+        settingsRepository.consoleDownloadDirectories.first()[file.consoleId]?.let { uri ->
+            DiskScanner.rootOf(uri)?.let { plan(it, filterTopLevel = false) }
+        }
+        return result.distinctBy { it.uri }
+    }
+
+    private fun collect(dir: DiskDir, scope: String, into: MutableSet<String>, depth: Int,
+        visited: MutableSet<String>, folderCount: AtomicInteger, checkActive: () -> Unit) {
+        checkActive()
+        if (!visited.add("$scope|${DiskScanner.canonicalKey(dir)}") || folderCount.incrementAndGet() > MAX_SCANNED_FOLDERS) return
         for (child in DiskScanner.list(context, dir)) {
+            checkActive()
             if (child.isDirectory) {
-                if (depth < 2) collect(DiskScanner.dirOf(dir, child), scope, into, depth + 1)
+                if (depth < MAX_SCAN_DEPTH) collect(DiskScanner.dirOf(dir, child), scope, into, depth + 1, visited, folderCount, checkActive)
             } else {
                 into += LibraryKeys.keysFor(scope, child.name)
             }
@@ -201,5 +297,9 @@ class LibraryIndexService @Inject constructor(
     private companion object {
         /** Console folders listed at the same time. */
         const val PARALLEL_FOLDERS = 4
+        // Archive paths permit 64 segments; a console folder adds one container level.
+        const val MAX_SCAN_DEPTH = 65
+        const val MAX_SCANNED_FOLDERS = 10000
+        const val MAX_DESCRIPTOR_BYTES = 1024 * 1024
     }
 }

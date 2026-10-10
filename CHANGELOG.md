@@ -2,6 +2,21 @@
 
 Public releases follow 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. See [release numbering](docs/releases/numbering.md) for the migration and original APK versions.
 
+## [2.7.0] – 2026-10-10 · Dogmatix+
+
+- Preserve directory paths in archives; reject traversal, sanitized-name collisions, excessive entries and blocked destinations before publishing files.
+- Preflight all extraction targets, stage and verify every file, reuse identical content on retry and preserve conflicting existing files and the source archive.
+- Recognize nested game folders in the library, grant safe child disc/track access at launch, and group automatic playlists within their own folder.
+- Preflight every RomM upload file and reject folder layouts that the current upload API cannot safely preserve.
+- Download replacements into a separate resumable file, verify source checksums and readback before publishing, and protect the completed original with a verified recovery journal.
+- Recover interrupted file replacements from Tools → Files without overwriting different current files.
+- Propagate save-backup failures before replacement or deletion; create unique durable safety copies with SHA-256 receipts and reject damaged new copies on restore.
+- Validate all backed-up preference types and ranges; preserve current values for invalid settings and repair previously persisted wrong types before typed readers start.
+- Separate source identity from storage basename, handle relative and absolute URLs correctly, and preserve literal plus signs.
+- Check update package, version, checksum and complete signer set before installation; cancel unfinished update sessions cleanly.
+- Use a separate stable signing key for published debug APKs from 2.7 onward; old debug builds with changing keys require a one-time backup/reinstall.
+- Seven translated interfaces; Android build 39, database version remains 15, established production signing identity retained.
+
 ## [2.6.0] – 2026-10-09 · Dogmatix+
 
 - Visible automatic retry countdown with Try now and Cancel retry; old attempts cannot control a newer transfer.

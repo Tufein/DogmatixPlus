@@ -48,6 +48,5 @@
     <string name="csave_error_no_folder">No folder is picked for this kind of file. Pick one in Settings → Save sync.</string>
     <string name="csave_error_ambiguous">Several files on this device fit this save, so it was not restored. Choose in the Save sync screen instead.</string>
     <string name="csave_error_gone">%1$s is no longer there</string>
-    <string name="csave_error_copy">Could not keep a safety copy of %1$s, so nothing was changed</string>
     <string name="csave_error_not_on_server">RomM does not have this game</string>
 </resources>

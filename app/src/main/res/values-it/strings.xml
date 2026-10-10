@@ -793,6 +793,10 @@
     <string name="update_no_apk">La release non contiene %1$s</string>
     <string name="update_no_checksum">Nessun checksum per l\'APK; non installato</string>
     <string name="update_checksum_mismatch">Il download non corrisponde al checksum; non installato</string>
+    <string name="update_invalid_apk">L’aggiornamento scaricato non è un pacchetto Android valido; non installato</string>
+    <string name="update_wrong_package">L’aggiornamento scaricato appartiene a un’altra app; non installato</string>
+    <string name="update_not_newer">L’aggiornamento scaricato non è più recente di questa installazione</string>
+    <string name="update_incompatible_signature">Questo aggiornamento usa una chiave di firma diversa. Installa la versione corretta o esporta i dati prima di cambiare versione di test.</string>
     <string name="update_install_failed">Aggiornamento non riuscito: %1$s</string>
     <string name="new_badge">Nuovo</string>
     <string name="filter_new">Novità</string>
@@ -1313,4 +1317,26 @@
         <item quantity="one">%1$d gioco aggiunto alla lista dei desideri</item>
         <item quantity="other">%1$d giochi aggiunti alla lista dei desideri</item>
     </plurals>
+    <string name="update_already_downloading">È già in corso il download di un aggiornamento</string>
+    <string name="csave_error_integrity">Questa copia di sicurezza è danneggiata. Il salvataggio attuale è stato conservato.</string>
+    <string name="archive27_unsafe">L’archivio contiene percorsi non sicuri, nomi in conflitto o troppi file. È stato conservato; controlla la fonte.</string>
+    <string name="archive27_conflict">Un file esistente ha contenuti diversi ed è stato conservato. Scegli una cartella vuota o disattiva l’estrazione automatica.</string>
+    <string name="archive27_space">Lo spazio libero non basta per estrarre questo archivio. È stato conservato.</string>
+    <string name="recovery27_title">Recupera file</string>
+    <string name="recovery27_hint">Copie verificate di sostituzioni interrotte. Un file attuale diverso non viene mai sovrascritto.</string>
+    <string name="recovery27_confirm">Ripristinare la copia verificata di %1$s in questa cartella? Un file esistente diverso viene conservato.</string>
+    <string name="recovery27_done">%1$s ripristinato</string>
+    <string name="recovery27_failed">Impossibile ripristinare questa copia. È stata conservata; controlla l’accesso alla cartella e sposta prima eventuali file attuali diversi.</string>
+    <plurals name="backup_import_skipped_settings">
+        <item quantity="one">%1$d impostazione non valida ignorata; il valore attuale è stato conservato</item>
+        <item quantity="many">%1$d impostazioni non valide ignorate; i valori attuali sono stati conservati</item>
+        <item quantity="other">%1$d impostazioni non valide ignorate; i valori attuali sono stati conservati</item>
+    </plurals>
+    <plurals name="recovery27_available">
+        <item quantity="one">%1$d copia di ripristino disponibile</item>
+        <item quantity="many">%1$d copie di ripristino disponibili</item>
+        <item quantity="other">%1$d copie di ripristino disponibili</item>
+    </plurals>
+    <string name="romm_upload_nested_unsupported">Questo gioco usa sottocartelle. Carica il suo archivio originale su RomM per mantenere insieme i file.</string>
+    <string name="romm_upload_files_missing">Mancano alcuni file del gioco. Controlla la cartella di download prima di riprovare.</string>
 </resources>

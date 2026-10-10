@@ -5,8 +5,13 @@ import com.cortinadev.dogmatix.data.local.entity.FileTagEntity
 import org.jsoup.nodes.Element
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import java.nio.ByteBuffer
+import java.nio.charset.CodingErrorAction
+import java.io.ByteArrayOutputStream
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 object FileParsingUtils {
+    private val urlSchemePattern = Regex("^[A-Za-z][A-Za-z0-9+.-]*://")
 
     fun toUserReadablePath(uriString: String): String {
         if (uriString.isBlank()) return ""
@@ -24,38 +29,13 @@ object FileParsingUtils {
     }
 
     fun buildDownloadUrl(baseUrl: String, href: String): String {
-        return if (href.startsWith("http")) {
-            href
-        } else {
-            val base = baseUrl.trimEnd('/')
-            val path = href.trimStart('/')
-            val fullUrl = "$base/$path"
-
-            normalizeUrl(fullUrl)
-        }
-    }
-
-    private fun normalizeUrl(url: String): String {
-        val parts = url.split("/")
-        val normalized = mutableListOf<String>()
-
-        for (part in parts) {
-            when (part) {
-                ".." -> {
-                    if (normalized.isNotEmpty() && normalized.last() != "") {
-                        normalized.removeAt(normalized.size - 1)
-                    }
-                }
-                "." -> {
-                    continue
-                }
-                else -> {
-                    normalized.add(part)
-                }
-            }
-        }
-
-        return normalized.joinToString("/")
+        // Sources are listing directories, including when their saved URL lacks a slash.
+        // HttpUrl also handles root-relative and protocol-relative links without corrupting
+        // the authority, query, escaped characters or literal plus signs.
+        val parsed = baseUrl.toHttpUrlOrNull()
+            ?: throw IllegalArgumentException("Invalid source URL")
+        val base = parsed.newBuilder().encodedPath(parsed.encodedPath.trimEnd('/') + "/").query(null).fragment(null).build()
+        return base.resolve(href)?.toString() ?: throw IllegalArgumentException("Invalid file URL")
     }
 
     /** Compiled once: a scan parses tens of thousands of names. */
@@ -129,10 +109,51 @@ object FileParsingUtils {
 
     fun decodeUrlEncodedFileName(fileName: String): String {
         return try {
-            URLDecoder.decode(fileName, StandardCharsets.UTF_8.toString())
+            // URLDecoder is a form decoder: shield plus signs before decoding a URL path.
+            URLDecoder.decode(fileName.replace("+", "%2B"), StandardCharsets.UTF_8.toString())
         } catch (_: Exception) {
             fileName
         }
+    }
+
+    /** Storage has a basename; the unmodified listing href remains the indexed identity. */
+    fun storageFileName(reference: String): String {
+        val withoutQuery = reference.substringBefore('?').substringBefore('#')
+        val path = when {
+            withoutQuery.startsWith("//") -> withoutQuery.drop(2).substringAfter('/', "")
+            urlSchemePattern.containsMatchIn(withoutQuery) ->
+                withoutQuery.substringAfter("://").substringAfter('/', "")
+            else -> withoutQuery
+        }
+        val encoded = path.substringAfterLast('/')
+        val name = try {
+            decodePathSegment(encoded)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Invalid escaped file name", e)
+        }
+        require(name.isNotBlank() && name != "." && name != ".." &&
+            name.none { it == '/' || it == '\\' || it == ':' || it == '\u0000' || it.isISOControl() } &&
+            name.toByteArray(Charsets.UTF_8).size <= 255) { "Invalid storage file name" }
+        return name
+    }
+
+    /** Strict UTF-8 avoids mapping malformed escapes to a different, colliding replacement name. */
+    private fun decodePathSegment(encoded: String): String {
+        val bytes = ByteArrayOutputStream()
+        var cursor = 0
+        while (cursor < encoded.length) {
+            if (encoded[cursor] == '%') {
+                require(cursor + 2 < encoded.length) { "Incomplete percent escape" }
+                val hi = encoded[cursor + 1].digitToIntOrNull(16) ?: throw IllegalArgumentException("Invalid percent escape")
+                val lo = encoded[cursor + 2].digitToIntOrNull(16) ?: throw IllegalArgumentException("Invalid percent escape")
+                bytes.write(hi * 16 + lo); cursor += 3
+            } else {
+                val next = encoded.indexOf('%', cursor).takeIf { it >= 0 } ?: encoded.length
+                bytes.write(encoded.substring(cursor, next).toByteArray(Charsets.UTF_8)); cursor = next
+            }
+        }
+        return Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT)
+            .decode(ByteBuffer.wrap(bytes.toByteArray())).toString()
     }
 
     /** The link of a listing row (`td.link a`, else the first link), found by walking the row, not by a CSS query. */
@@ -156,10 +177,11 @@ object FileParsingUtils {
         if (shouldSkipFile(href)) return Pair(null, emptyList())
 
         val fileSize = sizeCell?.text()?.takeIf { it != ScrapingConstants.UNKNOWN_FILE_SIZE } ?: ScrapingConstants.DEFAULT_FILE_SIZE
-        val downloadUrl = buildDownloadUrl(baseUrl, href)
+        val downloadUrl = runCatching { buildDownloadUrl(baseUrl, href) }.getOrNull() ?: return Pair(null, emptyList())
 
-        val actualFileExtension = if (href.contains(".")) {
-            "." + href.substringAfterLast(".")
+        val storageName = runCatching { storageFileName(href) }.getOrNull() ?: return Pair(null, emptyList())
+        val actualFileExtension = if (storageName.contains(".")) {
+            "." + storageName.substringAfterLast(".")
         } else {
             ""
         }

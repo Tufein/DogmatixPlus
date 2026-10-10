@@ -3,7 +3,12 @@ package com.cortinadev.dogmatix.data.service
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import android.os.StatFs
+import androidx.documentfile.provider.DocumentFile
 import com.cortinadev.dogmatix.util.ArchiveExtractionUtils
+import com.cortinadev.dogmatix.util.ArchivePlan
+import com.cortinadev.dogmatix.util.ArchiveSafetyException
+import com.cortinadev.dogmatix.util.VerifiedCopy
 import com.cortinadev.dogmatix.util.Constants
 import com.cortinadev.dogmatix.util.DownloadExtractionException
 import com.cortinadev.dogmatix.util.StorageException
@@ -14,6 +19,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.sf.sevenzipjbinding.ExtractAskMode
 import net.sf.sevenzipjbinding.ExtractOperationResult
 import net.sf.sevenzipjbinding.IArchiveExtractCallback
@@ -28,6 +35,8 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.OutputStream
+import java.io.IOException
+import java.util.UUID
 import java.nio.ByteBuffer
 import java.nio.file.Files
 import javax.inject.Inject
@@ -37,6 +46,8 @@ private const val TAG = "ArchiveExtractorService"
 
 @Singleton
 class ArchiveExtractorService @Inject constructor() {
+    private val publishLock = Mutex()
+    private data class CachedFile(val path: String, val file: File, val hash: String)
 
     /**
      * Extracts an archive from a SAF URI (used for HTTP downloads where the file
@@ -62,12 +73,12 @@ class ArchiveExtractorService @Inject constructor() {
 
             val cachedFiles = pfd.use {
                 FileInputStream(it.fileDescriptor).use { fis ->
-                    extractToCache(fis, currentExtractDir, onProgress, failOnError) { extractionContext.ensureActive() }
+                    extractToCache(fis, currentExtractDir, onProgress) { extractionContext.ensureActive() }
                 }
             }
             if (cachedFiles.isEmpty()) return@withContext emptyList<String>()
 
-            copyToSaf(context, cachedFiles, destinationUri, subPath, failOnError) { extractionContext.ensureActive() }
+            publishLock.withLock { copyToSaf(context, cachedFiles, destinationUri, subPath) { extractionContext.ensureActive() } }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Throwable) {
@@ -99,11 +110,11 @@ class ArchiveExtractorService @Inject constructor() {
         try {
             val currentExtractDir = createExtractionDirectory(context).also { extractDir = it }
             val cachedFiles = FileInputStream(archiveFile).use { fis ->
-                extractToCache(fis, currentExtractDir, onProgress, failOnError) { extractionContext.ensureActive() }
+                extractToCache(fis, currentExtractDir, onProgress) { extractionContext.ensureActive() }
             }
             if (cachedFiles.isEmpty()) return@withContext emptyList<String>()
 
-            copyToSaf(context, cachedFiles, destinationUri, subPath, failOnError) { extractionContext.ensureActive() }
+            publishLock.withLock { copyToSaf(context, cachedFiles, destinationUri, subPath) { extractionContext.ensureActive() } }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Throwable) {
@@ -132,168 +143,239 @@ class ArchiveExtractorService @Inject constructor() {
         fis: FileInputStream,
         extractDir: File,
         onProgress: (Float) -> Unit,
-        failOnError: Boolean,
         checkActive: () -> Unit
-    ): List<File> {
-        val results = mutableListOf<File>()
+    ): List<CachedFile> {
+        val results = mutableListOf<CachedFile>()
         val channel = fis.channel
         val channelSize = channel.size()
-
-        // Implement IInStream over a FileChannel so SevenZip can seek through the archive
-        // without requiring a copy to a RandomAccessFile.
         val inStream = object : IInStream {
             override fun read(data: ByteArray): Int {
                 checkActive()
                 val n = channel.read(ByteBuffer.wrap(data))
                 return if (n == -1) 0 else n
             }
-
             override fun seek(offset: Long, seekOrigin: Int): Long {
                 checkActive()
-                val newPos = when (seekOrigin) {
+                val position = when (seekOrigin) {
                     ISeekableStream.SEEK_SET -> offset
                     ISeekableStream.SEEK_CUR -> channel.position() + offset
                     ISeekableStream.SEEK_END -> channelSize + offset
                     else -> throw SevenZipException("Unknown seek origin: $seekOrigin")
                 }
-                channel.position(newPos)
-                return channel.position()
+                channel.position(position)
+                return position
             }
-
-            override fun close() {
-                // The channel is closed by the FileInputStream.use block
-            }
+            override fun close() = Unit
         }
-
         try {
             SevenZip.openInArchive(null, inStream).use { archive ->
-                val total = archive.numberOfItems
-
+                // Validate every path before extraction. A late duplicate or traversal must
+                // never leave an apparently successful, incomplete collection behind.
+                if (!ArchiveExtractionUtils.validateEntryCount(archive.numberOfItems)) {
+                    throw ArchiveSafetyException(ArchiveSafetyException.Reason.TOO_MANY_ENTRIES)
+                }
+                val entries = (0 until archive.numberOfItems).map { index ->
+                    checkActive()
+                    if (archive.getProperty(index, PropID.IS_ANTI) == true ||
+                        archive.getProperty(index, PropID.IS_ALT_STREAM) == true ||
+                        !((archive.getProperty(index, PropID.SYM_LINK) as? String).isNullOrEmpty()) ||
+                        !((archive.getProperty(index, PropID.HARD_LINK) as? String).isNullOrEmpty())) {
+                        throw ArchiveSafetyException(ArchiveSafetyException.Reason.UNSAFE_PATH)
+                    }
+                    ArchivePlan.Entry(index,
+                        (archive.getProperty(index, PropID.PATH) as? String) ?: "file_$index",
+                        archive.getProperty(index, PropID.IS_FOLDER) as? Boolean ?: false,
+                        (archive.getProperty(index, PropID.SIZE) as? Number)?.toLong())
+                }
+                val plan = ArchivePlan.check(entries)
+                val budget = (StatFs(extractDir.path).availableBytes - CACHE_RESERVE_BYTES).coerceAtLeast(0L)
+                if (plan.knownBytes > budget) throw ArchiveSafetyException(ArchiveSafetyException.Reason.INSUFFICIENT_SPACE)
+                val planned = plan.files.associateBy { it.index }
+                var writtenTotal = 0L
                 val callback = object : IArchiveExtractCallback {
                     var out: OutputStream? = null
+                    var current: ArchivePlan.FileEntry? = null
                     var dest: File? = null
-                    var skip = false
-                    var done = 0
-
+                    var writtenEntry = 0L
                     override fun getStream(index: Int, mode: ExtractAskMode): ISequentialOutStream? {
                         checkActive()
-                        val isFolder = archive.getProperty(index, PropID.IS_FOLDER) as? Boolean ?: false
-                        if (isFolder) { skip = true; return null }
-
-                        val rawPath = (archive.getProperty(index, PropID.PATH) as? String) ?: "file_$index"
-                        val name = rawPath.replace('\\', '/').split("/").last()
-                            .replace(Regex("[<>:\"|?*\u0000]"), "_")
-                            .ifBlank { "file_$index" }
-
-                        val file = File(extractDir, name)
-                        dest = file
+                        val entry = planned[index] ?: return null
+                        val file = File(extractDir, entry.path)
+                        if (!file.parentFile!!.mkdirs() && !file.parentFile!!.isDirectory) {
+                            throw StorageException("Could not create extracted cache folder")
+                        }
                         val stream = try {
                             BufferedOutputStream(FileOutputStream(file), Constants.EXTRACTION_BUFFER_SIZE)
-                        } catch (e: java.io.IOException) {
-                            throw StorageException("Could not create extracted cache file", e)
+                        } catch (error: IOException) {
+                            throw StorageException("Could not create extracted cache file", error)
                         }
                         out = stream
-                        skip = false
-
+                        current = entry
+                        dest = file
+                        writtenEntry = 0L
                         return ISequentialOutStream { data ->
                             checkActive()
-                            try { stream.write(data) } catch (e: java.io.IOException) {
+                            if (data.size.toLong() > budget - writtenTotal) {
+                                throw ArchiveSafetyException(ArchiveSafetyException.Reason.INSUFFICIENT_SPACE)
+                            }
+                            if (entry.size != null && data.size.toLong() > entry.size - writtenEntry) throw DownloadExtractionException()
+                            try { stream.write(data) } catch (e: IOException) {
                                 throw StorageException("Could not write extracted cache file", e)
                             }
+                            writtenTotal += data.size
+                            writtenEntry += data.size
                             data.size
                         }
                     }
-
-                    override fun prepareOperation(mode: ExtractAskMode) {}
-
+                    override fun prepareOperation(mode: ExtractAskMode) = Unit
                     override fun setOperationResult(result: ExtractOperationResult) {
                         checkActive()
-                        try { out?.close() } catch (e: java.io.IOException) {
-                            if (failOnError) throw StorageException("Could not finish extracted cache file", e)
+                        try { out?.close() } catch (e: IOException) {
+                            throw StorageException("Could not finish extracted cache file", e)
                         }
                         out = null
-
-                        if (!skip && result == ExtractOperationResult.OK) {
-                            dest?.let { results.add(it); done++ }
-                            onProgress(if (total > 0) done.toFloat() / total else 1f)
-                        } else if (!skip) {
-                            Log.w(TAG, "Entry result: $result for ${dest?.name}")
-                            if (failOnError) throw DownloadExtractionException()
+                        val entry = current
+                        if (entry != null) {
+                            if (result != ExtractOperationResult.OK || (entry.size != null && writtenEntry != entry.size)) {
+                                throw DownloadExtractionException()
+                            }
+                            val file = requireNotNull(dest)
+                            results += CachedFile(entry.path, file, VerifiedCopy.hash(file.inputStream(), checkActive))
+                            onProgress(results.size.toFloat() / plan.files.size.coerceAtLeast(1))
                         }
+                        current = null
                         dest = null
-                        skip = false
                     }
-
-                    override fun setCompleted(complete: Long) {}
-                    override fun setTotal(total: Long) {}
+                    override fun setCompleted(complete: Long) = Unit
+                    override fun setTotal(total: Long) = Unit
                 }
-                try {
-                    archive.extract(null, false, callback)
-                } finally {
-                    // Native extraction can abort before setOperationResult. Close its current
-                    // output even on a stopped download or a damaged archive.
-                    try { callback.out?.close() } catch (e: Exception) {
-                        Log.w(TAG, "Could not close interrupted extraction output", e)
-                    }
+                try { archive.extract(null, false, callback) }
+                finally {
+                    try { callback.out?.close() } catch (e: Exception) { Log.w(TAG, "Could not close interrupted extraction output", e) }
                     callback.out = null
                 }
+                if (results.size != plan.files.size) throw DownloadExtractionException()
             }
         } catch (e: SevenZipException) {
             checkActive()
-            Log.e(TAG, "7-zip extraction error: ${e.message}")
-            if (failOnError) throw DownloadExtractionException(e)
+            throw DownloadExtractionException(e)
         }
-
         return results
     }
 
+    /** Checks the complete destination first, stages every new file, and verifies readback. */
     private fun copyToSaf(
         context: Context,
-        files: List<File>,
+        files: List<CachedFile>,
         destinationUri: Uri,
         subPath: String,
-        failOnError: Boolean,
         checkActive: () -> Unit
     ): List<String> {
         val destUri = ArchiveExtractionUtils.prepareExtractionDestination(context, destinationUri, subPath)
-        val copied = mutableListOf<String>()
-        val buffer = ByteArray(Constants.EXTRACTION_BUFFER_SIZE)
-
+        val root = StorageHelper.getDocumentFile(context, destUri.toString())
+            ?: throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE)
+        fun hash(document: DocumentFile): String = VerifiedCopy.hash(
+            context.contentResolver.openInputStream(document.uri) ?: throw StorageException("Extracted destination cannot be read"), checkActive)
+        fun child(directory: DocumentFile, name: String): DocumentFile? {
+            val matches = directory.listFiles().filter { ArchivePlan.portableKey(it.name.orEmpty()) == ArchivePlan.portableKey(name) }
+            if (matches.size > 1 || matches.any { it.name != name }) {
+                throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_CONFLICT)
+            }
+            return matches.singleOrNull()
+        }
+        fun parent(path: String, create: Boolean): DocumentFile? {
+            var directory = root
+            for (name in path.split('/').dropLast(1)) {
+                val existing = child(directory, name)
+                if (existing != null && !existing.isDirectory) throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_CONFLICT)
+                directory = existing ?: if (!create) return null else directory.createDirectory(name)
+                    ?: throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE)
+                if (directory.name != name || !directory.isDirectory) throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE)
+            }
+            return directory
+        }
+        var requiredBytes = 0L
         for (file in files) {
             checkActive()
-            val outUri = StorageHelper.createFile(
-                context = context,
-                uriString = destUri.toString(),
-                subPath = "",
-                fileName = file.name,
-                overwrite = true
-            )?.uri ?: if (failOnError) throw StorageException("Could not create extracted destination file") else continue
-
-            val copiedFile = try {
-                context.contentResolver.openOutputStream(outUri)?.use { raw ->
-                    BufferedOutputStream(raw, Constants.EXTRACTION_BUFFER_SIZE).use { buffOut ->
-                        file.inputStream().use { input ->
-                            var n: Int
-                            while (input.read(buffer).also { n = it } != -1) {
-                                checkActive()
-                                buffOut.write(buffer, 0, n)
-                            }
-                        }
-                    }
-                    true
-                }
-            } catch (e: java.io.IOException) {
-                throw StorageException("Could not copy extracted file to storage", e)
+            val existing = parent(file.path, create = false)?.let { child(it, file.path.substringAfterLast('/')) }
+            if (existing != null) {
+                if (!existing.isFile || hash(existing) != file.hash) throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_CONFLICT)
+            } else {
+                if (file.file.length() > Long.MAX_VALUE - requiredBytes) throw ArchiveSafetyException(ArchiveSafetyException.Reason.INSUFFICIENT_SPACE)
+                requiredBytes += file.file.length()
             }
-            if (copiedFile != true) {
-                if (failOnError) throw StorageException("Could not open extracted destination file")
-                continue
+        }
+        StorageHelper.getFreeBytes(context, destinationUri.toString())?.let {
+            if (requiredBytes > it) throw ArchiveSafetyException(ArchiveSafetyException.Reason.INSUFFICIENT_SPACE)
+        }
+        data class Staged(val source: CachedFile, val directory: DocumentFile, val document: DocumentFile)
+        val stages = mutableListOf<Staged>()
+        val published = mutableListOf<Pair<DocumentFile, String>>()
+        try {
+            for (file in files) {
+                checkActive()
+                val directory = requireNotNull(parent(file.path, create = true))
+                val name = file.path.substringAfterLast('/')
+                child(directory, name)?.let {
+                    if (!it.isFile || hash(it) != file.hash) throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_CONFLICT)
+                    return@let
+                } ?: run {
+                    val stage = directory.createFile("application/octet-stream", ".dogmatix-extract-${UUID.randomUUID()}.part")
+                        ?: throw StorageException("Could not stage extracted destination file")
+                    stages += Staged(file, directory, stage)
+                    val input = file.file.inputStream()
+                    val output = try {
+                        context.contentResolver.openOutputStream(stage.uri, "wt")
+                            ?: throw StorageException("Could not write extracted destination file")
+                    } catch (error: Exception) {
+                        input.close()
+                        throw error
+                    }
+                    val copiedHash = VerifiedCopy.transfer(input, output, checkActive)
+                    VerifiedCopy.requireSame(file.hash, copiedHash)
+                    VerifiedCopy.requireSame(file.hash, hash(stage))
+                }
+            }
+            // No destination content has changed before all streams have passed readback.
+            for (stage in stages) {
+                checkActive()
+                val name = stage.source.path.substringAfterLast('/')
+                val existing = child(stage.directory, name)
+                if (existing != null) {
+                    if (!existing.isFile || hash(existing) != stage.source.hash) throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_CONFLICT)
+                    if (!stage.document.delete()) throw StorageException("Could not remove extracted staging file")
+                    continue
+                }
+                if (!stage.document.renameTo(name) || stage.document.name != name) throw StorageException("Storage does not support a safe extraction rename")
+                published += stage.document to stage.source.hash
+                VerifiedCopy.requireSame(stage.source.hash, hash(stage.document))
             }
             checkActive()
-            copied.add(file.name)
-            Log.d(TAG, "Copied to SAF: ${file.name}")
+            // Re-check reused targets as well: a file edited during staging cannot justify
+            // deleting the source archive after this method returns.
+            for (file in files) {
+                val target = parent(file.path, create = false)?.let { child(it, file.path.substringAfterLast('/')) }
+                    ?: throw StorageException("Extracted file disappeared before verification")
+                if (!target.isFile || hash(target) != file.hash) throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_CONFLICT)
+            }
+            return files.map { it.path }
+        } catch (error: Throwable) {
+            // Delete only our own unchanged publications. A concurrently edited file stays.
+            for ((document, expected) in published.asReversed()) {
+                runCatching {
+                    val input = context.contentResolver.openInputStream(document.uri) ?: return@runCatching
+                    if (VerifiedCopy.hash(input) == expected) document.delete()
+                }.onFailure { Log.w(TAG, "Could not roll back extracted file", it) }
+            }
+            throw error
+        } finally {
+            stages.forEach { stage ->
+                if (stage.document.name?.startsWith(".dogmatix-extract-") == true) runCatching { stage.document.delete() }
+            }
         }
+    }
 
-        return copied
+    private companion object {
+        const val CACHE_RESERVE_BYTES = 8L * 1024L * 1024L
     }
 }

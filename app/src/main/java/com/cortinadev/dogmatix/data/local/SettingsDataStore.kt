@@ -18,7 +18,10 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
-val Context.dataStore by preferencesDataStore(name = Constants.SETTINGS_DATASTORE_NAME)
+val Context.dataStore by preferencesDataStore(
+    name = Constants.SETTINGS_DATASTORE_NAME,
+    produceMigrations = { listOf(SettingsTypeMigration()) }
+)
 
 object SettingsKeys {
     val DOWNLOAD_DIRECTORY = stringPreferencesKey("download_directory")

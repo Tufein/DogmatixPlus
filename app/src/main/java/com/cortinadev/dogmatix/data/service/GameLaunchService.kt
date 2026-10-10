@@ -107,7 +107,9 @@ class GameLaunchService @Inject constructor(
         val root = externalRoot()
         playable.map { artifact ->
             val ref = refOf(artifact)
-            val siblings = artifacts.filter { it.uri != artifact.uri && it.parent == artifact.parent }.map { it.uri }
+            // A playlist can point into child disc folders. The read-only library plan
+            // already limits this set to recognized game dependencies inside its scope.
+            val siblings = artifacts.filter { it.uri != artifact.uri }.map { it.uri }
             val catalogue = targets.mapNotNull { target ->
                 val emulator = EmulatorCatalog.byId(target.emulatorId) ?: return@mapNotNull null
                 val variant = emulator.variants.firstOrNull { it.packageName == target.packageName } ?: return@mapNotNull null

@@ -38,6 +38,7 @@ import com.cortinadev.dogmatix.util.DownloadQueue
 import com.cortinadev.dogmatix.util.DownloadStreams
 import com.cortinadev.dogmatix.util.DownloadFailures
 import com.cortinadev.dogmatix.util.DownloadExtractionException
+import com.cortinadev.dogmatix.util.DownloadVerificationException
 import com.cortinadev.dogmatix.util.WaitInfo
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.MirrorUrls
@@ -55,6 +56,9 @@ import com.cortinadev.dogmatix.util.ExpectedHash
 import com.cortinadev.dogmatix.util.SourcesJson
 import com.cortinadev.dogmatix.util.StorageHelper
 import com.cortinadev.dogmatix.util.VerifyState
+import com.cortinadev.dogmatix.util.VerifiedCopy
+import java.security.MessageDigest
+import java.security.DigestOutputStream
 import java.net.URI
 import java.net.HttpURLConnection
 import java.util.concurrent.CopyOnWriteArrayList
@@ -101,6 +105,8 @@ private val DEVICE_FAILURES = setOf(
     DownloadFailureCategory.STORAGE_FULL,
     DownloadFailureCategory.STORAGE_PERMISSION,
     DownloadFailureCategory.STORAGE_WRITE,
+    DownloadFailureCategory.ARCHIVE_UNSAFE,
+    DownloadFailureCategory.ARCHIVE_CONFLICT,
     DownloadFailureCategory.EXTRACTION
 )
 
@@ -1021,7 +1027,7 @@ class DownloadService @Inject constructor(
     /** Names on disk for a finished download: the extracted files, or the file itself. */
     fun uploadCandidates(fileName: String): List<String> =
         extractedFilesMap[fileName]?.takeIf { it.isNotEmpty() }
-            ?: listOf(FileParsingUtils.decodeUrlEncodedFileName(fileName))
+            ?: listOfNotNull(runCatching { FileParsingUtils.storageFileName(fileName) }.getOrNull())
 
     private suspend fun performTorrentDownload(file: DownloadableFileEntity) {
         Log.d(TAG, "Starting torrent download for ${file.fileName}")
@@ -1083,6 +1089,7 @@ class DownloadService @Inject constructor(
             }
 
             val subPath = downloadFileManager.getSubPath(file)
+            requireSourceChecksum(file, DocumentFile.fromFile(internalFile))
 
             if (ArchiveUtils.isExtractable(fileExtension) && settingsRepository.autoUnzip.first()) {
                 // Extract directly from cache — skips writing the compressed archive to SAF entirely.
@@ -1104,14 +1111,23 @@ class DownloadService @Inject constructor(
                 Log.d(TAG, "Copying torrent file to SAF: ${documentFile.uri}")
                 updateStatus(file.fileName, DownloadStatus.COPYING)
                 try {
-                    context.contentResolver.openOutputStream(documentFile.uri)?.use { out ->
+                    val coroutine = currentCoroutineContext()
+                    val expectedSha256 = context.contentResolver.openOutputStream(documentFile.uri)?.use { out ->
                         BufferedOutputStream(out, Constants.EXTRACTION_BUFFER_SIZE).use { buffOut ->
-                            internalFile.inputStream().use { input -> DownloadStreams.copy(input, buffOut, Constants.EXTRACTION_BUFFER_SIZE) {} }
+                            VerifiedCopy.transfer(internalFile.inputStream(), buffOut, check = { coroutine.ensureActive() })
                         }
                     }
                         ?: throw StorageException("Could not open destination output stream")
+                    currentCoroutineContext().ensureActive()
+                    requireSourceChecksum(file, documentFile)
+                    downloadFileManager.commitDocumentFile(file, downloadDirUri.toString(), subPath, documentFile, expectedSha256) { coroutine.ensureActive() }
+                } catch (e: DownloadVerificationException) {
+                    _verification.update { it + (file.fileName to VerifyState.MISMATCH) }
+                    throw e
                 } catch (e: java.io.IOException) {
                     throw StorageException("Could not copy downloaded torrent to storage", e)
+                } finally {
+                    if (downloadFileManager.isStagingFile(documentFile)) downloadFileManager.deleteFile(documentFile)
                 }
             }
 
@@ -1127,6 +1143,7 @@ class DownloadService @Inject constructor(
             throw e
         } catch (e: Exception) {
             Log.e(TAG, "Error processing torrent file for ${file.fileName}: ${e.message}", e)
+            if (e is DownloadVerificationException) _verification.update { it + (file.fileName to VerifyState.MISMATCH) }
             localFailures += file.fileName
             updateStatus(file.fileName, DownloadStatus.FAILED, DownloadFailures.classify(e))
             // Untrack and, if nothing else uses the torrent, release it (deletes the cached data);
@@ -1315,11 +1332,13 @@ class DownloadService @Inject constructor(
         var outputStream: OutputStream? = null
         var documentFile: DocumentFile? = null
         var activeConnection: HttpURLConnection? = null
+        var keepPartial = false
 
         try {
             val subPath = downloadFileManager.getSubPath(file)
             // Only a partial file this app wrote (and noted) is continued; see PartialDownloads.
             val resume = resumable && appSettings.resumeDownloads.first()
+            keepPartial = resume
             // A part written from another source (the download moved) is not continued; a reserve address of the same source is.
             val record = if (resume) partials.get(file.fileName)?.takeIf { r ->
                 trustRecord || PartialOwner.sameSource(r.url, downloadUrl, mirrorsOf(file) + file.downloadUrl)
@@ -1339,6 +1358,24 @@ class DownloadService @Inject constructor(
             // before a restart can replace the old file. Its validated offset owns this write.
             val startOffset = response.transfer.startOffset
             val appending = partial != null && startOffset > 0
+            val transferHash = MessageDigest.getInstance("SHA-256")
+            if (appending) {
+                // The read prefix and the received suffix together define the expected stored
+                // file. An unreadable saved part cannot be silently treated as an empty prefix.
+                try {
+                    context.contentResolver.openInputStream(requireNotNull(partial).uri)?.use { prefix ->
+                        val buffer = ByteArray(Constants.BUFFER_SIZE)
+                        while (true) {
+                            currentCoroutineContext().ensureActive()
+                            val count = prefix.read(buffer)
+                            if (count < 0) break
+                            transferHash.update(buffer, 0, count)
+                        }
+                    } ?: throw StorageException("Could not read saved partial download")
+                } catch (e: java.io.IOException) {
+                    throw StorageException("Could not read saved partial download", e)
+                }
+            }
             if (appending) {
                 val continued = requireNotNull(partial)
                 documentFile = continued
@@ -1353,6 +1390,7 @@ class DownloadService @Inject constructor(
                 if (resume) partials.put(file.fileName, PartialDownloads.Record(downloadUrl,
                     ResumePlan.validator(connection.getHeaderField("ETag"), connection.getHeaderField("Last-Modified"))))
             }
+            outputStream = DigestOutputStream(requireNotNull(outputStream), transferHash)
             // A hold may park this transfer only when its part is kept and continued (7.5 power rules, Pause all).
             if (HoldParking.webResumable(resume, partials.get(file.fileName) != null, connection.getHeaderField("Accept-Ranges"),
                     partialBytes, appending)) parkable += file.fileName
@@ -1371,19 +1409,29 @@ class DownloadService @Inject constructor(
             try { outputStream.close() } catch (e: java.io.IOException) { throw StorageException("Could not finish ${file.fileName}: ${e.message}", e) }
             outputStream = null
             currentCoroutineContext().ensureActive()
+            requireSourceChecksum(file, documentFile)
+            val expectedSha256 = transferHash.digest().joinToString("") { "%02x".format(it) }
+            val commitContext = currentCoroutineContext()
+            documentFile = downloadFileManager.commitDocumentFile(file, downloadDirUri.toString(), subPath, documentFile, expectedSha256) { commitContext.ensureActive() }
             partials.remove(file.fileName)
             handlePostDownload(file, documentFile, subPath)
 
         } catch (e: kotlinx.coroutines.CancellationException) {
-            if (!resumable) documentFile?.let { downloadFileManager.deleteFile(it) }
+            if (!keepPartial) documentFile?.takeIf(downloadFileManager::isStagingFile)?.let { downloadFileManager.deleteFile(it) }
             updateStatus(file.fileName, DownloadStatus.STOPPED)
             throw e
         } catch (e: LowStorageException) {
             // Out of room: keep what is there (when resuming is on) so *Retry* carries on from it.
-            if (!resumable || partials.get(file.fileName) == null) { documentFile?.let { downloadFileManager.deleteFile(it) }; partials.remove(file.fileName) }
+            if (!keepPartial || partials.get(file.fileName) == null) { documentFile?.takeIf(downloadFileManager::isStagingFile)?.let { downloadFileManager.deleteFile(it) }; partials.remove(file.fileName) }
+            throw e
+        } catch (e: DownloadVerificationException) {
+            documentFile?.takeIf(downloadFileManager::isStagingFile)?.let { downloadFileManager.deleteFile(it) }
+            partials.remove(file.fileName)
+            _verification.update { it + (file.fileName to VerifyState.MISMATCH) }
+            updateStatus(file.fileName, DownloadStatus.FAILED, DownloadFailures.classify(e))
             throw e
         } catch (e: Exception) {
-            if (!resumable) documentFile?.let { downloadFileManager.deleteFile(it) }
+            if (!keepPartial) documentFile?.takeIf(downloadFileManager::isStagingFile)?.let { downloadFileManager.deleteFile(it) }
             updateStatus(file.fileName, DownloadStatus.FAILED, DownloadFailures.classify(e))
             throw e
         } finally {
@@ -1394,6 +1442,17 @@ class DownloadService @Inject constructor(
             try { outputStream?.close() } catch (e: java.io.IOException) { Log.w(TAG, "Could not close output for ${file.fileName}: ${e.message}") }
             try { activeConnection?.disconnect() } catch (e: Exception) { Log.w(TAG, "Could not disconnect ${file.fileName}: ${e.message}") }
         }
+    }
+
+    /** A known source checksum must pass before an existing completed game can be replaced. */
+    private suspend fun requireSourceChecksum(file: DownloadableFileEntity, documentFile: DocumentFile) {
+        val expected = Checksums.parse(file.expectedHash) ?: Checksums.parse(headerHashes[file.fileName]) ?: return
+        val coroutine = currentCoroutineContext()
+        val actual = try {
+            context.contentResolver.openInputStream(documentFile.uri)?.use { Checksums.hexOf(it, expected.algo) { coroutine.ensureActive() } }
+                ?: throw StorageException("Could not verify downloaded file")
+        } catch (e: java.io.IOException) { throw StorageException("Could not read downloaded file for verification", e) }
+        if (!Checksums.matches(expected, actual)) throw DownloadVerificationException()
     }
 
     private suspend fun streamWithProgress(
@@ -1530,7 +1589,7 @@ class DownloadService @Inject constructor(
         val dir = StorageHelper.createDirectory(context, dirUri.toString(), downloadFileManager.getSubPath(entity)) ?: return null
         val priority = listOf("m3u", "cue", "gdi", "chd", "iso", "pbp", "ccd", "mds")
         val names = uploadCandidates(fileName).sortedBy { n -> priority.indexOf(n.substringAfterLast('.').lowercase()).let { if (it < 0) priority.size else it } }
-        val doc = names.firstNotNullOfOrNull { dir.findFile(it)?.takeIf { f -> f.isFile } } ?: return null
+        val doc = names.firstNotNullOfOrNull { StorageHelper.findFile(dir, it)?.takeIf { f -> f.isFile } } ?: return null
         return Intent(Intent.ACTION_VIEW)
             .setDataAndType(doc.uri, "application/octet-stream")
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)

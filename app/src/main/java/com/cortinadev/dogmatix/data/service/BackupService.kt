@@ -22,6 +22,7 @@ import com.cortinadev.dogmatix.data.repository.SourcesRepository
 import com.cortinadev.dogmatix.util.BackupJson
 import com.cortinadev.dogmatix.util.CloudSettingKeys
 import com.cortinadev.dogmatix.util.SourcesJson
+import com.cortinadev.dogmatix.util.SettingSchema
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -65,7 +66,9 @@ class BackupService @Inject constructor(
         val favourites: Int,
         val downloads: Int,
         /** Folder settings that could not be restored because this install has no access to them. */
-        val foldersToRepick: Int = 0
+        val foldersToRepick: Int = 0,
+        /** Malformed backed-up settings ignored while keeping the current valid value. */
+        val skippedSettings: Int = 0
     )
 
     class InvalidBackupException : IllegalArgumentException("Not a Dogmatix backup")
@@ -85,7 +88,7 @@ class BackupService @Inject constructor(
         val settings = JsonObject()
         // The WebDAV password is the one secret that stays out of every backup file (CloudSettingKeys).
         prefs.forEach { (key, value) ->
-            if (!CloudSettingKeys.isSecret(key.name)) BackupJson.encodeSetting(value)?.let { settings.add(key.name, it) }
+            if (!CloudSettingKeys.isSecret(SettingSchema.localName(key.name))) BackupJson.encodeSetting(value)?.let { settings.add(key.name, it) }
         }
 
         val sources = JsonParser.parseString(sourcesRepository.exportDocument()).asJsonObject
@@ -157,8 +160,13 @@ class BackupService @Inject constructor(
 
     private suspend fun restoreLocked(backup: JsonObject): Summary {
         // Null when the file has no settings section: then the current settings stay untouched.
-        val settings = (backup.get("settings") as? JsonObject)?.entrySet()
+        val rawSettings = (backup.get("settings") as? JsonObject)?.entrySet()
+        val settings = rawSettings
             ?.mapNotNull { (name, element) -> BackupJson.decodeSetting(name, element)?.let { name to it } }
+        val restoredNames = settings.orEmpty().map { it.first }.toSet()
+        val skippedNames = rawSettings.orEmpty().map { it.key }.filterNot {
+            it in restoredNames || CloudSettingKeys.isSecret(SettingSchema.localName(it))
+        }.toSet()
         val sourcesText = (backup.get("sources") as? JsonObject)
             ?.takeIf { consoleCount(it) > 0 }
             ?.toString()
@@ -192,7 +200,7 @@ class BackupService @Inject constructor(
                 }.toSet()
                 else -> name to value
             } }
-            val (restored, repick) = mapped?.let { restoreSettings(it) } ?: (0 to 0)
+            val (restored, repick) = mapped?.let { restoreSettings(it, skippedNames) } ?: (0 to 0)
             (backup.get("emulatorChoices") as? JsonObject)?.let { choices ->
                 GameEmulatorPreferences.restore(context.getSharedPreferences("game_launchers", Context.MODE_PRIVATE), choices)
             }
@@ -206,16 +214,17 @@ class BackupService @Inject constructor(
                 val have = wishlistDao.getAll().map { it.key to it.consoleId }.toSet()
                 wishlistDao.upsertAll(wishlist.filter { (it.key to it.consoleId) !in have })
             }
-            Summary(restored, consoles, if (favouritesDone) favourites.size else 0, if (downloadsDone) downloads.size else 0, repick)
+            Summary(restored, consoles, if (favouritesDone) favourites.size else 0, if (downloadsDone) downloads.size else 0, repick, skippedNames.size)
         }
     }
 
     /** Replaces the settings with the backed-up ones; returns (restored, folders the user must pick again). */
-    private suspend fun restoreSettings(settings: List<Pair<String, Any>>): Pair<Int, Int> {
+    private suspend fun restoreSettings(settings: List<Pair<String, Any>>, skippedNames: Set<String>): Pair<Int, Int> {
         val granted = context.contentResolver.persistedUriPermissions.map { it.uri.toString() }.toSet()
         var restored = 0
         var repick = 0
         context.dataStore.edit { prefs ->
+            val currentSkipped = prefs.asMap().filter { (key, value) -> key.name in skippedNames && SettingSchema.compatible(key.name, value) }
             // A folder the backup cannot bring back keeps whatever this install already had.
             val currentFolders = FOLDER_KEYS.associateWith { prefs[stringPreferencesKey(it)] }
             val currentConsoleDirs = prefs[SettingsKeys.CONSOLE_DOWNLOAD_DIRECTORIES].orEmpty()
@@ -229,6 +238,7 @@ class BackupService @Inject constructor(
             val currentDav = prefs.asMap().filter { it.key.name.startsWith("dav_") }
             val backupHasDav = settings.any { it.first.startsWith("dav_") }
             prefs.clear()
+            currentSkipped.forEach { (key, value) -> prefs.put(key.name, value) }
             settings.forEach { (name, value) ->
                 when (name) {
                     in FOLDER_KEYS -> {
@@ -303,7 +313,8 @@ class BackupService @Inject constructor(
             SettingsKeys.ESDE_DIRECTORY.name,
             SettingsKeys.IISU_DIRECTORY.name,
             SettingsKeys.SAVE_SYNC_SAVES_DIR.name,
-            SettingsKeys.SAVE_SYNC_STATES_DIR.name
+            SettingsKeys.SAVE_SYNC_STATES_DIR.name,
+            "bios_dir", "auto_backup_dir", "retroarch_thumbnails_dir", "smart_storage_sd_uri"
         )
     }
 }

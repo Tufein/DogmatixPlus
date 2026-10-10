@@ -58,6 +58,10 @@ object ConsoleFolderAliases {
     fun matches(consoleId: String, folderName: String): Boolean =
         normalize(folderName) in candidatesFor(consoleId)
 
+    /** Known console folders stay scoped; unnamed archive folders belong to a flat root. */
+    fun knownFolderScopes(): Set<String> =
+        (aliases.keys + ConsoleAliasRegistry.overrides.keys).flatMap { candidatesFor(it) }.toSet()
+
     /**
      * Returns the display name of an existing sub-directory of [baseDir] that matches
      * [consoleId], or null if none exists (the caller can then create the default one).

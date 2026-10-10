@@ -28,11 +28,15 @@ import com.cortinadev.dogmatix.util.SaveSyncRecord
 import com.cortinadev.dogmatix.util.SaveSyncResult
 import com.cortinadev.dogmatix.util.StorageHelper
 import com.cortinadev.dogmatix.util.ToastUtil
+import com.cortinadev.dogmatix.util.VerifiedSafetyCopies
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,10 +49,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -147,6 +149,7 @@ class SaveSyncService @Inject constructor(
                         _state.update { s -> s.copy(error = null, conflicts = s.conflicts.filterNot { it.local.kind == conflict.local.kind && it.local.path == conflict.local.path }) }
                     }
                     .onFailure { e ->
+                        if (e is CancellationException) throw e
                         Log.w(TAG, "Resolving ${conflict.local.path} failed", e)
                         _state.update { it.copy(error = "${conflict.local.name}: ${e.message}") }
                     }
@@ -171,6 +174,7 @@ class SaveSyncService @Inject constructor(
                     _state.update { it.copy(last = result, conflicts = conflicts) }
                     result
                 }.onFailure { e ->
+                    if (e is CancellationException) throw e
                     Log.w(TAG, "Save sync failed", e)
                     actionLog.saveSyncFailed()
                     _state.update { it.copy(error = e.message ?: e.javaClass.simpleName) }
@@ -263,7 +267,21 @@ class SaveSyncService @Inject constructor(
 
         override suspend fun read(file: LocalSaveFile): ByteArray = withContext(Dispatchers.IO) {
             val uri = documents[SaveSyncEngine.key(file)] ?: throw IOException("${file.name} is no longer on the device")
-            context.contentResolver.openInputStream(uri)?.use { it.readBytes() } ?: throw IOException("Could not read ${file.name}")
+            val bytes = context.contentResolver.openInputStream(uri)?.use { input ->
+                val out = java.io.ByteArrayOutputStream()
+                val buffer = ByteArray(64 * 1024)
+                while (true) {
+                    currentCoroutineContext().ensureActive()
+                    val count = input.read(buffer)
+                    if (count < 0) break
+                    if (out.size().toLong() + count > MAX_FILE_BYTES) throw IOException("Save file is too large")
+                    out.write(buffer, 0, count)
+                }
+                out.toByteArray()
+            } ?: throw IOException("Could not read ${file.name}")
+            // Some document providers report 0 when the size is unknown.
+            if (file.size > 0L && bytes.size.toLong() != file.size) throw IOException("${file.name} changed while it was being read; try again")
+            bytes
         }
 
         override suspend fun write(kind: SaveKind, path: String, bytes: ByteArray): LocalSaveFile = withContext(Dispatchers.IO) {
@@ -285,12 +303,7 @@ class SaveSyncService @Inject constructor(
         }
 
         override suspend fun backup(file: LocalSaveFile) {
-            runCatching {
-                val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.ROOT).format(Date())
-                val target = File(backupDir, "$stamp/${file.kind.apiPath}/${file.path}")
-                target.parentFile?.mkdirs()
-                target.writeBytes(read(file))
-            }.onFailure { Log.w(TAG, "Could not back up ${file.path}", it) }
+            keepSafetyCopy(file.kind, file.path, read(file))
         }
 
         private suspend fun rootFor(kind: SaveKind): DocumentFile? {
@@ -374,8 +387,11 @@ class SaveSyncService @Inject constructor(
             })
         }
         val tmp = File(storeFile.parentFile, storeFile.name + ".tmp")
-        tmp.writeText(JsonObject().apply { addProperty("version", 1); add("records", array) }.toString())
-        if (!tmp.renameTo(storeFile)) { storeFile.delete(); tmp.renameTo(storeFile) }
+        val bytes = JsonObject().apply { addProperty("version", 1); add("records", array) }.toString().toByteArray(Charsets.UTF_8)
+        try {
+            FileOutputStream(tmp).use { output -> output.write(bytes); output.flush(); output.fd.sync() }
+            if (!tmp.readBytes().contentEquals(bytes) || !tmp.renameTo(storeFile)) throw IOException("Could not keep save sync records")
+        } finally { tmp.delete() }
     }
 
     // ---- 5.0: cloud saves per game (used by CloudSavesService; additions only) ----------------
@@ -431,8 +447,7 @@ class SaveSyncService @Inject constructor(
             if (!file.isFile || !file.canonicalPath.startsWith(backupDir.canonicalPath + File.separator)) {
                 throw IOException(context.getString(R.string.csave_error_gone, copy.name))
             }
-            if (file.length() > MAX_FILE_BYTES) throw IOException("File too large")
-            file.readBytes()
+            VerifiedSafetyCopies.read(backupDir, copy.relative, MAX_FILE_BYTES)
         }
 
     private suspend fun restoreInto(
@@ -476,8 +491,9 @@ class SaveSyncService @Inject constructor(
                     dropConflict(kind, written.path)
                     CloudSaveResult.Done(written.path)
                 }.getOrElse { e ->
+                    if (e is CancellationException) throw e
                     Log.w(TAG, "Restore failed", e)
-                    CloudSaveResult.Failed(e.message ?: e.javaClass.simpleName)
+                    CloudSaveResult.Failed(if (e is VerifiedSafetyCopies.IntegrityException) context.getString(R.string.csave_error_integrity) else e.message ?: e.javaClass.simpleName)
                 }
             }
         } finally {
@@ -516,6 +532,7 @@ class SaveSyncService @Inject constructor(
                     dropConflict(kind, local.path)
                     CloudSaveResult.Done(local.name)
                 }.getOrElse { e ->
+                    if (e is CancellationException) throw e
                     Log.w(TAG, "Upload of $path failed", e)
                     CloudSaveResult.Failed(e.message ?: e.javaClass.simpleName)
                 }
@@ -535,20 +552,6 @@ class SaveSyncService @Inject constructor(
      * Throws when it cannot (the caller then changes nothing).
      */
     private fun keepSafetyCopy(kind: SaveKind, path: String, bytes: ByteArray) {
-        val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.ROOT).format(Date())
-        val root = backupDir.canonicalPath + File.separator
-        // A second copy within the same second gets a folder of its own.
-        val target = generateSequence(1) { it + 1 }
-            .map { n -> File(backupDir, (if (n == 1) stamp else "$stamp-$n") + "/${kind.apiPath}/$path") }
-            .first { !it.exists() }
-        if (!target.canonicalPath.startsWith(root)) throw IOException("Unexpected path $path")
-        val dir = target.parentFile ?: throw IOException("Unexpected path $path")
-        if (!dir.isDirectory && !dir.mkdirs()) throw IOException(context.getString(R.string.csave_error_copy, path.substringAfterLast('/')))
-        val tmp = File(dir, target.name + ".tmp")
-        tmp.writeBytes(bytes)
-        if (!tmp.renameTo(target)) {
-            tmp.delete()
-            throw IOException(context.getString(R.string.csave_error_copy, path.substringAfterLast('/')))
-        }
+        VerifiedSafetyCopies.keep(backupDir, kind, path, bytes)
     }
 }

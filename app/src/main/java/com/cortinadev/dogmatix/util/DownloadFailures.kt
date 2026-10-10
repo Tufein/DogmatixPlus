@@ -27,6 +27,17 @@ object DownloadFailures {
         if (causes.any { it is StorageException })
             return DownloadFailure(DownloadFailureCategory.STORAGE_WRITE)
 
+        causes.filterIsInstance<ArchiveSafetyException>().firstOrNull()?.let { archive ->
+            return DownloadFailure(when (archive.reason) {
+                ArchiveSafetyException.Reason.INSUFFICIENT_SPACE -> DownloadFailureCategory.STORAGE_FULL
+                ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE -> DownloadFailureCategory.STORAGE_WRITE
+                ArchiveSafetyException.Reason.DESTINATION_CONFLICT -> DownloadFailureCategory.ARCHIVE_CONFLICT
+                else -> DownloadFailureCategory.ARCHIVE_UNSAFE
+            })
+        }
+        if (causes.any { it is DownloadVerificationException })
+            return DownloadFailure(DownloadFailureCategory.VERIFICATION)
+
         causes.filterIsInstance<HttpStatusException>().firstOrNull()?.let { return http(it.code) }
         if (causes.any { it is DebridAuthException })
             return DownloadFailure(DownloadFailureCategory.HTTP_AUTHENTICATION)
@@ -81,3 +92,6 @@ class StorageAccessException : StorageException("Download folder is not accessib
 
 /** Adds the extraction stage without carrying private provider text into [DownloadFailure]. */
 class DownloadExtractionException(cause: Throwable? = null) : Exception("Archive extraction failed", cause)
+
+/** A mismatch in downloaded bytes, with no private source details exposed in the row. */
+class DownloadVerificationException(cause: Throwable? = null) : IOException("Downloaded file verification failed", cause)

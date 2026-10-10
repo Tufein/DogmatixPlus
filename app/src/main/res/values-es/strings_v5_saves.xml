@@ -48,6 +48,5 @@
     <string name="csave_error_no_folder">No hay ninguna carpeta elegida para este tipo de archivo. Elige una en Ajustes → Sincronizar partidas.</string>
     <string name="csave_error_ambiguous">Varios archivos de este dispositivo encajan con esta partida, así que no se restauró. Elige en la pantalla Sincronizar partidas.</string>
     <string name="csave_error_gone">%1$s ya no está</string>
-    <string name="csave_error_copy">No se pudo guardar una copia de seguridad de %1$s, así que no se cambió nada</string>
     <string name="csave_error_not_on_server">RomM no tiene este juego</string>
 </resources>

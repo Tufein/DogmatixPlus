@@ -96,7 +96,7 @@ object SaveSyncPlanner {
     /** Files that sit in save folders but are not progress: thumbnails, configs, our temporaries. */
     private val ignoredExtensions = setOf(
         "png", "jpg", "jpeg", "bmp", "webp", "gif", "txt", "cfg", "opt", "json", "xml", "ini",
-        "log", "tmp", "bak", "nomedia", "db", "lpl"
+        "log", "tmp", "bak", "nomedia", "db", "lpl", "sha256"
     )
 
     /** RetroArch state names: `.state`, `.state1`…`.state999`, `.state.auto`. */

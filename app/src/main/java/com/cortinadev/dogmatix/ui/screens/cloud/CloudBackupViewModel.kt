@@ -311,6 +311,9 @@ class CloudBackupViewModel @Inject constructor(
                         if (summary.foldersToRepick > 0) {
                             ToastUtil.showInfo(app, context.resources.getQuantityString(R.plurals.backup_import_repick, summary.foldersToRepick, summary.foldersToRepick))
                         }
+                        if (summary.skippedSettings > 0) {
+                            ToastUtil.showInfo(app, context.resources.getQuantityString(R.plurals.backup_import_skipped_settings, summary.skippedSettings, summary.skippedSettings))
+                        }
                         if (summary.downloads > 0) ToastUtil.showInfo(app, context.getString(R.string.backup_import_restart))
                         if (summary.consoles > 0) scanService.scanAll()
                     }

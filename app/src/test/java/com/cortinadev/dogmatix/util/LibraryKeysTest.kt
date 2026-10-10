@@ -33,4 +33,15 @@ class LibraryKeysTest {
         assertTrue(LibraryKeys.isOwned("nintendo_gameboy_advance", "Metroid%20Fusion%20(USA).zip", onDisk))
         assertEquals(listOf("gba|metroid fusion (usa).gba", "gba|metroid fusion (usa)"), onDisk.toList().sorted().reversed())
     }
+
+    @Test fun `source paths use basename while literal disk percent and plus stay distinct`() {
+        val console = "nintendo_gameboy_advance"
+        val keys = LibraryKeys.keysFor(LibraryKeys.folderScope("gba"), "C++ Game.gba").toSet()
+        assertTrue(LibraryKeys.isOwned(console, "./folder/C++%20Game.gba?token=abc", keys))
+        assertTrue(LibraryKeys.isOwned(console, "https://example.org/roms/C%2B%2B%20Game.gba#title", keys))
+        assertFalse(LibraryKeys.isOwned(console, "C%20%20%20Game.gba", keys))
+        val literal = LibraryKeys.keysFor(LibraryKeys.folderScope("gba"), "Game%20Title.gba").toSet()
+        assertTrue(LibraryKeys.isOwned(console, "Game%2520Title.gba", literal))
+        assertFalse(LibraryKeys.isOwned(console, "Game%20Title.gba", literal))
+    }
 }

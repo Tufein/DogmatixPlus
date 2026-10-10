@@ -2,6 +2,9 @@ package com.cortinadev.dogmatix.util
 
 import java.io.IOException
 import java.security.MessageDigest
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 
 /** Both sides changed since the last sync; the user picks which one stays. */
 data class SaveConflict(val local: LocalSaveFile, val remote: RemoteSaveFile)
@@ -52,7 +55,7 @@ interface SaveStore {
     suspend fun read(file: LocalSaveFile): ByteArray
     /** Writes [bytes] to [path] (creating its folder) and returns the file as now on disk. */
     suspend fun write(kind: SaveKind, path: String, bytes: ByteArray): LocalSaveFile
-    /** Keeps a copy of [file] before a download replaces it. */
+    /** Keeps a verified copy of [file] before replacement/deletion; must throw when the copy cannot be kept. */
     suspend fun backup(file: LocalSaveFile)
     /** Removes [file] from the device (the caller has made a backup). */
     suspend fun delete(file: LocalSaveFile)
@@ -92,6 +95,7 @@ class SaveSyncEngine(
         var done = 0
 
         for (action in actions) {
+            currentCoroutineContext().ensureActive()
             if (action.isTransfer()) onProgress(++done, transfers)
             try {
                 when (action) {
@@ -105,6 +109,7 @@ class SaveSyncEngine(
                     }
                     is SaveSyncAction.DeleteLocal -> {
                         store.backup(action.local)
+                        currentCoroutineContext().ensureActive()
                         store.delete(action.local)
                         records.remove(SaveSyncPlanner.key(action.record.kind, action.record.path))
                         deletedOnDevice++
@@ -125,6 +130,7 @@ class SaveSyncEngine(
                     }
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 failed++
                 if (errors.size < 5) errors += "${action.fileName()}: ${e.message ?: e.javaClass.simpleName}"
             }
@@ -161,6 +167,7 @@ class SaveSyncEngine(
     private suspend fun download(remote: RemoteSaveFile, path: String, replacing: LocalSaveFile?, records: MutableMap<String, SaveSyncRecord>) {
         val bytes = server.download(remote)
         if (replacing != null) store.backup(replacing)
+        currentCoroutineContext().ensureActive()
         val written = store.write(remote.kind, path, bytes)
         records[key(written)] = record(written, remote)
     }

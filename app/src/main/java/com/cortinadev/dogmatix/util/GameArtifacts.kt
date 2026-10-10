@@ -9,7 +9,49 @@ object GameArtifacts {
 
     /** A flat local name in an explicitly recognized ROM/disc/audio format, never an unknown config/key. */
     fun safeLaunchReference(name: String): Boolean = name.isNotBlank() && name != "." && name != ".." &&
-        !name.startsWith('.') && name.none { it == '/' || it == '\\' || it == ':' } && DuplicateFinder.isKnownGameFormat(name)
+        !name.startsWith('.') && name.none { it == '/' || it == '\\' || it == ':' || it.isISOControl() } && DuplicateFinder.isKnownGameFormat(name)
+
+    /** A descriptor may refer to game files in descendants, never parents or private files. */
+    fun safeLaunchPath(path: String): Boolean = path.isNotBlank() && !path.startsWith('/') &&
+        path.split('/').let { parts -> parts.size <= 66 && parts.all { part ->
+            part.isNotBlank() && part != "." && part != ".." && !part.startsWith('.') &&
+                part.none { it == '\\' || it == ':' || it.isISOControl() }
+        } } && safeLaunchReference(path.substringAfterLast('/'))
+
+    private fun resolveDescendant(descriptor: String, reference: String): String? {
+        val relative = reference.replace('\\', '/').removePrefix("./")
+        if (!safeLaunchPath(relative)) return null
+        val parent = descriptor.substringBeforeLast('/', "")
+        return (if (parent.isEmpty()) relative else "$parent/$relative").takeIf(::safeLaunchPath)
+    }
+
+    /** Read-only dependency plan across folders. Removal retains its stricter flat rules. */
+    fun playPaths(names: List<String>, requested: String, references: (String) -> List<String>): List<String> {
+        fun key(path: String) = ArchivePlan.portableKey(path)
+        val byKey = names.filter(::safeLaunchPath).groupBy(::key)
+        val archived = requested.substringAfterLast('.').lowercase(Locale.ROOT) in setOf("zip", "7z", "rar")
+        val selected = names.filter { path -> safeLaunchPath(path) && path.substringAfterLast('/').let { name ->
+            name.equals(requested, true) || archived && LibraryKeys.baseName(name).equals(LibraryKeys.baseName(requested), true)
+        } }.toMutableList()
+        val queue = ArrayDeque(selected)
+        val visited = HashSet<String>()
+        while (queue.isNotEmpty()) {
+            val path = queue.removeFirst()
+            if (!visited.add(key(path))) continue
+            check(visited.size <= Constants.MAX_ARCHIVE_ENTRIES) { "Too many game dependencies" }
+            check(byKey[key(path)]?.size == 1) { "Ambiguous game path" }
+            if (path.substringAfterLast('.').lowercase(Locale.ROOT) !in descriptors) continue
+            for (reference in references(path)) {
+                val resolved = resolveDescendant(path, reference) ?: continue
+                val matches = byKey[key(resolved)].orEmpty()
+                check(matches.size <= 1) { "Ambiguous game dependency" }
+                matches.singleOrNull()?.let { child ->
+                    if (child !in selected) { selected += child; queue.add(child) }
+                }
+            }
+        }
+        return selected
+    }
 
     /**
      * Reads only selected descriptors for Play. Removal also reads other descriptors so their shared
