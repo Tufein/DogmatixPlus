@@ -1,12 +1,12 @@
 # Dogmatix+ — roadmap to the community launch
 
-Updated: 10 October 2026. Published baseline: [2.7.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.7.0).
+Updated: 11 October 2026. Verified public release: [2.8.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.8.0).
 
 The community launch should make it easy to find a game, prepare it, play it and recover safely when a download, storage device or save transfer fails. Existing features already include controller navigation, downloads, collections, offline collection downloads, emulator selection, game checks, RomM, save sync, encrypted backups and profiles. The milestones below extend those features rather than presenting them as new.
 
 ## 2.8.0 — connected workflows and more content
 
-Status: implementation and verification in progress. This is the next regular release, Android build 40. Features move to “released” only after the public APK and its upgrade have been verified.
+Status: released. The public production and test APKs, checksums, signing continuity and updates from 2.7.0 have been verified. Android build 40. See the [acceptance record](quality/v2.8.0-acceptance.md) for actual results and the remaining hardware/server checks.
 
 | Work item | Result for the player | Acceptance requirement |
 |---|---|---|

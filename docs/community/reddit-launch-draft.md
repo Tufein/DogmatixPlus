@@ -1,6 +1,6 @@
 # Dogmatix+ Reddit launch draft
 
-Status: draft, not posted. Target subreddit has not been selected. Adapt to that community’s current posting rules before publication. The latest verified public release at the start of this work is [2.7.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.7.0); do not describe the in-progress roadmap as released.
+Status: draft, not posted. Target subreddit has not been selected. Adapt to that community’s current posting rules before publication. The current verified public release is [2.8.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.8.0). The wider community launch remains a later milestone.
 
 ## Ready-to-use project update
 
@@ -10,9 +10,9 @@ Hi everyone,
 
 I’m working on Dogmatix+, an Android app for managing a retro game library, downloading from configured sources and opening games in an emulator.
 
-It already has controller navigation, search and filters, favorites and collections, pause/resume downloads, per-game emulator choices, BIOS and disc checks, RomM integration, cloud saves and backups. The latest published release, 2.7.0, focuses on safer downloads, extraction, save backups and app updates.
+It already has controller navigation, search and filters, favorites and collections, pause/resume downloads, per-game emulator choices, BIOS and disc checks, RomM integration, cloud saves and backups. The latest published release, 2.8.0, connects those features with recovery, offline preparation and personal game journals.
 
-For the next releases, I’m bringing those features together:
+Version 2.8.0 adds:
 
 - One recovery screen for deleted files, interrupted moves and safety copies.
 - Complete game packages that keep discs, tracks and folders together after restarting the app.
@@ -24,13 +24,13 @@ For the next releases, I’m bringing those features together:
 
 The catalog includes homebrew, demos and test software. You can also configure your own supported sources or use a RomM server.
 
-Before the wider launch, I’m checking the complete flow on real hardware: controller-only navigation, SD-card reconnects, interrupted transfers, update data retention and real RomM/WebDAV behavior. I’ll publish the tested combinations and remaining limitations with the launch build.
+Before the wider launch, I’ll check the complete flow on real hardware: controller-only navigation, SD-card reconnects, interrupted transfers, update data retention and real RomM/WebDAV behavior. I’ll publish the tested combinations and remaining limitations with the launch build.
 
 Downloads and source: [Dogmatix+ on GitHub](https://github.com/Tufein/DogmatixPlus).
 
-Current release: [2.7.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.7.0).
+Current release: [2.8.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.8.0).
 
-Full roadmap: [Roadmap](https://github.com/Tufein/DogmatixPlus/blob/master/docs/ROADMAP.md) — this link becomes public when these changes are merged.
+Full roadmap: [Roadmap](https://github.com/Tufein/DogmatixPlus/blob/master/docs/ROADMAP.md).
 
 I’d like feedback on which consoles, content collections and emulator setups should get priority. If you report an issue, please include the app version, device and Android version, the relevant server/emulator version and the steps to reproduce it. Please leave passwords and tokens out of reports.
 
