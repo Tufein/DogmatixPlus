@@ -48,6 +48,5 @@
     <string name="csave_error_no_folder">Für diese Art Datei ist kein Ordner gewählt. Wähle einen unter Einstellungen → Spielstände synchronisieren.</string>
     <string name="csave_error_ambiguous">Mehrere Dateien auf diesem Gerät passen zu diesem Spielstand, daher wurde nichts wiederhergestellt. Entscheide im Bildschirm Spielstände synchronisieren.</string>
     <string name="csave_error_gone">%1$s ist nicht mehr da</string>
-    <string name="csave_error_copy">Es konnte keine Sicherheitskopie von %1$s angelegt werden, daher wurde nichts geändert</string>
     <string name="csave_error_not_on_server">RomM hat dieses Spiel nicht</string>
 </resources>

@@ -1383,10 +1383,12 @@
     <string name="recovery27_failed">Cette copie n’a pas pu être restaurée. Elle est conservée ; vérifiez l’accès au dossier et déplacez d’abord tout fichier actuel différent.</string>
     <plurals name="backup_import_skipped_settings">
         <item quantity="one">%1$d réglage invalide ignoré ; votre valeur actuelle est conservée</item>
+        <item quantity="many">%1$d réglages invalides ignorés ; vos valeurs actuelles sont conservées</item>
         <item quantity="other">%1$d réglages invalides ignorés ; vos valeurs actuelles sont conservées</item>
     </plurals>
     <plurals name="recovery27_available">
         <item quantity="one">%1$d copie de récupération disponible</item>
+        <item quantity="many">%1$d copies de récupération disponibles</item>
         <item quantity="other">%1$d copies de récupération disponibles</item>
     </plurals>
     <string name="romm_upload_nested_unsupported">Ce jeu utilise des sous-dossiers. Importez son archive d’origine dans RomM pour conserver ses fichiers ensemble.</string>

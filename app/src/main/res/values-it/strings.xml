@@ -1329,10 +1329,12 @@
     <string name="recovery27_failed">Impossibile ripristinare questa copia. È stata conservata; controlla l’accesso alla cartella e sposta prima eventuali file attuali diversi.</string>
     <plurals name="backup_import_skipped_settings">
         <item quantity="one">%1$d impostazione non valida ignorata; il valore attuale è stato conservato</item>
+        <item quantity="many">%1$d impostazioni non valide ignorate; i valori attuali sono stati conservati</item>
         <item quantity="other">%1$d impostazioni non valide ignorate; i valori attuali sono stati conservati</item>
     </plurals>
     <plurals name="recovery27_available">
         <item quantity="one">%1$d copia di ripristino disponibile</item>
+        <item quantity="many">%1$d copie di ripristino disponibili</item>
         <item quantity="other">%1$d copie di ripristino disponibili</item>
     </plurals>
     <string name="romm_upload_nested_unsupported">Questo gioco usa sottocartelle. Carica il suo archivio originale su RomM per mantenere insieme i file.</string>

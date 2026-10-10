@@ -1329,10 +1329,12 @@
     <string name="recovery27_failed">Não foi possível restaurar esta cópia. Foi preservada; verifique o acesso à pasta e mova primeiro qualquer ficheiro atual diferente.</string>
     <plurals name="backup_import_skipped_settings">
         <item quantity="one">%1$d definição inválida ignorada; o valor atual foi preservado</item>
+        <item quantity="many">%1$d definições inválidas ignoradas; os valores atuais foram preservados</item>
         <item quantity="other">%1$d definições inválidas ignoradas; os valores atuais foram preservados</item>
     </plurals>
     <plurals name="recovery27_available">
         <item quantity="one">%1$d cópia de recuperação disponível</item>
+        <item quantity="many">%1$d cópias de recuperação disponíveis</item>
         <item quantity="other">%1$d cópias de recuperação disponíveis</item>
     </plurals>
     <string name="romm_upload_nested_unsupported">Este jogo usa subpastas. Envie o arquivo compactado original para o RomM para manter os arquivos juntos.</string>

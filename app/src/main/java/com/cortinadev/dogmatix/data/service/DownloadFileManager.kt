@@ -80,6 +80,8 @@ class DownloadFileManager @Inject constructor(
     }
 
     /** Publishes only after stream close/readback; indexed links sharing a basename cannot silently replace each other. */
+    // Publication requires the durable write result; asynchronous/KTX edits cannot confirm it.
+    @android.annotation.SuppressLint("ApplySharedPref", "UseKtx")
     @Synchronized
     fun commitDocumentFile(file: DownloadableFileEntity, downloadDirectoryUri: String, subPath: String,
         staged: DocumentFile, expectedSha256: String, check: () -> Unit = {}): DocumentFile {

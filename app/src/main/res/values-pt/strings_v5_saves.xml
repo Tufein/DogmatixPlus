@@ -48,6 +48,5 @@
     <string name="csave_error_no_folder">Não há nenhuma pasta escolhida para este tipo de ficheiro. Escolha uma em Definições → Sincronização de saves.</string>
     <string name="csave_error_ambiguous">Vários ficheiros deste dispositivo correspondem a este save, por isso não foi restaurado. Escolha no ecrã Sincronização de saves.</string>
     <string name="csave_error_gone">%1$s já não está lá</string>
-    <string name="csave_error_copy">Não foi possível guardar uma cópia de segurança de %1$s, por isso nada foi alterado</string>
     <string name="csave_error_not_on_server">O RomM não tem este jogo</string>
 </resources>
