@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="package_transfer_title">Spelpakketgegevens</string>
+    <string name="package_transfer_hint">Exporteer bestandslijsten en controlesommen voor een herinstallatie of ander toestel. Kopieer je spelbestanden apart, stel de spelmap in en scan dezelfde bronnen voordat je deze gegevens herstelt.</string>
+    <string name="package_transfer_export">%1$d spelpakketten exporteren</string>
+    <string name="package_transfer_import">Pakketexport openen</string>
+    <string name="package_transfer_exported">Pakketexport gecontroleerd.</string>
+    <string name="package_transfer_restored">%1$d nieuwe spelpakketregistraties hersteld.</string>
+    <string name="package_transfer_failed">Deze actie kon niet worden voltooid. Controleer het bestand en de spelmap, vernieuw en probeer opnieuw.</string>
+    <string name="package_transfer_folder">Kies de spelmap om te controleren</string>
+    <string name="package_transfer_checking">Bestanden controleren…</string>
+    <string name="package_transfer_preview">Controleer %1$d spelpakketten voor herstel.</string>
+    <string name="package_transfer_ready">Gecontroleerd</string>
+    <string name="package_transfer_missing">Ontbrekende bestanden: %1$d</string>
+    <string name="package_transfer_changed">Gewijzigde of onleesbare bestanden: %1$d</string>
+    <string name="package_transfer_source_missing">Scan eerst de oorspronkelijke bron.</string>
+    <string name="package_transfer_conflict">Er bestaat al een afwijkende of onleesbare registratie.</string>
+    <string name="package_transfer_restore">Gecontroleerde gegevens herstellen</string>
+    <string name="package_transfer_no_folders">Stel eerst een spelmap in bij Opslag.</string>
+    <string name="package_transfer_restricted">Schakel naar een onbeperkt profiel om pakketgegevens te herstellen.</string>
+    <string name="package_transfer_confirm">Gegevens herstellen voor %1$d spellen en %2$d gecontroleerde bestanden?</string>
+    <string name="package_transfer_files">Bestanden (%1$d)</string>
+    <string name="package_transfer_cancel">Annuleren</string>
+    <string name="package_transfer_selection">Alleen %1$d van %2$d pakketten zijn in deze map gecontroleerd. Herstel bevat alleen die pakketten; de andere blijven ongewijzigd.</string>
+</resources>

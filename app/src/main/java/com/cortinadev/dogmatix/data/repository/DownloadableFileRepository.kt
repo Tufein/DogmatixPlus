@@ -98,6 +98,16 @@ class DownloadableFileRepository @Inject constructor(
         return files.map { DownloadableFileWithTags(it, tags[it.id].orEmpty()) }
     }
 
+    /** Preserve all source rows and tags while matching many packages with bounded SQL batches. */
+    suspend fun exactMatchesBatch(keys: Collection<Pair<String, String>>): Map<Pair<String, String>, List<DownloadableFileWithTags>> {
+        val wanted = keys.toHashSet()
+        val rows = wanted.map { it.second }.distinct().chunked(LOOKUP_CHUNK).flatMap { names ->
+            dao.filesByFileNames(names).filter { (it.consoleId to it.fileName) in wanted }
+        }
+        val tags = rows.map { it.id }.chunked(LOOKUP_CHUNK).flatMap { dao.tagsOfFiles(it) }.groupBy({ it.fileId }, { it.tag })
+        return rows.map { DownloadableFileWithTags(it, tags[it.id].orEmpty()) }.groupBy { it.file.consoleId to it.file.fileName }
+    }
+
     /**
      * [findByFileName] for many downloads: two queries per [LOOKUP_CHUNK] names instead of two per
      * name (each of those scanned the whole library table). When two consoles list the same file

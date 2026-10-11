@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="package_transfer_title">Datos de archivos de juegos</string>
+    <string name="package_transfer_hint">Exporta listas de archivos y sumas de comprobación para reinstalar o cambiar de dispositivo. Copia los juegos por separado, configura su carpeta y escanea las mismas fuentes antes de restaurar estos datos.</string>
+    <string name="package_transfer_export">Exportar %1$d paquetes</string>
+    <string name="package_transfer_import">Abrir exportación de paquetes</string>
+    <string name="package_transfer_exported">Exportación verificada.</string>
+    <string name="package_transfer_restored">Se restauraron %1$d registros nuevos.</string>
+    <string name="package_transfer_failed">No se pudo completar la acción. Comprueba el archivo y la carpeta de juegos, actualiza e inténtalo de nuevo.</string>
+    <string name="package_transfer_folder">Elige la carpeta de juegos para comprobar</string>
+    <string name="package_transfer_checking">Comprobando archivos…</string>
+    <string name="package_transfer_preview">Comprueba %1$d juegos antes de restaurar.</string>
+    <string name="package_transfer_ready">Verificado</string>
+    <string name="package_transfer_missing">Archivos que faltan: %1$d</string>
+    <string name="package_transfer_changed">Archivos modificados o ilegibles: %1$d</string>
+    <string name="package_transfer_source_missing">Escanea primero la fuente original.</string>
+    <string name="package_transfer_conflict">Ya existe un registro diferente o ilegible.</string>
+    <string name="package_transfer_restore">Restaurar datos verificados</string>
+    <string name="package_transfer_no_folders">Configura primero una carpeta de juegos en Almacenamiento.</string>
+    <string name="package_transfer_restricted">Cambia a un perfil sin restricciones para restaurar los datos.</string>
+    <string name="package_transfer_confirm">¿Restaurar los datos de %1$d juegos y %2$d archivos verificados?</string>
+    <string name="package_transfer_files">Archivos (%1$d)</string>
+    <string name="package_transfer_cancel">Cancelar</string>
+    <string name="package_transfer_selection">Solo %1$d de %2$d paquetes están verificados en esta carpeta. Solo se restauran esos paquetes; los demás no cambian.</string>
+</resources>

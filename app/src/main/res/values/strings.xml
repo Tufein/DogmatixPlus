@@ -1324,11 +1324,10 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Choose optional Libretro content collections for 23 systems without replacing your sources.</item>
-        <item>Keep complete game packages after a restart and check whether collections are ready for offline play.</item>
-        <item>Review recovery copies in one place and explicitly resume downloads after storage returns.</item>
-        <item>Keep personal notes, screenshots and manuals per game and profile, with notes in your backups.</item>
-        <item>Prepare ordinary game saves before switching devices; unresolved conflicts block the handoff.</item>
+        <item>Export game-package file lists and checksums before a reinstall or device change.</item>
+        <item>Restore only complete packages verified in your selected folder; protect changed files and existing records.</item>
+        <item>Prepare offline collections with grouped source and tag lookups for large libraries.</item>
+        <item>Use clearer controller focus and B/back cancellation in package dialogs.</item>
     </string-array>
 
     <!-- 4.0 -->

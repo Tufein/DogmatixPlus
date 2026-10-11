@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="package_transfer_title">Game package records</string>
+    <string name="package_transfer_hint">Export file lists and checksums for a reinstall or another device. Copy your game files separately, then set up the game folder and scan the same sources before restoring these records.</string>
+    <string name="package_transfer_export">Export %1$d package records</string>
+    <string name="package_transfer_import">Open package export</string>
+    <string name="package_transfer_exported">Package export verified.</string>
+    <string name="package_transfer_restored">Restored %1$d new package records.</string>
+    <string name="package_transfer_failed">Could not complete this action. Check the file and game folder, refresh and try again.</string>
+    <string name="package_transfer_folder">Choose the game folder to check</string>
+    <string name="package_transfer_checking">Checking files…</string>
+    <string name="package_transfer_preview">Check %1$d game packages before restoring.</string>
+    <string name="package_transfer_ready">Verified</string>
+    <string name="package_transfer_missing">Missing files: %1$d</string>
+    <string name="package_transfer_changed">Changed or unreadable files: %1$d</string>
+    <string name="package_transfer_source_missing">Scan the original source first.</string>
+    <string name="package_transfer_conflict">A different or unreadable record already exists.</string>
+    <string name="package_transfer_restore">Restore verified records</string>
+    <string name="package_transfer_no_folders">Set up a game folder in Storage first.</string>
+    <string name="package_transfer_restricted">Switch to an unrestricted profile to restore package records.</string>
+    <string name="package_transfer_confirm">Restore records for %1$d games and %2$d verified files?</string>
+    <string name="package_transfer_files">Files (%1$d)</string>
+    <string name="package_transfer_cancel">Cancel</string>
+    <string name="package_transfer_selection">Only %1$d of %2$d packages are verified in this folder. Restore includes those verified packages only; the others stay unchanged.</string>
+</resources>

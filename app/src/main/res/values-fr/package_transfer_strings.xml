@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="package_transfer_title">Données des fichiers de jeux</string>
+    <string name="package_transfer_hint">Exportez les listes de fichiers et leurs empreintes pour une réinstallation ou un autre appareil. Copiez les fichiers de jeux séparément, configurez leur dossier et analysez les mêmes sources avant de restaurer ces données.</string>
+    <string name="package_transfer_export">Exporter %1$d jeux</string>
+    <string name="package_transfer_import">Ouvrir un export de jeux</string>
+    <string name="package_transfer_exported">Export des jeux vérifié.</string>
+    <string name="package_transfer_restored">%1$d nouvelles entrées de jeux restaurées.</string>
+    <string name="package_transfer_failed">Cette action a échoué. Vérifiez le fichier et le dossier des jeux, actualisez puis réessayez.</string>
+    <string name="package_transfer_folder">Choisir le dossier des jeux à vérifier</string>
+    <string name="package_transfer_checking">Vérification des fichiers…</string>
+    <string name="package_transfer_preview">Vérifiez %1$d jeux avant la restauration.</string>
+    <string name="package_transfer_ready">Vérifié</string>
+    <string name="package_transfer_missing">Fichiers manquants : %1$d</string>
+    <string name="package_transfer_changed">Fichiers modifiés ou illisibles : %1$d</string>
+    <string name="package_transfer_source_missing">Analysez d’abord la source d’origine.</string>
+    <string name="package_transfer_conflict">Une entrée différente ou illisible existe déjà.</string>
+    <string name="package_transfer_restore">Restaurer les données vérifiées</string>
+    <string name="package_transfer_no_folders">Configurez d’abord un dossier de jeux dans Stockage.</string>
+    <string name="package_transfer_restricted">Passez à un profil sans restrictions pour restaurer les données des jeux.</string>
+    <string name="package_transfer_confirm">Restaurer les données de %1$d jeux et %2$d fichiers vérifiés ?</string>
+    <string name="package_transfer_files">Fichiers (%1$d)</string>
+    <string name="package_transfer_cancel">Annuler</string>
+    <string name="package_transfer_selection">Seuls %1$d des %2$d paquets sont vérifiés dans ce dossier. Seuls ces paquets seront restaurés ; les autres restent inchangés.</string>
+</resources>

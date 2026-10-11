@@ -1323,11 +1323,10 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Wähle optionale Libretro-Inhaltssammlungen für 23 Systeme, ohne deine Quellen zu ersetzen.</item>
-        <item>Behalte vollständige Spielpakete nach einem Neustart und prüfe die Offline-Spielbarkeit deiner Sammlungen.</item>
-        <item>Prüfe Wiederherstellungskopien an einem Ort und setze Downloads nach Rückkehr des Speichers gezielt fort.</item>
-        <item>Speichere Notizen, Screenshots und Handbücher pro Spiel und Profil; Notizen werden gesichert.</item>
-        <item>Bereite normale Spielstände vor einem Gerätewechsel vor; ungelöste Konflikte verhindern die Übergabe.</item>
+        <item>Exportiere Dateilisten und Prüfsummen von Spielpaketen vor einer Neuinstallation oder einem Gerätewechsel.</item>
+        <item>Stelle nur vollständige, im gewählten Ordner geprüfte Pakete wieder her; geänderte Dateien und bestehende Einträge bleiben geschützt.</item>
+        <item>Bereite Offline-Sammlungen mit gebündelten Quellen- und Tag-Abfragen für große Bibliotheken vor.</item>
+        <item>Nutze klareren Controller-Fokus und B/Zurück zum Schließen von Paketdialogen.</item>
     </string-array>
 
     <!-- 4.0 -->

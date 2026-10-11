@@ -104,6 +104,38 @@ class GamePackageService @Inject constructor(@param:ApplicationContext private v
         persist(proposed, check, preserveExisting = true)
     }
 
+    internal fun importCompatible(manifest: GamePackages.Manifest): Boolean = synchronized(receiptLock) {
+        val target = File(folder, GamePackages.receiptKey(manifest.sourceIdentity, manifest.rootUri) + ".json")
+        if (!target.exists() && !File(target.path + ".bak").exists()) return@synchronized true
+        readRecord(target)?.copy(createdAt = manifest.createdAt) == manifest
+    }
+
+    /** Runtime failures roll back new records. A process interruption can be retried idempotently. */
+    internal fun importVerified(manifests: List<GamePackages.Manifest>): Int = synchronized(receiptLock) {
+        require(manifests.isNotEmpty() && manifests.size <= GamePackages.MAX_PACKAGES)
+        manifests.forEach { GamePackages.validate(it); require(DiskScanner.rootOf(it.rootUri) != null) }
+        val targets = manifests.map { File(folder, GamePackages.receiptKey(it.sourceIdentity, it.rootUri) + ".json") }
+        require(targets.map { it.name }.distinct().size == targets.size)
+        val missing = targets.filter { !it.exists() && !File(it.path + ".bak").exists() }
+        check(folder.listFiles().orEmpty().map { it.name.removeSuffix(".bak") }.distinct().count { it.endsWith(".json") } + missing.size <= GamePackages.MAX_PACKAGES)
+        manifests.zip(targets).forEach { (manifest, target) ->
+            if (target !in missing) {
+                val existing = readRecord(target) ?: error("Existing package receipt unavailable")
+                check(existing.copy(createdAt = manifest.createdAt) == manifest) { "Existing package receipt differs" }
+            }
+        }
+        val markers = manifests.map { File(folder, "${it.sourceIdentity}.tracked") }
+            .filter { !it.exists() && !File(it.path + ".bak").exists() }
+        try {
+            manifests.forEach { persist(it, {}, preserveExisting = true) }
+            missing.size
+        } catch (error: Throwable) {
+            missing.forEach { AtomicFile(it).delete() }
+            markers.forEach { AtomicFile(it).delete() }
+            throw error
+        }
+    }
+
     /** [movedPaths] describes the verified move: original document URI to its path below the source. */
     suspend fun rebaseMovedFiles(oldRoots: Set<String>, movedPaths: Map<String, String>, newRootUri: String,
         newPrefix: String = "", consoleId: String? = null): Int = withContext(Dispatchers.IO) {
@@ -182,14 +214,14 @@ class GamePackageService @Inject constructor(@param:ApplicationContext private v
     }
 
     /** One refresh shares directory queries across receipts; hashes remain an explicit check. */
-    suspend fun inspectBatch(manifests: List<GamePackages.Manifest>): List<PackageInspection> = withContext(Dispatchers.IO) {
+    suspend fun inspectBatch(manifests: List<GamePackages.Manifest>, verifyHashes: Boolean = false): List<PackageInspection> = withContext(Dispatchers.IO) {
         require(manifests.size <= GamePackages.MAX_PACKAGES)
         val coroutine = currentCoroutineContext()
         val check = { coroutine.ensureActive() }
         val listings = Listings(check)
         manifests.map { manifest ->
             check()
-            try { inspectNow(manifest, false, check, listings) }
+            try { inspectNow(manifest, verifyHashes, check, listings) }
             catch (e: kotlinx.coroutines.CancellationException) { throw e }
             catch (_: Exception) { PackageInspection(manifest, emptyList(), manifest.parts.map { it.path }, emptyList(), false) }
         }

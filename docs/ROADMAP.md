@@ -20,14 +20,14 @@ Status: released. The public production and test APKs, checksums, signing contin
 
 The catalog points to Libretro-hosted content collections, including homebrew, demos and test software. It does not promise complete commercial ROM libraries. Personal HTTP, torrent and RomM sources remain supported. Initial catalog verification: [Libretro content](https://github.com/libretro/libretro-content), [directory listings](https://buildbot.libretro.com/assets/cores/). Individual files and availability may change; users scan the current source before downloading.
 
-## 2.9.0 — prove the complete journey on hardware
+## 2.9.0 — portable package records and large-library preparation
 
-Status: planned. The priority is integration, performance and usability measured on real devices.
+Status: implementation in progress. Package-record export/restore is implemented and has passed targeted unit and Android document-provider tests; the full candidate checks remain in progress. The requested hardware target is an AYN Thor running Android 13. The owner has no RomM installation yet, so live server tests have no recorded result. See the [test matrix](quality/community-launch-matrix.md) and [package recovery guide](guides/package-recovery.md).
 
 - Test a touch device and an Android handheld with a physical controller: first setup → select source → download → emulator launch → return → save sync → recover. Complete the controller route without requiring touch.
 - Remove and reconnect a real SD card during a queued download, transfer and library refresh. Preserve completed games, partial downloads, package receipts and personal data; explain the next action.
 - Test sleep, resume, app restart, interrupted downloads and updates on real hardware, including Android background restrictions.
-- Add a reviewed package-receipt export/restore workflow for a reinstall or a new device. Current app updates and verified library/SD moves preserve receipts; the general backup retains settings and journals but does not export package receipts or game bytes. Restoring receipts must require a selected local folder and verified file contents.
+- Complete the package-receipt export/restore acceptance. The new workflow requires a configured local folder, original indexed source identity and fresh SHA-256 verification, protects existing records and rejects stale profile actions. Current app updates and verified library/SD moves preserve receipts; the general backup retains settings and journals, while package records are exported separately and game bytes must be copied separately.
 - Test against an actual RomM and WebDAV server: authentication, certificate changes, network interruption, conflicting saves, backup restoration and retry behavior. Record server versions and supported configurations.
 - Measure search, collection rendering, readiness and queue responsiveness with 10,000 and 50,000 indexed files. Record hardware, dataset and timings before making speed claims. Fix measured bottlenecks and avoid repeating whole-library hashing on each screen open.
 - Review all new screens with long translations, large text, screen readers, portrait/landscape and controller focus. Preserve consistent back/cancel behavior.

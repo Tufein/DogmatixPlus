@@ -1328,11 +1328,10 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Choisissez des collections Libretro facultatives pour 23 systèmes sans remplacer vos sources.</item>
-        <item>Conservez les jeux complets après un redémarrage et vérifiez si vos collections sont jouables hors ligne.</item>
-        <item>Consultez les copies de récupération au même endroit et reprenez les téléchargements quand le stockage revient.</item>
-        <item>Gardez notes, captures et manuels par jeu et profil ; les notes sont incluses dans les sauvegardes.</item>
-        <item>Préparez les sauvegardes ordinaires avant de changer d’appareil ; les conflits bloquent le transfert.</item>
+        <item>Exportez les listes de fichiers et les sommes de contrôle avant une réinstallation ou un changement d’appareil.</item>
+        <item>Restaurez uniquement les paquets complets vérifiés dans le dossier choisi ; protégez les fichiers modifiés et les enregistrements existants.</item>
+        <item>Préparez les collections hors ligne avec des recherches groupées de sources et d’étiquettes pour les grandes bibliothèques.</item>
+        <item>Profitez d’un focus plus clair et de l’annulation B/retour dans les dialogues de paquets.</item>
     </string-array>
 
     <!-- 4.0 -->
