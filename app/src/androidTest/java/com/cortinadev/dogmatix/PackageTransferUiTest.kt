@@ -81,6 +81,9 @@ class PackageTransferUiTest {
             compose.onNodeWithTag("package-transfer-restore").assertIsEnabled().performClick()
             compose.onNode(hasText(context.getString(R.string.package_transfer_confirm, 1, 1), substring = true) and hasAnyAncestor(isDialog())).assertIsDisplayed()
             assertFalse(receipt.exists())
+            // Clicking opens the dialog in touch mode; switch back as a real controller does.
+            InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_DPAD_DOWN)
+            compose.waitForIdle()
             val cancel = compose.onNode(hasText(context.getString(R.string.package_transfer_cancel)) and hasAnyAncestor(isDialog()))
             cancel.performSemanticsAction(SemanticsActions.RequestFocus) { it() }.assertIsFocused().performKeyInput { pressKey(Key.ButtonB) }
             compose.onNode(isDialog()).assertDoesNotExist()
