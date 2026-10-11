@@ -2,14 +2,14 @@
 <resources>
     <string name="package_transfer_title">Dados dos ficheiros dos jogos</string>
     <string name="package_transfer_hint">Exporte listas de ficheiros e somas de verificação para reinstalar ou mudar de dispositivo. Copie os jogos separadamente, configure a pasta e analise as mesmas fontes antes de restaurar estes dados.</string>
-    <string name="package_transfer_export">Exportar %1$d pacotes</string>
+    <string name="package_transfer_export">Exportar registos de pacotes: %1$d</string>
     <string name="package_transfer_import">Abrir exportação de pacotes</string>
     <string name="package_transfer_exported">Exportação verificada.</string>
-    <string name="package_transfer_restored">Restaurados %1$d novos registos.</string>
+    <string name="package_transfer_restored">Novos registos de pacotes restaurados: %1$d.</string>
     <string name="package_transfer_failed">Não foi possível concluir a ação. Verifique o ficheiro e a pasta dos jogos, atualize e tente novamente.</string>
     <string name="package_transfer_folder">Escolha a pasta dos jogos a verificar</string>
     <string name="package_transfer_checking">A verificar ficheiros…</string>
-    <string name="package_transfer_preview">Verifique %1$d jogos antes de restaurar.</string>
+    <string name="package_transfer_preview">Pacotes a verificar: %1$d.</string>
     <string name="package_transfer_ready">Verificado</string>
     <string name="package_transfer_missing">Ficheiros em falta: %1$d</string>
     <string name="package_transfer_changed">Ficheiros alterados ou ilegíveis: %1$d</string>
@@ -18,8 +18,8 @@
     <string name="package_transfer_restore">Restaurar dados verificados</string>
     <string name="package_transfer_no_folders">Configure primeiro uma pasta de jogos em Armazenamento.</string>
     <string name="package_transfer_restricted">Mude para um perfil sem restrições para restaurar os dados.</string>
-    <string name="package_transfer_confirm">Restaurar os dados de %1$d jogos e %2$d ficheiros verificados?</string>
+    <string name="package_transfer_confirm">Restaurar os registos verificados?\nJogos: %1$d\nFicheiros: %2$d</string>
     <string name="package_transfer_files">Ficheiros (%1$d)</string>
     <string name="package_transfer_cancel">Cancelar</string>
-    <string name="package_transfer_selection">Apenas %1$d de %2$d pacotes estão verificados nesta pasta. Só esses pacotes serão restaurados; os outros permanecem inalterados.</string>
+    <string name="package_transfer_selection">Verificados nesta pasta: %1$d / %2$d. Só os pacotes completos e verificados serão restaurados; os outros permanecem inalterados.</string>
 </resources>

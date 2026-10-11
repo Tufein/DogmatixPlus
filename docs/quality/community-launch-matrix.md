@@ -8,10 +8,10 @@ Updated: 11 October 2026. Target: AYN Thor, Android 13. The owner has not instal
 |---|---|---|
 | Existing 2.8.0 checks | Android 15 ARM and x86_64 emulators; published APK upgrades | Passed; [2.8.0 acceptance](v2.8.0-acceptance.md). |
 | Package transfer format | Strict JSON/UTF-8, exact layout, duplicate identities and portable roots | Five new unit tests passed. |
-| Package export and registration | Room, DataStore and a real Android documents-provider fixture on isolated Android 15 ARM | Ten new integration tests passed: export/readback, receipt-loss recovery, idempotent repeat, wrong/missing folders, same-size mutation, corrupt existing records, inaccessible bytes, source mismatch, changed profiles/restrictions, duplicate-source hidden tags and write-failure rollback. |
+| Package export and registration | Room, DataStore and a real Android documents-provider fixture on isolated Android 13/15 ARM | Eleven new integration tests passed: multi-root export/registration, export/readback, receipt-loss recovery, idempotent repeat, wrong/missing folders, same-size mutation, corrupt existing records, inaccessible bytes, source mismatch, changed profiles/restrictions, duplicate-source hidden tags and write-failure rollback. |
 | Large library | Synthetic 10,000 / 50,000 indexed rows, two tags per row, 5,000 collection members | Harness passed on Android 15 ARM. At 50k rows, search-50 median 44.67 ms, collection-page-100 median 30.91 ms; matching 2,000 packages used ten SELECTs. The old 50,000 individual tag SELECTs took 11.32 s; 56 bounded tag SELECTs had a 278.59 ms median. Backend timings do not establish UI frame rate or Thor performance. |
-| New screen | Seven translations, empty and restricted states, controller focus, confirmation | UI verification pending. |
-| Android 13 | Isolated emulator matching the target Android API level | Pending. Emulator behavior does not establish actual handheld behavior. |
+| New screen | Seven translations; 160% text; portrait/landscape; preview/confirmation and controller B | Targeted UI test passed on Android 13 landscape and Android 15 portrait. Count/text polish repeat pending; no physical controller or screen-reader claim. |
+| Android 13 | Isolated emulator matching the target Android API level | All 193 Android tests passed. Emulator behavior does not establish actual handheld behavior. |
 | Public release identity / upgrade | Signed production and stable test APKs | New candidate verification pending; the last verified public artifacts are 2.8.0/build 40. |
 
 ## AYN Thor journey

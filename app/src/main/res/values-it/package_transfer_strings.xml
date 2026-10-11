@@ -2,14 +2,14 @@
 <resources>
     <string name="package_transfer_title">Dati dei file di gioco</string>
     <string name="package_transfer_hint">Esporta elenchi di file e checksum per una reinstallazione o un altro dispositivo. Copia separatamente i file dei giochi, configura la cartella e analizza le stesse fonti prima di ripristinare questi dati.</string>
-    <string name="package_transfer_export">Esporta %1$d pacchetti</string>
+    <string name="package_transfer_export">Esporta i record dei pacchetti: %1$d</string>
     <string name="package_transfer_import">Apri esportazione dei pacchetti</string>
     <string name="package_transfer_exported">Esportazione verificata.</string>
-    <string name="package_transfer_restored">Ripristinate %1$d nuove registrazioni di giochi.</string>
+    <string name="package_transfer_restored">Nuovi record dei pacchetti ripristinati: %1$d.</string>
     <string name="package_transfer_failed">Impossibile completare l’azione. Controlla il file e la cartella dei giochi, aggiorna e riprova.</string>
     <string name="package_transfer_folder">Scegli la cartella dei giochi da verificare</string>
     <string name="package_transfer_checking">Verifica dei file…</string>
-    <string name="package_transfer_preview">Verifica %1$d giochi prima del ripristino.</string>
+    <string name="package_transfer_preview">Pacchetti da verificare: %1$d.</string>
     <string name="package_transfer_ready">Verificato</string>
     <string name="package_transfer_missing">File mancanti: %1$d</string>
     <string name="package_transfer_changed">File modificati o illeggibili: %1$d</string>
@@ -18,8 +18,8 @@
     <string name="package_transfer_restore">Ripristina i dati verificati</string>
     <string name="package_transfer_no_folders">Configura prima una cartella dei giochi in Archiviazione.</string>
     <string name="package_transfer_restricted">Passa a un profilo senza restrizioni per ripristinare i dati.</string>
-    <string name="package_transfer_confirm">Ripristinare i dati di %1$d giochi e %2$d file verificati?</string>
+    <string name="package_transfer_confirm">Ripristinare i record verificati?\nGiochi: %1$d\nFile: %2$d</string>
     <string name="package_transfer_files">File (%1$d)</string>
     <string name="package_transfer_cancel">Annulla</string>
-    <string name="package_transfer_selection">Solo %1$d di %2$d pacchetti sono verificati in questa cartella. Il ripristino include solo questi pacchetti; gli altri restano invariati.</string>
+    <string name="package_transfer_selection">Verificati in questa cartella: %1$d / %2$d. Il ripristino include solo pacchetti completi e verificati; gli altri restano invariati.</string>
 </resources>

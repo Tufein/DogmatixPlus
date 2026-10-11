@@ -4,6 +4,8 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -14,6 +16,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -221,14 +224,15 @@ fun PackageTransferScreen(viewModel: PackageTransferViewModel = hiltViewModel())
         val cancelFocus = rememberInitialFocus()
         AlertDialog(onDismissRequest = { confirm = null }, modifier = Modifier.closeOnGamepadB { confirm = null },
             title = { Text(stringResource(R.string.package_transfer_restore)) },
-            text = { Text(stringResource(R.string.package_transfer_confirm, selected.checks.size, selected.checks.sumOf { it.record.parts.size }) + "\n" + selected.location.label) },
+            text = { Text(stringResource(R.string.package_transfer_confirm, selected.checks.size, selected.checks.sumOf { it.record.parts.size }) + "\n" + selected.location.label,
+                Modifier.verticalScroll(rememberScrollState())) },
             confirmButton = { DialogButton(stringResource(R.string.package_transfer_restore), onClick = { confirm = null; viewModel.restore(selected) }) },
             dismissButton = { DialogButton(stringResource(R.string.package_transfer_cancel), onClick = { confirm = null }, initialFocus = cancelFocus) })
     }
     details?.let { record ->
         val closeFocus = rememberInitialFocus()
         AlertDialog(onDismissRequest = { details = null }, modifier = Modifier.closeOnGamepadB { details = null },
-            title = { Text(record.fileName) }, text = {
+            title = { Text(record.fileName, maxLines = 2, overflow = TextOverflow.Ellipsis) }, text = {
             LazyColumn { items(record.parts, key = { it.path }) { part ->
                 Text(listOf(record.subPath, part.path).filter { it.isNotEmpty() }.joinToString("/"), Modifier.padding(vertical = 4.dp))
             } }
