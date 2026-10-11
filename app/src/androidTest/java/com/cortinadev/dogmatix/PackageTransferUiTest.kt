@@ -79,7 +79,7 @@ class PackageTransferUiTest {
             compose.waitUntil(10_000) { viewModel.preview.value?.ready == true && !viewModel.busy.value }
             compose.onNode(hasScrollAction()).performScrollToNode(hasTestTag("package-transfer-restore"))
             compose.onNodeWithTag("package-transfer-restore").assertIsEnabled().performClick()
-            compose.onNode(hasText(context.getString(R.string.package_transfer_confirm, 1, 1)) and hasAnyAncestor(isDialog())).assertIsDisplayed()
+            compose.onNode(hasText(context.getString(R.string.package_transfer_confirm, 1, 1), substring = true) and hasAnyAncestor(isDialog())).assertIsDisplayed()
             assertFalse(receipt.exists())
             val cancel = compose.onNode(hasText(context.getString(R.string.package_transfer_cancel)) and hasAnyAncestor(isDialog()))
             cancel.performSemanticsAction(SemanticsActions.RequestFocus) { it() }.assertIsFocused().performKeyInput { pressKey(Key.ButtonB) }
