@@ -51,10 +51,12 @@ class BottomTabsAccessibilityTest {
             assertEquals(1, layouts.size)
             val layout = layouts.single()
             assertFalse("Full $label must fit vertically at 160% text size", layout.didOverflowHeight)
-            // Compose rounds the node size to whole pixels; a fractional width alone is not clipping.
-            assertTrue("Full $label must fit horizontally: paragraph=${layout.multiParagraph.width}, node=${layout.size.width}", layout.multiParagraph.width <= layout.size.width + 1f)
+            // Paragraph width includes unused space; check the rendered lines inside the rounded node.
             assertEquals(label.length, layout.getLineEnd(layout.lineCount - 1))
-            repeat(layout.lineCount) { line -> assertFalse("$label must not be ellipsized", layout.isLineEllipsized(line)) }
+            repeat(layout.lineCount) { line ->
+                assertFalse("$label must not be ellipsized", layout.isLineEllipsized(line))
+                assertTrue("Full $label must fit horizontally: right=${layout.getLineRight(line)}, node=${layout.size.width}", layout.getLineLeft(line) >= -1f && layout.getLineRight(line) <= layout.size.width + 1f)
+            }
             val textBounds = text.fetchSemanticsNode().boundsInRoot
             val buttonBounds = compose.onNode(hasClickAction() and hasText(label)).fetchSemanticsNode().boundsInRoot
             assertTrue("$label must remain inside its touch target", textBounds.top >= buttonBounds.top && textBounds.bottom <= buttonBounds.bottom)
