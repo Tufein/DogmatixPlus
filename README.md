@@ -31,11 +31,12 @@ The app includes no games. **Sources → More romsets** offers optional Libretro
 
 ---
 
-The latest release is [2.8.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.8.0) (Android build 40).
-Downloads keep a known-good file while replacements are checked, archive extraction protects paths and existing files, and save sync verifies safety copies before deletions.
-In-app updates check the checksum, package, version and signing certificate before installation. See [release notes](docs/release-notes/v2.8.0.md) for usage and update details.
+The latest release is [2.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.9.0) (Android build 41).
+Downloads protect known-good files, extraction preserves safe paths, and updates check the checksum, package, version and signing certificate. Both public APKs and their updates from 2.8.0 have been verified; see the [acceptance record](docs/quality/v2.9.0-acceptance.md).
 
-Release **2.8.0** connects recovery, storage reconnect, durable game packages, offline readiness, personal journals and guided save handoff. The optional romset catalog starts with **23 content collections / 134 listed files**, checked on 10 October 2026. These are dated directory counts, not a claim of complete commercial ROM sets. See the [full community-launch roadmap](docs/ROADMAP.md), [Reddit draft](docs/community/reddit-launch-draft.md) and [acceptance checks](docs/quality/v2.8.0-acceptance.md).
+Release **2.9.0** adds portable game-package records, fewer database queries when preparing offline collections and full navigation labels at large text sizes. Use **Tools → Game package records** after copying games separately and selecting storage again; the [recovery guide](docs/guides/package-recovery.md) explains what the export contains.
+
+The optional romset catalog offers **23 content collections / 134 listed files**, checked on 10 October 2026. These are dated directory counts, not complete commercial ROM sets. The **3.0.0** community launch still needs actual AYN Thor / Android 13 results; live RomM/WebDAV remains unverified. See the [roadmap](docs/ROADMAP.md), [Thor test guide](docs/guides/ayn-thor-test.md) and [unpublished Reddit draft](docs/community/reddit-launch-draft.md).
 
 ## What can it do?
 

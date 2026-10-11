@@ -1,0 +1,131 @@
+{
+  "releaseUrl": "https://github.com/Tufein/DogmatixPlus/releases/tag/v2.9.0",
+  "releaseId": 409641738,
+  "publishedAt": "2026-10-11T12:02:48Z",
+  "latest": true,
+  "regularRelease": true,
+  "sourceCommit": "0b73bd03f548ccb8a7565b583b19f62c36791012",
+  "tagCommit": "0b73bd03f548ccb8a7565b583b19f62c36791012",
+  "assets": {
+    "DogmatixPlus-release.apk": {
+      "size": 65040274,
+      "sha256": "fe206085f18b7044f310564d1722b3492f56d894eb0fc8d6d33a6e6e608cb5b4",
+      "package": "com.tufein.dogmatixplus",
+      "versionCode": 41,
+      "versionName": "2.9.0",
+      "certificateSha256": "e0e4eaeaf92e4d7a68ef620b021598f0bcbb9f9399e2bdcf18c8297077bedc46"
+    },
+    "DogmatixPlus-debug.apk": {
+      "size": 111549011,
+      "sha256": "e30fc1a4eb209beffcfde2ca55c19413745d0803bc498baa6e4918f415528f4d",
+      "package": "com.tufein.dogmatixplus.debug",
+      "versionCode": 41,
+      "versionName": "2.9.0-debug",
+      "certificateSha256": "6e01f3ae0a73660bca0910f23af9e85780233f092af3ee1464c954db61fa7a70"
+    }
+  },
+  "localChecks": {
+    "date": "2026-10-11",
+    "unit": {
+      "tests": 1486,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 2,
+      "passed": 1484
+    },
+    "releasePolicy": {
+      "tests": 7,
+      "failures": 0
+    },
+    "android": {
+      "33": {
+        "tests": 194,
+        "failures": 0,
+        "skipped": 0,
+        "architecture": "ARM64",
+        "device": "isolated emulator"
+      },
+      "35": {
+        "tests": 194,
+        "failures": 0,
+        "skipped": 0,
+        "architecture": "ARM64",
+        "device": "isolated emulator"
+      }
+    },
+    "lintUnfiltered": {
+      "Hint": 2,
+      "Warning": 70
+    },
+    "builds": [
+      "debug",
+      "androidTest",
+      "signed production"
+    ],
+    "hardwareTests": null,
+    "liveServerTests": null
+  },
+  "releaseCi": {
+    "runId": 38136667097,
+    "sourceCommit": "0b73bd03f548ccb8a7565b583b19f62c36791012",
+    "url": "https://github.com/Tufein/DogmatixPlus/actions/runs/38136667097",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "version",
+        "conclusion": "success",
+        "results": []
+      },
+      {
+        "name": "release",
+        "conclusion": "success",
+        "results": [
+          "2026-10-11T11:57:33.8880889Z Lint found no errors or warnings",
+          "2026-10-11T11:59:35.0846159Z Lint found 74 warnings (and 24 errors, 826 warnings and 4 hints filtered by baseline lint-baseline.xml)",
+          "2026-10-11T11:59:35.0853024Z BUILD SUCCESSFUL in 14m 42s",
+          "2026-10-11T12:01:06.0548809Z Starting 194 tests on emulator-5554 - 15",
+          "2026-10-11T12:02:37.4579289Z Finished 194 tests on emulator-5554 - 15",
+          "2026-10-11T12:02:38.0555172Z BUILD SUCCESSFUL in 1m 56s"
+        ]
+      }
+    ]
+  },
+  "publicApkUpgrades": {
+    "production": {
+      "phase": "public",
+      "variant": "production",
+      "upgradedFrom": "public 2.8.0/build40",
+      "versionCode": 41,
+      "versionName": "2.9.0",
+      "databaseVersion": 15,
+      "coldStartupClean": true,
+      "applicationUiVisible": true,
+      "systemFullscreenPromptDismissed": false,
+      "customAndDisabledSourcesPreserved": true,
+      "profilesPreferencesFavouritesCollectionsHistoryPreserved": true,
+      "saveBackupPreserved": true,
+      "journalPreserved": true,
+      "packageReceiptAndTrackingMarkerPreserved": true,
+      "apkSha256": "fe206085f18b7044f310564d1722b3492f56d894eb0fc8d6d33a6e6e608cb5b4",
+      "device": "isolated Android 15 ARM emulator"
+    },
+    "debug": {
+      "phase": "public",
+      "variant": "debug",
+      "upgradedFrom": "public 2.8.0/build40",
+      "versionCode": 41,
+      "versionName": "2.9.0-debug",
+      "databaseVersion": 15,
+      "coldStartupClean": true,
+      "applicationUiVisible": true,
+      "systemFullscreenPromptDismissed": false,
+      "customAndDisabledSourcesPreserved": true,
+      "profilesPreferencesFavouritesCollectionsHistoryPreserved": true,
+      "saveBackupPreserved": true,
+      "journalPreserved": true,
+      "packageReceiptAndTrackingMarkerPreserved": true,
+      "apkSha256": "e30fc1a4eb209beffcfde2ca55c19413745d0803bc498baa6e4918f415528f4d",
+      "device": "isolated Android 15 ARM emulator"
+    }
+  }
+}

@@ -33,6 +33,13 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 2.9.0
+
+- Exporteer bestandslijsten en controlesommen via **Hulpmiddelen → Spelpakketgegevens** en koppel ze na herinstallatie opnieuw aan bestaande games. Kopieer de games apart, kies de opslag opnieuw en scan dezelfde bronnen. Alleen complete, gecontroleerde pakketten worden geregistreerd.
+- Minder databasewerk bij het voorbereiden van offline collecties; volledige navigatielabels bij grote tekst.
+- Android build **41**, database **15**. De normale APK en test-APK, ondertekening en updates vanaf 2.8.0 zijn gecontroleerd. Zie [release 2.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.9.0) en de [herstelgids](docs/guides/package-recovery.md).
+- Voor de 3.0.0-communityrelease staan de echte AYN Thor-tests nog open. RomM is nog niet geïnstalleerd. Zie de [toesteltestgids](docs/guides/ayn-thor-test.md) en [roadmap](docs/ROADMAP.md).
+
 ### Nieuw in 2.8.0
 
 - Kies optionele romsets voor **23 systemen**, naast je bestaande bronnen. De controle van 10 oktober 2026 vond **134 bestanden**; dit is geen aantal volledige commerciële games.
@@ -196,7 +203,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 - Back-ups bewaren profielvoorkeuren en emulatorkeuzes; collectieregels en limieten volgen de collectienaam bij herstel.
 - Android build **37**, database **14**. De update vanaf 2.4.0 behoudt favorieten en herstelgegevens.
 
-De definitieve APK staat bij [release 2.5.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.5.0).
+De huidige APK staat bij [release 2.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.9.0).
 Ruimteberekeningen blijven schattingen bij onbekende groottes. Lege bronmappen blijven staan na herstelbaar verwijderen. Controleer echte emulators en externe diensten op je eigen toestel.
 
 ### Nieuw in 2.4.0

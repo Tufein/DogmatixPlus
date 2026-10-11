@@ -33,6 +33,13 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 2.9.0
+
+- Exporta las listas y sumas de verificación de archivos y recupera sus vínculos tras reinstalar. Copia los juegos aparte, selecciona de nuevo el almacenamiento y escanea las mismas fuentes. Solo se registran paquetes completos y verificados.
+- Menos consultas al preparar colecciones sin conexión y etiquetas de navegación completas con texto grande.
+- Build Android **41**, base **15**. Se verificaron los dos APK públicos, sus firmas y las actualizaciones desde 2.8.0. Consulta la [versión 2.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.9.0) y la [guía de recuperación](docs/guides/package-recovery.md).
+- El lanzamiento comunitario 3.0.0 espera las pruebas físicas en AYN Thor. Los servidores reales RomM/WebDAV siguen sin verificar; consulta la [hoja de ruta](docs/ROADMAP.md).
+
 ### Novedades de 2.3.0
 
 - Buscar descargas por título o nombre, filtrar por estado y aplicar acciones a los resultados. Mover la selección en espera al principio.

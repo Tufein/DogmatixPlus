@@ -1,6 +1,6 @@
 # Dogmatix+ Reddit launch draft
 
-Status: draft, not posted. Target subreddit has not been selected. Adapt to that community’s current posting rules before publication. The current verified public release is [2.8.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.8.0). The wider community launch remains a later milestone.
+Status: draft, not posted. Target subreddit has not been selected. Adapt to that community’s current posting rules before publication. The current verified public release is [2.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.9.0). The wider community launch remains a later milestone.
 
 ## Ready-to-use project update
 
@@ -10,7 +10,7 @@ Hi everyone,
 
 I’m working on Dogmatix+, an Android app for managing a retro game library, downloading from configured sources and opening games in an emulator.
 
-It already has controller navigation, search and filters, favorites and collections, pause/resume downloads, per-game emulator choices, BIOS and disc checks, RomM integration, cloud saves and backups. The latest published release, 2.8.0, connects those features with recovery, offline preparation and personal game journals.
+It already has controller navigation, search and filters, favorites and collections, pause/resume downloads, per-game emulator choices, BIOS and disc checks, RomM integration, cloud saves and backups. Release 2.8.0 connected those features with recovery, offline preparation and personal game journals. The latest release, 2.9.0, adds portable package records and reduces database work for offline collections.
 
 Version 2.8.0 adds:
 
@@ -22,13 +22,17 @@ Version 2.8.0 adds:
 - A guided save transfer before switching to another device.
 - An optional catalog of Libretro-hosted content collections for more systems, added alongside your existing sources.
 
+Version 2.9.0 adds export and verified restore of package file lists/checksums after a reinstall, checks each configured game folder separately and preserves different existing records. Copy the game files separately: the export is metadata, not a game/save backup. It also batches database lookups for offline collection preparation and keeps navigation labels visible with large text.
+
+All 194 Android integration/UI tests passed on Android 13/15 emulators and both published APK updates from 2.8.0 retained app data. The physical launch target is AYN Thor / Android 13; controller, dual-display and SD-card checks remain open. No live RomM/WebDAV server is certified. See the [recorded checks](https://github.com/Tufein/DogmatixPlus/blob/master/docs/quality/v2.9.0-acceptance.md).
+
 The catalog includes homebrew, demos and test software. You can also configure your own supported sources or use a RomM server.
 
 Before the wider launch, I’ll check the complete flow on real hardware: controller-only navigation, SD-card reconnects, interrupted transfers, update data retention and real RomM/WebDAV behavior. I’ll publish the tested combinations and remaining limitations with the launch build.
 
 Downloads and source: [Dogmatix+ on GitHub](https://github.com/Tufein/DogmatixPlus).
 
-Current release: [2.8.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.8.0).
+Current release: [2.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.9.0).
 
 Full roadmap: [Roadmap](https://github.com/Tufein/DogmatixPlus/blob/master/docs/ROADMAP.md).
 

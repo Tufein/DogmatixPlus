@@ -10,9 +10,11 @@ Updated: 11 October 2026. Target: AYN Thor, Android 13. The owner has not instal
 | Package transfer format | Strict JSON/UTF-8, exact layout, duplicate identities and portable roots | Five new unit tests passed. |
 | Package export and registration | Room, DataStore and a real Android documents-provider fixture on isolated Android 13/15 ARM | Eleven new integration tests passed: multi-root export/registration, export/readback, receipt-loss recovery, idempotent repeat, wrong/missing folders, same-size mutation, corrupt existing records, inaccessible bytes, source mismatch, changed profiles/restrictions, duplicate-source hidden tags and write-failure rollback. |
 | Large library | Synthetic 10,000 / 50,000 indexed rows, two tags per row, 5,000 collection members | Harness passed on Android 15 ARM. At 50k rows, search-50 median 44.67 ms, collection-page-100 median 30.91 ms; matching 2,000 packages used ten SELECTs. The old 50,000 individual tag SELECTs took 11.32 s; 56 bounded tag SELECTs had a 278.59 ms median. Backend timings do not establish UI frame rate or Thor performance. |
-| New screen | Seven translations; 160% text; portrait/landscape; preview/confirmation and controller B | Targeted UI test passed on Android 13 landscape and Android 15 portrait. Count/text polish repeat pending; no physical controller or screen-reader claim. |
-| Android 13 | Isolated emulator matching the target Android API level | All 193 Android tests passed. Emulator behavior does not establish actual handheld behavior. |
-| Public release identity / upgrade | Signed production and stable test APKs | New candidate verification pending; the last verified public artifacts are 2.8.0/build 40. |
+| New screen | Seven translations; 160% text; portrait/landscape; preview/confirmation and controller B | Targeted UI test passed on Android 13 landscape and Android 15 portrait. Final count/text polish and narrow French navigation test passed; no physical controller or screen-reader claim. [Actual emulator captures](../community/screenshots/README.md). |
+| Android versions | Isolated Android 13/15 emulators; Android 13 matches the target API level | All 194 Android tests passed on Android 13/15 ARM and Android 15 x86_64. Emulator behavior does not establish actual handheld behavior. |
+| Public release identity / upgrade | Signed production and stable test APKs | Public 2.9.0/build 41 checksums, both signing identities and production/test updates from 2.8.0 passed; [acceptance](v2.9.0-acceptance.md). |
+
+Use the [Thor test guide](../guides/ayn-thor-test.md) for the physical run.
 
 ## AYN Thor journey
 
@@ -25,7 +27,7 @@ Use freely distributed test content or games you own. Record app build, firmware
 | Sleep/resume during a download; return from emulator | No duplicated work or lost pause; explain Android background restrictions when relevant. | Pending hardware. |
 | Disconnect/reconnect SD during queued download, storage move and refresh | Retain completed files, partial bytes, private package receipts and personal data; resume only the affected work after a fresh storage check. | Pending hardware. |
 | Export, reinstall and restore package records using test content | Select storage again and rescan sources; verify every byte before registration. Same-size changes and wrong roots block restoration. | Fixture passed; physical SD pending. |
-| Update from the latest regular public APK | Keep sources, disabled sources, profiles, favorites, collections, notes and backups. | Pending new public candidate. |
+| Update from the latest regular public APK | Keep sources, disabled sources, profiles, favorites, collections, notes and backups. | Both public APK updates passed on an emulator; physical Thor repeat pending. |
 | Screen reader, increased text size, long translations | Actions are named, status is understandable and all confirmations/cancel actions remain accessible. | Pending device accessibility pass. |
 
 ## RomM / WebDAV

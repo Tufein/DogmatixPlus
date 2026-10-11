@@ -1,6 +1,6 @@
 # Dogmatix+ — roadmap to the community launch
 
-Updated: 11 October 2026. Verified public release: [2.8.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.8.0).
+Updated: 11 October 2026. Verified public release: [2.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.9.0).
 
 The community launch should make it easy to find a game, prepare it, play it and recover safely when a download, storage device or save transfer fails. Existing features already include controller navigation, downloads, collections, offline collection downloads, emulator selection, game checks, RomM, save sync, encrypted backups and profiles. The milestones below extend those features rather than presenting them as new.
 
@@ -22,16 +22,16 @@ The catalog points to Libretro-hosted content collections, including homebrew, d
 
 ## 2.9.0 — portable package records and large-library preparation
 
-Status: implementation in progress. Package-record export/restore is implemented and has passed targeted unit and Android document-provider tests; the full candidate checks remain in progress. The requested hardware target is an AYN Thor running Android 13. The owner has no RomM installation yet, so live server tests have no recorded result. See the [test matrix](quality/community-launch-matrix.md) and [package recovery guide](guides/package-recovery.md).
+Status: released, Android build 41. Both public APKs, checksums, signing continuity and updates from 2.8.0 are verified in the [acceptance record](quality/v2.9.0-acceptance.md).
 
-- Test a touch device and an Android handheld with a physical controller: first setup → select source → download → emulator launch → return → save sync → recover. Complete the controller route without requiring touch.
-- Remove and reconnect a real SD card during a queued download, transfer and library refresh. Preserve completed games, partial downloads, package receipts and personal data; explain the next action.
-- Test sleep, resume, app restart, interrupted downloads and updates on real hardware, including Android background restrictions.
-- Complete the package-receipt export/restore acceptance. The new workflow requires a configured local folder, original indexed source identity and fresh SHA-256 verification, protects existing records and rejects stale profile actions. Current app updates and verified library/SD moves preserve receipts; the general backup retains settings and journals, while package records are exported separately and game bytes must be copied separately.
-- Test against an actual RomM and WebDAV server: authentication, certificate changes, network interruption, conflicting saves, backup restoration and retry behavior. Record server versions and supported configurations.
-- Measure search, collection rendering, readiness and queue responsiveness with 10,000 and 50,000 indexed files. Record hardware, dataset and timings before making speed claims. Fix measured bottlenecks and avoid repeating whole-library hashing on each screen open.
-- Review all new screens with long translations, large text, screen readers, portrait/landscape and controller focus. Preserve consistent back/cancel behavior.
-- Capture current screenshots from actual UI using freely distributed or user-owned test content; identify simulated data in any promotional image.
+Completed:
+
+- Portable package-record export/readback and restoration against configured roots and original sources, with fresh hashes, conflict protection, profile checks, multi-root confirmation and idempotent registration. Game/save bytes remain separate from metadata exports.
+- Offline collection preparation matches relevant games and batches tags. The 10,000/50,000-row backend harness checks search, collection pages, package matches and queue summaries; measurements and dataset details are recorded without claiming Thor UI performance.
+- Seven translations, large-text/controller package-screen tests, full French navigation labels on a narrow screen and actual labeled emulator screenshots.
+- All 194 Android tests passed on Android 13/15 ARM and Android 15 x86_64; signed public updates preserve app data, journals, backups and private package records.
+
+Physical launch checks continue under 3.0.0: the AYN Thor journey, both displays, actual controller, sleep/resume, SD-card interruptions, accessibility and measured device responsiveness. The owner has no RomM installation. Live server combinations remain unverified until their versions and results can be recorded. Use the [launch matrix](quality/community-launch-matrix.md) and [Thor test guide](guides/ayn-thor-test.md).
 
 ## 3.0.0 — community launch on Reddit
 

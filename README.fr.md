@@ -33,6 +33,13 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveautés de 2.9.0
+
+- Exportez les listes et empreintes des fichiers de jeux, puis rétablissez leurs liens après réinstallation. Copiez les jeux séparément, sélectionnez à nouveau le stockage et analysez les mêmes sources. Seuls les paquets complets et vérifiés sont enregistrés.
+- Moins de requêtes pour préparer les collections hors ligne ; libellés de navigation complets avec du texte agrandi.
+- Build Android **41**, base **15**. Les deux APK publics, signatures et mises à jour depuis 2.8.0 sont vérifiés. Voir la [version 2.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.9.0) et le [guide de récupération](docs/guides/package-recovery.md).
+- Le lancement communautaire 3.0.0 attend les tests physiques AYN Thor. Aucun serveur RomM/WebDAV réel n’est certifié ; voir la [feuille de route](docs/ROADMAP.md).
+
 ### Nouveau dans 2.3.0
 
 - Rechercher les téléchargements par titre ou nom, filtrer par état et appliquer des actions aux résultats. Placer la sélection en attente en tête.

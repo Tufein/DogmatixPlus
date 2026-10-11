@@ -33,6 +33,13 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 2.9.0
+
+- Exportiere Dateilisten und Prüfsummen und stelle ihre Zuordnung nach einer Neuinstallation wieder her. Kopiere Spiele separat, wähle den Speicher erneut und scanne dieselben Quellen. Nur vollständige, geprüfte Pakete werden registriert.
+- Weniger Datenbankabfragen beim Vorbereiten von Offline-Sammlungen; vollständige Navigationsbeschriftungen bei großer Schrift.
+- Android-Build **41**, Datenbank **15**. Beide öffentlichen APKs, Signaturen und Updates von 2.8.0 wurden geprüft. Siehe [Release 2.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.9.0) und [Wiederherstellungsanleitung](docs/guides/package-recovery.md).
+- Der Community-Start mit 3.0.0 wartet auf physische AYN-Thor-Tests. Echte RomM/WebDAV-Server bleiben ungeprüft; siehe [Roadmap](docs/ROADMAP.md).
+
 ### Neu in 2.3.0
 
 - Downloads nach Titel oder Dateiname suchen, nach Status filtern und Sammelaktionen auf Treffer anwenden. Wartende Auswahl gemeinsam nach vorne verschieben.
