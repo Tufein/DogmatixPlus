@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -211,8 +210,9 @@ fun BottomTabs(currentRoute: String, activeDownloads: Int, onSelect: (NavRoutes)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(64.dp)
-                .background(scheme.background)
+                .heightIn(min = 64.dp)
+                .background(scheme.background),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             val litRoute = tabRouteFor(currentRoute)
             NavRoutes.tabs.forEach { route ->
@@ -224,11 +224,12 @@ fun BottomTabs(currentRoute: String, activeDownloads: Int, onSelect: (NavRoutes)
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .fillMaxHeight()
+                        .heightIn(min = 64.dp)
                         .focusRequester(Gamepad.tabFocus.getValue(route.route))
                         .clip(RoundedCornerShape(8.dp))
                         .focusRing(source)
-                        .clickable(interactionSource = source, indication = null) { onSelect(route) },
+                        .clickable(interactionSource = source, indication = null) { onSelect(route) }
+                        .padding(vertical = 6.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {

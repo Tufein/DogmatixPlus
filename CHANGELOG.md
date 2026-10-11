@@ -9,6 +9,7 @@ Public releases follow 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. See [release numbering](
 - Keep the imported document open to check multiple roots, and make repeat registration idempotent with safe recovery from interrupted private-record commits.
 - Match only collection/review games and batch their tags when preparing offline collections; preserve all source rows and restrictions.
 - Add reproducible 10,000/50,000-row backend measurements, package-transfer failure tests and large-text/controller UI checks.
+- Keep full portrait-navigation labels visible at large text sizes, including long translations on narrow screens.
 - Add the package recovery guide, AYN Thor/Android 13 launch matrix and sanitized feedback template. Physical hardware and live RomM/WebDAV remain unverified; Reddit posting is pending.
 - Seven translated interfaces; Android build 41, database remains 15, signing identities retained.
 

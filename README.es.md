@@ -174,9 +174,9 @@ Elige un emulador instalado por consola, compara versiones con preferencias de i
 
 1. Abre la **[página de Releases](https://github.com/Tufein/DogmatixPlus/releases)** en tu móvil o en tu consola portátil, o descarga el archivo allí y cópialo al dispositivo.
 2. Descarga uno de los dos archivos:
-   - **`DogmatixPlus-release.apk`** — *la opción normal.* La app se llama **Dogmatix+** y tiene su propio nombre de paquete, así que se instala **junto al** Dogmatix oficial y a versiones anteriores de DogmatixPlus, sin tocar nada tuyo.
-   - **`DogmatixPlus-debug.apk`** — una versión de depuración que también se instala junto a todo lo demás.
-   - **¿Vienes de un DogmatixPlus anterior?** En la app antigua usa *Ajustes → Copia de seguridad*, luego *Ajustes → Restaurar copia* en Dogmatix+, y vuelve a configurar ES-DE / iiSU / Daijishō una vez.
+   - **`DogmatixPlus-release.apk`** — *la opción normal.* Las versiones firmadas actuales actualizan Dogmatix+ y conservan sus datos. Su paquete es distinto del Dogmatix original.
+   - **`DogmatixPlus-debug.apk`** — una app de prueba separada con sus propios datos. Las versiones de prueba publicadas desde 2.7.0 usan una firma estable y se actualizan directamente.
+   - **¿Otro paquete o una versión de prueba antigua con otra firma?** Crea una copia de la app antes de desinstalarla y restáurala después. Guarda aparte los juegos, partidas y registros de paquetes; selecciona el almacenamiento de nuevo tras reinstalar. Configura ES-DE / iiSU / Daijishō para la nueva app si hace falta.
 3. Abre el archivo y permite **«Instalar aplicaciones desconocidas»** si Android te lo pide.
 
 Necesitas **Android 10 o más reciente**. La app no está en Google Play.
@@ -206,7 +206,7 @@ Todo funciona también con la pantalla táctil. Las ayudas solo se muestran mien
 
 ## Conviene saber
 
-- Los juegos eliminados van a la papelera. Restaura o vacía en Herramientas → Papelera y recuperación. El espacio se libera al vaciarla; el explorador de archivos sigue borrando definitivamente.
+- Los juegos eliminados van a la papelera. Restaura o vacía en Herramientas → Papelera y recuperación. El espacio se libera al vaciarla. El explorador también permite recuperar por defecto; debes elegir la eliminación definitiva en la confirmación.
 - **Un archivo de copia de seguridad contiene tus claves de cuenta** (TorBox, Real-Debrid, RomM). Mantenlo en privado.
 - **La ventana de información del juego se queda vacía en las descargas que se ofrecen aquí**, porque necesita una clave gratuita de una base de datos de juegos que se añade cuando se crea la app.
 - DogmatixPlus no busca juegos por su cuenta. Solo lee las fuentes que **tú** añades.
