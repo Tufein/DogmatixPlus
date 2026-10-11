@@ -207,9 +207,9 @@ Kies een geïnstalleerde emulator per console, vergelijk gameversies met bewaard
 
 1. Open de **[Releases-pagina](https://github.com/Tufein/DogmatixPlus/releases)** op je telefoon of handheld, of download het bestand daar en kopieer het naar je toestel.
 2. Download een van de twee bestanden:
-   - **`DogmatixPlus-release.apk`** — *de gewone keuze.* De app heet **Dogmatix+** en heeft een eigen pakketnaam, dus hij wordt **naast** de officiële Dogmatix en oudere DogmatixPlus-versies geïnstalleerd; er wordt niets aangeraakt van wat je al hebt.
-   - **`DogmatixPlus-debug.apk`** — een debugversie die ook naast al het andere komt.
-   - **Kom je van een oudere DogmatixPlus?** Gebruik in de oude app *Instellingen → Back-up maken* en daarna *Instellingen → Back-up terugzetten* in Dogmatix+, en voer de instelling voor ES-DE / iiSU / Daijishō nog één keer uit.
+   - **`DogmatixPlus-release.apk`** — *de gewone keuze.* Huidige ondertekende Dogmatix+-releases werken de bestaande app bij en behouden je gegevens. Dogmatix+ heeft een eigen pakketnaam naast de oorspronkelijke Dogmatix.
+   - **`DogmatixPlus-debug.apk`** — een aparte testapp met eigen gegevens. Gepubliceerde testversies vanaf 2.7.0 hebben een vaste ondertekening en werken de bestaande testapp bij.
+   - **Kom je van een andere pakketnaam of een oudere testversie met een andere ondertekening?** Maak vóór verwijderen een app-backup en herstel die in de nieuwe app. Bewaar games, saves en pakketregistraties apart en kies na herinstallatie de opslag opnieuw. Stel ES-DE / iiSU / Daijishō zo nodig voor de nieuwe app in.
 3. Open het bestand en sta **"Onbekende apps installeren"** toe als Android erom vraagt.
 
 Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
@@ -239,7 +239,7 @@ Alles werkt ook met het touchscreen. De hints verschijnen alleen als er een cont
 
 ## Goed om te weten
 
-- Verwijderde games gaan naar de prullenbak. Herstel of leeg definitief via Hulpmiddelen → Prullenbak en herstel. Ruimte komt vrij na het legen; de gewone bestandsverkenner verwijdert nog definitief.
+- Verwijderde games gaan naar de prullenbak. Herstel of leeg definitief via Hulpmiddelen → Prullenbak en herstel. Ruimte komt vrij na het legen. De bestandsverkenner gebruikt standaard ook herstelbaar verwijderen; definitief verwijderen moet je in de bevestiging kiezen.
 - **Een back-upbestand bevat je accountsleutels** (TorBox, Real-Debrid, RomM). Houd het privé.
 - **Het venster met game-info blijft leeg in de versies van de app die je hier downloadt**, omdat het een gratis sleutel van een gamedatabase nodig heeft die wordt toegevoegd wanneer de app wordt gebouwd.
 - DogmatixPlus zoekt zelf niet naar games. Het leest alleen de bronnen die **jij** toevoegt.

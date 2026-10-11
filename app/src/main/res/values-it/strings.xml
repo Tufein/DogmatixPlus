@@ -1274,11 +1274,10 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Scegli raccolte Libretro facoltative per 23 sistemi senza sostituire le tue fonti.</item>
-        <item>Conserva i giochi completi dopo un riavvio e verifica se le raccolte sono pronte per giocare offline.</item>
-        <item>Controlla le copie di recupero in un unico posto e riprendi i download quando torna lo spazio di archiviazione.</item>
-        <item>Conserva note, schermate e manuali per gioco e profilo; le note sono incluse nei backup.</item>
-        <item>Prepara i salvataggi ordinari prima di cambiare dispositivo; i conflitti bloccano il trasferimento.</item>
+        <item>Esporta gli elenchi dei file e le somme di controllo prima di reinstallare o cambiare dispositivo.</item>
+        <item>Ripristina solo i pacchetti completi verificati nella cartella scelta; proteggi i file modificati e i record esistenti.</item>
+        <item>Prepara le raccolte offline con ricerche raggruppate di fonti e tag per le grandi librerie.</item>
+        <item>Usa un focus del controller più chiaro e B/indietro per chiudere le finestre dei pacchetti.</item>
     </string-array>
 
     <!-- 4.0 -->

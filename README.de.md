@@ -174,9 +174,9 @@ Wähle einen installierten Emulator pro Konsole, vergleiche Spielversionen mit g
 
 1. Öffne die **[Releases-Seite](https://github.com/Tufein/DogmatixPlus/releases)** auf deinem Handy oder Handheld, oder lade die Datei dort herunter und kopiere sie auf dein Gerät.
 2. Lade eine der beiden Dateien herunter:
-   - **`DogmatixPlus-release.apk`** — *die normale Wahl.* Die App heißt **Dogmatix+** und hat einen eigenen Paketnamen: Sie wird **neben** dem offiziellen Dogmatix und älteren DogmatixPlus-Versionen installiert, nichts von deinen Sachen wird angefasst.
-   - **`DogmatixPlus-debug.apk`** — eine Debug-Version, die ebenfalls neben allem anderen installiert wird.
-   - **Du kommst von einem älteren DogmatixPlus?** In der alten App *Einstellungen → Sichern*, dann in Dogmatix+ *Einstellungen → Sicherung wiederherstellen*, und richte ES-DE / iiSU / Daijishō noch einmal ein.
+   - **`DogmatixPlus-release.apk`** — *die normale Wahl.* Aktuelle signierte Releases aktualisieren Dogmatix+ und behalten die App-Daten. Der Paketname unterscheidet sich vom ursprünglichen Dogmatix.
+   - **`DogmatixPlus-debug.apk`** — eine separate Test-App mit eigenen Daten. Veröffentlichte Testversionen ab 2.7.0 verwenden einen festen Signaturschlüssel und lassen sich direkt aktualisieren.
+   - **Anderer Paketname oder ältere Testversion mit anderer Signatur?** Sichere die App vor der Deinstallation und stelle die Sicherung anschließend wieder her. Bewahre Spiele, Spielstände und Paketregistrierungen separat auf und wähle den Speicher nach der Neuinstallation erneut. Richte ES-DE / iiSU / Daijishō bei Bedarf für die neue App ein.
 3. Öffne die Datei und erlaube **„Unbekannte Apps installieren“**, wenn Android danach fragt.
 
 Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhältlich.
@@ -206,7 +206,7 @@ Alles funktioniert auch per Touch. Die Hinweise erscheinen nur, solange ein Cont
 
 ## Gut zu wissen
 
-- Entfernte Spiele kommen in den Papierkorb. Unter Werkzeuge → Papierkorb und Wiederherstellung wiederherstellen oder leeren. Speicher wird erst nach dem Leeren frei; der Datei-Explorer löscht weiterhin endgültig.
+- Entfernte Spiele kommen in den Papierkorb. Unter Werkzeuge → Papierkorb und Wiederherstellung wiederherstellen oder leeren. Speicher wird erst nach dem Leeren frei. Auch der Datei-Explorer verwendet standardmäßig Wiederherstellung; endgültiges Löschen muss in der Bestätigung gewählt werden.
 - **Eine Sicherungsdatei enthält deine Kontoschlüssel** (TorBox, Real-Debrid, RomM). Gib sie nicht weiter.
 - **Das Fenster mit den Spielinfos bleibt in den hier angebotenen Downloads leer**, weil es einen kostenlosen Schlüssel aus einer Spieldatenbank braucht, der erst beim Erstellen der App hinzugefügt wird.
 - DogmatixPlus sucht nicht von selbst nach Spielen. Es liest nur die Quellen, die **du** hinzufügst.

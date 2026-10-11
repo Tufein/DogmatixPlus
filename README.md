@@ -172,9 +172,9 @@ Choose an installed emulator per console, compare game versions with saved langu
 
 1. Open the **[Releases page](https://github.com/Tufein/DogmatixPlus/releases)** on your phone or handheld, or download there and copy the file over.
 2. Download one of the two files:
-   - **`DogmatixPlus-release.apk`** — *the normal choice.* The app is called **Dogmatix+** and has its own package name, so it installs **next to** the official Dogmatix and next to older DogmatixPlus versions; nothing of yours is touched.
-   - **`DogmatixPlus-debug.apk`** — a debug build that also installs next to everything else.
-   - **Coming from an older DogmatixPlus?** In the old app use *Settings → Back up*, then *Settings → Restore backup* in Dogmatix+, and run the ES-DE / iiSU / Daijishō setup once more.
+   - **`DogmatixPlus-release.apk`** — *the normal choice.* Current signed Dogmatix+ releases update in place and keep your app data. Dogmatix+ has a separate package from the original Dogmatix.
+   - **`DogmatixPlus-debug.apk`** — a separate test app with its own data. Published test builds from 2.7.0 use a stable signing key and update in place.
+   - **Moving from a different package or an older test build with a different signing key?** Make an app backup before uninstalling and restore it in the new app. Keep separate copies of games, saves and package records; select storage again after reinstalling. Configure ES-DE / iiSU / Daijishō for the new app if needed.
 3. Open the file and allow **"install unknown apps"** if Android asks.
 
 You need **Android 10 or newer**. The app is not on Google Play.
@@ -204,7 +204,7 @@ Everything also works by touch. The hints only show while a controller is connec
 
 ## Good to know
 
-- Removed games go to recovery trash. Restore or permanently empty them in Tools → Trash and recovery. Space is freed only after emptying; the general file explorer still deletes permanently.
+- Removed games go to recovery trash. Restore or permanently empty them in Tools → Trash and recovery. Space is freed only after emptying. The file explorer also uses recovery by default; permanent deletion requires selecting that option in its confirmation.
 - **A backup file contains your account keys** (TorBox, Real-Debrid, RomM). Keep it private.
 - **The game info window stays empty in the downloads here**, because it needs a free key from a game database that is added when the app is built.
 - DogmatixPlus does not look for games on its own. It only reads the sources **you** add.

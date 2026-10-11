@@ -119,6 +119,7 @@ object SearchIndex {
     val entries: List<SearchEntry> by lazy {
         listOf(
         SearchEntry("recovery", SearchGroup.TOOLS, R.string.recovery_title, R.string.recovery_hint, R.drawable.ic_history, SearchTarget(NavRoutes.Recovery.route)),
+        SearchEntry("package_transfer", SearchGroup.TOOLS, R.string.package_transfer_title, R.string.package_transfer_hint, R.drawable.ic_stacks, SearchTarget(NavRoutes.PackageTransfer.route)),
         SearchEntry("version_preference", SearchGroup.TOOLS, R.string.compare24_title, R.string.compare24_row_hint, R.drawable.ic_compare, SearchTarget(NavRoutes.VersionPreference.route), keywords = R.string.find8_kw_regions),
         SearchEntry("action_history", SearchGroup.TOOLS, R.string.hist24_title, R.string.hist24_hint, R.drawable.ic_manage_history, SearchTarget(NavRoutes.ActionHistory.route), keywords = R.string.hist24_kw),
             // Settings, card by card.

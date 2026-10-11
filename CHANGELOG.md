@@ -2,6 +2,17 @@
 
 Public releases follow 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. See [release numbering](docs/releases/numbering.md) for the migration and original APK versions.
 
+## [2.9.0] – 2026-10-11 · Dogmatix+
+
+- Export portable game-package file lists and checksums with verified readback; keep game/save bytes and Android folder grants separate.
+- Restore only complete verified packages in a selected configured folder after matching the original indexed source; protect different/corrupt records and block stale profile, folder and file changes.
+- Keep the imported document open to check multiple roots, and make repeat registration idempotent with safe recovery from interrupted private-record commits.
+- Match only collection/review games and batch their tags when preparing offline collections; preserve all source rows and restrictions.
+- Add reproducible 10,000/50,000-row backend measurements, package-transfer failure tests and large-text/controller UI checks.
+- Keep full portrait-navigation labels visible at large text sizes, including long translations on narrow screens.
+- Add the package recovery guide, AYN Thor/Android 13 launch matrix and sanitized feedback template. Physical hardware and live RomM/WebDAV remain unverified; Reddit posting is pending.
+- Seven translated interfaces; Android build 41, database remains 15, signing identities retained.
+
 ## [2.8.0] – 2026-10-10 · Dogmatix+
 
 - Add a searchable, optional Libretro content catalog for 23 systems; adding sources preserves existing names, disabled entries and indexed games. Parse the actual size column in h5ai directory sources.

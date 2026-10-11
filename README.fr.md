@@ -174,9 +174,9 @@ Choisissez un émulateur installé par console, comparez les versions avec des p
 
 1. Ouvrez la **[page Releases](https://github.com/Tufein/DogmatixPlus/releases)** sur votre téléphone ou votre console portable, ou téléchargez-y le fichier et copiez-le sur l’appareil.
 2. Téléchargez l’un des deux fichiers :
-   - **`DogmatixPlus-release.apk`** — *le choix normal.* L’application s’appelle **Dogmatix+** et a son propre nom de paquet : elle s’installe **à côté** du Dogmatix officiel et des anciennes versions de DogmatixPlus, sans rien toucher.
-   - **`DogmatixPlus-debug.apk`** — une version de débogage qui s’installe elle aussi à côté de tout le reste.
-   - **Vous venez d’un ancien DogmatixPlus ?** Dans l’ancienne application, *Paramètres → Sauvegarder*, puis *Paramètres → Restaurer une sauvegarde* dans Dogmatix+, et relancez une fois la configuration d’ES-DE / iiSU / Daijishō.
+   - **`DogmatixPlus-release.apk`** — *le choix normal.* Les versions signées actuelles mettent à jour Dogmatix+ en conservant les données. Son paquet est distinct de celui du Dogmatix d’origine.
+   - **`DogmatixPlus-debug.apk`** — une application de test séparée avec ses propres données. Les versions de test publiées depuis 2.7.0 utilisent une signature stable et se mettent à jour directement.
+   - **Ancien paquet différent ou ancienne version de test avec une autre signature ?** Sauvegardez l’application avant de la désinstaller, puis restaurez la sauvegarde. Gardez séparément les jeux, sauvegardes de jeu et fiches de paquets ; sélectionnez à nouveau le stockage après réinstallation. Reconfigurez ES-DE / iiSU / Daijishō si nécessaire.
 3. Ouvrez le fichier et autorisez **« Installer des applications inconnues »** si Android vous le demande.
 
 Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Google Play.
@@ -206,7 +206,7 @@ Tout fonctionne aussi au toucher. Les indications ne s’affichent que lorsqu’
 
 ## Bon à savoir
 
-- Les jeux retirés vont dans la corbeille. Restaurez ou videz via Outils → Corbeille et récupération. L’espace est libéré après vidage ; l’explorateur de fichiers supprime toujours définitivement.
+- Les jeux retirés vont dans la corbeille. Restaurez ou videz via Outils → Corbeille et récupération. L’espace est libéré après vidage. L’explorateur utilise aussi la récupération par défaut ; la suppression définitive doit être choisie dans la confirmation.
 - **Un fichier de sauvegarde contient vos clés de compte** (TorBox, Real-Debrid, RomM). Gardez-le privé.
 - **La fenêtre d’infos du jeu reste vide dans les fichiers proposés au téléchargement ici**, car elle a besoin d’une clé gratuite, fournie par une base de données de jeux et ajoutée lors de la compilation de l’application.
 - DogmatixPlus ne cherche pas de jeux tout seul. Il lit seulement les sources que **vous** ajoutez.

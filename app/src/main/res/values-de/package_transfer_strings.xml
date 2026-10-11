@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="package_transfer_title">Spieldatei-Einträge</string>
+    <string name="package_transfer_hint">Exportiere Dateilisten und Prüfsummen für eine Neuinstallation oder ein anderes Gerät. Kopiere die Spieldateien separat, richte den Spieleordner ein und scanne dieselben Quellen, bevor du diese Einträge wiederherstellst.</string>
+    <string name="package_transfer_export">Spielpaketeinträge exportieren: %1$d</string>
+    <string name="package_transfer_import">Paketexport öffnen</string>
+    <string name="package_transfer_exported">Paketexport überprüft.</string>
+    <string name="package_transfer_restored">Neue Spielpaketeinträge wiederhergestellt: %1$d.</string>
+    <string name="package_transfer_failed">Die Aktion konnte nicht abgeschlossen werden. Prüfe die Datei und den Spieleordner, aktualisiere und versuche es erneut.</string>
+    <string name="package_transfer_folder">Spieleordner zur Prüfung auswählen</string>
+    <string name="package_transfer_checking">Dateien werden geprüft…</string>
+    <string name="package_transfer_preview">Zu prüfende Spielpakete: %1$d.</string>
+    <string name="package_transfer_ready">Überprüft</string>
+    <string name="package_transfer_missing">Fehlende Dateien: %1$d</string>
+    <string name="package_transfer_changed">Geänderte oder unlesbare Dateien: %1$d</string>
+    <string name="package_transfer_source_missing">Scanne zuerst die ursprüngliche Quelle.</string>
+    <string name="package_transfer_conflict">Ein abweichender oder unlesbarer Eintrag ist bereits vorhanden.</string>
+    <string name="package_transfer_restore">Geprüfte Einträge wiederherstellen</string>
+    <string name="package_transfer_no_folders">Richte zuerst unter Speicher einen Spieleordner ein.</string>
+    <string name="package_transfer_restricted">Wechsle für die Wiederherstellung zu einem uneingeschränkten Profil.</string>
+    <string name="package_transfer_confirm">Geprüfte Einträge wiederherstellen?\nSpiele: %1$d\nDateien: %2$d</string>
+    <string name="package_transfer_files">Dateien (%1$d)</string>
+    <string name="package_transfer_cancel">Abbrechen</string>
+    <string name="package_transfer_selection">In diesem Ordner geprüft: %1$d / %2$d. Nur vollständig geprüfte Pakete werden wiederhergestellt; die anderen bleiben unverändert.</string>
+</resources>

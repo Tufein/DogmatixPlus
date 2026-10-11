@@ -1274,11 +1274,10 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Escolha coleções opcionais Libretro para 23 sistemas sem substituir as suas fontes.</item>
-        <item>Mantenha jogos completos após reiniciar e verifique se as coleções estão prontas para jogar sem ligação.</item>
-        <item>Reveja as cópias de recuperação num só lugar e retome as transferências quando o armazenamento regressar.</item>
-        <item>Guarde notas, capturas e manuais por jogo e perfil; as notas são incluídas nas cópias de segurança.</item>
-        <item>Prepare os jogos guardados normais antes de mudar de dispositivo; os conflitos bloqueiam a passagem.</item>
+        <item>Exporta as listas de ficheiros e somas de verificação antes de reinstalar ou mudar de dispositivo.</item>
+        <item>Restaura apenas pacotes completos verificados na pasta escolhida; protege ficheiros alterados e registos existentes.</item>
+        <item>Prepara coleções offline com consultas agrupadas de fontes e etiquetas para bibliotecas grandes.</item>
+        <item>Usa um foco do comando mais claro e B/voltar para cancelar os diálogos de pacotes.</item>
     </string-array>
 
     <!-- 4.0 -->

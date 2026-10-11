@@ -1,0 +1,49 @@
+name: Bug report
+description: Report a reproducible problem in Dogmatix+
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "Describe what happened without passwords, tokens or private source addresses. Include file changes only when relevant; do not attach game or save files containing personal information."
+  - type: input
+    id: app
+    attributes:
+      label: App version and build
+      placeholder: "Version shown in Settings; production or test APK"
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device, Android version and firmware
+      placeholder: "For example AYN Thor / Android 13; controller mode if relevant"
+    validations:
+      required: true
+  - type: input
+    id: integrations
+    attributes:
+      label: Emulator or server versions
+      description: "Exact emulator package/version, RomM/WebDAV version and HTTPS/proxy setup when relevant. No credentials or private addresses."
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: "What did you select, and when did the problem occur? State whether it repeats after restarting."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual result
+    validations:
+      required: true
+  - type: textarea
+    id: storage
+    attributes:
+      label: Storage or save changes
+      description: "If relevant: internal/SD storage, folder provider, whether storage was disconnected, and whether original file bytes changed. State whether a recovery copy exists."
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or sanitized diagnostics
+      description: "Remove tokens, passwords, private addresses and personal paths before submitting."

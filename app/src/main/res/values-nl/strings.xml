@@ -1323,11 +1323,10 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Kies optionele Libretro-contentcollecties voor 23 systemen zonder je bronnen te vervangen.</item>
-        <item>Bewaar complete gamepakketten na een herstart en controleer of collecties offline speelbaar zijn.</item>
-        <item>Bekijk herstelkopieën op één plek en hervat downloads bewust wanneer de opslag terug is.</item>
-        <item>Bewaar persoonlijke notities, screenshots en handleidingen per game en profiel; notities gaan mee in backups.</item>
-        <item>Bereid gewone saves voor voordat je van toestel wisselt; onopgeloste conflicten blokkeren de overdracht.</item>
+        <item>Exporteer bestandslijsten en controlesommen van spelpakketten vóór een herinstallatie of toestelwissel.</item>
+        <item>Herstel alleen complete pakketten die in je gekozen map zijn gecontroleerd; bescherm gewijzigde bestanden en bestaande registraties.</item>
+        <item>Bereid offline collecties voor met gegroepeerde bron- en tagcontroles voor grote bibliotheken.</item>
+        <item>Gebruik duidelijkere controllerfocus en annuleren met B/terug in pakketvensters.</item>
     </string-array>
 
     <!-- 4.0 -->

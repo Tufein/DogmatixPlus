@@ -17,6 +17,7 @@ import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
 import com.cortinadev.dogmatix.data.local.entity.DownloadableFileEntity
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.data.repository.SettingsRepository
+import com.cortinadev.dogmatix.data.repository.DownloadableFileRepository
 import com.cortinadev.dogmatix.data.state.PendingLibraryFilters
 import com.cortinadev.dogmatix.data.state.RescanStateHolder
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
@@ -112,7 +113,8 @@ class OfflineCollectionsService @Inject constructor(
     rommLibrary: RommLibraryService,
     private val smartCollections: SmartCollectionsService,
     private val profiles: ProfileService,
-    private val readiness: GameReadinessService
+    private val readiness: GameReadinessService,
+    private val files: DownloadableFileRepository
 ) {
     enum class Trigger { MANUAL, AUTO }
 
@@ -323,12 +325,19 @@ class OfflineCollectionsService @Inject constructor(
             OfflineCollections.Kept(c.id, c.name, collectionDao.itemsOf(c.id).map { Game(it.consoleId, it.fileName) }.distinct())
         }
         val restrictions = profiles.current()
-        kept.flatMap { k -> k.games.map { it.consoleId } }.toSet().forEach { console ->
-            fileDao.filesOf(console).forEach { if (restrictions.allows(console, fileDao.tagsOf(it.id))) {
-                val game = Game(console, it.fileName)
-                if (game !in entities || libraryIndex.isOwned(it, owned)) entities[game] = it
-            } }
-        }
+        val fetched = settings.fetched.first()
+        // Only collection/review games matter. Loading a whole console and one tag query per
+        // row took 11s for 50k rows on the QA emulator; these bounded batches retain all sources.
+        val requested = kept.flatMap { it.games }.toSet() + fetched.map { it.game }
+        val indexed = files.exactMatchesBatch(requested.map { it.consoleId to it.fileName })
+        indexed.values.forEach { rows -> rows.forEach { row ->
+            kotlinx.coroutines.currentCoroutineContext().ensureActive()
+            val file = row.file
+            if (restrictions.allows(file.consoleId, row.tags)) {
+                val game = Game(file.consoleId, file.fileName)
+                if (game !in entities || libraryIndex.isOwned(file, owned)) entities[game] = file
+            }
+        } }
         val root = settingsRepository.downloadDirectory.first()
         val folders = settingsRepository.consoleDownloadDirectories.first()
         fun folder(console: String) = folders[console]?.takeIf { it.isNotBlank() } ?: root
@@ -359,7 +368,7 @@ class OfflineCollectionsService @Inject constructor(
         } }
         val plan = OfflineCollections.plan(kept, offers, onDevice, queued, libraryIndex.freeBytes.value, reserve, settings.cap.first(), quotas, occupied, freeByVolume, reserveByVolume)
 
-        val review = OfflineCollections.review(settings.fetched.first(), contents, keptIds, onDevice, queued)
+        val review = OfflineCollections.review(fetched, contents, keptIds, onDevice, queued)
         val names = all.associate { it.id to it.name }
         val stale = review.stale.map { s -> StaleGame(s.game, s.collectionIds.mapNotNull { names[it] }.sorted()) }
         return Snapshot(plan, entities, plan.tallies.associateBy { it.collectionId }, stale, review.forget, noFolder || kept.any { c -> c.games.any { folder(it.consoleId).isBlank() } })
