@@ -46,11 +46,15 @@ class DiagnosticsService @Inject constructor(
     private val cloudSettings: CloudSettings
 ) {
 
-    suspend fun buildReport(): String = withContext(Dispatchers.IO) {
+    /**
+     * The stored values that must never appear in a shared text: tokens, keys, passwords and the
+     * server addresses and user names they belong to. Also used by "Report a problem".
+     */
+    suspend fun secrets(): List<String> {
         val s = settingsRepository
         val rommUrl = s.rommUrl.first()
         val rommToken = s.rommToken.first()
-        val secrets = buildList {
+        return buildList {
             add(rommToken)
             add(CertTrust.hostOf(rommUrl))
             add(rommUrl.removePrefix("https://").removePrefix("http://").substringBefore('/'))
@@ -65,6 +69,13 @@ class DiagnosticsService @Inject constructor(
             add(WebDavPaths.normalizeServer(cloud.server)?.let { WebDavPaths.hostOf(it) }.orEmpty())
             add(cloud.server.trim())
         }.filter { it.isNotBlank() }
+    }
+
+    suspend fun buildReport(): String = withContext(Dispatchers.IO) {
+        val s = settingsRepository
+        val rommUrl = s.rommUrl.first()
+        val rommToken = s.rommToken.first()
+        val secrets = secrets()
 
         val downloads = downloadService.getDownloads().groupingBy { it.status.name }.eachCount()
         val consoles = consoleDao.getAllConsoles().first()

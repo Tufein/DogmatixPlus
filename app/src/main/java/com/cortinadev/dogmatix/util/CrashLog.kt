@@ -25,4 +25,7 @@ object CrashLog {
     }
 
     fun read(context: Context): String? = runCatching { File(context.filesDir, FILE).takeIf { it.exists() }?.readText() }.getOrNull()
+
+    /** When the last crash was written (epoch ms); 0 when none is kept. */
+    fun writtenAt(context: Context): Long = runCatching { File(context.filesDir, FILE).lastModified() }.getOrDefault(0L)
 }
