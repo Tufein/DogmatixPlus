@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="repair30_title">Ripara libreria</string>
+    <string name="repair30_subtitle">Trova e risolvi i problemi nelle cartelle dei giochi</string>
+    <string name="repair30_hint">Trova giochi su disco rotti, download incompleti e altri problemi della libreria e risolvili in sicurezza</string>
+    <string name="repair30_hist_reason">Ripara libreria</string>
+    <string name="repair30_intro_title">Controlla le cartelle dei giochi</string>
+    <string name="repair30_intro">Cerca giochi vuoti o troncati, giochi su disco a cui mancano tracce, residui di download interrotti e altro che impedisce ai giochi di avviarsi o che occupa solo spazio. Non cambia nulla finché non scegli una soluzione, e tutto ciò che viene rimosso passa prima da Cestino e ripristino.</string>
+    <string name="repair30_start">Controlla libreria</string>
+    <string name="repair30_again">Controlla di nuovo</string>
+    <string name="repair30_cancelled">Il controllo è stato interrotto. Non è stato modificato nulla.</string>
+    <string name="repair30_failed">Il controllo non è riuscito a terminare. Verifica che le cartelle dei giochi siano raggiungibili e riprova.</string>
+    <string name="repair30_no_folder_title">Ancora nessuna cartella dei giochi</string>
+    <string name="repair30_no_folder">Scegli prima una cartella di download in Impostazioni, poi controlla la libreria.</string>
+    <string name="repair30_phase_scan">Lettura delle cartelle dei giochi…</string>
+    <string name="repair30_phase_leftovers">Ricerca di file rimasti (cartelle controllate: %1$d)</string>
+    <string name="repair30_phase_sheets">Lettura dei file del disco: %1$d di %2$d</string>
+    <string name="repair30_phase_library">Confronto con la libreria…</string>
+    <string name="repair30_incomplete">Alcune cartelle non sono state lette completamente, quindi in questo elenco potrebbero mancare dei problemi.</string>
+    <string name="repair30_truncated">Sono mostrati solo i primi %1$d problemi. Risolvine alcuni e controlla di nuovo per vedere il resto.</string>
+    <string name="repair30_profile_note">Vengono controllate solo le console mostrate da questo profilo. Le cartelle condivise si controllano nel profilo principale.</string>
+    <string name="repair30_fix_all">Risolvi elementi sicuri (%1$d)</string>
+    <string name="repair30_fix_all_title">Risolvere gli elementi sicuri?</string>
+    <string name="repair30_fix_all_go">Risolvi</string>
+    <string name="repair30_share">Condividi rapporto</string>
+    <string name="repair30_report_title">Dogmatix+ riparazione della libreria</string>
+    <string name="repair30_sev_high">Blocca un gioco</string>
+    <string name="repair30_sev_medium">Da controllare</string>
+    <string name="repair30_sev_low">Pulizia</string>
+    <string name="repair30_sev_high_hint">Questi giochi non si avvieranno finché non vengono risolti</string>
+    <string name="repair30_sev_medium_hint">Probabilmente danneggiato o incompleto</string>
+    <string name="repair30_sev_low_hint">Occupa solo spazio o disordina il tuo frontend</string>
+    <string name="repair30_files">File</string>
+    <string name="repair30_missing">Mancante</string>
+    <string name="repair30_examples">Per esempio</string>
+    <string name="repair30_missing_line">Mancante: %1$s</string>
+    <string name="repair30_no_fix">Non esiste una soluzione automatica. È mostrato perché tu lo sappia.</string>
+    <string name="repair30_fix_trash">Sposta nel cestino</string>
+    <string name="repair30_fix_create">Crea playlist</string>
+    <string name="repair30_fix_rewrite">Riscrivi playlist</string>
+    <string name="repair30_fix_download">Scarica di nuovo</string>
+    <string name="repair30_fix_rescan">Scansiona di nuovo</string>
+    <string name="repair30_preview_trash">Sposta i file in Cestino e ripristino, dove puoi ripristinarli.</string>
+    <string name="repair30_preview_write">Crea %1$s con questi dischi:</string>
+    <string name="repair30_preview_rewrite">Sposta la vecchia playlist in Cestino e ripristino e riscrive %1$s con i dischi ancora presenti:</string>
+    <string name="repair30_preview_download">Scarica di nuovo %1$s dalla stessa fonte.</string>
+    <string name="repair30_preview_replace">Sposta questa copia in Cestino e ripristino e scarica di nuovo %1$s dalla stessa fonte.</string>
+    <string name="repair30_preview_rescan">Rilegge le cartelle dei giochi perché la libreria segni ciò che c\'è davvero su questo dispositivo.</string>
+    <string name="repair30_confirm_trash">Questi file vanno in Cestino e ripristino. Puoi ripristinarli lì finché il cestino non viene svuotato.</string>
+    <string name="repair30_done">Risolto: %1$s</string>
+    <string name="repair30_stale">I file sono cambiati dopo il controllo. Controlla di nuovo prima.</string>
+    <string name="repair30_fix_failed">Impossibile risolvere %1$s. Ciò che è già stato spostato si trova in Cestino e ripristino.</string>
+    <string name="repair30_k_empty">%1$s è vuoto</string>
+    <string name="repair30_k_missing_tracks">A %1$s mancano tracce</string>
+    <string name="repair30_k_missing_discs">%1$s elenca dischi che non ci sono più</string>
+    <string name="repair30_k_dead_playlist">%1$s non punta a nulla</string>
+    <string name="repair30_k_unreadable">%1$s non si può leggere</string>
+    <string name="repair30_k_truncated">%1$s sembra incompleto</string>
+    <string name="repair30_k_orphan">%1$s non ha un file del disco</string>
+    <string name="repair30_k_leftover">Download incompleto in %1$s</string>
+    <string name="repair30_k_foreign">%1$s è un download incompleto</string>
+    <string name="repair30_k_dup_playlist">%1$s ha playlist doppie</string>
+    <string name="repair30_k_no_playlist">%1$s non ha una playlist</string>
+    <string name="repair30_k_wrong_console">%1$s potrebbe essere nella cartella sbagliata</string>
+    <string name="repair30_k_unmapped">La cartella %1$s non è collegata a nessuna console</string>
+    <string name="repair30_k_index">I segni della libreria non sono aggiornati</string>
+    <string name="repair30_b_empty">Questo file è vuoto (0 byte), quindi nessun emulatore può avviarlo. Probabilmente si è interrotto durante la copia o il download.</string>
+    <string name="repair30_b_missing_tracks">Questo file del disco elenca tracce che non sono nella sua cartella, quindi il gioco non si avvierà.</string>
+    <string name="repair30_b_missing_discs">Questa playlist elenca dischi che non sono più nella sua cartella. Riscrivila con i dischi ancora presenti.</string>
+    <string name="repair30_b_dead_playlist">Nessuno dei dischi di questa playlist è nella sua cartella. Aggiunge solo una voce rotta al tuo frontend.</string>
+    <string name="repair30_b_unreadable">Questo file del disco è vuoto o non si può leggere, quindi il gioco che descrive potrebbe non avviarsi.</string>
+    <string name="repair30_b_truncated">Questo file è di %1$s, ma la libreria indica %2$s. Probabilmente si è interrotto; scaricalo di nuovo per averne una copia completa.</string>
+    <string name="repair30_b_orphan">Nessun file .cue o .gdi in questa cartella elenca queste tracce, quindi gli emulatori non possono caricarle come disco.</string>
+    <string name="repair30_b_leftover">Un download, un\'estrazione o una copia interrotti hanno lasciato questo file temporaneo. Niente in coda lo usa.</string>
+    <string name="repair30_b_foreign">Sembra un file parziale di un browser o di un\'altra app di download. Non si può giocare.</string>
+    <string name="repair30_b_dup_playlist">Più playlist in questa cartella elencano esattamente gli stessi dischi, quindi il gioco compare più volte.</string>
+    <string name="repair30_b_no_playlist">Questo gioco ha più dischi ma nessuna playlist .m3u, quindi compare una volta per disco e cambiare disco è più scomodo.</string>
+    <string name="repair30_b_wrong_console">Questo tipo di file è per %1$s, ma si trova nella cartella di %2$s. Spostalo tu se il frontend non lo trova.</string>
+    <string name="repair30_b_index">File di gioco in memoria non ancora segnati: %1$d. Giochi segnati che non sono più in memoria: %2$d. Una nuova scansione aggiorna i segni.</string>
+    <plurals name="repair30_fixed">
+        <item quantity="one">%d elemento risolto</item>
+        <item quantity="many">%d elementi risolti</item>
+        <item quantity="other">%d elementi risolti</item>
+    </plurals>
+    <plurals name="repair30_fixed_some">
+        <item quantity="one">%1$d elemento risolto, %2$d non risolti</item>
+        <item quantity="many">%1$d elementi risolti, %2$d non risolti</item>
+        <item quantity="other">%1$d elementi risolti, %2$d non risolti</item>
+    </plurals>
+    <plurals name="repair30_fix_all_body">
+        <item quantity="one">%d soluzione aggiunge solo una playlist o aggiorna i segni della libreria. Niente viene rimosso, sostituito o scaricato.</item>
+        <item quantity="many">%d soluzioni aggiungono solo playlist o aggiornano i segni della libreria. Niente viene rimosso, sostituito o scaricato.</item>
+        <item quantity="other">%d soluzioni aggiungono solo playlist o aggiornano i segni della libreria. Niente viene rimosso, sostituito o scaricato.</item>
+    </plurals>
+    <plurals name="repair30_more">
+        <item quantity="one">e altri %d</item>
+        <item quantity="many">e altri %d</item>
+        <item quantity="other">e altri %d</item>
+    </plurals>
+    <plurals name="repair30_clean">
+        <item quantity="one">Nessun problema trovato in %d file</item>
+        <item quantity="many">Nessun problema trovato in %d file</item>
+        <item quantity="other">Nessun problema trovato in %d file</item>
+    </plurals>
+    <plurals name="repair30_count_high">
+        <item quantity="one">%d problema blocca un gioco</item>
+        <item quantity="many">%d problemi bloccano dei giochi</item>
+        <item quantity="other">%d problemi bloccano dei giochi</item>
+    </plurals>
+    <plurals name="repair30_count_medium">
+        <item quantity="one">%d elemento da controllare</item>
+        <item quantity="many">%d elementi da controllare</item>
+        <item quantity="other">%d elementi da controllare</item>
+    </plurals>
+    <plurals name="repair30_count_low">
+        <item quantity="one">%d elemento da sistemare</item>
+        <item quantity="many">%d elementi da sistemare</item>
+        <item quantity="other">%d elementi da sistemare</item>
+    </plurals>
+    <plurals name="repair30_b_unmapped">
+        <item quantity="one">L\'app non sa a quale console appartiene questa cartella, quindi il suo %d gioco non è segnato come presente sul dispositivo. Rinomina la cartella con il nome della console o sceglila in Fonti come cartella di quella console.</item>
+        <item quantity="many">L\'app non sa a quale console appartiene questa cartella, quindi i suoi %d giochi non sono segnati come presenti sul dispositivo. Rinomina la cartella con il nome della console o sceglila in Fonti come cartella di quella console.</item>
+        <item quantity="other">L\'app non sa a quale console appartiene questa cartella, quindi i suoi %d giochi non sono segnati come presenti sul dispositivo. Rinomina la cartella con il nome della console o sceglila in Fonti come cartella di quella console.</item>
+    </plurals>
+</resources>
