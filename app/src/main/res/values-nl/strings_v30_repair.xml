@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="repair30_title">Bibliotheek herstellen</string>
+    <string name="repair30_subtitle">Problemen in je spelmappen vinden en oplossen</string>
+    <string name="repair30_hint">Vind kapotte schijfsets, onafgemaakte downloads en andere problemen in je bibliotheek en los ze veilig op</string>
+    <string name="repair30_hist_reason">Bibliotheek herstellen</string>
+    <string name="repair30_intro_title">Controleer je spelmappen op problemen</string>
+    <string name="repair30_intro">Zoekt naar lege of afgebroken spellen, schijfsets met ontbrekende tracks, restanten van onderbroken downloads en andere dingen waardoor spellen niet werken of die alleen ruimte innemen. Er verandert niets tot je een oplossing kiest, en wat wordt verwijderd gaat eerst naar Prullenbak en herstel.</string>
+    <string name="repair30_start">Bibliotheek controleren</string>
+    <string name="repair30_again">Opnieuw controleren</string>
+    <string name="repair30_cancelled">De controle is gestopt. Er is niets veranderd.</string>
+    <string name="repair30_failed">De controle kon niet worden afgerond. Controleer of je spelmappen bereikbaar zijn en probeer het opnieuw.</string>
+    <string name="repair30_no_folder_title">Nog geen spelmap</string>
+    <string name="repair30_no_folder">Kies eerst een downloadmap in Instellingen en controleer daarna de bibliotheek.</string>
+    <string name="repair30_phase_scan">Je spelmappen worden gelezen…</string>
+    <string name="repair30_phase_leftovers">Zoeken naar achtergebleven bestanden (mappen gecontroleerd: %1$d)</string>
+    <string name="repair30_phase_sheets">Schijfbladen lezen: %1$d van %2$d</string>
+    <string name="repair30_phase_library">Vergelijken met de bibliotheek…</string>
+    <string name="repair30_incomplete">Sommige mappen konden niet volledig worden gelezen, dus deze lijst kan problemen missen.</string>
+    <string name="repair30_truncated">Alleen de eerste %1$d problemen worden getoond. Los er een paar op en controleer opnieuw om de rest te zien.</string>
+    <string name="repair30_profile_note">Alleen de consoles die dit profiel toont worden gecontroleerd. Gedeelde mappen worden in het hoofdprofiel gecontroleerd.</string>
+    <string name="repair30_fix_all">Veilige punten oplossen (%1$d)</string>
+    <string name="repair30_fix_all_title">Veilige punten oplossen?</string>
+    <string name="repair30_fix_all_go">Oplossen</string>
+    <string name="repair30_share">Rapport delen</string>
+    <string name="repair30_report_title">Dogmatix+ bibliotheek herstellen</string>
+    <string name="repair30_sev_high">Spel start niet</string>
+    <string name="repair30_sev_medium">Even bekijken</string>
+    <string name="repair30_sev_low">Opruimen</string>
+    <string name="repair30_sev_high_hint">Deze spellen starten pas als ze zijn opgelost</string>
+    <string name="repair30_sev_medium_hint">Waarschijnlijk kapot of onvolledig</string>
+    <string name="repair30_sev_low_hint">Neemt alleen ruimte in of maakt je frontend rommelig</string>
+    <string name="repair30_files">Bestanden</string>
+    <string name="repair30_missing">Ontbreekt</string>
+    <string name="repair30_examples">Bijvoorbeeld</string>
+    <string name="repair30_missing_line">Ontbreekt: %1$s</string>
+    <string name="repair30_no_fix">Hiervoor is geen automatische oplossing. Het staat hier zodat je het weet.</string>
+    <string name="repair30_fix_trash">Naar prullenbak</string>
+    <string name="repair30_fix_create">Afspeellijst maken</string>
+    <string name="repair30_fix_rewrite">Afspeellijst herschrijven</string>
+    <string name="repair30_fix_download">Opnieuw downloaden</string>
+    <string name="repair30_fix_rescan">Bibliotheek opnieuw scannen</string>
+    <string name="repair30_preview_trash">Verplaatst de bestanden naar Prullenbak en herstel, waar je ze kunt terugzetten.</string>
+    <string name="repair30_preview_write">Maakt %1$s met deze schijven:</string>
+    <string name="repair30_preview_rewrite">Verplaatst de oude afspeellijst naar Prullenbak en herstel en schrijft %1$s opnieuw met de schijven die er nog zijn:</string>
+    <string name="repair30_preview_download">Downloadt %1$s opnieuw van dezelfde bron.</string>
+    <string name="repair30_preview_replace">Verplaatst deze kopie naar Prullenbak en herstel en downloadt %1$s opnieuw van dezelfde bron.</string>
+    <string name="repair30_preview_rescan">Leest je spelmappen opnieuw, zodat de bibliotheek aangeeft wat echt op dit apparaat staat.</string>
+    <string name="repair30_confirm_trash">Deze bestanden gaan naar Prullenbak en herstel. Je kunt ze daar terugzetten tot de prullenbak wordt geleegd.</string>
+    <string name="repair30_done">Opgelost: %1$s</string>
+    <string name="repair30_stale">De bestanden zijn sinds de controle veranderd. Controleer eerst opnieuw.</string>
+    <string name="repair30_fix_failed">%1$s kon niet worden opgelost. Wat al was verplaatst, staat in Prullenbak en herstel.</string>
+    <string name="repair30_k_empty">%1$s is leeg</string>
+    <string name="repair30_k_missing_tracks">%1$s mist tracks</string>
+    <string name="repair30_k_missing_discs">%1$s noemt schijven die weg zijn</string>
+    <string name="repair30_k_dead_playlist">%1$s verwijst naar niets</string>
+    <string name="repair30_k_unreadable">%1$s kan niet worden gelezen</string>
+    <string name="repair30_k_truncated">%1$s lijkt onvolledig</string>
+    <string name="repair30_k_orphan">%1$s heeft geen schijfblad</string>
+    <string name="repair30_k_leftover">Onafgemaakte downloadgegevens in %1$s</string>
+    <string name="repair30_k_foreign">%1$s is een onafgemaakte download</string>
+    <string name="repair30_k_dup_playlist">%1$s heeft dubbele afspeellijsten</string>
+    <string name="repair30_k_no_playlist">%1$s heeft geen afspeellijst</string>
+    <string name="repair30_k_wrong_console">%1$s staat misschien in de verkeerde map</string>
+    <string name="repair30_k_unmapped">Map %1$s is niet aan een console gekoppeld</string>
+    <string name="repair30_k_index">De bibliotheekmarkeringen zijn verouderd</string>
+    <string name="repair30_b_empty">Dit bestand is leeg (0 bytes), dus geen enkele emulator kan het starten. Het is waarschijnlijk afgebroken tijdens het kopiëren of downloaden.</string>
+    <string name="repair30_b_missing_tracks">Dit schijfblad noemt trackbestanden die niet in de map staan, dus het spel start niet.</string>
+    <string name="repair30_b_missing_discs">Deze afspeellijst noemt schijven die niet meer in de map staan. Herschrijf hem met de schijven die er nog zijn.</string>
+    <string name="repair30_b_dead_playlist">Geen van de schijven uit deze afspeellijst staat in de map. Hij zet alleen een kapotte regel in je frontend.</string>
+    <string name="repair30_b_unreadable">Dit schijfblad is leeg of kon niet worden gelezen, dus het spel dat het beschrijft start misschien niet.</string>
+    <string name="repair30_b_truncated">Dit bestand is %1$s, maar de bibliotheek vermeldt %2$s. Het is waarschijnlijk afgebroken; download het opnieuw voor een volledige kopie.</string>
+    <string name="repair30_b_orphan">Geen enkel .cue- of .gdi-blad in deze map noemt deze trackbestanden, dus emulators kunnen ze niet als schijf laden.</string>
+    <string name="repair30_b_leftover">Een onderbroken download, uitpakactie of kopie heeft dit tijdelijke bestand achtergelaten. Niets in de wachtrij gebruikt het.</string>
+    <string name="repair30_b_foreign">Dit lijkt een half bestand van een browser of een andere download-app. Het kan niet worden gespeeld.</string>
+    <string name="repair30_b_dup_playlist">Meerdere afspeellijsten in deze map noemen precies dezelfde schijven, dus het spel verschijnt meer dan eens.</string>
+    <string name="repair30_b_no_playlist">Dit spel heeft meerdere schijven maar geen .m3u-afspeellijst, dus het verschijnt per schijf en wisselen van schijf is lastiger.</string>
+    <string name="repair30_b_wrong_console">Dit bestandstype is voor %1$s, maar het staat in de map van %2$s. Verplaats het zelf als je frontend het niet vindt.</string>
+    <string name="repair30_b_index">Spelbestanden op de opslag die nog niet zijn gemarkeerd: %1$d. Gemarkeerde spellen die niet meer op de opslag staan: %2$d. Opnieuw scannen werkt de markeringen bij.</string>
+    <plurals name="repair30_fixed">
+        <item quantity="one">%d punt opgelost</item>
+        <item quantity="other">%d punten opgelost</item>
+    </plurals>
+    <plurals name="repair30_fixed_some">
+        <item quantity="one">%1$d punt opgelost, %2$d kon niet worden opgelost</item>
+        <item quantity="other">%1$d punten opgelost, %2$d konden niet worden opgelost</item>
+    </plurals>
+    <plurals name="repair30_fix_all_body">
+        <item quantity="one">%d oplossing voegt alleen een afspeellijst toe of werkt de bibliotheekmarkeringen bij. Er wordt niets verwijderd, vervangen of gedownload.</item>
+        <item quantity="other">%d oplossingen voegen alleen afspeellijsten toe of werken de bibliotheekmarkeringen bij. Er wordt niets verwijderd, vervangen of gedownload.</item>
+    </plurals>
+    <plurals name="repair30_more">
+        <item quantity="one">en nog %d</item>
+        <item quantity="other">en nog %d</item>
+    </plurals>
+    <plurals name="repair30_clean">
+        <item quantity="one">Geen problemen gevonden in %d bestand</item>
+        <item quantity="other">Geen problemen gevonden in %d bestanden</item>
+    </plurals>
+    <plurals name="repair30_count_high">
+        <item quantity="one">%d probleem houdt een spel tegen</item>
+        <item quantity="other">%d problemen houden spellen tegen</item>
+    </plurals>
+    <plurals name="repair30_count_medium">
+        <item quantity="one">%d punt om even te bekijken</item>
+        <item quantity="other">%d punten om even te bekijken</item>
+    </plurals>
+    <plurals name="repair30_count_low">
+        <item quantity="one">%d punt om op te ruimen</item>
+        <item quantity="other">%d punten om op te ruimen</item>
+    </plurals>
+    <plurals name="repair30_b_unmapped">
+        <item quantity="one">De app weet niet voor welke console deze map is, dus %d spel erin is niet gemarkeerd als aanwezig op je apparaat. Geef de map de naam van de console of kies hem in Bronnen als map van die console.</item>
+        <item quantity="other">De app weet niet voor welke console deze map is, dus de %d spellen erin zijn niet gemarkeerd als aanwezig op je apparaat. Geef de map de naam van de console of kies hem in Bronnen als map van die console.</item>
+    </plurals>
+</resources>

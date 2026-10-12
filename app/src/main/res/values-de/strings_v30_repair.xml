@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="repair30_title">Bibliothek reparieren</string>
+    <string name="repair30_subtitle">Probleme in deinen Spielordnern finden und beheben</string>
+    <string name="repair30_hint">Defekte Disc-Sets, unfertige Downloads und andere Bibliotheksprobleme finden und sicher beheben</string>
+    <string name="repair30_hist_reason">Bibliothek reparieren</string>
+    <string name="repair30_intro_title">Spielordner auf Probleme prüfen</string>
+    <string name="repair30_intro">Sucht nach leeren oder abgebrochenen Spielen, Disc-Sets mit fehlenden Tracks, Resten unterbrochener Downloads und anderem, das Spiele am Starten hindert oder nur Platz belegt. Nichts ändert sich, bis du eine Lösung wählst, und alles Entfernte landet zuerst in Papierkorb und Wiederherstellung.</string>
+    <string name="repair30_start">Bibliothek prüfen</string>
+    <string name="repair30_again">Erneut prüfen</string>
+    <string name="repair30_cancelled">Die Prüfung wurde gestoppt. Es wurde nichts geändert.</string>
+    <string name="repair30_failed">Die Prüfung konnte nicht abgeschlossen werden. Prüfe, ob deine Spielordner erreichbar sind, und versuche es erneut.</string>
+    <string name="repair30_no_folder_title">Noch kein Spielordner</string>
+    <string name="repair30_no_folder">Wähle zuerst in den Einstellungen einen Download-Ordner und prüfe dann die Bibliothek.</string>
+    <string name="repair30_phase_scan">Deine Spielordner werden gelesen…</string>
+    <string name="repair30_phase_leftovers">Suche nach übrig gebliebenen Dateien (geprüfte Ordner: %1$d)</string>
+    <string name="repair30_phase_sheets">Disc-Beschreibungen lesen: %1$d von %2$d</string>
+    <string name="repair30_phase_library">Abgleich mit der Bibliothek…</string>
+    <string name="repair30_incomplete">Einige Ordner konnten nicht vollständig gelesen werden, daher fehlen in dieser Liste womöglich Probleme.</string>
+    <string name="repair30_truncated">Nur die ersten %1$d Probleme werden angezeigt. Behebe einige und prüfe erneut, um den Rest zu sehen.</string>
+    <string name="repair30_profile_note">Geprüft werden nur die Konsolen, die dieses Profil zeigt. Gemeinsame Ordner werden im Hauptprofil geprüft.</string>
+    <string name="repair30_fix_all">Sichere Punkte beheben (%1$d)</string>
+    <string name="repair30_fix_all_title">Sichere Punkte beheben?</string>
+    <string name="repair30_fix_all_go">Beheben</string>
+    <string name="repair30_share">Bericht teilen</string>
+    <string name="repair30_report_title">Dogmatix+ Bibliothek reparieren</string>
+    <string name="repair30_sev_high">Spiel startet nicht</string>
+    <string name="repair30_sev_medium">Ansehen lohnt sich</string>
+    <string name="repair30_sev_low">Aufräumen</string>
+    <string name="repair30_sev_high_hint">Diese Spiele starten erst, wenn sie behoben sind</string>
+    <string name="repair30_sev_medium_hint">Wahrscheinlich defekt oder unvollständig</string>
+    <string name="repair30_sev_low_hint">Belegt nur Platz oder macht dein Frontend unübersichtlich</string>
+    <string name="repair30_files">Dateien</string>
+    <string name="repair30_missing">Fehlt</string>
+    <string name="repair30_examples">Zum Beispiel</string>
+    <string name="repair30_missing_line">Fehlt: %1$s</string>
+    <string name="repair30_no_fix">Dafür gibt es keine automatische Lösung. Es steht hier, damit du davon weißt.</string>
+    <string name="repair30_fix_trash">In den Papierkorb</string>
+    <string name="repair30_fix_create">Playlist erstellen</string>
+    <string name="repair30_fix_rewrite">Playlist neu schreiben</string>
+    <string name="repair30_fix_download">Erneut herunterladen</string>
+    <string name="repair30_fix_rescan">Bibliothek neu scannen</string>
+    <string name="repair30_preview_trash">Verschiebt die Dateien in Papierkorb und Wiederherstellung, wo du sie zurückholen kannst.</string>
+    <string name="repair30_preview_write">Erstellt %1$s mit diesen Discs:</string>
+    <string name="repair30_preview_rewrite">Verschiebt die alte Playlist in Papierkorb und Wiederherstellung und schreibt %1$s neu mit den Discs, die noch da sind:</string>
+    <string name="repair30_preview_download">Lädt %1$s erneut von derselben Quelle herunter.</string>
+    <string name="repair30_preview_replace">Verschiebt diese Kopie in Papierkorb und Wiederherstellung und lädt %1$s erneut von derselben Quelle herunter.</string>
+    <string name="repair30_preview_rescan">Liest deine Spielordner erneut, damit die Bibliothek markiert, was wirklich auf diesem Gerät ist.</string>
+    <string name="repair30_confirm_trash">Diese Dateien kommen in Papierkorb und Wiederherstellung. Dort kannst du sie zurückholen, bis der Papierkorb geleert wird.</string>
+    <string name="repair30_done">Behoben: %1$s</string>
+    <string name="repair30_stale">Die Dateien haben sich seit der Prüfung geändert. Prüfe zuerst erneut.</string>
+    <string name="repair30_fix_failed">%1$s konnte nicht behoben werden. Bereits Verschobenes liegt in Papierkorb und Wiederherstellung.</string>
+    <string name="repair30_k_empty">%1$s ist leer</string>
+    <string name="repair30_k_missing_tracks">Bei %1$s fehlen Tracks</string>
+    <string name="repair30_k_missing_discs">%1$s nennt Discs, die fehlen</string>
+    <string name="repair30_k_dead_playlist">%1$s verweist ins Leere</string>
+    <string name="repair30_k_unreadable">%1$s kann nicht gelesen werden</string>
+    <string name="repair30_k_truncated">%1$s wirkt unvollständig</string>
+    <string name="repair30_k_orphan">%1$s hat keine Disc-Beschreibung</string>
+    <string name="repair30_k_leftover">Unfertige Download-Daten in %1$s</string>
+    <string name="repair30_k_foreign">%1$s ist ein unfertiger Download</string>
+    <string name="repair30_k_dup_playlist">%1$s hat doppelte Playlists</string>
+    <string name="repair30_k_no_playlist">%1$s hat keine Playlist</string>
+    <string name="repair30_k_wrong_console">%1$s liegt vielleicht im falschen Ordner</string>
+    <string name="repair30_k_unmapped">Ordner %1$s ist keiner Konsole zugeordnet</string>
+    <string name="repair30_k_index">Die Bibliotheksmarkierungen sind veraltet</string>
+    <string name="repair30_b_empty">Diese Datei ist leer (0 Byte), daher kann kein Emulator sie starten. Vermutlich wurde sie beim Kopieren oder Herunterladen abgebrochen.</string>
+    <string name="repair30_b_missing_tracks">Diese Disc-Beschreibung nennt Track-Dateien, die nicht in ihrem Ordner liegen, daher startet das Spiel nicht.</string>
+    <string name="repair30_b_missing_discs">Diese Playlist nennt Discs, die nicht mehr in ihrem Ordner liegen. Schreibe sie mit den noch vorhandenen Discs neu.</string>
+    <string name="repair30_b_dead_playlist">Keine der Discs dieser Playlist liegt in ihrem Ordner. Sie fügt deinem Frontend nur einen defekten Eintrag hinzu.</string>
+    <string name="repair30_b_unreadable">Diese Disc-Beschreibung ist leer oder konnte nicht gelesen werden, daher startet das beschriebene Spiel womöglich nicht.</string>
+    <string name="repair30_b_truncated">Diese Datei ist %1$s groß, die Bibliothek nennt aber %2$s. Vermutlich wurde sie abgebrochen; lade sie für eine vollständige Kopie erneut herunter.</string>
+    <string name="repair30_b_orphan">Keine .cue- oder .gdi-Datei in diesem Ordner nennt diese Track-Dateien, daher können Emulatoren sie nicht als Disc laden.</string>
+    <string name="repair30_b_leftover">Ein unterbrochener Download, ein Entpacken oder Kopieren hat diese temporäre Datei hinterlassen. Nichts in der Warteschlange verwendet sie.</string>
+    <string name="repair30_b_foreign">Das sieht nach einer halben Datei eines Browsers oder einer anderen Download-App aus. Sie kann nicht gespielt werden.</string>
+    <string name="repair30_b_dup_playlist">Mehrere Playlists in diesem Ordner nennen genau dieselben Discs, daher erscheint das Spiel mehrmals.</string>
+    <string name="repair30_b_no_playlist">Dieses Spiel hat mehrere Discs, aber keine .m3u-Playlist. Es erscheint daher einmal pro Disc, und der Disc-Wechsel ist umständlicher.</string>
+    <string name="repair30_b_wrong_console">Dieser Dateityp gehört zu %1$s, liegt aber im Ordner von %2$s. Verschiebe die Datei selbst, falls dein Frontend sie nicht findet.</string>
+    <string name="repair30_b_index">Spieldateien auf dem Speicher, die noch nicht markiert sind: %1$d. Markierte Spiele, die nicht mehr auf dem Speicher sind: %2$d. Ein neuer Scan bringt die Markierungen auf den aktuellen Stand.</string>
+    <plurals name="repair30_fixed">
+        <item quantity="one">%d Punkt behoben</item>
+        <item quantity="other">%d Punkte behoben</item>
+    </plurals>
+    <plurals name="repair30_fixed_some">
+        <item quantity="one">%1$d Punkt behoben, %2$d konnten nicht behoben werden</item>
+        <item quantity="other">%1$d Punkte behoben, %2$d konnten nicht behoben werden</item>
+    </plurals>
+    <plurals name="repair30_fix_all_body">
+        <item quantity="one">%d Lösung fügt nur eine Playlist hinzu oder aktualisiert die Bibliotheksmarkierungen. Nichts wird entfernt, ersetzt oder heruntergeladen.</item>
+        <item quantity="other">%d Lösungen fügen nur Playlists hinzu oder aktualisieren die Bibliotheksmarkierungen. Nichts wird entfernt, ersetzt oder heruntergeladen.</item>
+    </plurals>
+    <plurals name="repair30_more">
+        <item quantity="one">und %d weitere</item>
+        <item quantity="other">und %d weitere</item>
+    </plurals>
+    <plurals name="repair30_clean">
+        <item quantity="one">Keine Probleme in %d Datei gefunden</item>
+        <item quantity="other">Keine Probleme in %d Dateien gefunden</item>
+    </plurals>
+    <plurals name="repair30_count_high">
+        <item quantity="one">%d Problem verhindert ein Spiel</item>
+        <item quantity="other">%d Probleme verhindern Spiele</item>
+    </plurals>
+    <plurals name="repair30_count_medium">
+        <item quantity="one">%d Punkt zum Ansehen</item>
+        <item quantity="other">%d Punkte zum Ansehen</item>
+    </plurals>
+    <plurals name="repair30_count_low">
+        <item quantity="one">%d Punkt zum Aufräumen</item>
+        <item quantity="other">%d Punkte zum Aufräumen</item>
+    </plurals>
+    <plurals name="repair30_b_unmapped">
+        <item quantity="one">Die App weiß nicht, zu welcher Konsole dieser Ordner gehört, daher ist %d Spiel darin nicht als auf deinem Gerät markiert. Benenne den Ordner nach der Konsole oder wähle ihn unter Quellen als Ordner dieser Konsole.</item>
+        <item quantity="other">Die App weiß nicht, zu welcher Konsole dieser Ordner gehört, daher sind die %d Spiele darin nicht als auf deinem Gerät markiert. Benenne den Ordner nach der Konsole oder wähle ihn unter Quellen als Ordner dieser Konsole.</item>
+    </plurals>
+</resources>

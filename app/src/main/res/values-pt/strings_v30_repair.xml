@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="repair30_title">Reparar biblioteca</string>
+    <string name="repair30_subtitle">Encontre e corrija problemas nas suas pastas de jogos</string>
+    <string name="repair30_hint">Encontre jogos em disco danificados, transferências inacabadas e outros problemas da biblioteca e corrija-os em segurança</string>
+    <string name="repair30_hist_reason">Reparar biblioteca</string>
+    <string name="repair30_intro_title">Verifique as suas pastas de jogos</string>
+    <string name="repair30_intro">Procura jogos vazios ou cortados, jogos em disco a que faltam faixas, restos de transferências interrompidas e outras coisas que impedem um jogo de arrancar ou que só ocupam espaço. Nada muda até escolher uma correção, e tudo o que for removido passa primeiro pelo Lixo e recuperação.</string>
+    <string name="repair30_start">Verificar biblioteca</string>
+    <string name="repair30_again">Verificar novamente</string>
+    <string name="repair30_cancelled">A verificação foi parada. Nada foi alterado.</string>
+    <string name="repair30_failed">Não foi possível concluir a verificação. Confirme que as pastas de jogos estão acessíveis e tente novamente.</string>
+    <string name="repair30_no_folder_title">Ainda sem pasta de jogos</string>
+    <string name="repair30_no_folder">Escolha primeiro uma pasta de transferências nas Definições e depois verifique a biblioteca.</string>
+    <string name="repair30_phase_scan">A ler as suas pastas de jogos…</string>
+    <string name="repair30_phase_leftovers">A procurar ficheiros que ficaram para trás (pastas verificadas: %1$d)</string>
+    <string name="repair30_phase_sheets">A ler ficheiros de disco: %1$d de %2$d</string>
+    <string name="repair30_phase_library">A comparar com a biblioteca…</string>
+    <string name="repair30_incomplete">Algumas pastas não puderam ser lidas por completo, por isso podem faltar problemas nesta lista.</string>
+    <string name="repair30_truncated">Só são mostrados os primeiros %1$d problemas. Corrija alguns e verifique novamente para ver o resto.</string>
+    <string name="repair30_profile_note">Só são verificadas as consolas que este perfil mostra. As pastas partilhadas são verificadas no perfil principal.</string>
+    <string name="repair30_fix_all">Corrigir itens seguros (%1$d)</string>
+    <string name="repair30_fix_all_title">Corrigir itens seguros?</string>
+    <string name="repair30_fix_all_go">Corrigir</string>
+    <string name="repair30_share">Partilhar relatório</string>
+    <string name="repair30_report_title">Dogmatix+ reparação da biblioteca</string>
+    <string name="repair30_sev_high">Impede um jogo</string>
+    <string name="repair30_sev_medium">Vale a pena ver</string>
+    <string name="repair30_sev_low">Arrumação</string>
+    <string name="repair30_sev_high_hint">Estes jogos não arrancam enquanto não forem corrigidos</string>
+    <string name="repair30_sev_medium_hint">Provavelmente danificado ou incompleto</string>
+    <string name="repair30_sev_low_hint">Só ocupa espaço ou desarruma o seu frontend</string>
+    <string name="repair30_files">Ficheiros</string>
+    <string name="repair30_missing">Em falta</string>
+    <string name="repair30_examples">Por exemplo</string>
+    <string name="repair30_missing_line">Em falta: %1$s</string>
+    <string name="repair30_no_fix">Não há correção automática para isto. É mostrado para que saiba.</string>
+    <string name="repair30_fix_trash">Mover para o lixo</string>
+    <string name="repair30_fix_create">Criar lista</string>
+    <string name="repair30_fix_rewrite">Reescrever lista</string>
+    <string name="repair30_fix_download">Transferir novamente</string>
+    <string name="repair30_fix_rescan">Analisar novamente</string>
+    <string name="repair30_preview_trash">Move os ficheiros para o Lixo e recuperação, onde os pode restaurar.</string>
+    <string name="repair30_preview_write">Cria %1$s com estes discos:</string>
+    <string name="repair30_preview_rewrite">Move a lista antiga para o Lixo e recuperação e escreve %1$s novamente com os discos que ainda existem:</string>
+    <string name="repair30_preview_download">Transfere %1$s novamente da mesma fonte.</string>
+    <string name="repair30_preview_replace">Move esta cópia para o Lixo e recuperação e transfere %1$s novamente da mesma fonte.</string>
+    <string name="repair30_preview_rescan">Volta a ler as suas pastas de jogos para que a biblioteca marque o que está realmente neste dispositivo.</string>
+    <string name="repair30_confirm_trash">Estes ficheiros vão para o Lixo e recuperação. Pode restaurá-los lá até o lixo ser esvaziado.</string>
+    <string name="repair30_done">Corrigido: %1$s</string>
+    <string name="repair30_stale">Os ficheiros mudaram desde a verificação. Verifique novamente primeiro.</string>
+    <string name="repair30_fix_failed">Não foi possível corrigir %1$s. O que já foi movido está no Lixo e recuperação.</string>
+    <string name="repair30_k_empty">%1$s está vazio</string>
+    <string name="repair30_k_missing_tracks">Faltam faixas a %1$s</string>
+    <string name="repair30_k_missing_discs">%1$s indica discos que já não existem</string>
+    <string name="repair30_k_dead_playlist">%1$s não aponta para nada</string>
+    <string name="repair30_k_unreadable">Não é possível ler %1$s</string>
+    <string name="repair30_k_truncated">%1$s parece incompleto</string>
+    <string name="repair30_k_orphan">%1$s não tem ficheiro de disco</string>
+    <string name="repair30_k_leftover">Transferência inacabada em %1$s</string>
+    <string name="repair30_k_foreign">%1$s é uma transferência inacabada</string>
+    <string name="repair30_k_dup_playlist">%1$s tem listas duplicadas</string>
+    <string name="repair30_k_no_playlist">%1$s não tem lista</string>
+    <string name="repair30_k_wrong_console">%1$s pode estar na pasta errada</string>
+    <string name="repair30_k_unmapped">A pasta %1$s não está ligada a nenhuma consola</string>
+    <string name="repair30_k_index">As marcas da biblioteca estão desatualizadas</string>
+    <string name="repair30_b_empty">Este ficheiro está vazio (0 bytes), por isso nenhum emulador o consegue abrir. Provavelmente foi cortado durante uma cópia ou transferência.</string>
+    <string name="repair30_b_missing_tracks">Este ficheiro de disco indica faixas que não estão na pasta, por isso o jogo não arranca.</string>
+    <string name="repair30_b_missing_discs">Esta lista indica discos que já não estão na pasta. Reescreva-a com os discos que ainda existem.</string>
+    <string name="repair30_b_dead_playlist">Nenhum dos discos desta lista está na pasta. Só acrescenta uma entrada danificada ao seu frontend.</string>
+    <string name="repair30_b_unreadable">Este ficheiro de disco está vazio ou não pôde ser lido, por isso o jogo que descreve pode não arrancar.</string>
+    <string name="repair30_b_truncated">Este ficheiro tem %1$s, mas a biblioteca indica %2$s. Provavelmente foi cortado; transfira-o novamente para ter uma cópia completa.</string>
+    <string name="repair30_b_orphan">Nenhum ficheiro .cue ou .gdi desta pasta indica estas faixas, por isso os emuladores não as conseguem carregar como disco.</string>
+    <string name="repair30_b_leftover">Uma transferência, extração ou cópia interrompida deixou este ficheiro temporário. Nada na fila o utiliza.</string>
+    <string name="repair30_b_foreign">Parece um ficheiro parcial de um navegador ou de outra app de transferências. Não pode ser jogado.</string>
+    <string name="repair30_b_dup_playlist">Várias listas desta pasta indicam exatamente os mesmos discos, por isso o jogo aparece mais de uma vez.</string>
+    <string name="repair30_b_no_playlist">Este jogo tem vários discos mas nenhuma lista .m3u, por isso aparece uma vez por disco e mudar de disco é mais difícil.</string>
+    <string name="repair30_b_wrong_console">Este tipo de ficheiro é para %1$s, mas está na pasta de %2$s. Mova-o se o seu frontend não o encontrar.</string>
+    <string name="repair30_b_index">Ficheiros de jogo no armazenamento ainda sem marca: %1$d. Jogos marcados que já não estão no armazenamento: %2$d. Uma nova análise atualiza as marcas.</string>
+    <plurals name="repair30_fixed">
+        <item quantity="one">%d item corrigido</item>
+        <item quantity="many">%d itens corrigidos</item>
+        <item quantity="other">%d itens corrigidos</item>
+    </plurals>
+    <plurals name="repair30_fixed_some">
+        <item quantity="one">%1$d item corrigido, %2$d não puderam ser corrigidos</item>
+        <item quantity="many">%1$d itens corrigidos, %2$d não puderam ser corrigidos</item>
+        <item quantity="other">%1$d itens corrigidos, %2$d não puderam ser corrigidos</item>
+    </plurals>
+    <plurals name="repair30_fix_all_body">
+        <item quantity="one">%d correção só acrescenta uma lista ou atualiza as marcas da biblioteca. Nada é removido, substituído ou transferido.</item>
+        <item quantity="many">%d correções só acrescentam listas ou atualizam as marcas da biblioteca. Nada é removido, substituído ou transferido.</item>
+        <item quantity="other">%d correções só acrescentam listas ou atualizam as marcas da biblioteca. Nada é removido, substituído ou transferido.</item>
+    </plurals>
+    <plurals name="repair30_more">
+        <item quantity="one">e mais %d</item>
+        <item quantity="many">e mais %d</item>
+        <item quantity="other">e mais %d</item>
+    </plurals>
+    <plurals name="repair30_clean">
+        <item quantity="one">Nenhum problema encontrado em %d ficheiro</item>
+        <item quantity="many">Nenhum problema encontrado em %d ficheiros</item>
+        <item quantity="other">Nenhum problema encontrado em %d ficheiros</item>
+    </plurals>
+    <plurals name="repair30_count_high">
+        <item quantity="one">%d problema impede um jogo</item>
+        <item quantity="many">%d problemas impedem jogos</item>
+        <item quantity="other">%d problemas impedem jogos</item>
+    </plurals>
+    <plurals name="repair30_count_medium">
+        <item quantity="one">%d item vale a pena ver</item>
+        <item quantity="many">%d itens valem a pena ver</item>
+        <item quantity="other">%d itens valem a pena ver</item>
+    </plurals>
+    <plurals name="repair30_count_low">
+        <item quantity="one">%d item para arrumar</item>
+        <item quantity="many">%d itens para arrumar</item>
+        <item quantity="other">%d itens para arrumar</item>
+    </plurals>
+    <plurals name="repair30_b_unmapped">
+        <item quantity="one">A app não sabe a que consola pertence esta pasta, por isso o seu %d jogo não está marcado como presente no dispositivo. Dê à pasta o nome da consola ou escolha-a em Fontes como pasta dessa consola.</item>
+        <item quantity="many">A app não sabe a que consola pertence esta pasta, por isso os seus %d jogos não estão marcados como presentes no dispositivo. Dê à pasta o nome da consola ou escolha-a em Fontes como pasta dessa consola.</item>
+        <item quantity="other">A app não sabe a que consola pertence esta pasta, por isso os seus %d jogos não estão marcados como presentes no dispositivo. Dê à pasta o nome da consola ou escolha-a em Fontes como pasta dessa consola.</item>
+    </plurals>
+</resources>

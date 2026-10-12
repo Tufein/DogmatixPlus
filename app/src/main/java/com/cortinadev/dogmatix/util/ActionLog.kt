@@ -25,6 +25,8 @@ object ActionTopic {
     const val CLOUD_BACKUP = "cloud_backup"
     const val LIBRARY_FOLDER = "library_folder"
     const val SMART_STORAGE = "smart_storage"
+    /** Tools -> Library repair (3.0.0): a fix that names no single game, such as a library rescan. */
+    const val LIBRARY_REPAIR = "library_repair"
 }
 
 /**
@@ -39,6 +41,8 @@ object ActionReason {
     const val BETTER_VERSION = "better_version"
     const val FREE_SPACE = "free_space"
     const val OFFLINE_COLLECTION = "offline_collection"
+    /** Moved away or written by a fix of Tools -> Library repair (3.0.0). */
+    const val REPAIR = "repair"
     /** Trash emptied by the retention setting. */
     const val EXPIRED = "expired"
     /** Moves. */

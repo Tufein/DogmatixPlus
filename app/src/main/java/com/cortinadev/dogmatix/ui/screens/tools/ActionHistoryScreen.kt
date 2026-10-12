@@ -387,6 +387,7 @@ private fun topicText(e: ActionEntry): String? = when (e.topic) {
     ActionTopic.DEVICE_SYNC -> stringResource(R.string.hist24_t_device_sync)
     ActionTopic.CLOUD_BACKUP -> stringResource(R.string.hist24_t_cloud_backup)
     ActionTopic.LIBRARY_FOLDER -> stringResource(R.string.hist24_t_library_folder)
+    ActionTopic.LIBRARY_REPAIR -> stringResource(R.string.repair30_title)
     ActionTopic.SMART_STORAGE -> e.consoleId?.takeIf { it.isNotBlank() }?.let { ConsoleFormatter.getConsoleDisplayName(it) }
         ?: stringResource(R.string.hist24_t_smart_storage)
     else -> null
@@ -420,6 +421,7 @@ private fun reasonText(e: ActionEntry): String? {
         ActionReason.BETTER_VERSION -> stringResource(R.string.hist24_r_better_version)
         ActionReason.FREE_SPACE -> stringResource(R.string.hist24_r_free_space)
         ActionReason.OFFLINE_COLLECTION -> stringResource(R.string.hist24_r_offline_collection)
+        ActionReason.REPAIR -> stringResource(R.string.repair30_hist_reason)
         ActionReason.EXPIRED -> stringResource(R.string.hist24_r_expired)
         ActionReason.TO_SD, ActionReason.TO_INTERNAL -> stringResource(
             when {
