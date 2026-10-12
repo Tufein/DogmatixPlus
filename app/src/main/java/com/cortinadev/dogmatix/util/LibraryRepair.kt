@@ -139,7 +139,7 @@ object LibraryRepair {
     /** A file is "cut off" when it is under this share of the size the library lists. */
     const val TRUNCATED_RATIO = 0.5
 
-    private val foreignPartExtensions = setOf("crdownload", "part", "partial", "download", "opdownload", "aria2", "!ut", "!qb", "tmp")
+    private val foreignPartExtensions = setOf("crdownload", "part", "partial", "opdownload", "aria2", "!ut", "!qb")
     private val sheetExtensions = setOf("cue", "gdi", "m3u")
     private val trackFile = Regex("""(?i)^(.*?)\s*\(track\s*\d+\)\.(bin|img|raw|wav|iso)$""")
     private val genericTrack = Regex("""(?i)^track\s*\d+\.(bin|raw|img)$""")
@@ -223,7 +223,7 @@ object LibraryRepair {
         val unknownSizeRoots = unknownSizeRoots(files)
 
         // Empty game files (0 bytes), unless the storage does not report sizes at all.
-        val empty = files.filter { it.size == 0L && it.rootId !in unknownSizeRoots && DuplicateFinder.isGameFile(it) && !isForeignPart(it.name) }
+        val empty = files.filter { it.consoleId != null && it.size == 0L && it.rootId !in unknownSizeRoots && DuplicateFinder.isGameFile(it) && !isForeignPart(it.name) }
         empty.forEach { f ->
             out += RepairFinding("empty:${f.fileId}", RepairKind.EMPTY_FILE, f.consoleId, f.name, listOf(RepairFile.of(f)),
                 fixes = listOf(RepairFix(RepairFixKind.TRASH, trash = listOf(RepairFile.of(f)))))
@@ -234,6 +234,9 @@ object LibraryRepair {
         val readable = files.filter { ext(it.name) !in sheetExtensions || (it.fileId in input.sheets && it.fileId !in emptyIds) }
         val read: (DiskFile) -> String? = { input.sheets[it.fileId] }
         val byFolder = files.groupBy { it.dirId }
+        // A folder with a disc sheet that was not read (over the cap, too large, empty): its playlists
+        // would see those discs as missing, so they are left alone.
+        val unreadSheetDirs = files.filter { ext(it.name) in setOf("cue", "gdi") && it.fileId !in input.sheets }.map { it.dirId }.toSet()
         for (problem in SetChecker.check(readable, read)) {
             val sheet = problem.sheet
             val isPlaylist = ext(sheet.name) == "m3u"
@@ -246,7 +249,7 @@ object LibraryRepair {
                     "tracks:${sheet.fileId}", RepairKind.MISSING_TRACKS, sheet.consoleId, sheet.name, listOf(RepairFile.of(sheet)), problem.missing,
                     fixes = listOfNotNull(redownloadRef(sheet.consoleId, gameStem(sheet), input.library)?.let { RepairFix(RepairFixKind.DOWNLOAD_AGAIN, download = it) })
                 )
-                SetProblem.Kind.MISSING_DISCS -> if (isPlaylist) {
+                SetProblem.Kind.MISSING_DISCS -> if (isPlaylist && sheet.dirId !in unreadSheetDirs) {
                     val entries = SheetParser.m3uFiles(input.sheets[sheet.fileId].orEmpty())
                     val missing = problem.missing.map { it.lowercase() }.toSet()
                     val kept = entries.filter { it.lowercase() !in missing }
@@ -317,7 +320,7 @@ object LibraryRepair {
         }
 
         // Partial files of browsers and other download apps.
-        files.filter { isForeignPart(it.name) && stale(it.lastModified, input.now, DOWNLOAD_PART_MIN_AGE, input.busy) }.forEach { f ->
+        files.filter { it.consoleId != null && isForeignPart(it.name) && stale(it.lastModified, input.now, DOWNLOAD_PART_MIN_AGE, input.busy) }.forEach { f ->
             val file = RepairFile.of(f)
             out += RepairFinding("foreign:${f.fileId}", RepairKind.FOREIGN_PART, f.consoleId, f.name, listOf(file),
                 fixes = listOf(RepairFix(RepairFixKind.TRASH, trash = listOf(file))))

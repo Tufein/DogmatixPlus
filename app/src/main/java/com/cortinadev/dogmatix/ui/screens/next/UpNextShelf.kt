@@ -36,6 +36,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.R
+import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
+import com.cortinadev.dogmatix.util.LibraryRestrictions
 import com.cortinadev.dogmatix.data.service.ProfileService
 import com.cortinadev.dogmatix.data.service.UpNextService
 import com.cortinadev.dogmatix.ui.components.GameCover
@@ -52,15 +54,33 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 /** Backs [UpNextShelf]: the first games still to play on the active profile's list, minus the consoles it hides. */
 @HiltViewModel
-class UpNextShelfViewModel @Inject constructor(service: UpNextService, profiles: ProfileService) : ViewModel() {
+class UpNextShelfViewModel @Inject constructor(service: UpNextService, profiles: ProfileService, private val fileDao: DownloadableFileDao) : ViewModel() {
     val items: StateFlow<List<UpNextEntry>> = combine(service.entries, profiles.restrictions) { list, restrictions ->
-        UpNext.open(list.orEmpty().filter { it.consoleId !in restrictions.hiddenConsoles }, SHELF_SIZE)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+        UpNext.open(list.orEmpty().filter { it.consoleId !in restrictions.hiddenConsoles }, SHELF_SIZE) to restrictions
+    }.map { (open, restrictions) -> withoutHiddenTags(open, restrictions) }
+        .flowOn(Dispatchers.IO)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** A game with a tag the profile hides stays on the list but is not shown here (the Up next screen does the same). */
+    private suspend fun withoutHiddenTags(open: List<UpNextEntry>, restrictions: LibraryRestrictions): List<UpNextEntry> {
+        if (restrictions.hiddenTags.isEmpty() || open.isEmpty()) return open
+        return try {
+            val rows = open.map { it.fileName }.distinct().flatMap { fileDao.filesByFileNames(listOf(it)) }
+            val tags = rows.map { it.id }.chunked(400).flatMap { fileDao.tagsOfFiles(it) }.groupBy({ it.fileId }, { it.tag })
+            val hidden = rows.filter { r -> tags[r.id].orEmpty().any { t -> restrictions.hiddenTags.any { it.equals(t, ignoreCase = true) } } }
+                .mapTo(HashSet()) { UpNext.key(it.consoleId, it.fileName) }
+            open.filter { it.key !in hidden }
+        } catch (e: kotlin.coroutines.cancellation.CancellationException) { throw e }
+        catch (_: Exception) { open }
+    }
 
     private companion object { const val SHELF_SIZE = 12 }
 }

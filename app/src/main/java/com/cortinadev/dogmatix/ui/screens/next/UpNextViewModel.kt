@@ -101,6 +101,15 @@ class UpNextViewModel @Inject constructor(
                 lookup.value = Lookup(rowsOf(list), profiles.current())
             }
         }
+        // Another profile: its suggestions are worked out afresh, never the previous one's.
+        viewModelScope.launch {
+            profiles.activeId.drop(1).collect {
+                forYouJob?.cancel()
+                forYouService.invalidate()
+                _forYou.value = ForYouUi(loading = false)
+                if (_tab.value == UpNextTab.FOR_YOU) loadForYou(force = false)
+            }
+        }
         // The list changed (added from a suggestion, a game page): the suggestions leave out what is on it.
         viewModelScope.launch { service.keys.drop(1).collect { forYouService.invalidate() } }
     }

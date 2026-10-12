@@ -91,6 +91,7 @@ class LibraryRepairService @Inject constructor(
         val restrictions = profiles.current()
         val folderSet = settingsRepository.downloadDirectory.first().isNotBlank() || settingsRepository.consoleDownloadDirectories.first().isNotEmpty()
 
+        downloadService.awaitRestored()
         progress(RepairProgress(RepairProgress.Phase.SCANNING))
         val snapshot = scanService.scan()
         currentCoroutineContext().ensureActive()
@@ -128,7 +129,12 @@ class LibraryRepairService @Inject constructor(
                 busy = busy
             )
         )
-        val findings = LibraryRepair.visible(result.findings, restrictions, if (restrictions.active) hiddenByTag(result.findings, library, restrictions) else emptySet())
+        // A provider that reports no size looks like 0 bytes: "empty" only counts when the file really has no content.
+        val confirmed = result.findings.filter { f ->
+            currentCoroutineContext().ensureActive()
+            f.kind != com.cortinadev.dogmatix.util.RepairKind.EMPTY_FILE || f.files.all { isReallyEmpty(it.uri) }
+        }
+        val findings = LibraryRepair.visible(confirmed, restrictions, if (restrictions.active) hiddenByTag(confirmed, library, restrictions) else emptySet())
             .map { finding -> finding.copy(fixes = finding.fixes.filter { fix -> fix.download == null || allowedRow(fix.download, restrictions) }) }
         // A profile switched during the walk: these results belong to the other one.
         kotlin.check(profiles.currentIdNow() == profileId) { "Profile changed" }
@@ -206,8 +212,14 @@ class LibraryRepairService @Inject constructor(
     /** Every file is still there with the size the check saw (the provider's size is trusted only when it gave one). */
     private fun unchanged(files: List<RepairFile>): Boolean = files.all { file ->
         val doc = runCatching { DocumentFile.fromSingleUri(context, file.uri.toUri()) }.getOrNull() ?: return@all false
-        runCatching { doc.exists() && doc.isFile && (file.size <= 0L || doc.length() == file.size) && (file.size != 0L || doc.length() == 0L) }.getOrDefault(false)
+        runCatching { doc.exists() && doc.isFile && (file.size <= 0L || doc.length() == file.size) && (file.size != 0L || doc.length() == 0L) }.getOrDefault(false) &&
+            (file.size != 0L || isReallyEmpty(file.uri))
     }
+
+    /** Opens the file and reads one byte: true only when it opens and has no content (an unreadable file is not confirmed). */
+    private fun isReallyEmpty(uri: String): Boolean = runCatching {
+        context.contentResolver.openInputStream(Uri.parse(uri))?.use { it.read() == -1 } ?: false
+    }.getOrDefault(false)
 
     private fun ownedNow(): Set<String> = downloadService.downloads.value.filter { it.status != DownloadStatus.COMPLETED }
         .mapNotNull { item -> downloadService.entityFor(item.fileName)?.let { runCatching { downloadFiles.stagingName(it) }.getOrNull() } }.toSet()
@@ -251,9 +263,10 @@ class LibraryRepairService @Inject constructor(
         val stored = runCatching { FileParsingUtils.storageFileName(row.fileName) }.getOrNull() ?: return
         if (stored.lowercase() !in consoles[row.consoleId].orEmpty()) return
         val key = LibraryRepair.libraryKey(row.consoleId, stored)
-        // Two rows of one console with the same name (two sources): the larger size is the safer "expected".
+        // Two rows of one console with the same name (two sources): the smaller known size is the
+        // "expected" one, so a valid copy from the smaller source is never called cut off.
         val previous = out[key]
-        if (previous == null || row.fileSize > previous.size) out[key] = LibraryRef(row.id, row.consoleId, row.fileName, row.fileSize)
+        if (previous == null || (row.fileSize > 0L && (previous.size <= 0L || row.fileSize < previous.size))) out[key] = LibraryRef(row.id, row.consoleId, row.fileName, row.fileSize)
     }
 
     private fun readSheet(uri: String): String? = runCatching {

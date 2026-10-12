@@ -84,7 +84,10 @@ class ForYouService @Inject constructor(
             currentCoroutineContext().ensureActive()
             val page = withContext(Dispatchers.IO) { fileDao.lightPage(after, PAGE) }
             if (page.isEmpty()) break
-            for (r in page) rows += ForYou.Row(r.id, r.consoleId, r.fileName, r.name, LibraryKeys.isOwned(r.consoleId, r.fileName, ownedKeys))
+            val hiddenIds = if (restrictions.hiddenTags.isEmpty()) emptySet() else withContext(Dispatchers.IO) {
+                page.map { it.id }.chunked(400).flatMap { fileDao.tagsOfFiles(it) }.filter { t -> restrictions.hiddenTags.any { it.equals(t.tag, ignoreCase = true) } }.mapTo(HashSet()) { it.fileId }
+            }
+            for (r in page) if (r.id !in hiddenIds) rows += ForYou.Row(r.id, r.consoleId, r.fileName, r.name, LibraryKeys.isOwned(r.consoleId, r.fileName, ownedKeys))
             after = page.last().id
             if (page.size < PAGE) break
         }
@@ -123,8 +126,25 @@ class ForYouService @Inject constructor(
                 ?.forEach { out += ForYou.Seed(it.consoleId, it.fileName, it.title, ForYou.SeedKind.PLAYED) }
         }
         safe { playHistory.downloads().take(MAX_SEEDS).forEach { out += ForYou.Seed(it.consoleId, it.fileName, it.title, ForYou.SeedKind.DOWNLOADED) } }
-        // A game on a console the profile hides never explains a suggestion.
-        out.filter { it.consoleId !in restrictions.hiddenConsoles }
+        // A game on a console the profile hides, or with a tag it hides, never explains a suggestion.
+        val shown = out.filter { it.consoleId !in restrictions.hiddenConsoles }
+        if (restrictions.hiddenTags.isEmpty()) return@withContext shown
+        val hidden = hiddenTagKeys(shown.map { it.fileName }.distinct(), restrictions)
+        shown.filter { UpNext.key(it.consoleId, it.fileName) !in hidden }
+    }
+
+    /** Keys ([UpNext.key]) of the library rows with these file names that carry a tag the profile hides. */
+    private suspend fun hiddenTagKeys(fileNames: List<String>, restrictions: LibraryRestrictions): Set<String> {
+        val hiddenTags = restrictions.hiddenTags
+        val rows = fileNames.chunked(400).flatMap { fileDao.filesByFileNames(it) }
+        val byId = rows.associateBy { it.id }
+        val out = HashSet<String>()
+        rows.map { it.id }.chunked(400).forEach { chunk ->
+            fileDao.tagsOfFiles(chunk).forEach { t ->
+                if (hiddenTags.any { it.equals(t.tag, ignoreCase = true) }) byId[t.fileId]?.let { out += UpNext.key(it.consoleId, it.fileName) }
+            }
+        }
+        return out
     }
 
     /** Per library console, the titles of its cached RetroAchievements list ([BestGames.titleKey]) with their place. */
