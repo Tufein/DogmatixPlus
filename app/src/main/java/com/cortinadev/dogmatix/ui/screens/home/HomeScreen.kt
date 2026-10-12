@@ -730,6 +730,11 @@ fun HomeScreen(
                             onOpenGame = openGame,
                             modifier = Modifier.padding(top = 8.dp)
                         )
+                        if (query.isEmpty() && activeFilterCount == 0 && onOpenGame != null) com.cortinadev.dogmatix.ui.screens.next.UpNextShelf(
+                            onOpenGame = onOpenGame,
+                            onOpenAll = { navController.navigate(NavRoutes.UpNext.route) },
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
                         if (tableRows) TableHeader(contentShift, showCover = listCovers) else Text(
                             resultsLabel(results.size, hasMoreResults),
                             style = MaterialTheme.typography.labelMedium.tabular(),
@@ -815,6 +820,11 @@ fun HomeScreen(
                 )
                 if (query.isEmpty() && activeFilterCount == 0) ContinuePlayingShelf(
                     onOpenGame = openGame,
+                    modifier = Modifier.padding(start = 14.dp, end = 10.dp, top = 6.dp)
+                )
+                if (query.isEmpty() && activeFilterCount == 0 && onOpenGame != null) com.cortinadev.dogmatix.ui.screens.next.UpNextShelf(
+                    onOpenGame = onOpenGame,
+                    onOpenAll = { navController.navigate(NavRoutes.UpNext.route) },
                     modifier = Modifier.padding(start = 14.dp, end = 10.dp, top = 6.dp)
                 )
                 ConsoleChips(

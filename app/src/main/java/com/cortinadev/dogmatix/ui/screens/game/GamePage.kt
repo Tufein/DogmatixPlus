@@ -414,6 +414,7 @@ private fun GamePageContent(
                 modifier = Modifier.focusRequester(firstFocus),
                 icon = if (busy) R.drawable.ic_downloading else if (owned) R.drawable.ic_controller else R.drawable.ic_download
             )
+            com.cortinadev.dogmatix.ui.screens.next.UpNextPill(rom.consoleId, rom.fileName)
             onReadiness?.let { open -> ActionPill(stringResource(R.string.ready25_title), { open(rom.consoleId, rom.fileName) }, icon = R.drawable.ic_controller) }
             if (owned && !downloading) {
                 ActionPill(stringResource(R.string.owned_download_again), { download(item, null) }, icon = R.drawable.ic_download)

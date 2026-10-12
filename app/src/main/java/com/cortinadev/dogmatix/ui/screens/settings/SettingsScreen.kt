@@ -1097,6 +1097,14 @@ fun SettingsScreen(
         },
         SettingsRow(SettingsSection.APP) {
             SettingRow(
+                icon = R.drawable.ic_bug,
+                title = stringResource(R.string.report30_title),
+                hint = stringResource(R.string.report30_hint),
+                onClick = { navController.navigate(NavRoutes.ReportProblem.route) },
+            ) { NavChevron() }
+        },
+        SettingsRow(SettingsSection.APP) {
+            SettingRow(
                 icon = R.drawable.ic_heart,
                 title = stringResource(R.string.settings_about),
                 hint = stringResource(R.string.credits_fork_name) + " · " + stringResource(R.string.credits_original_name),

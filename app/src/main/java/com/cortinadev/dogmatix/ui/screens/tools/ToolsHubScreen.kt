@@ -151,6 +151,8 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { Tool(go, NavRoutes.Collections, R.string.nav_collections, R.string.tools_collections_hint, count = collectionCount) }
             item { Tool(go, NavRoutes.Files, R.string.nav_files, R.string.tools_files_hint) }
             item { Tool(go, NavRoutes.Storage, R.string.nav_storage, R.string.tools_storage_hint) }
+            item { Tool(go, NavRoutes.UpNext, R.string.next30_title, R.string.next30_hint) }
+            item { Tool(go, NavRoutes.LibraryRepair, R.string.repair30_title, R.string.repair30_hint) }
             item { Tool(go, NavRoutes.Recovery, R.string.recovery_title, R.string.recovery_hint) }
             item { Tool(go, NavRoutes.PackageTransfer, R.string.package_transfer_title, R.string.package_transfer_hint) }
             item { Tool(go, NavRoutes.VersionPreference, R.string.compare24_title, R.string.compare24_row_hint) }
@@ -161,6 +163,7 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { Tool(go, NavRoutes.History, R.string.coll6_history_title, R.string.lead6_history_hint) }
             item { Tool(go, NavRoutes.Health, R.string.health6_title, R.string.lead6_health_hint) }
             item { Tool(go, NavRoutes.Recap, R.string.quick7_title, R.string.quick7_hint) }
+            item { Tool(go, NavRoutes.ReportProblem, R.string.report30_title, R.string.report30_hint) }
             item { ToolsGroup(stringResource(R.string.tools_group_games), icon = R.drawable.ic_gamepad) }
             item { Tool(go, NavRoutes.ImportList, R.string.nav_import_list, R.string.tools_import_list_hint) }
             item { Tool(go, NavRoutes.Wishlist, R.string.nav_wishlist, R.string.tools_wishlist_hint, count = wishCount) }

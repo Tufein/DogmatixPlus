@@ -592,6 +592,11 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                             onOpenGame = { c, f -> navController.navigate(GamePageModel.route(c, f)) },
                             onNavigate = { navController.navigate(it) })
                     }
+                    composable(NavRoutes.UpNext.route) {
+                        com.cortinadev.dogmatix.ui.screens.next.UpNextScreen(onOpenGame = { c, f -> navController.navigate(GamePageModel.route(c, f)) })
+                    }
+                    composable(NavRoutes.LibraryRepair.route) { com.cortinadev.dogmatix.ui.screens.tools.LibraryRepairScreen(onNavigate = { navController.navigate(it) }) }
+                    composable(NavRoutes.ReportProblem.route) { com.cortinadev.dogmatix.ui.screens.tools.ReportProblemScreen() }
                     composable(NavRoutes.Tools.route) { ToolsHubScreen(navController) }
                     composable(NavRoutes.Sets.route) { SetsScreen() }
                     composable(NavRoutes.Storage.route) { StorageScreen() }
