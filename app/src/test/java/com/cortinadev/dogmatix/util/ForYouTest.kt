@@ -151,6 +151,6 @@ class ForYouTest {
         val out = ForYou.suggest(seeds, rows, { _, _ -> null }, limit = 30)
         val ms = (System.nanoTime() - started) / 1_000_000
         assertTrue(out.size <= 30)
-        assertTrue("took $ms ms", ms < 10_000)
+        assertTrue("took $ms ms", ms < 5_000)
     }
 }

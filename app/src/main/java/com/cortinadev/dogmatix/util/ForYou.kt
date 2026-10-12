@@ -268,24 +268,27 @@ object ForYou {
 
         // Consoles with only a few games on the device: a popular game there gets a nudge and says so.
         val few = listedPerConsole.filter { (id, listed) -> listed >= FEW_MIN_LISTED && (ownedPerConsole[id] ?: 0) in 1..FEW_OWNED_MAX }
+        // The sort key is worked out once per suggestion, not once per comparison.
+        class Ranked(val suggestion: Suggestion, val series: String?, val sortName: String)
         val ranked = groups.entries.asSequence()
             .filter { it.key !in ownedTitles }
             .map { (_, acc) ->
                 val owned = ownedPerConsole[acc.best.consoleId] ?: 0
-                if (acc.best.consoleId in few && acc.reasons.any { it.kind == ReasonKind.POPULAR }) {
-                    Suggestion(acc.best, acc.versions, acc.score + FEW_BONUS, acc.reasons + Reason(ReasonKind.FEW_ON_CONSOLE, consoleId = acc.best.consoleId, count = owned)) to acc.series
-                } else Suggestion(acc.best, acc.versions, acc.score, acc.reasons) to acc.series
+                val suggestion = if (acc.best.consoleId in few && acc.reasons.any { it.kind == ReasonKind.POPULAR }) {
+                    Suggestion(acc.best, acc.versions, acc.score + FEW_BONUS, acc.reasons + Reason(ReasonKind.FEW_ON_CONSOLE, consoleId = acc.best.consoleId, count = owned))
+                } else Suggestion(acc.best, acc.versions, acc.score, acc.reasons)
+                Ranked(suggestion, acc.series, GameTitleCleaner.clean(acc.best.name).lowercase())
             }
-            .filter { it.first.score >= MIN_SCORE }
-            .sortedWith(compareByDescending<Pair<Suggestion, String?>> { it.first.score }
-                .thenBy { GameTitleCleaner.clean(it.first.row.name).lowercase() }
-                .thenBy { it.first.row.consoleId })
+            .filter { it.suggestion.score >= MIN_SCORE }
+            .sortedWith(compareByDescending<Ranked> { it.suggestion.score }.thenBy { it.sortName }.thenBy { it.suggestion.row.consoleId })
             .toList()
 
         val perConsole = HashMap<String, Int>()
         val perSeries = HashMap<String, Int>()
         val out = ArrayList<Suggestion>()
-        for ((s, series) in ranked) {
+        for (r in ranked) {
+            val s = r.suggestion
+            val series = r.series
             if (out.size >= limit) break
             if ((perConsole[s.row.consoleId] ?: 0) >= MAX_PER_CONSOLE) continue
             if (series != null && (perSeries[series] ?: 0) >= MAX_PER_SERIES) continue
