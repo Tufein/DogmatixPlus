@@ -70,11 +70,14 @@ class ActionLogService @Inject constructor(
                 runCatching { store.rewrite(all) }
             }
             _entries.value = all
+            // A clock set back since the last run must not put new lines before the old ones.
+            all.maxOfOrNull { it.at }?.let { newest -> synchronized(sendLock) { lastAt = maxOf(lastAt, newest) } }
             for (op in ops) {
                 when (op) {
                     is Op.Append -> {
-                        // Also keep ordering after a restart while the device clock moved back.
-                        val entry = op.entry.copy(at = maxOf(op.entry.at, all.lastOrNull()?.at ?: 0L),
+                        // Also keep ordering after a restart while the device clock moved back. Here the log is
+                        // loaded for sure: a restore or purge recorded at app start still gets its game.
+                        val entry = ActionLogFormat.withRemovalInfo(op.entry, all).copy(at = maxOf(op.entry.at, all.lastOrNull()?.at ?: 0L),
                             profileId = op.profileId ?: settings?.activeProfile?.first() ?: op.entry.profileId)
                         all = all + entry
                         runCatching { store.append(entry) }.onFailure { Log.w(TAG, "Could not write history: ${it.javaClass.simpleName}") }

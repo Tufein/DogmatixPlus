@@ -235,7 +235,9 @@ class GamePageViewModel @Inject constructor(
     }
 
     suspend fun removalPlan(item: DownloadableFileWithTags) = libraryIndex.removalPlan(item.file)
-    suspend fun remove(plan: List<com.cortinadev.dogmatix.data.service.RemovalFile>, title: String) = libraryIndex.deletePlan(plan, title)
+    /** [consoleId] and [fileName] (the library row's) let the action history offer Download again. */
+    suspend fun remove(plan: List<com.cortinadev.dogmatix.data.service.RemovalFile>, title: String, consoleId: String? = null, fileName: String? = null) =
+        libraryIndex.deletePlan(plan, title, consoleId, fileName)
     suspend fun setPreferred(item: DownloadableFileWithTags, pinned: Boolean) {
         versionPreference.set(item.file.consoleId, item.file.fileName, if (pinned) item.file.fileName else null)
         // The ranking follows on its own (see versionRanking).

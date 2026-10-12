@@ -164,6 +164,18 @@ object ActionLogFormat {
         )
     }.getOrNull()
 
+    /**
+     * [entry] with the console and file name of the removal it follows up (a restore or a purge
+     * carries only the operation id; the removal line knows the game). [earlier] is the log so far.
+     */
+    fun withRemovalInfo(entry: ActionEntry, earlier: List<ActionEntry>): ActionEntry {
+        val op = entry.opId ?: return entry
+        if (entry.kind != ActionKind.RESTORED && entry.kind != ActionKind.PURGED) return entry
+        if (entry.consoleId != null && entry.fileName != null) return entry
+        val removal = earlier.lastOrNull { it.opId == op && it.kind == ActionKind.REMOVED } ?: return entry
+        return entry.copy(consoleId = entry.consoleId ?: removal.consoleId, fileName = entry.fileName ?: removal.fileName)
+    }
+
     /** All readable entries of a file's lines, oldest first; broken lines (a cut-off last write) are skipped. */
     fun parse(lines: Sequence<String>): List<ActionEntry> = lines.filter { it.isNotBlank() }.mapNotNull(::parseLine).toList()
 

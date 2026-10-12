@@ -279,7 +279,7 @@ fun ActionHistoryScreen(
                         )
                     }
                     ui.groups.forEach { group ->
-                        item(key = "d" + group.day.date) { SectionHeader(dayText(group.day.label, locale, dateFormat)) }
+                        item(key = group.key) { SectionHeader(dayText(group.day.label, locale, dateFormat)) }
                         items(group.rows, key = { it.key }) { r ->
                             DisposableEffect(r.key) { onDispose { if (focusedKey == r.key) focusedKey = null } }
                             ActionRow(

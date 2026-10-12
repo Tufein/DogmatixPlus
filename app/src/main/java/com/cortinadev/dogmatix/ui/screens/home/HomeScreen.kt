@@ -445,7 +445,7 @@ fun HomeScreen(
                     val plan = removal ?: return@TextButton
                     ownedDialogItem = null
                     scope.launch {
-                        val ok = runCatching { viewModel.removePlan(plan, item.file.name) }.getOrDefault(false)
+                        val ok = runCatching { viewModel.removePlan(plan, item.file.name, item.file.consoleId, item.file.fileName) }.getOrDefault(false)
                         showMessage((if (ok) deletedMessage else deleteFailedMessage).format(item.file.name))
                     }
                 }) { Text(stringResource(R.string.owned_delete)) }

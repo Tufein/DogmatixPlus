@@ -113,10 +113,9 @@ class TrashService @Inject constructor(
                 check(source.delete()) { "Restored, but backup cleanup failed" }
             }
             history.put(operation.copy(phase = "done"))
-            val removal = actionLog.removal(id)
+            // The log's writer fills in the game's console and file name from the removal line.
             actionLog.record(
-                ActionKind.RESTORED, operation.title, consoleId = removal?.consoleId, fileName = removal?.fileName,
-                opId = id, count = operation.files.size, bytes = operation.files.sumOf { it.bytes }
+                ActionKind.RESTORED, operation.title, opId = id, count = operation.files.size, bytes = operation.files.sumOf { it.bytes }
             )
         } finally { gate.release("*") }
     } }
@@ -151,11 +150,9 @@ class TrashService @Inject constructor(
         }
         history.put(operation.copy(phase = "done"))
         if (!record) return@withLock
-        // The removal line knows the game; the purge line repeats it so Download again can find it.
-        val removal = actionLog.removal(id)
+        // The log's writer fills in the game's console and file name from the removal line (Download again needs them).
         actionLog.record(
-            ActionKind.PURGED, operation.title, consoleId = removal?.consoleId, fileName = removal?.fileName,
-            opId = id, reason = reason, count = operation.files.size, bytes = operation.files.sumOf { it.bytes }
+            ActionKind.PURGED, operation.title, opId = id, reason = reason, count = operation.files.size, bytes = operation.files.sumOf { it.bytes }
         )
     } }
 

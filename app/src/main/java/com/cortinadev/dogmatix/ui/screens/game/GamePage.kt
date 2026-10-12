@@ -301,7 +301,7 @@ private fun GamePageContent(
                 removalPlan = null
                 scope.launch {
                     try {
-                        val ok = viewModel.remove(plan, rom.name)
+                        val ok = viewModel.remove(plan, rom.name, rom.consoleId, rom.fileName)
                         showMessage((if (ok) deletedMessage else deleteFailedMessage).format(rom.name))
                     } catch (e: kotlinx.coroutines.CancellationException) { throw e }
                     catch (_: Exception) { showMessage(planError) }

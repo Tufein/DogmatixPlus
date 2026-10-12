@@ -31,12 +31,15 @@ class ActionUndoService @Inject constructor(
     private val libraryIndex: LibraryIndexService,
     private val profiles: ProfileService
 ) {
+    /** Changes when games appear on or leave the device: Download again is checked again then. */
+    val ownership: kotlinx.coroutines.flow.Flow<Set<String>> get() = libraryIndex.ownedKeys
+
     /** Whether [action] of [entry] works right now (the files are still in the trash, the game is still in the library). */
     suspend fun available(entry: ActionEntry, action: UndoAction): Boolean = withContext(Dispatchers.IO) {
         try {
             when (action) {
                 UndoAction.RESTORE -> restorable(entry.opId)
-                UndoAction.DOWNLOAD_AGAIN -> libraryRow(entry)?.let { !queued(it.fileName) } ?: false
+                UndoAction.DOWNLOAD_AGAIN -> libraryRow(entry)?.let { !queued(it.fileName) && !onDevice(it, entry) } ?: false
             }
         } catch (e: CancellationException) { throw e } catch (_: Exception) { false }
     }
@@ -48,7 +51,7 @@ class ActionUndoService @Inject constructor(
             UndoAction.DOWNLOAD_AGAIN -> {
                 try {
                     val row = libraryRow(entry)
-                    if (row == null || queued(row.fileName)) UndoResult.FAILED else {
+                    if (row == null || queued(row.fileName) || onDevice(row, entry)) UndoResult.FAILED else {
                         val selected = sourceTrack.pickBest(row, sameNameOnly = true)
                         if (!allowed(selected) || queued(selected.fileName)) return@withContext UndoResult.FAILED
                         downloadService.startDownload(selected)
@@ -87,6 +90,15 @@ class ActionUndoService @Inject constructor(
     private fun queued(fileName: String): Boolean = downloadService.downloads.value.any {
         it.fileName == fileName && it.status in setOf(DownloadStatus.QUEUED, DownloadStatus.DOWNLOADING, DownloadStatus.COPYING, DownloadStatus.UNZIPPING, DownloadStatus.PAUSED)
     }
+
+    /**
+     * The game is back on the device already (a bulk download of it after [entry], say, whose lines
+     * were folded into a summary): on disk per the library index, or its download finished since.
+     */
+    private fun onDevice(row: DownloadableFileEntity, entry: ActionEntry): Boolean =
+        libraryIndex.isOwned(row) || downloadService.downloads.value.any {
+            it.fileName == row.fileName && it.status == DownloadStatus.COMPLETED && (it.finishedAt ?: 0L) >= entry.at
+        }
 
     /**
      * The library row of the game [entry] names: by its library file name; a removal only knows the

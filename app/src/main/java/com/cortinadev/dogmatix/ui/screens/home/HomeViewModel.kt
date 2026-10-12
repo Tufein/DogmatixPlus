@@ -436,7 +436,9 @@ class HomeViewModel @Inject constructor(
     /** Remove an owned game from the download folder. Returns true if something was deleted. */
     suspend fun removalPlan(fileWithTags: DownloadableFileWithTags) = libraryIndex.removalPlan(fileWithTags.file)
 
-    suspend fun removePlan(plan: List<com.cortinadev.dogmatix.data.service.RemovalFile>, title: String) = libraryIndex.deletePlan(plan, title)
+    /** [consoleId] and [fileName] (the library row's) let the action history offer Download again. */
+    suspend fun removePlan(plan: List<com.cortinadev.dogmatix.data.service.RemovalFile>, title: String, consoleId: String? = null, fileName: String? = null) =
+        libraryIndex.deletePlan(plan, title, consoleId, fileName)
 
     suspend fun deleteOwned(fileWithTags: DownloadableFileWithTags): Boolean =
         libraryIndex.deleteOwned(fileWithTags.file)

@@ -4,6 +4,7 @@ import com.cortinadev.dogmatix.data.model.DownloadStatus
 import com.cortinadev.dogmatix.util.ActionEntry
 import com.cortinadev.dogmatix.util.ActionKind
 import com.cortinadev.dogmatix.util.ActionReason
+import com.cortinadev.dogmatix.util.DownloadFailureWatch
 import com.cortinadev.dogmatix.util.DownloadRunTally
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +30,8 @@ class DownloadActionRecorder @Inject constructor(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val tally = DownloadRunTally()
-    private val lastStatus = HashMap<String, DownloadStatus>()
+    /** New failures between snapshots of the Downloads list (StateFlow conflation must not lose a quick one). */
+    private val failures = DownloadFailureWatch()
 
     init {
         scope.launch {
@@ -42,24 +44,18 @@ class DownloadActionRecorder @Inject constructor(
         }
         scope.launch {
             // A download that turns FAILED (once per failure; an automatic retry that fails again is a new one).
+            // The first list after the previous run's downloads are back primes: their failures are not news.
+            downloadService.awaitRestored()
             downloadService.downloads.collect { items ->
-                val failed = ArrayList<ActionEntry>()
-                synchronized(lastStatus) {
-                    val seen = HashSet<String>()
-                    for (item in items) {
-                        seen += item.fileName
-                        if (item.status == DownloadStatus.FAILED && lastStatus[item.fileName] != DownloadStatus.FAILED && item.fileName in lastStatus) {
-                            val entity = downloadService.entityFor(item.fileName)
-                            failed += ActionEntry(
-                                "", 0L, ActionKind.DOWNLOAD_FAILED, entity?.name ?: item.name, consoleId = entity?.consoleId, fileName = item.fileName,
-                                reason = item.failure?.category?.let { ActionReason.DOWNLOAD_PREFIX + it.name }
-                            )
-                        }
-                        lastStatus[item.fileName] = item.status
-                    }
-                    lastStatus.keys.retainAll(seen)
+                val names = synchronized(failures) { failures.update(items.map { it.fileName to (it.status == DownloadStatus.FAILED) }) }.toSet()
+                if (names.isEmpty()) return@collect
+                items.filter { it.fileName in names }.distinctBy { it.fileName }.forEach { item ->
+                    val entity = downloadService.entityFor(item.fileName)
+                    note(ActionEntry(
+                        "", 0L, ActionKind.DOWNLOAD_FAILED, entity?.name ?: item.name, consoleId = entity?.consoleId, fileName = item.fileName,
+                        reason = item.failure?.category?.let { ActionReason.DOWNLOAD_PREFIX + it.name }
+                    ))
                 }
-                failed.forEach(::note)
             }
         }
         scope.launch {

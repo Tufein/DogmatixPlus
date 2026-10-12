@@ -300,6 +300,9 @@ class DownloadService @Inject constructor(
         launchBackground("Download history restore") { restoreHistory() }
     }
 
+    /** Returns once the Downloads list of the previous run is back (or could not be read). */
+    suspend fun awaitRestored() = restored.await()
+
     /**
      * Puts the downloads that were interrupted by the app closing back in the queue (once per
      * run, when the user opens the app and *Settings → Continue the queue after a restart* is on).

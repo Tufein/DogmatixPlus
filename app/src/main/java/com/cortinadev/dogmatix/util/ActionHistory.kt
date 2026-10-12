@@ -43,9 +43,14 @@ object ActionHistory {
         return words.all { it in haystack }
     }
 
-    /** [entries] (newest first) in consecutive day groups. */
+    /**
+     * [entries] in day groups, newest first. They are sorted by time first (stable: lines of the same
+     * moment keep their order), so a day comes out once even when the device clock went back
+     * across a restart and the file's order is not the time order.
+     */
     fun groupByDay(entries: List<ActionEntry>, now: Long, zone: ZoneId): List<ActionDay> {
         val today = PlayHistory.dayOf(now, zone)
+        val sorted = entries.sortedByDescending { it.at }
         val out = ArrayList<ActionDay>()
         var currentDate: LocalDate? = null
         var bucket = ArrayList<ActionEntry>()
@@ -54,13 +59,31 @@ object ActionHistory {
             out += ActionDay(PlayHistory.labelFor(d, today), d, bucket)
             bucket = ArrayList()
         }
-        for (entry in entries) {
+        for (entry in sorted) {
             val d = PlayHistory.dayOf(entry.at, zone)
             if (d != currentDate) { flush(); currentDate = d }
             bucket += entry
         }
         flush()
         return out
+    }
+
+    /**
+     * [keys] made unique for a lazy list (a repeated key crashes it): the first of each stays as it
+     * is, a repeat gets "#2", "#3"... Order and length are kept.
+     */
+    fun uniqueKeys(keys: List<String>): List<String> {
+        val next = HashMap<String, Int>()
+        val taken = HashSet<String>(keys.size * 2)
+        return keys.map { key ->
+            var out = key
+            while (!taken.add(out)) {
+                val n = next[key] ?: 2
+                next[key] = n + 1
+                out = "$key#$n"
+            }
+            out
+        }
     }
 
     /**

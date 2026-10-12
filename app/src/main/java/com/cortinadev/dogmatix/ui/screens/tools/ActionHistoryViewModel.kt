@@ -32,7 +32,8 @@ const val ACTION_HISTORY_ROUTE = "action_history"
 /** One line of the screen: [key] is unique in the list; [undo] the way back that works right now, if any. */
 data class ActionRowUi(val key: String, val entry: ActionEntry, val undo: UndoAction?)
 
-data class ActionDayUi(val day: ActionDay, val rows: List<ActionRowUi>)
+/** [key] is unique in the list (the day header's lazy list key). */
+data class ActionDayUi(val day: ActionDay, val rows: List<ActionRowUi>, val key: String = "d" + day.date)
 
 /** What the action history screen shows. */
 data class ActionHistoryUi(
@@ -67,9 +68,10 @@ class ActionHistoryViewModel @Inject constructor(
     private val available = MutableStateFlow<Map<String, UndoAction>>(emptyMap())
 
     init {
-        // A line written or a trash operation changed (also from Trash and recovery): check the buttons again.
+        // A line written, a trash operation changed (also from Trash and recovery) or a game came
+        // onto the device (a bulk download): check the buttons again.
         viewModelScope.launch {
-            combine(log.entries, journal.entries, profiles.activeId) { lines, _, profile -> lines?.filter { it.profileId == profile } }.debounce(300).collect { lines ->
+            combine(log.entries, journal.entries, profiles.activeId, undoService.ownership) { lines, _, profile, _ -> lines?.filter { it.profileId == profile } }.debounce(300).collect { lines ->
                 if (lines != null) available.value = check(lines.asReversed())
             }
         }
@@ -115,8 +117,12 @@ class ActionHistoryViewModel @Inject constructor(
         if (lines == null) return@combine ActionHistoryUi(loading = true, filter = f, query = q)
         val newestFirst = lines.asReversed()
         val filtered = ActionHistory.filter(newestFirst, f, q)
-        val groups = ActionHistory.groupByDay(filtered, System.currentTimeMillis(), ZoneId.systemDefault()).map { day ->
-            ActionDayUi(day, day.entries.map { e -> ActionRowUi(e.id, e, undo[e.id]) })
+        val days = ActionHistory.groupByDay(filtered, System.currentTimeMillis(), ZoneId.systemDefault())
+        // Keys stay unique even if a day or a line id came out twice: a repeated key crashes the list.
+        val dayKeys = ActionHistory.uniqueKeys(days.map { "d" + it.date })
+        val rowKeys = ActionHistory.uniqueKeys(days.flatMap { day -> day.entries.map { it.id } }).iterator()
+        val groups = days.mapIndexed { i, day ->
+            ActionDayUi(day, day.entries.map { e -> ActionRowUi(rowKeys.next(), e, undo[e.id]) }, dayKeys[i])
         }
         ActionHistoryUi(loading = false, filter = f, query = q, groups = groups, total = filtered.size, all = lines.size, busyKey = busyKey)
     }.flowOn(Dispatchers.Default)
