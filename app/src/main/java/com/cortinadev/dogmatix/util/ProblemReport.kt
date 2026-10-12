@@ -120,7 +120,7 @@ object ProblemReport {
     private const val MAX_CAUSES = 3
     private const val MAX_APPS = 16
 
-    /** SHA-256 of the published signing certificates (docs/quality/v2.9.0-acceptance.md). */
+    /** SHA-256 of the published signing certificates. */
     const val PRODUCTION_SIGNER = "e0e4eaeaf92e4d7a68ef620b021598f0bcbb9f9399e2bdcf18c8297077bedc46"
     const val TEST_SIGNER = "6e01f3ae0a73660bca0910f23af9e85780233f092af3ee1464c954db61fa7a70"
 

@@ -29,15 +29,15 @@ The app includes no games. **Sources → More romsets** offers optional Libretro
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [3.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.0.0)** (Android build 42). The maintainer has not yet tested it on a physical handheld or against a live RomM or WebDAV server; see the [roadmap](docs/ROADMAP.md) and the [3.0.0 acceptance record](docs/quality/v3.0.0-acceptance.md) for what was and was not checked.
+**Latest release: [3.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.0.0)** (Android build 42).
 
 ## Install
 
 1. Open the **[Releases page](https://github.com/Tufein/DogmatixPlus/releases)** on your phone or handheld, or download there and copy the file over.
 2. Download one of the two files:
    - **`DogmatixPlus-release.apk`** — *the normal choice.* Current signed Dogmatix+ releases update in place and keep your app data. Dogmatix+ has a separate package from the original Dogmatix.
-   - **`DogmatixPlus-debug.apk`** — a separate test app with its own data. Published test builds from 2.7.0 use a stable signing key and update in place.
-   - **Moving from a different package or an older test build with a different signing key?** Make an app backup before uninstalling and restore it in the new app. Keep separate copies of games, saves and package records; select storage again after reinstalling. Configure ES-DE / iiSU / Daijishō for the new app if needed.
+   - **`DogmatixPlus-debug.apk`** — a separate test app with its own data, for trying things out next to your normal app.
+   - **Coming from the original Dogmatix or another build?** Make an app backup first and restore it in Dogmatix+. Keep separate copies of your games and saves, and select the storage again after reinstalling.
 3. Open the file and allow **"install unknown apps"** if Android asks.
 
 You need **Android 10 or newer**. The app is not on Google Play.
@@ -136,8 +136,8 @@ Everything also works by touch. The hints only show while a controller is connec
 
 - **[TECHNICAL.md](TECHNICAL.md)**: how the app is built, how the duplicate finder decides, the folder layout, deep links and the tech stack (in English).
 - **[FRONTENDS.md](FRONTENDS.md)**: setting up ES-DE, iiSU, Daijishō and Pegasus.
-- **[Roadmap](docs/ROADMAP.md)** and **[quality records](docs/quality/)**: what is planned, what was tested and what was not.
-- **[Release notes](https://github.com/Tufein/DogmatixPlus/releases)** and **[release numbering](docs/releases/numbering.md)**.
+- **[Roadmap](docs/ROADMAP.md)**: ideas for future versions.
+- **[Releases](https://github.com/Tufein/DogmatixPlus/releases)**: downloads and checksums.
 
 ## Credits
 

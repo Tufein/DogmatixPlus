@@ -29,15 +29,15 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 *Die Screenshots verwenden erfundene Spieltitel und leere Platzhalterdateien und zeigen die App auf Englisch.*
 
-**Neueste Version: [3.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.0.0)** (Android-Build 42). Der Maintainer hat sie noch nicht auf einem echten Handheld oder mit einem echten RomM- oder WebDAV-Server getestet; siehe [Roadmap](docs/ROADMAP.md) und die [Abnahmeakte zu 3.0.0](docs/quality/v3.0.0-acceptance.md), was geprüft wurde und was nicht.
+**Neueste Version: [3.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.0.0)** (Android-Build 42).
 
 ## Installation
 
 1. Öffne die **[Releases-Seite](https://github.com/Tufein/DogmatixPlus/releases)** auf deinem Handy oder Handheld, oder lade die Datei dort herunter und kopiere sie auf dein Gerät.
 2. Lade eine der beiden Dateien herunter:
    - **`DogmatixPlus-release.apk`** — *die normale Wahl.* Aktuelle signierte Releases aktualisieren Dogmatix+ und behalten die App-Daten. Der Paketname unterscheidet sich vom ursprünglichen Dogmatix.
-   - **`DogmatixPlus-debug.apk`** — eine separate Test-App mit eigenen Daten. Veröffentlichte Testversionen ab 2.7.0 verwenden einen festen Signaturschlüssel und lassen sich direkt aktualisieren.
-   - **Anderer Paketname oder ältere Testversion mit anderer Signatur?** Sichere die App vor der Deinstallation und stelle die Sicherung anschließend wieder her. Bewahre Spiele, Spielstände und Paketregistrierungen separat auf und wähle den Speicher nach der Neuinstallation erneut. Richte ES-DE / iiSU / Daijishō bei Bedarf für die neue App ein.
+   - **`DogmatixPlus-debug.apk`** — eine separate Test-App mit eigenen Daten, zum Ausprobieren neben deiner normalen App.
+   - **Du kommst vom originalen Dogmatix oder einem anderen Build?** Mache zuerst ein App-Backup und stelle es in Dogmatix+ wieder her. Bewahre getrennte Kopien deiner Spiele und Spielstände auf und wähle den Speicher nach der Installation neu.
 3. Öffne die Datei und erlaube **„Unbekannte Apps installieren“**, wenn Android danach fragt.
 
 Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhältlich.
@@ -136,8 +136,8 @@ Alles funktioniert auch per Touch. Die Hinweise erscheinen nur, solange ein Cont
 
 - **[TECHNICAL.md](TECHNICAL.md)**: Aufbau der App, Entscheidungen der Doppelte-Spiele-Suche, Ordnerstruktur, Deep Links und Tech-Stack (auf Englisch).
 - **[FRONTENDS.md](FRONTENDS.md)**: ES-DE, iiSU, Daijishō und Pegasus einrichten.
-- **[Roadmap](docs/ROADMAP.md)** und **[Qualitätsakten](docs/quality/)**: was geplant ist, was getestet wurde und was nicht.
-- **[Release-Notizen](https://github.com/Tufein/DogmatixPlus/releases)** und **[Versionsnummerierung](docs/releases/numbering.md)**.
+- **[Roadmap](docs/ROADMAP.md)**: Ideen für künftige Versionen.
+- **[Releases](https://github.com/Tufein/DogmatixPlus/releases)**: Downloads und Prüfsummen.
 
 ## Mitwirkende
 

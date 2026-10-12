@@ -41,7 +41,7 @@ Everything is under **Settings**, works with a gamepad and with touch, and is av
 - It keeps what a backup cannot carry: uploaded `.torrent` sources stay, and folders this install has no access to are kept as they are (you are asked to pick them again). Settings with the wrong type are dropped instead of crashing the app, numbers are kept within what Settings offers, backup files with a newer format version are refused, and a restore is refused while a source scan runs.
 - The format uses fixed field names, so a backup made by one build restores in another, including the minified release build.
 
-### Save sync with RomM *(1.1.0 beta)*
+### Save sync with RomM
 *Settings → Save sync* makes your RomM server the place your games save to and load from: the emulator saves and save states on the handheld and on the server are kept the same, in both directions, so a game can be continued on another device or in RomM's web player (EmulatorJS uses the same `.srm` / `.state` names as RetroArch).
 
 - **Folders**: pick the emulator's saves folder and its save-states folder (RetroArch: `RetroArch/saves`, `RetroArch/states`; one folder for both works too — `.state`, `.state1`…, `.state.auto` are states, everything else a save). Files up to three folder levels deep are synced (RetroArch's *sort by core / by content folder*); thumbnails, configs and temporary files are skipped, and files over 64 MB are not sent.
@@ -50,7 +50,7 @@ Everything is under **Settings**, works with a gamepad and with touch, and is av
 - **Safety**: a device file replaced by a download is first copied to the app's private storage (`files/save-backups/`, kept 30 days); downloads are written to a temporary file and only then replace the old one. Deletions are not synced: a file missing on one side is copied back from the other. Slot saves (RomM 5's dated history) are left alone.
 - **Standalone emulators**: next to RetroArch's folders, *Add an emulator's saves folder* takes the saves folder of DraStic, melonDS, mGBA, Pizza Boy GBA / GBC, GBA.emu, GBC.emu, Snes9x EX+, NES.emu or MD.emu (emulators that name their saves after the ROM). The sync sees it as a folder named after the emulator inside the saves folder: that name goes to RomM as *emulator*, server saves of that emulator come down into it, and the emulator's consoles decide between games of the same name on several platforms. A folder of the same name in RetroArch's saves folder stops the sync with a message instead of mixing the two. In-game saves only, no save states. With only emulator folders set up, server saves of other emulators stay on the server.
 - **When**: *Sync now*, and — when switched on — automatically when Dogmatix opens or comes back to the front (at most every two minutes), with a short message when something moved or needs a choice. Close the game before syncing: an emulator that is still running can write its older in-memory save over a freshly downloaded one.
-- Works with RomM 3.10, 4 and 5 (tested against 3.10.3, 4.0.0 and 5.3.1), with an `rmm_…` client token (scopes *assets* read/write and *roms* read) or `user:password`.
+- Works with RomM 3.10, 4 and 5, with an `rmm_…` client token (scopes *assets* read/write and *roms* read) or `user:password`.
 
 ### Favourites sync
 A sources export (*Sources → Export*) now carries your ★ favourites as a `_favourites` list next to the consoles; importing such a file on another device **adds** them to the favourites there (a game starred on both keeps the earliest date; un-starring is not carried over). Favourites are keyed by console and file name, so they light up as soon as the rescan has indexed the games. Older versions ignore the list. Backups keep carrying favourites on their own.
@@ -259,7 +259,7 @@ Everything is also reachable by touch; the legend only appears while a controlle
 
 ## Roadmap
 
-What is planned, what is done and what still needs real-device testing is in [docs/ROADMAP.md](docs/ROADMAP.md). Ideas and requests are welcome as [issues](https://github.com/Tufein/DogmatixPlus/issues); for the original Dogmatix, see [cortinadev/dogmatix](https://github.com/cortinadev/dogmatix/).
+Ideas for future versions are in [docs/ROADMAP.md](docs/ROADMAP.md). Ideas and requests are welcome as [issues](https://github.com/Tufein/DogmatixPlus/issues); for the original Dogmatix, see [cortinadev/dogmatix](https://github.com/cortinadev/dogmatix/).
 
 ## Disclaimer
 
@@ -287,5 +287,3 @@ Libraries the apps rely on are listed under [Tech stack](#tech-stack): Jetpack C
 `VerifiedDocumentCopy` stages a new SAF document and verifies SHA-256 by re-reading the source and copy. A different existing target is refused. `OperationHistoryService` writes an atomic durable journal before destructive changes; a corrupt journal prevents destructive library operations. `TrashService` keeps verified copies beside the original files in hidden `.dogmatix-trash` directories. Ordinary scans exclude these directories; strict deletion checks include them so recursive cleanup cannot erase recovery data.
 
 The Recovery tool resumes library-move cleanup and restores trash to the original path. Fixed game versions are kept in the shared DataStore and carried by regular backups. Native game launching grants read access to the content URI and remembers only handlers compatible with that URI type.
-
-Acceptance and remaining device checks: [recovery acceptance](docs/quality/recovery-acceptance.md).

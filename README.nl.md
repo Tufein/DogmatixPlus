@@ -29,15 +29,15 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [3.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.0.0)** (Android build 42). De beheerder heeft haar nog niet getest op een fysieke handheld of met een echte RomM- of WebDAV-server; zie de [roadmap](docs/ROADMAP.md) en het [acceptatiedossier van 3.0.0](docs/quality/v3.0.0-acceptance.md) voor wat wel en niet is gecontroleerd.
+**Laatste release: [3.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.0.0)** (Android build 42).
 
 ## Installeren
 
 1. Open de **[Releases-pagina](https://github.com/Tufein/DogmatixPlus/releases)** op je telefoon of handheld, of download het bestand daar en kopieer het naar je toestel.
 2. Download een van de twee bestanden:
    - **`DogmatixPlus-release.apk`** — *de gewone keuze.* Huidige ondertekende Dogmatix+-releases werken de bestaande app bij en behouden je gegevens. Dogmatix+ heeft een eigen pakketnaam naast de oorspronkelijke Dogmatix.
-   - **`DogmatixPlus-debug.apk`** — een aparte testapp met eigen gegevens. Gepubliceerde testversies vanaf 2.7.0 hebben een vaste ondertekening en werken de bestaande testapp bij.
-   - **Kom je van een andere pakketnaam of een oudere testversie met een andere ondertekening?** Maak vóór verwijderen een app-backup en herstel die in de nieuwe app. Bewaar games, saves en pakketregistraties apart en kies na herinstallatie de opslag opnieuw. Stel ES-DE / iiSU / Daijishō zo nodig voor de nieuwe app in.
+   - **`DogmatixPlus-debug.apk`** — een aparte testapp met eigen gegevens, om dingen uit te proberen naast je gewone app.
+   - **Kom je van het originele Dogmatix of een andere build?** Maak eerst een app-back-up en herstel die in Dogmatix+. Bewaar losse kopieën van je games en saves en kies de opslag opnieuw na het installeren.
 3. Open het bestand en sta **"Onbekende apps installeren"** toe als Android erom vraagt.
 
 Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
@@ -136,8 +136,8 @@ Alles werkt ook met het touchscreen. De hints verschijnen alleen als er een cont
 
 - **[TECHNICAL.md](TECHNICAL.md)**: hoe de app is gebouwd, hoe de functie Dubbele games beslist, de mappenstructuur, deep links en de gebruikte technologie (in het Engels).
 - **[FRONTENDS.md](FRONTENDS.md)**: ES-DE, iiSU, Daijishō en Pegasus instellen.
-- **[Roadmap](docs/ROADMAP.md)** en **[kwaliteitsdossiers](docs/quality/)**: wat gepland is, wat getest is en wat niet.
-- **[Release-notities](https://github.com/Tufein/DogmatixPlus/releases)** en **[versienummering](docs/releases/numbering.md)**.
+- **[Roadmap](docs/ROADMAP.md)**: ideeën voor toekomstige versies.
+- **[Releases](https://github.com/Tufein/DogmatixPlus/releases)**: downloads en controlesommen.
 
 ## Credits
 
