@@ -10,7 +10,7 @@ The last component stays zero. There are no beta, alpha or other suffixes. The r
 
 The 12 releases published before this change were numbered by their original publication dates. The first remains 1.0.0; the last (originally 8.2.0 beta 2) becomes 2.1.0. The next feature release is 2.2.0, Android build 34. [renumber-map.json](renumber-map.json) records each source commit and original APK identity.
 
-Release IDs, APK assets, checksums and publication dates are preserved. Only GitHub release labels/tags, regular-release status and explanatory notes change. Original tag objects remain under `archive/original-version/<old-tag>`, including tags which never had a published release. Those unpublished tags are archived rather than turned into extra releases. Original release-note files and the [legacy changelog](legacy-changelog.md) are retained.
+Release IDs, APK assets, checksums and publication dates are preserved. Only GitHub release labels/tags, regular-release status and explanatory notes change. Original tag objects remain under `archive/original-version/<old-tag>`, including tags which never had a published release. Those unpublished tags are archived rather than turned into extra releases.
 
 Existing APKs keep their embedded version names; renaming a GitHub release cannot rewrite a signed APK. Old tag-based release/download links must be replaced by the new canonical links. For example, the former beta 2 is now [2.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.1.0).
 

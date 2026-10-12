@@ -29,160 +29,7 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 *Les captures d’écran utilisent des titres de jeux inventés et des fichiers vides de substitution, et montrent l’application en anglais.*
 
----
-
-## Que peut faire l’application ?
-
-### Nouveautés de 3.0.0
-
-- **À suivre et Pour vous :** une liste de jeux personnelle par profil, dans la bibliothèque, sur chaque page de jeu et dans **Outils → À suivre**. Réorganisez, marquez comme en cours ou terminé, jouez ou téléchargez. Les suggestions viennent de vos favoris, de votre historique, de vos téléchargements et de vos collections, et disent toujours pourquoi.
-- **Réparer la bibliothèque :** trouve les fichiers vides ou tronqués, les jeux multi-disques avec pistes manquantes, les playlists mortes ou en double, les restes de téléchargements et les repères périmés. Chaque correction est prévisualisée ; ce qui est retiré va dans la corbeille avec récupération.
-- **Signaler un problème :** créez un rapport nettoyé et modifiable, aux sections au choix (**Réglages → Application et mises à jour**, ou Outils), à coller dans GitHub ou Reddit. L’application n’envoie rien.
-- Build Android **42**, base **15**. Construit et testé par des tests unitaires sans console portable physique ; voir le [dossier d’acceptation](docs/quality/v3.0.0-acceptance.md).
-
-### Nouveautés de 2.9.0
-
-- Exportez les listes et empreintes des fichiers de jeux, puis rétablissez leurs liens après réinstallation. Copiez les jeux séparément, sélectionnez à nouveau le stockage et analysez les mêmes sources. Seuls les paquets complets et vérifiés sont enregistrés.
-- Moins de requêtes pour préparer les collections hors ligne ; libellés de navigation complets avec du texte agrandi.
-- Build Android **41**, base **15**. Les deux APK publics, signatures et mises à jour depuis 2.8.0 sont vérifiés. Voir la [version 2.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.9.0) et le [guide de récupération](docs/guides/package-recovery.md).
-- Le lancement communautaire 3.0.0 attend les tests physiques AYN Thor. Aucun serveur RomM/WebDAV réel n’est certifié ; voir la [feuille de route](docs/ROADMAP.md).
-
-### Nouveau dans 2.3.0
-
-- Rechercher les téléchargements par titre ou nom, filtrer par état et appliquer des actions aux résultats. Placer la sélection en attente en tête.
-- Reprise plus sûre et contrôle des fichiers complets ; les anciens minuteurs ne relancent plus de nouvelles tentatives.
-
-### Nouveau dans 2.2.0
-- Vitesse et temps restant par téléchargement, indications fiables pour les tailles inconnues et erreurs avec une action à suivre.
-- Toutes les versions sont régulières : 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. [Correspondance des versions](docs/releases/numbering.md).
-- Depuis les anciennes versions 8.x, installer une fois [l’APK signée 2.2.0](https://github.com/Tufein/DogmatixPlus/releases/download/v2.2.0/DogmatixPlus-release.apk) manuellement. Les mises à jour suivantes utilisent le numéro de build Android.
-
-### Nouveau dans 1.8.0
-- **Une page pour chaque jeu** : A ou un appui dans la bibliothèque ouvre une page plein écran avec l'illustration, un grand bouton Télécharger, la meilleure version, favori, collections, partage et suppression, et des onglets **À propos**, **Versions**, **Progression** (succès, sauvegardes cloud) et **Dans le même genre**. X ou un appui long ouvre toujours la fiche rapide.
-- **Menu rapide** : maintenez SELECT pour un anneau avec Rechercher, Tout rechercher, Surprenez-moi, Téléchargements, Tout mettre en pause / Tout reprendre, Outils et Paramètres. Un appui court marque toujours un favori.
-- **Stockage intelligent** (facultatif, *Outils → Stockage*) : les consoles auxquelles vous n'avez pas joué depuis un moment et sans favori partent en dossier entier sur la carte SD, et reviennent dès que vous y rejouez. Chaque fichier est copié et vérifié avant que l'original ne parte ; *Vérifier* montre d'abord ce qui serait déplacé. ES-DE suit tout seul, les autres lanceurs doivent être dirigés vers le nouveau dossier à la main.
-- **Tout rechercher** : une seule recherche pour les paramètres, les outils, les écrans et vos jeux, depuis le menu rapide, le titre des Outils ou les *Paramètres* ; le paramètre choisi est amené à l'écran et mis en évidence.
-- **Mode TV** (*Paramètres → Apparence et commandes*) : texte et lignes plus grands, marges pour les bords du téléviseur et touches de la télécommande ; l'application apparaît aussi dans le lanceur d'Android TV.
-- **Le texte des paramètres n'est plus jamais coupé** : titres, explications et valeurs s'affichent en entier.
-- Pas encore essayé sur un vrai appareil, un téléviseur ou une carte SD.
-
-### Nouveau dans 1.6.0
-- **Garder une collection sur l'appareil** (*Outils → Collections*) : activez-la et les nouveaux jeux qu'elle contient se téléchargent seuls, quelques-uns par passage et seulement s'il y a de la place. Rien n'est supprimé automatiquement ; les jeux sortis de la collection sont proposés dans une liste de contrôle.
-- **Libérer de la place** (*Outils*) : jeux jamais lancés, les plus gros d'abord, avec la place gagnée. Favoris, jeux d'une collection, sauvegardes RomM et succès sont protégés. Supprimez-les, ou supprimez et mettez-les sur la liste de souhaits.
-- **Descriptions pour votre lanceur** (*Outils*) : écrit description, genre, année et note dans le gamelist.xml d'ES-DE et le metadata.txt de Pegasus, sans toucher à l'existant (une copie de secours est faite d'abord).
-- **Meilleurs jeux par console** (*Outils*, avec une clé RetroAchievements) : les jeux les plus aimés, ce que vous avez, et un bouton pour ceux que vous pouvez encore obtenir.
-- **Meilleure version disponible** (*Outils*) : une révision plus récente, une version finale au lieu d'une bêta, ou un bon dump au lieu d'un mauvais, pour les jeux que vous avez déjà.
-- **Un résumé hebdomadaire** (facultatif), une **tuile des réglages rapides** et des raccourcis du lanceur pour les téléchargements, **votre année en jeux** avec une carte à partager.
-- **Le même style sur chaque ligne des paramètres**, et votre propre icône sur le deuxième écran.
-- Pas encore essayé sur un vrai appareil ni sur un vrai serveur RomM, WebDAV ou RetroAchievements.
-
-### Nouveau dans 1.5.0
-- **Chercher à l'instinct** : filtres de **genre et de décennie** (d'après les infos de jeu déjà là), **Plus comme ça** dans la fiche, **Surprends-moi** sur la touche Start de la manette et une option de **listes compactes**.
-- **Objectifs de collection et historique** (*Outils*) : à quel point chaque console est complète, avec les titres manquants prêts à importer, et une chronologie jour par jour de ce que vous avez téléchargé et joué.
-- **Partager un jeu** en carte avec sa jaquette, partager la liste de souhaits en texte, et un widget **Reprendre** pour l'écran d'accueil. Un jeu souhaité qui apparaît sur votre serveur RomM est annoncé.
-- **Télécharger au bon moment** : seulement en Wi-Fi, en charge, ce soir ou à une heure choisie, par jeu depuis la fiche ou la liste des téléchargements.
-- **Une liste de souhaits partagée en famille** sur votre propre serveur WebDAV, avec qui a ajouté et qui a trouvé chaque jeu ; la synchro et la sauvegarde WebDAV sont plus sûres (pas de fichier à moitié écrit, pas de version plus récente écrasée, avertissement pour les adresses non chiffrées).
-- **Tout vérifier** (*Outils*) : un rapport sur les sources, le stockage, le BIOS, RomM, les sauvegardes, les notifications et la batterie, avec une solution par problème.
-- Pas encore essayé sur un vrai appareil ni sur un vrai serveur RomM ou WebDAV.
-
-### Nouveau dans 1.4.0
-- **Un nouveau visuel** : des panneaux avec de la profondeur, une douce lueur dans votre couleur d'accent, des couleurs par console, un focus visible depuis le canapé, des **jaquettes** (RomM, boxart libretro ou une tuile colorée), des graphiques, de nouvelles icônes et des animations calmes. Les réglages des animations, de la lueur et des jaquettes dans la liste sont dans *Paramètres → Apparence et commandes*. La disposition et les boutons ne changent pas.
-- **Vue d'ensemble du cloud** (*Paramètres → Cloud*) : RomM, synchro des sauvegardes, sauvegarde cloud, synchro des appareils, RetroAchievements et Debrid sur un seul écran, avec un petit **nuage dans la barre du haut** qui indique repos, synchro en cours ou « a besoin de vous ».
-- **RomM sur chaque jeu** : résumé, genres, note et captures dans la fiche, votre **statut de jeu et votre note** renvoyés à RomM, **favoris synchronisés avec RomM** et **fichiers BIOS récupérés sur RomM** (vérifiés par MD5).
-- **Sauvegardes cloud par jeu** : les sauvegardes et états du serveur (avec la capture de l'état) à côté des copies de sécurité de l'appareil, avec **Restaurer**, et une rangée **Reprendre** sur l'accueil.
-- **Votre propre cloud (WebDAV)** : une **sauvegarde chiffrée** (AES-256-GCM, votre phrase secrète) vers Nextcloud, ownCloud ou tout serveur WebDAV, automatique et avec restauration, et la **synchro des appareils** pour favoris, liste de souhaits et collections entre vos consoles.
-- **Progression RetroAchievements** par jeu (anneau et badges) et votre profil dans la vue d'ensemble.
-- Pas encore testé sur un vrai appareil ni avec un vrai serveur RomM, WebDAV ou RetroAchievements.
-
-### Nouveau dans 1.3.0
-- **Des sets de console entiers en une fois** : *Tout télécharger* prend jusqu’à 3000 jeux, sans « l’application ne répond pas » pendant ou après le lot. Les grandes files restent fluides, peuvent être **mises en pause**, affichent le **temps restant** et ont des boutons pour toute la file (tout arrêter, relancer les échecs, effacer les terminés).
-- **Les téléchargements se gèrent tout seuls** : un téléchargement échoué **réessaie de lui-même**, les téléchargements web peuvent être **mis en pause**, un fichier terminé est **comparé à votre DAT**, et vous recevez **une notification quand la file est terminée**.
-- **Importer une liste** (*Outils*) : un fichier texte ou le presse-papiers avec un jeu par ligne. La meilleure version de chaque jeu est téléchargée en une fois, le reste peut aller sur la liste de souhaits. La vérification DAT s’en sert pour les jeux qui vous manquent.
-- **Recherches récentes** sous le champ de recherche, **Surprenez-moi** (un jeu au hasard dans la liste) et un réglage de la **taille du texte**.
-- **Paramètres et Outils en groupes clairs**, un court **quoi de neuf** après une mise à jour, et une **vérification des frontends** dans les Outils.
-- **Jaquettes pour Pegasus et RetroArch** à côté de celles d’ES-DE, une **liste de souhaits qui sait ce que vous avez déjà** (et qui se partage en fichier), **déplacer la bibliothèque** vers un autre stockage, **envoyer ce qui manque à RomM**, et la **synchro des sauvegardes pour les émulateurs autonomes** (DraStic, melonDS, mGBA, Snes9x EX+ et d’autres).
-
-### Nouveau dans 1.2.0
-- **Les téléchargements reprennent là où ils s’étaient arrêtés** (stockage plein, appli fermée, redémarrage) et **la file survit à un redémarrage** ; une **limite par serveur** ménage les serveurs stricts. **Réorganisez la file** (▲ ▼, ou **Y** pour en mettre un en tête) et **gardez de l’espace libre** pour que les téléchargements s’arrêtent avant que le stockage soit plein.
-- **Liste de souhaits en pilote automatique**, **playlists .m3u** pour les jeux à plusieurs disques, et un **conseiller de stockage** quand « Tout télécharger » ne rentre pas.
-- **Jaquettes pour ES-DE** (et le lien ES-DE de Cocoon) après chaque téléchargement, depuis libretro-thumbnails. **Cocoon** : ajoutez Dogmatix+ en tuiles par console, vue enregistrée ou Téléchargements.
-- **Badges RetroAchievements**, **profils avec code PIN**, **statistiques** avec ce que vous jouez dans ES-DE, et **vues enregistrées** avec un raccourci dans ES-DE.
-- **Vérification des BIOS** pour une vingtaine de systèmes, **patchs IPS / UPS / BPS** depuis l’explorateur de fichiers, et les **liens partagés vers l’appli** vont directement dans le dossier d’une console.
-- **Collections RomM** dans les deux sens, **DAT directement depuis Redump**, un **second écran** pour les consoles portables à deux écrans et les télés, une **sauvegarde automatique** hebdomadaire, et une nouvelle icône.
-
-### Nouveau dans 1.1.0
-- **Réanalyses plus rapides** : les sources dont la liste n'a pas changé sont ignorées (6 sources de 4 000 jeux : de 18 s à 2 s). Une source en échec garde ses jeux, et une source web peut avoir des **adresses de secours**.
-- **Analyse en arrière-plan** (chaque jour, en Wi-Fi, en charge, la nuit) avec une notification quand de nouveaux jeux apparaissent ; les nouveaux jeux ont un badge **Nouveau**, un filtre et un tri *Plus récents d'abord*.
-- **Collections** : vos propres listes, à côté des favoris.
-- **Tout télécharger** ce qui est affiché, après vérification du nombre, de la taille et de l'espace libre ; au choix seulement la meilleure version de chaque jeu.
-- **Mises à jour et DLC Nintendo Switch** : voyez ce qui vous manque et récupérez-le.
-- **Vérification DAT** avec No-Intro / Redump : bons dumps, mauvais noms (renommés d'une touche), fichiers inconnus et jeux manquants.
-- **La limite de vitesse fonctionne** (ce n'était jamais le cas) pour tous les téléchargements ensemble, torrents compris, au choix sans limite la nuit.
-- L'**explorateur de fichiers** renomme, déplace et extrait ; **partagez vos sources en code QR** ; **installez les mises à jour depuis l'app** ; un **widget** d'écran d'accueil ; un **contour de focus épais** pour la télé et les consoles portables.
-
-### Trouver des jeux
-- **Une seule liste** avec les jeux de toutes vos sources.
-- **Une recherche** qui pardonne les erreurs : les accents, les tirets et les lettres doublées n’ont pas d’importance, donc « yugioh » trouve *Yu-Gi-Oh!*.
-- **Filtrez** par console, région, langue et type, et **triez** par nom ou par taille.
-- Un **✓** vert marque les jeux que vous avez déjà.
-- **★ Favoris** : ajoutez une étoile aux jeux que vous aimez et n’affichez que ceux-là.
-
-### Télécharger des jeux
-- Fonctionne avec les **liens directs, les torrents et les liens magnet**.
-- **Plusieurs téléchargements à la fois**, avec pause, reprise, possibilité de réessayer et limite de vitesse.
-- **Les fichiers ZIP et 7z sont décompressés** pour vous.
-- Chaque console a **son propre dossier**. Les dossiers que vous avez déjà (comme `gba` ou `psx`) sont réutilisés, et vous pouvez fusionner deux dossiers qui désignent la même console.
-- Votre **liste de téléchargements est conservée** quand vous fermez l’application. Sélectionnez plusieurs téléchargements pour les arrêter, les réessayer ou les supprimer ensemble.
-- En option : **TorBox** et **Real-Debrid** — des services payants qui récupèrent les torrents pour vous, de sorte que le téléchargement est un fichier normal et rapide.
-- **Seulement en Wi-Fi, seulement en charge ou seulement la nuit** : les nouveaux téléchargements attendent que vos conditions soient remplies et disent ce qu’ils attendent. Une **vérification de somme de contrôle** compare un fichier terminé au hash publié par sa source. Dans la fiche du jeu, **Meilleure version** choisit celle qui vous convient (votre région et langue, pas de démos). Un téléchargement terminé peut être **ouvert** dans un émulateur.
-
-### Garder sa collection bien rangée *(nouveau dans DogmatixPlus)*
-- **Jeux en double** : trouve les jeux présents plusieurs fois sur votre appareil, montre combien de place vous gagnez et vous laisse supprimer la copie en trop. Rien n’est supprimé avant que vous ayez vu exactement quels fichiers vont disparaître.
-- **Aperçu de la bibliothèque** : pour chaque console, combien de jeux sont indexés, combien vous en possédez, combien sont sur votre appareil et quelle place ils prennent, et la date du dernier scan.
-- **Sauvegarder** et **Restaurer une sauvegarde** : enregistrez vos paramètres, vos sources, vos favoris et vos téléchargements dans un seul fichier et restaurez-les plus tard — pratique pour un nouvel appareil.
-- **Progression du scan** : un pourcentage et le temps restant pendant que vos sources sont lues. Les sources sont **analysées en parallèle**, c’est rapide.
-- **Jeux multi-fichiers** : trouve les images de disque inutilisables (un `.cue` dont la piste a disparu, une playlist qui cite un disque supprimé) et crée des playlists `.m3u` pour les jeux à plusieurs disques.
-- **Stockage** : l’espace par console, vos plus gros jeux, et si les téléchargements en attente tiennent encore.
-- **Liste de souhaits** : notez les jeux que vous voulez ; un message vous prévient quand l’un apparaît dans vos sources.
-- **Exportez** votre collection en tableur (CSV) ou en page web. La recherche de doublons peut aussi **proposer quelle copie garder**.
-- **Explorateur de fichiers** : regardez dans vos dossiers, tailles et fichiers de jeu, vérifiez les jeux à plusieurs fichiers, ouvrez ou supprimez des fichiers.
-- **Rapport d’analyse** : après une analyse, un seul aperçu des sources en échec et de la raison, avec *Rescanner celles-ci* ; chaque source affiche son dernier résultat.
-
-### Pensé pour les consoles portables
-- **Tout contrôler avec une manette** : D-pad, A/B/X/Y et les boutons d’épaule. Les indications à l’écran, en bas, correspondent à votre manette (Xbox, Nintendo ou PlayStation), et vous pouvez inverser les boutons si votre manette les signale à l’envers.
-- Affichage **paysage et portrait**, avec un panneau de filtres à côté de la liste sur les grands écrans.
-- Thème **clair, sombre ou noir pur** (agréable sur les écrans OLED), **douze couleurs d’accent** et **Material You** (Android 12+ : les couleurs suivent votre fond d’écran).
-- **◀ ▶ saute dans la bibliothèque par première lettre**, pratique avec une longue liste et sans écran tactile.
-
-### Compatible avec votre lanceur de jeux
-- **ES-DE** et **iiSU** reçoivent une entrée « Search for more games » dans chaque console, configurée avec un seul bouton. **Daijishō** vous montre les quelques valeurs à saisir.
-
-### Compatible avec RomM
-- Envoyez les téléchargements terminés vers votre serveur **RomM**, ou utilisez RomM comme source de jeux.
-- **Synchro des sauvegardes** : votre serveur RomM garde vos **sauvegardes et états de jeu**. Choisissez les dossiers où votre émulateur enregistre (pour RetroArch : `saves` et `states`) et DogmatixPlus envoie la nouvelle progression et récupère une progression plus récente — d’une autre console portable ou du lecteur web de RomM. Si une sauvegarde a changé des deux côtés, vous choisissez laquelle garder ; une copie remplacée est conservée 30 jours. Cela peut se faire tout seul à l’ouverture de l’application ou au retour d’un jeu (*Paramètres → Synchro des sauvegardes*).
-- Les jeux que votre serveur RomM a déjà sont **marqués** dans la bibliothèque. Un serveur maison à **certificat auto-signé** fonctionne une fois son empreinte vérifiée. Un envoi interrompu **reprend** là où il s’est arrêté. Les **jaquettes** de RomM peuvent être récupérées dans ES-DE.
-- La synchro des sauvegardes peut tourner **en arrière-plan** toutes les quelques heures et peut aussi **reporter les suppressions** (désactivé par défaut, avec garde-fous). Quand une sauvegarde a changé des deux côtés, vous voyez maintenant les deux heures et tailles.
-
-### Vos sources, à votre façon
-- Ajoutez des sources à la main, ou **importez et exportez**-les sous forme de fichier pour les partager entre appareils. L’export emporte maintenant aussi vos **★ favoris**, et l’import les ajoute sur l’autre appareil.
-- Un court **guide de premier démarrage** vous aide à choisir votre dossier de ROM et à importer vos sources.
-
-### Langues
-- **Anglais, espagnol, néerlandais, français, allemand, italien et portugais** (*Paramètres → Langue*, ou selon la langue de votre téléphone).
-
----
-
-### Nouveautés de 2.6.0
-
-- Nouvelle tentative automatique avec compte à rebours et annulation ; les informations sur les erreurs restent disponibles après redémarrage.
-- Enregistrez des préréglages de téléchargement et choisissez une autre source après confirmation.
-- Partagez des plans avec leur ordre et leurs conditions. Le destinataire utilise ses propres sources ; les jetons d'accès ne sont pas partagés.
-- Choisissez un émulateur par jeu et vérifiez le choix effectif pour chaque fichier jouable.
-- Android build **38**, base de données **15**. La [version signée 2.6.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.6.0) met à jour 2.5.0 en conservant les données.
-
-### Nouveautés de 2.4.0
-
-Choisissez un émulateur installé par console, comparez les versions avec des préférences de langue, région et révision et recherchez dans les actions. Restaurez les jeux retirés ou téléchargez-les depuis l’historique. Les copies gardent leurs chemins d’origine et occupent de l’espace jusqu’au vidage de la corbeille.
+**Dernière version : [3.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.0.0)** (build Android 42). Le mainteneur ne l’a pas encore testée sur une console portable physique ni avec un vrai serveur RomM ou WebDAV ; voir la [feuille de route](docs/ROADMAP.md) et le [dossier d’acceptation 3.0.0](docs/quality/v3.0.0-acceptance.md) pour ce qui a été vérifié ou non.
 
 ## Installation
 
@@ -201,6 +48,65 @@ Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Goo
 2. **Choisissez votre dossier de ROM** — le dossier où vos jeux doivent aller.
 3. **Importez vos sources** (un fichier avec vos listes de jeux) — ou passez cette étape et ajoutez des sources plus tard dans l’onglet **Sources**.
 4. Ouvrez la **Bibliothèque** et touchez un jeu (ou appuyez sur **A**) pour ouvrir sa page. Choisissez ensuite **Télécharger** ou **Jouer**.
+
+## Que peut faire l’application ?
+
+### Trouver des jeux
+- **Une seule liste** avec les jeux de toutes vos sources : répertoires web, liens directs, torrents et liens magnet, et votre serveur RomM.
+- **Une recherche qui pardonne les fautes** (accents, tirets, lettres doublées), avec les recherches récentes, **Surprenez-moi** et **Plus comme celui-ci**. **Tout rechercher** trouve aussi les réglages, outils et écrans.
+- **Filtrer** par console, région, langue, type, genre, décennie et *Nouveau* ; **trier** par nom, taille ou plus récent. Un **✓** vert marque ce que vous avez déjà.
+- **Une page par jeu** : visuel, Télécharger ou Jouer, la meilleure version, favori, collections, partage, notes, captures et manuels, et un onglet *Versions* qui explique comment chaque version est notée.
+- **À suivre et Pour vous** : une liste de jeux personnelle par profil, et des suggestions tirées de votre propre bibliothèque qui disent toujours pourquoi elles ont été choisies.
+- **Collections et objectifs** : favoris, listes personnelles, collections par règles (console, langue, genre, année, joué), objectifs de collection, historique de jeu, bilan annuel et meilleurs jeux par console selon RetroAchievements.
+- **Liste de souhaits** : notez les jeux voulus, soyez prévenu quand l’un apparaît, téléchargez-les automatiquement et partagez la liste.
+- **Importer une liste** : collez ou chargez un fichier texte ; les jeux trouvés sont téléchargés, les autres vont dans la liste de souhaits.
+
+### Télécharger
+- **Liens directs, torrents et liens magnet**, plus **TorBox** et **Real-Debrid** en option.
+- **Plusieurs téléchargements à la fois**, avec pause, reprise, nouvel essai, une limite de débit globale (sans limite la nuit si vous le voulez) et une limite par serveur.
+- **Les téléchargements interrompus reprennent** là où ils se sont arrêtés, et la file survit à un redémarrage.
+- **Télécharger quand cela convient** : seulement en Wi-Fi, pendant la charge, cette nuit ou à une heure fixée. Les téléchargements s’arrêtent si la batterie est faible ou l’appareil chaud, et disent ce qu’ils attendent.
+- **Nouvel essai automatique** avec compte à rebours visible, causes d’erreur claires, bascule vers une autre source et historique de fiabilité par source.
+- **Meilleure version** choisit votre région et votre langue et écarte les démos ; **Tout télécharger** vérifie d’abord la place.
+- **Vérifications** : tailles de fichiers, sommes de contrôle face à la source et décompression sûre des ZIP et 7z (rien n’est écrit hors de son dossier).
+- **Partout** : boutons de notification (pause, reprise, arrêt), une tuile des réglages rapides, un widget d’écran d’accueil et une vue pour le second écran.
+
+### Jouer
+- **Jouer depuis la page du jeu** avec un émulateur compatible, mémorisé par console ou choisi par jeu, avec une **vérification de préparation** (fichiers, disques, BIOS, émulateur), une configuration guidée et un lancement d’essai.
+- **ES-DE, iiSU, Daijishō et Pegasus** : une entrée « chercher d’autres jeux » par console, plus jaquettes et descriptions dans votre lanceur.
+- **Les jeux à plusieurs disques** reçoivent automatiquement leur playlist `.m3u`.
+- **Reprendre** sur l’accueil, depuis les sauvegardes de n’importe quel appareil ou depuis ES-DE.
+
+### Garder la bibliothèque en bonne santé
+- **Réparer la bibliothèque** : trouve les fichiers vides ou tronqués, les jeux multi-disques avec pistes manquantes, les playlists mortes ou en double, les restes de téléchargements et les repères périmés. Chaque correction est prévisualisée et ce qui est retiré va dans la corbeille avec récupération.
+- **Jeux en double** avec un nettoyage sûr et prévisualisé ; **Meilleures versions** et **Libérer de la place**.
+- **Vérification DAT** contre No-Intro, Redump et TOSEC ; contrôle des **jeux multi-fichiers** ; **contrôle du BIOS** ; **mises à jour et DLC Switch**.
+- **Aperçu de la bibliothèque, Stockage et Statistiques** par console ; le **stockage intelligent** peut déplacer les consoles rarement jouées vers une carte SD et les rapatrier.
+- **Explorateur de fichiers** pour regarder, renommer, déplacer et décompresser ; **export** de la collection en CSV ou page web.
+- **Contrôle de santé** avec une solution par problème, et **rapport d’analyse** pour les sources en échec.
+- **Sources** : ajout manuel, import et export, partage par codes QR, catalogue de contenus Libretro optionnel pour 23 systèmes, adresses de secours et analyses automatiques en arrière-plan qui sautent ce qui n’a pas changé.
+
+### Sûr par conception
+- **Corbeille et centre de récupération** : jeux retirés, déplacements interrompus, fichiers remplacés et sauvegardes se restaurent, chacun avec un aperçu. Les copies sont vérifiées avant tout retrait.
+- **Historique des actions** avec annulation, et un journal qui survit à un plantage.
+- **Les mises à jour depuis l’application** sont vérifiées (somme de contrôle, paquet, version, signataire) avant l’installation par Android.
+- **Signaler un problème** crée un rapport privé et modifiable dont vous choisissez le contenu ; chemins, adresses de serveur, clés et jetons sont retirés et l’application n’envoie rien.
+
+### Cloud et synchronisation
+- **RomM** : envoyer les téléchargements terminés, l’utiliser comme source, voir jeux, genres et captures, synchroniser statut de jeu, note et favoris, récupérer les BIOS manquants.
+- **Synchro des sauvegardes et sauvegardes cloud** : vos sauvegardes voyagent entre consoles et RomM ; en cas de conflit on vous demande, et les copies remplacées sont gardées 30 jours.
+- **Votre propre cloud (WebDAV)** : sauvegardes chiffrées (Nextcloud, ownCloud, Synology et autres) et synchro d’appareils pour favoris, liste de souhaits et collections.
+- **RetroAchievements** : progression et badges par jeu, votre profil et les jeux qui ont des succès.
+
+### Profils
+- **Les profils** masquent des consoles ou des jeux portant certaines étiquettes (un profil enfant), avec un code PIN facultatif. Favoris, émulateurs, notes et À suivre sont gardés par profil.
+
+### Pensé pour les consoles portables
+- **Tout se fait à la manette** (croix directionnelle, A/B/X/Y, gâchettes) ; les indications à l’écran suivent Xbox, Nintendo ou PlayStation. Maintenez **SELECT** pour un menu rapide.
+- **Paysage et portrait**, une vue **second écran** et un **mode TV** avec texte plus grand et touches de télécommande.
+- **Thème clair, sombre ou noir pur**, douze couleurs d’accent et Material You, jaquettes, taille de texte réglable et animations désactivables.
+- **Sept langues** : anglais, néerlandais, allemand, français, espagnol, italien et portugais.
+- **Sauvegarde et restauration** des réglages, sources, favoris, collections et liste de téléchargements dans un seul fichier.
 
 ## Utiliser une manette
 
@@ -224,10 +130,14 @@ Tout fonctionne aussi au toucher. Les indications ne s’affichent que lorsqu’
 - **Un fichier de sauvegarde contient vos clés de compte** (TorBox, Real-Debrid, RomM). Gardez-le privé.
 - **La fenêtre d’infos du jeu reste vide dans les fichiers proposés au téléchargement ici**, car elle a besoin d’une clé gratuite, fournie par une base de données de jeux et ajoutée lors de la compilation de l’application.
 - DogmatixPlus ne cherche pas de jeux tout seul. Il lit seulement les sources que **vous** ajoutez.
-- **Toutes les versions publiques sont des versions régulières.** La numérotation suit 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. Voir la [numérotation des versions](docs/releases/numbering.md).
-- **Quelque chose ne marche pas ?** *Paramètres → Partager le diagnostic* crée un rapport texte pour un signalement ; jetons, adresses de serveur et liens magnet sont d’abord retirés.
+- **Quelque chose ne marche pas ?** *Réglages → Application et mises à jour → Signaler un problème* crée un rapport privé à coller dans un ticket GitHub ; chemins, adresses de serveur, clés et jetons sont retirés d’abord.
 
----
+## Pour les développeurs et utilisateurs avancés
+
+- **[TECHNICAL.md](TECHNICAL.md)** : construction de l’application, décisions de la recherche de doublons, organisation des dossiers, liens profonds et technologies (en anglais).
+- **[FRONTENDS.md](FRONTENDS.md)** : configurer ES-DE, iiSU, Daijishō et Pegasus.
+- **[Feuille de route](docs/ROADMAP.md)** et **[dossiers qualité](docs/quality/)** : ce qui est prévu, testé ou non.
+- **[Notes de version](https://github.com/Tufein/DogmatixPlus/releases)** et **[numérotation des versions](docs/releases/numbering.md)**.
 
 ## Crédits
 
@@ -246,9 +156,3 @@ DogmatixPlus a été **réalisé avec l’aide de l’IA** : le code, les tests
 Cette application est uniquement destinée à un usage éducatif. Il vous incombe de vous assurer que vous avez le droit légal de télécharger tout contenu.
 
 Milou et Dogmatix n’ont pas de licence, donc tous les droits sur leur code restent à leurs auteurs. DogmatixPlus est une modification personnelle non officielle et n’est affilié à aucun des deux projets. Si vous êtes l’un des auteurs d’origine et que vous souhaitez que quelque chose soit modifié ou retiré, merci d’ouvrir une issue.
-
----
-
-## Pour les développeurs
-
-Les détails techniques — comment l’application est construite, comment la recherche de doublons décide, l’organisation des dossiers, les liens profonds, les technologies utilisées et plus encore — se trouvent dans **[TECHNICAL.md](TECHNICAL.md)**. Voir aussi [FRONTENDS.md](FRONTENDS.md) pour la configuration des lanceurs et [CHANGELOG.md](CHANGELOG.md) pour chaque changement. Le fichier TECHNICAL.md est en anglais.

@@ -143,7 +143,7 @@ jobs:
           cp app/build/outputs/apk/release/app-release.apk dist/DogmatixPlus-release.apk
           (cd dist && sha256sum DogmatixPlus-release.apk DogmatixPlus-debug.apk > SHA256SUMS.txt)
           notes="docs/release-notes/$TAG.md"
-          if [ -f "$notes" ]; then cp "$notes" dist/notes.md; else echo "DogmatixPlus $TAG. See CHANGELOG.md." > dist/notes.md; fi
+          if [ -f "$notes" ]; then cp "$notes" dist/notes.md; else echo "DogmatixPlus $TAG." > dist/notes.md; fi
           {
             echo
             VERSION_CODE=$(sed -n 's/^ *versionCode = \([0-9]*\)/\1/p' app/build.gradle.kts | head -1)
