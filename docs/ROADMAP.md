@@ -35,7 +35,14 @@ Physical launch checks continue under 3.0.0: the AYN Thor journey, both displays
 
 ## 3.0.0 — community launch on Reddit
 
-Status: planned. Publication date is determined by the launch checks, not reserved in advance. Public numbering continues 2.8.0 → 2.9.0 → 3.0.0; there is no 2.10.0.
+Status: the 3.0.0 software release is published (build 42). The community launch itself is not done: the physical and server checks below have no recorded results and the Reddit post has not been made. Public numbering continues 2.8.0 → 2.9.0 → 3.0.0; there is no 2.10.0.
+
+What 3.0.0 adds on top of 2.9.0 ([release notes](release-notes/v3.0.0.md), [acceptance](quality/v3.0.0-acceptance.md)):
+
+- Up next list per profile with explained suggestions (implemented; unit-tested; not verified by a person on a handheld).
+- Library repair with previews and Trash-backed removals (implemented; same status).
+- Report a problem builder for GitHub/Reddit feedback (implemented; same status).
+- Action-history fixes from the 2.4 review.
 
 The launch package includes:
 

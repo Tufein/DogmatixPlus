@@ -33,6 +33,13 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 ## Was kann die App?
 
+### Neu in 3.0.0
+
+- **Als Nächstes und Für dich:** eine persönliche Spielliste pro Profil in der Bibliothek, auf jeder Spielseite und unter **Werkzeuge → Als Nächstes**. Sortieren, als spielend oder beendet markieren, spielen oder herunterladen. Die Vorschläge stammen aus deinen Favoriten, deinem Verlauf, Downloads und Sammlungen und nennen immer den Grund.
+- **Bibliothek reparieren:** findet leere oder abgebrochene Dateien, Disc-Sets mit fehlenden Tracks, tote oder doppelte Playlists, Download-Reste und veraltete Markierungen. Jede Korrektur wird vorab angezeigt; Entferntes landet im Papierkorb mit Wiederherstellung.
+- **Problem melden:** erstelle einen bereinigten, bearbeitbaren Bericht mit wählbaren Abschnitten (**Einstellungen → App und Updates** oder Werkzeuge) zum Einfügen in GitHub oder Reddit. Die App sendet selbst nichts.
+- Android-Build **42**, Datenbank **15**. Ohne physisches Handheld gebaut und per Unit-Tests geprüft; siehe die [Abnahmeakte](docs/quality/v3.0.0-acceptance.md).
+
 ### Neu in 2.9.0
 
 - Exportiere Dateilisten und Prüfsummen und stelle ihre Zuordnung nach einer Neuinstallation wieder her. Kopiere Spiele separat, wähle den Speicher erneut und scanne dieselben Quellen. Nur vollständige, geprüfte Pakete werden registriert.

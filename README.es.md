@@ -33,6 +33,13 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 ## ¿Qué puede hacer?
 
+### Novedades de 3.0.0
+
+- **A continuación y Para ti:** una lista de juegos personal por perfil, en la biblioteca, en cada página de juego y en **Herramientas → A continuación**. Reordena, marca como en curso o terminado, juega o descarga. Las sugerencias salen de tus favoritos, historial, descargas y colecciones y siempre dicen el motivo.
+- **Reparar biblioteca:** encuentra archivos vacíos o cortados, juegos de discos con pistas que faltan, listas muertas o duplicadas, restos de descargas y marcas desactualizadas. Cada arreglo se previsualiza; lo que se retira va a la papelera con recuperación.
+- **Informar de un problema:** crea un informe depurado y editable con secciones a elegir (**Ajustes → Aplicación y actualizaciones**, o Herramientas) para pegarlo en GitHub o Reddit. La app no envía nada.
+- Build Android **42**, base **15**. Construido y probado con pruebas unitarias sin una consola portátil física; consulta el [registro de aceptación](docs/quality/v3.0.0-acceptance.md).
+
 ### Novedades de 2.9.0
 
 - Exporta las listas y sumas de verificación de archivos y recupera sus vínculos tras reinstalar. Copia los juegos aparte, selecciona de nuevo el almacenamiento y escanea las mismas fuentes. Solo se registran paquetes completos y verificados.

@@ -1323,10 +1323,10 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Exportiere Dateilisten und Prüfsummen von Spielpaketen vor einer Neuinstallation oder einem Gerätewechsel.</item>
-        <item>Stelle nur vollständige, im gewählten Ordner geprüfte Pakete wieder her; geänderte Dateien und bestehende Einträge bleiben geschützt.</item>
-        <item>Bereite Offline-Sammlungen mit gebündelten Quellen- und Tag-Abfragen für große Bibliotheken vor.</item>
-        <item>Nutze klareren Controller-Fokus und B/Zurück zum Schließen von Paketdialogen.</item>
+        <item>Plane, was du als Nächstes spielst: eine persönliche Als-Nächstes-Liste pro Profil, in der Bibliothek und auf jeder Spielseite, plus Vorschläge, die ihre Auswahl begründen.</item>
+        <item>Prüfe deine Spielordner mit Bibliothek reparieren: leere oder abgebrochene Dateien, Disc-Sets mit fehlenden Tracks, Download-Reste und veraltete Markierungen. Alles Entfernte landet im Papierkorb und in der Wiederherstellung.</item>
+        <item>Erstelle einen privaten Problembericht in den Einstellungen oder unter Werkzeuge: Wähle den Inhalt, lies ihn und kopiere oder teile ihn. Die App sendet selbst nichts.</item>
+        <item>Alles funktioniert mit Controller und Touch, in sieben Sprachen.</item>
     </string-array>
 
     <!-- 4.0 -->

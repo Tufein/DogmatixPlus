@@ -2,6 +2,14 @@
 
 Public releases follow 1.0.0, 1.1.0, …, 1.9.0, 2.0.0. See [release numbering](docs/releases/numbering.md) for the migration and original APK versions.
 
+## [3.0.0] – 2026-10-12 · Dogmatix+
+
+- Add a personal Up next list per profile (Library shelf, game-page button, Tools screen) with reordering, playing/finished marks, Play and Download, and a For you tab whose suggestions come from on-device data and state their reason.
+- Add Library repair: a bounded, cancellable, profile-aware check for empty or cut-off files, incomplete disc sets, dead or duplicate playlists, leftover download data and stale library marks. Removals go through Trash and recovery; "Fix safe items" never removes anything; stale previews are refused; the findings can be shared as a report.
+- Add Report a problem (Settings → App and updates, and Tools): a sanitized, editable report with selectable sections that starts no network request and removes paths, document ids, server addresses and long keys.
+- Fix the action-history screen (duplicate day keys, removal details, offering Download again for owned games, quick failures, cancelled save syncs).
+- Seven translated interfaces; Android build 42, database remains 15, signing identities retained. Physical AYN Thor and live RomM/WebDAV launch checks remain unrecorded.
+
 ## [2.9.0] – 2026-10-11 · Dogmatix+
 
 - Export portable game-package file lists and checksums with verified readback; keep game/save bytes and Android folder grants separate.

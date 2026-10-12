@@ -1297,10 +1297,10 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Exporta las listas de archivos y las sumas de comprobación antes de reinstalar o cambiar de dispositivo.</item>
-        <item>Restaura solo los paquetes completos verificados en la carpeta elegida; protege los archivos modificados y los registros existentes.</item>
-        <item>Prepara las colecciones sin conexión con consultas agrupadas de fuentes y etiquetas para bibliotecas grandes.</item>
-        <item>Usa un enfoque del mando más claro y B/atrás para cancelar los diálogos de paquetes.</item>
+        <item>Planifica qué jugar después: una lista A continuación personal por perfil, en la biblioteca y en cada página de juego, con sugerencias que explican por qué se eligieron.</item>
+        <item>Revisa tus carpetas de juegos con Reparar biblioteca: archivos vacíos o cortados, juegos de discos con pistas que faltan, restos de descargas y marcas desactualizadas. Todo lo que se retira va a la papelera y recuperación.</item>
+        <item>Prepara un informe privado de un problema desde los ajustes o las herramientas: elige qué incluir, léelo y cópialo o compártelo. La aplicación no envía nada.</item>
+        <item>Todo funciona con mando y con pantalla táctil, en siete idiomas.</item>
     </string-array>
 
     <!-- 4.0 -->

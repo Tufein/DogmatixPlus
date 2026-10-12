@@ -31,14 +31,21 @@ The app includes no games. **Sources → More romsets** offers optional Libretro
 
 ---
 
-The latest release is [2.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v2.9.0) (Android build 41).
-Downloads protect known-good files, extraction preserves safe paths, and updates check the checksum, package, version and signing certificate. Both public APKs and their updates from 2.8.0 have been verified; see the [acceptance record](docs/quality/v2.9.0-acceptance.md).
+The latest release is [3.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.0.0) (Android build 42).
+Downloads protect known-good files, extraction preserves safe paths, and updates check the checksum, package, version and signing certificate. The verification of 2.9.0 is in its [acceptance record](docs/quality/v2.9.0-acceptance.md); what was and was not checked for 3.0.0 is in [its record](docs/quality/v3.0.0-acceptance.md).
 
-Release **2.9.0** adds portable game-package records, fewer database queries when preparing offline collections and full navigation labels at large text sizes. Use **Tools → Game package records** after copying games separately and selecting storage again; the [recovery guide](docs/guides/package-recovery.md) explains what the export contains.
+Release **3.0.0** adds a personal **Up next** list with suggestions that explain themselves, a guided **Library repair** and a private **Report a problem** builder. Release 2.9.0 added portable game-package records; use **Tools → Game package records** after copying games separately and selecting storage again, and see the [recovery guide](docs/guides/package-recovery.md).
 
-The optional romset catalog offers **23 content collections / 134 listed files**, checked on 10 October 2026. These are dated directory counts, not complete commercial ROM sets. The **3.0.0** community launch still needs actual AYN Thor / Android 13 results; live RomM/WebDAV remains unverified. See the [roadmap](docs/ROADMAP.md), [Thor test guide](docs/guides/ayn-thor-test.md) and [unpublished Reddit draft](docs/community/reddit-launch-draft.md).
+The optional romset catalog offers **23 content collections / 134 listed files**, checked on 10 October 2026. These are dated directory counts, not complete commercial ROM sets. Actual AYN Thor / Android 13 results and live RomM/WebDAV checks are still missing for the community launch of 3.0.0; they remain unverified. See the [roadmap](docs/ROADMAP.md), [Thor test guide](docs/guides/ayn-thor-test.md) and [unpublished Reddit draft](docs/community/reddit-launch-draft.md).
 
 ## What can it do?
+
+### New in 3.0.0
+
+- **Up next and For you:** a personal play list per profile, on the Library screen, on every game page and under **Tools → Up next**. Reorder, mark as playing or finished, play or download. The suggestions come from your own favourites, history, downloads and collections and always say why.
+- **Library repair:** **Tools → Library repair** finds empty or cut-off files, disc sets with missing tracks, dead or duplicate playlists, leftover download data and stale library marks. Each fix is previewed; removals go to Trash and recovery; the safe fixes only add playlists or refresh marks.
+- **Report a problem:** build a sanitized, editable report (**Settings → App and updates**, or Tools) with selectable sections to paste into GitHub or Reddit. Nothing is sent by the app.
+- Android build **42**, database **15**. Built and unit-tested without a physical handheld: see the [acceptance record](docs/quality/v3.0.0-acceptance.md) for what was checked.
 
 ### New in 2.3.0
 

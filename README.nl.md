@@ -33,6 +33,13 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 ## Wat kan het?
 
+### Nieuw in 3.0.0
+
+- **Hierna spelen en Voor jou:** een persoonlijke speellijst per profiel, in de bibliotheek, op elke spelpagina en onder **Hulpmiddelen → Hierna spelen**. Herschik, markeer als bezig of uitgespeeld, speel of download. De suggesties komen uit je eigen favorieten, geschiedenis, downloads en collecties en geven altijd de reden.
+- **Bibliotheek herstellen:** vindt lege of afgebroken bestanden, discsets met ontbrekende tracks, dode of dubbele playlists, resten van downloads en verouderde bibliotheekmarkeringen. Elke oplossing krijgt eerst een voorbeeld; wat verdwijnt gaat naar Prullenbak en herstel.
+- **Probleem melden:** maak een opgeschoond, bewerkbaar rapport met kiesbare onderdelen (**Instellingen → App en updates**, of Hulpmiddelen) om in GitHub of Reddit te plakken. De app verstuurt zelf niets.
+- Android build **42**, database **15**. Gebouwd en met unittests gecontroleerd zonder fysieke handheld; zie het [acceptatiedossier](docs/quality/v3.0.0-acceptance.md).
+
 ### Nieuw in 2.9.0
 
 - Exporteer bestandslijsten en controlesommen via **Hulpmiddelen → Spelpakketgegevens** en koppel ze na herinstallatie opnieuw aan bestaande games. Kopieer de games apart, kies de opslag opnieuw en scan dezelfde bronnen. Alleen complete, gecontroleerde pakketten worden geregistreerd.

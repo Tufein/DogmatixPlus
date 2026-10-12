@@ -1274,10 +1274,10 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Exporta as listas de ficheiros e somas de verificação antes de reinstalar ou mudar de dispositivo.</item>
-        <item>Restaura apenas pacotes completos verificados na pasta escolhida; protege ficheiros alterados e registos existentes.</item>
-        <item>Prepara coleções offline com consultas agrupadas de fontes e etiquetas para bibliotecas grandes.</item>
-        <item>Usa um foco do comando mais claro e B/voltar para cancelar os diálogos de pacotes.</item>
+        <item>Planeia o que jogar a seguir: uma lista A seguir pessoal por perfil, na biblioteca e em cada página de jogo, com sugestões que explicam por que foram escolhidas.</item>
+        <item>Verifica as tuas pastas de jogos com Reparar biblioteca: ficheiros vazios ou cortados, conjuntos de discos com faixas em falta, restos de transferências e marcas desatualizadas. Tudo o que é removido vai para o lixo e recuperação.</item>
+        <item>Prepara um relatório privado de um problema nas definições ou nas ferramentas: escolhe o que incluir, lê e copia ou partilha. A aplicação não envia nada.</item>
+        <item>Tudo funciona com comando e com toque, em sete idiomas.</item>
     </string-array>
 
     <!-- 4.0 -->

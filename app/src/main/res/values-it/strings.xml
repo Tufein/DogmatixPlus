@@ -1274,10 +1274,10 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Esporta gli elenchi dei file e le somme di controllo prima di reinstallare o cambiare dispositivo.</item>
-        <item>Ripristina solo i pacchetti completi verificati nella cartella scelta; proteggi i file modificati e i record esistenti.</item>
-        <item>Prepara le raccolte offline con ricerche raggruppate di fonti e tag per le grandi librerie.</item>
-        <item>Usa un focus del controller più chiaro e B/indietro per chiudere le finestre dei pacchetti.</item>
+        <item>Pianifica cosa giocare dopo: una lista Prossimi personale per profilo, nella libreria e in ogni pagina di gioco, con suggerimenti che spiegano perché sono stati scelti.</item>
+        <item>Controlla le cartelle dei giochi con Ripara libreria: file vuoti o troncati, set di dischi con tracce mancanti, resti di download e contrassegni obsoleti. Tutto ciò che viene rimosso va nel cestino e ripristino.</item>
+        <item>Prepara un rapporto privato su un problema da Impostazioni o Strumenti: scegli cosa includere, leggilo e copialo o condividilo. L\'app non invia nulla.</item>
+        <item>Tutto funziona con il controller e con il tocco, in sette lingue.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -33,6 +33,13 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 ## Que peut faire l’application ?
 
+### Nouveautés de 3.0.0
+
+- **À suivre et Pour vous :** une liste de jeux personnelle par profil, dans la bibliothèque, sur chaque page de jeu et dans **Outils → À suivre**. Réorganisez, marquez comme en cours ou terminé, jouez ou téléchargez. Les suggestions viennent de vos favoris, de votre historique, de vos téléchargements et de vos collections, et disent toujours pourquoi.
+- **Réparer la bibliothèque :** trouve les fichiers vides ou tronqués, les jeux multi-disques avec pistes manquantes, les playlists mortes ou en double, les restes de téléchargements et les repères périmés. Chaque correction est prévisualisée ; ce qui est retiré va dans la corbeille avec récupération.
+- **Signaler un problème :** créez un rapport nettoyé et modifiable, aux sections au choix (**Réglages → Application et mises à jour**, ou Outils), à coller dans GitHub ou Reddit. L’application n’envoie rien.
+- Build Android **42**, base **15**. Construit et testé par des tests unitaires sans console portable physique ; voir le [dossier d’acceptation](docs/quality/v3.0.0-acceptance.md).
+
 ### Nouveautés de 2.9.0
 
 - Exportez les listes et empreintes des fichiers de jeux, puis rétablissez leurs liens après réinstallation. Copiez les jeux séparément, sélectionnez à nouveau le stockage et analysez les mêmes sources. Seuls les paquets complets et vérifiés sont enregistrés.

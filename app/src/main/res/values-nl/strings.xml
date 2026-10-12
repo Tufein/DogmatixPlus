@@ -1323,10 +1323,10 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Exporteer bestandslijsten en controlesommen van spelpakketten vóór een herinstallatie of toestelwissel.</item>
-        <item>Herstel alleen complete pakketten die in je gekozen map zijn gecontroleerd; bescherm gewijzigde bestanden en bestaande registraties.</item>
-        <item>Bereid offline collecties voor met gegroepeerde bron- en tagcontroles voor grote bibliotheken.</item>
-        <item>Gebruik duidelijkere controllerfocus en annuleren met B/terug in pakketvensters.</item>
+        <item>Plan wat je hierna speelt: een persoonlijke lijst Hierna spelen per profiel, in de bibliotheek en op elke spelpagina, plus suggesties die uitleggen waarom ze zijn gekozen.</item>
+        <item>Controleer je spelmappen met Bibliotheek herstellen: lege of afgebroken bestanden, discsets met ontbrekende tracks, resten van downloads en verouderde bibliotheekmarkeringen. Alles wat verdwijnt gaat naar Prullenbak en herstel.</item>
+        <item>Maak een privérapport van een probleem via Instellingen of Hulpmiddelen: kies wat erin komt, lees het na en kopieer of deel het. De app verstuurt zelf niets.</item>
+        <item>Alles werkt met een controller en met touch, in zeven talen.</item>
     </string-array>
 
     <!-- 4.0 -->

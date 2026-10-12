@@ -1328,10 +1328,10 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Exportez les listes de fichiers et les sommes de contrôle avant une réinstallation ou un changement d’appareil.</item>
-        <item>Restaurez uniquement les paquets complets vérifiés dans le dossier choisi ; protégez les fichiers modifiés et les enregistrements existants.</item>
-        <item>Préparez les collections hors ligne avec des recherches groupées de sources et d’étiquettes pour les grandes bibliothèques.</item>
-        <item>Profitez d’un focus plus clair et de l’annulation B/retour dans les dialogues de paquets.</item>
+        <item>Planifiez ce que vous jouerez ensuite : une liste À suivre personnelle par profil, dans la bibliothèque et sur chaque page de jeu, avec des suggestions qui expliquent leur choix.</item>
+        <item>Vérifiez vos dossiers de jeux avec Réparer la bibliothèque : fichiers vides ou tronqués, jeux multi-disques avec pistes manquantes, restes de téléchargements et repères périmés. Tout ce qui est retiré va dans la corbeille et la récupération.</item>
+        <item>Préparez un rapport de problème privé depuis les réglages ou les outils : choisissez son contenu, relisez-le, puis copiez-le ou partagez-le. L’application n’envoie rien.</item>
+        <item>Tout fonctionne à la manette et au toucher, en sept langues.</item>
     </string-array>
 
     <!-- 4.0 -->
