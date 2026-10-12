@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="next30_title">Hierna spelen</string>
+    <string name="next30_hint">Je speellijst, en games uit je eigen bibliotheek die bij je passen</string>
+    <string name="next30_subtitle">Wat je hierna speelt, en suggesties uit je eigen bibliotheek</string>
+    <string name="next30_tab_up_next">Hierna spelen</string>
+    <string name="next30_tab_for_you">Voor jou</string>
+    <string name="next30_add">Zet op Hierna spelen</string>
+    <string name="next30_remove">Haal van Hierna spelen</string>
+    <string name="next30_on_list">Op Hierna spelen</string>
+    <string name="next30_added">%1$s staat nu op Hierna spelen</string>
+    <string name="next30_removed">%1$s staat niet meer op Hierna spelen</string>
+    <string name="next30_save_failed">Hierna spelen kon niet worden opgeslagen</string>
+    <string name="next30_state_queued">Nog niet begonnen</string>
+    <string name="next30_state_started">Bezig</string>
+    <string name="next30_state_finished">Uitgespeeld</string>
+    <string name="next30_mark_started">Markeer als bezig</string>
+    <string name="next30_mark_finished">Markeer als uitgespeeld</string>
+    <string name="next30_mark_queued">Markeer als nog niet begonnen</string>
+    <string name="next30_move_up">Omhoog</string>
+    <string name="next30_move_down">Omlaag</string>
+    <string name="next30_open_page">Open de gamepagina</string>
+    <string name="next30_on_device">Op het apparaat</string>
+    <string name="next30_not_downloaded">Nog niet op het apparaat</string>
+    <string name="next30_gone">Geen enkele bron heeft deze game nog</string>
+    <string name="next30_empty_title">Nog niets om hierna te spelen</string>
+    <string name="next30_empty_message">Zet games op de lijst vanaf hun pagina, of vanuit de suggesties onder Voor jou, en plan zo wat je hierna speelt.</string>
+    <string name="next30_empty_action">Bekijk suggesties</string>
+    <string name="next30_to_play_header">Nog te spelen</string>
+    <string name="next30_finished_header">Uitgespeeld</string>
+    <string name="next30_clear_finished">Uitgespeelde wissen</string>
+    <string name="next30_clear_title">Uitgespeelde games van de lijst halen?</string>
+    <string name="next30_for_you_title">Suggesties voor jou</string>
+    <string name="next30_for_you_intro">Gekozen op dit apparaat op basis van je favorieten, wat je speelde en downloadde, je collecties en Hierna spelen, al opgehaalde gamegegevens en bewaarde RetroAchievements-lijsten. Er wordt niets verstuurd.</string>
+    <string name="next30_for_you_empty_title">Nog geen suggesties</string>
+    <string name="next30_for_you_empty_message">Geef een paar games een ster, speel of download ze, of haal gamegegevens op in de bibliotheek, en hier verschijnen suggesties.</string>
+    <string name="next30_working">Je bibliotheek wordt doorzocht…</string>
+    <string name="next30_why_played">Omdat je %1$s speelde</string>
+    <string name="next30_why_favourite">Omdat je %1$s een ster gaf</string>
+    <string name="next30_why_up_next">Net als %1$s op je lijst Hierna spelen</string>
+    <string name="next30_why_collection">Net als %1$s in je collecties</string>
+    <string name="next30_why_downloaded">Omdat je %1$s downloadde</string>
+    <string name="next30_why_owned">Net als %1$s, dat op je apparaat staat</string>
+    <string name="next30_why_series">Uit dezelfde serie als %1$s</string>
+    <string name="next30_why_popular_players">Een van de meest gespeelde op RetroAchievements voor %1$s</string>
+    <string name="next30_why_popular_points">Een van de grootste RetroAchievements-sets voor %1$s</string>
+    <string name="next30_why_genre">%1$s, een genre dat je veel speelt</string>
+    <string name="next30_why_decade">Van %1$d tot %2$d, de jaren waar de meeste van je games uit komen</string>
+    <string name="next30_pad_options">Opties</string>
+    <string name="next30_pad_move">Omhoog / omlaag</string>
+    <string name="next30_pad_tabs">Hierna spelen / Voor jou</string>
+    <string name="next30_see_all">Alles bekijken</string>
+    <plurals name="next30_clear_message">
+        <item quantity="one">%1$d uitgespeelde game verdwijnt van de lijst. De game zelf blijft staan.</item>
+        <item quantity="other">%1$d uitgespeelde games verdwijnen van de lijst. De games zelf blijven staan.</item>
+    </plurals>
+    <plurals name="next30_why_few">
+        <item quantity="one">Je hebt maar %1$d game voor %2$s op het apparaat</item>
+        <item quantity="other">Je hebt maar %1$d games voor %2$s op het apparaat</item>
+    </plurals>
+</resources>

@@ -149,6 +149,10 @@ interface DownloadableFileDao {
     @Query("SELECT * FROM downloadable_files WHERE consoleId = :consoleId AND id > :afterId ORDER BY id LIMIT :limit")
     suspend fun planIdentityRows(consoleId: String, afterId: Long, limit: Int): List<DownloadableFileEntity>
 
+    /** 3.0 "For you": the light columns of the library in id order, one page after [afterId]. */
+    @Query("SELECT id, consoleId, fileName, name FROM downloadable_files WHERE id > :afterId ORDER BY id LIMIT :limit")
+    suspend fun lightPage(afterId: Long, limit: Int): List<LightFileRow>
+
     /** Tags of many files at once (keep [fileIds] under SQLite's 999 variables). */
     @Query("SELECT fileId, tag FROM downloadable_file_tags WHERE fileId IN (:fileIds) ORDER BY tag ASC")
     suspend fun tagsOfFiles(fileIds: List<Long>): List<FileTagRow>
@@ -342,3 +346,6 @@ data class FileTagRow(val fileId: Long, val tag: String)
 data class IndexedSource(val consoleId: String, val sourceUrl: String)
 
 data class ConsoleFileCount(val consoleId: String, val count: Int)
+
+/** The light columns read by [DownloadableFileDao.lightPage]. */
+data class LightFileRow(val id: Long, val consoleId: String, val fileName: String, val name: String)

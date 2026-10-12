@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="next30_title">A seguir</string>
+    <string name="next30_hint">A sua lista de jogos por jogar e jogos escolhidos para si da sua própria biblioteca</string>
+    <string name="next30_subtitle">O que jogar a seguir e sugestões da sua própria biblioteca</string>
+    <string name="next30_tab_up_next">A seguir</string>
+    <string name="next30_tab_for_you">Para si</string>
+    <string name="next30_add">Adicionar a «A seguir»</string>
+    <string name="next30_remove">Retirar de «A seguir»</string>
+    <string name="next30_on_list">Em «A seguir»</string>
+    <string name="next30_added">%1$s está agora em «A seguir»</string>
+    <string name="next30_removed">%1$s já não está em «A seguir»</string>
+    <string name="next30_save_failed">Não foi possível guardar «A seguir»</string>
+    <string name="next30_state_queued">Por começar</string>
+    <string name="next30_state_started">A jogar</string>
+    <string name="next30_state_finished">Terminado</string>
+    <string name="next30_mark_started">Marcar como a jogar</string>
+    <string name="next30_mark_finished">Marcar como terminado</string>
+    <string name="next30_mark_queued">Marcar como por começar</string>
+    <string name="next30_move_up">Subir</string>
+    <string name="next30_move_down">Descer</string>
+    <string name="next30_open_page">Abrir a página do jogo</string>
+    <string name="next30_on_device">No dispositivo</string>
+    <string name="next30_not_downloaded">Ainda não está no dispositivo</string>
+    <string name="next30_gone">Nenhuma fonte disponibiliza já este jogo</string>
+    <string name="next30_empty_title">Ainda nada a seguir</string>
+    <string name="next30_empty_message">Adicione jogos a partir da página deles, ou das sugestões em Para si, para planear o que vai jogar a seguir.</string>
+    <string name="next30_empty_action">Ver sugestões</string>
+    <string name="next30_to_play_header">Por jogar</string>
+    <string name="next30_finished_header">Terminados</string>
+    <string name="next30_clear_finished">Limpar terminados</string>
+    <string name="next30_clear_title">Retirar os jogos terminados?</string>
+    <string name="next30_for_you_title">Sugestões para si</string>
+    <string name="next30_for_you_intro">Escolhidas neste dispositivo a partir dos seus favoritos, do que jogou e transferiu, das suas coleções e de «A seguir», dos detalhes de jogos já obtidos e das listas do RetroAchievements guardadas. Nada é enviado.</string>
+    <string name="next30_for_you_empty_title">Ainda sem sugestões</string>
+    <string name="next30_for_you_empty_message">Marque alguns jogos com uma estrela, jogue-os ou transfira-os, ou obtenha os detalhes dos jogos na biblioteca, e as sugestões aparecem aqui.</string>
+    <string name="next30_working">A percorrer a sua biblioteca…</string>
+    <string name="next30_why_played">Porque jogou %1$s</string>
+    <string name="next30_why_favourite">Porque marcou %1$s com uma estrela</string>
+    <string name="next30_why_up_next">Como %1$s na sua lista «A seguir»</string>
+    <string name="next30_why_collection">Como %1$s nas suas coleções</string>
+    <string name="next30_why_downloaded">Porque transferiu %1$s</string>
+    <string name="next30_why_owned">Como %1$s, que está no seu dispositivo</string>
+    <string name="next30_why_series">Da mesma série que %1$s</string>
+    <string name="next30_why_popular_players">Entre os mais jogados no RetroAchievements para %1$s</string>
+    <string name="next30_why_popular_points">Um dos maiores conjuntos do RetroAchievements para %1$s</string>
+    <string name="next30_why_genre">%1$s, um género que joga muito</string>
+    <string name="next30_why_decade">De %1$d a %2$d, os anos de onde vêm a maioria dos seus jogos</string>
+    <string name="next30_pad_options">Opções</string>
+    <string name="next30_pad_move">Subir / descer</string>
+    <string name="next30_pad_tabs">A seguir / Para si</string>
+    <string name="next30_see_all">Ver tudo</string>
+    <plurals name="next30_clear_message">
+        <item quantity="one">%1$d jogo terminado sai da lista. O jogo em si não é tocado.</item>
+        <item quantity="many">%1$d jogos terminados saem da lista. Os jogos em si não são tocados.</item>
+        <item quantity="other">%1$d jogos terminados saem da lista. Os jogos em si não são tocados.</item>
+    </plurals>
+    <plurals name="next30_why_few">
+        <item quantity="one">Só tem %1$d jogo de %2$s no dispositivo</item>
+        <item quantity="many">Só tem %1$d jogos de %2$s no dispositivo</item>
+        <item quantity="other">Só tem %1$d jogos de %2$s no dispositivo</item>
+    </plurals>
+</resources>
