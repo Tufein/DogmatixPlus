@@ -138,6 +138,11 @@ class ProblemReportTest {
         assertTrue(out.contains("<redacted>"))
     }
 
+    @Test fun `cleaning twice changes nothing more`() {
+        val once = ProblemReport.clean("see https://a.example/x, /storage/emulated/0/a, primary:ROMs, me@x.org, nas.lan:8080, content://p/tree/1, magnet:?xt=1")
+        assertEquals(once, ProblemReport.clean(once))
+    }
+
     @Test fun `known secrets such as a user name are removed`() {
         val out = full(ReportText(whatHappened = "Logged in as SanderV on the RA site"), secrets = listOf("SanderV"))
         assertFalse(out.contains("SanderV"))

@@ -134,7 +134,9 @@ class ReportProblemViewModel @Inject constructor(
         val state = _ui.value
         buildJob?.cancel()
         buildJob = viewModelScope.launch {
-            val text = withContext(Dispatchers.Default) { ProblemReport.build(f, state.text, state.category, state.sections, secrets) }
+            // Without the details, no section is written rather than empty placeholders that look like facts.
+            val sections = if (state.failed) emptySet() else state.sections
+            val text = withContext(Dispatchers.Default) { ProblemReport.build(f, state.text, state.category, sections, secrets) }
             _ui.update { if (it.text == state.text && it.category == state.category && it.sections == state.sections) it.copy(preview = text, edited = false) else it }
         }
     }

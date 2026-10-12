@@ -170,7 +170,7 @@ fun ReportProblemScreen(viewModel: ReportProblemViewModel = hiltViewModel()) {
             )
         }
 
-        item { SharedSummary(ui.sections) }
+        item { SharedSummary(if (ui.failed) emptySet() else ui.sections) }
 
         item { SectionTitle(stringResource(R.string.report30_preview), modifier = Modifier.padding(top = 6.dp)) }
         item {
