@@ -1323,10 +1323,10 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Plane, was du als Nächstes spielst: eine persönliche Als-Nächstes-Liste pro Profil, in der Bibliothek und auf jeder Spielseite, plus Vorschläge, die ihre Auswahl begründen.</item>
-        <item>Prüfe deine Spielordner mit Bibliothek reparieren: leere oder abgebrochene Dateien, Disc-Sets mit fehlenden Tracks, Download-Reste und veraltete Markierungen. Alles Entfernte landet im Papierkorb und in der Wiederherstellung.</item>
-        <item>Erstelle einen privaten Problembericht in den Einstellungen oder unter Werkzeuge: Wähle den Inhalt, lies ihn und kopiere oder teile ihn. Die App sendet selbst nichts.</item>
-        <item>Alles funktioniert mit Controller und Touch, in sieben Sprachen.</item>
+        <item>Ganze Spiele kopieren oder senden: auf eine SD-Karte oder einen USB-Ordner, deinen RomM-Server oder dein NAS. Vorher siehst du jede Datei, den benötigten Platz und was schon da ist; jede Datei wird am Ziel geprüft, Spielstände bleiben zurück.</item>
+        <item>Auf einem anderen Handheld weiterspielen, von der Spielseite aus: prüft, ob Emulator und Spielstände mitkommen können, zeigt zuerst den Rückweg und sendet den Spielstand über RomM.</item>
+        <item>Die Spielstand-Synchronisierung unterstützt jetzt auch DuckStation-Memory-Cards und PPSSPP-Speicherordner.</item>
+        <item>Cover für iiSU und Daijishō sowie sechs weitere Systeme im Inhaltskatalog, jeweils mit Anbieter.</item>
     </string-array>
 
     <!-- 4.0 -->

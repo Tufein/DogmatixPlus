@@ -1324,10 +1324,10 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Plan what to play next: a personal Up next list per profile, on the Library screen and on every game page, plus suggestions that explain why they were picked.</item>
-        <item>Check your game folders with Library repair: empty or cut-off files, disc sets with missing tracks, leftover downloads and stale library marks, with every removal going to Trash and recovery.</item>
-        <item>Prepare a private problem report from Settings or Tools: choose what to include, read it, then copy or share it. Nothing is sent by the app.</item>
-        <item>Everything works with a controller and with touch, in seven languages.</item>
+        <item>Copy or send whole games to an SD card or USB folder, your RomM server or your NAS. You see every file, the space it needs and what is already there first; every file is checked at the other end and save files stay behind.</item>
+        <item>Continue on another handheld, from the game page: it checks that your emulator and saves can travel, shows the way back first and sends the save through RomM.</item>
+        <item>Save sync now also covers DuckStation memory cards and PPSSPP save folders.</item>
+        <item>Covers for iiSU and Daijishō, and six more systems in the content catalogue, each with its provider named.</item>
     </string-array>
 
     <!-- 4.0 -->

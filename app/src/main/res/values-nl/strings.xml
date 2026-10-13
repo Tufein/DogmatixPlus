@@ -1323,10 +1323,10 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Plan wat je hierna speelt: een persoonlijke lijst Hierna spelen per profiel, in de bibliotheek en op elke spelpagina, plus suggesties die uitleggen waarom ze zijn gekozen.</item>
-        <item>Controleer je spelmappen met Bibliotheek herstellen: lege of afgebroken bestanden, discsets met ontbrekende tracks, resten van downloads en verouderde bibliotheekmarkeringen. Alles wat verdwijnt gaat naar Prullenbak en herstel.</item>
-        <item>Maak een privérapport van een probleem via Instellingen of Hulpmiddelen: kies wat erin komt, lees het na en kopieer of deel het. De app verstuurt zelf niets.</item>
-        <item>Alles werkt met een controller en met touch, in zeven talen.</item>
+        <item>Kopieer of verstuur complete spellen naar een SD-kaart of USB-map, je RomM-server of je NAS. Je ziet eerst elk bestand, de benodigde ruimte en wat er al staat; elk bestand wordt aan de andere kant gecontroleerd en savebestanden blijven achter.</item>
+        <item>Verder spelen op een andere handheld, vanaf de spelpagina: controleert of je emulator en saves mee kunnen, laat eerst de weg terug zien en stuurt de save via RomM.</item>
+        <item>Save-sync ondersteunt nu ook DuckStation-geheugenkaarten en PPSSPP-savemappen.</item>
+        <item>Covers voor iiSU en Daijishō, en zes extra systemen in de inhoudscatalogus, elk met de aanbieder erbij.</item>
     </string-array>
 
     <!-- 4.0 -->

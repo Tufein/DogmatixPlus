@@ -29,7 +29,7 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 *Les captures d’écran utilisent des titres de jeux inventés et des fichiers vides de substitution, et montrent l’application en anglais.*
 
-**Dernière version : [3.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.0.0)** (build Android 42).
+**Dernière version : [3.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.1.0)** (build Android 43).
 
 ## Installation
 
@@ -73,7 +73,8 @@ Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Goo
 
 ### Jouer
 - **Jouer depuis la page du jeu** avec un émulateur compatible, mémorisé par console ou choisi par jeu, avec une **vérification de préparation** (fichiers, disques, BIOS, émulateur), une configuration guidée et un lancement d’essai.
-- **ES-DE, iiSU, Daijishō et Pegasus** : une entrée « chercher d’autres jeux » par console, plus jaquettes et descriptions dans votre lanceur.
+- **ES-DE, iiSU, Daijishō et Pegasus** : une entrée « chercher d’autres jeux » par console, plus jaquettes et descriptions dans votre lanceur ; pour iiSU et Daijishō, les jaquettes vont dans un dossier de médias que vous choisissez.
+- **Continuer sur une autre console portable** depuis la page du jeu, quand votre émulateur et vos sauvegardes peuvent suivre : le chemin du retour est montré d’abord et la sauvegarde passe par RomM.
 - **Les jeux à plusieurs disques** reçoivent automatiquement leur playlist `.m3u`.
 - **Reprendre** sur l’accueil, depuis les sauvegardes de n’importe quel appareil ou depuis ES-DE.
 
@@ -83,8 +84,9 @@ Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Goo
 - **Vérification DAT** contre No-Intro, Redump et TOSEC ; contrôle des **jeux multi-fichiers** ; **contrôle du BIOS** ; **mises à jour et DLC Switch**.
 - **Aperçu de la bibliothèque, Stockage et Statistiques** par console ; le **stockage intelligent** peut déplacer les consoles rarement jouées vers une carte SD et les rapatrier.
 - **Explorateur de fichiers** pour regarder, renommer, déplacer et décompresser ; **export** de la collection en CSV ou page web.
+- **Copier ou envoyer des jeux** : des jeux complets, avec tous leurs fichiers, vers une carte SD ou un dossier USB, votre serveur RomM ou votre NAS. Vous voyez d’abord chaque fichier, l’espace nécessaire et ce qui s’y trouve déjà ; chaque fichier est vérifié à l’arrivée, les sauvegardes restent sur l’appareil et rien n’est remplacé.
 - **Contrôle de santé** avec une solution par problème, et **rapport d’analyse** pour les sources en échec.
-- **Sources** : ajout manuel, import et export, partage par codes QR, catalogue de contenus Libretro optionnel pour 23 systèmes, adresses de secours et analyses automatiques en arrière-plan qui sautent ce qui n’a pas changé.
+- **Sources** : ajout manuel, import et export, partage par codes QR, catalogue de contenus optionnel pour 29 systèmes, chacun avec son fournisseur, adresses de secours et analyses automatiques en arrière-plan qui sautent ce qui n’a pas changé.
 
 ### Sûr par conception
 - **Corbeille et centre de récupération** : jeux retirés, déplacements interrompus, fichiers remplacés et sauvegardes se restaurent, chacun avec un aperçu. Les copies sont vérifiées avant tout retrait.
@@ -93,8 +95,8 @@ Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Goo
 - **Signaler un problème** crée un rapport privé et modifiable dont vous choisissez le contenu ; chemins, adresses de serveur, clés et jetons sont retirés et l’application n’envoie rien.
 
 ### Cloud et synchronisation
-- **RomM** : envoyer les téléchargements terminés, l’utiliser comme source, voir jeux, genres et captures, synchroniser statut de jeu, note et favoris, récupérer les BIOS manquants.
-- **Synchro des sauvegardes et sauvegardes cloud** : vos sauvegardes voyagent entre consoles et RomM ; en cas de conflit on vous demande, et les copies remplacées sont gardées 30 jours.
+- **RomM** : envoyer les téléchargements terminés et des jeux complets en plusieurs fichiers, l’utiliser comme source, voir jeux, genres et captures, synchroniser statut de jeu, note et favoris, récupérer les BIOS manquants.
+- **Synchro des sauvegardes et sauvegardes cloud** : vos sauvegardes voyagent entre consoles et RomM, y compris les cartes mémoire DuckStation et les dossiers de sauvegarde PPSSPP ; en cas de conflit on vous demande, et les copies remplacées sont gardées 30 jours.
 - **Votre propre cloud (WebDAV)** : sauvegardes chiffrées (Nextcloud, ownCloud, Synology et autres) et synchro d’appareils pour favoris, liste de souhaits et collections.
 - **RetroAchievements** : progression et badges par jeu, votre profil et les jeux qui ont des succès.
 

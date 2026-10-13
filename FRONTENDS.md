@@ -214,6 +214,20 @@ right after the download (Settings):
   image is libretro-thumbnails' own PNG, so it matches what RetroArch would download itself;
   consoles libretro-thumbnails does not have get none.
 
+## Covers for iiSU and Daijishō
+
+*Tools → Covers for iiSU and Daijishō* writes a cover for every game on the device into a media
+folder you pick, one folder per console folder:
+
+- `<console folder>/<game file name without extension>.png` (the usual choice), or
+- `<console folder>/<game file name with extension>.png`, for a launcher that matches artwork on
+  the whole file name.
+
+Pick the folder your launcher reads local cover images from. You see how many covers will be
+written and where before anything happens; images that are already there are kept unless you
+switch on *Replace covers that are already there*. The covers come from the same places as the
+rest of the app (your RomM server, libretro-thumbnails, earlier lookups).
+
 ## Any other launcher
 
 Anything that can fire an Android intent works:

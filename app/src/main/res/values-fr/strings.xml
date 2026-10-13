@@ -1328,10 +1328,10 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Planifiez ce que vous jouerez ensuite : une liste À suivre personnelle par profil, dans la bibliothèque et sur chaque page de jeu, avec des suggestions qui expliquent leur choix.</item>
-        <item>Vérifiez vos dossiers de jeux avec Réparer la bibliothèque : fichiers vides ou tronqués, jeux multi-disques avec pistes manquantes, restes de téléchargements et repères périmés. Tout ce qui est retiré va dans la corbeille et la récupération.</item>
-        <item>Préparez un rapport de problème privé depuis les réglages ou les outils : choisissez son contenu, relisez-le, puis copiez-le ou partagez-le. L’application n’envoie rien.</item>
-        <item>Tout fonctionne à la manette et au toucher, en sept langues.</item>
+        <item>Copiez ou envoyez des jeux complets vers une carte SD ou un dossier USB, votre serveur RomM ou votre NAS. Vous voyez d’abord chaque fichier, l’espace nécessaire et ce qui s’y trouve déjà ; chaque fichier est vérifié à l’arrivée et les sauvegardes restent sur l’appareil.</item>
+        <item>Continuer sur une autre console portable, depuis la page du jeu : vérifie que votre émulateur et vos sauvegardes peuvent suivre, montre d’abord le chemin du retour et envoie la sauvegarde via RomM.</item>
+        <item>La synchronisation des sauvegardes prend désormais en charge les cartes mémoire DuckStation et les dossiers de sauvegarde PPSSPP.</item>
+        <item>Des jaquettes pour iiSU et Daijishō, et six systèmes de plus dans le catalogue de contenu, chacun avec son fournisseur.</item>
     </string-array>
 
     <!-- 4.0 -->

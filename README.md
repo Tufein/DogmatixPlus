@@ -29,7 +29,7 @@ The app includes no games. **Sources → More romsets** offers optional Libretro
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [3.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.0.0)** (Android build 42).
+**Latest release: [3.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.1.0)** (Android build 43).
 
 ## Install
 
@@ -73,7 +73,8 @@ You need **Android 10 or newer**. The app is not on Google Play.
 
 ### Play
 - **Play from the game page** with a compatible emulator, remembered per console or chosen per game, with a **readiness check** (files, discs, BIOS, emulator), a guided setup and a test launch.
-- **ES-DE, iiSU, Daijishō and Pegasus**: a "search for more games" entry per console, plus covers and descriptions written into your launcher.
+- **ES-DE, iiSU, Daijishō and Pegasus**: a "search for more games" entry per console, plus covers and descriptions written into your launcher; for iiSU and Daijishō covers go into a media folder you pick.
+- **Continue on another handheld** from the game page, when your emulator and saves can travel: it shows the way back first and the save goes through RomM.
 - **Multi-disc games** get their `.m3u` playlist automatically.
 - **Continue playing** on Home, from saves on any device or from ES-DE.
 
@@ -83,8 +84,9 @@ You need **Android 10 or newer**. The app is not on Google Play.
 - **DAT check** against No-Intro, Redump and TOSEC; **Game sets** check; **BIOS check**; **Switch updates and DLC**.
 - **Library overview, Storage and Statistics** per console; **Smart storage** can move rarely played consoles to an SD card and back.
 - **File explorer** to look, rename, move and unpack; **export** your collection as CSV or a web page.
+- **Copy or send games**: whole games with every file to an SD card or USB folder, your RomM server or your NAS. You first see every file, the space needed and what is already there; every file is checked at the other end, save files stay behind and nothing is replaced.
 - **Health check** with a fix per problem, and a **scan report** for sources that failed.
-- **Sources**: add by hand, import and export, share as QR codes, optional Libretro content catalogue for 23 systems, reserve addresses and automatic background scans that skip what did not change.
+- **Sources**: add by hand, import and export, share as QR codes, optional content catalogue for 29 systems with the provider named for each, reserve addresses and automatic background scans that skip what did not change.
 
 ### Safe by design
 - **Trash and recovery center**: removed games, interrupted moves, replaced files and save backups can be restored, each with a preview. Copies are verified before anything is removed.
@@ -93,8 +95,8 @@ You need **Android 10 or newer**. The app is not on Google Play.
 - **Report a problem** builds a private, editable report you choose what goes into; paths, server addresses, keys and tokens are removed and nothing is sent by the app.
 
 ### Cloud and sync
-- **RomM**: send finished downloads, use it as a source, see games, genres and screenshots, sync play status, rating and favourites, fetch missing BIOS files.
-- **Save sync and cloud saves**: your saves and save states travel between handhelds and RomM; conflicts ask you, and replaced copies are kept for 30 days.
+- **RomM**: send finished downloads and whole multi-file games, use it as a source, see games, genres and screenshots, sync play status, rating and favourites, fetch missing BIOS files.
+- **Save sync and cloud saves**: your saves and save states travel between handhelds and RomM, including DuckStation memory cards and PPSSPP save folders; conflicts ask you, and replaced copies are kept for 30 days.
 - **Your own cloud (WebDAV)**: encrypted backups (Nextcloud, ownCloud, Synology and others) and device sync of favourites, wishlist and collections.
 - **RetroAchievements**: progress and badges per game, your profile, and which games have achievements.
 

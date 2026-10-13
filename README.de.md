@@ -29,7 +29,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 *Die Screenshots verwenden erfundene Spieltitel und leere Platzhalterdateien und zeigen die App auf Englisch.*
 
-**Neueste Version: [3.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.0.0)** (Android-Build 42).
+**Neueste Version: [3.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.1.0)** (Android-Build 43).
 
 ## Installation
 
@@ -73,7 +73,8 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 
 ### Spielen
 - **Spielen von der Spielseite** mit einem passenden Emulator, pro Konsole gemerkt oder pro Spiel gewählt, mit einer **Bereitschaftsprüfung** (Dateien, Discs, BIOS, Emulator), geführter Einrichtung und Teststart.
-- **ES-DE, iiSU, Daijishō und Pegasus**: ein Eintrag „Mehr Spiele suchen“ je Konsole sowie Cover und Beschreibungen in deinem Launcher.
+- **ES-DE, iiSU, Daijishō und Pegasus**: ein Eintrag „Mehr Spiele suchen“ je Konsole sowie Cover und Beschreibungen in deinem Launcher; für iiSU und Daijishō landen die Cover in einem Medienordner, den du wählst.
+- **Auf einem anderen Handheld weiterspielen** von der Spielseite aus, wenn Emulator und Spielstände mitkommen können: zuerst wird der Rückweg gezeigt, der Spielstand geht über RomM.
 - **Mehr-Disc-Spiele** bekommen automatisch ihre `.m3u`-Playlist.
 - **Weiterspielen** auf der Startseite, aus Spielständen auf jedem Gerät oder aus ES-DE.
 
@@ -83,8 +84,9 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 - **DAT-Prüfung** gegen No-Intro, Redump und TOSEC; **Spielsets**-Prüfung; **BIOS-Prüfung**; **Switch-Updates und DLC**.
 - **Bibliotheksübersicht, Speicher und Statistik** je Konsole; **Intelligenter Speicher** kann selten gespielte Konsolen auf eine SD-Karte und zurück verschieben.
 - **Dateimanager** zum Ansehen, Umbenennen, Verschieben und Entpacken; **Export** der Sammlung als CSV oder Webseite.
+- **Spiele kopieren oder senden**: ganze Spiele mit allen Dateien auf eine SD-Karte oder einen USB-Ordner, deinen RomM-Server oder dein NAS. Vorher siehst du jede Datei, den nötigen Platz und was schon da ist; jede Datei wird am Ziel geprüft, Spielstände bleiben zurück und nichts wird ersetzt.
 - **Gesundheitsprüfung** mit einer Lösung pro Problem und ein **Scanbericht** für fehlgeschlagene Quellen.
-- **Quellen**: von Hand hinzufügen, importieren und exportieren, als QR-Codes teilen, optionaler Libretro-Inhaltskatalog für 23 Systeme, Reserveadressen und automatische Hintergrundscans, die Unverändertes überspringen.
+- **Quellen**: von Hand hinzufügen, importieren und exportieren, als QR-Codes teilen, optionaler Inhaltskatalog für 29 Systeme, jeweils mit Anbieter, Reserveadressen und automatische Hintergrundscans, die Unverändertes überspringen.
 
 ### Sicher gebaut
 - **Papierkorb und Wiederherstellungscenter**: entfernte Spiele, unterbrochene Verschiebungen, ersetzte Dateien und Spielstand-Backups lassen sich wiederherstellen, jeweils mit Vorschau. Kopien werden geprüft, bevor etwas entfernt wird.
@@ -93,8 +95,8 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 - **Problem melden** erstellt einen privaten, bearbeitbaren Bericht, dessen Inhalt du wählst; Pfade, Serveradressen, Schlüssel und Tokens werden entfernt, und die App sendet nichts.
 
 ### Cloud und Sync
-- **RomM**: fertige Downloads senden, als Quelle nutzen, Spiele, Genres und Screenshots sehen, Spielstatus, Bewertung und Favoriten abgleichen, fehlende BIOS-Dateien holen.
-- **Spielstand-Sync und Cloud-Saves**: Spielstände und Savestates wandern zwischen Handhelds und RomM; bei Konflikten wirst du gefragt, ersetzte Kopien bleiben 30 Tage erhalten.
+- **RomM**: fertige Downloads und ganze Spiele aus mehreren Dateien senden, als Quelle nutzen, Spiele, Genres und Screenshots sehen, Spielstatus, Bewertung und Favoriten abgleichen, fehlende BIOS-Dateien holen.
+- **Spielstand-Sync und Cloud-Saves**: Spielstände und Savestates wandern zwischen Handhelds und RomM, auch DuckStation-Memory-Cards und PPSSPP-Speicherordner; bei Konflikten wirst du gefragt, ersetzte Kopien bleiben 30 Tage erhalten.
 - **Deine eigene Cloud (WebDAV)**: verschlüsselte Backups (Nextcloud, ownCloud, Synology und andere) und Geräte-Sync von Favoriten, Wunschliste und Sammlungen.
 - **RetroAchievements**: Fortschritt und Abzeichen je Spiel, dein Profil und welche Spiele Erfolge haben.
 

@@ -1297,10 +1297,10 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Planifica qué jugar después: una lista A continuación personal por perfil, en la biblioteca y en cada página de juego, con sugerencias que explican por qué se eligieron.</item>
-        <item>Revisa tus carpetas de juegos con Reparar biblioteca: archivos vacíos o cortados, juegos de discos con pistas que faltan, restos de descargas y marcas desactualizadas. Todo lo que se retira va a la papelera y recuperación.</item>
-        <item>Prepara un informe privado de un problema desde los ajustes o las herramientas: elige qué incluir, léelo y cópialo o compártelo. La aplicación no envía nada.</item>
-        <item>Todo funciona con mando y con pantalla táctil, en siete idiomas.</item>
+        <item>Copia o envía juegos completos a una tarjeta SD o carpeta USB, tu servidor RomM o tu NAS. Antes ves cada archivo, el espacio necesario y lo que ya hay; cada archivo se comprueba en el destino y las partidas guardadas se quedan en el dispositivo.</item>
+        <item>Seguir en otra consola portátil, desde la página del juego: comprueba que tu emulador y tus partidas pueden viajar, muestra primero el camino de vuelta y envía la partida a través de RomM.</item>
+        <item>La sincronización de partidas ahora también incluye las tarjetas de memoria de DuckStation y las carpetas de guardado de PPSSPP.</item>
+        <item>Carátulas para iiSU y Daijishō, y seis sistemas más en el catálogo de contenido, cada uno con su proveedor.</item>
     </string-array>
 
     <!-- 4.0 -->

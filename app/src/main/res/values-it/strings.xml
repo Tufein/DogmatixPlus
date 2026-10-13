@@ -1274,10 +1274,10 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Pianifica cosa giocare dopo: una lista Prossimi personale per profilo, nella libreria e in ogni pagina di gioco, con suggerimenti che spiegano perché sono stati scelti.</item>
-        <item>Controlla le cartelle dei giochi con Ripara libreria: file vuoti o troncati, set di dischi con tracce mancanti, resti di download e contrassegni obsoleti. Tutto ciò che viene rimosso va nel cestino e ripristino.</item>
-        <item>Prepara un rapporto privato su un problema da Impostazioni o Strumenti: scegli cosa includere, leggilo e copialo o condividilo. L\'app non invia nulla.</item>
-        <item>Tutto funziona con il controller e con il tocco, in sette lingue.</item>
+        <item>Copia o invia giochi completi su una scheda SD o cartella USB, il tuo server RomM o il tuo NAS. Prima vedi ogni file, lo spazio necessario e cosa c’è già; ogni file viene verificato a destinazione e i salvataggi restano sul dispositivo.</item>
+        <item>Continua su un’altra console portatile, dalla pagina del gioco: controlla che emulatore e salvataggi possano viaggiare, mostra prima la strada del ritorno e invia il salvataggio tramite RomM.</item>
+        <item>La sincronizzazione dei salvataggi ora supporta anche le memory card di DuckStation e le cartelle di salvataggio di PPSSPP.</item>
+        <item>Copertine per iiSU e Daijishō, e sei sistemi in più nel catalogo dei contenuti, ognuno con il suo fornitore.</item>
     </string-array>
 
     <!-- 4.0 -->

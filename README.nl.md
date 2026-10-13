@@ -29,7 +29,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [3.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.0.0)** (Android build 42).
+**Laatste release: [3.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.1.0)** (Android build 43).
 
 ## Installeren
 
@@ -73,7 +73,8 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 
 ### Spelen
 - **Spelen vanaf de gamepagina** met een geschikte emulator, onthouden per console of per game gekozen, met een **gereedheidscontrole** (bestanden, discs, BIOS, emulator), een begeleide installatie en een testlancering.
-- **ES-DE, iiSU, Daijishō en Pegasus**: een invoer "zoek meer games" per console, plus covers en beschrijvingen in je launcher.
+- **ES-DE, iiSU, Daijishō en Pegasus**: een invoer "zoek meer games" per console, plus covers en beschrijvingen in je launcher; voor iiSU en Daijishō komen de covers in een mediamap die je zelf kiest.
+- **Verder spelen op een andere handheld** vanaf de spelpagina, als je emulator en saves mee kunnen: je ziet eerst de weg terug en de save gaat via RomM.
 - **Games met meerdere discs** krijgen automatisch hun `.m3u`-afspeellijst.
 - **Verder spelen** op Home, vanuit saves op elk toestel of vanuit ES-DE.
 
@@ -83,8 +84,9 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 - **DAT-controle** tegen No-Intro, Redump en TOSEC; controle van **gamesets**; **BIOS-controle**; **Switch-updates en DLC**.
 - **Bibliotheekoverzicht, Opslag en Statistieken** per console; **Slimme opslag** kan zelden gespeelde consoles naar een SD-kaart verplaatsen en terug.
 - **Bestandsverkenner** om te kijken, hernoemen, verplaatsen en uitpakken; **exporteer** je collectie als CSV of webpagina.
+- **Spellen kopiëren of versturen**: complete spellen met alle bestanden naar een SD-kaart of USB-map, je RomM-server of je NAS. Je ziet eerst elk bestand, de benodigde ruimte en wat er al staat; elk bestand wordt aan de andere kant gecontroleerd, savebestanden blijven achter en er wordt niets vervangen.
 - **Gezondheidscontrole** met een oplossing per probleem, en een **scanrapport** voor bronnen die mislukten.
-- **Bronnen**: met de hand toevoegen, importeren en exporteren, delen als QR-codes, optionele Libretro-inhoudscatalogus voor 23 systemen, reserveadressen en automatische achtergrondscans die overslaan wat niet veranderde.
+- **Bronnen**: met de hand toevoegen, importeren en exporteren, delen als QR-codes, optionele inhoudscatalogus voor 29 systemen, steeds met de aanbieder erbij, reserveadressen en automatische achtergrondscans die overslaan wat niet veranderde.
 
 ### Veilig ontworpen
 - **Prullenbak en herstelcentrum**: verwijderde games, onderbroken verplaatsingen, vervangen bestanden en savebackups zijn te herstellen, telkens met een voorbeeld. Kopieën worden gecontroleerd voordat iets wordt verwijderd.
@@ -93,8 +95,8 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 - **Probleem melden** maakt een privé, bewerkbaar rapport waarvan jij kiest wat erin komt; paden, serveradressen, sleutels en tokens worden verwijderd en de app verstuurt niets.
 
 ### Cloud en synchronisatie
-- **RomM**: verstuur voltooide downloads, gebruik het als bron, zie games, genres en schermafbeeldingen, synchroniseer speelstatus, beoordeling en favorieten, haal ontbrekende BIOS-bestanden op.
-- **Savesynchronisatie en cloudsaves**: je saves en savestates reizen tussen handhelds en RomM; bij conflicten word je gevraagd en vervangen kopieën blijven 30 dagen bewaard.
+- **RomM**: verstuur voltooide downloads en complete spellen met meerdere bestanden, gebruik het als bron, zie games, genres en schermafbeeldingen, synchroniseer speelstatus, beoordeling en favorieten, haal ontbrekende BIOS-bestanden op.
+- **Savesynchronisatie en cloudsaves**: je saves en savestates reizen tussen handhelds en RomM, ook DuckStation-geheugenkaarten en PPSSPP-savemappen; bij conflicten word je gevraagd en vervangen kopieën blijven 30 dagen bewaard.
 - **Je eigen cloud (WebDAV)**: versleutelde back-ups (Nextcloud, ownCloud, Synology en andere) en toestelsynchronisatie van favorieten, verlanglijst en collecties.
 - **RetroAchievements**: voortgang en badges per game, je profiel, en welke games achievements hebben.
 
