@@ -64,13 +64,17 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     object UpNext : NavRoutes("up_next", R.string.next30_title, R.drawable.ic_playlist_play)
     object LibraryRepair : NavRoutes(com.cortinadev.dogmatix.ui.screens.tools.LIBRARY_REPAIR_ROUTE, R.string.repair30_title, R.drawable.ic_build)
     object ReportProblem : NavRoutes("report_problem", R.string.report30_title, R.drawable.ic_bug)
+    /** 3.1.0: whole games to a folder, RomM or the NAS, with a preview and a check of every file. */
+    object GameTransfer : NavRoutes(com.cortinadev.dogmatix.ui.screens.tools.GAME_TRANSFER_ROUTE, R.string.transfer31_title, R.drawable.ic_file_export)
+    /** 3.1.0: cover images for iiSU and Daijishō in a media folder the user picks. */
+    object FrontendCovers : NavRoutes(com.cortinadev.dogmatix.ui.screens.tools.FRONTEND_COVERS_ROUTE, R.string.covers31_title, R.drawable.ic_image)
 
     object SearchAll : NavRoutes("search_all", R.string.find8_title, R.drawable.ic_search)
 
     companion object {
         /** The four sections shown as tabs; Contact, RomM and the library tools are reached from Settings. */
         val tabs by lazy { listOf(Home, Downloads, Sources, Settings) }
-        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions + FreeSpace + SearchAll + Recovery + PackageTransfer + ActionHistory + VersionPreference + UpNext + LibraryRepair + ReportProblem }
+        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions + FreeSpace + SearchAll + Recovery + PackageTransfer + ActionHistory + VersionPreference + UpNext + LibraryRepair + ReportProblem + GameTransfer + FrontendCovers }
     }
 }
 

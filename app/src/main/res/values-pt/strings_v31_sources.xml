@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Catálogo de conteúdos: fornecedores e correspondência de consolas -->
+    <string name="src31_hint">Escolha coleções de conteúdo gratuito de fornecedores verificados. Contêm homebrew, demos e software de teste, não ROM sets comerciais completos. Cada coleção vai para a consola correspondente que já tem, ou para uma nova. As fontes existentes mantêm-se.</string>
+    <string name="src31_all_providers">Todos os fornecedores</string>
+    <string name="src31_search">Procurar consola ou fornecedor</string>
+    <string name="src31_provider_site">Site: %1$s</string>
+    <string name="src31_provider_list">Lista de conteúdos: %1$s</string>
+    <string name="src31_provider_checked">Listas verificadas em %1$s</string>
+    <string name="src31_licence_published">Conteúdo gratuito que o próprio fornecedor disponibiliza para transferir: homebrew, freeware, demos e software de teste.</string>
+    <string name="src31_licence_public_domain">Colocado no domínio público pelos autores.</string>
+    <string name="src31_licence_free">Publicado pelos autores com uma licença livre que permite a partilha.</string>
+    <string name="src31_entry_files">%1$s · %2$d ficheiros na última verificação</string>
+    <string name="src31_maps_existing">Vai para a sua consola %1$s</string>
+    <string name="src31_maps_new">Adiciona uma nova consola: %1$s</string>
+
+    <!-- Capas para iiSU e Daijishō -->
+    <string name="covers31_title">Capas para iiSU e Daijishō</string>
+    <string name="covers31_subtitle">Coloque as capas onde estes launchers as podem mostrar</string>
+    <string name="covers31_hint">Escreva as capas dos seus jogos na pasta de onde o iiSU ou o Daijishō as lê</string>
+    <string name="covers31_kw">artwork, boxart, capas, imagens, multimédia, miniaturas, iisu, daijisho</string>
+    <string name="covers31_what_title">Capas para o seu launcher</string>
+    <string name="covers31_what_body">O Dogmatix+ coloca uma capa por jogo numa pasta à sua escolha, com uma subpasta por consola com o mesmo nome das suas pastas de consolas. As capas vêm do seu servidor RomM, das miniaturas do libretro ou de capas encontradas antes, e são guardadas em PNG. As imagens que já lá estão são mantidas, a não ser que escolha substituí-las.</string>
+    <string name="covers31_section_frontend">Launcher</string>
+    <string name="covers31_section_folder">Pasta das capas</string>
+    <string name="covers31_folder_title">Pasta das capas para %1$s</string>
+    <string name="covers31_folder_none">Ainda não escolheu uma pasta</string>
+    <string name="covers31_folder_not_writable">Já não é possível escrever nesta pasta. Escolha-a novamente.</string>
+    <string name="covers31_needs_folder">Escolher de novo</string>
+    <string name="covers31_pick">Escolher pasta</string>
+    <string name="covers31_change">Alterar</string>
+    <string name="covers31_hint_iisu">No iiSU, veja de que pasta ele lê as capas e escolha aqui essa mesma pasta.</string>
+    <string name="covers31_hint_daijisho">No Daijishō, veja de que pasta as suas plataformas leem as capas locais e escolha aqui essa mesma pasta.</string>
+    <string name="covers31_section_names">Nomes de ficheiro</string>
+    <string name="covers31_layout_stem">Nome sem extensão</string>
+    <string name="covers31_layout_stem_hint">Por exemplo %1$s. A escolha habitual.</string>
+    <string name="covers31_layout_full">Nome de ficheiro completo</string>
+    <string name="covers31_layout_full_hint">Por exemplo %1$s. Para um launcher que associa as capas ao nome de ficheiro inteiro, incluindo a extensão.</string>
+    <string name="covers31_overwrite_title">Substituir capas que já existem</string>
+    <string name="covers31_overwrite_hint">Desligado: as imagens que já estão na pasta nunca são alteradas. Ligado: uma capa com exatamente o mesmo nome é substituída.</string>
+    <string name="covers31_section_preview">Pré-visualização</string>
+    <string name="covers31_preview_loading">A calcular o que seria escrito…</string>
+    <string name="covers31_preview_failed">Não foi possível criar a pré-visualização. Verifique se as pastas dos jogos e a pasta das capas estão acessíveis e atualize.</string>
+    <string name="covers31_preview_no_folder">Escolha primeiro a pasta das capas.</string>
+    <string name="covers31_preview_no_games">Ainda não foram encontrados jogos nas suas pastas de jogos.</string>
+    <string name="covers31_preview_nothing">Todos os jogos já têm capa nesta pasta. Não há nada para escrever.</string>
+    <plurals name="covers31_preview_count">
+        <item quantity="one">Será escrita até %1$s capa em %2$s</item>
+        <item quantity="many">Serão escritas até %1$s capas em %2$s</item>
+        <item quantity="other">Serão escritas até %1$s capas em %2$s</item>
+    </plurals>
+    <string name="covers31_preview_example">Em %1$s pastas de consolas, por exemplo: %2$s</string>
+    <string name="covers31_preview_replace">Serão substituídas %1$s capas com o mesmo nome.</string>
+    <string name="covers31_preview_sources">Os jogos sem capa em nenhuma fonte são ignorados; o resultado mostra quantos.</string>
+    <string name="covers31_preview_kept">%1$s jogos já têm capa nesse local; essas são mantidas.</string>
+    <string name="covers31_preview_skipped">%1$s jogos são ignorados: o nome não pode ser usado como ficheiro de capa, ou outro jogo já o usa.</string>
+    <string name="covers31_preview_outside">%1$s jogos não estão numa pasta de consola e são ignorados.</string>
+    <string name="covers31_preview_profile">Só são incluídos os jogos que este perfil mostra.</string>
+    <string name="covers31_write">Escrever capas</string>
+    <string name="covers31_refresh">Atualizar pré-visualização</string>
+    <string name="covers31_stop">Parar</string>
+    <string name="covers31_preparing">A ler a sua biblioteca…</string>
+    <string name="covers31_running">A escrever capas: %1$s de %2$s</string>
+    <string name="covers31_result_title">Capas escritas</string>
+    <string name="covers31_result_stopped">Parado. O que foi escrito mantém-se.</string>
+    <string name="covers31_result_written">Capas novas: %1$s</string>
+    <string name="covers31_result_replaced">Substituídas: %1$s</string>
+    <string name="covers31_result_kept">Já tinham capa: %1$s</string>
+    <string name="covers31_result_nocover">Nenhuma capa encontrada: %1$s</string>
+    <string name="covers31_result_failed">Não foi possível escrever: %1$s</string>
+    <string name="covers31_problem_failed">Não foi possível escrever as capas. Verifique se as pastas estão acessíveis e tente novamente.</string>
+</resources>

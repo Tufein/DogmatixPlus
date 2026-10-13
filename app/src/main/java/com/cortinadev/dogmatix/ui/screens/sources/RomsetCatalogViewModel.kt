@@ -38,9 +38,15 @@ class RomsetCatalogViewModel @Inject constructor(
     private val mutableState = MutableStateFlow(RomsetCatalogState())
     val state = mutableState.asStateFlow()
     private val adding = AtomicBoolean(false)
+    /** Every source address already set up (any console), without the trailing slash. */
     val known = sources.manufacturers.map { makers -> makers.flatMap { maker ->
-        maker.consoles.flatMap { console -> console.urls.map { console.id to it.url.trimEnd('/') } }
+        maker.consoles.flatMap { console -> console.urls.map { it.url.trimEnd('/') } }
     }.toSet() }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
+
+    /** The user's consoles, for showing where each entry would go ([RomsetCatalog.mapConsole]). */
+    val consoles = sources.manufacturers.map { makers -> makers.flatMap { maker ->
+        maker.consoles.map { RomsetCatalog.ConsoleRef(it.id, it.name, it.shortName, it.folderAliases) }
+    } }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     init { reload() }
 
@@ -60,10 +66,11 @@ class RomsetCatalogViewModel @Inject constructor(
         }
     }
 
-    fun add(ids: Set<String>) {
+    /** Adds the entries with these [RomsetCatalog.Entry.key]s and scans them. */
+    fun add(keys: Set<String>) {
         val catalog = state.value.catalog ?: return
-        val choices = catalog.entries.filter { it.id in ids }
-        if (choices.isEmpty() || choices.size != ids.size || !adding.compareAndSet(false, true)) return
+        val choices = catalog.entries.filter { it.key in keys }
+        if (choices.isEmpty() || choices.size != keys.size || !adding.compareAndSet(false, true)) return
         mutableState.value = state.value.copy(busy = true, failed = false, added = null)
         viewModelScope.launch {
             try {

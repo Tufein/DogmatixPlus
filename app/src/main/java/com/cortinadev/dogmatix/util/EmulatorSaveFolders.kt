@@ -19,25 +19,64 @@ data class EmulatorSaveFolder(
     /** RomM platform names this folder's games are on, normalized ("nds"). Empty = no hint. */
     val platforms: Set<String>,
     /** Picked folder (Storage Access Framework tree URI). */
-    val uri: String
+    val uri: String,
+    /** How the emulator keeps its saves there (one file per game, memory cards, save folders). */
+    val layout: SaveFolderLayout = SaveFolderLayout.FILES,
+    /**
+     * DuckStation's shared memory cards are synced only once the user picks a RomM game to keep
+     * them with (RomM stores every save with a game): its id and name, null = not synced.
+     */
+    val sharedCardsRomId: Int? = null,
+    val sharedCardsRomName: String = ""
 )
 
 object EmulatorSaveFolders {
-    /** Emulators whose save files are named after the ROM, so the sync can tie them to a game. */
-    data class Preset(val label: String, val platforms: Set<String>, val folderHint: String)
+    /**
+     * Emulators whose saves the sync can tie to a game: files named after the ROM, DuckStation's
+     * memory cards and PPSSPP's save folders ([layout]). [emulatorId] is the app in [EmulatorCatalog].
+     */
+    data class Preset(
+        val label: String,
+        val platforms: Set<String>,
+        val folderHint: String,
+        val layout: SaveFolderLayout = SaveFolderLayout.FILES,
+        val emulatorId: String? = null
+    )
 
     val presets: List<Preset> = listOf(
-        Preset("DraStic (standalone)", setOf("nds"), "DraStic/backup"),
-        Preset("melonDS (standalone)", setOf("nds"), "melonDS saves folder"),
+        Preset("DraStic (standalone)", setOf("nds"), "DraStic/backup", emulatorId = "drastic"),
+        Preset("melonDS (standalone)", setOf("nds"), "melonDS saves folder", emulatorId = "melonds"),
         Preset("mGBA (standalone)", setOf("gba", "gbc", "gb"), "mGBA saves folder"),
-        Preset("Pizza Boy GBA", setOf("gba"), "PizzaBoyGBA/saves"),
-        Preset("Pizza Boy GBC", setOf("gbc", "gb"), "PizzaBoyGBC/saves"),
-        Preset("GBA.emu", setOf("gba"), "GBA.emu saves"),
-        Preset("GBC.emu", setOf("gbc", "gb"), "GBC.emu saves"),
-        Preset("Snes9x EX+", setOf("snes", "sfc"), "Snes9x EX+ saves"),
-        Preset("NES.emu", setOf("nes", "famicom"), "NES.emu saves"),
-        Preset("MD.emu", setOf("genesis", "megadrive", "md", "genesisslashmegadrive"), "MD.emu saves")
+        Preset("Pizza Boy GBA", setOf("gba"), "PizzaBoyGBA/saves", emulatorId = "pizza_boy_gba"),
+        Preset("Pizza Boy GBC", setOf("gbc", "gb"), "PizzaBoyGBC/saves", emulatorId = "pizza_boy_gbc"),
+        Preset("GBA.emu", setOf("gba"), "GBA.emu saves", emulatorId = "gba_emu"),
+        Preset("GBC.emu", setOf("gbc", "gb"), "GBC.emu saves", emulatorId = "gbc_emu"),
+        Preset("Snes9x EX+", setOf("snes", "sfc"), "Snes9x EX+ saves", emulatorId = "snes9x_explus"),
+        Preset("NES.emu", setOf("nes", "famicom"), "NES.emu saves", emulatorId = "nes_emu"),
+        Preset("MD.emu", setOf("genesis", "megadrive", "md", "genesisslashmegadrive"), "MD.emu saves", emulatorId = "md_emu"),
+        Preset("DuckStation (standalone)", setOf("psx", "ps", "ps1", "playstation"), "DuckStation/memcards", SaveFolderLayout.MEMCARDS, "duckstation"),
+        Preset("PPSSPP (standalone)", setOf("psp", "playstationportable"), "PSP/SAVEDATA", SaveFolderLayout.SAVEDATA, "ppsspp")
     )
+
+    /** The preset a folder was added with: its label is the preset's, or the preset's with a number ("DraStic 2"). */
+    fun presetOf(folder: EmulatorSaveFolder): Preset? = presets.firstOrNull { p ->
+        folder.label.equals(p.label, ignoreCase = true) ||
+            (folder.label.startsWith(p.label + " ", ignoreCase = true) && folder.label.substring(p.label.length + 1).all { it.isDigit() })
+    }
+
+    /** The picked folders of the app [emulatorId] (in [EmulatorCatalog]) that hold games of [consoleId]. */
+    fun foldersFor(emulatorId: String, consoleId: String, folders: List<EmulatorSaveFolder>): List<EmulatorSaveFolder> =
+        folders.filter { folder -> presetOf(folder)?.emulatorId == emulatorId && (folder.platforms.isEmpty() || platformFits(consoleId, folder.platforms)) }
+
+    /**
+     * Whether a game of [consoleId] (a library console id such as `sony_playstation`) is on one of
+     * the folder platforms [hints] (RomM's short names such as `psx`).
+     */
+    fun platformFits(consoleId: String, hints: Set<String>): Boolean {
+        if (ConsoleFolderAliases.normalize(consoleId) in hints) return true
+        val system = EmulatorCatalog.systemOf(consoleId) ?: return false
+        return hints.any { EmulatorCatalog.systemOf(it) == system }
+    }
 
     /** A folder name RomM accepts as *emulator* (see [SaveSyncPlanner.emulatorFor]); blank when none is left. */
     fun cleanLabel(name: String): String =
@@ -66,6 +105,8 @@ object EmulatorSaveFolders {
                 addProperty("label", f.label)
                 add("platforms", JsonArray().apply { f.platforms.sorted().forEach(::add) })
                 addProperty("uri", f.uri)
+                if (f.layout != SaveFolderLayout.FILES) addProperty("layout", f.layout.name)
+                f.sharedCardsRomId?.let { addProperty("sharedCardsRomId", it); addProperty("sharedCardsRomName", f.sharedCardsRomName) }
             })
         }
     }.toString()
@@ -75,7 +116,14 @@ object EmulatorSaveFolders {
             val o = el.asJsonObject
             val label = cleanLabel(o.get("label")?.asString.orEmpty()).takeIf { it.isNotEmpty() } ?: return@mapNotNull null
             val uri = o.get("uri")?.asString?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-            EmulatorSaveFolder(label, o.getAsJsonArray("platforms")?.map { ConsoleFolderAliases.normalize(it.asString) }?.toSet().orEmpty(), uri)
+            // An unknown layout (written by a newer version) is not read as plain files: the folder is skipped.
+            val layout = o.get("layout")?.takeUnless { it.isJsonNull }?.asString?.let { name -> SaveFolderLayout.entries.firstOrNull { it.name == name } ?: return@mapNotNull null }
+                ?: SaveFolderLayout.FILES
+            val shared = o.get("sharedCardsRomId")?.takeUnless { it.isJsonNull }?.let { runCatching { it.asInt }.getOrNull() }?.takeIf { it > 0 && layout == SaveFolderLayout.MEMCARDS }
+            EmulatorSaveFolder(
+                label, o.getAsJsonArray("platforms")?.map { ConsoleFolderAliases.normalize(it.asString) }?.toSet().orEmpty(), uri, layout,
+                shared, if (shared != null) o.get("sharedCardsRomName")?.takeUnless { it.isJsonNull }?.asString.orEmpty().take(200) else ""
+            )
         }.distinctBy { it.label.lowercase() }
     }.getOrDefault(emptyList())
 }

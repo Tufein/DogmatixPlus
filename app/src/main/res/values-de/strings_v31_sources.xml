@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Inhaltskatalog: Anbieter und Konsolenzuordnung -->
+    <string name="src31_hint">Wähle kostenlose Inhaltssammlungen geprüfter Anbieter. Sie enthalten Homebrew, Demos und Testsoftware, keine vollständigen kommerziellen ROM-Sets. Jede Sammlung kommt zur passenden Konsole, die du schon hast, oder zu einer neuen. Vorhandene Quellen bleiben erhalten.</string>
+    <string name="src31_all_providers">Alle Anbieter</string>
+    <string name="src31_search">Konsole oder Anbieter suchen</string>
+    <string name="src31_provider_site">Website: %1$s</string>
+    <string name="src31_provider_list">Inhaltsliste: %1$s</string>
+    <string name="src31_provider_checked">Listen geprüft am %1$s</string>
+    <string name="src31_licence_published">Kostenlose Inhalte, die der Anbieter selbst zum Download anbietet: Homebrew, Freeware, Demos und Testsoftware.</string>
+    <string name="src31_licence_public_domain">Von den Urhebern gemeinfrei gestellt.</string>
+    <string name="src31_licence_free">Von den Urhebern unter einer freien Lizenz veröffentlicht, die das Weitergeben erlaubt.</string>
+    <string name="src31_entry_files">%1$s · %2$d Dateien bei der letzten Prüfung</string>
+    <string name="src31_maps_existing">Kommt zu deiner Konsole %1$s</string>
+    <string name="src31_maps_new">Legt eine neue Konsole an: %1$s</string>
+
+    <!-- Cover für iiSU und Daijishō -->
+    <string name="covers31_title">Cover für iiSU und Daijishō</string>
+    <string name="covers31_subtitle">Cover dort ablegen, wo diese Launcher sie zeigen können</string>
+    <string name="covers31_hint">Cover deiner Spiele in den Ordner schreiben, aus dem iiSU oder Daijishō sie liest</string>
+    <string name="covers31_kw">Artwork, Boxart, Hüllen, Bilder, Medien, Thumbnails, iisu, daijisho</string>
+    <string name="covers31_what_title">Cover für deinen Launcher</string>
+    <string name="covers31_what_body">Dogmatix+ legt ein Cover pro Spiel in einen Ordner deiner Wahl, mit einem Unterordner pro Konsole, der so heißt wie deine Konsolenordner. Die Cover stammen von deinem RomM-Server, aus den libretro-Thumbnails oder aus früher gefundenen Covern und werden als PNG gespeichert. Bilder, die schon da sind, bleiben erhalten, außer du entscheidest dich, sie zu ersetzen.</string>
+    <string name="covers31_section_frontend">Launcher</string>
+    <string name="covers31_section_folder">Cover-Ordner</string>
+    <string name="covers31_folder_title">Ordner für %1$s-Cover</string>
+    <string name="covers31_folder_none">Noch kein Ordner gewählt</string>
+    <string name="covers31_folder_not_writable">In diesen Ordner kann nicht mehr geschrieben werden. Wähle ihn erneut.</string>
+    <string name="covers31_needs_folder">Neu wählen</string>
+    <string name="covers31_pick">Ordner wählen</string>
+    <string name="covers31_change">Ändern</string>
+    <string name="covers31_hint_iisu">Sieh in iiSU nach, aus welchem Ordner es Cover liest, und wähle hier denselben Ordner.</string>
+    <string name="covers31_hint_daijisho">Sieh in Daijishō nach, aus welchem Ordner deine Plattformen lokale Cover lesen, und wähle hier denselben Ordner.</string>
+    <string name="covers31_section_names">Dateinamen</string>
+    <string name="covers31_layout_stem">Name ohne Endung</string>
+    <string name="covers31_layout_stem_hint">Zum Beispiel %1$s. Die übliche Wahl.</string>
+    <string name="covers31_layout_full">Vollständiger Dateiname</string>
+    <string name="covers31_layout_full_hint">Zum Beispiel %1$s. Für einen Launcher, der Cover über den ganzen Dateinamen samt Endung zuordnet.</string>
+    <string name="covers31_overwrite_title">Vorhandene Cover ersetzen</string>
+    <string name="covers31_overwrite_hint">Aus: Bilder, die schon im Ordner liegen, werden nie angefasst. An: Ein Cover mit genau demselben Namen wird ersetzt.</string>
+    <string name="covers31_section_preview">Vorschau</string>
+    <string name="covers31_preview_loading">Ermittle, was geschrieben würde…</string>
+    <string name="covers31_preview_failed">Die Vorschau konnte nicht erstellt werden. Achte darauf, dass deine Spieleordner und der Cover-Ordner erreichbar sind, und aktualisiere dann.</string>
+    <string name="covers31_preview_no_folder">Wähle zuerst den Cover-Ordner.</string>
+    <string name="covers31_preview_no_games">Noch keine Spiele in deinen Spieleordnern gefunden.</string>
+    <string name="covers31_preview_nothing">Jedes Spiel hat in diesem Ordner schon ein Cover. Es gibt nichts zu schreiben.</string>
+    <plurals name="covers31_preview_count">
+        <item quantity="one">Bis zu %1$s Cover wird nach %2$s geschrieben</item>
+        <item quantity="other">Bis zu %1$s Cover werden nach %2$s geschrieben</item>
+    </plurals>
+    <string name="covers31_preview_example">In %1$s Konsolenordnern, zum Beispiel: %2$s</string>
+    <string name="covers31_preview_replace">%1$s Cover mit demselben Namen werden ersetzt.</string>
+    <string name="covers31_preview_sources">Spiele ohne Cover in einer der Quellen werden übersprungen; das Ergebnis zeigt, wie viele.</string>
+    <string name="covers31_preview_kept">%1$s Spiele haben dort schon ein Cover; diese bleiben erhalten.</string>
+    <string name="covers31_preview_skipped">%1$s Spiele werden übersprungen: Ihr Name taugt nicht als Cover-Dateiname, oder ein anderes Spiel nutzt ihn schon.</string>
+    <string name="covers31_preview_outside">%1$s Spiele liegen in keinem Konsolenordner und werden übersprungen.</string>
+    <string name="covers31_preview_profile">Nur Spiele, die dieses Profil zeigt, sind dabei.</string>
+    <string name="covers31_write">Cover schreiben</string>
+    <string name="covers31_refresh">Vorschau aktualisieren</string>
+    <string name="covers31_stop">Stoppen</string>
+    <string name="covers31_preparing">Deine Bibliothek wird gelesen…</string>
+    <string name="covers31_running">Cover werden geschrieben: %1$s von %2$s</string>
+    <string name="covers31_result_title">Cover geschrieben</string>
+    <string name="covers31_result_stopped">Gestoppt. Was geschrieben wurde, bleibt.</string>
+    <string name="covers31_result_written">Neue Cover: %1$s</string>
+    <string name="covers31_result_replaced">Ersetzt: %1$s</string>
+    <string name="covers31_result_kept">Hatte schon ein Cover: %1$s</string>
+    <string name="covers31_result_nocover">Kein Cover gefunden: %1$s</string>
+    <string name="covers31_result_failed">Konnte nicht geschrieben werden: %1$s</string>
+    <string name="covers31_problem_failed">Die Cover konnten nicht geschrieben werden. Achte darauf, dass die Ordner erreichbar sind, und versuche es erneut.</string>
+</resources>

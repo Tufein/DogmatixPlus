@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Catalogo dei contenuti: fornitori e abbinamento delle console -->
+    <string name="src31_hint">Scegli raccolte di contenuti gratuiti di fornitori verificati. Contengono homebrew, demo e software di prova, non ROM set commerciali completi. Ogni raccolta va alla console corrispondente che hai già, oppure a una nuova. Le fonti esistenti restano al loro posto.</string>
+    <string name="src31_all_providers">Tutti i fornitori</string>
+    <string name="src31_search">Cerca console o fornitore</string>
+    <string name="src31_provider_site">Sito web: %1$s</string>
+    <string name="src31_provider_list">Elenco dei contenuti: %1$s</string>
+    <string name="src31_provider_checked">Elenchi controllati il %1$s</string>
+    <string name="src31_licence_published">Contenuti gratuiti che il fornitore stesso offre da scaricare: homebrew, freeware, demo e software di prova.</string>
+    <string name="src31_licence_public_domain">Messo nel pubblico dominio dagli autori.</string>
+    <string name="src31_licence_free">Pubblicato dagli autori con una licenza libera che ne consente la condivisione.</string>
+    <string name="src31_entry_files">%1$s · %2$d file all\'ultimo controllo</string>
+    <string name="src31_maps_existing">Va nella tua console %1$s</string>
+    <string name="src31_maps_new">Aggiunge una nuova console: %1$s</string>
+
+    <!-- Copertine per iiSU e Daijishō -->
+    <string name="covers31_title">Copertine per iiSU e Daijishō</string>
+    <string name="covers31_subtitle">Metti le copertine dove questi launcher possono mostrarle</string>
+    <string name="covers31_hint">Scrivi le copertine dei tuoi giochi nella cartella da cui iiSU o Daijishō le legge</string>
+    <string name="covers31_kw">artwork, boxart, copertine, immagini, media, miniature, iisu, daijisho</string>
+    <string name="covers31_what_title">Copertine per il tuo launcher</string>
+    <string name="covers31_what_body">Dogmatix+ mette una copertina per gioco in una cartella a tua scelta, con una sottocartella per console chiamata come le tue cartelle delle console. Le copertine arrivano dal tuo server RomM, dalle miniature di libretro o da copertine trovate in precedenza, e vengono salvate come PNG. Le immagini già presenti restano, a meno che tu non scelga di sostituirle.</string>
+    <string name="covers31_section_frontend">Launcher</string>
+    <string name="covers31_section_folder">Cartella delle copertine</string>
+    <string name="covers31_folder_title">Cartella delle copertine per %1$s</string>
+    <string name="covers31_folder_none">Nessuna cartella scelta finora</string>
+    <string name="covers31_folder_not_writable">Non è più possibile scrivere in questa cartella. Sceglila di nuovo.</string>
+    <string name="covers31_needs_folder">Da scegliere di nuovo</string>
+    <string name="covers31_pick">Scegli cartella</string>
+    <string name="covers31_change">Cambia</string>
+    <string name="covers31_hint_iisu">In iiSU, controlla da quale cartella legge le copertine e scegli qui la stessa cartella.</string>
+    <string name="covers31_hint_daijisho">In Daijishō, controlla da quale cartella le tue piattaforme leggono le copertine locali e scegli qui la stessa cartella.</string>
+    <string name="covers31_section_names">Nomi dei file</string>
+    <string name="covers31_layout_stem">Nome senza estensione</string>
+    <string name="covers31_layout_stem_hint">Per esempio %1$s. La scelta abituale.</string>
+    <string name="covers31_layout_full">Nome file completo</string>
+    <string name="covers31_layout_full_hint">Per esempio %1$s. Per un launcher che abbina le copertine al nome file intero, estensione compresa.</string>
+    <string name="covers31_overwrite_title">Sostituisci le copertine già presenti</string>
+    <string name="covers31_overwrite_hint">Disattivato: le immagini già presenti nella cartella non vengono mai toccate. Attivato: una copertina con esattamente lo stesso nome viene sostituita.</string>
+    <string name="covers31_section_preview">Anteprima</string>
+    <string name="covers31_preview_loading">Calcolo di cosa verrebbe scritto…</string>
+    <string name="covers31_preview_failed">Non è stato possibile creare l\'anteprima. Assicurati che le cartelle dei giochi e quella delle copertine siano raggiungibili, poi aggiorna.</string>
+    <string name="covers31_preview_no_folder">Scegli prima la cartella delle copertine.</string>
+    <string name="covers31_preview_no_games">Nessun gioco trovato finora nelle tue cartelle dei giochi.</string>
+    <string name="covers31_preview_nothing">Ogni gioco ha già una copertina in questa cartella. Non c\'è niente da scrivere.</string>
+    <plurals name="covers31_preview_count">
+        <item quantity="one">Verrà scritta fino a %1$s copertina in %2$s</item>
+        <item quantity="many">Verranno scritte fino a %1$s copertine in %2$s</item>
+        <item quantity="other">Verranno scritte fino a %1$s copertine in %2$s</item>
+    </plurals>
+    <string name="covers31_preview_example">In %1$s cartelle di console, per esempio: %2$s</string>
+    <string name="covers31_preview_replace">Verranno sostituite %1$s copertine con lo stesso nome.</string>
+    <string name="covers31_preview_sources">I giochi senza copertina in nessuna fonte vengono saltati; il risultato mostra quanti.</string>
+    <string name="covers31_preview_kept">%1$s giochi hanno già una copertina lì; vengono mantenute.</string>
+    <string name="covers31_preview_skipped">%1$s giochi vengono saltati: il loro nome non può essere usato come file di copertina, oppure un altro gioco lo usa già.</string>
+    <string name="covers31_preview_outside">%1$s giochi non sono in una cartella di console e vengono saltati.</string>
+    <string name="covers31_preview_profile">Sono inclusi solo i giochi che questo profilo mostra.</string>
+    <string name="covers31_write">Scrivi copertine</string>
+    <string name="covers31_refresh">Aggiorna anteprima</string>
+    <string name="covers31_stop">Ferma</string>
+    <string name="covers31_preparing">Lettura della tua libreria…</string>
+    <string name="covers31_running">Scrittura copertine: %1$s di %2$s</string>
+    <string name="covers31_result_title">Copertine scritte</string>
+    <string name="covers31_result_stopped">Fermato. Ciò che è stato scritto resta.</string>
+    <string name="covers31_result_written">Nuove copertine: %1$s</string>
+    <string name="covers31_result_replaced">Sostituite: %1$s</string>
+    <string name="covers31_result_kept">Avevano già una copertina: %1$s</string>
+    <string name="covers31_result_nocover">Nessuna copertina trovata: %1$s</string>
+    <string name="covers31_result_failed">Non è stato possibile scriverle: %1$s</string>
+    <string name="covers31_problem_failed">Non è stato possibile scrivere le copertine. Assicurati che le cartelle siano raggiungibili e riprova.</string>
+</resources>

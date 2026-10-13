@@ -19,7 +19,11 @@ data class LocalSaveFile(
     val size: Long,
     val modified: Long,
     /** Platforms the folder it came from is for (an emulator's own saves folder), normalized; see [EmulatorSaveFolder]. */
-    val platformHints: Set<String> = emptySet()
+    val platformHints: Set<String> = emptySet(),
+    /** How the emulator folder it came from keeps saves (memory cards, PPSSPP save folders); see [EmulatorSaveLayouts]. */
+    val layout: SaveFolderLayout = SaveFolderLayout.FILES,
+    /** The game the user chose to keep this file with (a DuckStation shared card); null = found by name. */
+    val fixedRomId: Int? = null
 ) {
     val name: String get() = path.substringAfterLast('/')
     /** First folder below the picked folder ("mGBA"), or "" for a file directly inside it. */
@@ -149,8 +153,13 @@ object SaveSyncPlanner {
         /** Mirror deletions between the device and the server (Settings → Save sync). */
         syncDeletions: Boolean = false,
         /** Kinds without a picked folder of their own (only emulators' folders): server files for no known folder stay on the server. */
-        noRootFolder: Set<SaveKind> = emptySet()
+        noRootFolder: Set<SaveKind> = emptySet(),
+        /** Emulator folders whose shared memory cards are not synced: server copies of them stay on the server. */
+        holdSharedCards: Set<String> = emptySet()
     ): List<SaveSyncAction> {
+        val remotes = if (holdSharedCards.isEmpty()) remotes else remotes.filterNot { r ->
+            EmulatorSaveLayouts.isSharedCard(r.fileName) && holdSharedCards.any { it.equals(r.emulator.orEmpty(), ignoreCase = true) }
+        }
         val actions = mutableListOf<SaveSyncAction>()
         val recordByPath = records.associateBy { key(it.kind, it.path) }
         val remoteById = remotes.associateBy { it.kind to it.id }
@@ -195,6 +204,9 @@ object SaveSyncPlanner {
                 when {
                     localChanged && remoteChanged -> SaveSyncAction.Conflict(local, remote)
                     localChanged -> SaveSyncAction.Upload(local, remote.romId, remote)
+                    // A shared memory card holds many games' saves: replacing it is always the user's call.
+                    remoteChanged && local.layout == SaveFolderLayout.MEMCARDS && EmulatorSaveLayouts.isSharedCard(local.name) ->
+                        SaveSyncAction.Conflict(local, remote)
                     remoteChanged -> SaveSyncAction.Download(remote, local.path, local)
                     else -> SaveSyncAction.InSync(local, remote)
                 }
@@ -203,7 +215,8 @@ object SaveSyncPlanner {
         unpaired.forEach { local ->
             val record = recordByPath[key(local.kind, local.path)]
             // Gone from the server while the device copy is as it was left: the deletion travels here.
-            actions += if (syncDeletions && record != null && local.kind in topFolders.keys &&
+            // Memory cards and save folders hold more than one save: never removed from the device by a sync.
+            actions += if (syncDeletions && record != null && local.kind in topFolders.keys && local.layout == SaveFolderLayout.FILES &&
                 remoteById[local.kind to record.remoteId] == null && !localChanged(local, record)
             ) SaveSyncAction.DeleteLocal(local, record)
             else SaveSyncAction.Upload(local, record?.romId, null)
@@ -214,8 +227,9 @@ object SaveSyncPlanner {
         // device has one of that name, else straight into the picked folder.
         val localPaths = locals.map { key(it.kind, it.path) }.toSet()
         // Gone from the device while the server copy is as it was left: the deletion travels there.
+        // Memory cards and save folders hold more than one save: their deletion never travels to the server.
         val deletedOnDevice = if (!syncDeletions) emptyList() else records.filter { r ->
-            r.kind in topFolders.keys && key(r.kind, r.path) !in localPaths
+            r.kind in topFolders.keys && key(r.kind, r.path) !in localPaths && !EmulatorSaveLayouts.holdsSeveralSaves(r.path)
         }.mapNotNull { r -> remoteById[r.kind to r.remoteId]?.takeIf { (it.kind to it.id) !in claimed && !remoteChanged(it, r) }?.let { it to r } }
         deletedOnDevice.forEach { (remote, record) -> actions += SaveSyncAction.DeleteRemote(remote, record) }
         val deletedIds = deletedOnDevice.map { (remote, _) -> remote.kind to remote.id }.toSet()
@@ -243,7 +257,14 @@ object SaveSyncPlanner {
             (record.remoteHash != null && remote.contentHash != null && !remote.contentHash.equals(record.remoteHash, ignoreCase = true))
 
     /** A ROM as RomM's search returns it, enough to tie a save file to it. */
-    data class RomCandidate(val id: Int, val fsName: String, val platformSlug: String = "", val platformFsSlug: String = "")
+    data class RomCandidate(
+        val id: Int,
+        val fsName: String,
+        val platformSlug: String = "",
+        val platformFsSlug: String = "",
+        /** RomM's (metadata) name of the game, when it has one. */
+        val name: String = ""
+    )
 
     sealed interface RomMatch {
         data class Found(val romId: Int) : RomMatch

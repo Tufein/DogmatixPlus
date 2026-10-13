@@ -102,7 +102,7 @@ class PackageTransferViewModel @Inject constructor(
 }
 
 @Composable
-fun PackageTransferScreen(viewModel: PackageTransferViewModel = hiltViewModel()) {
+fun PackageTransferScreen(onNavigate: (String) -> Unit = {}, viewModel: PackageTransferViewModel = hiltViewModel()) {
     val snapshot by viewModel.snapshot.collectAsState()
     val imported by viewModel.imported.collectAsState()
     val preview by viewModel.preview.collectAsState()
@@ -152,6 +152,11 @@ fun PackageTransferScreen(viewModel: PackageTransferViewModel = hiltViewModel())
         ToolsTitle(stringResource(R.string.package_transfer_title), icon = R.drawable.ic_stacks)
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)) {
             item { InfoCard(listOf(stringResource(R.string.package_transfer_hint))) }
+            item {
+                OutlinedButton(onClick = { onNavigate(GAME_TRANSFER_ROUTE) }, modifier = Modifier.fillMaxWidth().testTag("package-transfer-games")) {
+                    Text(stringResource(R.string.transfer31_open))
+                }
+            }
             if (failed) item { InfoCard(listOf(stringResource(R.string.package_transfer_failed)), danger = true) }
             if (exported) item { InfoCard(listOf(stringResource(R.string.package_transfer_exported)), accent = true) }
             restored?.let { count -> item { InfoCard(listOf(stringResource(R.string.package_transfer_restored, count)), accent = true) } }

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="transfer31_title">Spiele kopieren oder senden</string>
+    <string name="transfer31_subtitle">Ganze Spiele mit jeder Datei, am Ziel geprüft</string>
+    <string name="transfer31_hint">Kopiere Spiele mit allen ihren Dateien auf eine Speicherkarte, einen USB-Stick, zu RomM oder auf ein NAS, mit Vorschau vorab und Prüfung jeder Datei</string>
+    <string name="transfer31_kw">exportieren, kopieren, sd-karte, speicherkarte, usb-stick, nas, webdav, romm, hochladen, senden, paket, ordner, übertragen</string>
+    <string name="transfer31_open">Die Spiele selbst kopieren oder senden</string>
+    <string name="transfer31_intro">Wähle Spiele und ihr Ziel. Bevor etwas geschrieben wird, siehst du jede Datei, den nötigen Platz und was schon dort liegt. Dateien auf diesem Gerät werden nie geändert, verschoben oder gelöscht, und am Ziel wird nichts ersetzt.</string>
+    <string name="transfer31_restricted">Es werden nur die Spiele aufgeführt, die dieses Profil zeigt.</string>
+    <string name="transfer31_load_failed">Die Spieleliste konnte nicht gelesen werden. Prüfe, ob deine Spielordner erreichbar sind, und versuche es erneut.</string>
+
+    <string name="transfer31_where">Wohin</string>
+    <string name="transfer31_target_folder">Ordner, Speicherkarte oder USB-Stick</string>
+    <string name="transfer31_target_folder_note">Den Ordner wählst du als Nächstes. Spiele behalten dieselben Ordner wie auf diesem Gerät.</string>
+    <string name="transfer31_target_romm">RomM-Server</string>
+    <string name="transfer31_target_romm_note">RomM nimmt eine Datei pro Spiel an, ohne Ordner. Ein Spiel aus mehreren Dateien wird in ein ZIP gepackt, das seine Ordner behält (gespeichert, nicht komprimiert); eine einzelne Datei geht unverändert.</string>
+    <string name="transfer31_target_romm_missing">Richte zuerst RomM unter Einstellungen → RomM ein.</string>
+    <string name="transfer31_target_nas">NAS (WebDAV)</string>
+    <string name="transfer31_target_nas_note">Landet im Ordner games im App-Ordner auf deinem NAS (Einstellungen → Cloud), mit denselben Ordnern wie auf diesem Gerät.</string>
+    <string name="transfer31_target_nas_missing">Richte zuerst die NAS-Verbindung unter Einstellungen → Cloud ein.</string>
+    <string name="transfer31_read_back">Jede Datei zurücklesen</string>
+    <string name="transfer31_read_back_hint">Vergleicht den SHA-256 jeder Datei auf dem NAS mit dem Original. Langsamer, beweist aber, dass jede Datei unversehrt angekommen ist; sonst werden die Größen verglichen.</string>
+    <string name="transfer31_on">An</string>
+    <string name="transfer31_off">Aus</string>
+
+    <string name="transfer31_conflict_title">Wenn dort schon eine andere Datei gleichen Namens liegt</string>
+    <string name="transfer31_conflict_hint">Dort wird nie etwas ersetzt. Einen neuen Namen bekommt der eigene Ordner des Spiels (oder seine einzige Datei), damit seine Dateien sich weiter finden.</string>
+    <string name="transfer31_conflict_skip">Dieses Spiel auslassen</string>
+    <string name="transfer31_conflict_rename">Unter neuem Namen kopieren</string>
+
+    <string name="transfer31_games">Spiele</string>
+    <string name="transfer31_games_count">%1$d von %2$d ausgewählt</string>
+    <string name="transfer31_select_all">Alle auswählen</string>
+    <string name="transfer31_select_none">Keine auswählen</string>
+    <string name="transfer31_no_games_title">Noch keine Spiele zum Kopieren</string>
+    <string name="transfer31_no_games">Nur Spiele, die die App heruntergeladen hat, führen ein Verzeichnis all ihrer Dateien. Nur diese lassen sich vollständig kopieren oder senden.</string>
+    <string name="transfer31_files">Dateien</string>
+    <string name="transfer31_close">Schließen</string>
+
+    <string name="transfer31_preview">Prüfen und Vorschau</string>
+    <string name="transfer31_preview_folder">Ordner wählen und Vorschau</string>
+    <string name="transfer31_checking">Die Dateien auf diesem Gerät und am Ziel werden geprüft …</string>
+    <string name="transfer31_cancel">Abbrechen</string>
+    <string name="transfer31_preview_failed">Die Prüfung konnte nicht abgeschlossen werden: %1$s</string>
+    <string name="transfer31_to">Nach: %1$s</string>
+    <string name="transfer31_volume_internal">Interner Speicher</string>
+    <string name="transfer31_volume_external">Speicherkarte oder USB-Stick (%1$s)</string>
+    <string name="transfer31_place_romm">RomM-Server %1$s</string>
+    <string name="transfer31_place_nas">NAS-Ordner %1$s</string>
+    <string name="transfer31_app_folder">Das ist einer der eigenen Ordner der App: Kopien dort erscheinen in deiner Bibliothek.</string>
+    <string name="transfer31_to_copy">Zu kopieren: %1$s</string>
+    <string name="transfer31_to_send">Zu senden: %1$s</string>
+    <string name="transfer31_present">Schon vorhanden: %1$s (wird beim Kopieren Byte für Byte verglichen und bleibt, wie es ist)</string>
+    <string name="transfer31_free">Freier Platz dort: %1$s</string>
+    <string name="transfer31_free_unknown">Der freie Platz dort ist nicht bekannt.</string>
+    <string name="transfer31_no_space">Nicht genug Platz: %1$s nötig, %2$s frei (%3$s bleiben als Reserve frei).</string>
+    <string name="transfer31_saves_title">Spielstände bleiben auf diesem Gerät</string>
+    <string name="transfer31_unavailable_title">Ausgelassen: Dateien fehlen oder wurden auf diesem Gerät geändert</string>
+    <string name="transfer31_unavailable_line">%1$s: %2$d fehlen, %3$d geändert</string>
+    <string name="transfer31_skipped">Ausgelassen: Dort liegt eine andere Datei gleichen Namens</string>
+    <string name="transfer31_renamed">Bekommt einen neuen Namen: %1$s</string>
+    <string name="transfer31_only_saves">Nichts zu kopieren: Es enthält nur Spielstände</string>
+    <string name="transfer31_state_new">Neu</string>
+    <string name="transfer31_state_present">Schon vorhanden</string>
+    <string name="transfer31_shared_by">Geteilt mit: %1$s</string>
+    <string name="transfer31_in_the_way">Im Weg: %1$s</string>
+    <string name="transfer31_romm_single">Geht unverändert</string>
+    <string name="transfer31_romm_present">RomM hat es schon mit gleichem Namen und gleicher Größe: geprüft, nicht erneut gesendet</string>
+    <string name="transfer31_romm_skipped">Ausgelassen: RomM hat eine andere Datei namens %1$s</string>
+    <string name="transfer31_romm_renamed">Gesendet als %1$s, weil RomM eine andere Datei mit dem ursprünglichen Namen hat</string>
+    <string name="transfer31_romm_no_platform">Ausgelassen: Diese Konsole hat noch keine RomM-Plattform (Einstellungen → RomM)</string>
+    <string name="transfer31_romm_too_large">Ausgelassen: 4 GB oder mehr passen nicht in ein ZIP. Sende es stattdessen auf das NAS.</string>
+    <string name="transfer31_romm_only_saves">Ausgelassen: Es enthält nur Spielstände</string>
+    <string name="transfer31_start_copy">Kopieren</string>
+    <string name="transfer31_start_send">Senden</string>
+    <string name="transfer31_back">Zurück</string>
+
+    <string name="transfer31_progress">Datei %1$d von %2$d: %3$s</string>
+    <string name="transfer31_progress_bytes">%1$s von %2$s</string>
+    <string name="transfer31_stop">Stoppen</string>
+    <string name="transfer31_result_ok">Alles ist angekommen und geprüft.</string>
+    <string name="transfer31_result_some">Einige Dateien sind nicht angekommen oder konnten nicht geprüft werden. Öffne ein Spiel, um jede Datei zu sehen.</string>
+    <string name="transfer31_result_counts">%1$d von %2$d Dateien fertig</string>
+    <string name="transfer31_stopped">Gestoppt. Bereits kopierte Dateien bleiben, wo sie sind; auf diesem Gerät hat sich nichts geändert.</string>
+    <string name="transfer31_run_error">Die Übertragung wurde gestoppt: %1$s</string>
+    <string name="transfer31_running_elsewhere">Eine Übertragung läuft noch. Stoppe sie oder warte, bis sie fertig ist.</string>
+    <string name="transfer31_done">Fertig</string>
+
+    <string name="transfer31_o_sent_hash">Angekommen, SHA-256 geprüft</string>
+    <string name="transfer31_o_sent_size">Angekommen, Größe geprüft</string>
+    <string name="transfer31_o_present_hash">War schon da, identisch</string>
+    <string name="transfer31_o_present_size">War schon da, gleiche Größe</string>
+    <string name="transfer31_o_waiting">Gesendet. RomM zeigt es nach dem nächsten Scan; versuche es später erneut, um es zu prüfen.</string>
+    <string name="transfer31_o_conflict">Dort liegt eine andere Datei dieses Namens. Sie wurde behalten und nichts darüber kopiert.</string>
+    <string name="transfer31_o_changed">Die Datei auf diesem Gerät ist nicht mehr die erfasste, deshalb wurde sie nicht gesendet.</string>
+    <string name="transfer31_o_failed">Fehlgeschlagen</string>
+    <string name="transfer31_o_not_sent">Nicht gesendet</string>
+    <string name="transfer31_s_ok">Geprüft</string>
+    <string name="transfer31_s_present">Schon da</string>
+    <string name="transfer31_s_waiting">Noch nicht gelistet</string>
+    <string name="transfer31_s_conflict">Name belegt</string>
+    <string name="transfer31_s_changed">Geändert</string>
+    <string name="transfer31_in_zip">In %1$s</string>
+    <string name="transfer31_detail_folder_blocked">Wo ein Ordner hin soll, liegt eine Datei.</string>
+    <string name="transfer31_detail_verify">Die Kopie stimmte nicht mit dem Original überein; sie wurde entfernt, damit sie erneut gesendet werden kann.</string>
+    <string name="transfer31_detail_rename">Der Ordner hat den Dateinamen nicht angenommen.</string>
+
+    <plurals name="transfer31_file_count">
+        <item quantity="one">%1$d Datei · %2$s</item>
+        <item quantity="other">%1$d Dateien · %2$s</item>
+    </plurals>
+    <plurals name="transfer31_shared">
+        <item quantity="one">%d Datei wird von mehreren dieser Spiele genutzt und nur einmal kopiert.</item>
+        <item quantity="other">%d Dateien werden von mehreren dieser Spiele genutzt und nur einmal kopiert.</item>
+    </plurals>
+    <plurals name="transfer31_saves">
+        <item quantity="one">%d Spielstand oder Savestate gehört zu diesen Spielen und wird nicht kopiert:</item>
+        <item quantity="other">%d Spielstände oder Savestates gehören zu diesen Spielen und werden nicht kopiert:</item>
+    </plurals>
+    <plurals name="transfer31_romm_zip">
+        <item quantity="one">In ein ZIP mit %d Datei gepackt, Ordner bleiben erhalten</item>
+        <item quantity="other">In ein ZIP mit %d Dateien gepackt, Ordner bleiben erhalten</item>
+    </plurals>
+    <plurals name="transfer31_retry">
+        <item quantity="one">Erneut versuchen (%d Spiel)</item>
+        <item quantity="other">Erneut versuchen (%d Spiele)</item>
+    </plurals>
+    <plurals name="transfer31_more">
+        <item quantity="one">und %d weitere</item>
+        <item quantity="other">und %d weitere</item>
+    </plurals>
+</resources>

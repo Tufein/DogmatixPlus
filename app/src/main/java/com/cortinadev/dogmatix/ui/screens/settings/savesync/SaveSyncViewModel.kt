@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import com.cortinadev.dogmatix.util.EmulatorSaveFolder
 import com.cortinadev.dogmatix.util.EmulatorSaveFolders
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class SaveSyncUiState(
@@ -45,7 +46,35 @@ class SaveSyncViewModel @Inject constructor(
     fun addEmulatorFolder(context: Context, preset: EmulatorSaveFolders.Preset, uri: String) = executeWithToast(context, TAG) {
         val current = appSettings.saveSyncEmulatorFolders.first()
         val label = EmulatorSaveFolders.uniqueLabel(preset.label, current.map { it.label })
-        appSettings.setSaveSyncEmulatorFolders(current + EmulatorSaveFolder(label, preset.platforms, uri))
+        appSettings.setSaveSyncEmulatorFolders(current + EmulatorSaveFolder(label, preset.platforms, uri, preset.layout))
+    }
+
+    /** RomM games found for a DuckStation folder's shared cards (the picker's list); null while nothing was searched. */
+    private val _gameResults = kotlinx.coroutines.flow.MutableStateFlow<List<com.cortinadev.dogmatix.util.SaveSyncPlanner.RomCandidate>?>(null)
+    val gameResults: StateFlow<List<com.cortinadev.dogmatix.util.SaveSyncPlanner.RomCandidate>?> = _gameResults
+    private val _searching = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val searching: StateFlow<Boolean> = _searching
+    private var searchJob: kotlinx.coroutines.Job? = null
+
+    fun searchGames(context: Context, term: String) {
+        searchJob?.cancel()
+        _searching.value = true
+        searchJob = viewModelScope.launch {
+            try { _gameResults.value = service.searchGames(term) }
+            catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) { _gameResults.value = emptyList(); com.cortinadev.dogmatix.util.ToastUtil.showError(context, e.message ?: e.javaClass.simpleName) }
+            finally { _searching.value = false }
+        }
+    }
+
+    fun clearGameResults() { searchJob?.cancel(); _searching.value = false; _gameResults.value = null }
+
+    /** Syncs [label]'s shared memory cards with RomM game [rom] from now on; null stops syncing them (nothing is deleted). */
+    fun setSharedCards(context: Context, label: String, rom: com.cortinadev.dogmatix.util.SaveSyncPlanner.RomCandidate?) = executeWithToast(context, TAG) {
+        appSettings.setSaveSyncEmulatorFolders(appSettings.saveSyncEmulatorFolders.first().map { folder ->
+            if (folder.label != label || folder.layout != com.cortinadev.dogmatix.util.SaveFolderLayout.MEMCARDS) folder
+            else folder.copy(sharedCardsRomId = rom?.id, sharedCardsRomName = rom?.let { it.name.ifBlank { it.fsName } }.orEmpty())
+        })
     }
 
     fun removeEmulatorFolder(context: Context, label: String) = executeWithToast(context, TAG) {

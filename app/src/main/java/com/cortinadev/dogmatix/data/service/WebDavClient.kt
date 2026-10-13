@@ -18,6 +18,9 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
+import okio.BufferedSink
+import okio.source
 import java.io.IOException
 import java.io.InterruptedIOException
 import java.net.ConnectException
@@ -189,8 +192,57 @@ class WebDavClient(
         }
     }
 
+    /** Writes a large file straight from [open] (the game transfer); a long answer time is allowed for big files. */
+    override fun putStream(url: String, size: Long, open: () -> InputStream, ifNoneMatch: Boolean) {
+        val headers = if (ifNoneMatch) mapOf("If-None-Match" to "*") else emptyMap()
+        execute("PUT", url, StreamBody(size, open), headers, bulk).use { response ->
+            if (response.code in 200..299) return
+            throw failure(response)
+        }
+    }
+
+    override fun <T> getStream(url: String, read: (InputStream) -> T): T? {
+        execute("GET", url, null, mapOf("Accept-Encoding" to "identity"), bulk).use { response ->
+            return when (response.code) {
+                200 -> try {
+                    read(response.body?.byteStream() ?: throw DavException(DavProblem.BAD_RESPONSE, 200, "no body"))
+                } catch (e: DavException) {
+                    throw e
+                } catch (e: IOException) {
+                    throw problemOf(e)
+                }
+                404, 410 -> null
+                else -> throw failure(response)
+            }
+        }
+    }
+
+    override fun moveNoReplace(from: String, to: String): Boolean {
+        val headers = mapOf("Destination" to to, "Overwrite" to "F")
+        execute("MOVE", from, EMPTY_BODY, headers).use { response ->
+            return when {
+                response.code in 200..299 -> true
+                response.code == 405 || response.code == 501 -> false
+                else -> throw failure(response)
+            }
+        }
+    }
+
+    /** The shared client with room for a server that takes its time over a large file. */
+    private val bulk: OkHttpClient by lazy { http.newBuilder().readTimeout(10, TimeUnit.MINUTES).build() }
+
+    /** A request body read from a stream of known length; reopened when the request is repeated. */
+    private class StreamBody(private val size: Long, private val open: () -> InputStream) : RequestBody() {
+        override fun contentType() = OCTET
+        override fun contentLength(): Long = size
+        override fun writeTo(sink: BufferedSink) {
+            val written = open().use { input -> sink.writeAll(input.source()) }
+            if (written != size) throw IOException("File changed while it was being sent")
+        }
+    }
+
     /** Sends one request, following same-host redirects; every I/O failure becomes a [DavException]. */
-    private fun execute(verb: String, url: String, body: RequestBody?, headers: Map<String, String>): Response {
+    private fun execute(verb: String, url: String, body: RequestBody?, headers: Map<String, String>, client: OkHttpClient = http): Response {
         var target = url
         for (hop in 0..MAX_REDIRECTS) {
             val request = try {
@@ -203,7 +255,7 @@ class WebDavClient(
                 throw DavException(DavProblem.BAD_URL)
             }
             val response = try {
-                http.newCall(request).execute()
+                client.newCall(request).execute()
             } catch (e: IOException) {
                 throw problemOf(e)
             }
@@ -254,6 +306,7 @@ class WebDavClient(
 
     companion object {
         private val XML = "application/xml; charset=utf-8".toMediaType()
+        private val OCTET = "application/octet-stream".toMediaType()
         /** MKCOL and DELETE with `Content-Length: 0`: a few servers (nginx, lighttpd) answer 411 without it. */
         private val EMPTY_BODY: RequestBody = ByteArray(0).toRequestBody()
         private val REDIRECTS = setOf(301, 302, 303, 307, 308)

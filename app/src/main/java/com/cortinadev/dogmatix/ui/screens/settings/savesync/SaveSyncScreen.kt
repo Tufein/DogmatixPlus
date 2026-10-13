@@ -95,7 +95,10 @@ import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
 import com.cortinadev.dogmatix.ui.theme.tabular
 import com.cortinadev.dogmatix.util.BackgroundSyncPolicy
 import com.cortinadev.dogmatix.util.CardGrid
+import com.cortinadev.dogmatix.util.EmulatorSaveFolder
 import com.cortinadev.dogmatix.util.EmulatorSaveFolders
+import com.cortinadev.dogmatix.util.SaveFolderLayout
+import androidx.compose.material3.OutlinedTextField
 import com.cortinadev.dogmatix.util.NewerSide
 import com.cortinadev.dogmatix.util.ProgressText
 import com.cortinadev.dogmatix.util.SaveConflict
@@ -140,6 +143,17 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
     val emulatorPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let { persist(it); pickedEmulatorFolder = it.toString() }
     }
+    // DuckStation's shared memory cards: the game they are kept with on RomM is chosen here.
+    var sharedCardsFor by remember { mutableStateOf<String?>(null) }
+    sharedCardsFor?.let { label ->
+        emulatorFolders.firstOrNull { it.label == label }?.let { folder ->
+            SharedCardsDialog(
+                folder = folder,
+                viewModel = viewModel,
+                onDone = { sharedCardsFor = null; viewModel.clearGameResults() }
+            )
+        }
+    }
     pickedEmulatorFolder?.let { uri ->
         EmulatorPresetDialog(
             onPick = { preset -> viewModel.addEmulatorFolder(context, preset, uri); pickedEmulatorFolder = null },
@@ -169,10 +183,15 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
         }
         emulatorFolders.forEach { folder ->
             add {
+                val layoutHint = when (folder.layout) {
+                    SaveFolderLayout.MEMCARDS -> stringResource(R.string.saves31_layout_memcards)
+                    SaveFolderLayout.SAVEDATA -> stringResource(R.string.saves31_layout_savedata)
+                    SaveFolderLayout.FILES -> null
+                }
                 SettingRow(
                     icon = R.drawable.ic_folder,
                     title = folder.label,
-                    hint = folderLabel(folder.uri) ?: folder.uri,
+                    hint = listOfNotNull(folderLabel(folder.uri) ?: folder.uri, layoutHint).joinToString("\n"),
                     onClick = { viewModel.removeEmulatorFolder(context, folder.label) },
                 ) {
                     ActionPill(
@@ -180,6 +199,21 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
                         { viewModel.removeEmulatorFolder(context, folder.label) },
                         icon = R.drawable.ic_trash,
                         tone = ActionTone.Danger
+                    )
+                }
+            }
+            if (folder.layout == SaveFolderLayout.MEMCARDS) add {
+                val on = folder.sharedCardsRomId != null
+                SettingRow(
+                    icon = R.drawable.ic_save,
+                    title = stringResource(R.string.saves31_shared_title),
+                    hint = if (on) stringResource(R.string.saves31_shared_on, folder.sharedCardsRomName) else stringResource(R.string.saves31_shared_off),
+                    onClick = { sharedCardsFor = folder.label },
+                ) {
+                    ActionPill(
+                        stringResource(if (on) R.string.saves31_shared_change else R.string.saves31_shared_choose),
+                        { sharedCardsFor = folder.label },
+                        icon = R.drawable.ic_settings
                     )
                 }
             }
@@ -289,6 +323,16 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
         }
         sync.last?.errors?.forEach { error ->
             add { SyncErrorRow(error) }
+        }
+        sync.last?.unmatched?.takeIf { it.isNotEmpty() }?.let { paths ->
+            add {
+                SettingRow(
+                    icon = R.drawable.ic_warning,
+                    title = stringResource(R.string.saves31_unmatched_title),
+                    hint = stringResource(R.string.saves31_unmatched_hint, paths.joinToString("\n")),
+                    onClick = {}
+                ) {}
+            }
         }
     }
     val conflictRows: List<@Composable () -> Unit> = buildList {
@@ -596,5 +640,64 @@ private fun EmulatorPresetDialog(onPick: (EmulatorSaveFolders.Preset) -> Unit, o
             }
         },
         confirmButton = { DialogButton(text = stringResource(R.string.dialog_close), onClick = onDismiss, initialFocus = closeFocus) }
+    )
+}
+
+/**
+ * Turns syncing of a DuckStation folder's shared memory cards on (by choosing the RomM game they are
+ * kept with), changes that game, or turns it off. Nothing on the device is touched here.
+ */
+@Composable
+private fun SharedCardsDialog(folder: EmulatorSaveFolder, viewModel: SaveSyncViewModel, onDone: () -> Unit) {
+    val context = LocalContext.current
+    val results by viewModel.gameResults.collectAsState()
+    val searching by viewModel.searching.collectAsState()
+    var term by remember { mutableStateOf("") }
+    val fieldFocus = rememberInitialFocus()
+    AlertDialog(
+        modifier = Modifier.closeOnGamepadB(onDone),
+        onDismissRequest = onDone,
+        title = { Text(stringResource(R.string.saves31_shared_dialog_title)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())
+            ) {
+                Text(stringResource(R.string.saves31_shared_dialog_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (folder.sharedCardsRomId != null) {
+                    Text(stringResource(R.string.saves31_shared_on, folder.sharedCardsRomName), style = MaterialTheme.typography.bodySmall)
+                }
+                OutlinedTextField(
+                    value = term,
+                    onValueChange = { term = it },
+                    label = { Text(stringResource(R.string.saves31_shared_search_label)) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth().focusRequester(fieldFocus)
+                )
+                ActionPill(stringResource(R.string.saves31_shared_search), { if (term.isNotBlank()) viewModel.searchGames(context, term) }, icon = R.drawable.ic_search, enabled = !searching)
+                results?.let { found ->
+                    if (found.isEmpty() && !searching) Text(stringResource(R.string.saves31_shared_none), style = MaterialTheme.typography.bodySmall)
+                    found.forEach { rom ->
+                        val source = rememberFocusSource()
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .focusRing(source)
+                                .clickable(interactionSource = source, indication = null) { viewModel.setSharedCards(context, folder.label, rom); onDone() }
+                                .padding(horizontal = 8.dp, vertical = 8.dp)
+                        ) {
+                            Text(rom.name.ifBlank { rom.fsName }, style = MaterialTheme.typography.bodyLarge)
+                            Text(listOf(rom.fsName, rom.platformSlug).filter { it.isNotBlank() }.joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { DialogButton(text = stringResource(R.string.dialog_close), onClick = onDone) },
+        dismissButton = {
+            if (folder.sharedCardsRomId != null) DialogButton(text = stringResource(R.string.saves31_shared_stop), onClick = { viewModel.setSharedCards(context, folder.label, null); onDone() })
+        }
     )
 }

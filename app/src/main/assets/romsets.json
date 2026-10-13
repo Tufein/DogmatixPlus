@@ -1,10 +1,20 @@
 {
-  "schema": 1,
-  "checkedAt": "2026-10-10",
-  "publisher": "Libretro",
-  "provenance": "https://github.com/libretro/libretro-content",
+  "schema": 2,
+  "checkedAt": "2026-10-13",
+  "providers": [
+    {
+      "id": "libretro",
+      "name": "Libretro",
+      "homepage": "https://www.libretro.com/",
+      "provenance": "https://github.com/libretro/libretro-content",
+      "licence": "published",
+      "baseUrl": "https://buildbot.libretro.com/assets/cores/",
+      "checkedAt": "2026-10-13"
+    }
+  ],
   "entries": [
     {
+      "provider": "libretro",
       "id": "nintendo_nintendo_entertainment_system",
       "manufacturerId": "nintendo",
       "manufacturerName": "Nintendo",
@@ -20,6 +30,7 @@
       "fileCount": 26
     },
     {
+      "provider": "libretro",
       "id": "nintendo_super_nintendo_entertainment_system",
       "manufacturerId": "nintendo",
       "manufacturerName": "Nintendo",
@@ -34,6 +45,7 @@
       "fileCount": 4
     },
     {
+      "provider": "libretro",
       "id": "nintendo_nintendo_64",
       "manufacturerId": "nintendo",
       "manufacturerName": "Nintendo",
@@ -47,6 +59,7 @@
       "fileCount": 4
     },
     {
+      "provider": "libretro",
       "id": "nintendo_gameboy",
       "manufacturerId": "nintendo",
       "manufacturerName": "Nintendo",
@@ -62,6 +75,7 @@
       "fileCount": 11
     },
     {
+      "provider": "libretro",
       "id": "nintendo_gameboy_advance",
       "manufacturerId": "nintendo",
       "manufacturerName": "Nintendo",
@@ -76,6 +90,7 @@
       "fileCount": 2
     },
     {
+      "provider": "libretro",
       "id": "nintendo_nintendo_3ds",
       "manufacturerId": "nintendo",
       "manufacturerName": "Nintendo",
@@ -90,6 +105,7 @@
       "fileCount": 1
     },
     {
+      "provider": "libretro",
       "id": "nintendo_virtual_boy",
       "manufacturerId": "nintendo",
       "manufacturerName": "Nintendo",
@@ -104,6 +120,7 @@
       "fileCount": 2
     },
     {
+      "provider": "libretro",
       "id": "nintendo_pokemon_mini",
       "manufacturerId": "nintendo",
       "manufacturerName": "Nintendo",
@@ -118,6 +135,7 @@
       "fileCount": 1
     },
     {
+      "provider": "libretro",
       "id": "sony_playstation",
       "manufacturerId": "sony",
       "manufacturerName": "Sony",
@@ -134,6 +152,7 @@
       "fileCount": 2
     },
     {
+      "provider": "libretro",
       "id": "sony_playstation_portable",
       "manufacturerId": "sony",
       "manufacturerName": "Sony",
@@ -147,6 +166,7 @@
       "fileCount": 1
     },
     {
+      "provider": "libretro",
       "id": "sega_master_system",
       "manufacturerId": "sega",
       "manufacturerName": "Sega",
@@ -161,6 +181,7 @@
       "fileCount": 1
     },
     {
+      "provider": "libretro",
       "id": "sega_game_gear",
       "manufacturerId": "sega",
       "manufacturerName": "Sega",
@@ -175,6 +196,7 @@
       "fileCount": 1
     },
     {
+      "provider": "libretro",
       "id": "sega_genesis",
       "manufacturerId": "sega",
       "manufacturerName": "Sega",
@@ -190,6 +212,7 @@
       "fileCount": 15
     },
     {
+      "provider": "libretro",
       "id": "sega_saturn",
       "manufacturerId": "sega",
       "manufacturerName": "Sega",
@@ -203,6 +226,7 @@
       "fileCount": 1
     },
     {
+      "provider": "libretro",
       "id": "sega_dreamcast",
       "manufacturerId": "sega",
       "manufacturerName": "Sega",
@@ -217,6 +241,7 @@
       "fileCount": 3
     },
     {
+      "provider": "libretro",
       "id": "atari_2600",
       "manufacturerId": "atari",
       "manufacturerName": "Atari",
@@ -231,6 +256,7 @@
       "fileCount": 1
     },
     {
+      "provider": "libretro",
       "id": "bandai_wonderswan_color",
       "manufacturerId": "bandai",
       "manufacturerName": "Bandai",
@@ -245,6 +271,7 @@
       "fileCount": 1
     },
     {
+      "provider": "libretro",
       "id": "coleco_colecovision",
       "manufacturerId": "coleco",
       "manufacturerName": "Coleco",
@@ -259,6 +286,7 @@
       "fileCount": 1
     },
     {
+      "provider": "libretro",
       "id": "gce_vectrex",
       "manufacturerId": "gce",
       "manufacturerName": "GCE",
@@ -272,6 +300,7 @@
       "fileCount": 44
     },
     {
+      "provider": "libretro",
       "id": "mattel_intellivision",
       "manufacturerId": "mattel",
       "manufacturerName": "Mattel",
@@ -286,6 +315,7 @@
       "fileCount": 1
     },
     {
+      "provider": "libretro",
       "id": "nec_pc_engine",
       "manufacturerId": "nec",
       "manufacturerName": "NEC",
@@ -301,6 +331,7 @@
       "fileCount": 5
     },
     {
+      "provider": "libretro",
       "id": "nec_supergrafx",
       "manufacturerId": "nec",
       "manufacturerName": "NEC",
@@ -315,6 +346,7 @@
       "fileCount": 5
     },
     {
+      "provider": "libretro",
       "id": "snk_neo_geo_pocket",
       "manufacturerId": "snk",
       "manufacturerName": "SNK",
@@ -328,6 +360,103 @@
       ],
       "folder": "SNK - Neo Geo Pocket",
       "fileCount": 1
+    },
+    {
+      "provider": "libretro",
+      "id": "nintendo_gamecube",
+      "manufacturerId": "nintendo",
+      "manufacturerName": "Nintendo",
+      "consoleKey": "gamecube",
+      "consoleName": "GameCube",
+      "shortName": "GC",
+      "aliases": [
+        "gc",
+        "ngc",
+        "gamecube"
+      ],
+      "folder": "Nintendo - GameCube - Wii",
+      "fileCount": 4
+    },
+    {
+      "provider": "libretro",
+      "id": "homebrew_chip_8",
+      "manufacturerId": "homebrew",
+      "manufacturerName": "Homebrew and fantasy consoles",
+      "consoleKey": "chip_8",
+      "consoleName": "CHIP-8",
+      "shortName": "CH8",
+      "aliases": [
+        "chip8",
+        "chip-8",
+        "ch8",
+        "schip",
+        "xochip"
+      ],
+      "folder": "CHIP-8",
+      "fileCount": 95
+    },
+    {
+      "provider": "libretro",
+      "id": "homebrew_tic_80",
+      "manufacturerId": "homebrew",
+      "manufacturerName": "Homebrew and fantasy consoles",
+      "consoleKey": "tic_80",
+      "consoleName": "TIC-80",
+      "shortName": "TIC",
+      "aliases": [
+        "tic80",
+        "tic-80",
+        "tic"
+      ],
+      "folder": "TIC-80",
+      "fileCount": 12
+    },
+    {
+      "provider": "libretro",
+      "id": "homebrew_wasm_4",
+      "manufacturerId": "homebrew",
+      "manufacturerName": "Homebrew and fantasy consoles",
+      "consoleKey": "wasm_4",
+      "consoleName": "WASM-4",
+      "shortName": "W4",
+      "aliases": [
+        "wasm4",
+        "wasm-4",
+        "w4"
+      ],
+      "folder": "WASM-4",
+      "fileCount": 63
+    },
+    {
+      "provider": "libretro",
+      "id": "homebrew_vircon32",
+      "manufacturerId": "homebrew",
+      "manufacturerName": "Homebrew and fantasy consoles",
+      "consoleKey": "vircon32",
+      "consoleName": "Vircon32",
+      "shortName": "V32",
+      "aliases": [
+        "vircon32",
+        "vircon",
+        "v32"
+      ],
+      "folder": "Vircon32",
+      "fileCount": 7
+    },
+    {
+      "provider": "libretro",
+      "id": "homebrew_uzebox",
+      "manufacturerId": "homebrew",
+      "manufacturerName": "Homebrew and fantasy consoles",
+      "consoleKey": "uzebox",
+      "consoleName": "Uzebox",
+      "shortName": "UZE",
+      "aliases": [
+        "uzebox",
+        "uze"
+      ],
+      "folder": "Uzebox",
+      "fileCount": 2
     }
   ]
 }

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="transfer31_title">Spellen kopiëren of versturen</string>
+    <string name="transfer31_subtitle">Hele spellen met elk bestand, aan de andere kant gecontroleerd</string>
+    <string name="transfer31_hint">Kopieer spellen met al hun bestanden naar een geheugenkaart, USB-stick, RomM of een NAS, met eerst een voorbeeld en een controle van elk bestand</string>
+    <string name="transfer31_kw">exporteren, kopiëren, sd-kaart, geheugenkaart, usb-stick, nas, webdav, romm, uploaden, versturen, pakket, map, overzetten</string>
+    <string name="transfer31_open">De spellen zelf kopiëren of versturen</string>
+    <string name="transfer31_intro">Kies spellen en waar ze heen gaan. Voordat er iets wordt geschreven, zie je elk bestand, de ruimte die nodig is en wat er al staat. Bestanden op dit apparaat worden nooit gewijzigd, verplaatst of verwijderd, en op de bestemming wordt niets vervangen.</string>
+    <string name="transfer31_restricted">Alleen de spellen die dit profiel toont, staan in de lijst.</string>
+    <string name="transfer31_load_failed">De lijst met spellen kon niet worden gelezen. Controleer of je spelmappen bereikbaar zijn en probeer het opnieuw.</string>
+
+    <string name="transfer31_where">Waarheen</string>
+    <string name="transfer31_target_folder">Map, geheugenkaart of USB-stick</string>
+    <string name="transfer31_target_folder_note">Je kiest de map hierna. Spellen houden dezelfde mappen als op dit apparaat.</string>
+    <string name="transfer31_target_romm">RomM-server</string>
+    <string name="transfer31_target_romm_note">RomM neemt één bestand per spel aan, zonder mappen. Een spel van meerdere bestanden wordt verpakt in één ZIP die de mappen behoudt (opgeslagen, niet gecomprimeerd); een los bestand gaat zoals het is.</string>
+    <string name="transfer31_target_romm_missing">Stel eerst RomM in via Instellingen → RomM.</string>
+    <string name="transfer31_target_nas">NAS (WebDAV)</string>
+    <string name="transfer31_target_nas_note">Gaat naar de map games in de map van de app op je NAS (Instellingen → Cloud), met dezelfde mappen als op dit apparaat.</string>
+    <string name="transfer31_target_nas_missing">Stel eerst de NAS-verbinding in via Instellingen → Cloud.</string>
+    <string name="transfer31_read_back">Elk bestand teruglezen</string>
+    <string name="transfer31_read_back_hint">Vergelijkt de SHA-256 van elk bestand op de NAS met het origineel. Trager, maar bewijst dat elk bestand heel is aangekomen; anders worden de groottes vergeleken.</string>
+    <string name="transfer31_on">Aan</string>
+    <string name="transfer31_off">Uit</string>
+
+    <string name="transfer31_conflict_title">Als er al een ander bestand met dezelfde naam staat</string>
+    <string name="transfer31_conflict_hint">Daar wordt nooit iets vervangen. Een nieuwe naam gaat naar de eigen map van het spel (of het enige bestand), zodat de bestanden elkaar blijven vinden.</string>
+    <string name="transfer31_conflict_skip">Dat spel overslaan</string>
+    <string name="transfer31_conflict_rename">Onder een nieuwe naam kopiëren</string>
+
+    <string name="transfer31_games">Spellen</string>
+    <string name="transfer31_games_count">%1$d van %2$d gekozen</string>
+    <string name="transfer31_select_all">Alles kiezen</string>
+    <string name="transfer31_select_none">Niets kiezen</string>
+    <string name="transfer31_no_games_title">Nog geen spellen om te kopiëren</string>
+    <string name="transfer31_no_games">Alleen spellen die de app heeft gedownload, houden bij welke bestanden erbij horen. Alleen die kunnen in hun geheel worden gekopieerd of verstuurd.</string>
+    <string name="transfer31_files">Bestanden</string>
+    <string name="transfer31_close">Sluiten</string>
+
+    <string name="transfer31_preview">Controleren en voorbeeld</string>
+    <string name="transfer31_preview_folder">Map kiezen en voorbeeld</string>
+    <string name="transfer31_checking">De bestanden op dit apparaat en op de bestemming worden gecontroleerd…</string>
+    <string name="transfer31_cancel">Annuleren</string>
+    <string name="transfer31_preview_failed">De controle kon niet worden afgerond: %1$s</string>
+    <string name="transfer31_to">Naar: %1$s</string>
+    <string name="transfer31_volume_internal">Interne opslag</string>
+    <string name="transfer31_volume_external">Geheugenkaart of USB-stick (%1$s)</string>
+    <string name="transfer31_place_romm">RomM-server %1$s</string>
+    <string name="transfer31_place_nas">NAS-map %1$s</string>
+    <string name="transfer31_app_folder">Dit is een van de eigen mappen van de app: kopieën daar verschijnen in je bibliotheek.</string>
+    <string name="transfer31_to_copy">Te kopiëren: %1$s</string>
+    <string name="transfer31_to_send">Te versturen: %1$s</string>
+    <string name="transfer31_present">Staat er al: %1$s (wordt tijdens het kopiëren byte voor byte vergeleken en blijft zoals het is)</string>
+    <string name="transfer31_free">Vrije ruimte daar: %1$s</string>
+    <string name="transfer31_free_unknown">De vrije ruimte daar is niet bekend.</string>
+    <string name="transfer31_no_space">Niet genoeg ruimte: %1$s nodig, %2$s vrij (%3$s blijft vrij als reserve).</string>
+    <string name="transfer31_saves_title">Savebestanden blijven op dit apparaat</string>
+    <string name="transfer31_unavailable_title">Overgeslagen: bestanden ontbreken of zijn gewijzigd op dit apparaat</string>
+    <string name="transfer31_unavailable_line">%1$s: %2$d ontbreken, %3$d gewijzigd</string>
+    <string name="transfer31_skipped">Overgeslagen: er staat al een ander bestand met dezelfde naam</string>
+    <string name="transfer31_renamed">Gaat naar een nieuwe naam: %1$s</string>
+    <string name="transfer31_only_saves">Niets te kopiëren: het bevat alleen savebestanden</string>
+    <string name="transfer31_state_new">Nieuw</string>
+    <string name="transfer31_state_present">Staat er al</string>
+    <string name="transfer31_shared_by">Gedeeld met: %1$s</string>
+    <string name="transfer31_in_the_way">In de weg: %1$s</string>
+    <string name="transfer31_romm_single">Gaat zoals het is</string>
+    <string name="transfer31_romm_present">RomM heeft het al met dezelfde naam en grootte: gecontroleerd, niet opnieuw verstuurd</string>
+    <string name="transfer31_romm_skipped">Overgeslagen: RomM heeft een ander bestand met de naam %1$s</string>
+    <string name="transfer31_romm_renamed">Verstuurd als %1$s, omdat RomM een ander bestand met de oorspronkelijke naam heeft</string>
+    <string name="transfer31_romm_no_platform">Overgeslagen: deze console heeft nog geen RomM-platform (Instellingen → RomM)</string>
+    <string name="transfer31_romm_too_large">Overgeslagen: 4 GB of meer past niet in één ZIP. Stuur het in plaats daarvan naar de NAS.</string>
+    <string name="transfer31_romm_only_saves">Overgeslagen: het bevat alleen savebestanden</string>
+    <string name="transfer31_start_copy">Kopiëren</string>
+    <string name="transfer31_start_send">Versturen</string>
+    <string name="transfer31_back">Terug</string>
+
+    <string name="transfer31_progress">Bestand %1$d van %2$d: %3$s</string>
+    <string name="transfer31_progress_bytes">%1$s van %2$s</string>
+    <string name="transfer31_stop">Stoppen</string>
+    <string name="transfer31_result_ok">Alles is aangekomen en gecontroleerd.</string>
+    <string name="transfer31_result_some">Sommige bestanden zijn niet aangekomen of konden niet worden gecontroleerd. Open een spel om elk bestand te zien.</string>
+    <string name="transfer31_result_counts">%1$d van %2$d bestanden klaar</string>
+    <string name="transfer31_stopped">Gestopt. Bestanden die al zijn gekopieerd, blijven staan; op dit apparaat is niets veranderd.</string>
+    <string name="transfer31_run_error">Het overzetten is gestopt: %1$s</string>
+    <string name="transfer31_running_elsewhere">Er loopt nog een overdracht. Stop die of wacht tot hij klaar is.</string>
+    <string name="transfer31_done">Klaar</string>
+
+    <string name="transfer31_o_sent_hash">Aangekomen, SHA-256 gecontroleerd</string>
+    <string name="transfer31_o_sent_size">Aangekomen, grootte gecontroleerd</string>
+    <string name="transfer31_o_present_hash">Stond er al, identiek</string>
+    <string name="transfer31_o_present_size">Stond er al, zelfde grootte</string>
+    <string name="transfer31_o_waiting">Verstuurd. RomM toont het na de volgende scan; probeer het later opnieuw om het te controleren.</string>
+    <string name="transfer31_o_conflict">Er staat een ander bestand met deze naam. Dat is bewaard en er is niets overheen gekopieerd.</string>
+    <string name="transfer31_o_changed">Het bestand op dit apparaat is niet meer het vastgelegde bestand, dus het is niet verstuurd.</string>
+    <string name="transfer31_o_failed">Mislukt</string>
+    <string name="transfer31_o_not_sent">Niet verstuurd</string>
+    <string name="transfer31_s_ok">Gecontroleerd</string>
+    <string name="transfer31_s_present">Stond er al</string>
+    <string name="transfer31_s_waiting">Nog niet zichtbaar</string>
+    <string name="transfer31_s_conflict">Naam bezet</string>
+    <string name="transfer31_s_changed">Gewijzigd</string>
+    <string name="transfer31_in_zip">In %1$s</string>
+    <string name="transfer31_detail_folder_blocked">Er staat een bestand waar een map moet komen.</string>
+    <string name="transfer31_detail_verify">De kopie kwam niet overeen met het origineel; ze is verwijderd zodat ze opnieuw kan worden verstuurd.</string>
+    <string name="transfer31_detail_rename">De map accepteerde de bestandsnaam niet.</string>
+
+    <plurals name="transfer31_file_count">
+        <item quantity="one">%1$d bestand · %2$s</item>
+        <item quantity="other">%1$d bestanden · %2$s</item>
+    </plurals>
+    <plurals name="transfer31_shared">
+        <item quantity="one">%d bestand wordt door meerdere van deze spellen gebruikt en wordt één keer gekopieerd.</item>
+        <item quantity="other">%d bestanden worden door meerdere van deze spellen gebruikt en worden één keer gekopieerd.</item>
+    </plurals>
+    <plurals name="transfer31_saves">
+        <item quantity="one">%d savebestand of savestate hoort bij deze spellen en wordt niet gekopieerd:</item>
+        <item quantity="other">%d savebestanden of savestates horen bij deze spellen en worden niet gekopieerd:</item>
+    </plurals>
+    <plurals name="transfer31_romm_zip">
+        <item quantity="one">Verpakt in één ZIP met %d bestand, mappen behouden</item>
+        <item quantity="other">Verpakt in één ZIP met %d bestanden, mappen behouden</item>
+    </plurals>
+    <plurals name="transfer31_retry">
+        <item quantity="one">Opnieuw proberen (%d spel)</item>
+        <item quantity="other">Opnieuw proberen (%d spellen)</item>
+    </plurals>
+    <plurals name="transfer31_more">
+        <item quantity="one">en nog %d</item>
+        <item quantity="other">en nog %d</item>
+    </plurals>
+</resources>

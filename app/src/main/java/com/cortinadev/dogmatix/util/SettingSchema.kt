@@ -41,6 +41,7 @@ object SettingSchema {
         put(VersionPreferences.PINNED_KEY, "s")
         put(VersionPreferences.OVERRIDES_KEY, "s")
         put(DownloadPresets.KEY, "s")
+        putAll(FrontendCovers.SETTING_TYPES)
     }
 
     fun localName(name: String): String =

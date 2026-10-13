@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Contentcatalogus: aanbieders en consolekoppeling -->
+    <string name="src31_hint">Kies gratis contentcollecties van gecontroleerde aanbieders. Ze bevatten homebrew, demo\'s en testsoftware, geen complete commerciële romsets. Elke collectie komt bij de bijpassende console die je al hebt, of bij een nieuwe. Bestaande bronnen blijven staan.</string>
+    <string name="src31_all_providers">Alle aanbieders</string>
+    <string name="src31_search">Zoek console of aanbieder</string>
+    <string name="src31_provider_site">Website: %1$s</string>
+    <string name="src31_provider_list">Contentlijst: %1$s</string>
+    <string name="src31_provider_checked">Lijsten gecontroleerd op %1$s</string>
+    <string name="src31_licence_published">Gratis content die de aanbieder zelf aanbiedt om te downloaden: homebrew, freeware, demo\'s en testsoftware.</string>
+    <string name="src31_licence_public_domain">Door de makers in het publieke domein geplaatst.</string>
+    <string name="src31_licence_free">Door de makers uitgebracht onder een vrije licentie die delen toestaat.</string>
+    <string name="src31_entry_files">%1$s · %2$d bestanden bij de laatste controle</string>
+    <string name="src31_maps_existing">Komt bij je console %1$s</string>
+    <string name="src31_maps_new">Voegt een nieuwe console toe: %1$s</string>
+
+    <!-- Covers voor iiSU en Daijishō -->
+    <string name="covers31_title">Covers voor iiSU en Daijishō</string>
+    <string name="covers31_subtitle">Zet covers waar deze launchers ze kunnen tonen</string>
+    <string name="covers31_hint">Schrijf covers van je games naar de map waaruit iiSU of Daijishō ze leest</string>
+    <string name="covers31_kw">artwork, boxart, hoesjes, afbeeldingen, media, thumbnails, iisu, daijisho</string>
+    <string name="covers31_what_title">Covers voor je launcher</string>
+    <string name="covers31_what_body">Dogmatix+ zet één cover per game in een map die jij kiest, met een submap per console die net zo heet als je consolemappen. De covers komen van je RomM-server, libretro-thumbnails of covers die eerder gevonden zijn, en worden als PNG opgeslagen. Afbeeldingen die er al staan blijven staan, tenzij je kiest om ze te vervangen.</string>
+    <string name="covers31_section_frontend">Launcher</string>
+    <string name="covers31_section_folder">Covermap</string>
+    <string name="covers31_folder_title">Map voor covers van %1$s</string>
+    <string name="covers31_folder_none">Nog geen map gekozen</string>
+    <string name="covers31_folder_not_writable">Er kan niet meer naar deze map geschreven worden. Kies hem opnieuw.</string>
+    <string name="covers31_needs_folder">Opnieuw kiezen</string>
+    <string name="covers31_pick">Map kiezen</string>
+    <string name="covers31_change">Wijzigen</string>
+    <string name="covers31_hint_iisu">Kijk in iiSU uit welke map het covers leest, en kies hier diezelfde map.</string>
+    <string name="covers31_hint_daijisho">Kijk in Daijishō uit welke map je platforms lokale covers lezen, en kies hier diezelfde map.</string>
+    <string name="covers31_section_names">Bestandsnamen</string>
+    <string name="covers31_layout_stem">Naam zonder extensie</string>
+    <string name="covers31_layout_stem_hint">Bijvoorbeeld %1$s. De gebruikelijke keuze.</string>
+    <string name="covers31_layout_full">Volledige bestandsnaam</string>
+    <string name="covers31_layout_full_hint">Bijvoorbeeld %1$s. Voor een launcher die covers koppelt op de hele bestandsnaam, met extensie.</string>
+    <string name="covers31_overwrite_title">Covers vervangen die er al staan</string>
+    <string name="covers31_overwrite_hint">Uit: afbeeldingen die al in de map staan worden nooit aangeraakt. Aan: een cover met precies dezelfde naam wordt vervangen.</string>
+    <string name="covers31_section_preview">Voorbeeld</string>
+    <string name="covers31_preview_loading">Uitzoeken wat er geschreven zou worden…</string>
+    <string name="covers31_preview_failed">Het voorbeeld kon niet gemaakt worden. Zorg dat je gamemappen en de covermap bereikbaar zijn en vernieuw dan.</string>
+    <string name="covers31_preview_no_folder">Kies eerst de covermap.</string>
+    <string name="covers31_preview_no_games">Nog geen games gevonden in je gamemappen.</string>
+    <string name="covers31_preview_nothing">Elke game heeft al een cover in deze map. Er hoeft niets geschreven te worden.</string>
+    <plurals name="covers31_preview_count">
+        <item quantity="one">Tot %1$s cover wordt geschreven naar %2$s</item>
+        <item quantity="other">Tot %1$s covers worden geschreven naar %2$s</item>
+    </plurals>
+    <string name="covers31_preview_example">In %1$s consolemappen, bijvoorbeeld: %2$s</string>
+    <string name="covers31_preview_replace">%1$s covers met dezelfde naam worden vervangen.</string>
+    <string name="covers31_preview_sources">Games zonder cover in een van de bronnen worden overgeslagen; het resultaat laat zien hoeveel.</string>
+    <string name="covers31_preview_kept">%1$s games hebben daar al een cover; die blijven staan.</string>
+    <string name="covers31_preview_skipped">%1$s games worden overgeslagen: hun naam kan niet als coverbestand dienen, of een andere game gebruikt hem al.</string>
+    <string name="covers31_preview_outside">%1$s games staan niet in een consolemap en worden overgeslagen.</string>
+    <string name="covers31_preview_profile">Alleen games die dit profiel toont doen mee.</string>
+    <string name="covers31_write">Covers schrijven</string>
+    <string name="covers31_refresh">Voorbeeld vernieuwen</string>
+    <string name="covers31_stop">Stoppen</string>
+    <string name="covers31_preparing">Je bibliotheek lezen…</string>
+    <string name="covers31_running">Covers schrijven: %1$s van %2$s</string>
+    <string name="covers31_result_title">Covers geschreven</string>
+    <string name="covers31_result_stopped">Gestopt. Wat geschreven is, blijft staan.</string>
+    <string name="covers31_result_written">Nieuwe covers: %1$s</string>
+    <string name="covers31_result_replaced">Vervangen: %1$s</string>
+    <string name="covers31_result_kept">Had al een cover: %1$s</string>
+    <string name="covers31_result_nocover">Geen cover gevonden: %1$s</string>
+    <string name="covers31_result_failed">Kon niet geschreven worden: %1$s</string>
+    <string name="covers31_problem_failed">De covers konden niet geschreven worden. Zorg dat de mappen bereikbaar zijn en probeer het opnieuw.</string>
+</resources>

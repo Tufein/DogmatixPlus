@@ -40,6 +40,24 @@ interface DavStore {
     /** Deletes [url]; already gone counts as done. */
     fun delete(url: String)
 
+    /**
+     * Streams a large file of [size] bytes to [url] without holding it in memory. [open] gives the
+     * bytes and is called again when a request has to be repeated (a redirect). With [ifNoneMatch]
+     * the write only happens when there is no file yet.
+     */
+    fun putStream(url: String, size: Long, open: () -> java.io.InputStream, ifNoneMatch: Boolean = false): Unit =
+        throw UnsupportedOperationException("Streaming upload not supported")
+
+    /** Reads the file at [url] through [read] without holding it in memory; null when there is none. */
+    fun <T> getStream(url: String, read: (java.io.InputStream) -> T): T? =
+        throw UnsupportedOperationException("Streaming download not supported")
+
+    /**
+     * Moves [from] to [to] only when nothing is at [to] yet ([DavProblem.PRECONDITION] otherwise).
+     * False when this server cannot move files.
+     */
+    fun moveNoReplace(from: String, to: String): Boolean = false
+
     /** Where the last request really ended (after same-host redirects). */
     val lastUrl: String
 }

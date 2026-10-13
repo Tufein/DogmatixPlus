@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="transfer31_title">Copy or send games</string>
+    <string name="transfer31_subtitle">Whole games with every file, checked at the other end</string>
+    <string name="transfer31_hint">Copy games with all their files to a memory card, USB stick, RomM or a NAS, with a preview first and a check of every file</string>
+    <string name="transfer31_kw">export, copy, sd card, memory card, usb stick, nas, webdav, romm, upload, send, package, folder, transfer</string>
+    <string name="transfer31_open">Copy or send the games themselves</string>
+    <string name="transfer31_intro">Pick games and where they go. Before anything is written you see every file, the space it needs and what is already there. Files on this device are never changed, moved or deleted, and nothing at the destination is replaced.</string>
+    <string name="transfer31_restricted">Only the games this profile shows are listed.</string>
+    <string name="transfer31_load_failed">The game list could not be read. Make sure your game folders are reachable and try again.</string>
+
+    <string name="transfer31_where">Where to</string>
+    <string name="transfer31_target_folder">Folder, memory card or USB stick</string>
+    <string name="transfer31_target_folder_note">You pick the folder next. Games keep the same folders as on this device.</string>
+    <string name="transfer31_target_romm">RomM server</string>
+    <string name="transfer31_target_romm_note">RomM takes one file per game, without folders. A game of several files is packed into one ZIP that keeps its folders (stored, not compressed); a single file goes as it is.</string>
+    <string name="transfer31_target_romm_missing">Set up RomM in Settings → RomM first.</string>
+    <string name="transfer31_target_nas">NAS (WebDAV)</string>
+    <string name="transfer31_target_nas_note">Goes to the games folder inside the app\'s folder on your NAS (Settings → Cloud), with the same folders as on this device.</string>
+    <string name="transfer31_target_nas_missing">Set up the NAS connection in Settings → Cloud first.</string>
+    <string name="transfer31_read_back">Read every file back</string>
+    <string name="transfer31_read_back_hint">Compares the SHA-256 of each file on the NAS with the original. Slower, but proves every file arrived intact; otherwise sizes are compared.</string>
+    <string name="transfer31_on">On</string>
+    <string name="transfer31_off">Off</string>
+
+    <string name="transfer31_conflict_title">If another file of the same name is there</string>
+    <string name="transfer31_conflict_hint">Nothing there is ever replaced. A new name goes to the game\'s own folder (or its single file), so its files still find each other.</string>
+    <string name="transfer31_conflict_skip">Leave that game out</string>
+    <string name="transfer31_conflict_rename">Copy it under a new name</string>
+
+    <string name="transfer31_games">Games</string>
+    <string name="transfer31_games_count">%1$d of %2$d selected</string>
+    <string name="transfer31_select_all">Select all</string>
+    <string name="transfer31_select_none">Select none</string>
+    <string name="transfer31_no_games_title">No games to copy yet</string>
+    <string name="transfer31_no_games">Only games downloaded by the app keep a record of all their files, so only those can be copied or sent whole.</string>
+    <string name="transfer31_files">Files</string>
+    <string name="transfer31_close">Close</string>
+
+    <string name="transfer31_preview">Check and preview</string>
+    <string name="transfer31_preview_folder">Pick folder and preview</string>
+    <string name="transfer31_checking">Checking the files on this device and at the destination…</string>
+    <string name="transfer31_cancel">Cancel</string>
+    <string name="transfer31_preview_failed">The check could not finish: %1$s</string>
+    <string name="transfer31_to">To: %1$s</string>
+    <string name="transfer31_volume_internal">Internal storage</string>
+    <string name="transfer31_volume_external">Memory card or USB stick (%1$s)</string>
+    <string name="transfer31_place_romm">RomM server %1$s</string>
+    <string name="transfer31_place_nas">NAS folder %1$s</string>
+    <string name="transfer31_app_folder">This is one of the app\'s own folders: copies there show up in your library.</string>
+    <string name="transfer31_to_copy">To copy: %1$s</string>
+    <string name="transfer31_to_send">To send: %1$s</string>
+    <string name="transfer31_present">Already there: %1$s (compared byte for byte while copying, kept as it is)</string>
+    <string name="transfer31_free">Free space there: %1$s</string>
+    <string name="transfer31_free_unknown">The free space there is not known.</string>
+    <string name="transfer31_no_space">Not enough space: %1$s needed, %2$s free (%3$s is kept spare).</string>
+    <string name="transfer31_saves_title">Save files stay on this device</string>
+    <string name="transfer31_unavailable_title">Left out: files missing or changed on this device</string>
+    <string name="transfer31_unavailable_line">%1$s: %2$d missing, %3$d changed</string>
+    <string name="transfer31_skipped">Left out: another file of the same name is there</string>
+    <string name="transfer31_renamed">Goes to a new name: %1$s</string>
+    <string name="transfer31_only_saves">Nothing to copy: it only holds save files</string>
+    <string name="transfer31_state_new">New</string>
+    <string name="transfer31_state_present">Already there</string>
+    <string name="transfer31_shared_by">Shared with: %1$s</string>
+    <string name="transfer31_in_the_way">In the way: %1$s</string>
+    <string name="transfer31_romm_single">Sent as it is</string>
+    <string name="transfer31_romm_present">RomM already has it with the same name and size: checked, not sent again</string>
+    <string name="transfer31_romm_skipped">Left out: RomM has another file named %1$s</string>
+    <string name="transfer31_romm_renamed">Sent as %1$s, because RomM has another file of the original name</string>
+    <string name="transfer31_romm_no_platform">Left out: this console has no RomM platform yet (Settings → RomM)</string>
+    <string name="transfer31_romm_too_large">Left out: 4 GB or more cannot go into one ZIP. Send it to the NAS instead.</string>
+    <string name="transfer31_romm_only_saves">Left out: it only holds save files</string>
+    <string name="transfer31_start_copy">Copy</string>
+    <string name="transfer31_start_send">Send</string>
+    <string name="transfer31_back">Back</string>
+
+    <string name="transfer31_progress">File %1$d of %2$d: %3$s</string>
+    <string name="transfer31_progress_bytes">%1$s of %2$s</string>
+    <string name="transfer31_stop">Stop</string>
+    <string name="transfer31_result_ok">Everything arrived and was checked.</string>
+    <string name="transfer31_result_some">Some files did not arrive or could not be checked. Open a game to see each file.</string>
+    <string name="transfer31_result_counts">%1$d of %2$d files done</string>
+    <string name="transfer31_stopped">Stopped. Files already copied stay where they are; nothing on this device changed.</string>
+    <string name="transfer31_run_error">The transfer stopped: %1$s</string>
+    <string name="transfer31_running_elsewhere">A transfer is still running. Stop it or wait until it is done.</string>
+    <string name="transfer31_done">Done</string>
+
+    <string name="transfer31_o_sent_hash">Arrived, SHA-256 checked</string>
+    <string name="transfer31_o_sent_size">Arrived, size checked</string>
+    <string name="transfer31_o_present_hash">Already there, identical</string>
+    <string name="transfer31_o_present_size">Already there, same size</string>
+    <string name="transfer31_o_waiting">Sent. RomM lists it after its next scan; try again later to check it.</string>
+    <string name="transfer31_o_conflict">Another file of this name is there. It was kept and nothing was copied over it.</string>
+    <string name="transfer31_o_changed">The file on this device is no longer the recorded one, so it was not sent.</string>
+    <string name="transfer31_o_failed">Failed</string>
+    <string name="transfer31_o_not_sent">Not sent</string>
+    <string name="transfer31_s_ok">Checked</string>
+    <string name="transfer31_s_present">Already there</string>
+    <string name="transfer31_s_waiting">Not listed yet</string>
+    <string name="transfer31_s_conflict">Name taken</string>
+    <string name="transfer31_s_changed">Changed</string>
+    <string name="transfer31_in_zip">In %1$s</string>
+    <string name="transfer31_detail_folder_blocked">A file is where a folder should go.</string>
+    <string name="transfer31_detail_verify">The copy did not match the original; it was removed so it can be sent again.</string>
+    <string name="transfer31_detail_rename">The folder did not accept the file name.</string>
+
+    <plurals name="transfer31_file_count">
+        <item quantity="one">%1$d file · %2$s</item>
+        <item quantity="other">%1$d files · %2$s</item>
+    </plurals>
+    <plurals name="transfer31_shared">
+        <item quantity="one">%d file is used by several of these games and is copied once.</item>
+        <item quantity="other">%d files are used by several of these games and are copied once.</item>
+    </plurals>
+    <plurals name="transfer31_saves">
+        <item quantity="one">%d save file or save state belongs to these games and is not copied:</item>
+        <item quantity="other">%d save files or save states belong to these games and are not copied:</item>
+    </plurals>
+    <plurals name="transfer31_romm_zip">
+        <item quantity="one">Packed into one ZIP with its %d file, folders kept</item>
+        <item quantity="other">Packed into one ZIP with its %d files, folders kept</item>
+    </plurals>
+    <plurals name="transfer31_retry">
+        <item quantity="one">Try again (%d game)</item>
+        <item quantity="other">Try again (%d games)</item>
+    </plurals>
+    <plurals name="transfer31_more">
+        <item quantity="one">and %d more</item>
+        <item quantity="other">and %d more</item>
+    </plurals>
+</resources>

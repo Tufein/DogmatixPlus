@@ -34,7 +34,10 @@ import com.cortinadev.dogmatix.util.SaveHandoff
 import com.cortinadev.dogmatix.util.SaveHandoffPreview
 import com.cortinadev.dogmatix.util.SaveHandoffDirection
 import com.cortinadev.dogmatix.util.Profiles
-import com.cortinadev.dogmatix.util.ConsoleFolderAliases
+import com.cortinadev.dogmatix.util.EmulatorSaveLayouts
+import com.cortinadev.dogmatix.util.MemoryCard
+import com.cortinadev.dogmatix.util.SaveFolderLayout
+import com.cortinadev.dogmatix.util.SavePack
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -44,6 +47,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,6 +69,8 @@ private const val TAG = "SaveSyncService"
 
 /** Bigger files are not saves (or not ones worth moving over the network on every sync). */
 private const val MAX_FILE_BYTES = 64L * 1024 * 1024
+/** Server lookups one hand-off may make to tie memory cards and save folders to the game. */
+private const val MAX_HANDOFF_LOOKUPS = 40
 
 /** Automatic syncs (app opened / back in front) run at most this often. */
 private const val AUTO_INTERVAL_MS = 2 * 60 * 1000L
@@ -229,6 +235,10 @@ class SaveSyncService @Inject constructor(
     private inner class SafSaveStore(private val readLimit: Long = MAX_FILE_BYTES) : SaveStore {
         /** Document of every file of the last listing (and of later writes), by [SaveSyncEngine.key]. */
         private var documents: Map<String, Uri> = emptyMap()
+        /** The files of every PPSSPP save folder of the last listing (and of later writes), by [SaveSyncEngine.key]. */
+        private var packs: Map<String, List<PackFile>> = emptyMap()
+        /** Hashes of save folders already kept as safety copies by this store, so a replacement does not copy them twice. */
+        private val packCopies = mutableSetOf<String>()
 
         override suspend fun list(): SaveStore.Listing = withContext(Dispatchers.IO) {
             val savesUri = settingsRepository.saveSyncSavesDir.first()
@@ -237,6 +247,44 @@ class SaveSyncService @Inject constructor(
             val topFolders = mutableMapOf<SaveKind, Set<String>>()
             var tooLarge = 0
             val emulatorFolders = appSettings.saveSyncEmulatorFolders.first()
+            val holdSharedCards = mutableSetOf<String>()
+            val packFiles = mutableMapOf<String, List<PackFile>>()
+            // DuckStation's memory cards: one level, only cards; shared cards only when the user chose a game for them.
+            fun scanCards(folder: EmulatorSaveFolder) {
+                val (tree, rootId) = layoutRoot(folder)
+                val children = query(tree, rootId) ?: throw IOException("${folder.label} cannot be read; pick it again")
+                topFolders[SaveKind.SAVE] = topFolders[SaveKind.SAVE].orEmpty() + folder.label
+                if (folder.sharedCardsRomId == null) holdSharedCards += folder.label
+                children.filter { !it.isDir }.forEach { child ->
+                    val card = EmulatorSaveLayouts.memoryCard(child.name) ?: return@forEach
+                    val shared = card is MemoryCard.Shared
+                    if (shared && folder.sharedCardsRomId == null) return@forEach
+                    if (child.size > MAX_FILE_BYTES) { tooLarge++; return@forEach }
+                    files += LocalSaveFile(
+                        SaveKind.SAVE, "${folder.label}/${child.name}", child.size, child.modified, folder.platforms,
+                        SaveFolderLayout.MEMCARDS, if (shared) folder.sharedCardsRomId else null
+                    ) to DocumentsContract.buildDocumentUriUsingTree(tree, child.documentId)
+                }
+            }
+            // PPSSPP's SAVEDATA: every save folder becomes one file, `<folder>.savedata.zip`.
+            fun scanPacks(folder: EmulatorSaveFolder) {
+                val (tree, rootId) = layoutRoot(folder)
+                val children = query(tree, rootId) ?: throw IOException("${folder.label} cannot be read; pick it again")
+                topFolders[SaveKind.SAVE] = topFolders[SaveKind.SAVE].orEmpty() + folder.label
+                children.filter { it.isDir && !it.name.startsWith(".") }.forEach { dir ->
+                    // An unreadable save folder fails the listing: left out, it would look deleted.
+                    val inside = packContents(tree, dir.documentId) ?: throw IOException("${folder.label}/${dir.name} cannot be read; pick the folder again")
+                    if (inside.isEmpty()) return@forEach
+                    val size = runCatching { SavePack.packedSize(inside.map { it.path to it.size }) }.getOrNull()
+                    if (size == null || size > MAX_FILE_BYTES || inside.size > SavePack.MAX_ENTRIES) { tooLarge++; return@forEach }
+                    val file = LocalSaveFile(
+                        SaveKind.SAVE, "${folder.label}/${EmulatorSaveLayouts.packName(dir.name)}", size, inside.maxOf { it.modified },
+                        folder.platforms, SaveFolderLayout.SAVEDATA
+                    )
+                    packFiles[SaveSyncEngine.key(file)] = inside
+                    files += file to DocumentsContract.buildDocumentUriUsingTree(tree, dir.documentId)
+                }
+            }
             fun scan(treeUri: String, kindOf: (String) -> SaveKind, kinds: List<SaveKind>, under: EmulatorSaveFolder? = null) {
                 val tree = treeUri.toUri()
                 val rootId = runCatching { DocumentsContract.getTreeDocumentId(tree) }.getOrNull()
@@ -272,17 +320,23 @@ class SaveSyncService @Inject constructor(
             emulatorFolders.forEach { folder ->
                 if (topFolders[SaveKind.SAVE].orEmpty().any { it.equals(folder.label, ignoreCase = true) })
                     throw IOException(context.getString(R.string.save_sync_emulator_clash, folder.label))
-                scan(folder.uri, { SaveKind.SAVE }, listOf(SaveKind.SAVE), folder)
+                when (folder.layout) {
+                    SaveFolderLayout.FILES -> scan(folder.uri, { SaveKind.SAVE }, listOf(SaveKind.SAVE), folder)
+                    SaveFolderLayout.MEMCARDS -> scanCards(folder)
+                    SaveFolderLayout.SAVEDATA -> scanPacks(folder)
+                }
             }
             documents = files.associate { (file, uri) -> SaveSyncEngine.key(file) to uri }
+            packs = packFiles
             val rooted = buildSet {
                 if (savesUri.isNotBlank()) add(if (savesUri == statesUri) SaveKind.entries else listOf(SaveKind.SAVE))
                 if (statesUri.isNotBlank()) add(listOf(SaveKind.STATE))
             }.flatten().toSet()
-            SaveStore.Listing(files.map { it.first }, topFolders, tooLarge, topFolders.keys - rooted)
+            SaveStore.Listing(files.map { it.first }, topFolders, tooLarge, topFolders.keys - rooted, holdSharedCards)
         }
 
         override suspend fun read(file: LocalSaveFile): ByteArray = withContext(Dispatchers.IO) {
+            if (file.layout == SaveFolderLayout.SAVEDATA) return@withContext readPack(file)
             val uri = documents[SaveSyncEngine.key(file)] ?: throw IOException("${file.name} is no longer on the device")
             val bytes = context.contentResolver.openInputStream(uri)?.use { input ->
                 val out = java.io.ByteArrayOutputStream()
@@ -307,6 +361,11 @@ class SaveSyncService @Inject constructor(
         override suspend fun write(kind: SaveKind, path: String, bytes: ByteArray): LocalSaveFile = withContext(Dispatchers.IO) {
             // "DraStic (standalone)/Game.dsv" goes into DraStic's own folder when one is picked for it.
             val emulator = if (kind == SaveKind.SAVE) EmulatorSaveFolders.locate(path, appSettings.saveSyncEmulatorFolders.first()) else null
+            when (emulator?.first?.layout) {
+                SaveFolderLayout.MEMCARDS -> return@withContext writeCard(emulator.first, emulator.second, path, bytes)
+                SaveFolderLayout.SAVEDATA -> return@withContext writePack(emulator.first, emulator.second, path, bytes)
+                else -> Unit
+            }
             val root = (if (emulator != null) StorageHelper.getDocumentFile(context, emulator.first.uri) else rootFor(kind))
                 ?: throw IOException("No folder picked for ${kind.apiPath}")
             val inside = emulator?.second ?: path
@@ -317,15 +376,142 @@ class SaveSyncService @Inject constructor(
         }
 
         override suspend fun delete(file: LocalSaveFile) = withContext(Dispatchers.IO) {
+            if (file.layout != SaveFolderLayout.FILES) throw IOException("Memory cards and save folders are never removed by a sync")
             val uri = documents[SaveSyncEngine.key(file)] ?: throw IOException("${file.name} is no longer on the device")
             if (!DocumentsContract.deleteDocument(context.contentResolver, uri)) throw IOException("Could not delete ${file.name}")
             documents = documents - SaveSyncEngine.key(file)
         }
 
         override suspend fun backup(file: LocalSaveFile) {
-            keepSafetyCopy(file.kind, file.path, read(file))
+            val bytes = read(file)
+            keepSafetyCopy(file.kind, file.path, bytes)
+            if (file.layout == SaveFolderLayout.SAVEDATA) packCopies += SaveHandoff.sha256(bytes)
         }
 
+        /** A PPSSPP save folder as its pack; the files must still be what the listing saw. */
+        private suspend fun readPack(file: LocalSaveFile): ByteArray {
+            val inside = packs[SaveSyncEngine.key(file)] ?: throw IOException("${file.name} is no longer on the device")
+            var total = 0L
+            val contents = inside.map { part ->
+                currentCoroutineContext().ensureActive()
+                val bytes = context.contentResolver.openInputStream(part.uri)?.use { input ->
+                    val out = java.io.ByteArrayOutputStream()
+                    val buffer = ByteArray(64 * 1024)
+                    while (true) {
+                        val count = input.read(buffer)
+                        if (count < 0) break
+                        total += count
+                        if (total > readLimit) {
+                            if (readLimit == SaveHandoff.MAX_SAVE_BYTES) throw SaveHandoff.SaveTooLargeException()
+                            throw IOException("Save folder is too large")
+                        }
+                        out.write(buffer, 0, count)
+                    }
+                    out.toByteArray()
+                } ?: throw IOException("Could not read ${file.name}")
+                if (part.size > 0L && bytes.size.toLong() != part.size) throw IOException("${file.name} changed while it was being read; try again")
+                part.path to bytes
+            }
+            return SavePack.pack(contents)
+        }
+
+        /** A DuckStation card goes straight into the memcards folder; a shared one only when the user chose to sync them. */
+        private suspend fun writeCard(folder: EmulatorSaveFolder, inside: String, path: String, bytes: ByteArray): LocalSaveFile {
+            val card = EmulatorSaveLayouts.memoryCard(inside)
+            if ('/' in inside || card == null) throw IOException("$inside is not a memory card")
+            if (card is MemoryCard.Shared && folder.sharedCardsRomId == null) throw IOException("Shared memory cards are not synced for ${folder.label}")
+            val root = layoutDocument(folder)
+            val written = StorageHelper.writeBytesSafely(context, root, "", inside, bytes)
+            val file = LocalSaveFile(
+                SaveKind.SAVE, path, written.length(), written.lastModified(), folder.platforms,
+                SaveFolderLayout.MEMCARDS, if (card is MemoryCard.Shared) folder.sharedCardsRomId else null
+            )
+            documents = documents + (SaveSyncEngine.key(file) to written.uri)
+            return file
+        }
+
+        /**
+         * Unpacks a PPSSPP save into its folder. What the folder held is kept as a safety copy first
+         * (unless this store copied exactly that already), so files the new save no longer has can go.
+         */
+        private suspend fun writePack(folder: EmulatorSaveFolder, inside: String, path: String, bytes: ByteArray): LocalSaveFile {
+            val name = EmulatorSaveLayouts.folderOfPack(inside)?.takeIf { '/' !in inside } ?: throw IOException("$inside is not a PPSSPP save")
+            val entries = SavePack.unpack(bytes, MAX_FILE_BYTES)
+            val root = layoutDocument(folder)
+            val existing = StorageHelper.findFile(root, name)
+            if (existing != null && !existing.isDirectory) throw IOException("$name is not a folder")
+            val dir = existing ?: StorageHelper.createDirectory(root, name) ?: throw IOException("Could not create $name")
+            val before = documentFiles(dir)
+            var oldFiles: List<Pair<String, ByteArray>> = emptyList()
+            if (before.isNotEmpty()) {
+                if (before.sumOf { it.second.length() } > MAX_FILE_BYTES) throw IOException("$name is too large to replace safely")
+                oldFiles = before.map { (p, doc) ->
+                    p to (context.contentResolver.openInputStream(doc.uri)?.use { it.readBytes() } ?: throw IOException("Could not read $name/$p"))
+                }
+                val old = SavePack.pack(oldFiles)
+                if (SaveHandoff.sha256(old) !in packCopies) keepSafetyCopy(SaveKind.SAVE, path, old)
+            }
+            currentCoroutineContext().ensureActive()
+            // A save folder is replaced as a whole or not at all: once writing starts it is not
+            // stopped half-way, and a failure puts the old files back (a mix of old and new files
+            // is a broken save for PPSSPP).
+            withContext(NonCancellable) {
+                try {
+                    entries.forEach { (entryPath, data) ->
+                        StorageHelper.writeBytesSafely(context, dir, entryPath.substringBeforeLast('/', ""), entryPath.substringAfterLast('/'), data)
+                    }
+                    val keep = entries.map { ArchivePlanKey.of(it.first) }.toSet()
+                    before.filter { (p, _) -> ArchivePlanKey.of(p) !in keep }.forEach { (p, doc) ->
+                        if (!doc.delete()) throw IOException("Could not replace $name/$p")
+                    }
+                } catch (e: Exception) {
+                    restorePack(dir, oldFiles)
+                    throw e
+                }
+            }
+            val after = documentFiles(dir)
+            val file = LocalSaveFile(
+                SaveKind.SAVE, path, SavePack.packedSize(after.map { it.first to it.second.length() }),
+                after.maxOfOrNull { it.second.lastModified() } ?: 0L, folder.platforms, SaveFolderLayout.SAVEDATA
+            )
+            packs = packs + (SaveSyncEngine.key(file) to after.map { (p, doc) -> PackFile(p, doc.uri, doc.length(), doc.lastModified()) })
+            documents = documents + (SaveSyncEngine.key(file) to dir.uri)
+            return file
+        }
+
+        /** Puts a save folder back to exactly [files] after a failed replace (best effort; the safety copy stays). */
+        private fun restorePack(dir: DocumentFile, files: List<Pair<String, ByteArray>>) {
+            runCatching {
+                val wanted = files.map { ArchivePlanKey.of(it.first) }.toSet()
+                documentFiles(dir).filter { (p, _) -> ArchivePlanKey.of(p) !in wanted }.forEach { (_, doc) -> doc.delete() }
+                files.forEach { (p, data) ->
+                    StorageHelper.writeBytesSafely(context, dir, p.substringBeforeLast('/', ""), p.substringAfterLast('/'), data)
+                }
+            }.onFailure { Log.w(TAG, "Could not restore ${dir.name} after a failed replace", it) }
+        }
+
+        /** The files below [dir] (three levels), by path; our own staging files are left out. */
+        private fun documentFiles(dir: DocumentFile): List<Pair<String, DocumentFile>> {
+            val out = mutableListOf<Pair<String, DocumentFile>>()
+            fun walk(prefix: String, current: DocumentFile, depth: Int) {
+                current.listFiles().forEach { doc ->
+                    val docName = doc.name ?: return@forEach
+                    if (docName.startsWith(".")) return@forEach
+                    val p = if (prefix.isEmpty()) docName else "$prefix/$docName"
+                    if (doc.isDirectory) { if (depth < 3) walk(p, doc, depth + 1) } else out += p to doc
+                }
+            }
+            walk("", dir, 1)
+            return out
+        }
+
+        /** The folder inside the picked one that holds the cards / save folders (see [EmulatorSaveLayouts.innerPath]). */
+        private fun layoutDocument(folder: EmulatorSaveFolder): DocumentFile {
+            val picked = StorageHelper.getDocumentFile(context, folder.uri) ?: throw IOException("No folder picked for ${folder.label}")
+            val inner = innerPath(folder)
+            return if (inner.isEmpty()) picked else StorageHelper.findFile(picked, inner)?.takeIf { it.isDirectory }
+                ?: throw IOException("${folder.label} changed; pick it again")
+        }
         private suspend fun rootFor(kind: SaveKind): DocumentFile? {
             val uri = when (kind) {
                 SaveKind.SAVE -> settingsRepository.saveSyncSavesDir.first()
@@ -339,6 +525,58 @@ class SaveSyncService @Inject constructor(
     }
 
     private data class Child(val documentId: String, val name: String, val isDir: Boolean, val size: Long, val modified: Long)
+
+    /** One file of a PPSSPP save folder: its path inside the folder and its document. */
+    private data class PackFile(val path: String, val uri: Uri, val size: Long, val modified: Long)
+
+    private object ArchivePlanKey {
+        fun of(path: String): String = com.cortinadev.dogmatix.util.ArchivePlan.portableKey(com.cortinadev.dogmatix.util.ArchivePlan.safeRelativePath(path))
+    }
+
+    /** Where below the picked folder of [folder] its cards / save folders are ("memcards", "PSP/SAVEDATA" or ""). */
+    private fun innerPath(folder: EmulatorSaveFolder): String {
+        if (folder.layout == SaveFolderLayout.FILES) return ""
+        val tree = folder.uri.toUri()
+        val rootId = runCatching { DocumentsContract.getTreeDocumentId(tree) }.getOrNull() ?: throw IOException("Pick the folder again (no access)")
+        fun idAt(path: String): String? {
+            var id = rootId
+            for (part in path.split('/').filter { it.isNotEmpty() }) {
+                id = query(tree, id)?.firstOrNull { it.isDir && it.name == part }?.documentId ?: return null
+            }
+            return id
+        }
+        return EmulatorSaveLayouts.innerPath(folder.layout) { path -> idAt(path)?.let { id -> query(tree, id)?.filter { it.isDir }?.map { it.name }?.toSet() } }
+            ?: throw IOException(
+                if (folder.layout == SaveFolderLayout.MEMCARDS) "${folder.label} has no memcards folder yet; start the emulator once or pick its memcards folder"
+                else "${folder.label} has no SAVEDATA folder yet; start the emulator once or pick its SAVEDATA folder"
+            )
+    }
+
+    /** The tree and the document of the folder that holds [folder]'s cards / save folders. */
+    private fun layoutRoot(folder: EmulatorSaveFolder): Pair<Uri, String> {
+        val tree = folder.uri.toUri()
+        var id = runCatching { DocumentsContract.getTreeDocumentId(tree) }.getOrNull() ?: throw IOException("Pick the folder again (no access)")
+        for (part in innerPath(folder).split('/').filter { it.isNotEmpty() }) {
+            id = query(tree, id)?.firstOrNull { it.isDir && it.name == part }?.documentId ?: throw IOException("${folder.label} changed; pick it again")
+        }
+        return tree to id
+    }
+
+    /** The files of one save folder (three levels), or null when part of it cannot be read (it is then left alone). */
+    private fun packContents(tree: Uri, folderId: String): List<PackFile>? {
+        val out = mutableListOf<PackFile>()
+        fun walk(prefix: String, id: String, depth: Int): Boolean {
+            val children = query(tree, id) ?: return false
+            for (child in children) {
+                if (child.name.startsWith(".")) continue
+                val path = if (prefix.isEmpty()) child.name else "$prefix/${child.name}"
+                if (child.isDir) { if (depth < 3 && !walk(path, child.documentId, depth + 1)) return false }
+                else out += PackFile(path, DocumentsContract.buildDocumentUriUsingTree(tree, child.documentId), child.size, child.modified)
+            }
+            return true
+        }
+        return if (walk("", folderId, 1)) out else null
+    }
 
     /** One provider query per folder; null when it cannot be read. */
     private fun query(tree: Uri, documentId: String): List<Child>? = runCatching {
@@ -428,6 +666,11 @@ class SaveSyncService @Inject constructor(
     /** The device's saves and states as a sync lists them (nothing is transferred); null when no folder is picked. */
     suspend fun deviceListing(): SaveStore.Listing? = withContext(Dispatchers.IO) {
         if (!hasDeviceFolder(SaveKind.SAVE) && !hasDeviceFolder(SaveKind.STATE)) null else SafSaveStore().list()
+    }
+
+    /** RomM games for a DuckStation folder's shared memory cards to be kept with (Settings → Save sync). */
+    suspend fun searchGames(term: String): List<SaveSyncPlanner.RomCandidate> = withContext(Dispatchers.IO) {
+        if (term.isBlank()) emptyList() else rommClient.searchRoms(term.trim(), limit = 30)
     }
 
     /** What the last sync recorded per device file, by [SaveSyncPlanner.key] (a copy). */
@@ -572,10 +815,26 @@ class SaveSyncService @Inject constructor(
         require(listing.tooLarge == 0) { "A save is too large to verify safely" }
         val records = loadRecords()
         val stem = CloudSaves.gameStem(key.fileName)
+        // Cards and save folders are often named by a serial or product id the ROM's file name
+        // lacks: those are tied to a game through RomM, as the save sync does (bounded lookups).
+        val layoutMatches = HashMap<String, SaveSyncPlanner.RomMatch>()
+        var layoutLookups = 0
+        suspend fun layoutMatch(local: LocalSaveFile): SaveSyncPlanner.RomMatch = layoutMatches.getOrPut(SaveSyncEngine.key(local)) {
+            var found: SaveSyncPlanner.RomMatch = SaveSyncPlanner.RomMatch.NotFound
+            for (term in EmulatorSaveLayouts.searchTerms(local)) {
+                found = EmulatorSaveLayouts.matchRom(local, rommClient.searchRoms(term, endpoint = endpoint))
+                if (found !is SaveSyncPlanner.RomMatch.NotFound) break
+            }
+            found
+        }
         val locals = listing.files.filter { local ->
             val record = records[SaveSyncEngine.key(local)]
             if (record != null) record.romId == romId
-            else CloudSaves.belongsToGame(local.name, stem) && (local.platformHints.isEmpty() || ConsoleFolderAliases.normalize(key.consoleId) in local.platformHints)
+            else if (local.platformHints.isNotEmpty() && !EmulatorSaveFolders.platformFits(key.consoleId, local.platformHints)) false
+            else if (local.layout == SaveFolderLayout.FILES) CloudSaves.belongsToGame(local.name, stem)
+            else EmulatorSaveLayouts.belongsToGame(local, key.fileName) || (
+                local.kind == SaveKind.SAVE && !EmulatorSaveLayouts.isSharedCard(local.name) && layoutLookups++ < MAX_HANDOFF_LOOKUPS &&
+                    layoutMatch(local).let { it is SaveSyncPlanner.RomMatch.Found && it.romId == romId })
         }
         val ordinary = locals.filter { it.kind == SaveKind.SAVE && SaveHandoff.isInGameSave(it.name) }
         ordinary.forEach { SaveHandoff.requireBoundedSave(it.size) }
@@ -583,7 +842,8 @@ class SaveSyncService @Inject constructor(
         // A familiar stem alone cannot distinguish (for example) NES Tetris from Game Boy Tetris.
         // Require an established record or a unique platform-aware server match before an upload.
         ordinary.filter { records[SaveSyncEngine.key(it)] == null }.forEach { local ->
-            val match = SaveSyncPlanner.matchRom(local, rommClient.searchRoms(SaveSyncPlanner.searchTerm(local.name), endpoint = endpoint))
+            val match = if (local.layout == SaveFolderLayout.FILES) SaveSyncPlanner.matchRom(local, rommClient.searchRoms(SaveSyncPlanner.searchTerm(local.name), endpoint = endpoint))
+            else layoutMatch(local)
             check(match is SaveSyncPlanner.RomMatch.Found && match.romId == romId) { "Save cannot be tied to this console safely; configure its emulator folder or synchronize it first" }
         }
         val remotes = SaveSyncPlanner.latestPerName(rommClient.saves(SaveKind.SAVE, endpoint).filter { it.romId == romId && SaveHandoff.isInGameSave(it.fileName) })

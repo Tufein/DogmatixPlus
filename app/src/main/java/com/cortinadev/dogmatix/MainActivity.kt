@@ -298,6 +298,11 @@ class MainActivity : AppCompatActivity() {
             return
         }
         if (DeepLinkParser.SCHEME.equals(data.scheme, ignoreCase = true)) {
+            // dogmatix://handoff?…: a game handed over from another handheld.
+            com.cortinadev.dogmatix.util.HandoffLink.parse(intent.dataString)?.let {
+                com.cortinadev.dogmatix.ui.screens.game.PendingHandoff.submit(it)
+                return
+            }
             DeepLinkParser.parse(intent.dataString)?.let(pendingFilters::submit)
             return
         }
@@ -460,6 +465,12 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
         val route = pendingFilters.consumeSection() ?: return@LaunchedEffect
         NavRoutes.allRoutes.firstOrNull { it.route == route }?.let { navController.switchTo(it) }
     }
+    // A hand-off link from another handheld: that game's "Continue here".
+    val handoff by com.cortinadev.dogmatix.ui.screens.game.PendingHandoff.request.collectAsState()
+    LaunchedEffect(handoff) {
+        val request = com.cortinadev.dogmatix.ui.screens.game.PendingHandoff.consume() ?: return@LaunchedEffect
+        navController.navigate(com.cortinadev.dogmatix.ui.screens.game.GameHandoffRoute.of(request.consoleId, request.fileName, receive = true, code = request.code))
+    }
     // After a gamepad section switch the focus ring goes away: focus is parked on an invisible
     // sink (clearing it would make Compose re-focus the first tab). The next D-pad press puts
     // it back on the active tab (see Gamepad.interceptKey).
@@ -567,7 +578,28 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                             onBack = { navController.popBackStack() },
                             onOpenGame = { c, f -> navController.navigate(GamePageModel.route(c, f)) },
                             onOpenVersionPreference = { navController.navigate(NavRoutes.VersionPreference.route) },
-                            onReadiness = { c, f -> navController.navigate(com.cortinadev.dogmatix.ui.screens.tools.ReadinessRoute.of(c, f)) }
+                            onReadiness = { c, f -> navController.navigate(com.cortinadev.dogmatix.ui.screens.tools.ReadinessRoute.of(c, f)) },
+                            onHandoff = { c, f -> navController.navigate(com.cortinadev.dogmatix.ui.screens.game.GameHandoffRoute.of(c, f)) }
+                        )
+                    }
+                    composable(
+                        com.cortinadev.dogmatix.ui.screens.game.GameHandoffRoute.route,
+                        arguments = listOf(
+                            navArgument("consoleId") { type = NavType.StringType },
+                            navArgument("fileName") { type = NavType.StringType },
+                            navArgument("mode") { type = NavType.StringType; nullable = true; defaultValue = null },
+                            navArgument("code") { type = NavType.StringType; nullable = true; defaultValue = null }
+                        )
+                    ) { entry ->
+                        com.cortinadev.dogmatix.ui.screens.game.GameHandoffScreen(
+                            consoleId = entry.arguments?.getString("consoleId").orEmpty(),
+                            fileName = entry.arguments?.getString("fileName").orEmpty(),
+                            receive = entry.arguments?.getString("mode") == com.cortinadev.dogmatix.ui.screens.game.GameHandoffRoute.RECEIVE,
+                            code = entry.arguments?.getString("code"),
+                            onNavigate = { navController.navigate(it) },
+                            onSearchLibrary = { c, f ->
+                                pendingFilters.submit(LibraryFilterRequest(consoles = setOf(c), query = com.cortinadev.dogmatix.util.EmulatorSaveLayouts.cleanTitle(f).ifBlank { f.substringBeforeLast('.') }))
+                            }
                         )
                     }
                     composable(com.cortinadev.dogmatix.ui.screens.tools.ReadinessRoute.route,
@@ -586,7 +618,8 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.Overview.route) { LibraryOverviewScreen() }
                     composable(NavRoutes.Duplicates.route) { DuplicatesScreen() }
                     composable(NavRoutes.Recovery.route) { com.cortinadev.dogmatix.ui.screens.tools.RecoveryScreen(onNavigate = { navController.navigate(it) }) }
-                    composable(NavRoutes.PackageTransfer.route) { com.cortinadev.dogmatix.ui.screens.tools.PackageTransferScreen() }
+                    composable(NavRoutes.PackageTransfer.route) { com.cortinadev.dogmatix.ui.screens.tools.PackageTransferScreen(onNavigate = { navController.navigate(it) }) }
+                    composable(NavRoutes.GameTransfer.route) { com.cortinadev.dogmatix.ui.screens.tools.GameTransferScreen() }
                     composable(NavRoutes.ActionHistory.route) {
                         com.cortinadev.dogmatix.ui.screens.tools.ActionHistoryScreen(
                             onOpenGame = { c, f -> navController.navigate(GamePageModel.route(c, f)) },
@@ -597,6 +630,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     }
                     composable(NavRoutes.LibraryRepair.route) { com.cortinadev.dogmatix.ui.screens.tools.LibraryRepairScreen(onNavigate = { navController.navigate(it) }) }
                     composable(NavRoutes.ReportProblem.route) { com.cortinadev.dogmatix.ui.screens.tools.ReportProblemScreen() }
+                    composable(NavRoutes.FrontendCovers.route) { com.cortinadev.dogmatix.ui.screens.tools.FrontendCoversScreen() }
                     composable(NavRoutes.Tools.route) { ToolsHubScreen(navController) }
                     composable(NavRoutes.Sets.route) { SetsScreen() }
                     composable(NavRoutes.Storage.route) { StorageScreen() }

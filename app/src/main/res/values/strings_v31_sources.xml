@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Content catalogue: providers and console mapping -->
+    <string name="src31_hint">Choose free content collections from reviewed providers. They contain homebrew, demos and test software, not complete commercial ROM sets. Each collection goes to the matching console you already have, or to a new one. Existing sources stay in place.</string>
+    <string name="src31_all_providers">All providers</string>
+    <string name="src31_search">Search console or provider</string>
+    <string name="src31_provider_site">Website: %1$s</string>
+    <string name="src31_provider_list">Content list: %1$s</string>
+    <string name="src31_provider_checked">Listings checked on %1$s</string>
+    <string name="src31_licence_published">Free content the provider publishes for download itself: homebrew, freeware, demos and test software.</string>
+    <string name="src31_licence_public_domain">Placed in the public domain by the authors.</string>
+    <string name="src31_licence_free">Released by the authors under a free licence that allows sharing.</string>
+    <string name="src31_entry_files">%1$s · %2$d files listed at the last check</string>
+    <string name="src31_maps_existing">Goes to your console %1$s</string>
+    <string name="src31_maps_new">Adds a new console: %1$s</string>
+
+    <!-- Covers for iiSU and Daijishō -->
+    <string name="covers31_title">Covers for iiSU and Daijishō</string>
+    <string name="covers31_subtitle">Put cover images where these launchers can show them</string>
+    <string name="covers31_hint">Write cover images for your games into the folder iiSU or Daijishō reads them from</string>
+    <string name="covers31_kw">artwork, box art, boxart, images, media, thumbnails, iisu, daijisho</string>
+    <string name="covers31_what_title">Covers for your launcher</string>
+    <string name="covers31_what_body">Dogmatix+ puts one cover per game into a folder you pick, with a sub-folder per console named like your console folders. The covers come from your RomM server, libretro thumbnails or covers found earlier, and are saved as PNG. Images that are already there are kept unless you choose to replace them.</string>
+    <string name="covers31_section_frontend">Launcher</string>
+    <string name="covers31_section_folder">Cover folder</string>
+    <string name="covers31_folder_title">Folder for %1$s covers</string>
+    <string name="covers31_folder_none">No folder picked yet</string>
+    <string name="covers31_folder_not_writable">This folder can no longer be written to. Pick it again.</string>
+    <string name="covers31_needs_folder">Pick again</string>
+    <string name="covers31_pick">Pick folder</string>
+    <string name="covers31_change">Change</string>
+    <string name="covers31_hint_iisu">In iiSU, check which folder it reads cover images from, and pick that same folder here.</string>
+    <string name="covers31_hint_daijisho">In Daijishō, check which folder your platforms read local cover images from, and pick that same folder here.</string>
+    <string name="covers31_section_names">File names</string>
+    <string name="covers31_layout_stem">Name without extension</string>
+    <string name="covers31_layout_stem_hint">For example %1$s. The usual choice.</string>
+    <string name="covers31_layout_full">Full file name</string>
+    <string name="covers31_layout_full_hint">For example %1$s. For a launcher that matches covers on the whole file name, extension included.</string>
+    <string name="covers31_overwrite_title">Replace covers that are already there</string>
+    <string name="covers31_overwrite_hint">Off: images that are already in the folder are never touched. On: a cover with exactly the same name is replaced.</string>
+    <string name="covers31_section_preview">Preview</string>
+    <string name="covers31_preview_loading">Working out what would be written…</string>
+    <string name="covers31_preview_failed">The preview could not be made. Make sure your game folders and the cover folder can be reached, then refresh.</string>
+    <string name="covers31_preview_no_folder">Pick the cover folder first.</string>
+    <string name="covers31_preview_no_games">No games found in your game folders yet.</string>
+    <string name="covers31_preview_nothing">Every game already has a cover in this folder. Nothing to write.</string>
+    <plurals name="covers31_preview_count">
+        <item quantity="one">Up to %1$s cover will be written to %2$s</item>
+        <item quantity="other">Up to %1$s covers will be written to %2$s</item>
+    </plurals>
+    <string name="covers31_preview_example">In %1$s console folders, for example: %2$s</string>
+    <string name="covers31_preview_replace">%1$s covers of the same name will be replaced.</string>
+    <string name="covers31_preview_sources">Games without a cover in any source are skipped; the result shows how many.</string>
+    <string name="covers31_preview_kept">%1$s games already have a cover there; those are kept.</string>
+    <string name="covers31_preview_skipped">%1$s games are skipped: their name cannot be used for a cover file, or another game already uses it.</string>
+    <string name="covers31_preview_outside">%1$s games are not in a console folder and are skipped.</string>
+    <string name="covers31_preview_profile">Only games this profile shows are included.</string>
+    <string name="covers31_write">Write covers</string>
+    <string name="covers31_refresh">Refresh preview</string>
+    <string name="covers31_stop">Stop</string>
+    <string name="covers31_preparing">Reading your library…</string>
+    <string name="covers31_running">Writing covers: %1$s of %2$s</string>
+    <string name="covers31_result_title">Covers written</string>
+    <string name="covers31_result_stopped">Stopped. What was written stays.</string>
+    <string name="covers31_result_written">New covers: %1$s</string>
+    <string name="covers31_result_replaced">Replaced: %1$s</string>
+    <string name="covers31_result_kept">Already had a cover: %1$s</string>
+    <string name="covers31_result_nocover">No cover found: %1$s</string>
+    <string name="covers31_result_failed">Could not be written: %1$s</string>
+    <string name="covers31_problem_failed">The covers could not be written. Make sure the folders can be reached and try again.</string>
+</resources>

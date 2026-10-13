@@ -76,15 +76,26 @@ class SourcesRepository @Inject constructor(
     suspend fun isEmpty(): Boolean = consoleDao.getAllConsoles().first().isEmpty()
 
     /** Adds only chosen catalog URLs in one transaction, retaining names, disabled URLs and user sources. */
+    /**
+     * Adds the chosen catalogue entries as sources. Each goes to the console [RomsetCatalog.mapConsole]
+     * picks (the user's own console for that system when there is one, else a new console); a
+     * source that console already has is left as it is. Returns console id -> added source URLs.
+     */
     suspend fun mergeRomsets(entries: List<RomsetCatalog.Entry>): Map<String, Set<String>> = withContext(Dispatchers.IO) {
-        require(entries.size <= 64 && entries.map { it.id }.distinct().size == entries.size)
+        require(entries.size <= RomsetCatalog.MAX_ENTRIES && entries.map { it.key }.distinct().size == entries.size)
         val added = linkedMapOf<String, Set<String>>()
+        // Read once up front; inside the transaction each target is read again by id.
+        val consoles = consoleDao.getAllConsoles().first()
+            .map { RomsetCatalog.ConsoleRef(it.id, it.name, it.shortName, ConsoleAliasRegistry.parseAliases(it.folderAliases)) }
+            .toMutableList()
         database.withTransaction {
             entries.forEach { entry ->
                 require(entry.id == "${entry.manufacturerId}_${entry.consoleKey}")
-                val current = consoleDao.getConsoleById(entry.id)
-                require(current == null || current.manufacturerId == entry.manufacturerId)
-                if (manufacturerDao.getManufacturerById(entry.manufacturerId) == null) {
+                val target = RomsetCatalog.mapConsole(entry, consoles)
+                // The mapped console went away meanwhile: fall back to the entry's own console.
+                val current = consoleDao.getConsoleById(target.consoleId) ?: consoleDao.getConsoleById(entry.id)
+                val consoleId = current?.id ?: entry.id
+                if (current == null && manufacturerDao.getManufacturerById(entry.manufacturerId) == null) {
                     manufacturerDao.insertManufacturer(ManufacturerEntity(entry.manufacturerId, entry.manufacturerName))
                 }
                 val urls = current?.let { SourcesJson.parseUrlEntries(it.urls) }.orEmpty()
@@ -93,8 +104,9 @@ class SourcesRepository @Inject constructor(
                 if (current == null) {
                     consoleDao.insertConsole(ConsoleEntity(entry.id, entry.consoleName, entry.manufacturerId, merged,
                         shortName = entry.shortName, folderAliases = ConsoleAliasRegistry.serializeAliases(entry.aliases)))
+                    consoles += RomsetCatalog.ConsoleRef(entry.id, entry.consoleName, entry.shortName, entry.aliases)
                 } else consoleDao.updateConsole(current.copy(urls = merged))
-                added[entry.id] = setOf(entry.url)
+                added[consoleId] = added[consoleId].orEmpty() + entry.url
             }
         }
         added

@@ -24,7 +24,9 @@ data class SaveSyncResult(
     val deletedOnDevice: Int = 0,
     val deletedOnServer: Int = 0,
     /** Deletions that were not carried out: there were more than expected, the user has to confirm. */
-    val deletionsHeld: Int = 0
+    val deletionsHeld: Int = 0,
+    /** The first few device saves no single game was found for (memory cards, save folders…), as paths; they stay as they are. */
+    val unmatched: List<String> = emptyList()
 )
 
 /** The RomM side of a save sync (implemented over [com.cortinadev.dogmatix.data.service.RommClient]). */
@@ -47,7 +49,9 @@ interface SaveStore {
         /** Files skipped for their size. */
         val tooLarge: Int = 0,
         /** Kinds listed only through emulators' own folders: server files of other emulators have no place here. */
-        val noRootFolder: Set<SaveKind> = emptySet()
+        val noRootFolder: Set<SaveKind> = emptySet(),
+        /** Emulator folders (labels) whose shared memory cards the user has not chosen to sync. */
+        val holdSharedCards: Set<String> = emptySet()
     )
 
     /** Kinds with a picked folder are the keys of [Listing.topFolders]. */
@@ -80,7 +84,7 @@ class SaveSyncEngine(
     suspend fun sync(records: MutableMap<String, SaveSyncRecord>, confirmDeletions: Boolean = false): Pair<SaveSyncResult, List<SaveConflict>> {
         val listing = store.list()
         val remotes = SaveSyncPlanner.latestPerName(listing.topFolders.keys.flatMap { server.list(it) })
-        val planned = SaveSyncPlanner.plan(listing.files, remotes, records.values.toList(), listing.topFolders, syncDeletions(), listing.noRootFolder)
+        val planned = SaveSyncPlanner.plan(listing.files, remotes, records.values.toList(), listing.topFolders, syncDeletions(), listing.noRootFolder, listing.holdSharedCards)
         // A lot of deletions at once usually means something is wrong (a folder emptied, a wrong
         // server), not that the user cleaned up: hold them back until the user says yes.
         val deletions = planned.count { it is SaveSyncAction.DeleteRemote || it is SaveSyncAction.DeleteLocal }
@@ -91,6 +95,7 @@ class SaveSyncEngine(
         var deletedOnDevice = 0; var deletedOnServer = 0
         val conflicts = mutableListOf<SaveConflict>()
         val errors = mutableListOf<String>()
+        val unmatched = mutableListOf<String>()
         val transfers = actions.count { it.isTransfer() }
         var done = 0
 
@@ -101,7 +106,8 @@ class SaveSyncEngine(
                 when (action) {
                     is SaveSyncAction.InSync -> unchanged++
                     is SaveSyncAction.Conflict -> conflicts += SaveConflict(action.local, action.remote)
-                    is SaveSyncAction.Ambiguous, is SaveSyncAction.Blocked -> notMatched++
+                    is SaveSyncAction.Ambiguous -> { notMatched++; if (action.local.layout != SaveFolderLayout.FILES && unmatched.size < MAX_UNMATCHED_LISTED) unmatched += action.local.path }
+                    is SaveSyncAction.Blocked -> notMatched++
                     is SaveSyncAction.DeleteRemote -> {
                         server.delete(action.remote)
                         records.remove(SaveSyncPlanner.key(action.record.kind, action.record.path))
@@ -117,7 +123,10 @@ class SaveSyncEngine(
                     is SaveSyncAction.Download -> { download(action.remote, action.path, action.replacing, records); downloaded++ }
                     is SaveSyncAction.Upload -> {
                         val romId = action.romId ?: findRom(action.local)
-                        if (romId == null) notMatched++ else { upload(action.local, romId, records); uploaded++ }
+                        if (romId == null) {
+                            notMatched++
+                            if (action.local.layout != SaveFolderLayout.FILES && unmatched.size < MAX_UNMATCHED_LISTED) unmatched += action.local.path
+                        } else { upload(action.local, romId, records); uploaded++ }
                     }
                     is SaveSyncAction.Compare -> {
                         val localBytes = store.read(action.local)
@@ -143,7 +152,7 @@ class SaveSyncEngine(
 
         val result = SaveSyncResult(
             clock(), uploaded, downloaded, unchanged, conflicts.size, notMatched, failed, errors,
-            deletedOnDevice, deletedOnServer, if (held) deletions else 0
+            deletedOnDevice, deletedOnServer, if (held) deletions else 0, unmatched
         )
         return result to conflicts
     }
@@ -173,11 +182,13 @@ class SaveSyncEngine(
     }
 
     private suspend fun findRom(local: LocalSaveFile): Int? {
+        // A shared memory card goes with the game the user chose for it, or nowhere.
+        if (local.layout == SaveFolderLayout.MEMCARDS && EmulatorSaveLayouts.isSharedCard(local.name)) return local.fixedRomId
         val cacheKey = key(local)
         val askedAt = notFoundCache[cacheKey]
         if (askedAt != null && clock() - askedAt < NOT_FOUND_RETRY_MS) return null
-        for (term in SaveSyncPlanner.searchTerms(local.name)) {
-            when (val match = SaveSyncPlanner.matchRom(local, server.searchRoms(term))) {
+        for (term in EmulatorSaveLayouts.searchTerms(local)) {
+            when (val match = EmulatorSaveLayouts.matchRom(local, server.searchRoms(term))) {
                 is SaveSyncPlanner.RomMatch.Found -> return match.romId
                 // The game is there more than once: another search will not make it single.
                 SaveSyncPlanner.RomMatch.Ambiguous -> break
@@ -207,6 +218,8 @@ class SaveSyncEngine(
         private const val NOT_FOUND_RETRY_MS = 24 * 60 * 60 * 1000L
         /** Up to this many deletions (or a quarter of all synced files, if more) go through without asking. */
         private const val MIN_DELETIONS_WITHOUT_ASKING = 3
+        /** Unmatched memory cards / save folders named in the result (the count covers all). */
+        private const val MAX_UNMATCHED_LISTED = 10
 
         fun key(local: LocalSaveFile) = SaveSyncPlanner.key(local.kind, local.path)
 

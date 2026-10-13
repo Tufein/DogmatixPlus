@@ -131,7 +131,9 @@ fun GamePage(
     onOpenGame: (consoleId: String, fileName: String) -> Unit,
     onOpenVersionPreference: (() -> Unit)? = null,
     viewModel: GamePageViewModel = hiltViewModel(),
-    onReadiness: ((String, String) -> Unit)? = null
+    onReadiness: ((String, String) -> Unit)? = null,
+    /** Opens "Continue on another handheld" for the game; left out when null. */
+    onHandoff: ((String, String) -> Unit)? = null
 ) {
     val activeProfile by viewModel.activeProfile.collectAsState()
     LaunchedEffect(consoleId, fileName, activeProfile) { viewModel.load(consoleId, fileName) }
@@ -155,7 +157,7 @@ fun GamePage(
         current == null -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 3.dp)
         }
-        else -> GamePageContent(current, viewModel, onBack, onOpenGame, onOpenVersionPreference, onReadiness)
+        else -> GamePageContent(current, viewModel, onBack, onOpenGame, onOpenVersionPreference, onReadiness, onHandoff)
     }
 }
 
@@ -167,7 +169,8 @@ private fun GamePageContent(
     onBack: () -> Unit,
     onOpenGame: (String, String) -> Unit,
     onOpenVersionPreference: (() -> Unit)?,
-    onReadiness: ((String, String) -> Unit)?
+    onReadiness: ((String, String) -> Unit)?,
+    onHandoff: ((String, String) -> Unit)? = null
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -416,6 +419,7 @@ private fun GamePageContent(
             )
             com.cortinadev.dogmatix.ui.screens.next.UpNextPill(rom.consoleId, rom.fileName)
             onReadiness?.let { open -> ActionPill(stringResource(R.string.ready25_title), { open(rom.consoleId, rom.fileName) }, icon = R.drawable.ic_controller) }
+            onHandoff?.let { open -> ActionPill(stringResource(R.string.handoff31_action), { open(rom.consoleId, rom.fileName) }, icon = R.drawable.ic_devices) }
             if (owned && !downloading) {
                 ActionPill(stringResource(R.string.owned_download_again), { download(item, null) }, icon = R.drawable.ic_download)
                 ActionPill(stringResource(R.string.play26_game_title), {

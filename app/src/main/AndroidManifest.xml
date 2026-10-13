@@ -135,6 +135,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="dogmatix" android:host="library" />
+                <data android:scheme="dogmatix" android:host="handoff" />
             </intent-filter>
             <!-- .dgmtx shortcut files (frontends like ES-DE, file managers): the deep link is
                  inside the file (see util/DgmtxFile). The repeated patterns work around

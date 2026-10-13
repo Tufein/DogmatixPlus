@@ -31,7 +31,10 @@ object SaveHandoff {
     const val MAX_SAVE_BYTES = 16L * 1024 * 1024
     const val PREVIEW_TTL_MS = 5 * 60 * 1000L
     private val ordinaryExtensions = setOf("srm", "sav", "dsv", "sra", "eep", "fla", "mcr", "mcd", "gci", "mem", "rtc", "sram")
-    fun isInGameSave(fileName: String): Boolean = fileName.substringAfterLast('.', "").lowercase() in ordinaryExtensions
+    fun isInGameSave(fileName: String): Boolean =
+        (fileName.substringAfterLast('.', "").lowercase() in ordinaryExtensions || EmulatorSaveLayouts.isPackName(fileName)) &&
+            // A shared memory card holds every game's saves; it is never handed over with one game.
+            !EmulatorSaveLayouts.isSharedCard(fileName)
     class SaveTooLargeException : java.io.IOException("Device handoff supports in-game saves up to 16 MiB. Use ordinary save synchronization for larger files.")
     fun requireBoundedSave(bytes: Long) { if (bytes > MAX_SAVE_BYTES) throw SaveTooLargeException() }
     fun sha256(bytes: ByteArray): String = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }

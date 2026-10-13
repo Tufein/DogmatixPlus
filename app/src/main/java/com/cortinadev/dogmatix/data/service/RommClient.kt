@@ -352,7 +352,8 @@ class RommClient @Inject constructor(
                 id = r.get("id")?.takeUnless { it.isJsonNull }?.asInt ?: return@mapNotNull null,
                 fsName = fsName,
                 platformSlug = r.str("platform_slug"),
-                platformFsSlug = r.str("platform_fs_slug")
+                platformFsSlug = r.str("platform_fs_slug"),
+                name = r.str("name")
             )
         }
     }

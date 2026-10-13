@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Catalogue de contenus : fournisseurs et correspondance des consoles -->
+    <string name="src31_hint">Choisissez des collections de contenus gratuits proposées par des fournisseurs vérifiés. Elles contiennent du homebrew, des démos et des logiciels de test, pas des ROM sets commerciaux complets. Chaque collection rejoint la console correspondante que vous avez déjà, ou une nouvelle. Les sources existantes restent en place.</string>
+    <string name="src31_all_providers">Tous les fournisseurs</string>
+    <string name="src31_search">Rechercher une console ou un fournisseur</string>
+    <string name="src31_provider_site">Site web : %1$s</string>
+    <string name="src31_provider_list">Liste des contenus : %1$s</string>
+    <string name="src31_provider_checked">Listes vérifiées le %1$s</string>
+    <string name="src31_licence_published">Contenus gratuits que le fournisseur propose lui-même au téléchargement : homebrew, freewares, démos et logiciels de test.</string>
+    <string name="src31_licence_public_domain">Placé dans le domaine public par ses auteurs.</string>
+    <string name="src31_licence_free">Publié par ses auteurs sous une licence libre qui autorise le partage.</string>
+    <string name="src31_entry_files">%1$s · %2$d fichiers lors de la dernière vérification</string>
+    <string name="src31_maps_existing">Va dans votre console %1$s</string>
+    <string name="src31_maps_new">Ajoute une nouvelle console : %1$s</string>
+
+    <!-- Jaquettes pour iiSU et Daijishō -->
+    <string name="covers31_title">Jaquettes pour iiSU et Daijishō</string>
+    <string name="covers31_subtitle">Placer les jaquettes là où ces lanceurs peuvent les afficher</string>
+    <string name="covers31_hint">Écrire les jaquettes de vos jeux dans le dossier où iiSU ou Daijishō les lit</string>
+    <string name="covers31_kw">artwork, boxart, jaquettes, images, médias, miniatures, iisu, daijisho</string>
+    <string name="covers31_what_title">Des jaquettes pour votre lanceur</string>
+    <string name="covers31_what_body">Dogmatix+ place une jaquette par jeu dans un dossier de votre choix, avec un sous-dossier par console nommé comme vos dossiers de consoles. Les jaquettes viennent de votre serveur RomM, des miniatures libretro ou de jaquettes trouvées auparavant, et sont enregistrées en PNG. Les images déjà présentes sont conservées, sauf si vous choisissez de les remplacer.</string>
+    <string name="covers31_section_frontend">Lanceur</string>
+    <string name="covers31_section_folder">Dossier des jaquettes</string>
+    <string name="covers31_folder_title">Dossier des jaquettes pour %1$s</string>
+    <string name="covers31_folder_none">Aucun dossier choisi pour l\'instant</string>
+    <string name="covers31_folder_not_writable">Ce dossier n\'est plus accessible en écriture. Choisissez-le à nouveau.</string>
+    <string name="covers31_needs_folder">À choisir à nouveau</string>
+    <string name="covers31_pick">Choisir le dossier</string>
+    <string name="covers31_change">Modifier</string>
+    <string name="covers31_hint_iisu">Dans iiSU, vérifiez dans quel dossier il lit les jaquettes, puis choisissez ce même dossier ici.</string>
+    <string name="covers31_hint_daijisho">Dans Daijishō, vérifiez dans quel dossier vos plateformes lisent les jaquettes locales, puis choisissez ce même dossier ici.</string>
+    <string name="covers31_section_names">Noms de fichiers</string>
+    <string name="covers31_layout_stem">Nom sans extension</string>
+    <string name="covers31_layout_stem_hint">Par exemple %1$s. Le choix habituel.</string>
+    <string name="covers31_layout_full">Nom de fichier complet</string>
+    <string name="covers31_layout_full_hint">Par exemple %1$s. Pour un lanceur qui associe les jaquettes au nom de fichier entier, extension comprise.</string>
+    <string name="covers31_overwrite_title">Remplacer les jaquettes déjà présentes</string>
+    <string name="covers31_overwrite_hint">Désactivé : les images déjà présentes dans le dossier ne sont jamais modifiées. Activé : une jaquette portant exactement le même nom est remplacée.</string>
+    <string name="covers31_section_preview">Aperçu</string>
+    <string name="covers31_preview_loading">Calcul de ce qui serait écrit…</string>
+    <string name="covers31_preview_failed">L\'aperçu n\'a pas pu être créé. Vérifiez que vos dossiers de jeux et le dossier des jaquettes sont accessibles, puis actualisez.</string>
+    <string name="covers31_preview_no_folder">Choisissez d\'abord le dossier des jaquettes.</string>
+    <string name="covers31_preview_no_games">Aucun jeu trouvé pour l\'instant dans vos dossiers de jeux.</string>
+    <string name="covers31_preview_nothing">Chaque jeu a déjà une jaquette dans ce dossier. Rien à écrire.</string>
+    <plurals name="covers31_preview_count">
+        <item quantity="one">Jusqu\'à %1$s jaquette sera écrite dans %2$s</item>
+        <item quantity="many">Jusqu\'à %1$s jaquettes seront écrites dans %2$s</item>
+        <item quantity="other">Jusqu\'à %1$s jaquettes seront écrites dans %2$s</item>
+    </plurals>
+    <string name="covers31_preview_example">Dans %1$s dossiers de consoles, par exemple : %2$s</string>
+    <string name="covers31_preview_replace">%1$s jaquettes portant le même nom seront remplacées.</string>
+    <string name="covers31_preview_sources">Les jeux sans jaquette dans aucune source sont ignorés ; le résultat indique combien.</string>
+    <string name="covers31_preview_kept">%1$s jeux ont déjà une jaquette à cet endroit ; elles sont conservées.</string>
+    <string name="covers31_preview_skipped">%1$s jeux sont ignorés : leur nom ne peut pas servir de nom de fichier de jaquette, ou un autre jeu l\'utilise déjà.</string>
+    <string name="covers31_preview_outside">%1$s jeux ne sont dans aucun dossier de console et sont ignorés.</string>
+    <string name="covers31_preview_profile">Seuls les jeux affichés par ce profil sont inclus.</string>
+    <string name="covers31_write">Écrire les jaquettes</string>
+    <string name="covers31_refresh">Actualiser l\'aperçu</string>
+    <string name="covers31_stop">Arrêter</string>
+    <string name="covers31_preparing">Lecture de votre bibliothèque…</string>
+    <string name="covers31_running">Écriture des jaquettes : %1$s sur %2$s</string>
+    <string name="covers31_result_title">Jaquettes écrites</string>
+    <string name="covers31_result_stopped">Arrêté. Ce qui a été écrit reste en place.</string>
+    <string name="covers31_result_written">Nouvelles jaquettes : %1$s</string>
+    <string name="covers31_result_replaced">Remplacées : %1$s</string>
+    <string name="covers31_result_kept">Avaient déjà une jaquette : %1$s</string>
+    <string name="covers31_result_nocover">Aucune jaquette trouvée : %1$s</string>
+    <string name="covers31_result_failed">N\'ont pas pu être écrites : %1$s</string>
+    <string name="covers31_problem_failed">Les jaquettes n\'ont pas pu être écrites. Vérifiez que les dossiers sont accessibles et réessayez.</string>
+</resources>

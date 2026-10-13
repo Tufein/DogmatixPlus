@@ -155,6 +155,7 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { Tool(go, NavRoutes.LibraryRepair, R.string.repair30_title, R.string.repair30_hint) }
             item { Tool(go, NavRoutes.Recovery, R.string.recovery_title, R.string.recovery_hint) }
             item { Tool(go, NavRoutes.PackageTransfer, R.string.package_transfer_title, R.string.package_transfer_hint) }
+            item { Tool(go, NavRoutes.GameTransfer, R.string.transfer31_title, R.string.transfer31_hint) }
             item { Tool(go, NavRoutes.VersionPreference, R.string.compare24_title, R.string.compare24_row_hint) }
             item { Tool(go, NavRoutes.ActionHistory, R.string.hist24_title, R.string.hist24_hint) }
             item { Tool(go, NavRoutes.FreeSpace, R.string.space7_title, R.string.space7_hint) }
@@ -176,6 +177,7 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { ToolsGroup(stringResource(R.string.settings_section_frontends), icon = R.drawable.ic_frontends) }
             item { Tool(go, NavRoutes.Frontends, R.string.nav_frontends, R.string.tools_frontends_hint) }
             item { Tool(go, NavRoutes.FrontendMetadata, R.string.meta7_title, R.string.meta7_hint) }
+            item { Tool(go, NavRoutes.FrontendCovers, R.string.covers31_title, R.string.covers31_hint) }
             item {
                 val run = { viewModel.importEsdeFavourites(context) }
                 ToolRow(

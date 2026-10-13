@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Catálogo de contenidos: proveedores y asignación de consolas -->
+    <string name="src31_hint">Elige colecciones de contenido gratuito de proveedores revisados. Contienen homebrew, demos y software de prueba, no ROM sets comerciales completos. Cada colección va a la consola correspondiente que ya tienes, o a una nueva. Las fuentes existentes se mantienen.</string>
+    <string name="src31_all_providers">Todos los proveedores</string>
+    <string name="src31_search">Buscar consola o proveedor</string>
+    <string name="src31_provider_site">Sitio web: %1$s</string>
+    <string name="src31_provider_list">Lista de contenidos: %1$s</string>
+    <string name="src31_provider_checked">Listas comprobadas el %1$s</string>
+    <string name="src31_licence_published">Contenido gratuito que el propio proveedor ofrece para descargar: homebrew, freeware, demos y software de prueba.</string>
+    <string name="src31_licence_public_domain">Puesto en el dominio público por sus autores.</string>
+    <string name="src31_licence_free">Publicado por sus autores con una licencia libre que permite compartirlo.</string>
+    <string name="src31_entry_files">%1$s · %2$d archivos en la última comprobación</string>
+    <string name="src31_maps_existing">Va a tu consola %1$s</string>
+    <string name="src31_maps_new">Añade una consola nueva: %1$s</string>
+
+    <!-- Portadas para iiSU y Daijishō -->
+    <string name="covers31_title">Portadas para iiSU y Daijishō</string>
+    <string name="covers31_subtitle">Pon las portadas donde estos lanzadores pueden mostrarlas</string>
+    <string name="covers31_hint">Escribe las portadas de tus juegos en la carpeta de la que las lee iiSU o Daijishō</string>
+    <string name="covers31_kw">artwork, boxart, carátulas, imágenes, medios, miniaturas, iisu, daijisho</string>
+    <string name="covers31_what_title">Portadas para tu lanzador</string>
+    <string name="covers31_what_body">Dogmatix+ pone una portada por juego en la carpeta que elijas, con una subcarpeta por consola que se llama como tus carpetas de consolas. Las portadas vienen de tu servidor RomM, de las miniaturas de libretro o de portadas encontradas antes, y se guardan como PNG. Las imágenes que ya están se conservan, salvo que elijas reemplazarlas.</string>
+    <string name="covers31_section_frontend">Lanzador</string>
+    <string name="covers31_section_folder">Carpeta de portadas</string>
+    <string name="covers31_folder_title">Carpeta de portadas para %1$s</string>
+    <string name="covers31_folder_none">Todavía no has elegido una carpeta</string>
+    <string name="covers31_folder_not_writable">Ya no se puede escribir en esta carpeta. Vuelve a elegirla.</string>
+    <string name="covers31_needs_folder">Elegir de nuevo</string>
+    <string name="covers31_pick">Elegir carpeta</string>
+    <string name="covers31_change">Cambiar</string>
+    <string name="covers31_hint_iisu">En iiSU, comprueba de qué carpeta lee las portadas y elige aquí esa misma carpeta.</string>
+    <string name="covers31_hint_daijisho">En Daijishō, comprueba de qué carpeta leen tus plataformas las portadas locales y elige aquí esa misma carpeta.</string>
+    <string name="covers31_section_names">Nombres de archivo</string>
+    <string name="covers31_layout_stem">Nombre sin extensión</string>
+    <string name="covers31_layout_stem_hint">Por ejemplo %1$s. La opción habitual.</string>
+    <string name="covers31_layout_full">Nombre de archivo completo</string>
+    <string name="covers31_layout_full_hint">Por ejemplo %1$s. Para un lanzador que asocia las portadas con el nombre de archivo completo, extensión incluida.</string>
+    <string name="covers31_overwrite_title">Reemplazar portadas que ya están</string>
+    <string name="covers31_overwrite_hint">Desactivado: las imágenes que ya están en la carpeta nunca se tocan. Activado: se reemplaza una portada con exactamente el mismo nombre.</string>
+    <string name="covers31_section_preview">Vista previa</string>
+    <string name="covers31_preview_loading">Calculando qué se escribiría…</string>
+    <string name="covers31_preview_failed">No se pudo crear la vista previa. Asegúrate de que tus carpetas de juegos y la carpeta de portadas estén accesibles y actualiza.</string>
+    <string name="covers31_preview_no_folder">Primero elige la carpeta de portadas.</string>
+    <string name="covers31_preview_no_games">Todavía no se han encontrado juegos en tus carpetas de juegos.</string>
+    <string name="covers31_preview_nothing">Todos los juegos ya tienen portada en esta carpeta. No hay nada que escribir.</string>
+    <plurals name="covers31_preview_count">
+        <item quantity="one">Se escribirá hasta %1$s portada en %2$s</item>
+        <item quantity="many">Se escribirán hasta %1$s portadas en %2$s</item>
+        <item quantity="other">Se escribirán hasta %1$s portadas en %2$s</item>
+    </plurals>
+    <string name="covers31_preview_example">En %1$s carpetas de consolas, por ejemplo: %2$s</string>
+    <string name="covers31_preview_replace">Se reemplazarán %1$s portadas con el mismo nombre.</string>
+    <string name="covers31_preview_sources">Los juegos sin portada en ninguna fuente se omiten; el resultado muestra cuántos.</string>
+    <string name="covers31_preview_kept">%1$s juegos ya tienen portada allí; se conservan.</string>
+    <string name="covers31_preview_skipped">Se omiten %1$s juegos: su nombre no sirve como nombre de archivo de portada, u otro juego ya lo usa.</string>
+    <string name="covers31_preview_outside">%1$s juegos no están en una carpeta de consola y se omiten.</string>
+    <string name="covers31_preview_profile">Solo se incluyen los juegos que muestra este perfil.</string>
+    <string name="covers31_write">Escribir portadas</string>
+    <string name="covers31_refresh">Actualizar vista previa</string>
+    <string name="covers31_stop">Detener</string>
+    <string name="covers31_preparing">Leyendo tu biblioteca…</string>
+    <string name="covers31_running">Escribiendo portadas: %1$s de %2$s</string>
+    <string name="covers31_result_title">Portadas escritas</string>
+    <string name="covers31_result_stopped">Detenido. Lo que se escribió se mantiene.</string>
+    <string name="covers31_result_written">Portadas nuevas: %1$s</string>
+    <string name="covers31_result_replaced">Reemplazadas: %1$s</string>
+    <string name="covers31_result_kept">Ya tenían portada: %1$s</string>
+    <string name="covers31_result_nocover">Sin portada encontrada: %1$s</string>
+    <string name="covers31_result_failed">No se pudieron escribir: %1$s</string>
+    <string name="covers31_problem_failed">No se pudieron escribir las portadas. Asegúrate de que las carpetas estén accesibles y vuelve a intentarlo.</string>
+</resources>
