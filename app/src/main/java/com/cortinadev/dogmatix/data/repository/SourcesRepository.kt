@@ -75,7 +75,6 @@ class SourcesRepository @Inject constructor(
 
     suspend fun isEmpty(): Boolean = consoleDao.getAllConsoles().first().isEmpty()
 
-    /** Adds only chosen catalog URLs in one transaction, retaining names, disabled URLs and user sources. */
     /**
      * Adds the chosen catalogue entries as sources. Each goes to the console [RomsetCatalog.mapConsole]
      * picks (the user's own console for that system when there is one, else a new console); a

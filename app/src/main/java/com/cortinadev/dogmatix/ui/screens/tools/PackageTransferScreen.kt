@@ -102,7 +102,7 @@ class PackageTransferViewModel @Inject constructor(
 }
 
 @Composable
-fun PackageTransferScreen(onNavigate: (String) -> Unit = {}, viewModel: PackageTransferViewModel = hiltViewModel()) {
+fun PackageTransferScreen(viewModel: PackageTransferViewModel = hiltViewModel(), onNavigate: (String) -> Unit = {}) {
     val snapshot by viewModel.snapshot.collectAsState()
     val imported by viewModel.imported.collectAsState()
     val preview by viewModel.preview.collectAsState()
