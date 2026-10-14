@@ -143,7 +143,7 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
     val emulatorPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let { persist(it); pickedEmulatorFolder = it.toString() }
     }
-    // DuckStation's shared memory cards: the game they are kept with on RomM is chosen here.
+    // Shared memory cards (DuckStation, AetherSX2 / NetherSX2, Dolphin): the game they are kept with on RomM is chosen here.
     var sharedCardsFor by remember { mutableStateOf<String?>(null) }
     sharedCardsFor?.let { label ->
         emulatorFolders.firstOrNull { it.label == label }?.let { folder ->
@@ -183,15 +183,11 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
         }
         emulatorFolders.forEach { folder ->
             add {
-                val layoutHint = when (folder.layout) {
-                    SaveFolderLayout.MEMCARDS -> stringResource(R.string.saves31_layout_memcards)
-                    SaveFolderLayout.SAVEDATA -> stringResource(R.string.saves31_layout_savedata)
-                    SaveFolderLayout.FILES -> null
-                }
+                val note = layoutHint(folder.layout)
                 SettingRow(
                     icon = R.drawable.ic_folder,
                     title = folder.label,
-                    hint = listOfNotNull(folderLabel(folder.uri) ?: folder.uri, layoutHint).joinToString("\n"),
+                    hint = listOfNotNull(folderLabel(folder.uri) ?: folder.uri, note).joinToString("\n"),
                     onClick = { viewModel.removeEmulatorFolder(context, folder.label) },
                 ) {
                     ActionPill(
@@ -202,7 +198,7 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
                     )
                 }
             }
-            if (folder.layout == SaveFolderLayout.MEMCARDS) add {
+            if (folder.layout.holdsSharedCards) add {
                 val on = folder.sharedCardsRomId != null
                 SettingRow(
                     icon = R.drawable.ic_save,
@@ -609,6 +605,16 @@ private fun folderLabel(uri: String): String? {
     return runCatching { DocumentsContract.getTreeDocumentId(uri.toUri()).substringAfter(':').ifBlank { "/" } }.getOrDefault(uri)
 }
 
+/** What a folder of [layout] syncs, for the folder's row and the emulator picker; null for plain save files. */
+@Composable
+private fun layoutHint(layout: SaveFolderLayout): String? = when (layout) {
+    SaveFolderLayout.MEMCARDS -> stringResource(R.string.saves31_layout_memcards)
+    SaveFolderLayout.SAVEDATA -> stringResource(R.string.saves31_layout_savedata)
+    SaveFolderLayout.PS2_MEMCARDS -> stringResource(R.string.saves32_layout_ps2)
+    SaveFolderLayout.GC_MEMCARDS -> stringResource(R.string.saves32_layout_gc)
+    SaveFolderLayout.FILES -> null
+}
+
 /** Which emulator a picked folder belongs to: its saves are synced under that emulator's name. */
 @Composable
 private fun EmulatorPresetDialog(onPick: (EmulatorSaveFolders.Preset) -> Unit, onDismiss: () -> Unit) {
@@ -635,6 +641,8 @@ private fun EmulatorPresetDialog(onPick: (EmulatorSaveFolders.Preset) -> Unit, o
                     ) {
                         Text(preset.label, style = MaterialTheme.typography.bodyLarge)
                         Text(preset.folderHint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        // What syncs from a folder of cards or save folders (and what does not), in full.
+                        layoutHint(preset.layout)?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     }
                 }
             }
@@ -644,8 +652,9 @@ private fun EmulatorPresetDialog(onPick: (EmulatorSaveFolders.Preset) -> Unit, o
 }
 
 /**
- * Turns syncing of a DuckStation folder's shared memory cards on (by choosing the RomM game they are
- * kept with), changes that game, or turns it off. Nothing on the device is touched here.
+ * Turns syncing of a folder's shared memory cards (DuckStation's shared cards, every AetherSX2 /
+ * NetherSX2 or Dolphin GameCube card) on by choosing the RomM game they are kept with, changes that
+ * game, or turns it off. Nothing on the device is touched here.
  */
 @Composable
 private fun SharedCardsDialog(folder: EmulatorSaveFolder, viewModel: SaveSyncViewModel, onDone: () -> Unit) {
@@ -663,7 +672,16 @@ private fun SharedCardsDialog(folder: EmulatorSaveFolder, viewModel: SaveSyncVie
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())
             ) {
-                Text(stringResource(R.string.saves31_shared_dialog_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    stringResource(
+                        when (folder.layout) {
+                            SaveFolderLayout.PS2_MEMCARDS -> R.string.saves32_shared_dialog_hint_ps2
+                            SaveFolderLayout.GC_MEMCARDS -> R.string.saves32_shared_dialog_hint_gc
+                            else -> R.string.saves31_shared_dialog_hint
+                        }
+                    ),
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 if (folder.sharedCardsRomId != null) {
                     Text(stringResource(R.string.saves31_shared_on, folder.sharedCardsRomName), style = MaterialTheme.typography.bodySmall)
                 }

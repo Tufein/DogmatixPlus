@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Inhaltskatalog: Anbieter und Konsolenzuordnung -->
-    <string name="src31_hint">Wähle kostenlose Inhaltssammlungen geprüfter Anbieter. Sie enthalten Homebrew, Demos und Testsoftware, keine vollständigen kommerziellen ROM-Sets. Jede Sammlung kommt zur passenden Konsole, die du schon hast, oder zu einer neuen. Vorhandene Quellen bleiben erhalten.</string>
+    <string name="src31_hint">Wähle kostenlose Inhaltssammlungen geprüfter Anbieter. Sie enthalten Homebrew, Demos, Freeware-Spiele und Testsoftware, keine vollständigen kommerziellen ROM-Sets. Jede Sammlung kommt zur passenden Konsole, die du schon hast, oder zu einer neuen. Vorhandene Quellen bleiben erhalten.</string>
     <string name="src31_all_providers">Alle Anbieter</string>
     <string name="src31_search">Konsole oder Anbieter suchen</string>
     <string name="src31_provider_site">Website: %1$s</string>
@@ -15,12 +15,7 @@
     <string name="src31_maps_new">Legt eine neue Konsole an: %1$s</string>
 
     <!-- Cover für iiSU und Daijishō -->
-    <string name="covers31_title">Cover für iiSU und Daijishō</string>
-    <string name="covers31_subtitle">Cover dort ablegen, wo diese Launcher sie zeigen können</string>
-    <string name="covers31_hint">Cover deiner Spiele in den Ordner schreiben, aus dem iiSU oder Daijishō sie liest</string>
-    <string name="covers31_kw">Artwork, Boxart, Hüllen, Bilder, Medien, Thumbnails, iisu, daijisho</string>
     <string name="covers31_what_title">Cover für deinen Launcher</string>
-    <string name="covers31_what_body">Dogmatix+ legt ein Cover pro Spiel in einen Ordner deiner Wahl, mit einem Unterordner pro Konsole, der so heißt wie deine Konsolenordner. Die Cover stammen von deinem RomM-Server, aus den libretro-Thumbnails oder aus früher gefundenen Covern und werden als PNG gespeichert. Bilder, die schon da sind, bleiben erhalten, außer du entscheidest dich, sie zu ersetzen.</string>
     <string name="covers31_section_frontend">Launcher</string>
     <string name="covers31_section_folder">Cover-Ordner</string>
     <string name="covers31_folder_title">Ordner für %1$s-Cover</string>

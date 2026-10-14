@@ -17,7 +17,7 @@ import java.security.MessageDigest
 object ListingCheck {
 
     /** Raise when a change to parsing should re-read every listing once. */
-    const val PARSER_VERSION = 1
+    const val PARSER_VERSION = 2
 
     /** What the source's rows depend on besides the listing itself. */
     fun fingerprint(entry: UrlEntry): String =

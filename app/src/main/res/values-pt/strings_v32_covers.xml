@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Covers for launchers: iiSU, Daijishō and any other launcher (3.2.0) -->
+    <string name="covers32_title">Capas para launchers</string>
+    <string name="covers32_subtitle">Coloque as capas onde o iiSU, o Daijishō ou outro launcher as podem mostrar</string>
+    <string name="covers32_hint">Escreva as capas dos seus jogos na pasta de onde o seu launcher as lê</string>
+    <string name="covers32_kw">artwork, boxart, capas, imagens, multimédia, miniaturas, iisu, daijisho, pegasus, retroarch, emulationstation, launcher, frontend</string>
+    <string name="covers32_what_body">O Dogmatix+ coloca uma capa por jogo numa pasta à sua escolha, com o nome que o seu launcher procura: numa subpasta por consola com o mesmo nome das suas pastas de consolas, todas numa só pasta, ou organizadas como no RetroArch, no Pegasus ou no EmulationStation. As capas vêm do seu servidor RomM, das miniaturas do libretro ou de capas encontradas antes, e são guardadas em PNG. As imagens que já lá estão são mantidas, a não ser que escolha substituí-las.</string>
+    <string name="covers32_other">Outro launcher</string>
+    <string name="covers32_hint_other">Para qualquer outro launcher: escolha a pasta de onde ele lê as capas, muitas vezes chamada media, covers, images ou artwork. As definições ou a documentação dele costumam indicar qual é.</string>
+    <string name="covers32_folder_title_other">Pasta para as capas do seu launcher</string>
+    <string name="covers32_names_hint">Não tem a certeza? Experimente primeiro «%1$s»: a maioria dos launchers associa as capas ao nome de ficheiro do jogo. Se a pasta do seu launcher já tiver capas, escolha a organização parecida com elas.</string>
+    <string name="covers32_layout_flat">Tudo numa só pasta</string>
+    <string name="covers32_layout_flat_hint">Por exemplo %1$s. Sem pastas de consolas; os jogos com o mesmo nome em duas consolas são ignorados.</string>
+    <string name="covers32_layout_boxarts">Estilo RetroArch (Named_Boxarts)</string>
+    <string name="covers32_layout_boxarts_hint">Por exemplo %1$s. A organização das miniaturas do libretro, com os nomes das suas pastas de consolas; caracteres como &amp; passam a _.</string>
+    <string name="covers32_layout_pegasus">Estilo Pegasus (boxFront)</string>
+    <string name="covers32_layout_pegasus_hint">Por exemplo %1$s. Uma pasta por jogo, como na pasta media ao lado de um ficheiro de metadados do Pegasus.</string>
+    <string name="covers32_layout_gamelist">Estilo EmulationStation (images)</string>
+    <string name="covers32_layout_gamelist_hint">Por exemplo %1$s. Como nas pastas gamelist do EmulationStation: escolha a pasta que contém as suas pastas de consolas.</string>
+    <string name="covers32_preview_example_flat">Por exemplo: %1$s</string>
+    <string name="covers32_preview_shared">%1$s jogos são ignorados porque um jogo de outra consola usaria o mesmo ficheiro de capa. Uma organização com pastas de consolas mantém-nos separados.</string>
+</resources>

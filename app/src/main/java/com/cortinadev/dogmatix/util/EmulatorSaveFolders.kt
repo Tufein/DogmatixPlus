@@ -23,8 +23,9 @@ data class EmulatorSaveFolder(
     /** How the emulator keeps its saves there (one file per game, memory cards, save folders). */
     val layout: SaveFolderLayout = SaveFolderLayout.FILES,
     /**
-     * DuckStation's shared memory cards are synced only once the user picks a RomM game to keep
-     * them with (RomM stores every save with a game): its id and name, null = not synced.
+     * Shared memory cards (DuckStation's `shared_card_1.mcd`, every AetherSX2 / NetherSX2 and
+     * Dolphin GameCube card) are synced only once the user picks a RomM game to keep them with
+     * (RomM stores every save with a game): its id and name, null = not synced.
      */
     val sharedCardsRomId: Int? = null,
     val sharedCardsRomName: String = ""
@@ -32,16 +33,22 @@ data class EmulatorSaveFolder(
 
 object EmulatorSaveFolders {
     /**
-     * Emulators whose saves the sync can tie to a game: files named after the ROM, DuckStation's
-     * memory cards and PPSSPP's save folders ([layout]). [emulatorId] is the app in [EmulatorCatalog].
+     * Emulators whose saves the sync can tie to a game: files named after the ROM, memory cards
+     * (DuckStation's per game and shared, AetherSX2's / NetherSX2's and Dolphin's GameCube cards,
+     * which are all shared) and PPSSPP's save folders ([layout]). [emulatorId] is the app in
+     * [EmulatorCatalog]. A label is one plain folder name (it is RomM's *emulator* too), so it has no `/`.
      */
     data class Preset(
         val label: String,
         val platforms: Set<String>,
         val folderHint: String,
         val layout: SaveFolderLayout = SaveFolderLayout.FILES,
-        val emulatorId: String? = null
-    )
+        val emulatorId: String? = null,
+        /** Forks that keep their saves the same way (Dolphin MMJR for Dolphin). */
+        val otherEmulatorIds: Set<String> = emptySet()
+    ) {
+        fun isFor(id: String): Boolean = id == emulatorId || id in otherEmulatorIds
+    }
 
     val presets: List<Preset> = listOf(
         Preset("DraStic (standalone)", setOf("nds"), "DraStic/backup", emulatorId = "drastic"),
@@ -55,7 +62,11 @@ object EmulatorSaveFolders {
         Preset("NES.emu", setOf("nes", "famicom"), "NES.emu saves", emulatorId = "nes_emu"),
         Preset("MD.emu", setOf("genesis", "megadrive", "md", "genesisslashmegadrive"), "MD.emu saves", emulatorId = "md_emu"),
         Preset("DuckStation (standalone)", setOf("psx", "ps", "ps1", "playstation"), "DuckStation/memcards", SaveFolderLayout.MEMCARDS, "duckstation"),
-        Preset("PPSSPP (standalone)", setOf("psp", "playstationportable"), "PSP/SAVEDATA", SaveFolderLayout.SAVEDATA, "ppsspp")
+        Preset("PPSSPP (standalone)", setOf("psp", "playstationportable"), "PSP/SAVEDATA", SaveFolderLayout.SAVEDATA, "ppsspp"),
+        // Both apps keep `Mcd001.ps2` / `Mcd002.ps2` in the `memcards` folder of their data folder.
+        Preset("AetherSX2 - NetherSX2 (standalone)", setOf("ps2", "playstation2"), "AetherSX2 or NetherSX2 data folder/memcards", SaveFolderLayout.PS2_MEMCARDS, "nethersx2"),
+        // GameCube cards only (`GC/MemoryCardA.USA.raw`); GCI folders and Wii saves are left out (see GC_MEMCARDS).
+        Preset("Dolphin (standalone)", setOf("ngc", "gc", "gamecube"), "Dolphin user folder/GC", SaveFolderLayout.GC_MEMCARDS, "dolphin", setOf("dolphin_mmjr"))
     )
 
     /** The preset a folder was added with: its label is the preset's, or the preset's with a number ("DraStic 2"). */
@@ -66,7 +77,7 @@ object EmulatorSaveFolders {
 
     /** The picked folders of the app [emulatorId] (in [EmulatorCatalog]) that hold games of [consoleId]. */
     fun foldersFor(emulatorId: String, consoleId: String, folders: List<EmulatorSaveFolder>): List<EmulatorSaveFolder> =
-        folders.filter { folder -> presetOf(folder)?.emulatorId == emulatorId && (folder.platforms.isEmpty() || platformFits(consoleId, folder.platforms)) }
+        folders.filter { folder -> presetOf(folder)?.isFor(emulatorId) == true && (folder.platforms.isEmpty() || platformFits(consoleId, folder.platforms)) }
 
     /**
      * Whether a game of [consoleId] (a library console id such as `sony_playstation`) is on one of
@@ -119,7 +130,7 @@ object EmulatorSaveFolders {
             // An unknown layout (written by a newer version) is not read as plain files: the folder is skipped.
             val layout = o.get("layout")?.takeUnless { it.isJsonNull }?.asString?.let { name -> SaveFolderLayout.entries.firstOrNull { it.name == name } ?: return@mapNotNull null }
                 ?: SaveFolderLayout.FILES
-            val shared = o.get("sharedCardsRomId")?.takeUnless { it.isJsonNull }?.let { runCatching { it.asInt }.getOrNull() }?.takeIf { it > 0 && layout == SaveFolderLayout.MEMCARDS }
+            val shared = o.get("sharedCardsRomId")?.takeUnless { it.isJsonNull }?.let { runCatching { it.asInt }.getOrNull() }?.takeIf { it > 0 && layout.holdsSharedCards }
             EmulatorSaveFolder(
                 label, o.getAsJsonArray("platforms")?.map { ConsoleFolderAliases.normalize(it.asString) }?.toSet().orEmpty(), uri, layout,
                 shared, if (shared != null) o.get("sharedCardsRomName")?.takeUnless { it.isJsonNull }?.asString.orEmpty().take(200) else ""

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Content catalogue: providers and console mapping -->
-    <string name="src31_hint">Choose free content collections from reviewed providers. They contain homebrew, demos and test software, not complete commercial ROM sets. Each collection goes to the matching console you already have, or to a new one. Existing sources stay in place.</string>
+    <string name="src31_hint">Choose free content collections from reviewed providers. They contain homebrew, demos, freeware games and test software, not complete commercial ROM sets. Each collection goes to the matching console you already have, or to a new one. Existing sources stay in place.</string>
     <string name="src31_all_providers">All providers</string>
     <string name="src31_search">Search console or provider</string>
     <string name="src31_provider_site">Website: %1$s</string>
@@ -14,13 +14,8 @@
     <string name="src31_maps_existing">Goes to your console %1$s</string>
     <string name="src31_maps_new">Adds a new console: %1$s</string>
 
-    <!-- Covers for iiSU and Daijishō -->
-    <string name="covers31_title">Covers for iiSU and Daijishō</string>
-    <string name="covers31_subtitle">Put cover images where these launchers can show them</string>
-    <string name="covers31_hint">Write cover images for your games into the folder iiSU or Daijishō reads them from</string>
-    <string name="covers31_kw">artwork, box art, boxart, images, media, thumbnails, iisu, daijisho</string>
+    <!-- Covers for launchers (more in strings_v32_covers.xml) -->
     <string name="covers31_what_title">Covers for your launcher</string>
-    <string name="covers31_what_body">Dogmatix+ puts one cover per game into a folder you pick, with a sub-folder per console named like your console folders. The covers come from your RomM server, libretro thumbnails or covers found earlier, and are saved as PNG. Images that are already there are kept unless you choose to replace them.</string>
     <string name="covers31_section_frontend">Launcher</string>
     <string name="covers31_section_folder">Cover folder</string>
     <string name="covers31_folder_title">Folder for %1$s covers</string>

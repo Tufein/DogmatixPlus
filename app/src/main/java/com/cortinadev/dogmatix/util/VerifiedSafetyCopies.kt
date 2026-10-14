@@ -43,16 +43,9 @@ object VerifiedSafetyCopies {
         requireInside(root, target)
         if (!target.isFile) throw IOException("Safety copy is no longer available")
         if (target.length() > maxBytes) throw IOException("Safety copy is too large")
+        // One array of the file's exact size: a large copy (a 64 MB memory card) is held once.
         val bytes = target.inputStream().use { input ->
-            val out = java.io.ByteArrayOutputStream()
-            val buffer = ByteArray(64 * 1024)
-            while (true) {
-                val count = input.read(buffer)
-                if (count < 0) break
-                if (out.size().toLong() + count > maxBytes) throw IOException("Safety copy is too large")
-                out.write(buffer, 0, count)
-            }
-            out.toByteArray()
+            BoundedStreams.readAll(input, target.length(), maxBytes, tooLarge = { IOException("Safety copy is too large") }, changed = { IntegrityException() })
         }
         val receipt = File(target.path + ".sha256")
         val batch = relative.replace('\\', '/').substringBefore('/')

@@ -177,7 +177,7 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             item { ToolsGroup(stringResource(R.string.settings_section_frontends), icon = R.drawable.ic_frontends) }
             item { Tool(go, NavRoutes.Frontends, R.string.nav_frontends, R.string.tools_frontends_hint) }
             item { Tool(go, NavRoutes.FrontendMetadata, R.string.meta7_title, R.string.meta7_hint) }
-            item { Tool(go, NavRoutes.FrontendCovers, R.string.covers31_title, R.string.covers31_hint) }
+            item { Tool(go, NavRoutes.FrontendCovers, R.string.covers32_title, R.string.covers32_hint) }
             item {
                 val run = { viewModel.importEsdeFavourites(context) }
                 ToolRow(

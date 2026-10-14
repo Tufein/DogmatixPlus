@@ -26,14 +26,39 @@ enum class SaveFolderLayout {
      * PPSSPP's `PSP/SAVEDATA`: one folder per save (`ULUS10041DATA00/` with `PARAM.SFO`, `DATA.BIN`,
      * icons…). Each folder travels as one zip ([SavePack]) named `<folder>.savedata.zip`.
      */
-    SAVEDATA
+    SAVEDATA,
+
+    /**
+     * AetherSX2's / NetherSX2's `memcards` folder: PlayStation 2 memory card images (`Mcd001.ps2`,
+     * `Mcd002.ps2`, 8 MB and up). Every card holds the saves of many games, so every card is a shared
+     * card. Folder-type cards (a directory named like a card) are left out.
+     */
+    PS2_MEMCARDS,
+
+    /**
+     * Dolphin's `GC` folder: GameCube memory card images (`MemoryCardA.USA.raw`,
+     * `MemoryCardB.EUR.raw`), each holding the saves of many games, so every card is a shared card.
+     * Dolphin's GCI folders (`GC/<region>/Card A/01-GALE-Name.gci`, one file per save) are left
+     * out on purpose: their names carry a maker and game code, not a ROM's name, so tying them to a
+     * game would be a guess. Wii saves live in Dolphin's NAND (`Wii/title/…`), out of reach too.
+     */
+    GC_MEMCARDS;
+
+    /** Whether the folder holds memory cards that may be shared by many games ([MemoryCard.Shared]). */
+    val holdsSharedCards: Boolean get() = this == MEMCARDS || this == PS2_MEMCARDS || this == GC_MEMCARDS
+
+    /** Whether every card of the folder is a shared card: nothing in it belongs to one game. */
+    val onlySharedCards: Boolean get() = this == PS2_MEMCARDS || this == GC_MEMCARDS
 }
 
-/** A DuckStation memory card file, from its name. */
+/** A memory card file, from its name (see [EmulatorSaveLayouts.memoryCard]). */
 sealed interface MemoryCard {
     val slot: Int
 
-    /** `shared_card_1.mcd`: one card for every game. */
+    /**
+     * One card for every game: DuckStation's `shared_card_1.mcd`, a PS2 card (`Mcd001.ps2`) or a
+     * GameCube card (`MemoryCardA.USA.raw`, slot A = 1). [slot] is 0 when the name has no number.
+     */
     data class Shared(override val slot: Int) : MemoryCard
 
     /** `Game Title_1.mcd` / `SLUS-00594_1.mcd`: [serial] is set when the name is a serial. */
@@ -41,18 +66,36 @@ sealed interface MemoryCard {
 }
 
 /**
- * The emulator-specific part of syncing DuckStation memory cards and PPSSPP save folders: which
- * files are what, which game they belong to and what to ask RomM for. Nothing is guessed: a card
- * or save folder that fits no game, or several, is left alone ([RomMatch.NotFound] /
- * [RomMatch.Ambiguous]), the same as for any other save. Pure JVM for the tests.
+ * The emulator-specific part of syncing memory cards (DuckStation, AetherSX2 / NetherSX2, Dolphin)
+ * and PPSSPP save folders: which files are what, which game they belong to and what to ask RomM
+ * for. Nothing is guessed: a card or save folder that fits no game, or several, is left alone
+ * ([RomMatch.NotFound] / [RomMatch.Ambiguous]), the same as for any other save; a shared card goes
+ * only with the game the user chose for it. Pure JVM for the tests.
  */
 object EmulatorSaveLayouts {
     /** What a PPSSPP save folder is called on the server: `ULUS10041DATA00.savedata.zip`. */
     const val PACK_SUFFIX = ".savedata.zip"
 
+    /**
+     * The largest memory card image a sync takes. PCSX2's biggest card (64 MB) is 69,206,016 bytes
+     * with its error-correction bytes (8 MB: 8,650,752); Dolphin's largest card is 16 MiB and
+     * DuckStation's are 128 KiB. Other saves keep the sync's ordinary limit ([sizeLimit]).
+     */
+    const val MAX_CARD_BYTES = 72L * 1024 * 1024
+
     private val cardExtensions = setOf("mcd", "mcr")
     private val sharedCard = Regex("""^shared_card_(\d+)$""", RegexOption.IGNORE_CASE)
     private val slotSuffix = Regex("""^(.+)_(\d)$""")
+
+    /** AetherSX2's / NetherSX2's default card names (`Mcd001.ps2`); any other `.ps2` name is a card too. */
+    private val ps2Slot = Regex("""^mcd(\d{1,3})$""", RegexOption.IGNORE_CASE)
+
+    /**
+     * Dolphin's GameCube card images: `MemoryCardA.USA.raw` at the default size, and for a smaller
+     * card its free blocks before `.raw` (`MemoryCardA.USA.59.raw`). Strict on purpose: the same `GC`
+     * folder also holds `SRAM.raw` (the console's settings), which is no save.
+     */
+    private val gameCubeCardName = Regex("""^MemoryCard([AB])\.(USA|EUR|JAP)(?:\.\d{1,4})?\.raw$""", RegexOption.IGNORE_CASE)
 
     /** PlayStation serial prefixes (Redump's list of the ones that occur on discs). */
     private const val PS1_PREFIXES = "SCES|SCED|SCUS|SCPS|SCAJ|SCKA|SCPM|SCZS|SLES|SLED|SLUS|SLPS|SLPM|SLAJ|SLKA|SIPS|PAPX|PBPX|PCPX|ESPM|CPCS|TCPS"
@@ -65,9 +108,63 @@ object EmulatorSaveLayouts {
     private val tags = Regex("""\([^)]*\)|\[[^]]*]""")
     private val discTag = Regex("""\(\s*(?:disc|disk|cd)\s*(\d+)[^)]*\)""", RegexOption.IGNORE_CASE)
 
+    // ---- Memory cards --------------------------------------------------------------------------
+
+    /**
+     * The card [fileName] is in a folder of [layout], or null when it is none there (anything else
+     * in a memory card folder is left alone).
+     */
+    fun memoryCard(layout: SaveFolderLayout, fileName: String): MemoryCard? = when (layout) {
+        SaveFolderLayout.MEMCARDS -> memoryCard(fileName)
+        SaveFolderLayout.PS2_MEMCARDS -> ps2Card(fileName)
+        SaveFolderLayout.GC_MEMCARDS -> gameCubeCard(fileName)
+        SaveFolderLayout.FILES, SaveFolderLayout.SAVEDATA -> null
+    }
+
+    /**
+     * Whether [fileName] is a shared card of any emulator (DuckStation's `shared_card_1.mcd`, a PS2
+     * card, a GameCube card), from the name alone: what a server save is, before it has a folder.
+     */
+    fun isSharedCard(fileName: String): Boolean =
+        memoryCard(fileName) is MemoryCard.Shared || ps2Card(fileName) != null || gameCubeCard(fileName) != null
+
+    /** Whether the device file [local] is a shared card of its folder: synced only with the game the user chose. */
+    fun isSharedCard(local: LocalSaveFile): Boolean = memoryCard(local.layout, local.name) is MemoryCard.Shared
+
+    /** Whether [fileName] is a memory card image of any of the emulators. */
+    fun isCardImage(fileName: String): Boolean = memoryCard(fileName) != null || ps2Card(fileName) != null || gameCubeCard(fileName) != null
+
+    /**
+     * The size limit of [fileName] in a sync where other saves stop at [ordinary]: a memory card image
+     * may be larger, up to [MAX_CARD_BYTES] (a 64 MB PS2 card).
+     */
+    fun sizeLimit(fileName: String, ordinary: Long): Long = if (isCardImage(fileName)) maxOf(ordinary, MAX_CARD_BYTES) else ordinary
+
+    /**
+     * Whether the sync path [path] is a memory card or a PPSSPP save folder: one file that holds
+     * several saves, so its removal from a device is never copied to the server.
+     */
+    fun holdsSeveralSaves(path: String): Boolean = path.substringAfterLast('/').let { isPackName(it) || isCardImage(it) }
+
+    // ---- AetherSX2 / NetherSX2 ------------------------------------------------------------------
+
+    /** A PS2 card image: `Mcd001.ps2` (slot 1), or any other name ending in `.ps2` (slot 0). */
+    fun ps2Card(fileName: String): MemoryCard.Shared? {
+        if (fileName.startsWith(".") || !fileName.endsWith(".ps2", ignoreCase = true)) return null
+        val stem = fileName.dropLast(4).trim()
+        if (stem.isEmpty()) return null
+        return MemoryCard.Shared(ps2Slot.matchEntire(stem)?.groupValues?.get(1)?.toInt() ?: 0)
+    }
+
+    // ---- Dolphin -----------------------------------------------------------------------------------
+
+    /** A GameCube card image: `MemoryCardA.USA.raw` (slot A = 1, B = 2). GCI files and `SRAM.raw` are none. */
+    fun gameCubeCard(fileName: String): MemoryCard.Shared? =
+        gameCubeCardName.matchEntire(fileName)?.let { MemoryCard.Shared(if (it.groupValues[1].equals("A", ignoreCase = true)) 1 else 2) }
+
     // ---- DuckStation -------------------------------------------------------------------------
 
-    /** The card [fileName] is, or null when it is no memory card. */
+    /** The DuckStation card [fileName] is, or null when it is no DuckStation memory card. */
     fun memoryCard(fileName: String): MemoryCard? {
         if (fileName.startsWith(".")) return null
         val ext = fileName.substringAfterLast('.', "").lowercase()
@@ -81,14 +178,6 @@ object EmulatorSaveLayouts {
         val serial = ps1Serials(title).singleOrNull()?.takeIf { normalize(it) == normalize(title) }
         return MemoryCard.PerGame(title, serial, slotted?.groupValues?.get(2)?.toInt() ?: 1)
     }
-
-    fun isSharedCard(fileName: String): Boolean = memoryCard(fileName) is MemoryCard.Shared
-
-    /**
-     * Whether the sync path [path] is a memory card or a PPSSPP save folder: one file that holds
-     * several saves, so its removal from a device is never copied to the server.
-     */
-    fun holdsSeveralSaves(path: String): Boolean = path.substringAfterLast('/').let { isPackName(it) || memoryCard(it) != null }
 
     /** Every PlayStation serial in [text], as DuckStation writes them (`SLUS-00594`). */
     fun ps1Serials(text: String): List<String> =
@@ -125,6 +214,8 @@ object EmulatorSaveLayouts {
         }
         SaveFolderLayout.SAVEDATA -> folderOfPack(local.name)?.let(::folderProductId)
             ?.let { id -> listOf(id, id.take(4) + "-" + id.drop(4), id.take(4) + " " + id.drop(4)) }.orEmpty()
+        // Every PS2 / GameCube card is shared: it goes with the game the user chose, never one found by name.
+        SaveFolderLayout.PS2_MEMCARDS, SaveFolderLayout.GC_MEMCARDS -> emptyList()
     }.filter { it.isNotBlank() }.distinct()
 
     /** The ROM [local] is the save of (see [SaveSyncPlanner.matchRom] for ordinary files). */
@@ -137,12 +228,14 @@ object EmulatorSaveLayouts {
         SaveFolderLayout.SAVEDATA -> folderOfPack(local.name)?.let(::folderProductId)
             ?.let { id -> pick(candidates.filter { id in productIds(it.fsName) || id in productIds(it.name) }, local) }
             ?: RomMatch.NotFound
+        SaveFolderLayout.PS2_MEMCARDS, SaveFolderLayout.GC_MEMCARDS -> RomMatch.NotFound
     }
 
     /**
      * Whether [local] is a save of the game in [gameFileName] (the library's file name), from the
      * name alone: a card named after its title or serial, a save folder starting with its product
-     * id. Shared cards belong to no single game. Ordinary files are answered by [CloudSaves.belongsToGame].
+     * id. Shared cards (every PS2 and GameCube card) belong to no single game. Ordinary files are
+     * answered by [CloudSaves.belongsToGame].
      */
     fun belongsToGame(local: LocalSaveFile, gameFileName: String): Boolean = when (local.layout) {
         SaveFolderLayout.FILES -> CloudSaves.belongsToGame(local.name, CloudSaves.gameStem(gameFileName))
@@ -154,6 +247,7 @@ object EmulatorSaveLayouts {
             else -> false
         }
         SaveFolderLayout.SAVEDATA -> folderOfPack(local.name)?.let(::folderProductId)?.let { it in productIds(gameFileName) } == true
+        SaveFolderLayout.PS2_MEMCARDS, SaveFolderLayout.GC_MEMCARDS -> false
     }
 
     /**
@@ -202,8 +296,9 @@ object EmulatorSaveLayouts {
 
     /**
      * The folder inside the picked one that really holds the saves, when the user picked its parent:
-     * DuckStation's user folder (holding `memcards`), PPSSPP's `PSP` folder or its storage root
-     * (holding `PSP/SAVEDATA`). [dirsAt] lists the folders at a path below the picked one.
+     * DuckStation's or AetherSX2's / NetherSX2's data folder (holding `memcards`), Dolphin's user
+     * folder (holding `GC`), PPSSPP's `PSP` folder or its storage root (holding `PSP/SAVEDATA`).
+     * [dirsAt] lists the folders at a path below the picked one.
      */
     fun innerPath(layout: SaveFolderLayout, dirsAt: (String) -> Set<String>?): String? {
         fun child(path: String, name: String): String? = dirsAt(path)?.firstOrNull { it.equals(name, ignoreCase = true) }
@@ -213,6 +308,9 @@ object EmulatorSaveLayouts {
             // The parent was picked but the emulator has not made the folder yet: there is nothing
             // to sync, and the picked folder itself is not where the emulator will look (null).
             SaveFolderLayout.MEMCARDS -> child("", "memcards") ?: if (has("", duckStationUserFolders)) null else ""
+            SaveFolderLayout.PS2_MEMCARDS -> child("", "memcards") ?: if (has("", ps2DataFolders)) null else ""
+            // The cards sit right in `GC`; its region folders (`USA`, `EUR`, `JAP`) hold GCI folders and are not looked into.
+            SaveFolderLayout.GC_MEMCARDS -> child("", "GC") ?: if (has("", dolphinUserFolders)) null else ""
             SaveFolderLayout.SAVEDATA -> child("", "SAVEDATA")
                 ?: child("", "PSP")?.let { psp -> child(psp, "SAVEDATA")?.let { "$psp/$it" } ?: return null }
                 ?: if (has("", ppssppPspFolders)) null else ""
@@ -221,6 +319,10 @@ object EmulatorSaveLayouts {
 
     /** Folders next to `memcards` in DuckStation's user folder. */
     private val duckStationUserFolders = setOf("savestates", "bios", "cache", "covers", "gamesettings", "inputprofiles", "screenshots", "shaders", "textures", "cheats")
+    /** Folders next to `memcards` in AetherSX2's / NetherSX2's data folder (PCSX2's names). */
+    private val ps2DataFolders = setOf("sstates", "savestates", "bios", "cache", "covers", "gamesettings", "inputprofiles", "snaps", "textures", "cheats", "cheats_ws", "patches", "logs")
+    /** Folders next to `GC` in Dolphin's user folder. */
+    private val dolphinUserFolders = setOf("wii", "config", "statesaves", "cache", "load", "screenshots", "dump", "logs", "resourcepacks", "maps", "shaders", "themes", "backup", "gba")
     /** Folders next to `SAVEDATA` in PPSSPP's `PSP` folder. */
     private val ppssppPspFolders = setOf("system", "ppsspp_state", "game", "textures", "cheats", "plugins", "texdump")
 }

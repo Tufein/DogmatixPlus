@@ -15,8 +15,14 @@ enum class HandoffBlock {
     NO_EMULATOR,
     /** The game opens in an app the save sync does not know. */
     UNKNOWN_APP,
-    /** A known emulator (or RetroArch core) whose saves the sync cannot reach (Dolphin, the PPSSPP core…). */
+    /** A known emulator (or RetroArch core) whose saves the sync cannot reach (Dolphin's Wii saves, the PPSSPP core…). */
     SAVES_NOT_SUPPORTED,
+    /**
+     * An emulator that keeps every game's saves together on shared memory cards (AetherSX2 /
+     * NetherSX2, Dolphin for GameCube): Save sync can keep a whole card with RomM once the user opts
+     * in, but a hand-off moves one game's saves and never a shared card.
+     */
+    SHARED_CARDS_ONLY,
     /** RetroArch: its saves folder is not picked in Save sync. */
     NO_RETROARCH_FOLDER,
     /** A supported standalone emulator whose saves folder is not picked in Save sync. */
@@ -39,7 +45,7 @@ sealed interface HandoffSupport {
         val layout: SaveFolderLayout = SaveFolderLayout.FILES
     ) : HandoffSupport
 
-    /** It cannot; [emulatorLabel] names the app when one is known, [folderHint] where its saves folder usually is. */
+    /** It cannot; [emulatorLabel] names the app when one is known, [folderHint] where its saves folder (or cards) usually are. */
     data class Unsupported(val block: HandoffBlock, val emulatorLabel: String? = null, val folderHint: String? = null) : HandoffSupport
 }
 
@@ -86,8 +92,15 @@ object HandoffGuide {
             if (!retroArchSavesFolder) return HandoffSupport.Unsupported(HandoffBlock.NO_RETROARCH_FOLDER, label)
             return HandoffSupport.Supported(emulator.id, emulator.label, chosen, coreLabel)
         }
-        val preset = EmulatorSaveFolders.presets.firstOrNull { it.emulatorId == emulator.id }
+        val preset = EmulatorSaveFolders.presets.firstOrNull { it.isFor(emulator.id) }
             ?: return HandoffSupport.Unsupported(HandoffBlock.SAVES_NOT_SUPPORTED, emulator.label)
+        if (preset.layout.onlySharedCards) {
+            // Every card holds every game's saves: like DuckStation's shared cards, never handed over
+            // automatically. Other consoles of the emulator (Wii in Dolphin, saves in its NAND) are out of reach.
+            val cardConsole = preset.platforms.isEmpty() || EmulatorSaveFolders.platformFits(consoleId, preset.platforms)
+            return if (cardConsole) HandoffSupport.Unsupported(HandoffBlock.SHARED_CARDS_ONLY, emulator.label, preset.folderHint)
+            else HandoffSupport.Unsupported(HandoffBlock.SAVES_NOT_SUPPORTED, emulator.label)
+        }
         val folder = EmulatorSaveFolders.foldersFor(emulator.id, consoleId, folders).firstOrNull()
             ?: return HandoffSupport.Unsupported(HandoffBlock.NO_EMULATOR_FOLDER, emulator.label, preset.folderHint)
         return HandoffSupport.Supported(emulator.id, emulator.label, folderLabel = folder.label, layout = folder.layout)

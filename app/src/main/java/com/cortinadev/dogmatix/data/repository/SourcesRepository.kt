@@ -98,14 +98,17 @@ class SourcesRepository @Inject constructor(
                     manufacturerDao.insertManufacturer(ManufacturerEntity(entry.manufacturerId, entry.manufacturerName))
                 }
                 val urls = current?.let { SourcesJson.parseUrlEntries(it.urls) }.orEmpty()
-                if (urls.any { it.url.trimEnd('/') == entry.url.trimEnd('/') }) return@forEach
-                val merged = SourcesJson.serializeUrlEntries(urls + UrlEntry(entry.url, ContentType.GAME))
+                val have = urls.map { it.url.trimEnd('/') }.toSet()
+                // An entry with several folders adds the ones the console does not have yet.
+                val missing = entry.urls.filter { it.trimEnd('/') !in have }
+                if (missing.isEmpty()) return@forEach
+                val merged = SourcesJson.serializeUrlEntries(urls + missing.map { UrlEntry(it, ContentType.GAME) })
                 if (current == null) {
                     consoleDao.insertConsole(ConsoleEntity(entry.id, entry.consoleName, entry.manufacturerId, merged,
                         shortName = entry.shortName, folderAliases = ConsoleAliasRegistry.serializeAliases(entry.aliases)))
                     consoles += RomsetCatalog.ConsoleRef(entry.id, entry.consoleName, entry.shortName, entry.aliases)
                 } else consoleDao.updateConsole(current.copy(urls = merged))
-                added[consoleId] = added[consoleId].orEmpty() + entry.url
+                added[consoleId] = added[consoleId].orEmpty() + missing
             }
         }
         added

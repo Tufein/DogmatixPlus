@@ -158,7 +158,9 @@ class DatabaseScrapingService @Inject constructor(
         val contentTypeTag = FileParsingUtils.normalizeTag(entry.contentType.name)
         val files = ArrayList<DownloadableFileEntity>()
         val tags = ArrayList<List<String>>()
-        for (row in table.getElementsByTag("tr")) {
+        val rows = table.getElementsByTag("tr")
+        val listed = rows.mapNotNullTo(HashSet()) { FileParsingUtils.linkOf(it)?.attr("href") }
+        for (row in rows) {
             val linkCell = FileParsingUtils.linkOf(row) ?: continue
             val href = linkCell.attr("href")
             val linkText = linkCell.text().trim()
@@ -169,6 +171,7 @@ class DatabaseScrapingService @Inject constructor(
                 linkText == "./" || linkText == "../") continue
             // Sub-folders are not walked into.
             if (href.endsWith("/")) continue
+            if (FileParsingUtils.isChecksumSidecar(href, listed)) continue
 
             val (fileEntity, tagEntities) = FileParsingUtils.parseFileFromRow(row, target, console.id, linkCell)
             if (fileEntity != null) {

@@ -33,7 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cortinadev.dogmatix.R
-import com.cortinadev.dogmatix.data.service.CoversPreview
 import com.cortinadev.dogmatix.data.service.CoversRunState
 import com.cortinadev.dogmatix.ui.components.ActionPill
 import com.cortinadev.dogmatix.ui.components.ActionTone
@@ -50,16 +49,19 @@ import java.text.NumberFormat
 
 private fun count(n: Int): String = NumberFormat.getIntegerInstance().format(n)
 
-/** The frontend's name as it spells it (not translated). */
+/** The launcher's name as it spells it (not translated), or "Another launcher". */
+@Composable
 internal fun frontendName(target: FrontendCovers.Target): String = when (target) {
     FrontendCovers.Target.IISU -> "iiSU"
     FrontendCovers.Target.DAIJISHO -> "Daijishō"
+    FrontendCovers.Target.OTHER -> stringResource(R.string.covers32_other)
 }
 
 /**
- * Tools -> Covers for iiSU and Daijishō (3.1.0): pick the frontend, the folder it reads cover
- * images from (the hint says which), how the files are named and whether covers already there may
- * be replaced; the preview says how many covers would be written and where (with an example path)
+ * Tools -> Covers for launchers (3.1.0 for iiSU and Daijishō, 3.2.0 for any other launcher): pick
+ * the launcher, the folder it reads cover images from (the hint says which), how the files are
+ * named and arranged (each layout with an example from a game of the library) and whether covers
+ * already there may be replaced; the preview says how many covers would be written and where
  * before anything is written. The run can be stopped; what was written stays.
  */
 @Composable
@@ -92,7 +94,7 @@ fun FrontendCoversScreen(viewModel: FrontendCoversViewModel = hiltViewModel()) {
     val canWrite = !run.running && preview != null && preview.writable && (preview.plan?.items?.isNotEmpty() == true)
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
-        ToolsTitle(stringResource(R.string.covers31_title), icon = R.drawable.ic_image, subtitle = stringResource(R.string.covers31_subtitle))
+        ToolsTitle(stringResource(R.string.covers32_title), icon = R.drawable.ic_image, subtitle = stringResource(R.string.covers32_subtitle))
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(2.dp),
             contentPadding = PaddingValues(bottom = 16.dp),
@@ -100,7 +102,7 @@ fun FrontendCoversScreen(viewModel: FrontendCoversViewModel = hiltViewModel()) {
         ) {
             item(key = "what") {
                 InfoCard(
-                    listOf(stringResource(R.string.covers31_what_title), stringResource(R.string.covers31_what_body)),
+                    listOf(stringResource(R.string.covers31_what_title), stringResource(R.string.covers32_what_body)),
                     modifier = Modifier.focusRequester(firstFocus).focusableCard(),
                     icon = R.drawable.ic_info
                 )
@@ -124,7 +126,8 @@ fun FrontendCoversScreen(viewModel: FrontendCoversViewModel = hiltViewModel()) {
             item(key = "folder") {
                 val notWritable = preview != null && preview.folderSet && !preview.writable
                 ToolRow(
-                    title = stringResource(R.string.covers31_folder_title, frontendName(ui.target)),
+                    title = if (ui.target == FrontendCovers.Target.OTHER) stringResource(R.string.covers32_folder_title_other)
+                        else stringResource(R.string.covers31_folder_title, frontendName(ui.target)),
                     lines = listOfNotNull(
                         settings?.folder?.takeIf { it.isNotBlank() }?.let { FileParsingUtils.toUserReadablePath(it) }
                             ?: stringResource(R.string.covers31_folder_none),
@@ -146,18 +149,18 @@ fun FrontendCoversScreen(viewModel: FrontendCoversViewModel = hiltViewModel()) {
                 )
             }
 
-            item(key = "h-names") { SectionHeader(stringResource(R.string.covers31_section_names), icon = R.drawable.ic_label) }
-            FrontendCovers.Layout.entries.forEach { layout ->
+            item(key = "h-names") {
+                SectionHeader(
+                    stringResource(R.string.covers31_section_names),
+                    subtitle = stringResource(R.string.covers32_names_hint, stringResource(layoutTitle(FrontendCovers.layoutsFor(ui.target).first()))),
+                    icon = R.drawable.ic_label
+                )
+            }
+            FrontendCovers.layoutsFor(ui.target).forEach { layout ->
                 item(key = "l-" + layout.key) {
-                    val example = exampleFor(preview, layout)
                     ToolRow(
-                        title = stringResource(if (layout == FrontendCovers.Layout.NAME_WITHOUT_EXTENSION) R.string.covers31_layout_stem else R.string.covers31_layout_full),
-                        lines = listOf(
-                            stringResource(
-                                if (layout == FrontendCovers.Layout.NAME_WITHOUT_EXTENSION) R.string.covers31_layout_stem_hint else R.string.covers31_layout_full_hint,
-                                example
-                            )
-                        ),
+                        title = stringResource(layoutTitle(layout)),
+                        lines = listOf(stringResource(layoutHint(layout), exampleFor(ui.sample, layout))),
                         onClick = { if (!run.running) viewModel.setLayout(layout) },
                         modifier = track,
                         trailing = { RadioButton(selected = settings?.layout == layout, onClick = null, enabled = !run.running) }
@@ -201,13 +204,33 @@ fun FrontendCoversScreen(viewModel: FrontendCoversViewModel = hiltViewModel()) {
 private fun folderHint(target: FrontendCovers.Target): Int = when (target) {
     FrontendCovers.Target.IISU -> R.string.covers31_hint_iisu
     FrontendCovers.Target.DAIJISHO -> R.string.covers31_hint_daijisho
+    FrontendCovers.Target.OTHER -> R.string.covers32_hint_other
 }
 
-/** An example cover path in [layout]: from the first planned game, else a made-up one. */
-private fun exampleFor(preview: CoversPreview?, layout: FrontendCovers.Layout): String {
-    val game = preview?.plan?.items?.firstOrNull()?.game ?: FrontendCovers.Game("", "gba", "Game (Europe).gba", "Game")
-    return FrontendCovers.coverPath(game, layout) ?: "gba/Game (Europe).png"
+private fun layoutTitle(layout: FrontendCovers.Layout): Int = when (layout) {
+    FrontendCovers.Layout.NAME_WITHOUT_EXTENSION -> R.string.covers31_layout_stem
+    FrontendCovers.Layout.NAME_WITH_EXTENSION -> R.string.covers31_layout_full
+    FrontendCovers.Layout.FLAT -> R.string.covers32_layout_flat
+    FrontendCovers.Layout.NAMED_BOXARTS -> R.string.covers32_layout_boxarts
+    FrontendCovers.Layout.PEGASUS -> R.string.covers32_layout_pegasus
+    FrontendCovers.Layout.GAMELIST_IMAGES -> R.string.covers32_layout_gamelist
 }
+
+/** The layout's one-line explanation; it takes the example path as its argument. */
+private fun layoutHint(layout: FrontendCovers.Layout): Int = when (layout) {
+    FrontendCovers.Layout.NAME_WITHOUT_EXTENSION -> R.string.covers31_layout_stem_hint
+    FrontendCovers.Layout.NAME_WITH_EXTENSION -> R.string.covers31_layout_full_hint
+    FrontendCovers.Layout.FLAT -> R.string.covers32_layout_flat_hint
+    FrontendCovers.Layout.NAMED_BOXARTS -> R.string.covers32_layout_boxarts_hint
+    FrontendCovers.Layout.PEGASUS -> R.string.covers32_layout_pegasus_hint
+    FrontendCovers.Layout.GAMELIST_IMAGES -> R.string.covers32_layout_gamelist_hint
+}
+
+private val EXAMPLE_GAME = FrontendCovers.Game("", "gba", "Game (Europe).gba", "Game")
+
+/** An example cover path in [layout]: from a game of the library ([sample]), else a made-up one. */
+private fun exampleFor(sample: FrontendCovers.Game?, layout: FrontendCovers.Layout): String =
+    sample?.let { FrontendCovers.coverPath(it, layout) } ?: FrontendCovers.coverPath(EXAMPLE_GAME, layout).orEmpty()
 
 /** How many covers a run would write, where, and what it leaves alone. */
 @Composable
@@ -225,13 +248,20 @@ private fun PreviewCard(ui: FrontendCoversUi) {
             if (items.isEmpty()) add(stringResource(R.string.covers31_preview_nothing))
             else {
                 add(pluralStringResource(R.plurals.covers31_preview_count, items.size, count(items.size), preview.folderDisplay))
-                add(stringResource(R.string.covers31_preview_example, count(plan!!.systems), "${preview.folderDisplay}/${plan.example.orEmpty()}"))
+                val example = "${preview.folderDisplay}/${plan!!.example.orEmpty()}"
+                add(
+                    if (preview.layout.perSystem) stringResource(R.string.covers31_preview_example, count(plan.systems), example)
+                    else stringResource(R.string.covers32_preview_example_flat, example)
+                )
                 val replacing = items.count { it.replaces }
                 if (replacing > 0) add(stringResource(R.string.covers31_preview_replace, count(replacing)))
                 add(stringResource(R.string.covers31_preview_sources))
             }
             if ((plan?.kept ?: 0) > 0) add(stringResource(R.string.covers31_preview_kept, count(plan!!.kept)))
-            if ((plan?.skipped ?: 0) > 0) add(stringResource(R.string.covers31_preview_skipped, count(plan!!.skipped)))
+            val shared = plan?.shared ?: 0
+            val otherSkipped = (plan?.skipped ?: 0) - shared
+            if (otherSkipped > 0) add(stringResource(R.string.covers31_preview_skipped, count(otherSkipped)))
+            if (shared > 0) add(stringResource(R.string.covers32_preview_shared, count(shared)))
             if (preview.outside > 0) add(stringResource(R.string.covers31_preview_outside, count(preview.outside)))
             if (preview.profileLimited) add(stringResource(R.string.covers31_preview_profile))
         }

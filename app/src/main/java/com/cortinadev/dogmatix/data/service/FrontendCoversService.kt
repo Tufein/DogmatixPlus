@@ -7,6 +7,9 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.cortinadev.dogmatix.data.local.FrontendCoversSettings
 import com.cortinadev.dogmatix.data.local.dao.DownloadableFileDao
+import com.cortinadev.dogmatix.util.DiskDir
+import com.cortinadev.dogmatix.util.DiskEntry
+import com.cortinadev.dogmatix.util.DiskScanner
 import com.cortinadev.dogmatix.util.FileParsingUtils
 import com.cortinadev.dogmatix.util.FrontendCovers
 import com.cortinadev.dogmatix.util.LibraryRestrictions
@@ -50,7 +53,9 @@ data class CoversPreview(
     /** Games outside any console folder (no system to put a cover in). */
     val outside: Int,
     /** The active profile hides some consoles or tags; their games are not counted. */
-    val profileLimited: Boolean
+    val profileLimited: Boolean,
+    /** A game of the library to show what each layout's names look like; null without games. */
+    val sample: FrontendCovers.Game? = null
 )
 
 /** A run's progress and, when it is over, its outcome. */
@@ -75,9 +80,10 @@ data class CoversRunState(
 }
 
 /**
- * Tools -> Covers for iiSU and Daijishō (3.1.0). Puts a cover image for every game on the device
- * into the media folder the user picked for that frontend, named the way the user chose
- * ([FrontendCovers.Layout]), one folder per console folder. The covers come from the same places
+ * Tools -> Covers for launchers (3.1.0 for iiSU and Daijishō, 3.2.0 for any other launcher). Puts a
+ * cover image for every game on the device into the media folder the user picked for that
+ * launcher, named and arranged the way the user chose ([FrontendCovers.Layout]); folders that are
+ * already there are used as they are spelled ("GBA" for "gba"). The covers come from the same places
  * as everywhere else in the app ([CoverRepository]: the RomM server's own cover, libretro
  * thumbnails, or an image an earlier lookup found) and are written as PNG. An image that is
  * already there is never replaced unless the user switched that on, and every write goes through
@@ -114,7 +120,7 @@ class FrontendCoversService @Inject constructor(
 
     // ---- Planning ------------------------------------------------------------------------------
 
-    private class Prepared(val preview: CoversPreview, val root: DocumentFile?)
+    private class Prepared(val preview: CoversPreview, val root: DocumentFile?, val media: MediaFolder?)
 
     private suspend fun prepare(target: FrontendCovers.Target): Prepared {
         val s = settings.of(target).first()
@@ -125,20 +131,96 @@ class FrontendCoversService @Inject constructor(
         val found = FrontendCovers.gamesOf(libraryScanService.scan().files, restrictions.hiddenConsoles)
         currentCoroutineContext().ensureActive()
         val games = withoutHiddenTags(found.games, restrictions)
-        val plan = root?.let { dir ->
-            // A system folder that is already there is used as it is spelled ("GBA" for "gba").
-            val folders = runCatching { dir.listFiles().filter { it.isDirectory } }.getOrDefault(emptyList())
-                .mapNotNull { f -> f.name?.let { it.lowercase() to f } }.toMap()
-            val placed = games.map { g -> folders[g.system.lowercase()]?.name?.let { g.copy(system = it) } ?: g }
-            val existing = placed.map { it.system }.distinct().associateWith { system ->
-                folders[system.lowercase()]?.let { f -> runCatching { f.listFiles().mapNotNull { it.name?.lowercase() }.toSet() }.getOrDefault(emptySet()) }.orEmpty()
+        val media = root?.let { DiskScanner.rootOf(s.folder) }?.let { MediaFolder(it) }
+        val plan = media?.let { m ->
+            // One listing per cover folder: the console folders, or the game folders of the Pegasus layout.
+            val folders = games.mapNotNull { FrontendCovers.place(it, s.layout)?.dir }.distinctBy { it.lowercase() }
+            val existing = folders.associateWith { dir ->
+                currentCoroutineContext().ensureActive()
+                m.children(dir).values.filterNot { it.isDirectory }.map { it.name.lowercase() }.toSet()
             }
-            FrontendCovers.plan(placed, s.layout, existing, s.overwrite)
+            val planned = FrontendCovers.plan(games, s.layout, existing, s.overwrite)
+            // A folder that is already there is written to as it is spelled ("GBA" for "gba").
+            planned.copy(items = planned.items.map { it.copy(place = it.place.copy(dir = m.spelled(it.place.dir))) })
         }
+        val sample = FrontendCovers.sampleOf(games)?.let { g -> media?.let { g.copy(system = it.spelled(g.system)) } ?: g }
         return Prepared(
-            CoversPreview(target, s.folder.isNotBlank(), root != null, display, s.layout, s.overwrite, plan, games.size, found.outside, restrictions.active),
-            root
+            CoversPreview(target, s.folder.isNotBlank(), root != null, display, s.layout, s.overwrite, plan, games.size, found.outside, restrictions.active, sample),
+            root,
+            media
         )
+    }
+
+    /**
+     * The picked media folder as it is on storage: each folder below it is listed at most once, in
+     * one provider query, and folder names are matched in any case (shared storage ignores case).
+     */
+    private inner class MediaFolder(private val root: DiskDir) {
+        private val dirs = HashMap<String, DiskDir?>()
+        private val listings = HashMap<String, Map<String, DiskEntry>>()
+
+        /** The folder at [path] ("" = the media folder), or null when it is not there. */
+        fun dir(path: String): DiskDir? {
+            if (path.isEmpty()) return root
+            val key = path.lowercase()
+            if (key in dirs) return dirs[key]
+            val parentPath = path.substringBeforeLast('/', "")
+            val found = dir(parentPath)?.let { parent ->
+                children(parentPath)[path.substringAfterLast('/').lowercase()]?.takeIf { it.isDirectory }?.let { DiskScanner.dirOf(parent, it) }
+            }
+            dirs[key] = found
+            return found
+        }
+
+        /** What is in the folder at [path], by lower-cased name; empty when it is not there. */
+        fun children(path: String): Map<String, DiskEntry> = listings.getOrPut(path.lowercase()) {
+            dir(path)?.let { d -> DiskScanner.list(context, d).associateBy { it.name.lowercase() } }.orEmpty()
+        }
+
+        /** [path] spelled the way its folders already are on storage; folders not there yet keep the given spelling. */
+        fun spelled(path: String): String {
+            if (path.isEmpty()) return path
+            val parentPath = path.substringBeforeLast('/', "")
+            val name = path.substringAfterLast('/')
+            val actual = children(parentPath)[name.lowercase()]?.takeIf { it.isDirectory }?.name ?: name
+            return if (parentPath.isEmpty()) actual else "${spelled(parentPath)}/$actual"
+        }
+    }
+
+    /** The cover folders of a run as documents: found through [media] or made, once each. */
+    private inner class RunFolders(private val root: DocumentFile, private val media: MediaFolder) {
+        private val docs = HashMap<String, DocumentFile>()
+
+        /** The folder at [path] when it is there. */
+        fun find(path: String): DocumentFile? {
+            if (path.isEmpty()) return root
+            docs[path.lowercase()]?.let { return it }
+            val dir = media.dir(path) ?: return null
+            return DocumentFile.fromTreeUri(context, DiskScanner.uriOf(dir))?.also { docs[path.lowercase()] = it }
+        }
+
+        /** The folder at [path], made (with its parents) when it is not there; null when storage refuses. */
+        fun make(path: String): DocumentFile? {
+            find(path)?.let { return it }
+            val parent = make(path.substringBeforeLast('/', "")) ?: return null
+            val name = path.substringAfterLast('/')
+            val made = parent.createDirectory(name) ?: return null
+            // A provider that renames ("Game (1)") means something else already has this name.
+            if (made.name != name || !made.isDirectory) { runCatching { made.delete() }; return null }
+            docs[path.lowercase()] = made
+            return made
+        }
+
+        /**
+         * The files in [dir] right now: lower-cased name to the name as it is spelled. Null when
+         * the listing cannot be trusted to be complete (the provider failed or is still loading):
+         * an image could then be replaced without the user having asked for that.
+         */
+        fun names(dir: DocumentFile): Map<String, String>? {
+            val d = DiskScanner.dirOf(dir.uri) ?: return null
+            return DiskScanner.listOrNull(context, d)?.filterNot { it.isDirectory || it.name.startsWith(".dogmatix-") }
+                ?.associate { it.name.lowercase() to it.name }
+        }
     }
 
     /** Games whose library row carries a tag the active profile hides are left out. */
@@ -171,16 +253,18 @@ class FrontendCoversService @Inject constructor(
             val prepared = prepare(target)
             val preview = prepared.preview
             val root = prepared.root
+            val media = prepared.media
             val plan = preview.plan
             if (!preview.folderSet) return finish(target, CoversRunState.Problem.NO_FOLDER)
-            if (root == null || plan == null) return finish(target, CoversRunState.Problem.NOT_WRITABLE)
+            if (root == null || media == null || plan == null) return finish(target, CoversRunState.Problem.NOT_WRITABLE)
             if (preview.games == 0) return finish(target, CoversRunState.Problem.NOTHING_ON_DEVICE)
             _state.update { it.copy(total = plan.items.size, kept = plan.kept) }
             val rommBase = runCatching { rommClient.configuredBaseUrl() }.getOrDefault("")
             val rommHeaders = if (rommBase.isNotEmpty()) runCatching { rommClient.downloadHeaders() }.getOrDefault(emptyMap()) else emptyMap()
+            val folders = RunFolders(root, media)
             for (item in plan.items) {
                 currentCoroutineContext().ensureActive()
-                val outcome = write(root, item, rommBase, rommHeaders)
+                val outcome = write(folders, item, preview.overwrite, rommBase, rommHeaders)
                 _state.update {
                     when (outcome) {
                         Outcome.WRITTEN -> it.copy(written = it.written + 1)
@@ -209,7 +293,7 @@ class FrontendCoversService @Inject constructor(
 
     private enum class Outcome { WRITTEN, REPLACED, NO_COVER, KEPT, FAILED }
 
-    private suspend fun write(root: DocumentFile, item: FrontendCovers.Item, rommBase: String, rommHeaders: Map<String, String>): Outcome {
+    private suspend fun write(folders: RunFolders, item: FrontendCovers.Item, overwrite: Boolean, rommBase: String, rommHeaders: Map<String, String>): Outcome {
         val game = item.game
         val url = try {
             covers.coverUrl(game.consoleId, game.fileName, game.title)
@@ -221,11 +305,19 @@ class FrontendCoversService @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 // Checked again right before writing: a cover that appeared meanwhile is kept.
-                if (!item.replaces && StorageHelper.findFile(root, item.path) != null) return@withContext Outcome.KEPT
+                val folder = folders.find(item.place.dir)
+                val present = if (folder == null) emptyMap() else folders.names(folder) ?: return@withContext Outcome.FAILED
+                // With replacing on, only an image of the exact cover name stands in the way: an image
+                // with another extension stays and the PNG is added next to it.
+                val there = if (overwrite) item.place.name.lowercase() in present.keys else FrontendCovers.hasCover(present.keys, item.place.name)
+                if (!item.replaces && there) return@withContext Outcome.KEPT
+                // The image being replaced keeps its own spelling ("game.png" for "Game.png").
+                val fileName = if (item.replaces) present[item.place.name.lowercase()] ?: item.place.name else item.place.name
                 val headers = if (rommBase.isNotEmpty() && url.startsWith(rommBase)) rommHeaders else emptyMap()
                 val bytes = JsonHttp.download(url, headers, MAX_COVER_BYTES).takeIf { it.isNotEmpty() } ?: return@withContext Outcome.FAILED
                 val png = toPng(bytes) ?: return@withContext Outcome.FAILED
-                StorageHelper.writeBytesSafely(context, root, game.system, item.coverName, png)
+                val dir = folders.make(item.place.dir) ?: return@withContext Outcome.FAILED
+                StorageHelper.writeBytesSafely(context, dir, "", fileName, png)
                 if (item.replaces) Outcome.REPLACED else Outcome.WRITTEN
             } catch (e: CancellationException) {
                 throw e

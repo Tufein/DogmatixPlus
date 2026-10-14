@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Covers for launchers: iiSU, Daijishō and any other launcher (3.2.0) -->
+    <string name="covers32_title">Copertine per i launcher</string>
+    <string name="covers32_subtitle">Metti le copertine dove iiSU, Daijishō o un altro launcher possono mostrarle</string>
+    <string name="covers32_hint">Scrivi le copertine dei tuoi giochi nella cartella da cui le legge il tuo launcher</string>
+    <string name="covers32_kw">artwork, boxart, copertine, immagini, media, miniature, iisu, daijisho, pegasus, retroarch, emulationstation, launcher, frontend</string>
+    <string name="covers32_what_body">Dogmatix+ mette una copertina per gioco in una cartella a tua scelta, con il nome che cerca il tuo launcher: in una sottocartella per console chiamata come le tue cartelle delle console, tutte in un\'unica cartella, oppure disposte come fanno RetroArch, Pegasus o EmulationStation. Le copertine arrivano dal tuo server RomM, dalle miniature di libretro o da copertine trovate in precedenza, e vengono salvate come PNG. Le immagini già presenti restano, a meno che tu non scelga di sostituirle.</string>
+    <string name="covers32_other">Altro launcher</string>
+    <string name="covers32_hint_other">Per qualsiasi altro launcher: scegli la cartella da cui legge le copertine, spesso chiamata media, covers, images o artwork. Di solito lo indicano le sue impostazioni o la sua documentazione.</string>
+    <string name="covers32_folder_title_other">Cartella per le copertine del tuo launcher</string>
+    <string name="covers32_names_hint">Non sei sicuro? Prova prima «%1$s»: la maggior parte dei launcher abbina le copertine al nome file del gioco. Se la cartella del tuo launcher contiene già delle copertine, scegli la disposizione che somiglia a quelle.</string>
+    <string name="covers32_layout_flat">Tutto in un\'unica cartella</string>
+    <string name="covers32_layout_flat_hint">Per esempio %1$s. Nessuna cartella per console; i giochi con lo stesso nome su due console vengono saltati.</string>
+    <string name="covers32_layout_boxarts">Stile RetroArch (Named_Boxarts)</string>
+    <string name="covers32_layout_boxarts_hint">Per esempio %1$s. La disposizione delle miniature di libretro, con i nomi delle tue cartelle delle console; caratteri come &amp; diventano _.</string>
+    <string name="covers32_layout_pegasus">Stile Pegasus (boxFront)</string>
+    <string name="covers32_layout_pegasus_hint">Per esempio %1$s. Una cartella per gioco, come nella cartella media accanto a un file di metadati di Pegasus.</string>
+    <string name="covers32_layout_gamelist">Stile EmulationStation (images)</string>
+    <string name="covers32_layout_gamelist_hint">Per esempio %1$s. Come nelle cartelle gamelist di EmulationStation: scegli la cartella che contiene le tue cartelle delle console.</string>
+    <string name="covers32_preview_example_flat">Per esempio: %1$s</string>
+    <string name="covers32_preview_shared">%1$s giochi vengono saltati perché un gioco di un\'altra console userebbe lo stesso file di copertina. Una disposizione con cartelle per console li tiene separati.</string>
+</resources>

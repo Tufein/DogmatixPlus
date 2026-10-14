@@ -10,6 +10,15 @@
       "licence": "published",
       "baseUrl": "https://buildbot.libretro.com/assets/cores/",
       "checkedAt": "2026-10-13"
+    },
+    {
+      "id": "scummvm",
+      "name": "ScummVM",
+      "homepage": "https://www.scummvm.org/",
+      "provenance": "https://www.scummvm.org/games/",
+      "licence": "published",
+      "baseUrl": "https://downloads.scummvm.org/frs/extras/",
+      "checkedAt": "2026-10-13"
     }
   ],
   "entries": [
@@ -457,6 +466,30 @@
       ],
       "folder": "Uzebox",
       "fileCount": 2
+    },
+    {
+      "provider": "scummvm",
+      "id": "pc_scummvm",
+      "manufacturerId": "pc",
+      "manufacturerName": "PC",
+      "consoleKey": "scummvm",
+      "consoleName": "ScummVM",
+      "shortName": "ScummVM",
+      "aliases": [
+        "scummvm"
+      ],
+      "folders": [
+        "Beneath a Steel Sky",
+        "Broken Sword 2.5",
+        "Drascula_ The Vampire Strikes Back",
+        "Dreamweb",
+        "Flight of the Amazon Queen",
+        "Griffon Legend",
+        "Lure of the Temptress",
+        "Nippon Safes",
+        "God of Thunder"
+      ],
+      "fileCount": 57
     }
   ]
 }

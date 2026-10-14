@@ -29,7 +29,7 @@ fun RomsetCatalogDialog(onDismiss: () -> Unit, vm: RomsetCatalogViewModel = hilt
     val catalog = state.catalog
     LaunchedEffect(known) {
         selected = selected.filterTo(mutableSetOf()) { key ->
-            catalog?.entries?.firstOrNull { it.key == key }?.let { it.url.trimEnd('/') !in known } == true
+            catalog?.entries?.firstOrNull { it.key == key }?.let { e -> e.urls.any { it.trimEnd('/') !in known } } == true
         }
     }
     // A provider that is not in the catalogue (any more) shows everything.
@@ -67,7 +67,7 @@ fun RomsetCatalogDialog(onDismiss: () -> Unit, vm: RomsetCatalogViewModel = hilt
                 groups.forEach { (p, entries) ->
                     item(key = "provider-" + p.id) { ProviderHeader(p) }
                     items(entries, key = { it.key }) { entry ->
-                        val added = entry.url.trimEnd('/') in known
+                        val added = entry.urls.all { it.trimEnd('/') in known }
                         RomsetChoice(entry, p.name, RomsetCatalog.mapConsole(entry, consoles), checked = entry.key in selected,
                             alreadyAdded = added, enabled = !state.busy && !added) {
                             selected = if (entry.key in selected) selected - entry.key else selected + entry.key

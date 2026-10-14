@@ -1,9 +1,9 @@
 package com.cortinadev.dogmatix.data.service
 
 import com.cortinadev.dogmatix.BuildConfig
+import com.cortinadev.dogmatix.util.BoundedStreams
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
-import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
@@ -74,17 +74,12 @@ object JsonHttp {
             if (code !in 200..299) {
                 throw HttpException(code, connection.errorStream?.bufferedReader()?.use { it.readText() })
             }
-            if (connection.contentLengthLong > maxBytes) throw IOException("File too large (${connection.contentLengthLong} bytes)")
-            connection.inputStream.use { input ->
-                val out = ByteArrayOutputStream()
-                val buffer = ByteArray(64 * 1024)
-                while (true) {
-                    val n = input.read(buffer)
-                    if (n < 0) break
-                    out.write(buffer, 0, n)
-                    if (out.size() > maxBytes) throw IOException("File too large")
-                }
-                return out.toByteArray()
+            val length = connection.contentLengthLong
+            if (length > maxBytes) throw IOException("File too large ($length bytes)")
+            // With a known length the body goes into one array of that size (a 64 MB memory card is
+            // held once, not copied while a buffer grows); a body that ends early is an error, not a save.
+            return connection.inputStream.use { input ->
+                BoundedStreams.readAll(input, length, maxBytes, tooLarge = { IOException("File too large") }, changed = { IOException("The download ended early") })
             }
         } finally {
             connection.disconnect()
@@ -121,11 +116,14 @@ object JsonHttp {
             "Content-Disposition: form-data; name=\"$fieldName\"; filename=\"$safeName\"\r\n" +
             "Content-Type: application/octet-stream\r\n\r\n"
         val tail = "\r\n--$boundary--\r\n"
-        val out = ByteArrayOutputStream(bytes.size + 512)
-        out.write(head.toByteArray(Charsets.UTF_8))
-        out.write(bytes)
-        out.write(tail.toByteArray(Charsets.UTF_8))
-        return out.toByteArray() to "multipart/form-data; boundary=$boundary"
+        // One array of the exact size: the file (up to a 64 MB memory card) is copied once, not twice.
+        val headBytes = head.toByteArray(Charsets.UTF_8)
+        val tailBytes = tail.toByteArray(Charsets.UTF_8)
+        val body = ByteArray(headBytes.size + bytes.size + tailBytes.size)
+        headBytes.copyInto(body)
+        bytes.copyInto(body, headBytes.size)
+        tailBytes.copyInto(body, headBytes.size + bytes.size)
+        return body to "multipart/form-data; boundary=$boundary"
     }
 
     const val FORM_URLENCODED = "application/x-www-form-urlencoded"

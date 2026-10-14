@@ -214,19 +214,45 @@ right after the download (Settings):
   image is libretro-thumbnails' own PNG, so it matches what RetroArch would download itself;
   consoles libretro-thumbnails does not have get none.
 
-## Covers for iiSU and Daijishō
+## Covers for iiSU, Daijishō and other launchers
 
-*Tools → Covers for iiSU and Daijishō* writes a cover for every game on the device into a media
-folder you pick, one folder per console folder:
+*Tools → Covers for launchers* writes a cover for every game on the device into a media folder
+you pick, for iiSU, Daijishō or *Another launcher* (each keeps its own folder and choices).
+`<console folder>` is the folder your games of that console sit in (`gba`, `snes`, …) and
+`<name>` the game's file name without its extension:
 
-- `<console folder>/<game file name without extension>.png` (the usual choice), or
-- `<console folder>/<game file name with extension>.png`, for a launcher that matches artwork on
-  the whole file name.
+| Layout | Where the cover goes | Offered for |
+|---|---|---|
+| Name without extension (the usual choice) | `<console folder>/<name>.png` | all |
+| Full file name | `<console folder>/<name>.<extension>.png` | all |
+| All in one folder | `<name>.png` | all |
+| RetroArch style | `<console folder>/Named_Boxarts/<name>.png` | another launcher |
+| Pegasus style | `<name>/boxFront.png` | another launcher |
+| EmulationStation style | `<console folder>/images/<name>-image.png` | another launcher |
 
-Pick the folder your launcher reads local cover images from. You see how many covers will be
-written and where before anything happens; images that are already there are kept unless you
-switch on *Replace covers that are already there*. The covers come from the same places as the
-rest of the app (your RomM server, libretro-thumbnails, earlier lookups).
+Pick the folder your launcher reads local cover images from. Not sure which layout it expects?
+Try *Name without extension* first: most launchers match covers on the game's file name. If the
+launcher's folder already holds covers, pick the layout that looks like them. Each layout shows
+an example made from one of your own games.
+
+- **All in one folder** and **Pegasus style** have no console folders, so two consoles' games
+  with the same name (`Tetris` for Game Boy and for NES) would need the same file; those games
+  are skipped, as either cover would be wrong for the other one.
+- **RetroArch style** applies libretro's file name rule (characters such as `&`, `:` and `?`
+  become `_`) and names the system folder like your console folder, which matches a playlist
+  of that name. For RetroArch's own playlists (`Nintendo - Game Boy Advance`), use
+  *Covers for RetroArch* above instead.
+- **Pegasus style** is the `media` folder next to a collection's `metadata.pegasus.txt`; pick
+  that `media` folder.
+- **EmulationStation style** is the `images` folder next to each console's `gamelist.xml`; pick
+  the folder that holds your console folders. Some EmulationStation versions only show images
+  that `gamelist.xml` lists.
+
+You see how many covers will be written and where before anything happens; images that are
+already there (the same name with any image extension, in that layout's folder) are kept unless
+you switch on *Replace covers that are already there*. Folders that already exist are used as
+they are spelled (`GBA` for `gba`). The covers come from the same places as the rest of the app
+(your RomM server, libretro-thumbnails, earlier lookups) and are always saved as PNG.
 
 ## Any other launcher
 

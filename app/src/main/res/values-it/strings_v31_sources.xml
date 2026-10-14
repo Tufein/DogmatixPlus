@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Catalogo dei contenuti: fornitori e abbinamento delle console -->
-    <string name="src31_hint">Scegli raccolte di contenuti gratuiti di fornitori verificati. Contengono homebrew, demo e software di prova, non ROM set commerciali completi. Ogni raccolta va alla console corrispondente che hai già, oppure a una nuova. Le fonti esistenti restano al loro posto.</string>
+    <string name="src31_hint">Scegli raccolte di contenuti gratuiti di fornitori verificati. Contengono homebrew, demo, giochi freeware e software di prova, non ROM set commerciali completi. Ogni raccolta va alla console corrispondente che hai già, oppure a una nuova. Le fonti esistenti restano al loro posto.</string>
     <string name="src31_all_providers">Tutti i fornitori</string>
     <string name="src31_search">Cerca console o fornitore</string>
     <string name="src31_provider_site">Sito web: %1$s</string>
@@ -15,12 +15,7 @@
     <string name="src31_maps_new">Aggiunge una nuova console: %1$s</string>
 
     <!-- Copertine per iiSU e Daijishō -->
-    <string name="covers31_title">Copertine per iiSU e Daijishō</string>
-    <string name="covers31_subtitle">Metti le copertine dove questi launcher possono mostrarle</string>
-    <string name="covers31_hint">Scrivi le copertine dei tuoi giochi nella cartella da cui iiSU o Daijishō le legge</string>
-    <string name="covers31_kw">artwork, boxart, copertine, immagini, media, miniature, iisu, daijisho</string>
     <string name="covers31_what_title">Copertine per il tuo launcher</string>
-    <string name="covers31_what_body">Dogmatix+ mette una copertina per gioco in una cartella a tua scelta, con una sottocartella per console chiamata come le tue cartelle delle console. Le copertine arrivano dal tuo server RomM, dalle miniature di libretro o da copertine trovate in precedenza, e vengono salvate come PNG. Le immagini già presenti restano, a meno che tu non scelga di sostituirle.</string>
     <string name="covers31_section_frontend">Launcher</string>
     <string name="covers31_section_folder">Cartella delle copertine</string>
     <string name="covers31_folder_title">Cartella delle copertine per %1$s</string>

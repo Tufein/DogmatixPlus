@@ -371,7 +371,8 @@ private fun WayBack(support: HandoffSupport?) {
             when (support.layout) {
                 SaveFolderLayout.MEMCARDS -> Line(stringResource(R.string.handoff31_back_memcards))
                 SaveFolderLayout.SAVEDATA -> Line(stringResource(R.string.handoff31_back_savedata))
-                SaveFolderLayout.FILES -> Unit
+                // Folders of only shared cards are never offered for a hand-off (HandoffBlock.SHARED_CARDS_ONLY).
+                SaveFolderLayout.FILES, SaveFolderLayout.PS2_MEMCARDS, SaveFolderLayout.GC_MEMCARDS -> Unit
             }
         }
     }
@@ -417,6 +418,7 @@ private fun blockText(support: HandoffSupport.Unsupported): String {
         HandoffBlock.SAVES_NOT_SUPPORTED -> stringResource(R.string.handoff31_block_not_supported, app)
         HandoffBlock.NO_RETROARCH_FOLDER -> stringResource(R.string.handoff31_block_no_retroarch_folder, app)
         HandoffBlock.NO_EMULATOR_FOLDER -> stringResource(R.string.handoff31_block_no_emulator_folder, app, support.folderHint.orEmpty())
+        HandoffBlock.SHARED_CARDS_ONLY -> stringResource(R.string.handoff32_block_shared_cards, app, support.folderHint.orEmpty())
     }
 }
 

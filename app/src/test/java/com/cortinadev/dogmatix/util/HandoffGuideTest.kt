@@ -32,8 +32,8 @@ class HandoffGuideTest {
         assertEquals(HandoffBlock.NOT_ON_ROMM, (support("sony_playstation", "duckstation", onRomm = false) as HandoffSupport.Unsupported).block)
         assertEquals(HandoffSupport.Unsupported(HandoffBlock.NO_EMULATOR), support("sony_playstation", null))
         assertEquals(HandoffSupport.Unsupported(HandoffBlock.UNKNOWN_APP, "Some App"), support("sony_playstation", null, app = "Some App"))
-        // Dolphin keeps saves in its own memory card / NAND files.
-        assertEquals(HandoffBlock.SAVES_NOT_SUPPORTED, (support("nintendo_gamecube", "dolphin") as HandoffSupport.Unsupported).block)
+        // Dolphin keeps Wii saves in its NAND, out of the sync's reach.
+        assertEquals(HandoffSupport.Unsupported(HandoffBlock.SAVES_NOT_SUPPORTED, "Dolphin"), support("nintendo_wii", "dolphin"))
         // The PPSSPP core keeps its saves in RetroArch's system folder, not its saves folder.
         val core = support("sony_psp", "retroarch", "ppsspp") as HandoffSupport.Unsupported
         assertEquals(HandoffBlock.SAVES_NOT_SUPPORTED, core.block)
@@ -44,6 +44,33 @@ class HandoffGuideTest {
         assertEquals("DuckStation/memcards", noFolder.folderHint)
         // A folder of that emulator for another console does not count.
         assertEquals(HandoffBlock.NO_EMULATOR_FOLDER, (support("nintendo_ds", "drastic", folders = listOf(duck)) as HandoffSupport.Unsupported).block)
+    }
+
+    @Test fun emulatorsWithOnlySharedCardsAreNeverHandedOver() {
+        val ps2 = EmulatorSaveFolder("AetherSX2 - NetherSX2 (standalone)", setOf("ps2"), "content://ps2", SaveFolderLayout.PS2_MEMCARDS, 7, "Ico")
+        val gc = EmulatorSaveFolder("Dolphin (standalone)", setOf("ngc", "gc"), "content://gc", SaveFolderLayout.GC_MEMCARDS, 8, "Pikmin")
+        // Without a folder, with one, and with its shared cards synced: the sync reaches the cards, a hand-off never takes them.
+        for (folders in listOf(emptyList(), listOf(ps2, gc), listOf(ps2.copy(sharedCardsRomId = null), gc.copy(sharedCardsRomId = null)))) {
+            assertEquals(
+                HandoffSupport.Unsupported(HandoffBlock.SHARED_CARDS_ONLY, "NetherSX2 / AetherSX2", "AetherSX2 or NetherSX2 data folder/memcards"),
+                support("sony_playstation_2", "nethersx2", folders = folders)
+            )
+            assertEquals(
+                HandoffSupport.Unsupported(HandoffBlock.SHARED_CARDS_ONLY, "Dolphin", "Dolphin user folder/GC"),
+                support("nintendo_gamecube", "dolphin", folders = folders)
+            )
+        }
+        // Dolphin MMJR keeps its GameCube cards the same way.
+        assertEquals(HandoffBlock.SHARED_CARDS_ONLY, (support("nintendo_gamecube", "dolphin_mmjr") as HandoffSupport.Unsupported).block)
+        assertEquals(HandoffBlock.SAVES_NOT_SUPPORTED, (support("nintendo_wii", "dolphin_mmjr") as HandoffSupport.Unsupported).block)
+        // RetroArch's PCSX2 and Dolphin cores keep their cards outside RetroArch's saves folder.
+        assertEquals(HandoffBlock.SAVES_NOT_SUPPORTED, (support("sony_playstation_2", "retroarch", "pcsx2") as HandoffSupport.Unsupported).block)
+        assertEquals(HandoffBlock.SAVES_NOT_SUPPORTED, (support("nintendo_gamecube", "retroarch", "dolphin") as HandoffSupport.Unsupported).block)
+        // DuckStation keeps going per game, its shared cards stay behind (see SaveHandoff.isInGameSave).
+        assertTrue(support("sony_playstation", "duckstation") is HandoffSupport.Supported)
+        assertFalse(SaveHandoff.isInGameSave("Mcd001.ps2"))
+        assertFalse(SaveHandoff.isInGameSave("MemoryCardA.USA.raw"))
+        assertFalse(SaveHandoff.isInGameSave("shared_card_1.mcd"))
     }
 
     @Test fun theCodeIsTheSameForTheSameSavesInAnyOrder() {

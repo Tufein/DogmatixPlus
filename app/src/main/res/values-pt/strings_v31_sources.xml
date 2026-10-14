@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Catálogo de conteúdos: fornecedores e correspondência de consolas -->
-    <string name="src31_hint">Escolha coleções de conteúdo gratuito de fornecedores verificados. Contêm homebrew, demos e software de teste, não ROM sets comerciais completos. Cada coleção vai para a consola correspondente que já tem, ou para uma nova. As fontes existentes mantêm-se.</string>
+    <string name="src31_hint">Escolha coleções de conteúdo gratuito de fornecedores verificados. Contêm homebrew, demos, jogos freeware e software de teste, não ROM sets comerciais completos. Cada coleção vai para a consola correspondente que já tem, ou para uma nova. As fontes existentes mantêm-se.</string>
     <string name="src31_all_providers">Todos os fornecedores</string>
     <string name="src31_search">Procurar consola ou fornecedor</string>
     <string name="src31_provider_site">Site: %1$s</string>
@@ -15,12 +15,7 @@
     <string name="src31_maps_new">Adiciona uma nova consola: %1$s</string>
 
     <!-- Capas para iiSU e Daijishō -->
-    <string name="covers31_title">Capas para iiSU e Daijishō</string>
-    <string name="covers31_subtitle">Coloque as capas onde estes launchers as podem mostrar</string>
-    <string name="covers31_hint">Escreva as capas dos seus jogos na pasta de onde o iiSU ou o Daijishō as lê</string>
-    <string name="covers31_kw">artwork, boxart, capas, imagens, multimédia, miniaturas, iisu, daijisho</string>
     <string name="covers31_what_title">Capas para o seu launcher</string>
-    <string name="covers31_what_body">O Dogmatix+ coloca uma capa por jogo numa pasta à sua escolha, com uma subpasta por consola com o mesmo nome das suas pastas de consolas. As capas vêm do seu servidor RomM, das miniaturas do libretro ou de capas encontradas antes, e são guardadas em PNG. As imagens que já lá estão são mantidas, a não ser que escolha substituí-las.</string>
     <string name="covers31_section_frontend">Launcher</string>
     <string name="covers31_section_folder">Pasta das capas</string>
     <string name="covers31_folder_title">Pasta das capas para %1$s</string>

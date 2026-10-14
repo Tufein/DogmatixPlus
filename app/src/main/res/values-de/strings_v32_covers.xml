@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Covers for launchers: iiSU, Daijishō and any other launcher (3.2.0) -->
+    <string name="covers32_title">Cover für Launcher</string>
+    <string name="covers32_subtitle">Cover dort ablegen, wo iiSU, Daijishō oder ein anderer Launcher sie zeigen kann</string>
+    <string name="covers32_hint">Cover deiner Spiele in den Ordner schreiben, aus dem dein Launcher sie liest</string>
+    <string name="covers32_kw">Artwork, Boxart, Hüllen, Bilder, Medien, Thumbnails, iisu, daijisho, pegasus, retroarch, emulationstation, Launcher, Frontend</string>
+    <string name="covers32_what_body">Dogmatix+ legt ein Cover pro Spiel in einen Ordner deiner Wahl, so benannt, wie dein Launcher danach sucht: in einem Unterordner pro Konsole, der so heißt wie deine Konsolenordner, alle in einem Ordner oder so angeordnet wie bei RetroArch, Pegasus oder EmulationStation. Die Cover stammen von deinem RomM-Server, aus den libretro-Thumbnails oder aus früher gefundenen Covern und werden als PNG gespeichert. Bilder, die schon da sind, bleiben erhalten, außer du entscheidest dich, sie zu ersetzen.</string>
+    <string name="covers32_other">Anderer Launcher</string>
+    <string name="covers32_hint_other">Für jeden anderen Launcher: Wähle den Ordner, aus dem er Cover liest, oft media, covers, images oder artwork genannt. Welcher es ist, steht meist in seinen Einstellungen oder seiner Anleitung.</string>
+    <string name="covers32_folder_title_other">Ordner für die Cover deines Launchers</string>
+    <string name="covers32_names_hint">Unsicher? Probiere zuerst „%1$s“: Die meisten Launcher ordnen Cover über den Dateinamen des Spiels zu. Liegen im Ordner deines Launchers schon Cover, wähle die Anordnung, die ihnen gleicht.</string>
+    <string name="covers32_layout_flat">Alle in einem Ordner</string>
+    <string name="covers32_layout_flat_hint">Zum Beispiel %1$s. Keine Konsolenordner; Spiele mit demselben Namen auf zwei Konsolen werden übersprungen.</string>
+    <string name="covers32_layout_boxarts">RetroArch-Stil (Named_Boxarts)</string>
+    <string name="covers32_layout_boxarts_hint">Zum Beispiel %1$s. Die Anordnung der libretro-Thumbnails, mit den Namen deiner Konsolenordner; Zeichen wie &amp; werden zu _.</string>
+    <string name="covers32_layout_pegasus">Pegasus-Stil (boxFront)</string>
+    <string name="covers32_layout_pegasus_hint">Zum Beispiel %1$s. Ein Ordner pro Spiel, wie im media-Ordner neben einer Pegasus-Metadatendatei.</string>
+    <string name="covers32_layout_gamelist">EmulationStation-Stil (images)</string>
+    <string name="covers32_layout_gamelist_hint">Zum Beispiel %1$s. Wie in den gamelist-Ordnern von EmulationStation: Wähle den Ordner, in dem deine Konsolenordner liegen.</string>
+    <string name="covers32_preview_example_flat">Zum Beispiel: %1$s</string>
+    <string name="covers32_preview_shared">%1$s Spiele werden übersprungen, weil ein Spiel einer anderen Konsole dieselbe Cover-Datei nutzen würde. Eine Anordnung mit Konsolenordnern hält sie auseinander.</string>
+</resources>

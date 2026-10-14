@@ -49,7 +49,7 @@ class SaveSyncViewModel @Inject constructor(
         appSettings.setSaveSyncEmulatorFolders(current + EmulatorSaveFolder(label, preset.platforms, uri, preset.layout))
     }
 
-    /** RomM games found for a DuckStation folder's shared cards (the picker's list); null while nothing was searched. */
+    /** RomM games found for a folder's shared memory cards (the picker's list); null while nothing was searched. */
     private val _gameResults = kotlinx.coroutines.flow.MutableStateFlow<List<com.cortinadev.dogmatix.util.SaveSyncPlanner.RomCandidate>?>(null)
     val gameResults: StateFlow<List<com.cortinadev.dogmatix.util.SaveSyncPlanner.RomCandidate>?> = _gameResults
     private val _searching = kotlinx.coroutines.flow.MutableStateFlow(false)
@@ -72,7 +72,7 @@ class SaveSyncViewModel @Inject constructor(
     /** Syncs [label]'s shared memory cards with RomM game [rom] from now on; null stops syncing them (nothing is deleted). */
     fun setSharedCards(context: Context, label: String, rom: com.cortinadev.dogmatix.util.SaveSyncPlanner.RomCandidate?) = executeWithToast(context, TAG) {
         appSettings.setSaveSyncEmulatorFolders(appSettings.saveSyncEmulatorFolders.first().map { folder ->
-            if (folder.label != label || folder.layout != com.cortinadev.dogmatix.util.SaveFolderLayout.MEMCARDS) folder
+            if (folder.label != label || !folder.layout.holdsSharedCards) folder
             else folder.copy(sharedCardsRomId = rom?.id, sharedCardsRomName = rom?.let { it.name.ifBlank { it.fsName } }.orEmpty())
         })
     }

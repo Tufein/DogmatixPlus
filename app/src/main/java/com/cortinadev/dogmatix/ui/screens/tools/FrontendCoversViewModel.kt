@@ -33,7 +33,9 @@ data class FrontendCoversUi(
     val previewFailed: Boolean = false,
     /** The plan for [target]; null while it is worked out or when it failed. */
     val preview: CoversPreview? = null,
-    val run: CoversRunState = CoversRunState()
+    val run: CoversRunState = CoversRunState(),
+    /** The game the layout examples are made from: the last preview's, kept while a new one is worked out. */
+    val sample: FrontendCovers.Game? = null
 )
 
 private sealed interface PreviewState {
@@ -43,7 +45,7 @@ private sealed interface PreviewState {
 }
 
 /**
- * Tools -> Covers for iiSU and Daijishō: which frontend, its folder, naming and overwrite choice,
+ * Tools -> Covers for launchers: which launcher, its folder, layout and overwrite choice,
  * the preview of what a run would write (worked out again whenever one of those changes, the
  * profile changes or a run ends), and the run itself in [FrontendCoversService].
  */
@@ -57,16 +59,18 @@ class FrontendCoversViewModel @Inject constructor(
     private val target = MutableStateFlow(FrontendCovers.Target.IISU)
     private val refresh = MutableStateFlow(0)
     private val preview = MutableStateFlow<PreviewState>(PreviewState.Loading)
+    private val sample = MutableStateFlow<FrontendCovers.Game?>(null)
     private val targetSettings = target.flatMapLatest { settings.of(it) }
 
-    val ui: StateFlow<FrontendCoversUi> = combine(target, targetSettings, preview, service.state) { t, s, p, run ->
+    val ui: StateFlow<FrontendCoversUi> = combine(target, targetSettings, preview, service.state, sample) { t, s, p, run, game ->
         FrontendCoversUi(
             target = t,
             settings = s,
             previewLoading = p is PreviewState.Loading,
             previewFailed = p is PreviewState.Failed,
             preview = (p as? PreviewState.Ready)?.preview?.takeIf { it.target == t },
-            run = run
+            run = run,
+            sample = game
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), FrontendCoversUi())
 
@@ -79,7 +83,7 @@ class FrontendCoversViewModel @Inject constructor(
                     if (!ended) return@collectLatest
                     preview.value = PreviewState.Loading
                     preview.value = try {
-                        PreviewState.Ready(service.preview(t))
+                        PreviewState.Ready(service.preview(t).also { sample.value = it.sample })
                     } catch (e: CancellationException) {
                         throw e
                     } catch (_: Exception) {

@@ -16,6 +16,8 @@ import org.junit.Test
 class EmulatorSaveLayoutsTest {
     private val ps1 = setOf("psx")
     private fun card(name: String) = LocalSaveFile(SaveKind.SAVE, "DuckStation (standalone)/$name", 131072, 1, ps1, SaveFolderLayout.MEMCARDS)
+    private fun ps2Card(name: String) = LocalSaveFile(SaveKind.SAVE, "AetherSX2 - NetherSX2 (standalone)/$name", 8_650_752, 1, setOf("ps2"), SaveFolderLayout.PS2_MEMCARDS, 7)
+    private fun gcCard(name: String) = LocalSaveFile(SaveKind.SAVE, "Dolphin (standalone)/$name", 16_777_216, 1, setOf("ngc", "gc"), SaveFolderLayout.GC_MEMCARDS, 8)
     private fun pack(folder: String) = LocalSaveFile(SaveKind.SAVE, "PPSSPP (standalone)/$folder.savedata.zip", 100, 1, setOf("psp"), SaveFolderLayout.SAVEDATA)
 
     @Test fun memoryCardNamesAreRead() {
@@ -30,6 +32,73 @@ class EmulatorSaveLayoutsTest {
         assertNull(EmulatorSaveLayouts.memoryCard(".dogmatix-write-1.part"))
         assertTrue(EmulatorSaveLayouts.isSharedCard("shared_card_1.mcd"))
         assertFalse(EmulatorSaveLayouts.isSharedCard("Crash_1.mcd"))
+    }
+
+    @Test fun ps2AndGameCubeCardNamesAreRead() {
+        // AetherSX2 / NetherSX2: every .ps2 card is shared; the default names give the slot.
+        assertEquals(MemoryCard.Shared(1), EmulatorSaveLayouts.ps2Card("Mcd001.ps2"))
+        assertEquals(MemoryCard.Shared(2), EmulatorSaveLayouts.ps2Card("MCD002.PS2"))
+        assertEquals(MemoryCard.Shared(0), EmulatorSaveLayouts.ps2Card("My Card.ps2"))
+        assertNull(EmulatorSaveLayouts.ps2Card(".ps2"))
+        assertNull(EmulatorSaveLayouts.ps2Card(".dogmatix-write-1.ps2"))
+        assertNull(EmulatorSaveLayouts.ps2Card("Mcd001.ps2.bak"))
+        assertNull(EmulatorSaveLayouts.ps2Card("Mcd001.mcd"))
+        // Dolphin: MemoryCardA/B per region, also with a block count; nothing else in its GC folder.
+        assertEquals(MemoryCard.Shared(1), EmulatorSaveLayouts.gameCubeCard("MemoryCardA.USA.raw"))
+        assertEquals(MemoryCard.Shared(2), EmulatorSaveLayouts.gameCubeCard("MemoryCardB.EUR.raw"))
+        assertEquals(MemoryCard.Shared(1), EmulatorSaveLayouts.gameCubeCard("MemoryCardA.JAP.251.raw"))
+        assertNull(EmulatorSaveLayouts.gameCubeCard("SRAM.raw"))
+        assertNull(EmulatorSaveLayouts.gameCubeCard("MemoryCardC.USA.raw"))
+        assertNull(EmulatorSaveLayouts.gameCubeCard("MemoryCardA.KOR.raw"))
+        assertNull(EmulatorSaveLayouts.gameCubeCard("MemoryCardA.USA.raw.bak"))
+        // GCI files (one save each, named by maker and game code) are never taken for a card.
+        assertNull(EmulatorSaveLayouts.gameCubeCard("01-GALE-SuperSmashBros0110290334.gci"))
+        assertFalse(EmulatorSaveLayouts.isCardImage("01-GALE-SuperSmashBros0110290334.gci"))
+        // Each folder reads only its own emulator's cards.
+        assertEquals(MemoryCard.Shared(1), EmulatorSaveLayouts.memoryCard(SaveFolderLayout.PS2_MEMCARDS, "Mcd001.ps2"))
+        assertNull(EmulatorSaveLayouts.memoryCard(SaveFolderLayout.PS2_MEMCARDS, "shared_card_1.mcd"))
+        assertNull(EmulatorSaveLayouts.memoryCard(SaveFolderLayout.GC_MEMCARDS, "Mcd001.ps2"))
+        assertEquals(MemoryCard.Shared(2), EmulatorSaveLayouts.memoryCard(SaveFolderLayout.GC_MEMCARDS, "MemoryCardB.USA.raw"))
+        assertNull(EmulatorSaveLayouts.memoryCard(SaveFolderLayout.MEMCARDS, "MemoryCardA.USA.raw"))
+        assertNull(EmulatorSaveLayouts.memoryCard(SaveFolderLayout.FILES, "Mcd001.ps2"))
+        assertEquals(MemoryCard.PerGame("Crash", null, 1), EmulatorSaveLayouts.memoryCard(SaveFolderLayout.MEMCARDS, "Crash_1.mcd"))
+    }
+
+    @Test fun ps2AndGameCubeCardsAreAlwaysShared() {
+        assertTrue(EmulatorSaveLayouts.isSharedCard("Mcd001.ps2"))
+        assertTrue(EmulatorSaveLayouts.isSharedCard("MemoryCardA.USA.raw"))
+        assertFalse(EmulatorSaveLayouts.isSharedCard("SRAM.raw"))
+        assertTrue(EmulatorSaveLayouts.isSharedCard(ps2Card("Mcd001.ps2")))
+        assertTrue(EmulatorSaveLayouts.isSharedCard(gcCard("MemoryCardA.USA.raw")))
+        assertTrue(EmulatorSaveLayouts.isSharedCard(card("shared_card_1.mcd")))
+        assertFalse(EmulatorSaveLayouts.isSharedCard(card("Crash_1.mcd")))
+        // Outside a folder of cards, a file named like a card is an ordinary save.
+        assertFalse(EmulatorSaveLayouts.isSharedCard(LocalSaveFile(SaveKind.SAVE, "pcsx2/Mcd001.ps2", 8_650_752, 1)))
+        assertTrue(SaveFolderLayout.PS2_MEMCARDS.onlySharedCards && SaveFolderLayout.GC_MEMCARDS.onlySharedCards)
+        assertFalse(SaveFolderLayout.MEMCARDS.onlySharedCards)
+        assertTrue(SaveFolderLayout.entries.filter { it.holdsSharedCards }.toSet() == setOf(SaveFolderLayout.MEMCARDS, SaveFolderLayout.PS2_MEMCARDS, SaveFolderLayout.GC_MEMCARDS))
+        // Never matched or searched by name, never the save of the game on the page.
+        val roms = listOf(RomCandidate(1, "Mcd001.ps2", "ps2", "ps2"), RomCandidate(2, "MemoryCardA.USA.raw", "ngc", "gc"))
+        assertEquals(RomMatch.NotFound, EmulatorSaveLayouts.matchRom(ps2Card("Mcd001.ps2"), roms))
+        assertEquals(RomMatch.NotFound, EmulatorSaveLayouts.matchRom(gcCard("MemoryCardA.USA.raw"), roms))
+        assertEquals(emptyList<String>(), EmulatorSaveLayouts.searchTerms(ps2Card("Mcd001.ps2")))
+        assertEquals(emptyList<String>(), EmulatorSaveLayouts.searchTerms(gcCard("MemoryCardA.USA.raw")))
+        assertFalse(EmulatorSaveLayouts.belongsToGame(ps2Card("Mcd001.ps2"), "Ico (USA).iso"))
+        assertFalse(EmulatorSaveLayouts.belongsToGame(gcCard("MemoryCardA.USA.raw"), "Pikmin (USA).rvz"))
+    }
+
+    @Test fun largeCardsFitTheSyncButOtherSavesKeepTheirLimit() {
+        val ordinary = 64L * 1024 * 1024
+        // PCSX2's 8, 16, 32 and 64 MB cards with their error-correction bytes.
+        for (size in listOf(8_650_752L, 17_301_504L, 34_603_008L, 69_206_016L)) {
+            assertTrue(size <= EmulatorSaveLayouts.sizeLimit("Mcd001.ps2", ordinary))
+        }
+        assertTrue(16L * 1024 * 1024 <= EmulatorSaveLayouts.sizeLimit("MemoryCardA.USA.raw", ordinary))
+        assertEquals(ordinary, EmulatorSaveLayouts.sizeLimit("Game (USA).srm", ordinary))
+        assertEquals(ordinary, EmulatorSaveLayouts.sizeLimit("SRAM.raw", ordinary))
+        assertEquals(EmulatorSaveLayouts.MAX_CARD_BYTES, EmulatorSaveLayouts.sizeLimit("shared_card_1.mcd", ordinary))
+        // A hand-off (16 MiB) never takes a shared card, the sync's own limit only grows.
+        assertEquals(100L * 1024 * 1024, EmulatorSaveLayouts.sizeLimit("Mcd001.ps2", 100L * 1024 * 1024))
     }
 
     @Test fun serialsAndProductIdsAreFoundInNames() {
@@ -122,6 +191,14 @@ class EmulatorSaveLayoutsTest {
         assertNull(EmulatorSaveLayouts.innerPath(SaveFolderLayout.MEMCARDS) { if (it == "") setOf("savestates", "bios") else null })
         assertNull(EmulatorSaveLayouts.innerPath(SaveFolderLayout.SAVEDATA) { if (it == "") setOf("PSP") else if (it == "PSP") setOf("SYSTEM") else null })
         assertNull(EmulatorSaveLayouts.innerPath(SaveFolderLayout.SAVEDATA) { if (it == "") setOf("SYSTEM", "PPSSPP_STATE") else null })
+        // AetherSX2 / NetherSX2: its data folder or its memcards folder.
+        assertEquals("memcards", EmulatorSaveLayouts.innerPath(SaveFolderLayout.PS2_MEMCARDS) { if (it == "") setOf("bios", "memcards", "sstates") else null })
+        assertEquals("", EmulatorSaveLayouts.innerPath(SaveFolderLayout.PS2_MEMCARDS) { emptySet() })
+        assertNull(EmulatorSaveLayouts.innerPath(SaveFolderLayout.PS2_MEMCARDS) { if (it == "") setOf("bios", "sstates", "covers") else null })
+        // Dolphin: its user folder or its GC folder; the region folders inside GC (GCI folders) are not where the cards are.
+        assertEquals("GC", EmulatorSaveLayouts.innerPath(SaveFolderLayout.GC_MEMCARDS) { if (it == "") setOf("Config", "GC", "Wii", "StateSaves") else null })
+        assertEquals("", EmulatorSaveLayouts.innerPath(SaveFolderLayout.GC_MEMCARDS) { if (it == "") setOf("USA", "EUR") else null })
+        assertNull(EmulatorSaveLayouts.innerPath(SaveFolderLayout.GC_MEMCARDS) { if (it == "") setOf("Config", "Wii", "StateSaves") else null })
     }
 
     @Test fun cardsAndSaveFoldersHoldSeveralSaves() {
@@ -129,6 +206,9 @@ class EmulatorSaveLayoutsTest {
         assertTrue(EmulatorSaveLayouts.holdsSeveralSaves("DuckStation/Crash Bandicoot_1.mcd"))
         assertTrue(EmulatorSaveLayouts.holdsSeveralSaves("DuckStation/shared_card_1.mcd"))
         assertFalse(EmulatorSaveLayouts.holdsSeveralSaves("mGBA/Pokemon Emerald.sav"))
+        assertTrue(EmulatorSaveLayouts.holdsSeveralSaves("AetherSX2 - NetherSX2 (standalone)/Mcd001.ps2"))
+        assertTrue(EmulatorSaveLayouts.holdsSeveralSaves("Dolphin (standalone)/MemoryCardA.USA.raw"))
+        assertFalse(EmulatorSaveLayouts.holdsSeveralSaves("Dolphin (standalone)/SRAM.raw"))
     }
 
     @Test fun packsAreTheSameBytesWhateverTheOrderAndUnpackBackToTheFiles() {

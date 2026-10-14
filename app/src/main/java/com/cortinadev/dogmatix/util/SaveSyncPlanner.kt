@@ -22,7 +22,7 @@ data class LocalSaveFile(
     val platformHints: Set<String> = emptySet(),
     /** How the emulator folder it came from keeps saves (memory cards, PPSSPP save folders); see [EmulatorSaveLayouts]. */
     val layout: SaveFolderLayout = SaveFolderLayout.FILES,
-    /** The game the user chose to keep this file with (a DuckStation shared card); null = found by name. */
+    /** The game the user chose to keep this file with (a shared memory card); null = found by name. */
     val fixedRomId: Int? = null
 ) {
     val name: String get() = path.substringAfterLast('/')
@@ -204,9 +204,9 @@ object SaveSyncPlanner {
                 when {
                     localChanged && remoteChanged -> SaveSyncAction.Conflict(local, remote)
                     localChanged -> SaveSyncAction.Upload(local, remote.romId, remote)
-                    // A shared memory card holds many games' saves: replacing it is always the user's call.
-                    remoteChanged && local.layout == SaveFolderLayout.MEMCARDS && EmulatorSaveLayouts.isSharedCard(local.name) ->
-                        SaveSyncAction.Conflict(local, remote)
+                    // A shared memory card (DuckStation's, every PS2 and GameCube card) holds many games'
+                    // saves: replacing it is always the user's call, however large it is.
+                    remoteChanged && EmulatorSaveLayouts.isSharedCard(local) -> SaveSyncAction.Conflict(local, remote)
                     remoteChanged -> SaveSyncAction.Download(remote, local.path, local)
                     else -> SaveSyncAction.InSync(local, remote)
                 }

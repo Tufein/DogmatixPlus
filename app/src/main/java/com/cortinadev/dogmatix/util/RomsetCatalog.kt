@@ -23,6 +23,8 @@ object RomsetCatalog {
     const val MAX_ENTRIES = 256
     /** Entries one provider may list. */
     const val MAX_PER_PROVIDER = 64
+    /** Folders one entry may bring together (a console whose files are published per game). */
+    const val MAX_FOLDERS = 16
     private val slug = Regex("[a-z0-9]+(?:_[a-z0-9]+)*")
 
     /** What allows the provider to hand the files out. Shown to the user next to the provider. */
@@ -42,7 +44,8 @@ object RomsetCatalog {
 
     /** Providers that have been reviewed. A provider in the asset but not here is refused. */
     val TRUSTED: Map<String, Trusted> = mapOf(
-        "libretro" to Trusted("https://buildbot.libretro.com/assets/cores/", "https://github.com/libretro/libretro-content")
+        "libretro" to Trusted("https://buildbot.libretro.com/assets/cores/", "https://github.com/libretro/libretro-content"),
+        "scummvm" to Trusted("https://downloads.scummvm.org/frs/extras/", "https://www.scummvm.org/games/")
     )
 
     data class Provider(
@@ -66,11 +69,17 @@ object RomsetCatalog {
         val folder: String,
         val fileCount: Int,
         val providerId: String = "libretro",
-        val baseUrl: String = "https://buildbot.libretro.com/assets/cores/"
+        val baseUrl: String = "https://buildbot.libretro.com/assets/cores/",
+        /** Further folders of the same system, for providers that publish one folder per game. */
+        val moreFolders: List<String> = emptyList()
     ) {
         /** Unique within the catalogue: two providers may offer the same console. */
         val key: String get() = "$providerId:$id"
-        val url: String get() = baseUrl.toHttpUrl().newBuilder().addPathSegment(folder).addPathSegment("").build().toString()
+        /** The first (often only) folder. */
+        val url: String get() = urlOf(folder)
+        /** Every folder of the entry, each a listing the scanner reads. */
+        val urls: List<String> get() = (listOf(folder) + moreFolders).map(::urlOf)
+        private fun urlOf(name: String): String = baseUrl.toHttpUrl().newBuilder().addPathSegment(name).addPathSegment("").build().toString()
     }
 
     data class Catalog(val checkedAt: String, val providers: List<Provider>, val entries: List<Entry>) {
@@ -95,25 +104,40 @@ object RomsetCatalog {
             val maker = string(obj, "manufacturerId").also { require(slug.matches(it)) }
             val key = string(obj, "consoleKey").also { require(slug.matches(it)) }
             val id = string(obj, "id").also { require(it == "${maker}_${key}") }
-            val folder = string(obj, "folder").also {
-                require(it != "." && it != ".." && it.none { c -> c == '/' || c == '\\' || c.isISOControl() })
-            }
+            val folders = folders(obj)
             val aliases = obj.getAsJsonArray("aliases").map { alias ->
                 require(alias.isJsonPrimitive && alias.asJsonPrimitive.isString)
                 alias.asString.also { require(it.isNotBlank() && it.length <= 64 && it.none(Char::isISOControl)) }
             }.distinct().also { require(it.size <= 16) }
             Entry(id, maker, string(obj, "manufacturerName"), key, string(obj, "consoleName"),
-                string(obj, "shortName"), aliases, folder, integer(obj, "fileCount").also { require(it in 1..100_000) },
-                provider.id, provider.baseUrl)
+                string(obj, "shortName"), aliases, folders.first(), integer(obj, "fileCount").also { require(it in 1..100_000) },
+                provider.id, provider.baseUrl, folders.drop(1))
         }
         require(entries.map { it.key }.distinct().size == entries.size)
-        require(entries.map { it.url }.distinct().size == entries.size)
+        // No address is offered twice, whichever entry lists it.
+        entries.flatMap { it.urls }.let { require(it.distinct().size == it.size) }
         require(entries.groupingBy { it.providerId }.eachCount().values.all { it <= MAX_PER_PROVIDER })
         // Every entry stays below its provider's reviewed address.
-        entries.forEach { require(it.url.startsWith(it.baseUrl) && it.url.length > it.baseUrl.length) }
+        entries.forEach { e -> e.urls.forEach { require(it.startsWith(e.baseUrl) && it.length > e.baseUrl.length) } }
         // A provider without entries is not shown.
         val used = providers.filter { p -> entries.any { it.providerId == p.id } }
         return Catalog(checkedAt, used, entries.sortedWith(compareBy({ it.consoleName.lowercase() }, { it.providerId })))
+    }
+
+    /** The folder of an entry (`folder`), or several (`folders`) for one system published per game. */
+    private fun folders(obj: JsonObject): List<String> {
+        val names = if (obj.has("folders")) {
+            require(!obj.has("folder"))
+            val array = obj.getAsJsonArray("folders")
+            require(array != null && array.size() in 1..MAX_FOLDERS)
+            array.map { element ->
+                require(element.isJsonPrimitive && element.asJsonPrimitive.isString)
+                element.asString.also { require(it.isNotBlank() && it.length <= 160) }
+            }
+        } else listOf(string(obj, "folder"))
+        names.forEach { require(it != "." && it != ".." && it.none { c -> c == '/' || c == '\\' || c.isISOControl() }) }
+        require(names.distinct().size == names.size)
+        return names
     }
 
     private fun legacyProvider(root: JsonObject, checkedAt: String, trusted: Map<String, Trusted>): Provider {

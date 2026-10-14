@@ -161,9 +161,13 @@ object FileParsingUtils {
         row.getElementsByClass("link").firstOrNull { it.tagName() == "td" }?.getElementsByTag("a")?.firstOrNull()
             ?: row.getElementsByTag("a").firstOrNull()
 
+    /** The size column of an Apache index (`9.1M`, `66M`, `1.5K`): a number and one unit letter, no link. */
+    private val apacheSize = Regex("""\d+(?:\.\d+)?[KMGTPE]""")
+
     private fun sizeCellOf(row: Element): Element? =
         row.getElementsByClass("size").firstOrNull { it.tagName() == "td" }
             ?: row.getElementsByClass("fb-s").firstOrNull { it.tagName() == "td" }
+            ?: row.getElementsByTag("td").lastOrNull { it.getElementsByTag("a").isEmpty() && apacheSize.matches(it.text().trim()) }
             ?: row.getElementsByTag("td").getOrNull(1)
 
     fun parseFileFromRow(row: Element, baseUrl: String, consoleId: String, link: Element? = null): Pair<DownloadableFileEntity?, List<FileTagEntity>> {
@@ -209,6 +213,15 @@ object FileParsingUtils {
 
         return Pair(fileEntity, tagEntities)
     }
+
+    private val checksumSuffixes = listOf(".sha256", ".sha1", ".md5")
+
+    /**
+     * A checksum file published next to the download it belongs to (`game.zip.sha256` beside
+     * `game.zip`): never a game of its own, so a listing does not show it as one.
+     */
+    fun isChecksumSidecar(href: String, listed: Set<String>): Boolean =
+        checksumSuffixes.any { suffix -> href.endsWith(suffix, ignoreCase = true) && href.dropLast(suffix.length) in listed }
 
     private fun shouldSkipFile(href: String): Boolean {
         return href == ScrapingConstants.PARENT_DIRECTORY ||

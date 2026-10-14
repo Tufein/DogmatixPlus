@@ -40,4 +40,29 @@ class RomsetMergeRegressionTest {
             db.manufacturerDao().deleteManufacturerById(maker)
         }
     }
+
+    @Test fun anEntryWithSeveralFoldersAddsEachMissingFolderOnlyOnce() = runBlocking {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val graph = EntryPointAccessors.fromApplication(context.applicationContext, RoadmapSourcesEntryPoint::class.java)
+        val db = graph.database()
+        val maker = "romset_${UUID.randomUUID().toString().replace("-", "")}"
+        val entry = RomsetCatalog.Entry("${maker}_games", maker, "Catalog maker", "games", "Catalog games", "CG", listOf("cg"), "One", 3,
+            moreFolders = listOf("Two", "Three"))
+        // The console already has the second folder, switched off: that one stays as it is.
+        val have = UrlEntry(entry.urls[1], ContentType.GAME, enabled = false)
+        try {
+            db.manufacturerDao().insertManufacturer(ManufacturerEntity(maker, "My manufacturer"))
+            db.consoleDao().insertConsole(ConsoleEntity(entry.id, "My console", maker, SourcesJson.serializeUrlEntries(listOf(have)), shortName = "OWN"))
+            assertEquals(mapOf(entry.id to setOf(entry.urls[0], entry.urls[2])), graph.sources().mergeRomsets(listOf(entry)))
+            val urls = SourcesJson.parseUrlEntries(db.consoleDao().getConsoleById(entry.id)!!.urls)
+            assertEquals(have, urls.first())
+            assertEquals(entry.urls.toSet(), urls.map { it.url }.toSet())
+            assertEquals(3, urls.size)
+            assertTrue(graph.sources().mergeRomsets(listOf(entry)).isEmpty())
+            assertEquals(urls, SourcesJson.parseUrlEntries(db.consoleDao().getConsoleById(entry.id)!!.urls))
+        } finally {
+            db.consoleDao().deleteConsoleById(entry.id)
+            db.manufacturerDao().deleteManufacturerById(maker)
+        }
+    }
 }

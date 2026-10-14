@@ -67,7 +67,7 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     /** 3.1.0: whole games to a folder, RomM or the NAS, with a preview and a check of every file. */
     object GameTransfer : NavRoutes(com.cortinadev.dogmatix.ui.screens.tools.GAME_TRANSFER_ROUTE, R.string.transfer31_title, R.drawable.ic_file_export)
     /** 3.1.0: cover images for iiSU and Daijishō in a media folder the user picks. */
-    object FrontendCovers : NavRoutes(com.cortinadev.dogmatix.ui.screens.tools.FRONTEND_COVERS_ROUTE, R.string.covers31_title, R.drawable.ic_image)
+    object FrontendCovers : NavRoutes(com.cortinadev.dogmatix.ui.screens.tools.FRONTEND_COVERS_ROUTE, R.string.covers32_title, R.drawable.ic_image)
 
     object SearchAll : NavRoutes("search_all", R.string.find8_title, R.drawable.ic_search)
 

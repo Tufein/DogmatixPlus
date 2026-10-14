@@ -183,7 +183,7 @@ class SaveSyncEngine(
 
     private suspend fun findRom(local: LocalSaveFile): Int? {
         // A shared memory card goes with the game the user chose for it, or nowhere.
-        if (local.layout == SaveFolderLayout.MEMCARDS && EmulatorSaveLayouts.isSharedCard(local.name)) return local.fixedRomId
+        if (EmulatorSaveLayouts.isSharedCard(local)) return local.fixedRomId
         val cacheKey = key(local)
         val askedAt = notFoundCache[cacheKey]
         if (askedAt != null && clock() - askedAt < NOT_FOUND_RETRY_MS) return null

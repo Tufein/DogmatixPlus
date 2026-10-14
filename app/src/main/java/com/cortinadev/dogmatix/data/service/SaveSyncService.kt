@@ -38,6 +38,7 @@ import com.cortinadev.dogmatix.util.EmulatorSaveLayouts
 import com.cortinadev.dogmatix.util.MemoryCard
 import com.cortinadev.dogmatix.util.SaveFolderLayout
 import com.cortinadev.dogmatix.util.SavePack
+import com.cortinadev.dogmatix.util.BoundedStreams
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -67,8 +68,14 @@ import javax.inject.Singleton
 
 private const val TAG = "SaveSyncService"
 
-/** Bigger files are not saves (or not ones worth moving over the network on every sync). */
+/**
+ * Bigger files are not saves (or not ones worth moving over the network on every sync). Memory card
+ * images may be larger, up to [EmulatorSaveLayouts.MAX_CARD_BYTES] (a 64 MB PS2 card is 66 MiB with
+ * its error-correction bytes): see [maxBytesOf]. A file is held in memory whole while it moves, read
+ * into one array of its exact size ([BoundedStreams.readAll]), never copied while a buffer grows.
+ */
 private const val MAX_FILE_BYTES = 64L * 1024 * 1024
+
 /** Server lookups one hand-off may make to tie memory cards and save folders to the game. */
 private const val MAX_HANDOFF_LOOKUPS = 40
 
@@ -77,6 +84,9 @@ private const val AUTO_INTERVAL_MS = 2 * 60 * 1000L
 
 /** Device copies replaced by a download are kept this long in the app's private storage. */
 private const val BACKUP_KEEP_MS = 30L * 24 * 60 * 60 * 1000
+
+/** The size limit of the save or safety copy [path]: memory cards may be larger than other saves. */
+private fun maxBytesOf(path: String): Long = EmulatorSaveLayouts.sizeLimit(path.substringAfterLast('/'), MAX_FILE_BYTES)
 
 data class SaveSyncState(
     val running: Boolean = false,
@@ -218,7 +228,7 @@ class SaveSyncService @Inject constructor(
 
     private class RommSaveServer(private val client: RommClient) : SaveServer {
         override suspend fun list(kind: SaveKind) = client.saves(kind)
-        override suspend fun download(save: RemoteSaveFile) = client.downloadSave(save, MAX_FILE_BYTES)
+        override suspend fun download(save: RemoteSaveFile) = client.downloadSave(save, maxBytesOf(save.fileName))
         override suspend fun upload(kind: SaveKind, romId: Int, fileName: String, emulator: String?, bytes: ByteArray) =
             client.uploadSave(kind, romId, fileName, emulator, bytes)
         override suspend fun searchRoms(term: String) = client.searchRoms(term)
@@ -233,6 +243,8 @@ class SaveSyncService @Inject constructor(
      * holds both kinds; the name tells which one a file is.
      */
     private inner class SafSaveStore(private val readLimit: Long = MAX_FILE_BYTES) : SaveStore {
+        /** Memory card images may be larger than other saves, except in a hand-off (which never takes a shared card). */
+        private val cardLimit = if (readLimit == SaveHandoff.MAX_SAVE_BYTES) readLimit else maxOf(readLimit, EmulatorSaveLayouts.MAX_CARD_BYTES)
         /** Document of every file of the last listing (and of later writes), by [SaveSyncEngine.key]. */
         private var documents: Map<String, Uri> = emptyMap()
         /** The files of every PPSSPP save folder of the last listing (and of later writes), by [SaveSyncEngine.key]. */
@@ -249,20 +261,22 @@ class SaveSyncService @Inject constructor(
             val emulatorFolders = appSettings.saveSyncEmulatorFolders.first()
             val holdSharedCards = mutableSetOf<String>()
             val packFiles = mutableMapOf<String, List<PackFile>>()
-            // DuckStation's memory cards: one level, only cards; shared cards only when the user chose a game for them.
+            // Memory cards (DuckStation, AetherSX2 / NetherSX2, Dolphin's GameCube cards): one level, only
+            // cards; shared cards only when the user chose a game for them. Folders (Dolphin's GCI
+            // folders, PCSX2's folder cards) are never looked into.
             fun scanCards(folder: EmulatorSaveFolder) {
                 val (tree, rootId) = layoutRoot(folder)
                 val children = query(tree, rootId) ?: throw IOException("${folder.label} cannot be read; pick it again")
                 topFolders[SaveKind.SAVE] = topFolders[SaveKind.SAVE].orEmpty() + folder.label
                 if (folder.sharedCardsRomId == null) holdSharedCards += folder.label
                 children.filter { !it.isDir }.forEach { child ->
-                    val card = EmulatorSaveLayouts.memoryCard(child.name) ?: return@forEach
+                    val card = EmulatorSaveLayouts.memoryCard(folder.layout, child.name) ?: return@forEach
                     val shared = card is MemoryCard.Shared
                     if (shared && folder.sharedCardsRomId == null) return@forEach
-                    if (child.size > MAX_FILE_BYTES) { tooLarge++; return@forEach }
+                    if (child.size > EmulatorSaveLayouts.MAX_CARD_BYTES) { tooLarge++; return@forEach }
                     files += LocalSaveFile(
                         SaveKind.SAVE, "${folder.label}/${child.name}", child.size, child.modified, folder.platforms,
-                        SaveFolderLayout.MEMCARDS, if (shared) folder.sharedCardsRomId else null
+                        folder.layout, if (shared) folder.sharedCardsRomId else null
                     ) to DocumentsContract.buildDocumentUriUsingTree(tree, child.documentId)
                 }
             }
@@ -322,7 +336,7 @@ class SaveSyncService @Inject constructor(
                     throw IOException(context.getString(R.string.save_sync_emulator_clash, folder.label))
                 when (folder.layout) {
                     SaveFolderLayout.FILES -> scan(folder.uri, { SaveKind.SAVE }, listOf(SaveKind.SAVE), folder)
-                    SaveFolderLayout.MEMCARDS -> scanCards(folder)
+                    SaveFolderLayout.MEMCARDS, SaveFolderLayout.PS2_MEMCARDS, SaveFolderLayout.GC_MEMCARDS -> scanCards(folder)
                     SaveFolderLayout.SAVEDATA -> scanPacks(folder)
                 }
             }
@@ -338,31 +352,25 @@ class SaveSyncService @Inject constructor(
         override suspend fun read(file: LocalSaveFile): ByteArray = withContext(Dispatchers.IO) {
             if (file.layout == SaveFolderLayout.SAVEDATA) return@withContext readPack(file)
             val uri = documents[SaveSyncEngine.key(file)] ?: throw IOException("${file.name} is no longer on the device")
-            val bytes = context.contentResolver.openInputStream(uri)?.use { input ->
-                val out = java.io.ByteArrayOutputStream()
-                val buffer = ByteArray(64 * 1024)
-                while (true) {
-                    currentCoroutineContext().ensureActive()
-                    val count = input.read(buffer)
-                    if (count < 0) break
-                    if (out.size().toLong() + count > readLimit) {
-                        if (readLimit == SaveHandoff.MAX_SAVE_BYTES) throw SaveHandoff.SaveTooLargeException()
-                        throw IOException("Save file is too large")
-                    }
-                    out.write(buffer, 0, count)
-                }
-                out.toByteArray()
+            val limit = if (file.layout.holdsSharedCards) cardLimit else readLimit
+            val coroutine = currentCoroutineContext()
+            // Some document providers report 0 when the size is unknown: the file is then read to its end.
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                BoundedStreams.readAll(
+                    input, file.size, limit,
+                    tooLarge = { if (limit == SaveHandoff.MAX_SAVE_BYTES) SaveHandoff.SaveTooLargeException() else IOException("Save file is too large") },
+                    changed = { IOException("${file.name} changed while it was being read; try again") },
+                    check = { coroutine.ensureActive() }
+                )
             } ?: throw IOException("Could not read ${file.name}")
-            // Some document providers report 0 when the size is unknown.
-            if (file.size > 0L && bytes.size.toLong() != file.size) throw IOException("${file.name} changed while it was being read; try again")
-            bytes
         }
 
         override suspend fun write(kind: SaveKind, path: String, bytes: ByteArray): LocalSaveFile = withContext(Dispatchers.IO) {
             // "DraStic (standalone)/Game.dsv" goes into DraStic's own folder when one is picked for it.
             val emulator = if (kind == SaveKind.SAVE) EmulatorSaveFolders.locate(path, appSettings.saveSyncEmulatorFolders.first()) else null
             when (emulator?.first?.layout) {
-                SaveFolderLayout.MEMCARDS -> return@withContext writeCard(emulator.first, emulator.second, path, bytes)
+                SaveFolderLayout.MEMCARDS, SaveFolderLayout.PS2_MEMCARDS, SaveFolderLayout.GC_MEMCARDS ->
+                    return@withContext writeCard(emulator.first, emulator.second, path, bytes)
                 SaveFolderLayout.SAVEDATA -> return@withContext writePack(emulator.first, emulator.second, path, bytes)
                 else -> Unit
             }
@@ -415,16 +423,16 @@ class SaveSyncService @Inject constructor(
             return SavePack.pack(contents)
         }
 
-        /** A DuckStation card goes straight into the memcards folder; a shared one only when the user chose to sync them. */
+        /** A memory card goes straight into the folder of cards; a shared one only when the user chose to sync them. */
         private suspend fun writeCard(folder: EmulatorSaveFolder, inside: String, path: String, bytes: ByteArray): LocalSaveFile {
-            val card = EmulatorSaveLayouts.memoryCard(inside)
+            val card = EmulatorSaveLayouts.memoryCard(folder.layout, inside)
             if ('/' in inside || card == null) throw IOException("$inside is not a memory card")
             if (card is MemoryCard.Shared && folder.sharedCardsRomId == null) throw IOException("Shared memory cards are not synced for ${folder.label}")
             val root = layoutDocument(folder)
             val written = StorageHelper.writeBytesSafely(context, root, "", inside, bytes)
             val file = LocalSaveFile(
                 SaveKind.SAVE, path, written.length(), written.lastModified(), folder.platforms,
-                SaveFolderLayout.MEMCARDS, if (card is MemoryCard.Shared) folder.sharedCardsRomId else null
+                folder.layout, if (card is MemoryCard.Shared) folder.sharedCardsRomId else null
             )
             documents = documents + (SaveSyncEngine.key(file) to written.uri)
             return file
@@ -533,7 +541,7 @@ class SaveSyncService @Inject constructor(
         fun of(path: String): String = com.cortinadev.dogmatix.util.ArchivePlan.portableKey(com.cortinadev.dogmatix.util.ArchivePlan.safeRelativePath(path))
     }
 
-    /** Where below the picked folder of [folder] its cards / save folders are ("memcards", "PSP/SAVEDATA" or ""). */
+    /** Where below the picked folder of [folder] its cards / save folders are ("memcards", "GC", "PSP/SAVEDATA" or ""). */
     private fun innerPath(folder: EmulatorSaveFolder): String {
         if (folder.layout == SaveFolderLayout.FILES) return ""
         val tree = folder.uri.toUri()
@@ -547,8 +555,11 @@ class SaveSyncService @Inject constructor(
         }
         return EmulatorSaveLayouts.innerPath(folder.layout) { path -> idAt(path)?.let { id -> query(tree, id)?.filter { it.isDir }?.map { it.name }?.toSet() } }
             ?: throw IOException(
-                if (folder.layout == SaveFolderLayout.MEMCARDS) "${folder.label} has no memcards folder yet; start the emulator once or pick its memcards folder"
-                else "${folder.label} has no SAVEDATA folder yet; start the emulator once or pick its SAVEDATA folder"
+                when (folder.layout) {
+                    SaveFolderLayout.SAVEDATA -> "${folder.label} has no SAVEDATA folder yet; start the emulator once or pick its SAVEDATA folder"
+                    SaveFolderLayout.GC_MEMCARDS -> "${folder.label} has no GC folder yet; start Dolphin once or pick its GC folder"
+                    else -> "${folder.label} has no memcards folder yet; start the emulator once or pick its memcards folder"
+                }
             )
     }
 
@@ -731,7 +742,7 @@ class SaveSyncService @Inject constructor(
     suspend fun previewLocalSafetyRestore(profileId: String, copy: SafetyCopy): LocalSafetyRestorePreview = withContext(Dispatchers.IO) {
         checkCopyAccess(profileId, copy)
         check(hasDeviceFolder(copy.kind)) { "Choose the save folder again before restoring" }
-        val bytes = VerifiedSafetyCopies.read(backupDir, copy.relative, MAX_FILE_BYTES)
+        val bytes = VerifiedSafetyCopies.read(backupDir, copy.relative, maxBytesOf(copy.path))
         val store = SafSaveStore()
         val listing = store.list()
         require(listing.tooLarge == 0) { "A save is too large to verify safely" }
@@ -748,7 +759,7 @@ class SaveSyncService @Inject constructor(
             try {
                 val fresh = previewLocalSafetyRestore(preview.profileId, preview.copy)
                 check(fresh == preview) { "The save or folder changed; check the restore again" }
-                val bytes = VerifiedSafetyCopies.read(backupDir, preview.copy.relative, MAX_FILE_BYTES)
+                val bytes = VerifiedSafetyCopies.read(backupDir, preview.copy.relative, maxBytesOf(preview.copy.path))
                 appSettings.withActiveProfile(preview.profileId) {
                     checkCopyAccessUnlocked(preview.profileId, preview.copy)
                     check(configurationSignature() == preview.configuration) { "Save folder changed; check the restore again" }
@@ -788,7 +799,7 @@ class SaveSyncService @Inject constructor(
         try {
             FileOutputStream(owner).use { it.write(metadata); it.flush(); it.fd.sync() }
             check(owner.readBytes().contentEquals(metadata))
-            check(VerifiedSafetyCopies.read(backupDir, target.relativeTo(backupDir).invariantSeparatorsPath, MAX_FILE_BYTES).contentEquals(bytes))
+            check(VerifiedSafetyCopies.read(backupDir, target.relativeTo(backupDir).invariantSeparatorsPath, maxBytesOf(path)).contentEquals(bytes))
         } catch (e: Exception) { batch.deleteRecursively(); throw e }
     }
 
@@ -965,7 +976,7 @@ class SaveSyncService @Inject constructor(
     suspend fun restoreServerVersion(version: CloudSaveEntry, serverFiles: List<CloudSaveEntry>, gameStem: String, profileKey: JournalKey? = null): CloudSaveResult =
         restoreInto(version.kind, serverFiles, restored = version, profileKey = profileKey, target = { listing, records ->
             CloudSaves.restoreTarget(version, gameStem, listing.files, records.values, listing.topFolders, listing.noRootFolder)
-        }) { rommClient.downloadSave(version.toRemote(), MAX_FILE_BYTES) }
+        }) { rommClient.downloadSave(version.toRemote(), maxBytesOf(version.fileName)) }
 
     /** Puts a safety copy back in its place; the device file there now becomes a safety copy itself first. */
     suspend fun restoreSafetyCopy(copy: SafetyCopy, serverFiles: List<CloudSaveEntry>): CloudSaveResult =
@@ -974,7 +985,7 @@ class SaveSyncService @Inject constructor(
             if (!file.isFile || !file.canonicalPath.startsWith(backupDir.canonicalPath + File.separator)) {
                 throw IOException(context.getString(R.string.csave_error_gone, copy.name))
             }
-            VerifiedSafetyCopies.read(backupDir, copy.relative, MAX_FILE_BYTES)
+            VerifiedSafetyCopies.read(backupDir, copy.relative, maxBytesOf(copy.path))
         }
 
     private suspend fun restoreInto(
@@ -1014,7 +1025,7 @@ class SaveSyncService @Inject constructor(
                     // 2. So does the server's current version, unless the device held it or it is what comes back.
                     val restoringLatest = restored != null && latest != null && restored.kind == latest.kind && restored.id == latest.id
                     if (latest != null && !restoringLatest && !CloudSaves.deviceHolds(latest, record, current)) {
-                        val remoteBytes = rommClient.downloadSave(latest.toRemote(), MAX_FILE_BYTES)
+                        val remoteBytes = rommClient.downloadSave(latest.toRemote(), maxBytesOf(latest.fileName))
                         if (profileKey == null) keepSafetyCopy(kind, targetPath, remoteBytes)
                         else appSettings.withActiveProfile(profileKey.profileId) { gameAccess.check(profileKey); keepGameSafetyCopy(profileKey, kind, targetPath, remoteBytes) }
                     }
@@ -1064,7 +1075,7 @@ class SaveSyncService @Inject constructor(
                     val paired = record?.let { r -> serverFiles.firstOrNull { it.kind == kind && it.id == r.remoteId && it.syncable } }
                     val latest = paired ?: CloudSaves.latest(serverFiles, kind, local.name, romId)
                     if (latest != null && !CloudSaves.serverUnchangedSinceSync(latest, record)) {
-                        val remoteBytes = rommClient.downloadSave(latest.toRemote(), MAX_FILE_BYTES)
+                        val remoteBytes = rommClient.downloadSave(latest.toRemote(), maxBytesOf(latest.fileName))
                         if (profileKey == null) keepSafetyCopy(kind, local.path, remoteBytes)
                         else appSettings.withActiveProfile(profileKey.profileId) { gameAccess.check(profileKey); keepGameSafetyCopy(profileKey, kind, local.path, remoteBytes) }
                     }

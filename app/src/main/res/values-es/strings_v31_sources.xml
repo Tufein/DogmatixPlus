@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Catálogo de contenidos: proveedores y asignación de consolas -->
-    <string name="src31_hint">Elige colecciones de contenido gratuito de proveedores revisados. Contienen homebrew, demos y software de prueba, no ROM sets comerciales completos. Cada colección va a la consola correspondiente que ya tienes, o a una nueva. Las fuentes existentes se mantienen.</string>
+    <string name="src31_hint">Elige colecciones de contenido gratuito de proveedores revisados. Contienen homebrew, demos, juegos freeware y software de prueba, no ROM sets comerciales completos. Cada colección va a la consola correspondiente que ya tienes, o a una nueva. Las fuentes existentes se mantienen.</string>
     <string name="src31_all_providers">Todos los proveedores</string>
     <string name="src31_search">Buscar consola o proveedor</string>
     <string name="src31_provider_site">Sitio web: %1$s</string>
@@ -15,12 +15,7 @@
     <string name="src31_maps_new">Añade una consola nueva: %1$s</string>
 
     <!-- Portadas para iiSU y Daijishō -->
-    <string name="covers31_title">Portadas para iiSU y Daijishō</string>
-    <string name="covers31_subtitle">Pon las portadas donde estos lanzadores pueden mostrarlas</string>
-    <string name="covers31_hint">Escribe las portadas de tus juegos en la carpeta de la que las lee iiSU o Daijishō</string>
-    <string name="covers31_kw">artwork, boxart, carátulas, imágenes, medios, miniaturas, iisu, daijisho</string>
     <string name="covers31_what_title">Portadas para tu lanzador</string>
-    <string name="covers31_what_body">Dogmatix+ pone una portada por juego en la carpeta que elijas, con una subcarpeta por consola que se llama como tus carpetas de consolas. Las portadas vienen de tu servidor RomM, de las miniaturas de libretro o de portadas encontradas antes, y se guardan como PNG. Las imágenes que ya están se conservan, salvo que elijas reemplazarlas.</string>
     <string name="covers31_section_frontend">Lanzador</string>
     <string name="covers31_section_folder">Carpeta de portadas</string>
     <string name="covers31_folder_title">Carpeta de portadas para %1$s</string>

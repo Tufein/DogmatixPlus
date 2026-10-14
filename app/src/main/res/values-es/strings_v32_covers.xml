@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Covers for launchers: iiSU, Daijishō and any other launcher (3.2.0) -->
+    <string name="covers32_title">Portadas para lanzadores</string>
+    <string name="covers32_subtitle">Pon las portadas donde iiSU, Daijishō u otro lanzador pueden mostrarlas</string>
+    <string name="covers32_hint">Escribe las portadas de tus juegos en la carpeta de la que las lee tu lanzador</string>
+    <string name="covers32_kw">artwork, boxart, carátulas, imágenes, medios, miniaturas, iisu, daijisho, pegasus, retroarch, emulationstation, lanzador, frontend</string>
+    <string name="covers32_what_body">Dogmatix+ pone una portada por juego en la carpeta que elijas, con el nombre que busca tu lanzador: en una subcarpeta por consola que se llama como tus carpetas de consolas, todas en una sola carpeta, o como las ordenan RetroArch, Pegasus o EmulationStation. Las portadas vienen de tu servidor RomM, de las miniaturas de libretro o de portadas encontradas antes, y se guardan como PNG. Las imágenes que ya están se conservan, salvo que elijas reemplazarlas.</string>
+    <string name="covers32_other">Otro lanzador</string>
+    <string name="covers32_hint_other">Para cualquier otro lanzador: elige la carpeta de la que lee las portadas, que suele llamarse media, covers, images o artwork. Sus ajustes o su documentación suelen indicar cuál.</string>
+    <string name="covers32_folder_title_other">Carpeta para las portadas de tu lanzador</string>
+    <string name="covers32_names_hint">¿No lo tienes claro? Prueba primero «%1$s»: la mayoría de los lanzadores asocian las portadas al nombre de archivo del juego. Si la carpeta de tu lanzador ya tiene portadas, elige la disposición que se les parezca.</string>
+    <string name="covers32_layout_flat">Todo en una carpeta</string>
+    <string name="covers32_layout_flat_hint">Por ejemplo %1$s. Sin carpetas de consolas; se omiten los juegos con el mismo nombre en dos consolas.</string>
+    <string name="covers32_layout_boxarts">Estilo RetroArch (Named_Boxarts)</string>
+    <string name="covers32_layout_boxarts_hint">Por ejemplo %1$s. La disposición de las miniaturas de libretro, con los nombres de tus carpetas de consolas; caracteres como &amp; pasan a ser _.</string>
+    <string name="covers32_layout_pegasus">Estilo Pegasus (boxFront)</string>
+    <string name="covers32_layout_pegasus_hint">Por ejemplo %1$s. Una carpeta por juego, como en la carpeta media junto a un archivo de metadatos de Pegasus.</string>
+    <string name="covers32_layout_gamelist">Estilo EmulationStation (images)</string>
+    <string name="covers32_layout_gamelist_hint">Por ejemplo %1$s. Como en las carpetas gamelist de EmulationStation: elige la carpeta que contiene tus carpetas de consolas.</string>
+    <string name="covers32_preview_example_flat">Por ejemplo: %1$s</string>
+    <string name="covers32_preview_shared">Se omiten %1$s juegos porque un juego de otra consola usaría el mismo archivo de portada. Una disposición con carpetas de consolas los mantiene separados.</string>
+</resources>

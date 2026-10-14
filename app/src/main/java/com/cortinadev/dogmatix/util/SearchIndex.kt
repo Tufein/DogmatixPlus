@@ -124,7 +124,7 @@ object SearchIndex {
         SearchEntry("version_preference", SearchGroup.TOOLS, R.string.compare24_title, R.string.compare24_row_hint, R.drawable.ic_compare, SearchTarget(NavRoutes.VersionPreference.route), keywords = R.string.find8_kw_regions),
         SearchEntry("up_next", SearchGroup.TOOLS, R.string.next30_title, R.string.next30_hint, R.drawable.ic_playlist_play, SearchTarget(NavRoutes.UpNext.route)),
         SearchEntry("library_repair", SearchGroup.TOOLS, R.string.repair30_title, R.string.repair30_hint, R.drawable.ic_build, SearchTarget(NavRoutes.LibraryRepair.route)),
-        SearchEntry("frontend_covers", SearchGroup.TOOLS, R.string.covers31_title, R.string.covers31_hint, R.drawable.ic_image, SearchTarget(NavRoutes.FrontendCovers.route), keywords = R.string.covers31_kw),
+        SearchEntry("frontend_covers", SearchGroup.TOOLS, R.string.covers32_title, R.string.covers32_hint, R.drawable.ic_image, SearchTarget(NavRoutes.FrontendCovers.route), keywords = R.string.covers32_kw),
         SearchEntry("report_problem", SearchGroup.TOOLS, R.string.report30_title, R.string.report30_hint, R.drawable.ic_bug, SearchTarget(NavRoutes.ReportProblem.route), keywords = R.string.find8_kw_diagnostics),
         SearchEntry("action_history", SearchGroup.TOOLS, R.string.hist24_title, R.string.hist24_hint, R.drawable.ic_manage_history, SearchTarget(NavRoutes.ActionHistory.route), keywords = R.string.hist24_kw),
             // Settings, card by card.

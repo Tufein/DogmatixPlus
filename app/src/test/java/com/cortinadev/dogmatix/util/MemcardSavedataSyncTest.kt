@@ -162,6 +162,10 @@ class MemcardSavedataSyncTest {
         assertEquals(emptyList<EmulatorSaveFolder>(), EmulatorSaveFolders.fromJson("""[{"label":"X","uri":"x","layout":"FUTURE"}]"""))
         // A shared-card game only means something for memory cards.
         assertNull(EmulatorSaveFolders.fromJson("""[{"label":"P","uri":"x","layout":"SAVEDATA","sharedCardsRomId":3}]""").single().sharedCardsRomId)
+        // PS2 and GameCube card folders keep theirs.
+        val ps2 = EmulatorSaveFolder("AetherSX2 - NetherSX2 (standalone)", setOf("ps2"), "content://tree/ps2", SaveFolderLayout.PS2_MEMCARDS, 9, "Ico")
+        val gc = EmulatorSaveFolder("Dolphin (standalone)", setOf("gc", "ngc"), "content://tree/gc", SaveFolderLayout.GC_MEMCARDS)
+        assertEquals(listOf(ps2, gc), EmulatorSaveFolders.fromJson(EmulatorSaveFolders.toJson(listOf(ps2, gc))))
     }
 
     @Test fun presetsTellWhichEmulatorAFolderIsFor() {

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Covers for launchers: iiSU, Daijishō and any other launcher (3.2.0) -->
+    <string name="covers32_title">Covers voor launchers</string>
+    <string name="covers32_subtitle">Zet covers waar iiSU, Daijishō of een andere launcher ze kan tonen</string>
+    <string name="covers32_hint">Schrijf covers van je games naar de map waaruit je launcher ze leest</string>
+    <string name="covers32_kw">artwork, boxart, hoesjes, afbeeldingen, media, thumbnails, iisu, daijisho, pegasus, retroarch, emulationstation, launcher, frontend</string>
+    <string name="covers32_what_body">Dogmatix+ zet één cover per game in een map die jij kiest, met namen zoals je launcher ze zoekt: in een submap per console die net zo heet als je consolemappen, allemaal in één map, of ingedeeld zoals RetroArch, Pegasus of EmulationStation dat doen. De covers komen van je RomM-server, libretro-thumbnails of covers die eerder gevonden zijn, en worden als PNG opgeslagen. Afbeeldingen die er al staan blijven staan, tenzij je kiest om ze te vervangen.</string>
+    <string name="covers32_other">Andere launcher</string>
+    <string name="covers32_hint_other">Voor elke andere launcher: kies de map waaruit hij covers leest, vaak media, covers, images of artwork genoemd. Meestal staat in zijn instellingen of handleiding welke.</string>
+    <string name="covers32_folder_title_other">Map voor de covers van je launcher</string>
+    <string name="covers32_names_hint">Twijfel je? Probeer eerst ‘%1$s’: de meeste launchers koppelen covers aan de bestandsnaam van de game. Staan er in de map van je launcher al covers, kies dan de indeling die erop lijkt.</string>
+    <string name="covers32_layout_flat">Alles in één map</string>
+    <string name="covers32_layout_flat_hint">Bijvoorbeeld %1$s. Geen consolemappen; games met dezelfde naam op twee consoles worden overgeslagen.</string>
+    <string name="covers32_layout_boxarts">RetroArch-stijl (Named_Boxarts)</string>
+    <string name="covers32_layout_boxarts_hint">Bijvoorbeeld %1$s. De indeling van libretro-thumbnails, met de namen van jouw consolemappen; tekens zoals &amp; worden _.</string>
+    <string name="covers32_layout_pegasus">Pegasus-stijl (boxFront)</string>
+    <string name="covers32_layout_pegasus_hint">Bijvoorbeeld %1$s. Eén map per game, zoals in de media-map naast een Pegasus-metadatabestand.</string>
+    <string name="covers32_layout_gamelist">EmulationStation-stijl (images)</string>
+    <string name="covers32_layout_gamelist_hint">Bijvoorbeeld %1$s. Zoals in de gamelist-mappen van EmulationStation: kies de map waarin je consolemappen staan.</string>
+    <string name="covers32_preview_example_flat">Bijvoorbeeld: %1$s</string>
+    <string name="covers32_preview_shared">%1$s games worden overgeslagen omdat een game van een andere console hetzelfde coverbestand zou gebruiken. Een indeling met consolemappen houdt ze uit elkaar.</string>
+</resources>
