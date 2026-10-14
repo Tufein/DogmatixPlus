@@ -29,7 +29,7 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 *Les captures d’écran utilisent des titres de jeux inventés et des fichiers vides de substitution, et montrent l’application en anglais.*
 
-**Dernière version : [3.3.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.3.0)** (build Android 45).
+**Dernière version : [3.4.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.4.0)** (build Android 46).
 
 ## Installation
 
@@ -64,6 +64,7 @@ Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Goo
 ### Télécharger
 - **Liens directs, torrents et liens magnet**, plus **TorBox** et **Real-Debrid** en option.
 - **Plusieurs téléchargements à la fois**, avec pause, reprise, nouvel essai, une limite de débit globale (sans limite la nuit si vous le voulez) et une limite par serveur.
+- **Cercle de progression totale** : il compte les téléchargements terminés sur toute la file, soit 25 sur 100 = 25 %. Seuls les téléchargements entièrement terminés comptent, donc le cercle continue d’avancer quand l’un se termine.
 - **Les téléchargements interrompus reprennent** là où ils se sont arrêtés, et la file survit à un redémarrage.
 - **Télécharger quand cela convient** : seulement en Wi-Fi, pendant la charge, cette nuit ou à une heure fixée. Les téléchargements s’arrêtent si la batterie est faible ou l’appareil chaud, et disent ce qu’ils attendent.
 - **Nouvel essai automatique** avec compte à rebours visible, causes d’erreur claires, bascule vers une autre source et historique de fiabilité par source.

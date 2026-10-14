@@ -3,6 +3,7 @@
 <resources>
     <string name="q5_queue_title">Cola</string>
     <string name="q5_of">%1$s de %2$s</string>
+    <string name="q5_completed_of">%1$d de %2$d completadas</string>
     <string name="q5_idle_title">No se está descargando nada</string>
     <string name="q5_free_need">%1$s libres · %2$s necesarios</string>
     <string name="q5_short_by">Faltan %1$s</string>

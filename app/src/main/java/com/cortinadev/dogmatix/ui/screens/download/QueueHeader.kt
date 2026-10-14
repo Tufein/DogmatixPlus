@@ -38,8 +38,8 @@ import com.cortinadev.dogmatix.util.StorageInsights
 import com.cortinadev.dogmatix.util.WaitReason
 
 /**
- * The top of the Downloads list: the queue as a whole. A ring with the bytes done of the bytes to
- * fetch, the current speed and the time left, the free space against what the queue needs, pills
+ * The top of the Downloads list: the queue as a whole. A ring with completed downloads out of
+ * the total, the current speed and the time left, the free space against what the queue needs, pills
  * for what is in each state and what is holding the queue back, and the whole-queue actions.
  */
 @OptIn(ExperimentalLayoutApi::class)
@@ -61,7 +61,7 @@ fun QueueHeader(
 ) {
     val scheme = MaterialTheme.colorScheme
     val busy = summary.busy
-    val ringColor = if (busy) scheme.primary else scheme.tertiary
+    val ringColor = if (summary.allCompleted) scheme.tertiary else scheme.primary
     Panel(
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(14.dp),
@@ -69,39 +69,38 @@ fun QueueHeader(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             ProgressRing(
-                fraction = if (busy && eta.unknownSizes > 0) 0f else if (busy) summary.fraction else if (summary.completed > 0) 1f else 0f,
+                fraction = summary.fraction,
                 size = 72.dp,
                 stroke = 7.dp,
                 color = ringColor
             ) {
-                if (busy) {
+                if (summary.total > 0) {
                     Text(
-                        if (eta.unknownSizes > 0) "—" else "${(summary.fraction * 100).toInt()}%",
+                        "${summary.percent}%",
                         style = MaterialTheme.typography.titleMedium.tabular(),
                         color = scheme.onSurface,
                         maxLines = 1
                     )
                 } else {
                     Icon(
-                        painterResource(if (summary.completed > 0) R.drawable.ic_check else R.drawable.ic_download),
+                        painterResource(R.drawable.ic_download),
                         contentDescription = null,
-                        tint = if (summary.completed > 0) scheme.tertiary else scheme.onSurfaceVariant,
+                        tint = scheme.onSurfaceVariant,
                         modifier = Modifier.size(28.dp)
                     )
                 }
             }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 SectionTitle(stringResource(R.string.q5_queue_title), icon = R.drawable.ic_download)
-                if (busy) {
+                if (summary.total > 0) {
                     Text(
-                        if (summary.totalBytes <= 0L && eta.unknownSizes > 0) stringResource(R.string.download_size_unknown)
-                        else stringResource(R.string.q5_of, formatBytes(summary.doneBytes), formatBytes(summary.totalBytes)),
+                        stringResource(R.string.q5_completed_of, summary.completed, summary.total),
                         style = MaterialTheme.typography.titleLarge.tabular(),
                         color = scheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    val line = progressLine(eta)
+                    val line = if (busy) progressLine(eta) else ""
                     if (line.isNotEmpty()) {
                         Text(
                             line,

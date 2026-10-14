@@ -199,7 +199,7 @@ class DownloadViewModel @Inject constructor(
         StorageInsights.shortfall(need, free) ?: 0L
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
 
-    /** The whole queue in bytes (the ring of the Downloads header) and how many rows are in each state. */
+    /** Completed downloads out of the whole list (the header ring), with counts for each state. */
     val queueProgress: StateFlow<QueueProgress.Summary> = downloadService.downloads.map { QueueProgress.of(it) }
         .distinctUntilChanged().flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), QueueProgress.Summary())
 

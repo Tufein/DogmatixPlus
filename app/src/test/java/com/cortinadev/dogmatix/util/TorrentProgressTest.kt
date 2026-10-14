@@ -1,15 +1,17 @@
 package com.cortinadev.dogmatix.util
 
+import com.cortinadev.dogmatix.data.model.DownloadItemModel
 import com.cortinadev.dogmatix.data.model.DownloadStatus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TorrentProgressTest {
     @Test fun finishingOneSiblingDoesNotCompleteAnotherSelectedFile() {
         val verified = longArrayOf(100L, 25L, 0L)
-        assertEquals(DownloadStatus.COMPLETED,
+        assertEquals(DownloadStatus.COPYING,
             TorrentProgress.statusUpdate(DownloadStatus.DOWNLOADING, TorrentProgress.fileBytes(0, verified.size) { verified[it] }!!, 100L))
         assertNull(TorrentProgress.statusUpdate(DownloadStatus.DOWNLOADING, TorrentProgress.fileBytes(1, verified.size) { verified[it] }!!, 100L))
         assertNull(TorrentProgress.statusUpdate(DownloadStatus.DOWNLOADING, TorrentProgress.fileBytes(2, verified.size) { verified[it] }!!, 100L))
@@ -52,6 +54,43 @@ class TorrentProgressTest {
 
     @Test fun queuedTransferBecomesDownloadingUntilItsOwnBytesAreVerified() {
         assertEquals(DownloadStatus.DOWNLOADING, TorrentProgress.statusUpdate(DownloadStatus.QUEUED, 50L, 100L))
-        assertEquals(DownloadStatus.COMPLETED, TorrentProgress.statusUpdate(DownloadStatus.QUEUED, 100L, 100L))
+        assertEquals(DownloadStatus.COPYING, TorrentProgress.statusUpdate(DownloadStatus.QUEUED, 100L, 100L))
+    }
+
+    @Test fun verifiedTorrentTransfersOnlyIncreaseQueueCompletionAfterLocalProcessing() {
+        val queue = (1..2).map { index ->
+            DownloadItemModel(name = "game-$index", fileName = "game-$index", downloadSpeed = 0f,
+                progress = 0.5f, fileSize = 100L, downloadedBytes = 50L, status = DownloadStatus.DOWNLOADING)
+        }.toMutableList()
+        assertEquals(0, QueueProgress.of(queue).percent)
+
+        queue.indices.forEach { index ->
+            val transferStatus = TorrentProgress.statusUpdate(queue[index].status, 100L, 100L)
+            assertEquals(DownloadStatus.COPYING, transferStatus)
+            queue[index] = queue[index].copy(status = transferStatus!!, progress = 1f, downloadedBytes = 100L)
+            val copying = QueueProgress.of(queue)
+            assertEquals(index, copying.completed)
+            assertEquals(index * 50, copying.percent)
+            assertTrue(copying.busy)
+            assertFalse(copying.allCompleted)
+            assertNull(TorrentProgress.statusUpdate(queue[index].status, 100L, 100L))
+
+            if (index == 1) {
+                queue[index] = queue[index].copy(status = DownloadStatus.UNZIPPING)
+                val extracting = QueueProgress.of(queue)
+                assertEquals(index, extracting.completed)
+                assertEquals(index * 50, extracting.percent)
+                assertTrue(extracting.busy)
+                assertNull(TorrentProgress.statusUpdate(queue[index].status, 100L, 100L))
+            }
+
+            queue[index] = queue[index].copy(status = DownloadStatus.COMPLETED)
+            val finished = QueueProgress.of(queue)
+            assertEquals(index + 1, finished.completed)
+            assertEquals((index + 1) * 50, finished.percent)
+        }
+
+        assertTrue(QueueProgress.of(queue).allCompleted)
+        assertFalse(QueueProgress.of(queue).busy)
     }
 }

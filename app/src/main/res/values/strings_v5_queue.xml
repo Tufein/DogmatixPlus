@@ -3,6 +3,7 @@
 <resources>
     <string name="q5_queue_title">Queue</string>
     <string name="q5_of">%1$s of %2$s</string>
+    <string name="q5_completed_of">%1$d of %2$d completed</string>
     <string name="q5_idle_title">Nothing is downloading</string>
     <string name="q5_free_need">%1$s free · %2$s needed</string>
     <string name="q5_short_by">%1$s short</string>

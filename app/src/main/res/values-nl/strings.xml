@@ -1323,8 +1323,8 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Drie extra coverindelingen voor launchers: alles in één map mét extensie, een covers-map per console (ES-DE-stijl) en de media/box2d-map die scrapers schrijven. Samen met de oudere zijn dat er tien om uit te kiezen.</item>
-        <item>Of schrijf er zelf een: een coverpad met {system}, {name}, {file} en {retro}, gecontroleerd terwijl je typt, met een voorbeeld uit je eigen bibliotheek. Werkt voor iiSU, Daijishō en elke andere launcher.</item>
+        <item>De voortgangscirkel telt voltooide downloads op tegenover de hele wachtrij: 25 van 100 = 25%. De cirkel loopt niet meer terug als een download klaar is.</item>
+        <item>Downloads zonder bekende grootte tellen ook mee. Kopiëren en uitpakken moeten eerst klaar zijn; mislukte downloads tellen nooit als voltooid.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -146,9 +146,9 @@ class DownloadService @Inject constructor(
     val downloads: StateFlow<List<DownloadItemModel>> = downloadProgressTracker.downloads
 
     /**
-     * File names whose download is really finished and on disk (after copy / extraction). The
-     * torrent bridge flips a row to COMPLETED as soon as libtorrent is done, before the file is
-     * moved into place, so status watchers cannot tell "done" from "about to be copied".
+     * File names whose download is really finished and on disk (after copy / extraction).
+     * Torrents enter COPYING after their network transfer; COMPLETED is published only once
+     * the copy or extraction worker has successfully put the files in their destination.
      */
     // Room for a whole batch: tryEmit drops the name when the buffer is full, and the after-download
     // steps (covers, playlists, RomM upload, the log) are slower than small games finish.
@@ -1160,14 +1160,14 @@ class DownloadService @Inject constructor(
         Log.d(TAG, "Starting torrent download for ${file.fileName}")
         torrentDownloadService.startDownload(file)
 
-        // Collect just this file's status as a distinct flow instead of polling the full
-        // downloads list on every tick — O(1) vs O(n) and no busy-wait sleep.
-        val finalStatus = downloadProgressTracker.downloads
+        // COPYING hands the verified network transfer to local processing, keeping the row
+        // unfinished until it is on disk. Collect this file's status without busy-wait polling.
+        val transferStatus = downloadProgressTracker.downloads
             .map { list -> list.find { it.fileName == file.fileName }?.status }
             .distinctUntilChanged()
-            .first { it == DownloadStatus.COMPLETED || it == DownloadStatus.FAILED || it == DownloadStatus.STOPPED }
+            .first { it == DownloadStatus.COPYING || it == DownloadStatus.FAILED || it == DownloadStatus.STOPPED }
 
-        when (finalStatus) {
+        when (transferStatus) {
             DownloadStatus.FAILED  -> { Log.e(TAG, "Torrent FAILED: ${file.fileName}"); return }
             DownloadStatus.STOPPED -> { Log.i(TAG, "Torrent STOPPED: ${file.fileName}"); return }
             else -> moveTorrentFile(file)

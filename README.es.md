@@ -29,7 +29,7 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 *Las capturas de pantalla usan títulos de juegos inventados y archivos vacíos de relleno. Las capturas muestran la app en inglés.*
 
-**Última versión: [3.3.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.3.0)** (build de Android 45).
+**Última versión: [3.4.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.4.0)** (build de Android 46).
 
 ## Instalar
 
@@ -64,6 +64,7 @@ Necesitas **Android 10 o más reciente**. La app no está en Google Play.
 ### Descargar
 - **Enlaces directos, torrents y enlaces magnet**, más **TorBox** y **Real-Debrid** opcionales.
 - **Varias descargas a la vez**, con pausa, reanudar, reintentar, un límite de velocidad global (sin límite por la noche si quieres) y un límite por servidor.
+- **Círculo de progreso total**: cuenta las descargas completadas de toda la cola, de modo que 25 de 100 = 25 %. Solo cuentan las descargas totalmente terminadas, por lo que el círculo sigue avanzando al completarse una.
 - **Las descargas interrumpidas continúan** donde se quedaron, y la cola sobrevive a un reinicio.
 - **Descargar cuando convenga**: solo con Wi-Fi, mientras carga, esta noche o a una hora fijada. Las descargas se pausan con batería baja o dispositivo caliente y dicen qué esperan.
 - **Reintento automático** con cuenta atrás visible, causas de error claras, cambio a otra fuente y un historial de fiabilidad por fuente.

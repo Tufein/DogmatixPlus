@@ -122,7 +122,7 @@ class DownloadFeedbackTest {
         compose.setContent {
             DogmatixTheme {
                 QueueHeader(
-                    summary = QueueProgress.Summary(active = 2, doneBytes = MIB, totalBytes = 16L * MIB),
+                    summary = QueueProgress.Summary(active = 2, completed = 1, failed = 1, total = 4),
                     eta = QueueEta.Eta(15L * MIB, MIB, null, unknownSizes = 1),
                     need = StorageInsights.QueueNeed(0L, 0L), free = null, shortfall = 0L,
                     waitingReasons = emptyList(), held = false, counts = QueueActions.Counts(),
@@ -132,7 +132,73 @@ class DownloadFeedbackTest {
         }
         compose.onNodeWithText(context.resources.getQuantityString(R.plurals.download_queue_unknown_sizes, 1, 1), substring = true).assertIsDisplayed()
         compose.onNodeWithText(context.getString(R.string.download_eta_unknown), substring = true).assertIsDisplayed()
-        compose.onNodeWithText("6%").assertDoesNotExist()
+        compose.onNodeWithText("25%").assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.q5_completed_of, 1, 4)).assertIsDisplayed()
+    }
+
+    @Test fun completingFilesAccumulatesQueueProgressWhileTheNextFileDownloads() {
+        val items = mutableStateOf(listOf(
+            row().copy(progress = 0.99f, downloadedBytes = 63L * MIB),
+            row().copy(name = "Second download.gba", fileName = "Second download.gba", progress = 0f, downloadedBytes = 0L)
+        ))
+        compose.setContent {
+            DogmatixTheme {
+                QueueHeader(
+                    summary = QueueProgress.of(items.value), eta = QueueEta.ofDownloads(items.value),
+                    need = StorageInsights.QueueNeed(0L, 0L), free = null, shortfall = 0L,
+                    waitingReasons = emptyList(), held = false, counts = QueueActions.Counts(),
+                    onHold = {}, onStopAll = {}, onRetryFailed = {}, onClearFinished = {}
+                )
+            }
+        }
+        compose.onNodeWithText("0%").assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.q5_completed_of, 0, 2)).assertIsDisplayed()
+
+        compose.runOnIdle {
+            items.value = items.value.mapIndexed { index, item ->
+                if (index == 0) item.copy(status = DownloadStatus.COMPLETED, progress = 1f, downloadedBytes = item.fileSize)
+                else item
+            }
+        }
+        compose.onNodeWithText("50%").assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.q5_completed_of, 1, 2)).assertIsDisplayed()
+
+        compose.runOnIdle {
+            items.value = items.value.mapIndexed { index, item ->
+                if (index == 1) item.copy(progress = 0.25f, downloadedBytes = 16L * MIB)
+                else item
+            }
+        }
+        compose.onNodeWithText("50%").assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.q5_completed_of, 1, 2)).assertIsDisplayed()
+        compose.onNodeWithText("0%").assertDoesNotExist()
+
+        compose.runOnIdle {
+            items.value = items.value.map { it.copy(status = DownloadStatus.COMPLETED, progress = 1f, downloadedBytes = it.fileSize) }
+        }
+        compose.onNodeWithText("100%").assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.q5_completed_of, 2, 2)).assertIsDisplayed()
+    }
+
+    @Test fun idleQueueWithFailedDownloadsShowsActualCompletion() {
+        val items = listOf(
+            row().copy(status = DownloadStatus.COMPLETED, progress = 1f, downloadedBytes = 64L * MIB),
+            row().copy(status = DownloadStatus.FAILED)
+        )
+        compose.setContent {
+            DogmatixTheme {
+                QueueHeader(
+                    summary = QueueProgress.of(items), eta = QueueEta.ofDownloads(items),
+                    need = StorageInsights.QueueNeed(0L, 0L), free = null, shortfall = 0L,
+                    waitingReasons = emptyList(), held = false, counts = QueueActions.Counts(),
+                    onHold = {}, onStopAll = {}, onRetryFailed = {}, onClearFinished = {}
+                )
+            }
+        }
+        compose.onNodeWithText("50%").assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.q5_completed_of, 1, 2)).assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.q5_pill_failed, 1)).assertIsDisplayed()
+        compose.onNodeWithText("100%").assertDoesNotExist()
     }
 
     private fun row() = DownloadItemModel(

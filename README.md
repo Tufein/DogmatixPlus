@@ -29,7 +29,7 @@ The app includes no games. **Sources → More romsets** offers optional free con
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [3.3.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.3.0)** (Android build 45).
+**Latest release: [3.4.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.4.0)** (Android build 46).
 
 ## Install
 
@@ -64,6 +64,7 @@ You need **Android 10 or newer**. The app is not on Google Play.
 ### Download
 - **Direct links, torrents and magnet links**, plus optional **TorBox** and **Real-Debrid**.
 - **Several downloads at once**, with pause, resume, retry, a global speed limit (optionally none at night) and a limit per server.
+- **Total completion circle** counts finished downloads out of the whole queue: 25 of 100 = 25%. Only fully completed downloads count, so finishing one keeps the circle moving forwards.
 - **Interrupted downloads continue** where they stopped, and the queue survives a restart or reboot.
 - **Download when it suits**: only on Wi-Fi, while charging, tonight or at a set time. Downloads pause on a low battery or a hot device and say what they wait for.
 - **Automatic retry** with a visible countdown, clear error reasons, a switch to another source and a track record per source.

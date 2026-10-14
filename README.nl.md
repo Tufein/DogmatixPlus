@@ -29,7 +29,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [3.3.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.3.0)** (Android build 45).
+**Laatste release: [3.4.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.4.0)** (Android build 46).
 
 ## Installeren
 
@@ -64,6 +64,7 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 ### Downloaden
 - **Directe links, torrents en magnetlinks**, plus optioneel **TorBox** en **Real-Debrid**.
 - **Meerdere downloads tegelijk**, met pauzeren, hervatten, opnieuw proberen, een globale snelheidslimiet (desgewenst geen limiet 's nachts) en een limiet per server.
+- **Totale voortgangscirkel** telt voltooide downloads op tegenover de hele wachtrij: 25 van 100 = 25%. Alleen volledig afgeronde downloads tellen mee, zodat de cirkel blijft oplopen als er een klaar is.
 - **Onderbroken downloads gaan verder** waar ze stopten, en de wachtrij overleeft een herstart of reboot.
 - **Downloaden wanneer het uitkomt**: alleen op wifi, tijdens het opladen, vannacht of op een ingesteld tijdstip. Downloads pauzeren bij een lage batterij of een warm toestel en zeggen waarop ze wachten.
 - **Automatisch opnieuw proberen** met zichtbare aftelling, duidelijke foutredenen, overstap naar een andere bron en een staat van dienst per bron.

@@ -1328,8 +1328,8 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Trois structures de jaquettes de plus pour les lanceurs : tout dans un dossier avec l’extension, un dossier covers par console (style ES-DE) et le dossier media/box2d qu’écrivent les scrapers. Avec les précédentes, cela fait dix au choix.</item>
-        <item>Ou écrivez la vôtre : un chemin de jaquette avec {system}, {name}, {file} et {retro}, vérifié pendant la saisie, avec un exemple tiré de votre propre bibliothèque. Cela fonctionne pour iiSU, Daijishō et tout autre lanceur.</item>
+        <item>Le cercle de progression compte les téléchargements terminés sur toute la file : 25 sur 100 = 25 %. Il ne recule plus quand un téléchargement se termine.</item>
+        <item>Les téléchargements de taille inconnue comptent aussi. La copie et la décompression doivent finir d’abord ; les téléchargements échoués ne comptent jamais comme terminés.</item>
     </string-array>
 
     <!-- 4.0 -->

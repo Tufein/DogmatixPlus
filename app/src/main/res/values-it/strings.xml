@@ -1274,8 +1274,8 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Tre strutture di copertine in più per i launcher: tutto in una cartella con l’estensione, una cartella covers per console (stile ES-DE) e la cartella media/box2d che scrivono gli scraper. Con le precedenti sono dieci tra cui scegliere.</item>
-        <item>Oppure scrivi la tua: un percorso di copertina con {system}, {name}, {file} e {retro}, controllato mentre scrivi e con un esempio dalla tua libreria. Funziona per iiSU, Daijishō e qualsiasi altro launcher.</item>
+        <item>Il cerchio di avanzamento conta i download completati sul totale della coda: 25 su 100 = 25%. Non torna più indietro quando termina un download.</item>
+        <item>Contano anche i download di dimensione sconosciuta. Copia ed estrazione devono finire prima; i download non riusciti non contano mai come completati.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -3,6 +3,7 @@
 <resources>
     <string name="q5_queue_title">Warteschlange</string>
     <string name="q5_of">%1$s von %2$s</string>
+    <string name="q5_completed_of">%1$d von %2$d abgeschlossen</string>
     <string name="q5_idle_title">Es wird nichts heruntergeladen</string>
     <string name="q5_free_need">%1$s frei · %2$s nötig</string>
     <string name="q5_short_by">%1$s fehlen</string>

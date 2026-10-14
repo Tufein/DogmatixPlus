@@ -9,10 +9,10 @@ object TorrentProgress {
     fun acceptsUpdates(status: DownloadStatus?): Boolean =
         status in NETWORK_STATUSES
 
-    /** Only verified bytes of this exact file can complete its transfer. */
+    /** Verified bytes finish the network transfer; only the copy/extraction worker can complete the download. */
     fun statusUpdate(current: DownloadStatus?, verifiedBytes: Long, expectedSize: Long): DownloadStatus? {
         if (!acceptsUpdates(current) || expectedSize <= 0 || verifiedBytes < 0) return null
-        val next = if (verifiedBytes >= expectedSize) DownloadStatus.COMPLETED else DownloadStatus.DOWNLOADING
+        val next = if (verifiedBytes >= expectedSize) DownloadStatus.COPYING else DownloadStatus.DOWNLOADING
         return next.takeIf { it != current }
     }
 

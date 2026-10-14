@@ -1274,8 +1274,8 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Mais três estruturas de capas para launchers: tudo numa pasta com a extensão, uma pasta covers por consola (estilo ES-DE) e a pasta media/box2d que os scrapers escrevem. Com as anteriores, são dez à escolha.</item>
-        <item>Ou escreve a tua: um caminho de capa com {system}, {name}, {file} e {retro}, verificado enquanto escreves e com um exemplo da tua própria biblioteca. Funciona para iiSU, Daijishō e qualquer outro launcher.</item>
+        <item>O círculo de progresso conta os downloads concluídos no total da fila: 25 de 100 = 25%. Já não recua quando termina um download.</item>
+        <item>Os downloads de tamanho desconhecido também contam. A cópia e a extração têm de terminar primeiro; os downloads falhados nunca contam como concluídos.</item>
     </string-array>
 
     <!-- 4.0 -->

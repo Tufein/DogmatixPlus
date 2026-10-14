@@ -1324,8 +1324,8 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Three more cover layouts for launchers: everything in one folder with the extension, a covers folder per console (ES-DE style) and the media/box2d folder scrapers write. Together with the older ones that makes ten to choose from.</item>
-        <item>Or write your own: a cover path with {system}, {name}, {file} and {retro}, checked as you type, with an example from your own library. It works for iiSU, Daijishō and any other launcher.</item>
+        <item>The completion circle counts finished downloads out of the whole queue: 25 of 100 = 25%. Finishing a download no longer makes the circle go backwards.</item>
+        <item>Downloads with an unknown size count too. Copying and unpacking must finish first; failed downloads never count as complete.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -1297,8 +1297,8 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Tres estructuras de carátulas más para lanzadores: todo en una carpeta con la extensión, una carpeta covers por consola (estilo ES-DE) y la carpeta media/box2d que escriben los scrapers. Con las anteriores son diez a elegir.</item>
-        <item>O escribe la tuya: una ruta de carátula con {system}, {name}, {file} y {retro}, comprobada mientras escribes y con un ejemplo de tu propia biblioteca. Sirve para iiSU, Daijishō y cualquier otro lanzador.</item>
+        <item>El círculo de progreso cuenta las descargas completadas de toda la cola: 25 de 100 = 25 %. Ya no retrocede cuando termina una descarga.</item>
+        <item>Las descargas de tamaño desconocido también cuentan. La copia y la descompresión deben terminar primero; las descargas fallidas nunca cuentan como completadas.</item>
     </string-array>
 
     <!-- 4.0 -->

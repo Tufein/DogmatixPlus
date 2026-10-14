@@ -1323,8 +1323,8 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Drei weitere Cover-Aufteilungen für Launcher: alles in einem Ordner mit Endung, ein Covers-Ordner je Konsole (ES-DE-Stil) und der media/box2d-Ordner, den Scraper schreiben. Mit den bisherigen sind es zehn zur Auswahl.</item>
-        <item>Oder schreibe selbst eine: ein Cover-Pfad mit {system}, {name}, {file} und {retro}, schon beim Tippen geprüft und mit einem Beispiel aus deiner eigenen Bibliothek. Funktioniert für iiSU, Daijishō und jeden anderen Launcher.</item>
+        <item>Der Fortschrittskreis zählt fertige Downloads im Verhältnis zur ganzen Warteschlange: 25 von 100 = 25%. Beim Abschluss eines Downloads geht der Kreis nicht mehr zurück.</item>
+        <item>Downloads mit unbekannter Größe zählen ebenfalls. Kopieren und Entpacken müssen zuerst fertig sein; fehlgeschlagene Downloads zählen nie als abgeschlossen.</item>
     </string-array>
 
     <!-- 4.0 -->

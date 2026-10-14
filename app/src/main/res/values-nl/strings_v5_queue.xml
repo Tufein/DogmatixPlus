@@ -3,6 +3,7 @@
 <resources>
     <string name="q5_queue_title">Wachtrij</string>
     <string name="q5_of">%1$s van %2$s</string>
+    <string name="q5_completed_of">%1$d van %2$d voltooid</string>
     <string name="q5_idle_title">Er wordt niets gedownload</string>
     <string name="q5_free_need">%1$s vrij · %2$s nodig</string>
     <string name="q5_short_by">%1$s tekort</string>

@@ -3,6 +3,7 @@
 <resources>
     <string name="q5_queue_title">File d\'attente</string>
     <string name="q5_of">%1$s sur %2$s</string>
+    <string name="q5_completed_of">%1$d sur %2$d terminés</string>
     <string name="q5_idle_title">Aucun téléchargement en cours</string>
     <string name="q5_free_need">%1$s libres · %2$s nécessaires</string>
     <string name="q5_short_by">Il manque %1$s</string>

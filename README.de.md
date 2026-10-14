@@ -29,7 +29,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 *Die Screenshots verwenden erfundene Spieltitel und leere Platzhalterdateien und zeigen die App auf Englisch.*
 
-**Neueste Version: [3.3.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.3.0)** (Android-Build 45).
+**Neueste Version: [3.4.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.4.0)** (Android-Build 46).
 
 ## Installation
 
@@ -64,6 +64,7 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 ### Herunterladen
 - **Direkte Links, Torrents und Magnet-Links**, dazu optional **TorBox** und **Real-Debrid**.
 - **Mehrere Downloads gleichzeitig** mit Pause, Fortsetzen, Wiederholen, einem globalen Tempolimit (nachts auf Wunsch ohne) und einem Limit pro Server.
+- **Gesamtfortschritt im Kreis** zählt fertige Downloads im Verhältnis zur ganzen Warteschlange: 25 von 100 = 25%. Nur vollständig abgeschlossene Downloads zählen, sodass der Kreis beim Abschluss eines Downloads weiter steigt.
 - **Unterbrochene Downloads laufen weiter**, wo sie stehen geblieben sind, und die Warteschlange übersteht einen Neustart.
 - **Laden, wenn es passt**: nur im WLAN, beim Laden, heute Nacht oder zu einer festen Zeit. Downloads pausieren bei schwachem Akku oder heißem Gerät und sagen, worauf sie warten.
 - **Automatisch wiederholen** mit sichtbarem Countdown, klaren Fehlergründen, Wechsel zu einer anderen Quelle und einer Erfolgsbilanz pro Quelle.
