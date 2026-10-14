@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- More cover layouts and the user's own cover path (3.3.0) -->
+    <string name="covers33_layout_flat_full">Tutto in una cartella, con estensione</string>
+    <string name="covers33_layout_flat_full_hint">Ad esempio %1$s. Nessuna cartella per console e l’estensione resta nel nome; i giochi con lo stesso nome di file su due console vengono saltati.</string>
+    <string name="covers33_layout_covers">Stile ES-DE (cartella covers)</string>
+    <string name="covers33_layout_covers_hint">Ad esempio %1$s. Una cartella covers per console, come nei media scaricati di ES-DE: scegli la cartella che contiene le tue cartelle delle console.</string>
+    <string name="covers33_layout_box2d">Stile scraper (media/box2d)</string>
+    <string name="covers33_layout_box2d_hint">Ad esempio %1$s. Una cartella media/box2d per console, come la scrivono scraper quali Skraper per i launcher basati su EmulationStation.</string>
+    <string name="covers33_layout_custom">Il tuo schema</string>
+    <string name="covers33_layout_custom_hint">Schema %1$s, ad esempio %2$s. Tocca per cambiarlo.</string>
+    <string name="covers33_layout_custom_pick">Schema %1$s, ad esempio %2$s.</string>
+    <string name="covers33_layout_custom_bad">Lo schema %1$s non è utilizzabile. %2$s Tocca per cambiarlo.</string>
+    <string name="covers33_layout_custom_empty">Per un launcher a cui nulla di questo si adatta: scrivi tu il percorso di una copertina, ad esempio {system}/{name}.png. Tocca per scriverlo.</string>
+    <string name="covers33_pattern_title">Il tuo percorso delle copertine</string>
+    <string name="covers33_pattern_body">Scrivi dove va una copertina nella cartella dei media. Tra parentesi graffe: {system} è la cartella della console, {name} il nome del file del gioco senza estensione, {file} il nome con estensione e {retro} il nome come RetroArch scrive i nomi delle miniature. Il percorso termina con .png, perché le copertine vengono sempre scritte come PNG.</string>
+    <string name="covers33_pattern_field">Percorso della copertina</string>
+    <string name="covers33_pattern_example">Ad esempio: %1$s</string>
+    <string name="covers33_pattern_empty">Scrivi un percorso.</string>
+    <string name="covers33_pattern_too_long">Il percorso è troppo lungo.</string>
+    <string name="covers33_pattern_bad_characters">Il percorso contiene un carattere non ammesso nei nomi di file (\\ : * ? \" &lt; &gt; |).</string>
+    <string name="covers33_pattern_bad_token">Tra parentesi graffe si possono usare solo {system}, {name}, {file} e {retro}.</string>
+    <string name="covers33_pattern_bad_path">Scrivi le cartelle separate da /, senza parti vuote, . o .., senza spazi accanto a una /, senza nomi di cartella che finiscono con un punto e senza / all’inizio o alla fine.</string>
+    <string name="covers33_pattern_no_game">Il percorso richiede {name}, {file} o {retro}; altrimenti ogni gioco riceverebbe lo stesso file di copertina.</string>
+    <string name="covers33_pattern_not_png">Il nome del file deve terminare con .png.</string>
+    <string name="covers33_preview_pattern">Il tuo percorso delle copertine non è ancora utilizzabile, quindi non si può pianificare nulla.</string>
+    <string name="covers33_problem_pattern">Il tuo percorso delle copertine non è utilizzabile. Modificalo e riprova.</string>
+</resources>

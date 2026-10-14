@@ -97,6 +97,8 @@ class FrontendCoversViewModel @Inject constructor(
     fun setFolder(uri: String) { viewModelScope.launch { settings.setFolder(target.value, uri) } }
     fun setLayout(layout: FrontendCovers.Layout) { viewModelScope.launch { settings.setLayout(target.value, layout) } }
     fun setOverwrite(on: Boolean) { viewModelScope.launch { settings.setOverwrite(target.value, on) } }
+    /** Saves the user's own cover path and chooses it as the layout (a pattern that cannot be used is refused). */
+    fun setPattern(pattern: String) { viewModelScope.launch { settings.setPattern(target.value, pattern) } }
     fun refresh() { refresh.value++ }
 
     fun write() = service.start(target.value)

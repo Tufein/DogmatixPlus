@@ -24,26 +24,40 @@ class FrontendCoversTest {
             FrontendCovers.Layout.FLAT to FrontendCovers.Place("", "Game (Europe).png"),
             FrontendCovers.Layout.NAMED_BOXARTS to FrontendCovers.Place("gba/Named_Boxarts", "Game (Europe).png"),
             FrontendCovers.Layout.PEGASUS to FrontendCovers.Place("Game (Europe)", "boxFront.png"),
-            FrontendCovers.Layout.GAMELIST_IMAGES to FrontendCovers.Place("gba/images", "Game (Europe)-image.png")
+            FrontendCovers.Layout.GAMELIST_IMAGES to FrontendCovers.Place("gba/images", "Game (Europe)-image.png"),
+            FrontendCovers.Layout.FLAT_WITH_EXTENSION to FrontendCovers.Place("", "Game (Europe).gba.png"),
+            FrontendCovers.Layout.COVERS_FOLDER to FrontendCovers.Place("gba/covers", "Game (Europe).png"),
+            FrontendCovers.Layout.BOX2D to FrontendCovers.Place("gba/media/box2d", "Game (Europe).png")
         )
-        assertEquals(FrontendCovers.Layout.entries.toSet(), expected.keys)
+        // The user's own pattern is the one layout that is no fixed arrangement.
+        assertEquals(FrontendCovers.Layout.entries.toSet() - FrontendCovers.Layout.CUSTOM, expected.keys)
+        assertEquals(expected.keys, FrontendCovers.PRESETS.toSet())
         expected.forEach { (layout, place) -> assertEquals(layout.name, place, FrontendCovers.place(gba, layout)) }
         assertEquals("Game (Europe).png", FrontendCovers.coverPath(gba, FrontendCovers.Layout.FLAT))
         assertEquals("Game (Europe)/boxFront.png", FrontendCovers.coverPath(gba, FrontendCovers.Layout.PEGASUS))
         // Only the flat and Pegasus layouts leave the console folders out.
         assertEquals(
-            setOf(FrontendCovers.Layout.FLAT, FrontendCovers.Layout.PEGASUS),
-            FrontendCovers.Layout.entries.filterNot { it.perSystem }.toSet()
+            setOf(FrontendCovers.Layout.FLAT, FrontendCovers.Layout.FLAT_WITH_EXTENSION, FrontendCovers.Layout.PEGASUS),
+            FrontendCovers.PRESETS.filterNot { it.perSystem }.toSet()
         )
     }
 
     @Test fun `layout keys are stable and each launcher offers its own layouts`() {
-        assertEquals(listOf("stem", "full", "flat", "boxarts", "pegasus", "gamelist"), FrontendCovers.Layout.entries.map { it.key })
+        assertEquals(
+            listOf("stem", "full", "flat", "boxarts", "pegasus", "gamelist", "flat_full", "covers", "box2d", "custom"),
+            FrontendCovers.Layout.entries.map { it.key }
+        )
         FrontendCovers.Layout.entries.forEach { assertEquals(it, FrontendCovers.Layout.of(it.key)) }
-        assertEquals(FrontendCovers.Layout.entries, FrontendCovers.layoutsFor(FrontendCovers.Target.OTHER))
+        // "Another launcher" offers every layout; the own pattern comes last.
+        assertEquals(FrontendCovers.Layout.entries.toSet(), FrontendCovers.layoutsFor(FrontendCovers.Target.OTHER).toSet())
+        assertEquals(FrontendCovers.Layout.entries.size, FrontendCovers.layoutsFor(FrontendCovers.Target.OTHER).size)
+        assertEquals(FrontendCovers.Layout.CUSTOM, FrontendCovers.layoutsFor(FrontendCovers.Target.OTHER).last())
         for (t in listOf(FrontendCovers.Target.IISU, FrontendCovers.Target.DAIJISHO)) {
             assertEquals(
-                listOf(FrontendCovers.Layout.NAME_WITHOUT_EXTENSION, FrontendCovers.Layout.NAME_WITH_EXTENSION, FrontendCovers.Layout.FLAT),
+                listOf(
+                    FrontendCovers.Layout.NAME_WITHOUT_EXTENSION, FrontendCovers.Layout.NAME_WITH_EXTENSION, FrontendCovers.Layout.FLAT,
+                    FrontendCovers.Layout.FLAT_WITH_EXTENSION, FrontendCovers.Layout.CUSTOM
+                ),
                 FrontendCovers.layoutsFor(t)
             )
         }
@@ -52,6 +66,9 @@ class FrontendCoversTest {
         assertEquals(FrontendCovers.Layout.NAME_WITHOUT_EXTENSION, FrontendCovers.layoutOf(FrontendCovers.Target.IISU, "pegasus"))
         assertEquals(FrontendCovers.Layout.FLAT, FrontendCovers.layoutOf(FrontendCovers.Target.DAIJISHO, "flat"))
         assertEquals(FrontendCovers.Layout.PEGASUS, FrontendCovers.layoutOf(FrontendCovers.Target.OTHER, "pegasus"))
+        assertEquals(FrontendCovers.Layout.CUSTOM, FrontendCovers.layoutOf(FrontendCovers.Target.IISU, "custom"))
+        assertEquals(FrontendCovers.Layout.BOX2D, FrontendCovers.layoutOf(FrontendCovers.Target.OTHER, "box2d"))
+        assertEquals(FrontendCovers.Layout.NAME_WITHOUT_EXTENSION, FrontendCovers.layoutOf(FrontendCovers.Target.DAIJISHO, "box2d"))
         assertEquals(FrontendCovers.Layout.NAME_WITHOUT_EXTENSION, FrontendCovers.layoutOf(FrontendCovers.Target.OTHER, "unknown"))
         assertEquals(FrontendCovers.Target.OTHER, FrontendCovers.Target.of("other"))
         assertEquals(FrontendCovers.Target.IISU, FrontendCovers.Target.of(null))
@@ -168,7 +185,7 @@ class FrontendCoversTest {
         assertEquals(listOf("Advance Wars/boxFront.png", "Zelda/boxFront.png"), pegasus.items.map { it.path })
         assertEquals(2, pegasus.shared)
         // With console folders every console keeps its own Tetris.
-        for (layout in FrontendCovers.Layout.entries.filter { it.perSystem }) {
+        for (layout in FrontendCovers.PRESETS.filter { it.perSystem }) {
             val plan = FrontendCovers.plan(games, layout, emptyMap(), overwrite = false)
             val withExtension = layout == FrontendCovers.Layout.NAME_WITH_EXTENSION
             assertEquals(layout.name, if (withExtension) 5 else 4, plan.items.size)
@@ -226,5 +243,118 @@ class FrontendCoversTest {
         }
         assertFalse(SettingSchema.compatible(FrontendCovers.overwriteKey(FrontendCovers.Target.OTHER), "true"))
         assertTrue(SettingSchema.compatible(FrontendCovers.layoutKey(FrontendCovers.Target.OTHER), "pegasus"))
+    }
+
+    // ---- Own pattern (3.3.0) --------------------------------------------------------------------
+
+    private val pattern = FrontendCovers.Pattern
+
+    @Test fun `a usable own pattern has a game token and ends in png`() {
+        for (ok in listOf("{system}/{name}.png", "{name}.png", "{file}.png", "media/{system}/box2d/{retro}.PNG", "covers/{system}/{name}-cover.png",
+            "{name}/folder.png", "my covers/{system}/{name}.png")) {
+            assertNull(ok, pattern.check(ok))
+        }
+        assertEquals(FrontendCovers.Pattern.Problem.EMPTY, pattern.check("  "))
+        assertEquals(FrontendCovers.Pattern.Problem.TOO_LONG, pattern.check("a/".repeat(100) + "{name}.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_TOKEN, pattern.check("{system}/{title}.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_TOKEN, pattern.check("{system}/{name.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_TOKEN, pattern.check("{system}/}{name}.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_TOKEN, pattern.check("{}/{name}.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_CHARACTERS, pattern.check("{system}\\{name}.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_CHARACTERS, pattern.check("{system}/{name}:x.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_CHARACTERS, pattern.check("{system}/{name}?.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_PATH, pattern.check("/{system}/{name}.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_PATH, pattern.check("{system}/{name}.png/"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_PATH, pattern.check("{system}//{name}.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_PATH, pattern.check("../{system}/{name}.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_PATH, pattern.check("{system}/./{name}.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_PATH, pattern.check(".dogmatix-x/{name}.png"))
+        // A folder name cannot end in a dot (FAT drops it), and a name over 255 bytes would never be written.
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_PATH, pattern.check("covers./{name}.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.BAD_PATH, pattern.check("covers /{name}.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.TOO_LONG, pattern.check("あ".repeat(90) + "/{name}.png"))
+        assertNull(pattern.check("あ".repeat(80) + "/{name}.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.NO_GAME_TOKEN, pattern.check("{system}/cover.png"))
+        assertEquals(FrontendCovers.Pattern.Problem.NOT_PNG, pattern.check("{system}/{name}"))
+        assertEquals(FrontendCovers.Pattern.Problem.NOT_PNG, pattern.check("{system}/{name}.jpg"))
+        assertEquals(FrontendCovers.Pattern.Problem.NOT_PNG, pattern.check("{name}/.png"))
+        assertNull(pattern.check(pattern.DEFAULT))
+    }
+
+    @Test fun `an own pattern expands to the cover place of each game`() {
+        val gba = game("gba", "Game (Europe).gba")
+        assertEquals(FrontendCovers.Place("gba", "Game (Europe).png"), FrontendCovers.place(gba, FrontendCovers.Layout.CUSTOM, "{system}/{name}.png"))
+        assertEquals(FrontendCovers.Place("gba/media/box2d", "Game (Europe).png"), FrontendCovers.place(gba, FrontendCovers.Layout.CUSTOM, " {system}/media/box2d/{name}.png "))
+        assertEquals(FrontendCovers.Place("", "Game (Europe).gba.png"), FrontendCovers.place(gba, FrontendCovers.Layout.CUSTOM, "{file}.png"))
+        assertEquals(FrontendCovers.Place("Game (Europe)", "folder.png"), FrontendCovers.place(gba, FrontendCovers.Layout.CUSTOM, "{name}/folder.png"))
+        assertEquals("gba/Game (Europe)-cover.png", FrontendCovers.coverPath(gba, FrontendCovers.Layout.CUSTOM, "{system}/{name}-cover.png"))
+        // The libretro rule only where asked for.
+        val tom = game("snes", "Tom & Jerry (USA).sfc")
+        assertEquals("snes/Tom _ Jerry (USA).png", FrontendCovers.coverPath(tom, FrontendCovers.Layout.CUSTOM, "{system}/{retro}.png"))
+        assertEquals("snes/Tom & Jerry (USA).png", FrontendCovers.coverPath(tom, FrontendCovers.Layout.CUSTOM, "{system}/{name}.png"))
+        // A tokens twice, and literal text around a token.
+        assertEquals("Game (Europe)/Game (Europe) front.png", FrontendCovers.coverPath(gba, FrontendCovers.Layout.CUSTOM, "{name}/{name} front.png"))
+        // No pattern, or one that cannot be used, places nothing.
+        assertNull(FrontendCovers.place(gba, FrontendCovers.Layout.CUSTOM))
+        assertNull(FrontendCovers.place(gba, FrontendCovers.Layout.CUSTOM, "{system}/cover.png"))
+        assertNull(FrontendCovers.place(gba, FrontendCovers.Layout.CUSTOM, "../{name}.png"))
+    }
+
+    @Test fun `an own pattern never makes an unsafe path out of a game or console name`() {
+        val pat = "{system}/{name}.png"
+        assertNull(FrontendCovers.coverPath(game("..", "Game.gba"), FrontendCovers.Layout.CUSTOM, pat))
+        assertNull(FrontendCovers.coverPath(game("a\\b", "Game.gba"), FrontendCovers.Layout.CUSTOM, pat))
+        assertNull(FrontendCovers.coverPath(game("gba", "a:b.gba"), FrontendCovers.Layout.CUSTOM, pat))
+        assertNull(FrontendCovers.coverPath(game("gba", ".dogmatix-write-1.part"), FrontendCovers.Layout.CUSTOM, "{system}/{file}.png"))
+        // A folder named after a game cannot end in a dot either; a file name can.
+        assertNull(FrontendCovers.coverPath(game("gba", "Foo..gba"), FrontendCovers.Layout.CUSTOM, "{name}/folder.png"))
+        assertEquals("Foo/folder.png", FrontendCovers.coverPath(game("gba", "Foo.gba"), FrontendCovers.Layout.CUSTOM, "{name}/folder.png"))
+        assertEquals("gba/Foo..png", FrontendCovers.coverPath(game("gba", "Foo..gba"), FrontendCovers.Layout.CUSTOM, "{system}/{name}.png"))
+        assertNull(FrontendCovers.coverPath(game("gba", "x".repeat(260) + ".gba"), FrontendCovers.Layout.CUSTOM, pat))
+        assertNull(FrontendCovers.coverPath(game("gba", "x".repeat(254) + ".gba"), FrontendCovers.Layout.CUSTOM, "{name}-cover.png"))
+        // A token that is not used does not matter: the flat pattern needs no usable console folder.
+        assertEquals("Game.png", FrontendCovers.coverPath(game("..", "Game.gba"), FrontendCovers.Layout.CUSTOM, "{name}.png"))
+        assertEquals("a_b.png", FrontendCovers.coverPath(game("gba", "a:b.gba"), FrontendCovers.Layout.CUSTOM, "{retro}.png"))
+    }
+
+    @Test fun `an own pattern plans like the fixed layouts`() {
+        val games = listOf(game("gb", "Tetris.gb", "nintendo_gameboy"), game("nes", "Tetris.nes", "nintendo_entertainment_system"), game("nes", "Zelda.nes", "nintendo_entertainment_system"))
+        // With console folders every console keeps its own Tetris.
+        val perSystem = FrontendCovers.plan(games, FrontendCovers.Layout.CUSTOM, emptyMap(), overwrite = false, pattern = "{system}/covers/{name}.png")
+        assertEquals(listOf("gb/covers/Tetris.png", "nes/covers/Tetris.png", "nes/covers/Zelda.png"), perSystem.items.map { it.path })
+        assertEquals(0, perSystem.shared)
+        // Without them the two Tetris games would share a file: both are skipped.
+        val flat = FrontendCovers.plan(games, FrontendCovers.Layout.CUSTOM, emptyMap(), overwrite = false, pattern = "{name}.png")
+        assertEquals(listOf("Zelda.png"), flat.items.map { it.path })
+        assertEquals(2, flat.shared)
+        // A cover that is there is kept; another extension counts as one too.
+        val kept = FrontendCovers.plan(games, FrontendCovers.Layout.CUSTOM, mapOf("gb/covers" to setOf("tetris.jpg"), "nes/covers" to setOf("zelda.png")),
+            overwrite = false, pattern = "{system}/covers/{name}.png")
+        assertEquals(2, kept.kept)
+        assertEquals(listOf("nes/covers/Tetris.png"), kept.items.map { it.path })
+        // An unusable pattern plans nothing.
+        assertTrue(FrontendCovers.plan(games, FrontendCovers.Layout.CUSTOM, emptyMap(), overwrite = false, pattern = "").items.isEmpty())
+    }
+
+    @Test fun `console folders are told from the pattern, and the examples work with the own pattern`() {
+        assertTrue(FrontendCovers.hasConsoleFolders(FrontendCovers.Layout.CUSTOM, "{system}/{name}.png"))
+        assertFalse(FrontendCovers.hasConsoleFolders(FrontendCovers.Layout.CUSTOM, "{name}/folder.png"))
+        // {system} in the file name only is no console folder.
+        assertFalse(FrontendCovers.hasConsoleFolders(FrontendCovers.Layout.CUSTOM, "{system}-{name}.png"))
+        assertFalse(FrontendCovers.hasConsoleFolders(FrontendCovers.Layout.CUSTOM, "{name}/{system}.png"))
+        assertTrue(FrontendCovers.hasConsoleFolders(FrontendCovers.Layout.CUSTOM, " media/{system}/{name}.png "))
+        assertTrue(FrontendCovers.hasConsoleFolders(FrontendCovers.Layout.COVERS_FOLDER, ""))
+        assertFalse(FrontendCovers.hasConsoleFolders(FrontendCovers.Layout.FLAT_WITH_EXTENSION, ""))
+        // The sample game is one the own pattern can name too.
+        val games = listOf(game("gba", "Alpha.gba"), game("gba", "Beta.gba"))
+        assertEquals("Alpha.gba", FrontendCovers.sampleOf(games, "{system}/{name}.png")?.fileName)
+        assertEquals("Alpha.gba", FrontendCovers.sampleOf(games, "not a pattern")?.fileName)
+    }
+
+    @Test fun `the own pattern has a setting of its own for every launcher`() {
+        FrontendCovers.Target.entries.forEach {
+            assertEquals("covers31_${it.key}_pattern", FrontendCovers.patternKey(it))
+            assertEquals("s", FrontendCovers.SETTING_TYPES[FrontendCovers.patternKey(it)])
+        }
     }
 }

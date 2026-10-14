@@ -46,6 +46,10 @@ data class CoversPreview(
     val folderDisplay: String,
     val layout: FrontendCovers.Layout,
     val overwrite: Boolean,
+    /** The user's own cover path (used with [FrontendCovers.Layout.CUSTOM]). */
+    val pattern: String = "",
+    /** What is wrong with the own cover path when that layout is chosen; null when it is fine or not in use. */
+    val patternProblem: FrontendCovers.Pattern.Problem? = null,
     /** Null when there is no usable folder (nothing was planned). */
     val plan: FrontendCovers.Plan?,
     /** Games found on the device for this profile. */
@@ -76,7 +80,7 @@ data class CoversRunState(
     val finished: Boolean = false,
     val problem: Problem? = null
 ) {
-    enum class Problem { NO_FOLDER, NOT_WRITABLE, NOTHING_ON_DEVICE, FAILED }
+    enum class Problem { NO_FOLDER, NOT_WRITABLE, NOTHING_ON_DEVICE, FAILED, BAD_PATTERN }
 }
 
 /**
@@ -132,20 +136,21 @@ class FrontendCoversService @Inject constructor(
         currentCoroutineContext().ensureActive()
         val games = withoutHiddenTags(found.games, restrictions)
         val media = root?.let { DiskScanner.rootOf(s.folder) }?.let { MediaFolder(it) }
-        val plan = media?.let { m ->
+        val patternProblem = if (s.layout == FrontendCovers.Layout.CUSTOM) FrontendCovers.Pattern.check(s.pattern) else null
+        val plan = media?.takeIf { patternProblem == null }?.let { m ->
             // One listing per cover folder: the console folders, or the game folders of the Pegasus layout.
-            val folders = games.mapNotNull { FrontendCovers.place(it, s.layout)?.dir }.distinctBy { it.lowercase() }
+            val folders = games.mapNotNull { FrontendCovers.place(it, s.layout, s.pattern)?.dir }.distinctBy { it.lowercase() }
             val existing = folders.associateWith { dir ->
                 currentCoroutineContext().ensureActive()
                 m.children(dir).values.filterNot { it.isDirectory }.map { it.name.lowercase() }.toSet()
             }
-            val planned = FrontendCovers.plan(games, s.layout, existing, s.overwrite)
+            val planned = FrontendCovers.plan(games, s.layout, existing, s.overwrite, s.pattern)
             // A folder that is already there is written to as it is spelled ("GBA" for "gba").
             planned.copy(items = planned.items.map { it.copy(place = it.place.copy(dir = m.spelled(it.place.dir))) })
         }
-        val sample = FrontendCovers.sampleOf(games)?.let { g -> media?.let { g.copy(system = it.spelled(g.system)) } ?: g }
+        val sample = FrontendCovers.sampleOf(games, s.pattern)?.let { g -> media?.let { g.copy(system = it.spelled(g.system)) } ?: g }
         return Prepared(
-            CoversPreview(target, s.folder.isNotBlank(), root != null, display, s.layout, s.overwrite, plan, games.size, found.outside, restrictions.active, sample),
+            CoversPreview(target, s.folder.isNotBlank(), root != null, display, s.layout, s.overwrite, s.pattern, patternProblem, plan, games.size, found.outside, restrictions.active, sample),
             root,
             media
         )
@@ -256,6 +261,7 @@ class FrontendCoversService @Inject constructor(
             val media = prepared.media
             val plan = preview.plan
             if (!preview.folderSet) return finish(target, CoversRunState.Problem.NO_FOLDER)
+            if (preview.patternProblem != null) return finish(target, CoversRunState.Problem.BAD_PATTERN)
             if (root == null || media == null || plan == null) return finish(target, CoversRunState.Problem.NOT_WRITABLE)
             if (preview.games == 0) return finish(target, CoversRunState.Problem.NOTHING_ON_DEVICE)
             _state.update { it.copy(total = plan.items.size, kept = plan.kept) }

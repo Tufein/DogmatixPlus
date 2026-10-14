@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- More cover layouts and the user's own cover path (3.3.0) -->
+    <string name="covers33_layout_flat_full">All in one folder, with extension</string>
+    <string name="covers33_layout_flat_full_hint">For example %1$s. No console folders and the extension stays in the name; games with the same file name on two consoles are skipped.</string>
+    <string name="covers33_layout_covers">ES-DE style (covers folder)</string>
+    <string name="covers33_layout_covers_hint">For example %1$s. A covers folder per console, as in ES-DE\'s downloaded media: pick the folder that holds your console folders.</string>
+    <string name="covers33_layout_box2d">Scraper style (media/box2d)</string>
+    <string name="covers33_layout_box2d_hint">For example %1$s. A media/box2d folder per console, as scrapers such as Skraper write it for EmulationStation-based launchers.</string>
+    <string name="covers33_layout_custom">Your own pattern</string>
+    <string name="covers33_layout_custom_hint">Pattern %1$s, for example %2$s. Tap to change it.</string>
+    <string name="covers33_layout_custom_pick">Pattern %1$s, for example %2$s.</string>
+    <string name="covers33_layout_custom_bad">Pattern %1$s cannot be used. %2$s Tap to change it.</string>
+    <string name="covers33_layout_custom_empty">For a launcher none of these fits: write the path of a cover yourself, for example {system}/{name}.png. Tap to write it.</string>
+    <string name="covers33_pattern_title">Your own cover path</string>
+    <string name="covers33_pattern_body">Write where a cover goes below the media folder. Between braces: {system} is the console folder, {name} the game\'s file name without extension, {file} the name with extension and {retro} the name the way RetroArch writes thumbnail names. The path ends in .png, because covers are always written as PNG.</string>
+    <string name="covers33_pattern_field">Cover path</string>
+    <string name="covers33_pattern_example">For example: %1$s</string>
+    <string name="covers33_pattern_empty">Write a path.</string>
+    <string name="covers33_pattern_too_long">The path is too long.</string>
+    <string name="covers33_pattern_bad_characters">The path has a character that file names cannot use (\\ : * ? \" &lt; &gt; |).</string>
+    <string name="covers33_pattern_bad_token">Between braces only {system}, {name}, {file} and {retro} can be used.</string>
+    <string name="covers33_pattern_bad_path">Write folders separated by /, without empty parts, . or .., without spaces next to a /, without a folder name that ends in a dot and without a / at the start or end.</string>
+    <string name="covers33_pattern_no_game">The path needs {name}, {file} or {retro}; otherwise every game gets the same cover file.</string>
+    <string name="covers33_pattern_not_png">The file name must end in .png.</string>
+    <string name="covers33_preview_pattern">Your own cover path cannot be used yet, so nothing can be planned.</string>
+    <string name="covers33_problem_pattern">Your own cover path cannot be used. Change it and try again.</string>
+</resources>

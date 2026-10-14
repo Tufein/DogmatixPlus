@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- More cover layouts and the user's own cover path (3.3.0) -->
+    <string name="covers33_layout_flat_full">Alles in einem Ordner, mit Endung</string>
+    <string name="covers33_layout_flat_full_hint">Zum Beispiel %1$s. Keine Konsolenordner und die Endung bleibt im Namen; Spiele mit gleichem Dateinamen auf zwei Konsolen werden übersprungen.</string>
+    <string name="covers33_layout_covers">ES-DE-Stil (Ordner covers)</string>
+    <string name="covers33_layout_covers_hint">Zum Beispiel %1$s. Ein Ordner covers pro Konsole, wie in den heruntergeladenen Medien von ES-DE: Wähle den Ordner mit deinen Konsolenordnern.</string>
+    <string name="covers33_layout_box2d">Scraper-Stil (media/box2d)</string>
+    <string name="covers33_layout_box2d_hint">Zum Beispiel %1$s. Ein Ordner media/box2d pro Konsole, wie Scraper wie Skraper ihn für EmulationStation-basierte Launcher schreiben.</string>
+    <string name="covers33_layout_custom">Eigenes Muster</string>
+    <string name="covers33_layout_custom_hint">Muster %1$s, zum Beispiel %2$s. Tippe, um es zu ändern.</string>
+    <string name="covers33_layout_custom_pick">Muster %1$s, zum Beispiel %2$s.</string>
+    <string name="covers33_layout_custom_bad">Das Muster %1$s ist nicht verwendbar. %2$s Tippe, um es zu ändern.</string>
+    <string name="covers33_layout_custom_empty">Für einen Launcher, zu dem nichts davon passt: Schreibe den Pfad eines Covers selbst, zum Beispiel {system}/{name}.png. Tippe, um ihn zu schreiben.</string>
+    <string name="covers33_pattern_title">Eigener Cover-Pfad</string>
+    <string name="covers33_pattern_body">Schreibe, wohin ein Cover im Medienordner kommt. In geschweiften Klammern: {system} ist der Konsolenordner, {name} der Dateiname des Spiels ohne Endung, {file} der Name mit Endung und {retro} der Name, wie RetroArch Thumbnail-Namen schreibt. Der Pfad endet auf .png, denn Cover werden immer als PNG geschrieben.</string>
+    <string name="covers33_pattern_field">Cover-Pfad</string>
+    <string name="covers33_pattern_example">Zum Beispiel: %1$s</string>
+    <string name="covers33_pattern_empty">Schreibe einen Pfad.</string>
+    <string name="covers33_pattern_too_long">Der Pfad ist zu lang.</string>
+    <string name="covers33_pattern_bad_characters">Der Pfad enthält ein Zeichen, das in Dateinamen nicht erlaubt ist (\\ : * ? \" &lt; &gt; |).</string>
+    <string name="covers33_pattern_bad_token">In geschweiften Klammern sind nur {system}, {name}, {file} und {retro} erlaubt.</string>
+    <string name="covers33_pattern_bad_path">Schreibe Ordner durch / getrennt, ohne leere Teile, . oder .., ohne Leerzeichen neben einem /, ohne Ordnernamen, der mit einem Punkt endet, und ohne / am Anfang oder Ende.</string>
+    <string name="covers33_pattern_no_game">Der Pfad braucht {name}, {file} oder {retro}; sonst bekommt jedes Spiel dieselbe Cover-Datei.</string>
+    <string name="covers33_pattern_not_png">Der Dateiname muss auf .png enden.</string>
+    <string name="covers33_preview_pattern">Dein eigener Cover-Pfad ist noch nicht verwendbar, daher lässt sich nichts planen.</string>
+    <string name="covers33_problem_pattern">Dein eigener Cover-Pfad ist nicht verwendbar. Ändere ihn und versuche es erneut.</string>
+</resources>

@@ -4,14 +4,20 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,11 +42,15 @@ import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.service.CoversRunState
 import com.cortinadev.dogmatix.ui.components.ActionPill
 import com.cortinadev.dogmatix.ui.components.ActionTone
+import com.cortinadev.dogmatix.ui.components.DialogButton
 import com.cortinadev.dogmatix.ui.components.LegendEntry
 import com.cortinadev.dogmatix.ui.components.MeterBar
 import com.cortinadev.dogmatix.ui.components.Panel
 import com.cortinadev.dogmatix.ui.components.Pill
 import com.cortinadev.dogmatix.ui.components.PillTone
+import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
+import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
+import com.cortinadev.dogmatix.ui.screens.sources.components.ChoiceChip
 import com.cortinadev.dogmatix.ui.screens.settings.ThemedSwitch
 import com.cortinadev.dogmatix.ui.theme.tabular
 import com.cortinadev.dogmatix.util.FileParsingUtils
@@ -73,6 +83,7 @@ fun FrontendCoversScreen(viewModel: FrontendCoversViewModel = hiltViewModel()) {
     val preview = ui.preview
     val firstFocus = remember { FocusRequester() }
     var focused by remember { mutableStateOf(false) }
+    var editingPattern by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
 
     val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
@@ -158,10 +169,20 @@ fun FrontendCoversScreen(viewModel: FrontendCoversViewModel = hiltViewModel()) {
             }
             FrontendCovers.layoutsFor(ui.target).forEach { layout ->
                 item(key = "l-" + layout.key) {
+                    val own = settings?.pattern.orEmpty()
                     ToolRow(
                         title = stringResource(layoutTitle(layout)),
-                        lines = listOf(stringResource(layoutHint(layout), exampleFor(ui.sample, layout))),
-                        onClick = { if (!run.running) viewModel.setLayout(layout) },
+                        lines = listOf(
+                            if (layout != FrontendCovers.Layout.CUSTOM) stringResource(layoutHint(layout), exampleFor(ui.sample, layout, own))
+                            else customHint(own, ui.sample, chosen = settings?.layout == layout)
+                        ),
+                        onClick = {
+                            if (run.running) return@ToolRow
+                            if (layout != FrontendCovers.Layout.CUSTOM) viewModel.setLayout(layout)
+                            // The own pattern is chosen as it is; it is edited when it is already chosen or cannot be used yet.
+                            else if (settings?.layout == layout || FrontendCovers.Pattern.check(own) != null) editingPattern = true
+                            else viewModel.setLayout(layout)
+                        },
                         modifier = track,
                         trailing = { RadioButton(selected = settings?.layout == layout, onClick = null, enabled = !run.running) }
                     )
@@ -199,6 +220,14 @@ fun FrontendCoversScreen(viewModel: FrontendCoversViewModel = hiltViewModel()) {
             }
         }
     }
+    if (editingPattern) {
+        CoverPatternDialog(
+            initial = settings?.pattern.orEmpty().ifBlank { FrontendCovers.Pattern.DEFAULT },
+            sample = ui.sample,
+            onSave = { viewModel.setPattern(it); editingPattern = false },
+            onDismiss = { editingPattern = false }
+        )
+    }
 }
 
 private fun folderHint(target: FrontendCovers.Target): Int = when (target) {
@@ -214,6 +243,10 @@ private fun layoutTitle(layout: FrontendCovers.Layout): Int = when (layout) {
     FrontendCovers.Layout.NAMED_BOXARTS -> R.string.covers32_layout_boxarts
     FrontendCovers.Layout.PEGASUS -> R.string.covers32_layout_pegasus
     FrontendCovers.Layout.GAMELIST_IMAGES -> R.string.covers32_layout_gamelist
+    FrontendCovers.Layout.FLAT_WITH_EXTENSION -> R.string.covers33_layout_flat_full
+    FrontendCovers.Layout.COVERS_FOLDER -> R.string.covers33_layout_covers
+    FrontendCovers.Layout.BOX2D -> R.string.covers33_layout_box2d
+    FrontendCovers.Layout.CUSTOM -> R.string.covers33_layout_custom
 }
 
 /** The layout's one-line explanation; it takes the example path as its argument. */
@@ -224,13 +257,44 @@ private fun layoutHint(layout: FrontendCovers.Layout): Int = when (layout) {
     FrontendCovers.Layout.NAMED_BOXARTS -> R.string.covers32_layout_boxarts_hint
     FrontendCovers.Layout.PEGASUS -> R.string.covers32_layout_pegasus_hint
     FrontendCovers.Layout.GAMELIST_IMAGES -> R.string.covers32_layout_gamelist_hint
+    FrontendCovers.Layout.FLAT_WITH_EXTENSION -> R.string.covers33_layout_flat_full_hint
+    FrontendCovers.Layout.COVERS_FOLDER -> R.string.covers33_layout_covers_hint
+    FrontendCovers.Layout.BOX2D -> R.string.covers33_layout_box2d_hint
+    FrontendCovers.Layout.CUSTOM -> R.string.covers33_layout_custom_hint
+}
+
+/** What is wrong with an own cover path, in words. */
+@Composable
+private fun patternProblemText(problem: FrontendCovers.Pattern.Problem): String = stringResource(
+    when (problem) {
+        FrontendCovers.Pattern.Problem.EMPTY -> R.string.covers33_pattern_empty
+        FrontendCovers.Pattern.Problem.TOO_LONG -> R.string.covers33_pattern_too_long
+        FrontendCovers.Pattern.Problem.BAD_CHARACTERS -> R.string.covers33_pattern_bad_characters
+        FrontendCovers.Pattern.Problem.BAD_TOKEN -> R.string.covers33_pattern_bad_token
+        FrontendCovers.Pattern.Problem.BAD_PATH -> R.string.covers33_pattern_bad_path
+        FrontendCovers.Pattern.Problem.NO_GAME_TOKEN -> R.string.covers33_pattern_no_game
+        FrontendCovers.Pattern.Problem.NOT_PNG -> R.string.covers33_pattern_not_png
+    }
+)
+
+/** The own-pattern row's line: the pattern with an example, what is wrong with it, or that it is not set yet. */
+@Composable
+private fun customHint(pattern: String, sample: FrontendCovers.Game?, chosen: Boolean): String {
+    if (pattern.isBlank()) return stringResource(R.string.covers33_layout_custom_empty)
+    val problem = FrontendCovers.Pattern.check(pattern)
+    if (problem != null) return stringResource(R.string.covers33_layout_custom_bad, pattern, patternProblemText(problem))
+    // A first tap only chooses a usable pattern; it can be changed with the next one.
+    return stringResource(
+        if (chosen) R.string.covers33_layout_custom_hint else R.string.covers33_layout_custom_pick,
+        pattern, exampleFor(sample, FrontendCovers.Layout.CUSTOM, pattern)
+    )
 }
 
 private val EXAMPLE_GAME = FrontendCovers.Game("", "gba", "Game (Europe).gba", "Game")
 
 /** An example cover path in [layout]: from a game of the library ([sample]), else a made-up one. */
-private fun exampleFor(sample: FrontendCovers.Game?, layout: FrontendCovers.Layout): String =
-    sample?.let { FrontendCovers.coverPath(it, layout) } ?: FrontendCovers.coverPath(EXAMPLE_GAME, layout).orEmpty()
+private fun exampleFor(sample: FrontendCovers.Game?, layout: FrontendCovers.Layout, pattern: String = ""): String =
+    sample?.let { FrontendCovers.coverPath(it, layout, pattern) } ?: FrontendCovers.coverPath(EXAMPLE_GAME, layout, pattern).orEmpty()
 
 /** How many covers a run would write, where, and what it leaves alone. */
 @Composable
@@ -241,6 +305,7 @@ private fun PreviewCard(ui: FrontendCoversUi) {
         ui.previewFailed || preview == null -> listOf(stringResource(R.string.covers31_preview_failed))
         !preview.folderSet -> listOf(stringResource(R.string.covers31_preview_no_folder))
         !preview.writable -> listOf(stringResource(R.string.covers31_folder_not_writable))
+        preview.patternProblem != null -> listOf(stringResource(R.string.covers33_preview_pattern), patternProblemText(preview.patternProblem))
         preview.games == 0 -> listOf(stringResource(R.string.covers31_preview_no_games))
         else -> buildList {
             val plan = preview.plan
@@ -250,7 +315,7 @@ private fun PreviewCard(ui: FrontendCoversUi) {
                 add(pluralStringResource(R.plurals.covers31_preview_count, items.size, count(items.size), preview.folderDisplay))
                 val example = "${preview.folderDisplay}/${plan!!.example.orEmpty()}"
                 add(
-                    if (preview.layout.perSystem) stringResource(R.string.covers31_preview_example, count(plan.systems), example)
+                    if (FrontendCovers.hasConsoleFolders(preview.layout, preview.pattern)) stringResource(R.string.covers31_preview_example, count(plan.systems), example)
                     else stringResource(R.string.covers32_preview_example_flat, example)
                 )
                 val replacing = items.count { it.replaces }
@@ -272,7 +337,7 @@ private fun PreviewCard(ui: FrontendCoversUi) {
         modifier = Modifier.focusableCard(),
         accent = ready && !ui.previewLoading,
         icon = R.drawable.ic_image,
-        danger = !ui.previewLoading && (ui.previewFailed || (preview != null && preview.folderSet && !preview.writable))
+        danger = !ui.previewLoading && (ui.previewFailed || (preview != null && preview.folderSet && (!preview.writable || preview.patternProblem != null)))
     )
 }
 
@@ -311,12 +376,13 @@ private fun ResultCard(run: CoversRunState) {
                         CoversRunState.Problem.NOT_WRITABLE -> R.string.covers31_folder_not_writable
                         CoversRunState.Problem.NOTHING_ON_DEVICE -> R.string.covers31_preview_no_games
                         CoversRunState.Problem.FAILED -> R.string.covers31_problem_failed
+                        CoversRunState.Problem.BAD_PATTERN -> R.string.covers33_problem_pattern
                     }
                 )
             ),
             modifier = Modifier.focusableCard(),
             icon = R.drawable.ic_warning,
-            danger = problem == CoversRunState.Problem.FAILED
+            danger = problem == CoversRunState.Problem.FAILED || problem == CoversRunState.Problem.BAD_PATTERN
         )
         return
     }
@@ -334,5 +400,51 @@ private fun ResultCard(run: CoversRunState) {
         accent = run.finished && run.written + run.replaced > 0,
         icon = if (run.finished) R.drawable.ic_check_circle else R.drawable.ic_info,
         danger = run.failed > 0
+    )
+}
+
+/**
+ * Where the user writes the cover path for a launcher no layout fits ([FrontendCovers.Pattern]):
+ * the tokens can be added with a tap, the example comes from a game of the library, and saving is
+ * only possible while the path is usable.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CoverPatternDialog(initial: String, sample: FrontendCovers.Game?, onSave: (String) -> Unit, onDismiss: () -> Unit) {
+    var text by remember { mutableStateOf(initial) }
+    val problem = FrontendCovers.Pattern.check(text)
+    AlertDialog(
+        modifier = Modifier.closeOnGamepadB(onDismiss),
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.covers33_pattern_title)) },
+        text = {
+            // Scrolls: on a handheld in landscape, or with the keyboard open, the dialog is taller than the screen.
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(stringResource(R.string.covers33_pattern_body))
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text(stringResource(R.string.covers33_pattern_field)) },
+                    singleLine = true,
+                    isError = problem != null,
+                    supportingText = problem?.let { { Text(patternProblemText(it)) } },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    listOf(FrontendCovers.Pattern.SYSTEM, FrontendCovers.Pattern.NAME, FrontendCovers.Pattern.FILE, FrontendCovers.Pattern.RETRO).forEach { token ->
+                        ChoiceChip(token, false, { text += token })
+                    }
+                }
+                if (problem == null) {
+                    Text(
+                        stringResource(R.string.covers33_pattern_example, exampleFor(sample, FrontendCovers.Layout.CUSTOM, text)),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
+        confirmButton = { DialogButton(stringResource(R.string.dialog_save), { onSave(text) }, enabled = problem == null) },
+        dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), onDismiss, initialFocus = rememberInitialFocus()) }
     )
 }

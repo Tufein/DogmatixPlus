@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- More cover layouts and the user's own cover path (3.3.0) -->
+    <string name="covers33_layout_flat_full">Alles in één map, met extensie</string>
+    <string name="covers33_layout_flat_full_hint">Bijvoorbeeld %1$s. Geen consolemappen en de extensie blijft in de naam; games met dezelfde bestandsnaam op twee consoles worden overgeslagen.</string>
+    <string name="covers33_layout_covers">ES-DE-stijl (covers-map)</string>
+    <string name="covers33_layout_covers_hint">Bijvoorbeeld %1$s. Een covers-map per console, zoals in de gedownloade media van ES-DE: kies de map met je consolemappen.</string>
+    <string name="covers33_layout_box2d">Scraper-stijl (media/box2d)</string>
+    <string name="covers33_layout_box2d_hint">Bijvoorbeeld %1$s. Een map media/box2d per console, zoals scrapers als Skraper die schrijven voor launchers op basis van EmulationStation.</string>
+    <string name="covers33_layout_custom">Je eigen patroon</string>
+    <string name="covers33_layout_custom_hint">Patroon %1$s, bijvoorbeeld %2$s. Tik om het te wijzigen.</string>
+    <string name="covers33_layout_custom_pick">Patroon %1$s, bijvoorbeeld %2$s.</string>
+    <string name="covers33_layout_custom_bad">Patroon %1$s kan niet worden gebruikt. %2$s Tik om het te wijzigen.</string>
+    <string name="covers33_layout_custom_empty">Voor een launcher waar niets hiervan bij past: schrijf zelf het pad van een cover, bijvoorbeeld {system}/{name}.png. Tik om het te schrijven.</string>
+    <string name="covers33_pattern_title">Je eigen coverpad</string>
+    <string name="covers33_pattern_body">Schrijf waar een cover terechtkomt onder de mediamap. Tussen accolades: {system} is de consolemap, {name} de bestandsnaam van de game zonder extensie, {file} de naam met extensie en {retro} de naam zoals RetroArch thumbnailnamen schrijft. Het pad eindigt op .png, want covers worden altijd als PNG geschreven.</string>
+    <string name="covers33_pattern_field">Coverpad</string>
+    <string name="covers33_pattern_example">Bijvoorbeeld: %1$s</string>
+    <string name="covers33_pattern_empty">Schrijf een pad.</string>
+    <string name="covers33_pattern_too_long">Het pad is te lang.</string>
+    <string name="covers33_pattern_bad_characters">Het pad bevat een teken dat niet in bestandsnamen mag (\\ : * ? \" &lt; &gt; |).</string>
+    <string name="covers33_pattern_bad_token">Tussen accolades kun je alleen {system}, {name}, {file} en {retro} gebruiken.</string>
+    <string name="covers33_pattern_bad_path">Schrijf mappen gescheiden door /, zonder lege delen, . of .., zonder spaties naast een /, zonder mapnaam die op een punt eindigt en zonder / aan het begin of einde.</string>
+    <string name="covers33_pattern_no_game">Het pad heeft {name}, {file} of {retro} nodig; anders krijgt elke game hetzelfde coverbestand.</string>
+    <string name="covers33_pattern_not_png">De bestandsnaam moet eindigen op .png.</string>
+    <string name="covers33_preview_pattern">Je eigen coverpad kan nog niet worden gebruikt, dus er kan niets worden gepland.</string>
+    <string name="covers33_problem_pattern">Je eigen coverpad kan niet worden gebruikt. Pas het aan en probeer het opnieuw.</string>
+</resources>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- More cover layouts and the user's own cover path (3.3.0) -->
+    <string name="covers33_layout_flat_full">Tout dans un dossier, avec extension</string>
+    <string name="covers33_layout_flat_full_hint">Par exemple %1$s. Pas de dossiers par console et l’extension reste dans le nom ; les jeux de même nom de fichier sur deux consoles sont ignorés.</string>
+    <string name="covers33_layout_covers">Style ES-DE (dossier covers)</string>
+    <string name="covers33_layout_covers_hint">Par exemple %1$s. Un dossier covers par console, comme dans les médias téléchargés d’ES-DE : choisissez le dossier qui contient vos dossiers de consoles.</string>
+    <string name="covers33_layout_box2d">Style scraper (media/box2d)</string>
+    <string name="covers33_layout_box2d_hint">Par exemple %1$s. Un dossier media/box2d par console, comme l’écrivent des scrapers tels que Skraper pour les lanceurs basés sur EmulationStation.</string>
+    <string name="covers33_layout_custom">Votre propre modèle</string>
+    <string name="covers33_layout_custom_hint">Modèle %1$s, par exemple %2$s. Touchez pour le modifier.</string>
+    <string name="covers33_layout_custom_pick">Modèle %1$s, par exemple %2$s.</string>
+    <string name="covers33_layout_custom_bad">Le modèle %1$s est inutilisable. %2$s Touchez pour le modifier.</string>
+    <string name="covers33_layout_custom_empty">Pour un lanceur auquel rien de cela ne convient : écrivez vous-même le chemin d’une jaquette, par exemple {system}/{name}.png. Touchez pour l’écrire.</string>
+    <string name="covers33_pattern_title">Votre propre chemin de jaquettes</string>
+    <string name="covers33_pattern_body">Écrivez où va une jaquette dans le dossier de médias. Entre accolades : {system} est le dossier de la console, {name} le nom de fichier du jeu sans extension, {file} le nom avec extension et {retro} le nom tel que RetroArch écrit les noms de miniatures. Le chemin se termine par .png, car les jaquettes sont toujours écrites en PNG.</string>
+    <string name="covers33_pattern_field">Chemin de la jaquette</string>
+    <string name="covers33_pattern_example">Par exemple : %1$s</string>
+    <string name="covers33_pattern_empty">Écrivez un chemin.</string>
+    <string name="covers33_pattern_too_long">Le chemin est trop long.</string>
+    <string name="covers33_pattern_bad_characters">Le chemin contient un caractère interdit dans les noms de fichiers (\\ : * ? \" &lt; &gt; |).</string>
+    <string name="covers33_pattern_bad_token">Entre accolades, seuls {system}, {name}, {file} et {retro} sont possibles.</string>
+    <string name="covers33_pattern_bad_path">Écrivez les dossiers séparés par /, sans partie vide, . ou .., sans espace à côté d’un /, sans nom de dossier se terminant par un point et sans / au début ou à la fin.</string>
+    <string name="covers33_pattern_no_game">Le chemin doit contenir {name}, {file} ou {retro} ; sinon tous les jeux recevraient le même fichier de jaquette.</string>
+    <string name="covers33_pattern_not_png">Le nom de fichier doit se terminer par .png.</string>
+    <string name="covers33_preview_pattern">Votre propre chemin de jaquettes n’est pas encore utilisable : rien ne peut être planifié.</string>
+    <string name="covers33_problem_pattern">Votre propre chemin de jaquettes est inutilisable. Modifiez-le et réessayez.</string>
+</resources>

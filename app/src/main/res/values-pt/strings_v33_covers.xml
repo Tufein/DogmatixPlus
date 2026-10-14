@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- More cover layouts and the user's own cover path (3.3.0) -->
+    <string name="covers33_layout_flat_full">Tudo numa pasta, com extensão</string>
+    <string name="covers33_layout_flat_full_hint">Por exemplo %1$s. Sem pastas por consola e com a extensão no nome; os jogos com o mesmo nome de ficheiro em duas consolas são ignorados.</string>
+    <string name="covers33_layout_covers">Estilo ES-DE (pasta covers)</string>
+    <string name="covers33_layout_covers_hint">Por exemplo %1$s. Uma pasta covers por consola, como nos media transferidos do ES-DE: escolha a pasta que contém as suas pastas de consola.</string>
+    <string name="covers33_layout_box2d">Estilo scraper (media/box2d)</string>
+    <string name="covers33_layout_box2d_hint">Por exemplo %1$s. Uma pasta media/box2d por consola, como a escrevem scrapers como o Skraper para launchers baseados no EmulationStation.</string>
+    <string name="covers33_layout_custom">O seu próprio padrão</string>
+    <string name="covers33_layout_custom_hint">Padrão %1$s, por exemplo %2$s. Toque para o alterar.</string>
+    <string name="covers33_layout_custom_pick">Padrão %1$s, por exemplo %2$s.</string>
+    <string name="covers33_layout_custom_bad">O padrão %1$s não pode ser usado. %2$s Toque para o alterar.</string>
+    <string name="covers33_layout_custom_empty">Para um launcher a que nada disto serve: escreva o caminho de uma capa, por exemplo {system}/{name}.png. Toque para o escrever.</string>
+    <string name="covers33_pattern_title">O seu próprio caminho das capas</string>
+    <string name="covers33_pattern_body">Escreva onde vai uma capa dentro da pasta de media. Entre chavetas: {system} é a pasta da consola, {name} o nome de ficheiro do jogo sem extensão, {file} o nome com extensão e {retro} o nome como o RetroArch escreve os nomes das miniaturas. O caminho termina em .png, porque as capas são sempre escritas como PNG.</string>
+    <string name="covers33_pattern_field">Caminho da capa</string>
+    <string name="covers33_pattern_example">Por exemplo: %1$s</string>
+    <string name="covers33_pattern_empty">Escreva um caminho.</string>
+    <string name="covers33_pattern_too_long">O caminho é demasiado longo.</string>
+    <string name="covers33_pattern_bad_characters">O caminho tem um carácter que não pode ser usado em nomes de ficheiros (\\ : * ? \" &lt; &gt; |).</string>
+    <string name="covers33_pattern_bad_token">Entre chavetas só se podem usar {system}, {name}, {file} e {retro}.</string>
+    <string name="covers33_pattern_bad_path">Escreva as pastas separadas por /, sem partes vazias, . ou .., sem espaços junto a uma /, sem nomes de pasta que terminem em ponto e sem / no início ou no fim.</string>
+    <string name="covers33_pattern_no_game">O caminho precisa de {name}, {file} ou {retro}; caso contrário, todos os jogos receberiam o mesmo ficheiro de capa.</string>
+    <string name="covers33_pattern_not_png">O nome do ficheiro tem de terminar em .png.</string>
+    <string name="covers33_preview_pattern">O seu próprio caminho das capas ainda não pode ser usado, por isso não é possível planear nada.</string>
+    <string name="covers33_problem_pattern">O seu próprio caminho das capas não pode ser usado. Altere-o e tente novamente.</string>
+</resources>

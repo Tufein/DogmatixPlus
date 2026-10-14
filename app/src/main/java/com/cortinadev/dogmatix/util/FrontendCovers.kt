@@ -1,7 +1,8 @@
 package com.cortinadev.dogmatix.util
 
 /**
- * Covers for launchers (3.1.0 for iiSU and Daijishō, 3.2.0 for any other launcher): where a cover
+ * Covers for launchers (3.1.0 for iiSU and Daijishō, 3.2.0 for any other launcher, 3.3.0 more
+ * layouts and the user's own pattern): where a cover
  * goes in the media folder the user picked for that launcher, and which games still need one.
  * Pure JVM for the tests.
  *
@@ -15,6 +16,10 @@ package com.cortinadev.dogmatix.util
  *    libretro's character rule applied to the name ([LibretroThumbnails.thumbnailName])
  *  - [Layout.PEGASUS]: `<name>/boxFront.png`, one folder per game as in a Pegasus `media` folder
  *  - [Layout.GAMELIST_IMAGES]: `<system>/images/<name>-image.png`, EmulationStation gamelist style
+ *  - [Layout.FLAT_WITH_EXTENSION]: `<file name with extension>.png`, all games in the media folder itself
+ *  - [Layout.COVERS_FOLDER]: `<system>/covers/<name>.png`, as in ES-DE's downloaded media
+ *  - [Layout.BOX2D]: `<system>/media/box2d/<name>.png`, as scrapers write gamelist media
+ *  - [Layout.CUSTOM]: the user's own [Pattern], for a launcher none of the above fits
  * Covers are always written as PNG. An image that is already there is never replaced unless the
  * user asked for it; any image with the same base name in the cover's folder (another image
  * extension too) counts as one.
@@ -39,7 +44,12 @@ object FrontendCovers {
         FLAT("flat", false),
         NAMED_BOXARTS("boxarts", true),
         PEGASUS("pegasus", false),
-        GAMELIST_IMAGES("gamelist", true);
+        GAMELIST_IMAGES("gamelist", true),
+        FLAT_WITH_EXTENSION("flat_full", false),
+        COVERS_FOLDER("covers", true),
+        BOX2D("box2d", true),
+        /** The user's own [Pattern]; whether it has console folders depends on the pattern ([hasConsoleFolders]). */
+        CUSTOM("custom", true);
 
         companion object { fun of(key: String?): Layout = entries.firstOrNull { it.key == key } ?: NAME_WITHOUT_EXTENSION }
     }
@@ -49,9 +59,23 @@ object FrontendCovers {
      * the layouts named after another frontend's media folder only make sense for "another launcher".
      */
     fun layoutsFor(target: Target): List<Layout> = when (target) {
-        Target.OTHER -> Layout.entries
-        Target.IISU, Target.DAIJISHO -> listOf(Layout.NAME_WITHOUT_EXTENSION, Layout.NAME_WITH_EXTENSION, Layout.FLAT)
+        Target.OTHER -> listOf(
+            Layout.NAME_WITHOUT_EXTENSION, Layout.NAME_WITH_EXTENSION, Layout.FLAT, Layout.FLAT_WITH_EXTENSION,
+            Layout.COVERS_FOLDER, Layout.BOX2D, Layout.NAMED_BOXARTS, Layout.PEGASUS, Layout.GAMELIST_IMAGES, Layout.CUSTOM
+        )
+        Target.IISU, Target.DAIJISHO ->
+            listOf(Layout.NAME_WITHOUT_EXTENSION, Layout.NAME_WITH_EXTENSION, Layout.FLAT, Layout.FLAT_WITH_EXTENSION, Layout.CUSTOM)
     }
+
+    /** The layouts that are a fixed arrangement: every layout but the user's own pattern. */
+    val PRESETS: List<Layout> = Layout.entries.filterNot { it == Layout.CUSTOM }
+
+    /**
+     * Whether covers of [layout] (with [pattern] for [Layout.CUSTOM]) go in one folder per console
+     * folder: for the own pattern that is when `{system}` names a folder, not only a file.
+     */
+    fun hasConsoleFolders(layout: Layout, pattern: String): Boolean =
+        if (layout == Layout.CUSTOM) Pattern.SYSTEM in pattern.trim().substringBeforeLast('/', "") else layout.perSystem
 
     /** The stored layout of [target]; one it does not offer (e.g. from an edited backup) becomes its default. */
     fun layoutOf(target: Target, key: String?): Layout =
@@ -61,10 +85,11 @@ object FrontendCovers {
     fun folderKey(target: Target) = "covers31_${target.key}_folder"
     fun layoutKey(target: Target) = "covers31_${target.key}_layout"
     fun overwriteKey(target: Target) = "covers31_${target.key}_overwrite"
+    fun patternKey(target: Target) = "covers31_${target.key}_pattern"
 
     /** Their backup types, for [SettingSchema]. */
     val SETTING_TYPES: Map<String, String> by lazy {
-        Target.entries.flatMap { listOf(folderKey(it) to "s", layoutKey(it) to "s", overwriteKey(it) to "b") }.toMap()
+        Target.entries.flatMap { listOf(folderKey(it) to "s", layoutKey(it) to "s", overwriteKey(it) to "b", patternKey(it) to "s") }.toMap()
     }
 
     const val EXTENSION = "png"
@@ -78,6 +103,8 @@ object FrontendCovers {
     const val PEGASUS_FILE = "boxFront"
     const val GAMELIST_FOLDER = "images"
     const val GAMELIST_SUFFIX = "-image"
+    const val COVERS_FOLDER_NAME = "covers"
+    const val BOX2D_FOLDER = "media/box2d"
 
     /**
      * A game on the device: its console, the console folder it sits in ([system], the folder the
@@ -117,20 +144,27 @@ object FrontendCovers {
     fun gameName(fileName: String, layout: Layout): String? {
         val name = fileName.substringAfterLast('/').trim()
         val base = when (layout) {
-            Layout.NAME_WITH_EXTENSION -> name
+            Layout.NAME_WITH_EXTENSION, Layout.FLAT_WITH_EXTENSION -> name
             Layout.NAMED_BOXARTS -> LibretroThumbnails.thumbnailName(LibraryKeys.baseName(name))
             else -> LibraryKeys.baseName(name)
         }.trim()
         return base.takeIf { safeSegment(it) }
     }
 
-    /** Where [game]'s cover goes in [layout], or null when its console folder or name cannot be used. */
-    fun place(game: Game, layout: Layout): Place? {
+    /**
+     * Where [game]'s cover goes in [layout] ([pattern] is the user's own, for [Layout.CUSTOM]), or
+     * null when its console folder or name cannot be used.
+     */
+    fun place(game: Game, layout: Layout, pattern: String = ""): Place? {
+        if (layout == Layout.CUSTOM) return Pattern.expand(pattern, game)
         if (layout.perSystem && !safeSegment(game.system)) return null
         val name = gameName(game.fileName, layout) ?: return null
         val place = when (layout) {
             Layout.NAME_WITHOUT_EXTENSION, Layout.NAME_WITH_EXTENSION -> Place(game.system, "$name.$EXTENSION")
-            Layout.FLAT -> Place("", "$name.$EXTENSION")
+            Layout.FLAT, Layout.FLAT_WITH_EXTENSION -> Place("", "$name.$EXTENSION")
+            Layout.COVERS_FOLDER -> Place("${game.system}/$COVERS_FOLDER_NAME", "$name.$EXTENSION")
+            Layout.BOX2D -> Place("${game.system}/$BOX2D_FOLDER", "$name.$EXTENSION")
+            Layout.CUSTOM -> return null
             Layout.NAMED_BOXARTS -> Place("${game.system}/$NAMED_BOXARTS_FOLDER", "$name.$EXTENSION")
             Layout.PEGASUS -> Place(name, "$PEGASUS_FILE.$EXTENSION")
             Layout.GAMELIST_IMAGES -> Place("${game.system}/$GAMELIST_FOLDER", "$name$GAMELIST_SUFFIX.$EXTENSION")
@@ -140,7 +174,7 @@ object FrontendCovers {
     }
 
     /** The cover's path below the media folder, or null when the console folder or the name cannot be used. */
-    fun coverPath(game: Game, layout: Layout): String? = place(game, layout)?.path
+    fun coverPath(game: Game, layout: Layout, pattern: String = ""): String? = place(game, layout, pattern)?.path
 
     /**
      * Whether [names] (the lower-cased file names in the cover's folder) already hold a cover for
@@ -164,10 +198,10 @@ object FrontendCovers {
      * `Tetris.png` for Game Boy and NES) every one of them is skipped, as any cover would be the
      * wrong one for the others.
      */
-    fun plan(games: List<Game>, layout: Layout, existing: Map<String, Set<String>>, overwrite: Boolean): Plan {
+    fun plan(games: List<Game>, layout: Layout, existing: Map<String, Set<String>>, overwrite: Boolean, pattern: String = ""): Plan {
         val present = existing.entries.groupBy({ it.key.lowercase() }, { it.value }).mapValues { (_, v) -> v.flatten().toSet() }
         val sorted = games.sortedWith(compareBy({ it.system.lowercase() }, { it.fileName.lowercase() }))
-        val placed = sorted.map { it to place(it, layout) }
+        val placed = sorted.map { it to place(it, layout, pattern) }
         val consolesOf = placed.mapNotNull { (g, p) -> p?.let { it.path.lowercase() to g.consoleId.lowercase() } }
             .groupBy({ it.first }, { it.second }).mapValues { it.value.toSet().size }
         val seen = HashSet<String>()
@@ -218,9 +252,11 @@ object FrontendCovers {
      * A game of [games] to show example names with: the first one (in plan order) every layout
      * can name, else the first one at all; null without games.
      */
-    fun sampleOf(games: List<Game>): Game? {
+    fun sampleOf(games: List<Game>, pattern: String = ""): Game? {
         val sorted = games.sortedWith(compareBy({ it.system.lowercase() }, { it.fileName.lowercase() }))
-        return sorted.firstOrNull { g -> Layout.entries.all { place(g, it) != null } } ?: sorted.firstOrNull()
+        val own = pattern.takeIf { Pattern.check(it) == null }
+        return sorted.firstOrNull { g -> PRESETS.all { place(g, it) != null } && (own == null || Pattern.expand(own, g) != null) }
+            ?: sorted.firstOrNull()
     }
 
     /** True when [bytes] start with the PNG signature. */
@@ -245,4 +281,70 @@ object FrontendCovers {
     private fun safeSegment(s: String): Boolean =
         s.isNotBlank() && s != "." && s != ".." && !s.startsWith(".dogmatix-") &&
             s.none { it == '/' || it == '\\' || it == ':' || it == '\u0000' || it.isISOControl() }
+
+    /**
+     * The user's own cover path, for a launcher no layout above fits: a template below the media
+     * folder, such as `{system}/media/box2d/{name}.png`. Between braces: `{system}` the console
+     * folder, `{name}` the game's file name without extension, `{file}` with extension and
+     * `{retro}` the name with libretro's character rule. The file name must end in `.png` (covers
+     * are always written as PNG) and the path needs at least one game token, or every game would
+     * get the same cover. What a game's names expand to is checked like in every other layout.
+     */
+    object Pattern {
+        const val SYSTEM = "{system}"
+        const val NAME = "{name}"
+        const val FILE = "{file}"
+        const val RETRO = "{retro}"
+        private val TOKENS = setOf(SYSTEM, NAME, FILE, RETRO)
+        private val GAME_TOKENS = listOf(NAME, FILE, RETRO)
+        private val BRACES = Regex("""\{[^{}]*\}""")
+        /** What a pattern starts as. */
+        const val DEFAULT = "{system}/{name}.png"
+        const val MAX_LENGTH = 200
+
+        enum class Problem { EMPTY, TOO_LONG, BAD_CHARACTERS, BAD_TOKEN, BAD_PATH, NO_GAME_TOKEN, NOT_PNG }
+
+        /** Null when [pattern] is a usable cover path; else what is wrong with it. */
+        fun check(pattern: String): Problem? {
+            val p = pattern.trim()
+            if (p.isEmpty()) return Problem.EMPTY
+            if (p.length > MAX_LENGTH) return Problem.TOO_LONG
+            if (p.any { it == '\\' || it.isISOControl() }) return Problem.BAD_CHARACTERS
+            val matches = BRACES.findAll(p).map { it.value }.toList()
+            if (matches.any { it !in TOKENS }) return Problem.BAD_TOKEN
+            val literal = BRACES.replace(p, "")
+            if (literal.any { it == '{' || it == '}' }) return Problem.BAD_TOKEN
+            if (literal.any { it in "<>:\"|?*" }) return Problem.BAD_CHARACTERS
+            val segments = p.split('/')
+            if (segments.any { it.isBlank() || it == "." || it == ".." || it.startsWith(".dogmatix-") || it != it.trim() }) return Problem.BAD_PATH
+            // FAT storage drops the dot at the end of a folder name, so the folder would never be found again.
+            if (segments.dropLast(1).any { it.endsWith('.') }) return Problem.BAD_PATH
+            if (segments.any { BRACES.replace(it, "").toByteArray(Charsets.UTF_8).size > MAX_NAME_BYTES }) return Problem.TOO_LONG
+            if (GAME_TOKENS.none { it in p }) return Problem.NO_GAME_TOKEN
+            val file = segments.last()
+            if (!file.endsWith(".$EXTENSION", ignoreCase = true) || file.length <= EXTENSION.length + 1) return Problem.NOT_PNG
+            return null
+        }
+
+        /** Where [game]'s cover goes by [pattern]; null when the pattern is unusable or a name of the game cannot be used. */
+        fun expand(pattern: String, game: Game): Place? {
+            if (check(pattern) != null) return null
+            val p = pattern.trim()
+            val values = HashMap<String, String>()
+            for (token in TOKENS.filter { it in p }) {
+                values[token] = when (token) {
+                    SYSTEM -> game.system
+                    NAME -> gameName(game.fileName, Layout.NAME_WITHOUT_EXTENSION)
+                    FILE -> gameName(game.fileName, Layout.NAME_WITH_EXTENSION)
+                    else -> gameName(game.fileName, Layout.NAMED_BOXARTS)
+                }?.takeIf { safeSegment(it) } ?: return null
+            }
+            val segments = p.split('/').map { segment ->
+                BRACES.replace(segment) { values.getValue(it.value) }
+            }
+            if (segments.any { !safeSegment(it) || it.toByteArray(Charsets.UTF_8).size > MAX_NAME_BYTES }) return null
+            if (segments.dropLast(1).any { it.endsWith('.') }) return null
+            return Place(segments.dropLast(1).joinToString("/"), segments.last())
+        }
+    }
 }

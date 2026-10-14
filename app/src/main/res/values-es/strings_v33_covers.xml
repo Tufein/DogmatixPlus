@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- More cover layouts and the user's own cover path (3.3.0) -->
+    <string name="covers33_layout_flat_full">Todo en una carpeta, con extensión</string>
+    <string name="covers33_layout_flat_full_hint">Por ejemplo %1$s. Sin carpetas por consola y con la extensión en el nombre; los juegos con el mismo nombre de archivo en dos consolas se omiten.</string>
+    <string name="covers33_layout_covers">Estilo ES-DE (carpeta covers)</string>
+    <string name="covers33_layout_covers_hint">Por ejemplo %1$s. Una carpeta covers por consola, como en los medios descargados de ES-DE: elige la carpeta que contiene tus carpetas de consola.</string>
+    <string name="covers33_layout_box2d">Estilo scraper (media/box2d)</string>
+    <string name="covers33_layout_box2d_hint">Por ejemplo %1$s. Una carpeta media/box2d por consola, como la escriben scrapers como Skraper para lanzadores basados en EmulationStation.</string>
+    <string name="covers33_layout_custom">Tu propio patrón</string>
+    <string name="covers33_layout_custom_hint">Patrón %1$s, por ejemplo %2$s. Toca para cambiarlo.</string>
+    <string name="covers33_layout_custom_pick">Patrón %1$s, por ejemplo %2$s.</string>
+    <string name="covers33_layout_custom_bad">El patrón %1$s no se puede usar. %2$s Toca para cambiarlo.</string>
+    <string name="covers33_layout_custom_empty">Para un lanzador al que no encaja nada de esto: escribe tú mismo la ruta de una carátula, por ejemplo {system}/{name}.png. Toca para escribirla.</string>
+    <string name="covers33_pattern_title">Tu propia ruta de carátulas</string>
+    <string name="covers33_pattern_body">Escribe dónde va una carátula dentro de la carpeta de medios. Entre llaves: {system} es la carpeta de la consola, {name} el nombre de archivo del juego sin extensión, {file} el nombre con extensión y {retro} el nombre como RetroArch escribe los nombres de miniaturas. La ruta termina en .png, porque las carátulas siempre se escriben como PNG.</string>
+    <string name="covers33_pattern_field">Ruta de la carátula</string>
+    <string name="covers33_pattern_example">Por ejemplo: %1$s</string>
+    <string name="covers33_pattern_empty">Escribe una ruta.</string>
+    <string name="covers33_pattern_too_long">La ruta es demasiado larga.</string>
+    <string name="covers33_pattern_bad_characters">La ruta tiene un carácter que no se puede usar en nombres de archivo (\\ : * ? \" &lt; &gt; |).</string>
+    <string name="covers33_pattern_bad_token">Entre llaves solo se pueden usar {system}, {name}, {file} y {retro}.</string>
+    <string name="covers33_pattern_bad_path">Escribe las carpetas separadas por /, sin partes vacías, . ni .., sin espacios junto a una /, sin nombres de carpeta que acaben en punto y sin / al principio ni al final.</string>
+    <string name="covers33_pattern_no_game">La ruta necesita {name}, {file} o {retro}; si no, todos los juegos recibirían el mismo archivo de carátula.</string>
+    <string name="covers33_pattern_not_png">El nombre de archivo debe terminar en .png.</string>
+    <string name="covers33_preview_pattern">Tu propia ruta de carátulas aún no se puede usar, así que no se puede planificar nada.</string>
+    <string name="covers33_problem_pattern">Tu propia ruta de carátulas no se puede usar. Cámbiala e inténtalo de nuevo.</string>
+</resources>
