@@ -1328,10 +1328,9 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Copiez ou envoyez des jeux complets vers une carte SD ou un dossier USB, votre serveur RomM ou votre NAS. Vous voyez d’abord chaque fichier, l’espace nécessaire et ce qui s’y trouve déjà ; chaque fichier est vérifié à l’arrivée et les sauvegardes restent sur l’appareil.</item>
-        <item>Continuer sur une autre console portable, depuis la page du jeu : vérifie que votre émulateur et vos sauvegardes peuvent suivre, montre d’abord le chemin du retour et envoie la sauvegarde via RomM.</item>
-        <item>La synchronisation des sauvegardes prend désormais en charge les cartes mémoire DuckStation et les dossiers de sauvegarde PPSSPP.</item>
-        <item>Des jaquettes pour iiSU et Daijishō, et six systèmes de plus dans le catalogue de contenu, chacun avec son fournisseur.</item>
+        <item>La synchronisation des sauvegardes prend désormais en charge les cartes mémoire de Dolphin (GameCube) et d’AetherSX2/NetherSX2 (PS2). Elles contiennent les sauvegardes de nombreux jeux : vous les activez vous-même, dossier par dossier.</item>
+        <item>Des jaquettes pour n’importe quel lanceur : un troisième choix à côté d’iiSU et de Daijishō, avec six structures de fichiers (aussi dans le style de RetroArch, Pegasus et EmulationStation), chacune avec un exemple et un aperçu avant toute écriture.</item>
+        <item>Le catalogue de contenu a un deuxième fournisseur : les jeux d’aventure freeware de ScummVM, tous les dossiers réunis dans une seule console. Les fichiers de somme de contrôle n’apparaissent plus comme des jeux.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -6,7 +6,7 @@
 
 DogmatixPlus keeps one big, searchable list of the games from the sources *you* add, downloads them into the right folders, and helps you keep your collection tidy. It works with touch *and* with a game controller, so it feels at home on handhelds such as the Retroid, Anbernic or Kinhank.
 
-The app includes no games. **Sources → More romsets** offers optional Libretro-hosted content collections alongside your own sources.
+The app includes no games. **Sources → More romsets** offers optional free content collections (Libretro homebrew and demos, ScummVM freeware games) alongside your own sources.
 
 <table>
   <tr>
@@ -29,7 +29,7 @@ The app includes no games. **Sources → More romsets** offers optional Libretro
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [3.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.1.0)** (Android build 43).
+**Latest release: [3.2.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.2.0)** (Android build 44).
 
 ## Install
 
@@ -73,7 +73,7 @@ You need **Android 10 or newer**. The app is not on Google Play.
 
 ### Play
 - **Play from the game page** with a compatible emulator, remembered per console or chosen per game, with a **readiness check** (files, discs, BIOS, emulator), a guided setup and a test launch.
-- **ES-DE, iiSU, Daijishō and Pegasus**: a "search for more games" entry per console, plus covers and descriptions written into your launcher; for iiSU and Daijishō covers go into a media folder you pick.
+- **ES-DE, iiSU, Daijishō and Pegasus**: a "search for more games" entry per console, plus covers and descriptions written into your launcher; for iiSU, Daijishō and any other launcher, covers go into a media folder you pick, in the file layout that launcher expects (several to choose from).
 - **Continue on another handheld** from the game page, when your emulator and saves can travel: it shows the way back first and the save goes through RomM.
 - **Multi-disc games** get their `.m3u` playlist automatically.
 - **Continue playing** on Home, from saves on any device or from ES-DE.
@@ -86,7 +86,7 @@ You need **Android 10 or newer**. The app is not on Google Play.
 - **File explorer** to look, rename, move and unpack; **export** your collection as CSV or a web page.
 - **Copy or send games**: whole games with every file to an SD card or USB folder, your RomM server or your NAS. You first see every file, the space needed and what is already there; every file is checked at the other end, save files stay behind and nothing is replaced.
 - **Health check** with a fix per problem, and a **scan report** for sources that failed.
-- **Sources**: add by hand, import and export, share as QR codes, optional content catalogue for 29 systems with the provider named for each, reserve addresses and automatic background scans that skip what did not change.
+- **Sources**: add by hand, import and export, share as QR codes, optional content catalogue with Libretro content for 29 systems and ScummVM's freeware adventure games, the provider named for each, reserve addresses and automatic background scans that skip what did not change.
 
 ### Safe by design
 - **Trash and recovery center**: removed games, interrupted moves, replaced files and save backups can be restored, each with a preview. Copies are verified before anything is removed.
@@ -96,7 +96,7 @@ You need **Android 10 or newer**. The app is not on Google Play.
 
 ### Cloud and sync
 - **RomM**: send finished downloads and whole multi-file games, use it as a source, see games, genres and screenshots, sync play status, rating and favourites, fetch missing BIOS files.
-- **Save sync and cloud saves**: your saves and save states travel between handhelds and RomM, including DuckStation memory cards and PPSSPP save folders; conflicts ask you, and replaced copies are kept for 30 days.
+- **Save sync and cloud saves**: your saves and save states travel between handhelds and RomM, including DuckStation memory cards, PPSSPP save folders and, if you choose, whole Dolphin and NetherSX2 memory cards; conflicts ask you, and replaced copies are kept for 30 days.
 - **Your own cloud (WebDAV)**: encrypted backups (Nextcloud, ownCloud, Synology and others) and device sync of favourites, wishlist and collections.
 - **RetroAchievements**: progress and badges per game, your profile, and which games have achievements.
 

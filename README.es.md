@@ -6,7 +6,7 @@
 
 DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes que *tú* añades, los descarga en las carpetas correctas y te ayuda a mantener ordenada tu colección. Funciona con la pantalla táctil *y* con un mando de juegos, así que se siente como en casa en consolas portátiles como Retroid, Anbernic o Kinhank.
 
-> **La app no incluye juegos.** Añade tus fuentes o elige colecciones opcionales en **Fuentes → Más romsets**: homebrew, demos y programas de prueba ofrecidos por su editor. Tú sigues siendo responsable de lo que descargas.
+> **La app no incluye juegos.** Añade tus fuentes o elige colecciones opcionales en **Fuentes → Más romsets**: homebrew, demos, juegos freeware y programas de prueba ofrecidos por su editor. Tú sigues siendo responsable de lo que descargas.
 
 <table>
   <tr>
@@ -29,7 +29,7 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 *Las capturas de pantalla usan títulos de juegos inventados y archivos vacíos de relleno. Las capturas muestran la app en inglés.*
 
-**Última versión: [3.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.1.0)** (build de Android 43).
+**Última versión: [3.2.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.2.0)** (build de Android 44).
 
 ## Instalar
 
@@ -73,7 +73,7 @@ Necesitas **Android 10 o más reciente**. La app no está en Google Play.
 
 ### Jugar
 - **Jugar desde la página del juego** con un emulador compatible, recordado por consola o elegido por juego, con una **comprobación de preparación** (archivos, discos, BIOS, emulador), una configuración guiada y un lanzamiento de prueba.
-- **ES-DE, iiSU, Daijishō y Pegasus**: una entrada «buscar más juegos» por consola, además de carátulas y descripciones en tu lanzador; para iiSU y Daijishō las carátulas van a una carpeta de medios que eliges tú.
+- **ES-DE, iiSU, Daijishō y Pegasus**: una entrada «buscar más juegos» por consola, además de carátulas y descripciones en tu lanzador; para iiSU, Daijishō y cualquier otro lanzador, las carátulas van a una carpeta de medios que eliges tú, con la estructura de archivos que ese lanzador espera (varias a elegir).
 - **Seguir en otra consola portátil** desde la página del juego, cuando tu emulador y tus partidas pueden viajar: primero se muestra el camino de vuelta y la partida pasa por RomM.
 - **Los juegos de varios discos** reciben automáticamente su lista `.m3u`.
 - **Continuar jugando** en el inicio, desde partidas guardadas de cualquier dispositivo o desde ES-DE.
@@ -86,7 +86,7 @@ Necesitas **Android 10 o más reciente**. La app no está en Google Play.
 - **Explorador de archivos** para mirar, renombrar, mover y descomprimir; **exporta** tu colección como CSV o página web.
 - **Copiar o enviar juegos**: juegos completos con todos sus archivos a una tarjeta SD o carpeta USB, tu servidor RomM o tu NAS. Antes ves cada archivo, el espacio necesario y lo que ya hay; cada archivo se comprueba en el destino, las partidas se quedan en el dispositivo y no se reemplaza nada.
 - **Comprobación de salud** con una solución por problema e **informe de escaneo** de las fuentes que fallaron.
-- **Fuentes**: añadir a mano, importar y exportar, compartir como códigos QR, catálogo de contenido opcional para 29 sistemas, cada uno con su proveedor, direcciones de reserva y escaneos automáticos en segundo plano que omiten lo que no cambió.
+- **Fuentes**: añadir a mano, importar y exportar, compartir como códigos QR, catálogo de contenido opcional con contenido de Libretro para 29 sistemas y las aventuras freeware de ScummVM, cada uno con su proveedor, direcciones de reserva y escaneos automáticos en segundo plano que omiten lo que no cambió.
 
 ### Seguro por diseño
 - **Papelera y centro de recuperación**: juegos retirados, movimientos interrumpidos, archivos reemplazados y copias de partidas se pueden restaurar, cada uno con vista previa. Las copias se verifican antes de retirar nada.
@@ -96,7 +96,7 @@ Necesitas **Android 10 o más reciente**. La app no está en Google Play.
 
 ### Nube y sincronización
 - **RomM**: enviar descargas terminadas y juegos completos de varios archivos, usarlo como fuente, ver juegos, géneros y capturas, sincronizar estado de juego, valoración y favoritos, y traer los BIOS que faltan.
-- **Sincronización de partidas y partidas en la nube**: tus partidas y estados viajan entre consolas y RomM, incluidas las tarjetas de memoria de DuckStation y las carpetas de guardado de PPSSPP; si hay conflicto se te pregunta y las copias reemplazadas se guardan 30 días.
+- **Sincronización de partidas y partidas en la nube**: tus partidas y estados viajan entre consolas y RomM, incluidas las tarjetas de memoria de DuckStation, las carpetas de guardado de PPSSPP y, si lo eliges, tarjetas completas de Dolphin y NetherSX2; si hay conflicto se te pregunta y las copias reemplazadas se guardan 30 días.
 - **Tu propia nube (WebDAV)**: copias cifradas (Nextcloud, ownCloud, Synology y otras) y sincronización entre dispositivos de favoritos, lista de deseos y colecciones.
 - **RetroAchievements**: progreso e insignias por juego, tu perfil y qué juegos tienen logros.
 

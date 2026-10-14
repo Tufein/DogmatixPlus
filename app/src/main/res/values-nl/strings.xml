@@ -1323,10 +1323,9 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Kopieer of verstuur complete spellen naar een SD-kaart of USB-map, je RomM-server of je NAS. Je ziet eerst elk bestand, de benodigde ruimte en wat er al staat; elk bestand wordt aan de andere kant gecontroleerd en savebestanden blijven achter.</item>
-        <item>Verder spelen op een andere handheld, vanaf de spelpagina: controleert of je emulator en saves mee kunnen, laat eerst de weg terug zien en stuurt de save via RomM.</item>
-        <item>Save-sync ondersteunt nu ook DuckStation-geheugenkaarten en PPSSPP-savemappen.</item>
-        <item>Covers voor iiSU en Daijishō, en zes extra systemen in de inhoudscatalogus, elk met de aanbieder erbij.</item>
+        <item>Save-sync ondersteunt nu ook geheugenkaarten van Dolphin (GameCube) en AetherSX2/NetherSX2 (PS2). Ze bevatten de saves van veel spellen, dus je zet ze zelf aan, map voor map.</item>
+        <item>Covers voor elke launcher: een derde keuze naast iiSU en Daijishō, met zes bestandsindelingen (ook in RetroArch-, Pegasus- en EmulationStation-stijl), elk met een voorbeeld en een voorvertoning voordat er iets wordt geschreven.</item>
+        <item>De inhoudscatalogus heeft een tweede aanbieder: de freeware-avonturenspellen van ScummVM, alle mappen samen in één console. Checksumbestanden verschijnen niet meer als spel.</item>
     </string-array>
 
     <!-- 4.0 -->

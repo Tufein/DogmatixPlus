@@ -1324,10 +1324,9 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Copy or send whole games to an SD card or USB folder, your RomM server or your NAS. You see every file, the space it needs and what is already there first; every file is checked at the other end and save files stay behind.</item>
-        <item>Continue on another handheld, from the game page: it checks that your emulator and saves can travel, shows the way back first and sends the save through RomM.</item>
-        <item>Save sync now also covers DuckStation memory cards and PPSSPP save folders.</item>
-        <item>Covers for iiSU and Daijishō, and six more systems in the content catalogue, each with its provider named.</item>
+        <item>Save sync now also covers Dolphin (GameCube) and AetherSX2/NetherSX2 (PS2) memory cards. They hold the saves of many games, so you turn them on yourself, folder by folder.</item>
+        <item>Covers for any launcher: a third choice next to iiSU and Daijishō, with six file layouts (also in RetroArch, Pegasus and EmulationStation style), each with an example and a preview before anything is written.</item>
+        <item>The content catalogue has a second provider: ScummVM\'s freeware adventure games, all folders together in one console. Checksum files no longer show up as games.</item>
     </string-array>
 
     <!-- 4.0 -->

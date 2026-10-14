@@ -6,7 +6,7 @@
 
 DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronnen die *jij* toevoegt, downloadt ze in de juiste mappen en helpt je om je collectie netjes te houden. Het werkt met het touchscreen *en* met een gamecontroller, dus het is ook op handhelds zoals de Retroid, Anbernic of Kinhank helemaal op zijn plek.
 
-> **De app bevat geen games.** Voeg je eigen bronnen toe of kies optionele collecties via **Bronnen → Meer romsets**. Die catalogus verwijst naar door de uitgever aangeboden homebrew, demo’s en testsoftware. Je blijft zelf verantwoordelijk voor wat je downloadt.
+> **De app bevat geen games.** Voeg je eigen bronnen toe of kies optionele collecties via **Bronnen → Meer romsets**. Die catalogus verwijst naar door de uitgever aangeboden homebrew, demo’s, freeware-games en testsoftware. Je blijft zelf verantwoordelijk voor wat je downloadt.
 
 <table>
   <tr>
@@ -29,7 +29,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [3.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.1.0)** (Android build 43).
+**Laatste release: [3.2.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.2.0)** (Android build 44).
 
 ## Installeren
 
@@ -73,7 +73,7 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 
 ### Spelen
 - **Spelen vanaf de gamepagina** met een geschikte emulator, onthouden per console of per game gekozen, met een **gereedheidscontrole** (bestanden, discs, BIOS, emulator), een begeleide installatie en een testlancering.
-- **ES-DE, iiSU, Daijishō en Pegasus**: een invoer "zoek meer games" per console, plus covers en beschrijvingen in je launcher; voor iiSU en Daijishō komen de covers in een mediamap die je zelf kiest.
+- **ES-DE, iiSU, Daijishō en Pegasus**: een invoer "zoek meer games" per console, plus covers en beschrijvingen in je launcher; voor iiSU, Daijishō en elke andere launcher komen de covers in een mediamap die je zelf kiest, in de bestandsindeling die die launcher verwacht (er zijn er meerdere om uit te kiezen).
 - **Verder spelen op een andere handheld** vanaf de spelpagina, als je emulator en saves mee kunnen: je ziet eerst de weg terug en de save gaat via RomM.
 - **Games met meerdere discs** krijgen automatisch hun `.m3u`-afspeellijst.
 - **Verder spelen** op Home, vanuit saves op elk toestel of vanuit ES-DE.
@@ -86,7 +86,7 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 - **Bestandsverkenner** om te kijken, hernoemen, verplaatsen en uitpakken; **exporteer** je collectie als CSV of webpagina.
 - **Spellen kopiëren of versturen**: complete spellen met alle bestanden naar een SD-kaart of USB-map, je RomM-server of je NAS. Je ziet eerst elk bestand, de benodigde ruimte en wat er al staat; elk bestand wordt aan de andere kant gecontroleerd, savebestanden blijven achter en er wordt niets vervangen.
 - **Gezondheidscontrole** met een oplossing per probleem, en een **scanrapport** voor bronnen die mislukten.
-- **Bronnen**: met de hand toevoegen, importeren en exporteren, delen als QR-codes, optionele inhoudscatalogus voor 29 systemen, steeds met de aanbieder erbij, reserveadressen en automatische achtergrondscans die overslaan wat niet veranderde.
+- **Bronnen**: met de hand toevoegen, importeren en exporteren, delen als QR-codes, optionele inhoudscatalogus met Libretro-content voor 29 systemen en de freeware-avonturenspellen van ScummVM, steeds met de aanbieder erbij, reserveadressen en automatische achtergrondscans die overslaan wat niet veranderde.
 
 ### Veilig ontworpen
 - **Prullenbak en herstelcentrum**: verwijderde games, onderbroken verplaatsingen, vervangen bestanden en savebackups zijn te herstellen, telkens met een voorbeeld. Kopieën worden gecontroleerd voordat iets wordt verwijderd.
@@ -96,7 +96,7 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 
 ### Cloud en synchronisatie
 - **RomM**: verstuur voltooide downloads en complete spellen met meerdere bestanden, gebruik het als bron, zie games, genres en schermafbeeldingen, synchroniseer speelstatus, beoordeling en favorieten, haal ontbrekende BIOS-bestanden op.
-- **Savesynchronisatie en cloudsaves**: je saves en savestates reizen tussen handhelds en RomM, ook DuckStation-geheugenkaarten en PPSSPP-savemappen; bij conflicten word je gevraagd en vervangen kopieën blijven 30 dagen bewaard.
+- **Savesynchronisatie en cloudsaves**: je saves en savestates reizen tussen handhelds en RomM, ook DuckStation-geheugenkaarten, PPSSPP-savemappen en, als je dat kiest, hele Dolphin- en NetherSX2-geheugenkaarten; bij conflicten word je gevraagd en vervangen kopieën blijven 30 dagen bewaard.
 - **Je eigen cloud (WebDAV)**: versleutelde back-ups (Nextcloud, ownCloud, Synology en andere) en toestelsynchronisatie van favorieten, verlanglijst en collecties.
 - **RetroAchievements**: voortgang en badges per game, je profiel, en welke games achievements hebben.
 

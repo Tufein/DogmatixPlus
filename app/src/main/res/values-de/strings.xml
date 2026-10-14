@@ -1323,10 +1323,9 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Ganze Spiele kopieren oder senden: auf eine SD-Karte oder einen USB-Ordner, deinen RomM-Server oder dein NAS. Vorher siehst du jede Datei, den benötigten Platz und was schon da ist; jede Datei wird am Ziel geprüft, Spielstände bleiben zurück.</item>
-        <item>Auf einem anderen Handheld weiterspielen, von der Spielseite aus: prüft, ob Emulator und Spielstände mitkommen können, zeigt zuerst den Rückweg und sendet den Spielstand über RomM.</item>
-        <item>Die Spielstand-Synchronisierung unterstützt jetzt auch DuckStation-Memory-Cards und PPSSPP-Speicherordner.</item>
-        <item>Cover für iiSU und Daijishō sowie sechs weitere Systeme im Inhaltskatalog, jeweils mit Anbieter.</item>
+        <item>Die Spielstand-Synchronisierung unterstützt jetzt auch Memory-Cards von Dolphin (GameCube) und AetherSX2/NetherSX2 (PS2). Sie enthalten die Spielstände vieler Spiele, deshalb schaltest du sie selbst ein, Ordner für Ordner.</item>
+        <item>Cover für jeden Launcher: eine dritte Auswahl neben iiSU und Daijishō, mit sechs Dateiaufteilungen (auch im Stil von RetroArch, Pegasus und EmulationStation), jeweils mit Beispiel und Vorschau, bevor etwas geschrieben wird.</item>
+        <item>Der Inhaltskatalog hat einen zweiten Anbieter: die Freeware-Adventures von ScummVM, alle Ordner gebündelt in einer Konsole. Prüfsummen-Dateien erscheinen nicht mehr als Spiele.</item>
     </string-array>
 
     <!-- 4.0 -->

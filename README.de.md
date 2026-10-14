@@ -6,7 +6,7 @@
 
 DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Quellen, die *du* hinzufügst, lädt sie in die richtigen Ordner herunter und hilft dir, deine Sammlung in Ordnung zu halten. Es funktioniert per Touch *und* mit einem Game-Controller und passt deshalb gut zu Handhelds wie Retroid, Anbernic oder Kinhank.
 
-> **Die App enthält keine Spiele.** Füge eigene Quellen hinzu oder wähle optionale Sammlungen unter **Quellen → Mehr Romsets**: Homebrew, Demos und Testsoftware vom Herausgeber. Du bleibst für deine Downloads verantwortlich.
+> **Die App enthält keine Spiele.** Füge eigene Quellen hinzu oder wähle optionale Sammlungen unter **Quellen → Mehr Romsets**: Homebrew, Demos, Freeware-Spiele und Testsoftware vom Herausgeber. Du bleibst für deine Downloads verantwortlich.
 
 <table>
   <tr>
@@ -29,7 +29,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 *Die Screenshots verwenden erfundene Spieltitel und leere Platzhalterdateien und zeigen die App auf Englisch.*
 
-**Neueste Version: [3.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.1.0)** (Android-Build 43).
+**Neueste Version: [3.2.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.2.0)** (Android-Build 44).
 
 ## Installation
 
@@ -73,7 +73,7 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 
 ### Spielen
 - **Spielen von der Spielseite** mit einem passenden Emulator, pro Konsole gemerkt oder pro Spiel gewählt, mit einer **Bereitschaftsprüfung** (Dateien, Discs, BIOS, Emulator), geführter Einrichtung und Teststart.
-- **ES-DE, iiSU, Daijishō und Pegasus**: ein Eintrag „Mehr Spiele suchen“ je Konsole sowie Cover und Beschreibungen in deinem Launcher; für iiSU und Daijishō landen die Cover in einem Medienordner, den du wählst.
+- **ES-DE, iiSU, Daijishō und Pegasus**: ein Eintrag „Mehr Spiele suchen“ je Konsole sowie Cover und Beschreibungen in deinem Launcher; für iiSU, Daijishō und jeden anderen Launcher landen die Cover in einem Medienordner, den du wählst, in der Dateiaufteilung, die der Launcher erwartet (mehrere zur Auswahl).
 - **Auf einem anderen Handheld weiterspielen** von der Spielseite aus, wenn Emulator und Spielstände mitkommen können: zuerst wird der Rückweg gezeigt, der Spielstand geht über RomM.
 - **Mehr-Disc-Spiele** bekommen automatisch ihre `.m3u`-Playlist.
 - **Weiterspielen** auf der Startseite, aus Spielständen auf jedem Gerät oder aus ES-DE.
@@ -86,7 +86,7 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 - **Dateimanager** zum Ansehen, Umbenennen, Verschieben und Entpacken; **Export** der Sammlung als CSV oder Webseite.
 - **Spiele kopieren oder senden**: ganze Spiele mit allen Dateien auf eine SD-Karte oder einen USB-Ordner, deinen RomM-Server oder dein NAS. Vorher siehst du jede Datei, den nötigen Platz und was schon da ist; jede Datei wird am Ziel geprüft, Spielstände bleiben zurück und nichts wird ersetzt.
 - **Gesundheitsprüfung** mit einer Lösung pro Problem und ein **Scanbericht** für fehlgeschlagene Quellen.
-- **Quellen**: von Hand hinzufügen, importieren und exportieren, als QR-Codes teilen, optionaler Inhaltskatalog für 29 Systeme, jeweils mit Anbieter, Reserveadressen und automatische Hintergrundscans, die Unverändertes überspringen.
+- **Quellen**: von Hand hinzufügen, importieren und exportieren, als QR-Codes teilen, optionaler Inhaltskatalog mit Libretro-Inhalten für 29 Systeme und den Freeware-Adventures von ScummVM, jeweils mit Anbieter, Reserveadressen und automatische Hintergrundscans, die Unverändertes überspringen.
 
 ### Sicher gebaut
 - **Papierkorb und Wiederherstellungscenter**: entfernte Spiele, unterbrochene Verschiebungen, ersetzte Dateien und Spielstand-Backups lassen sich wiederherstellen, jeweils mit Vorschau. Kopien werden geprüft, bevor etwas entfernt wird.
@@ -96,7 +96,7 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 
 ### Cloud und Sync
 - **RomM**: fertige Downloads und ganze Spiele aus mehreren Dateien senden, als Quelle nutzen, Spiele, Genres und Screenshots sehen, Spielstatus, Bewertung und Favoriten abgleichen, fehlende BIOS-Dateien holen.
-- **Spielstand-Sync und Cloud-Saves**: Spielstände und Savestates wandern zwischen Handhelds und RomM, auch DuckStation-Memory-Cards und PPSSPP-Speicherordner; bei Konflikten wirst du gefragt, ersetzte Kopien bleiben 30 Tage erhalten.
+- **Spielstand-Sync und Cloud-Saves**: Spielstände und Savestates wandern zwischen Handhelds und RomM, auch DuckStation-Memory-Cards, PPSSPP-Speicherordner und, wenn du es wählst, ganze Dolphin- und NetherSX2-Memory-Cards; bei Konflikten wirst du gefragt, ersetzte Kopien bleiben 30 Tage erhalten.
 - **Deine eigene Cloud (WebDAV)**: verschlüsselte Backups (Nextcloud, ownCloud, Synology und andere) und Geräte-Sync von Favoriten, Wunschliste und Sammlungen.
 - **RetroAchievements**: Fortschritt und Abzeichen je Spiel, dein Profil und welche Spiele Erfolge haben.
 

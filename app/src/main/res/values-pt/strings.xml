@@ -1274,10 +1274,9 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Copie ou envie jogos completos para um cartão SD ou pasta USB, o seu servidor RomM ou o seu NAS. Antes vê cada ficheiro, o espaço necessário e o que já lá está; cada ficheiro é verificado no destino e os saves ficam no dispositivo.</item>
-        <item>Continuar noutra consola portátil, a partir da página do jogo: verifica se o emulador e os saves podem ir junto, mostra primeiro o caminho de volta e envia o save através do RomM.</item>
-        <item>A sincronização de saves agora também inclui os cartões de memória do DuckStation e as pastas de saves do PPSSPP.</item>
-        <item>Capas para o iiSU e o Daijishō, e mais seis sistemas no catálogo de conteúdos, cada um com o seu fornecedor.</item>
+        <item>A sincronização de saves agora também inclui os cartões de memória do Dolphin (GameCube) e do AetherSX2/NetherSX2 (PS2). Guardam os saves de muitos jogos, por isso são ativados manualmente, pasta a pasta.</item>
+        <item>Capas para qualquer launcher: uma terceira opção ao lado do iiSU e do Daijishō, com seis estruturas de ficheiros (também ao estilo do RetroArch, Pegasus e EmulationStation), cada uma com um exemplo e uma pré-visualização antes de escrever.</item>
+        <item>O catálogo de conteúdos tem um segundo fornecedor: as aventuras freeware do ScummVM, com todas as pastas reunidas numa só consola. Os ficheiros de verificação já não aparecem como jogos.</item>
     </string-array>
 
     <!-- 4.0 -->
