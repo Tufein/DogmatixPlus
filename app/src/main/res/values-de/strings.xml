@@ -1323,9 +1323,8 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Die Spielstand-Synchronisierung unterstützt jetzt auch Memory-Cards von Dolphin (GameCube) und AetherSX2/NetherSX2 (PS2). Sie enthalten die Spielstände vieler Spiele, deshalb schaltest du sie selbst ein, Ordner für Ordner.</item>
-        <item>Cover für jeden Launcher: eine dritte Auswahl neben iiSU und Daijishō, mit sechs Dateiaufteilungen (auch im Stil von RetroArch, Pegasus und EmulationStation), jeweils mit Beispiel und Vorschau, bevor etwas geschrieben wird.</item>
-        <item>Der Inhaltskatalog hat einen zweiten Anbieter: die Freeware-Adventures von ScummVM, alle Ordner gebündelt in einer Konsole. Prüfsummen-Dateien erscheinen nicht mehr als Spiele.</item>
+        <item>Drei weitere Cover-Aufteilungen für Launcher: alles in einem Ordner mit Endung, ein Covers-Ordner je Konsole (ES-DE-Stil) und der media/box2d-Ordner, den Scraper schreiben. Mit den bisherigen sind es zehn zur Auswahl.</item>
+        <item>Oder schreibe selbst eine: ein Cover-Pfad mit {system}, {name}, {file} und {retro}, schon beim Tippen geprüft und mit einem Beispiel aus deiner eigenen Bibliothek. Funktioniert für iiSU, Daijishō und jeden anderen Launcher.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -1297,9 +1297,8 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>La sincronización de partidas ahora también incluye las tarjetas de memoria de Dolphin (GameCube) y AetherSX2/NetherSX2 (PS2). Contienen las partidas de muchos juegos, así que las activas tú, carpeta por carpeta.</item>
-        <item>Carátulas para cualquier lanzador: una tercera opción junto a iiSU y Daijishō, con seis estructuras de archivos (también al estilo de RetroArch, Pegasus y EmulationStation), cada una con un ejemplo y una vista previa antes de escribir nada.</item>
-        <item>El catálogo de contenido tiene un segundo proveedor: las aventuras freeware de ScummVM, con todas las carpetas juntas en una consola. Los archivos de comprobación ya no aparecen como juegos.</item>
+        <item>Tres estructuras de carátulas más para lanzadores: todo en una carpeta con la extensión, una carpeta covers por consola (estilo ES-DE) y la carpeta media/box2d que escriben los scrapers. Con las anteriores son diez a elegir.</item>
+        <item>O escribe la tuya: una ruta de carátula con {system}, {name}, {file} y {retro}, comprobada mientras escribes y con un ejemplo de tu propia biblioteca. Sirve para iiSU, Daijishō y cualquier otro lanzador.</item>
     </string-array>
 
     <!-- 4.0 -->

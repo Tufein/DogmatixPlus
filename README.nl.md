@@ -29,7 +29,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [3.2.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.2.0)** (Android build 44).
+**Laatste release: [3.3.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.3.0)** (Android build 45).
 
 ## Installeren
 
@@ -73,7 +73,7 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 
 ### Spelen
 - **Spelen vanaf de gamepagina** met een geschikte emulator, onthouden per console of per game gekozen, met een **gereedheidscontrole** (bestanden, discs, BIOS, emulator), een begeleide installatie en een testlancering.
-- **ES-DE, iiSU, Daijishō en Pegasus**: een invoer "zoek meer games" per console, plus covers en beschrijvingen in je launcher; voor iiSU, Daijishō en elke andere launcher komen de covers in een mediamap die je zelf kiest, in de bestandsindeling die die launcher verwacht (er zijn er meerdere om uit te kiezen).
+- **ES-DE, iiSU, Daijishō en Pegasus**: een invoer "zoek meer games" per console, plus covers en beschrijvingen in je launcher; voor iiSU, Daijishō en elke andere launcher komen de covers in een mediamap die je zelf kiest, in de bestandsindeling die die launcher verwacht (tien kant-en-klare indelingen, of schrijf er zelf een).
 - **Verder spelen op een andere handheld** vanaf de spelpagina, als je emulator en saves mee kunnen: je ziet eerst de weg terug en de save gaat via RomM.
 - **Games met meerdere discs** krijgen automatisch hun `.m3u`-afspeellijst.
 - **Verder spelen** op Home, vanuit saves op elk toestel of vanuit ES-DE.

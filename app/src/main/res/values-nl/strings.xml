@@ -1323,9 +1323,8 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Save-sync ondersteunt nu ook geheugenkaarten van Dolphin (GameCube) en AetherSX2/NetherSX2 (PS2). Ze bevatten de saves van veel spellen, dus je zet ze zelf aan, map voor map.</item>
-        <item>Covers voor elke launcher: een derde keuze naast iiSU en Daijishō, met zes bestandsindelingen (ook in RetroArch-, Pegasus- en EmulationStation-stijl), elk met een voorbeeld en een voorvertoning voordat er iets wordt geschreven.</item>
-        <item>De inhoudscatalogus heeft een tweede aanbieder: de freeware-avonturenspellen van ScummVM, alle mappen samen in één console. Checksumbestanden verschijnen niet meer als spel.</item>
+        <item>Drie extra coverindelingen voor launchers: alles in één map mét extensie, een covers-map per console (ES-DE-stijl) en de media/box2d-map die scrapers schrijven. Samen met de oudere zijn dat er tien om uit te kiezen.</item>
+        <item>Of schrijf er zelf een: een coverpad met {system}, {name}, {file} en {retro}, gecontroleerd terwijl je typt, met een voorbeeld uit je eigen bibliotheek. Werkt voor iiSU, Daijishō en elke andere launcher.</item>
     </string-array>
 
     <!-- 4.0 -->

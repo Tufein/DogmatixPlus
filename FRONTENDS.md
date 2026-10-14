@@ -226,18 +226,25 @@ you pick, for iiSU, Daijishō or *Another launcher* (each keeps its own folder a
 | Name without extension (the usual choice) | `<console folder>/<name>.png` | all |
 | Full file name | `<console folder>/<name>.<extension>.png` | all |
 | All in one folder | `<name>.png` | all |
+| All in one folder, with extension | `<name>.<extension>.png` | all |
+| Covers folder (ES-DE style) | `<console folder>/covers/<name>.png` | another launcher |
+| Scraper style | `<console folder>/media/box2d/<name>.png` | another launcher |
 | RetroArch style | `<console folder>/Named_Boxarts/<name>.png` | another launcher |
 | Pegasus style | `<name>/boxFront.png` | another launcher |
 | EmulationStation style | `<console folder>/images/<name>-image.png` | another launcher |
+| Your own pattern | whatever you write, see below | all |
 
 Pick the folder your launcher reads local cover images from. Not sure which layout it expects?
 Try *Name without extension* first: most launchers match covers on the game's file name. If the
 launcher's folder already holds covers, pick the layout that looks like them. Each layout shows
 an example made from one of your own games.
 
-- **All in one folder** and **Pegasus style** have no console folders, so two consoles' games
-  with the same name (`Tetris` for Game Boy and for NES) would need the same file; those games
-  are skipped, as either cover would be wrong for the other one.
+- **All in one folder** (with or without the extension) and **Pegasus style** have no console
+  folders, so two consoles' games with the same name (`Tetris` for Game Boy and for NES) would
+  need the same file; those games are skipped, as either cover would be wrong for the other one.
+- **Covers folder** is the layout of ES-DE's `downloaded_media` (`<system>/covers/`); pick the
+  folder that holds your console folders. **Scraper style** is the `media/box2d` folder that
+  scrapers such as Skraper write next to each console's `gamelist.xml`.
 - **RetroArch style** applies libretro's file name rule (characters such as `&`, `:` and `?`
   become `_`) and names the system folder like your console folder, which matches a playlist
   of that name. For RetroArch's own playlists (`Nintendo - Game Boy Advance`), use
@@ -253,6 +260,26 @@ already there (the same name with any image extension, in that layout's folder) 
 you switch on *Replace covers that are already there*. Folders that already exist are used as
 they are spelled (`GBA` for `gba`). The covers come from the same places as the rest of the app
 (your RomM server, libretro-thumbnails, earlier lookups) and are always saved as PNG.
+
+### Your own pattern
+
+When none of the layouts fits, choose *Your own pattern* and write the path of a cover below the
+media folder. Between braces you can use:
+
+| Token | Becomes |
+|---|---|
+| `{system}` | the console folder (`gba`, `snes`, …) |
+| `{name}` | the game's file name without extension |
+| `{file}` | the game's file name with extension |
+| `{retro}` | the name as RetroArch writes thumbnail names (`&`, `:` and `?` become `_`) |
+
+For example `{system}/media/{name}.png`, or `{name}/folder.png`. The path ends in `.png` (covers
+are always saved as PNG) and needs `{name}`, `{file}` or `{retro}`, otherwise every game would get
+the same file. The app checks the pattern while you type and says what is wrong; it also shows an
+example made from one of your own games, and the preview lists what would be written. A pattern
+without `{system}` in a folder name has no console folders, so games with the same name on two
+consoles are skipped, as with *All in one folder*. Each launcher keeps its own pattern, and it is part of a settings
+backup.
 
 ## Any other launcher
 

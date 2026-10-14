@@ -29,7 +29,7 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 *Les captures d’écran utilisent des titres de jeux inventés et des fichiers vides de substitution, et montrent l’application en anglais.*
 
-**Dernière version : [3.2.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.2.0)** (build Android 44).
+**Dernière version : [3.3.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.3.0)** (build Android 45).
 
 ## Installation
 
@@ -73,7 +73,7 @@ Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Goo
 
 ### Jouer
 - **Jouer depuis la page du jeu** avec un émulateur compatible, mémorisé par console ou choisi par jeu, avec une **vérification de préparation** (fichiers, disques, BIOS, émulateur), une configuration guidée et un lancement d’essai.
-- **ES-DE, iiSU, Daijishō et Pegasus** : une entrée « chercher d’autres jeux » par console, plus jaquettes et descriptions dans votre lanceur ; pour iiSU, Daijishō et tout autre lanceur, les jaquettes vont dans un dossier de médias que vous choisissez, avec la structure de fichiers attendue par le lanceur (plusieurs au choix).
+- **ES-DE, iiSU, Daijishō et Pegasus** : une entrée « chercher d’autres jeux » par console, plus jaquettes et descriptions dans votre lanceur ; pour iiSU, Daijishō et tout autre lanceur, les jaquettes vont dans un dossier de médias que vous choisissez, avec la structure de fichiers attendue par le lanceur (dix structures prêtes à l’emploi, ou écrivez la vôtre).
 - **Continuer sur une autre console portable** depuis la page du jeu, quand votre émulateur et vos sauvegardes peuvent suivre : le chemin du retour est montré d’abord et la sauvegarde passe par RomM.
 - **Les jeux à plusieurs disques** reçoivent automatiquement leur playlist `.m3u`.
 - **Reprendre** sur l’accueil, depuis les sauvegardes de n’importe quel appareil ou depuis ES-DE.

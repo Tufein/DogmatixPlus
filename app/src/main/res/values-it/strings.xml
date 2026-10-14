@@ -1274,9 +1274,8 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>La sincronizzazione dei salvataggi ora supporta anche le memory card di Dolphin (GameCube) e AetherSX2/NetherSX2 (PS2). Contengono i salvataggi di molti giochi, quindi le attivi tu, cartella per cartella.</item>
-        <item>Copertine per qualsiasi launcher: una terza scelta accanto a iiSU e Daijishō, con sei strutture di file (anche in stile RetroArch, Pegasus ed EmulationStation), ognuna con un esempio e un’anteprima prima di scrivere qualsiasi cosa.</item>
-        <item>Il catalogo dei contenuti ha un secondo fornitore: le avventure freeware di ScummVM, con tutte le cartelle riunite in un’unica console. I file di checksum non compaiono più come giochi.</item>
+        <item>Tre strutture di copertine in più per i launcher: tutto in una cartella con l’estensione, una cartella covers per console (stile ES-DE) e la cartella media/box2d che scrivono gli scraper. Con le precedenti sono dieci tra cui scegliere.</item>
+        <item>Oppure scrivi la tua: un percorso di copertina con {system}, {name}, {file} e {retro}, controllato mentre scrivi e con un esempio dalla tua libreria. Funziona per iiSU, Daijishō e qualsiasi altro launcher.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -29,7 +29,7 @@ The app includes no games. **Sources → More romsets** offers optional free con
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [3.2.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.2.0)** (Android build 44).
+**Latest release: [3.3.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.3.0)** (Android build 45).
 
 ## Install
 
@@ -73,7 +73,7 @@ You need **Android 10 or newer**. The app is not on Google Play.
 
 ### Play
 - **Play from the game page** with a compatible emulator, remembered per console or chosen per game, with a **readiness check** (files, discs, BIOS, emulator), a guided setup and a test launch.
-- **ES-DE, iiSU, Daijishō and Pegasus**: a "search for more games" entry per console, plus covers and descriptions written into your launcher; for iiSU, Daijishō and any other launcher, covers go into a media folder you pick, in the file layout that launcher expects (several to choose from).
+- **ES-DE, iiSU, Daijishō and Pegasus**: a "search for more games" entry per console, plus covers and descriptions written into your launcher; for iiSU, Daijishō and any other launcher, covers go into a media folder you pick, in the file layout that launcher expects (ten ready-made layouts, or write your own).
 - **Continue on another handheld** from the game page, when your emulator and saves can travel: it shows the way back first and the save goes through RomM.
 - **Multi-disc games** get their `.m3u` playlist automatically.
 - **Continue playing** on Home, from saves on any device or from ES-DE.

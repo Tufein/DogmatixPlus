@@ -1328,9 +1328,8 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>La synchronisation des sauvegardes prend désormais en charge les cartes mémoire de Dolphin (GameCube) et d’AetherSX2/NetherSX2 (PS2). Elles contiennent les sauvegardes de nombreux jeux : vous les activez vous-même, dossier par dossier.</item>
-        <item>Des jaquettes pour n’importe quel lanceur : un troisième choix à côté d’iiSU et de Daijishō, avec six structures de fichiers (aussi dans le style de RetroArch, Pegasus et EmulationStation), chacune avec un exemple et un aperçu avant toute écriture.</item>
-        <item>Le catalogue de contenu a un deuxième fournisseur : les jeux d’aventure freeware de ScummVM, tous les dossiers réunis dans une seule console. Les fichiers de somme de contrôle n’apparaissent plus comme des jeux.</item>
+        <item>Trois structures de jaquettes de plus pour les lanceurs : tout dans un dossier avec l’extension, un dossier covers par console (style ES-DE) et le dossier media/box2d qu’écrivent les scrapers. Avec les précédentes, cela fait dix au choix.</item>
+        <item>Ou écrivez la vôtre : un chemin de jaquette avec {system}, {name}, {file} et {retro}, vérifié pendant la saisie, avec un exemple tiré de votre propre bibliothèque. Cela fonctionne pour iiSU, Daijishō et tout autre lanceur.</item>
     </string-array>
 
     <!-- 4.0 -->

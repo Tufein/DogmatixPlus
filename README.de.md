@@ -29,7 +29,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 *Die Screenshots verwenden erfundene Spieltitel und leere Platzhalterdateien und zeigen die App auf Englisch.*
 
-**Neueste Version: [3.2.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.2.0)** (Android-Build 44).
+**Neueste Version: [3.3.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.3.0)** (Android-Build 45).
 
 ## Installation
 
@@ -73,7 +73,7 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 
 ### Spielen
 - **Spielen von der Spielseite** mit einem passenden Emulator, pro Konsole gemerkt oder pro Spiel gewählt, mit einer **Bereitschaftsprüfung** (Dateien, Discs, BIOS, Emulator), geführter Einrichtung und Teststart.
-- **ES-DE, iiSU, Daijishō und Pegasus**: ein Eintrag „Mehr Spiele suchen“ je Konsole sowie Cover und Beschreibungen in deinem Launcher; für iiSU, Daijishō und jeden anderen Launcher landen die Cover in einem Medienordner, den du wählst, in der Dateiaufteilung, die der Launcher erwartet (mehrere zur Auswahl).
+- **ES-DE, iiSU, Daijishō und Pegasus**: ein Eintrag „Mehr Spiele suchen“ je Konsole sowie Cover und Beschreibungen in deinem Launcher; für iiSU, Daijishō und jeden anderen Launcher landen die Cover in einem Medienordner, den du wählst, in der Dateiaufteilung, die der Launcher erwartet (zehn fertige Aufteilungen, oder schreibe selbst eine).
 - **Auf einem anderen Handheld weiterspielen** von der Spielseite aus, wenn Emulator und Spielstände mitkommen können: zuerst wird der Rückweg gezeigt, der Spielstand geht über RomM.
 - **Mehr-Disc-Spiele** bekommen automatisch ihre `.m3u`-Playlist.
 - **Weiterspielen** auf der Startseite, aus Spielständen auf jedem Gerät oder aus ES-DE.

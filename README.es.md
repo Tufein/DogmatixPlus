@@ -29,7 +29,7 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 *Las capturas de pantalla usan títulos de juegos inventados y archivos vacíos de relleno. Las capturas muestran la app en inglés.*
 
-**Última versión: [3.2.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.2.0)** (build de Android 44).
+**Última versión: [3.3.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.3.0)** (build de Android 45).
 
 ## Instalar
 
@@ -73,7 +73,7 @@ Necesitas **Android 10 o más reciente**. La app no está en Google Play.
 
 ### Jugar
 - **Jugar desde la página del juego** con un emulador compatible, recordado por consola o elegido por juego, con una **comprobación de preparación** (archivos, discos, BIOS, emulador), una configuración guiada y un lanzamiento de prueba.
-- **ES-DE, iiSU, Daijishō y Pegasus**: una entrada «buscar más juegos» por consola, además de carátulas y descripciones en tu lanzador; para iiSU, Daijishō y cualquier otro lanzador, las carátulas van a una carpeta de medios que eliges tú, con la estructura de archivos que ese lanzador espera (varias a elegir).
+- **ES-DE, iiSU, Daijishō y Pegasus**: una entrada «buscar más juegos» por consola, además de carátulas y descripciones en tu lanzador; para iiSU, Daijishō y cualquier otro lanzador, las carátulas van a una carpeta de medios que eliges tú, con la estructura de archivos que ese lanzador espera (diez estructuras listas, o escribe la tuya).
 - **Seguir en otra consola portátil** desde la página del juego, cuando tu emulador y tus partidas pueden viajar: primero se muestra el camino de vuelta y la partida pasa por RomM.
 - **Los juegos de varios discos** reciben automáticamente su lista `.m3u`.
 - **Continuar jugando** en el inicio, desde partidas guardadas de cualquier dispositivo o desde ES-DE.
