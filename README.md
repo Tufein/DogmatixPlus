@@ -6,7 +6,7 @@
 
 DogmatixPlus keeps one big, searchable list of the games from the sources *you* add, downloads them into the right folders, and helps you keep your collection tidy. It works with touch *and* with a game controller, so it feels at home on handhelds such as the Retroid, Anbernic or Kinhank.
 
-The app includes no games. **Sources → More romsets** offers optional free content collections (Libretro homebrew and demos, ScummVM freeware games) alongside your own sources.
+The app includes no games. **Sources → More romsets** offers optional free content collections (Libretro homebrew and demos, ScummVM freeware games, Game Boy homebrew from Homebrew Hub) alongside your own sources.
 
 <table>
   <tr>
@@ -29,7 +29,7 @@ The app includes no games. **Sources → More romsets** offers optional free con
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [3.4.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.4.0)** (Android build 46).
+**Latest release: [3.5.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.5.0)** (Android build 47).
 
 ## Install
 
@@ -75,6 +75,8 @@ You need **Android 10 or newer**. The app is not on Google Play.
 ### Play
 - **Play from the game page** with a compatible emulator, remembered per console or chosen per game, with a **readiness check** (files, discs, BIOS, emulator), a guided setup and a test launch.
 - **ES-DE, iiSU, Daijishō and Pegasus**: a "search for more games" entry per console, plus covers and descriptions written into your launcher; for iiSU, Daijishō and any other launcher, covers go into a media folder you pick, in the file layout that launcher expects (ten ready-made layouts, or write your own).
+- **Games on your home screen**: pin a game from its page and it starts straight in its emulator; a long press on the app icon also shows your last three played games.
+- **RetroArch playlists**: writes `.lpl` playlists so RetroArch shows your library; existing playlists are only added to, and the old file goes to Trash and recovery first.
 - **Continue on another handheld** from the game page, when your emulator and saves can travel: it shows the way back first and the save goes through RomM.
 - **Multi-disc games** get their `.m3u` playlist automatically.
 - **Continue playing** on Home, from saves on any device or from ES-DE.
@@ -85,9 +87,9 @@ You need **Android 10 or newer**. The app is not on Google Play.
 - **DAT check** against No-Intro, Redump and TOSEC; **Game sets** check; **BIOS check**; **Switch updates and DLC**.
 - **Library overview, Storage and Statistics** per console; **Smart storage** can move rarely played consoles to an SD card and back.
 - **File explorer** to look, rename, move and unpack; **export** your collection as CSV or a web page.
-- **Copy or send games**: whole games with every file to an SD card or USB folder, your RomM server or your NAS. You first see every file, the space needed and what is already there; every file is checked at the other end, save files stay behind and nothing is replaced.
+- **Copy or send games**: whole games with every file to an SD card or USB folder, your RomM server or your NAS. You first see every file, the space needed and what is already there; every file is checked at the other end, save files stay behind and nothing is replaced. For a card that goes into another system, the console folders can follow ES-DE, Batocera, Knulli, ArkOS, ROCKNIX, OnionOS or muOS names.
 - **Health check** with a fix per problem, and a **scan report** for sources that failed.
-- **Sources**: add by hand, import and export, share as QR codes, optional content catalogue with Libretro content for 29 systems and ScummVM's freeware adventure games, the provider named for each, reserve addresses and automatic background scans that skip what did not change.
+- **Sources**: add by hand, import and export, share as QR codes, optional content catalogue with Libretro content for 29 systems, ScummVM's freeware adventure games and free Game Boy homebrew from Homebrew Hub, the provider named for each, reserve addresses and automatic background scans that skip what did not change.
 
 ### Safe by design
 - **Trash and recovery center**: removed games, interrupted moves, replaced files and save backups can be restored, each with a preview. Copies are verified before anything is removed.
@@ -109,6 +111,7 @@ You need **Android 10 or newer**. The app is not on Google Play.
 - **Landscape and portrait**, a **second-screen** view, and a **TV mode** with larger text and remote keys.
 - **Light, dark or pure black** themes, twelve accent colours and Material You, covers, adjustable text size, animations that can be switched off.
 - **Seven languages**: English, Dutch, German, French, Spanish, Italian and Portuguese.
+- **Set up a new handheld**: a checklist from a fresh install to a ready handheld (settings, games folder, emulators, missing games, saves, launcher); every step opens the screen that does it.
 - **Back up and restore** settings, sources, favourites, collections and the download list in one file.
 
 ## Using a gamepad

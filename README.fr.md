@@ -29,7 +29,7 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 *Les captures d’écran utilisent des titres de jeux inventés et des fichiers vides de substitution, et montrent l’application en anglais.*
 
-**Dernière version : [3.4.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.4.0)** (build Android 46).
+**Dernière version : [3.5.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.5.0)** (build Android 47).
 
 ## Installation
 
@@ -75,6 +75,8 @@ Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Goo
 ### Jouer
 - **Jouer depuis la page du jeu** avec un émulateur compatible, mémorisé par console ou choisi par jeu, avec une **vérification de préparation** (fichiers, disques, BIOS, émulateur), une configuration guidée et un lancement d’essai.
 - **ES-DE, iiSU, Daijishō et Pegasus** : une entrée « chercher d’autres jeux » par console, plus jaquettes et descriptions dans votre lanceur ; pour iiSU, Daijishō et tout autre lanceur, les jaquettes vont dans un dossier de médias que vous choisissez, avec la structure de fichiers attendue par le lanceur (dix structures prêtes à l’emploi, ou écrivez la vôtre).
+- **Des jeux sur votre écran d’accueil** : épinglez un jeu depuis sa page et il démarre directement dans son émulateur ; un appui long sur l’icône de l’appli affiche aussi vos trois derniers jeux joués.
+- **Playlists RetroArch** : écrit des playlists `.lpl` pour que RetroArch affiche votre bibliothèque ; les playlists existantes sont seulement complétées et l’ancien fichier passe d’abord à la corbeille et au centre de récupération.
 - **Continuer sur une autre console portable** depuis la page du jeu, quand votre émulateur et vos sauvegardes peuvent suivre : le chemin du retour est montré d’abord et la sauvegarde passe par RomM.
 - **Les jeux à plusieurs disques** reçoivent automatiquement leur playlist `.m3u`.
 - **Reprendre** sur l’accueil, depuis les sauvegardes de n’importe quel appareil ou depuis ES-DE.
@@ -85,9 +87,9 @@ Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Goo
 - **Vérification DAT** contre No-Intro, Redump et TOSEC ; contrôle des **jeux multi-fichiers** ; **contrôle du BIOS** ; **mises à jour et DLC Switch**.
 - **Aperçu de la bibliothèque, Stockage et Statistiques** par console ; le **stockage intelligent** peut déplacer les consoles rarement jouées vers une carte SD et les rapatrier.
 - **Explorateur de fichiers** pour regarder, renommer, déplacer et décompresser ; **export** de la collection en CSV ou page web.
-- **Copier ou envoyer des jeux** : des jeux complets, avec tous leurs fichiers, vers une carte SD ou un dossier USB, votre serveur RomM ou votre NAS. Vous voyez d’abord chaque fichier, l’espace nécessaire et ce qui s’y trouve déjà ; chaque fichier est vérifié à l’arrivée, les sauvegardes restent sur l’appareil et rien n’est remplacé.
+- **Copier ou envoyer des jeux** : des jeux complets, avec tous leurs fichiers, vers une carte SD ou un dossier USB, votre serveur RomM ou votre NAS. Vous voyez d’abord chaque fichier, l’espace nécessaire et ce qui s’y trouve déjà ; chaque fichier est vérifié à l’arrivée, les sauvegardes restent sur l’appareil et rien n’est remplacé. Pour une carte destinée à un autre système, les dossiers de console peuvent suivre les noms d’ES-DE, Batocera, Knulli, ArkOS, ROCKNIX, OnionOS ou muOS.
 - **Contrôle de santé** avec une solution par problème, et **rapport d’analyse** pour les sources en échec.
-- **Sources** : ajout manuel, import et export, partage par codes QR, catalogue de contenus optionnel avec du contenu Libretro pour 29 systèmes et les jeux d’aventure freeware de ScummVM, chacun avec son fournisseur, adresses de secours et analyses automatiques en arrière-plan qui sautent ce qui n’a pas changé.
+- **Sources** : ajout manuel, import et export, partage par codes QR, catalogue de contenus optionnel avec du contenu Libretro pour 29 systèmes, les jeux d’aventure freeware de ScummVM et des homebrews Game Boy gratuits de Homebrew Hub, chacun avec son fournisseur, adresses de secours et analyses automatiques en arrière-plan qui sautent ce qui n’a pas changé.
 
 ### Sûr par conception
 - **Corbeille et centre de récupération** : jeux retirés, déplacements interrompus, fichiers remplacés et sauvegardes se restaurent, chacun avec un aperçu. Les copies sont vérifiées avant tout retrait.
@@ -109,6 +111,7 @@ Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Goo
 - **Paysage et portrait**, une vue **second écran** et un **mode TV** avec texte plus grand et touches de télécommande.
 - **Thème clair, sombre ou noir pur**, douze couleurs d’accent et Material You, jaquettes, taille de texte réglable et animations désactivables.
 - **Sept langues** : anglais, néerlandais, allemand, français, espagnol, italien et portugais.
+- **Configurer une nouvelle console portable** : une liste d’étapes de l’installation neuve à la console prête (réglages, dossier des jeux, émulateurs, jeux manquants, sauvegardes, lanceur) ; chaque étape ouvre l’écran qui s’en charge.
 - **Sauvegarde et restauration** des réglages, sources, favoris, collections et liste de téléchargements dans un seul fichier.
 
 ## Utiliser une manette

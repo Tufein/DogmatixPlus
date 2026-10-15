@@ -29,7 +29,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [3.4.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.4.0)** (Android build 46).
+**Laatste release: [3.5.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.5.0)** (Android build 47).
 
 ## Installeren
 
@@ -75,6 +75,8 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 ### Spelen
 - **Spelen vanaf de gamepagina** met een geschikte emulator, onthouden per console of per game gekozen, met een **gereedheidscontrole** (bestanden, discs, BIOS, emulator), een begeleide installatie en een testlancering.
 - **ES-DE, iiSU, Daijishō en Pegasus**: een invoer "zoek meer games" per console, plus covers en beschrijvingen in je launcher; voor iiSU, Daijishō en elke andere launcher komen de covers in een mediamap die je zelf kiest, in de bestandsindeling die die launcher verwacht (tien kant-en-klare indelingen, of schrijf er zelf een).
+- **Games op je startscherm**: zet een game vast vanaf zijn pagina en hij start meteen in zijn emulator; lang drukken op het app-icoon toont ook je laatste drie gespeelde games.
+- **RetroArch-playlists**: schrijft `.lpl`-afspeellijsten zodat RetroArch je bibliotheek toont; bestaande playlists worden alleen aangevuld en het oude bestand gaat eerst naar Prullenbak en herstelcentrum.
 - **Verder spelen op een andere handheld** vanaf de spelpagina, als je emulator en saves mee kunnen: je ziet eerst de weg terug en de save gaat via RomM.
 - **Games met meerdere discs** krijgen automatisch hun `.m3u`-afspeellijst.
 - **Verder spelen** op Home, vanuit saves op elk toestel of vanuit ES-DE.
@@ -85,9 +87,9 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 - **DAT-controle** tegen No-Intro, Redump en TOSEC; controle van **gamesets**; **BIOS-controle**; **Switch-updates en DLC**.
 - **Bibliotheekoverzicht, Opslag en Statistieken** per console; **Slimme opslag** kan zelden gespeelde consoles naar een SD-kaart verplaatsen en terug.
 - **Bestandsverkenner** om te kijken, hernoemen, verplaatsen en uitpakken; **exporteer** je collectie als CSV of webpagina.
-- **Spellen kopiëren of versturen**: complete spellen met alle bestanden naar een SD-kaart of USB-map, je RomM-server of je NAS. Je ziet eerst elk bestand, de benodigde ruimte en wat er al staat; elk bestand wordt aan de andere kant gecontroleerd, savebestanden blijven achter en er wordt niets vervangen.
+- **Spellen kopiëren of versturen**: complete spellen met alle bestanden naar een SD-kaart of USB-map, je RomM-server of je NAS. Je ziet eerst elk bestand, de benodigde ruimte en wat er al staat; elk bestand wordt aan de andere kant gecontroleerd, savebestanden blijven achter en er wordt niets vervangen. Voor een kaart die in een ander systeem gaat, kunnen de consolemappen de namen van ES-DE, Batocera, Knulli, ArkOS, ROCKNIX, OnionOS of muOS volgen.
 - **Gezondheidscontrole** met een oplossing per probleem, en een **scanrapport** voor bronnen die mislukten.
-- **Bronnen**: met de hand toevoegen, importeren en exporteren, delen als QR-codes, optionele inhoudscatalogus met Libretro-content voor 29 systemen en de freeware-avonturenspellen van ScummVM, steeds met de aanbieder erbij, reserveadressen en automatische achtergrondscans die overslaan wat niet veranderde.
+- **Bronnen**: met de hand toevoegen, importeren en exporteren, delen als QR-codes, optionele inhoudscatalogus met Libretro-content voor 29 systemen, de freeware-avonturenspellen van ScummVM en gratis Game Boy-homebrew van Homebrew Hub, steeds met de aanbieder erbij, reserveadressen en automatische achtergrondscans die overslaan wat niet veranderde.
 
 ### Veilig ontworpen
 - **Prullenbak en herstelcentrum**: verwijderde games, onderbroken verplaatsingen, vervangen bestanden en savebackups zijn te herstellen, telkens met een voorbeeld. Kopieën worden gecontroleerd voordat iets wordt verwijderd.
@@ -109,6 +111,7 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 - **Liggend en staand**, een weergave voor het **tweede scherm** en een **tv-modus** met grotere tekst en afstandsbedieningstoetsen.
 - **Licht, donker of zuiver zwart** thema, twaalf accentkleuren en Material You, covers, instelbare tekstgrootte en animaties die uit kunnen.
 - **Zeven talen**: Engels, Nederlands, Duits, Frans, Spaans, Italiaans en Portugees.
+- **Een nieuwe handheld instellen**: een checklist van verse installatie tot klaar voor gebruik (instellingen, gamesmap, emulators, ontbrekende games, saves, launcher); elke stap opent het scherm dat het doet.
 - **Back-up en herstel** van instellingen, bronnen, favorieten, collecties en de downloadlijst in één bestand.
 
 ## Een gamepad gebruiken

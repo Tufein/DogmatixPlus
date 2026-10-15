@@ -29,7 +29,7 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 *Las capturas de pantalla usan títulos de juegos inventados y archivos vacíos de relleno. Las capturas muestran la app en inglés.*
 
-**Última versión: [3.4.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.4.0)** (build de Android 46).
+**Última versión: [3.5.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.5.0)** (build de Android 47).
 
 ## Instalar
 
@@ -75,6 +75,8 @@ Necesitas **Android 10 o más reciente**. La app no está en Google Play.
 ### Jugar
 - **Jugar desde la página del juego** con un emulador compatible, recordado por consola o elegido por juego, con una **comprobación de preparación** (archivos, discos, BIOS, emulador), una configuración guiada y un lanzamiento de prueba.
 - **ES-DE, iiSU, Daijishō y Pegasus**: una entrada «buscar más juegos» por consola, además de carátulas y descripciones en tu lanzador; para iiSU, Daijishō y cualquier otro lanzador, las carátulas van a una carpeta de medios que eliges tú, con la estructura de archivos que ese lanzador espera (diez estructuras listas, o escribe la tuya).
+- **Juegos en tu pantalla de inicio**: fija un juego desde su página y arranca directamente en su emulador; al mantener pulsado el icono de la app también ves tus tres últimos juegos jugados.
+- **Listas de RetroArch**: escribe listas `.lpl` para que RetroArch muestre tu biblioteca; las listas existentes solo se completan y el archivo anterior pasa antes a la papelera y el centro de recuperación.
 - **Seguir en otra consola portátil** desde la página del juego, cuando tu emulador y tus partidas pueden viajar: primero se muestra el camino de vuelta y la partida pasa por RomM.
 - **Los juegos de varios discos** reciben automáticamente su lista `.m3u`.
 - **Continuar jugando** en el inicio, desde partidas guardadas de cualquier dispositivo o desde ES-DE.
@@ -85,9 +87,9 @@ Necesitas **Android 10 o más reciente**. La app no está en Google Play.
 - **Comprobación DAT** con No-Intro, Redump y TOSEC; revisión de **conjuntos de juego**; **comprobación de BIOS**; **actualizaciones y DLC de Switch**.
 - **Resumen de la biblioteca, Almacenamiento y Estadísticas** por consola; el **almacenamiento inteligente** puede mover a una tarjeta SD las consolas que casi no juegas y devolverlas.
 - **Explorador de archivos** para mirar, renombrar, mover y descomprimir; **exporta** tu colección como CSV o página web.
-- **Copiar o enviar juegos**: juegos completos con todos sus archivos a una tarjeta SD o carpeta USB, tu servidor RomM o tu NAS. Antes ves cada archivo, el espacio necesario y lo que ya hay; cada archivo se comprueba en el destino, las partidas se quedan en el dispositivo y no se reemplaza nada.
+- **Copiar o enviar juegos**: juegos completos con todos sus archivos a una tarjeta SD o carpeta USB, tu servidor RomM o tu NAS. Antes ves cada archivo, el espacio necesario y lo que ya hay; cada archivo se comprueba en el destino, las partidas se quedan en el dispositivo y no se reemplaza nada. Para una tarjeta que va a otro sistema, las carpetas de consola pueden seguir los nombres de ES-DE, Batocera, Knulli, ArkOS, ROCKNIX, OnionOS o muOS.
 - **Comprobación de salud** con una solución por problema e **informe de escaneo** de las fuentes que fallaron.
-- **Fuentes**: añadir a mano, importar y exportar, compartir como códigos QR, catálogo de contenido opcional con contenido de Libretro para 29 sistemas y las aventuras freeware de ScummVM, cada uno con su proveedor, direcciones de reserva y escaneos automáticos en segundo plano que omiten lo que no cambió.
+- **Fuentes**: añadir a mano, importar y exportar, compartir como códigos QR, catálogo de contenido opcional con contenido de Libretro para 29 sistemas, las aventuras freeware de ScummVM y homebrew gratuito de Game Boy de Homebrew Hub, cada uno con su proveedor, direcciones de reserva y escaneos automáticos en segundo plano que omiten lo que no cambió.
 
 ### Seguro por diseño
 - **Papelera y centro de recuperación**: juegos retirados, movimientos interrumpidos, archivos reemplazados y copias de partidas se pueden restaurar, cada uno con vista previa. Las copias se verifican antes de retirar nada.
@@ -109,6 +111,7 @@ Necesitas **Android 10 o más reciente**. La app no está en Google Play.
 - **Horizontal y vertical**, una vista de **segunda pantalla** y un **modo TV** con texto más grande y teclas de mando a distancia.
 - **Tema claro, oscuro o negro puro**, doce colores de acento y Material You, carátulas, tamaño de texto ajustable y animaciones desactivables.
 - **Siete idiomas**: inglés, neerlandés, alemán, francés, español, italiano y portugués.
+- **Configurar una consola portátil nueva**: una lista de pasos desde la instalación nueva hasta una portátil lista (ajustes, carpeta de juegos, emuladores, juegos que faltan, partidas, lanzador); cada paso abre la pantalla que lo hace.
 - **Copia y restauración** de ajustes, fuentes, favoritos, colecciones y lista de descargas en un solo archivo.
 
 ## Usar un mando

@@ -1297,8 +1297,11 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>El círculo de progreso cuenta las descargas completadas de toda la cola: 25 de 100 = 25 %. Ya no retrocede cuando termina una descarga.</item>
-        <item>Las descargas de tamaño desconocido también cuentan. La copia y la descompresión deben terminar primero; las descargas fallidas nunca cuentan como completadas.</item>
+        <item>Juegos en la pantalla de inicio: en la página de un juego, «Añadir a la pantalla de inicio» crea un acceso directo que lo inicia directamente en su emulador. Mantén pulsado el icono de Dogmatix+ para iniciar uno de tus tres últimos juegos (se puede desactivar en los ajustes).</item>
+        <item>Configurar una portátil nueva: una lista de comprobación desde la instalación nueva hasta la portátil lista: restaurar los ajustes, elegir la carpeta de juegos, revisar los emuladores, descargar los favoritos que faltan y configurar las partidas guardadas y el lanzador. Nada empieza sin tu confirmación.</item>
+        <item>Listas de RetroArch: crea listas .lpl para los juegos del dispositivo. Ves antes qué se añadirá; una lista existente solo se amplía y el archivo anterior va a Papelera y recuperación.</item>
+        <item>Nombres de carpeta para otros sistemas: al copiar juegos a una tarjeta SD o a una carpeta USB, las carpetas de consola pueden llamarse como esperan ES-DE, Batocera, Knulli, ArkOS, ROCKNIX, OnionOS o muOS. Los juegos para los que un sistema no tiene carpeta se muestran y se omiten.</item>
+        <item>Homebrew Hub en el catálogo de contenido: homebrew gratuito de Game Boy y Game Boy Color, solo las entradas cuya licencia permite compartirlas, cada una con su licencia y su autor.</item>
     </string-array>
 
     <!-- 4.0 -->

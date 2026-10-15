@@ -214,6 +214,31 @@ right after the download (Settings):
   image is libretro-thumbnails' own PNG, so it matches what RetroArch would download itself;
   consoles libretro-thumbnails does not have get none.
 
+## RetroArch playlists
+
+*Tools → RetroArch playlists* writes a RetroArch playlist (`.lpl`) for each console, listing the
+games on your device, so RetroArch's main menu shows your library without scanning in RetroArch.
+
+- Pick RetroArch's `playlists` folder (RetroArch: *Settings → Directory → Playlists* shows where
+  it is). Android does not let an app pick a folder inside `Android/data`; if the playlists live
+  there, point RetroArch's playlist directory at a folder outside it first.
+- One file per libretro system, named like the thumbnails (`Nintendo - Game Boy Advance.lpl`).
+  Each entry gets the real path of the game, the file name without extension as its label (so the
+  box art from *Covers for RetroArch* matches) and `DETECT` as its core: RetroArch asks which core
+  to use the first time, unless an entry for that game already exists.
+- An existing playlist is only ever added to: its entries, their order, their cores and unknown
+  fields stay. A game counts as already there when its file is listed, also inside an archive
+  (`game.zip#rom.gba`). Playlists in RetroArch's old text format, compressed or unreadable ones
+  are left alone and named in the preview. Before a playlist is replaced the old file goes to
+  *Trash and recovery* (and the action history), so it can be restored.
+- Multi-disc games are listed once, through their `.m3u`; a set without an `.m3u` is left out
+  until you make one (*Tools → Game sets*).
+- Close RetroArch before writing and start it again afterwards: RetroArch overwrites a playlist
+  it has open. Only playlists named like the libretro system are considered, so a playlist of
+  your own with another name (`GBA.lpl`) is not touched and its games may be listed twice.
+- The format and the folder names come from RetroArch's documentation and source; nothing was
+  tried on a device.
+
 ## Covers for iiSU, Daijishō and other launchers
 
 *Tools → Covers for launchers* writes a cover for every game on the device into a media folder
@@ -280,6 +305,31 @@ example made from one of your own games, and the preview lists what would be wri
 without `{system}` in a folder name has no console folders, so games with the same name on two
 consoles are skipped, as with *All in one folder*. Each launcher keeps its own pattern, and it is part of a settings
 backup.
+
+## Folder names for other systems
+
+When *Tools → Copy or send games* copies to an SD card or USB folder, the *Folder names* choice
+names the console folders as another system expects them: ES-DE, Batocera (42 and newer),
+Knulli, ArkOS, ROCKNIX, OnionOS (Miyoo Mini) or muOS. *As in this library* is the default and
+changes nothing. Only the folder names change; the other system may still want its own game
+lists, BIOS files and cores.
+
+| Layout | Console folders go in | Examples (Game Boy Advance, Mega Drive, Sega CD) |
+|---|---|---|
+| ES-DE | the picked folder | `gba`, `megadrive`, `megacd` |
+| Batocera | `roms/` | `gba`, `megadrive`, `megacd` |
+| Knulli | `roms/` | `gba`, `megadrive`, `segacd` |
+| ArkOS | the picked folder | `gba`, `megadrive`, `segacd` |
+| ROCKNIX | `roms/` | `gba`, `megadrive`, `megacd` |
+| OnionOS | `Roms/` | `GBA`, `MD`, `SEGACD` |
+| muOS | `ROMS/` | `gba`, `megadrive`, `megacd` |
+
+If the folder you pick is already called `roms` (any capitals), the console folders go straight
+into it. A console a system has no documented folder for is listed as not copied and skipped,
+never guessed (for example Nintendo 64 on OnionOS). Two consoles that share one folder at the
+destination (Onion's `WS` for WonderSwan and WonderSwan Color) are flagged when their games clash.
+The names come from each system's published configuration or documentation; nothing was tried on
+a device.
 
 ## Any other launcher
 

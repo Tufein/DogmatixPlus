@@ -1324,8 +1324,11 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>The completion circle counts finished downloads out of the whole queue: 25 of 100 = 25%. Finishing a download no longer makes the circle go backwards.</item>
-        <item>Downloads with an unknown size count too. Copying and unpacking must finish first; failed downloads never count as complete.</item>
+        <item>Games on your home screen: on a game page, “Add to home screen” pins a shortcut that starts the game straight in its emulator. Long-press the Dogmatix+ icon to start one of your last three played games (can be switched off in the settings).</item>
+        <item>Set up a new handheld: a checklist from a fresh install to a ready handheld: restore your settings, pick the games folder, check the emulators, download missing favourites, and set up saves and your launcher. Nothing starts without your confirmation.</item>
+        <item>RetroArch playlists: writes .lpl playlists for the games on your device. You see what will be added first; an existing playlist is only added to, and the old file goes to Trash and recovery.</item>
+        <item>Folder names for other systems: when you copy games to an SD card or USB folder, the console folders can be named the way ES-DE, Batocera, Knulli, ArkOS, ROCKNIX, OnionOS or muOS expect. Games a system has no folder for are listed and left out.</item>
+        <item>Homebrew Hub in the content catalogue: free Game Boy and Game Boy Color homebrew, only entries whose licence allows sharing, each with its licence and author.</item>
     </string-array>
 
     <!-- 4.0 -->

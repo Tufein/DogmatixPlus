@@ -1323,8 +1323,11 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>De voortgangscirkel telt voltooide downloads op tegenover de hele wachtrij: 25 van 100 = 25%. De cirkel loopt niet meer terug als een download klaar is.</item>
-        <item>Downloads zonder bekende grootte tellen ook mee. Kopiëren en uitpakken moeten eerst klaar zijn; mislukte downloads tellen nooit als voltooid.</item>
+        <item>Spellen op je startscherm: op de pagina van een spel zet “Op startscherm zetten” een snelkoppeling die het spel meteen in zijn emulator start. Houd het Dogmatix+-icoon ingedrukt om een van je laatste drie gespeelde spellen te starten (uit te zetten in de instellingen).</item>
+        <item>Nieuwe handheld instellen: een checklist van verse installatie tot klare handheld: zet je instellingen terug, kies de spelmap, controleer de emulators, download ontbrekende favorieten en regel saves en je launcher. Niets start zonder jouw bevestiging.</item>
+        <item>RetroArch-afspeellijsten: schrijft .lpl-afspeellijsten voor de spellen op je apparaat. Je ziet eerst wat er wordt toegevoegd; een bestaande lijst wordt alleen aangevuld en het oude bestand gaat naar Prullenbak en herstel.</item>
+        <item>Mapnamen voor andere systemen: bij het kopiëren van spellen naar een sd-kaart of usb-map kunnen de consolemappen heten zoals ES-DE, Batocera, Knulli, ArkOS, ROCKNIX, OnionOS of muOS ze verwachten. Spellen waarvoor een systeem geen map heeft, worden getoond en overgeslagen.</item>
+        <item>Homebrew Hub in de inhoudscatalogus: gratis Game Boy- en Game Boy Color-homebrew, alleen items waarvan de licentie delen toestaat, elk met licentie en maker.</item>
     </string-array>
 
     <!-- 4.0 -->

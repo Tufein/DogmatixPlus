@@ -1274,8 +1274,11 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Il cerchio di avanzamento conta i download completati sul totale della coda: 25 su 100 = 25%. Non torna più indietro quando termina un download.</item>
-        <item>Contano anche i download di dimensione sconosciuta. Copia ed estrazione devono finire prima; i download non riusciti non contano mai come completati.</item>
+        <item>Giochi sulla schermata Home: nella pagina di un gioco, «Aggiungi alla schermata Home» crea un collegamento che avvia il gioco direttamente nel suo emulatore. Con una pressione lunga sull’icona di Dogmatix+ si avvia uno degli ultimi tre giochi (disattivabile nelle impostazioni).</item>
+        <item>Configura una nuova console portatile: una lista di controllo dall’installazione appena fatta alla console pronta: ripristina le impostazioni, scegli la cartella dei giochi, controlla gli emulatori, scarica i preferiti mancanti e configura i salvataggi e il launcher. Nulla parte senza la tua conferma.</item>
+        <item>Playlist di RetroArch: scrive playlist .lpl per i giochi del dispositivo. Vedi prima cosa verrà aggiunto; una playlist esistente viene solo ampliata e il vecchio file va in Cestino e ripristino.</item>
+        <item>Nomi di cartelle per altri sistemi: copiando giochi su una scheda SD o su una cartella USB, le cartelle delle console possono avere i nomi attesi da ES-DE, Batocera, Knulli, ArkOS, ROCKNIX, OnionOS o muOS. I giochi per cui un sistema non ha una cartella vengono elencati e lasciati fuori.</item>
+        <item>Homebrew Hub nel catalogo dei contenuti: homebrew gratuiti per Game Boy e Game Boy Color, solo le voci la cui licenza consente la condivisione, ciascuna con licenza e autore.</item>
     </string-array>
 
     <!-- 4.0 -->

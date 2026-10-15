@@ -29,7 +29,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 *Die Screenshots verwenden erfundene Spieltitel und leere Platzhalterdateien und zeigen die App auf Englisch.*
 
-**Neueste Version: [3.4.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.4.0)** (Android-Build 46).
+**Neueste Version: [3.5.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.5.0)** (Android-Build 47).
 
 ## Installation
 
@@ -75,6 +75,8 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 ### Spielen
 - **Spielen von der Spielseite** mit einem passenden Emulator, pro Konsole gemerkt oder pro Spiel gewählt, mit einer **Bereitschaftsprüfung** (Dateien, Discs, BIOS, Emulator), geführter Einrichtung und Teststart.
 - **ES-DE, iiSU, Daijishō und Pegasus**: ein Eintrag „Mehr Spiele suchen“ je Konsole sowie Cover und Beschreibungen in deinem Launcher; für iiSU, Daijishō und jeden anderen Launcher landen die Cover in einem Medienordner, den du wählst, in der Dateiaufteilung, die der Launcher erwartet (zehn fertige Aufteilungen, oder schreibe selbst eine).
+- **Spiele auf deinem Startbildschirm**: pinne ein Spiel von seiner Seite und es startet direkt in seinem Emulator; langes Drücken auf das App-Symbol zeigt außerdem deine drei zuletzt gespielten Spiele.
+- **RetroArch-Playlists**: schreibt `.lpl`-Playlists, damit RetroArch deine Bibliothek zeigt; vorhandene Playlists werden nur ergänzt, und die alte Datei landet vorher im Papierkorb und Wiederherstellungscenter.
 - **Auf einem anderen Handheld weiterspielen** von der Spielseite aus, wenn Emulator und Spielstände mitkommen können: zuerst wird der Rückweg gezeigt, der Spielstand geht über RomM.
 - **Mehr-Disc-Spiele** bekommen automatisch ihre `.m3u`-Playlist.
 - **Weiterspielen** auf der Startseite, aus Spielständen auf jedem Gerät oder aus ES-DE.
@@ -85,9 +87,9 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 - **DAT-Prüfung** gegen No-Intro, Redump und TOSEC; **Spielsets**-Prüfung; **BIOS-Prüfung**; **Switch-Updates und DLC**.
 - **Bibliotheksübersicht, Speicher und Statistik** je Konsole; **Intelligenter Speicher** kann selten gespielte Konsolen auf eine SD-Karte und zurück verschieben.
 - **Dateimanager** zum Ansehen, Umbenennen, Verschieben und Entpacken; **Export** der Sammlung als CSV oder Webseite.
-- **Spiele kopieren oder senden**: ganze Spiele mit allen Dateien auf eine SD-Karte oder einen USB-Ordner, deinen RomM-Server oder dein NAS. Vorher siehst du jede Datei, den nötigen Platz und was schon da ist; jede Datei wird am Ziel geprüft, Spielstände bleiben zurück und nichts wird ersetzt.
+- **Spiele kopieren oder senden**: ganze Spiele mit allen Dateien auf eine SD-Karte oder einen USB-Ordner, deinen RomM-Server oder dein NAS. Vorher siehst du jede Datei, den nötigen Platz und was schon da ist; jede Datei wird am Ziel geprüft, Spielstände bleiben zurück und nichts wird ersetzt. Für eine Karte, die in ein anderes System kommt, können die Konsolenordner die Namen von ES-DE, Batocera, Knulli, ArkOS, ROCKNIX, OnionOS oder muOS verwenden.
 - **Gesundheitsprüfung** mit einer Lösung pro Problem und ein **Scanbericht** für fehlgeschlagene Quellen.
-- **Quellen**: von Hand hinzufügen, importieren und exportieren, als QR-Codes teilen, optionaler Inhaltskatalog mit Libretro-Inhalten für 29 Systeme und den Freeware-Adventures von ScummVM, jeweils mit Anbieter, Reserveadressen und automatische Hintergrundscans, die Unverändertes überspringen.
+- **Quellen**: von Hand hinzufügen, importieren und exportieren, als QR-Codes teilen, optionaler Inhaltskatalog mit Libretro-Inhalten für 29 Systeme, den Freeware-Adventures von ScummVM und kostenlosen Game-Boy-Homebrews von Homebrew Hub, jeweils mit Anbieter, Reserveadressen und automatische Hintergrundscans, die Unverändertes überspringen.
 
 ### Sicher gebaut
 - **Papierkorb und Wiederherstellungscenter**: entfernte Spiele, unterbrochene Verschiebungen, ersetzte Dateien und Spielstand-Backups lassen sich wiederherstellen, jeweils mit Vorschau. Kopien werden geprüft, bevor etwas entfernt wird.
@@ -109,6 +111,7 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 - **Quer und hochkant**, eine Ansicht für den **zweiten Bildschirm** und ein **TV-Modus** mit größerer Schrift und Fernbedienungstasten.
 - **Helles, dunkles oder tiefschwarzes** Design, zwölf Akzentfarben und Material You, Cover, einstellbare Schriftgröße und abschaltbare Animationen.
 - **Sieben Sprachen**: Englisch, Niederländisch, Deutsch, Französisch, Spanisch, Italienisch und Portugiesisch.
+- **Ein neues Handheld einrichten**: eine Checkliste von der frischen Installation bis zum startklaren Handheld (Einstellungen, Spieleordner, Emulatoren, fehlende Spiele, Spielstände, Launcher); jeder Schritt öffnet den Bildschirm, der ihn erledigt.
 - **Sichern und Wiederherstellen** von Einstellungen, Quellen, Favoriten, Sammlungen und Downloadliste in einer Datei.
 
 ## Ein Gamepad benutzen
