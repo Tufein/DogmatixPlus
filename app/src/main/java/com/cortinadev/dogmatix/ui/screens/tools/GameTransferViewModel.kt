@@ -3,12 +3,14 @@ package com.cortinadev.dogmatix.ui.screens.tools
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cortinadev.dogmatix.data.local.AppSettings
+import com.cortinadev.dogmatix.data.local.TransferLayoutSettings
 import com.cortinadev.dogmatix.data.service.GameTransferService
 import com.cortinadev.dogmatix.data.service.PackageTransferSnapshot
 import com.cortinadev.dogmatix.data.service.TransferPreview
 import com.cortinadev.dogmatix.data.service.TransferRun
 import com.cortinadev.dogmatix.data.service.TransferTarget
 import com.cortinadev.dogmatix.util.CopyConflictChoice
+import com.cortinadev.dogmatix.util.TargetFolderLayouts
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -32,6 +34,8 @@ data class GameTransferUi(
     val target: TransferTarget = TransferTarget.FOLDER,
     val choice: CopyConflictChoice = CopyConflictChoice.SKIP,
     val readBack: Boolean = true,
+    /** Folder names at a folder destination (3.5.0), remembered in the settings. */
+    val layout: TargetFolderLayouts.Layout = TargetFolderLayouts.Layout.LIBRARY,
     /** The folder picked last (kept for a retry). */
     val folderUri: String? = null,
     val checking: Boolean = false,
@@ -54,7 +58,8 @@ data class GameTransferUi(
 @HiltViewModel
 class GameTransferViewModel @Inject constructor(
     private val service: GameTransferService,
-    settings: AppSettings
+    settings: AppSettings,
+    private val layoutSettings: TransferLayoutSettings
 ) : ViewModel() {
     private val _ui = MutableStateFlow(GameTransferUi())
     val ui: StateFlow<GameTransferUi> = _ui.asStateFlow()
@@ -67,9 +72,12 @@ class GameTransferViewModel @Inject constructor(
         viewModelScope.launch {
             combine(settings.activeProfile, settings.profiles) { _, _ -> Unit }.drop(1).collect {
                 checkJob?.cancel()
-                _ui.value = GameTransferUi()
+                _ui.update { GameTransferUi(layout = it.layout) }
                 load()
             }
+        }
+        viewModelScope.launch {
+            layoutSettings.folderLayout.collect { layout -> _ui.update { it.copy(layout = layout) } }
         }
     }
 
@@ -96,6 +104,12 @@ class GameTransferViewModel @Inject constructor(
     fun setChoice(choice: CopyConflictChoice) = _ui.update { it.copy(choice = choice) }
     fun toggleReadBack() = _ui.update { it.copy(readBack = !it.readBack) }
 
+    /** Chooses (and remembers) the folder names for a folder destination. */
+    fun setLayout(layout: TargetFolderLayouts.Layout) {
+        _ui.update { it.copy(layout = layout) }
+        viewModelScope.launch { layoutSettings.setFolderLayout(layout) }
+    }
+
     /** Builds the preview; for a folder [folderUri] is the folder just picked. Writes nothing. */
     fun check(folderUri: String? = null) {
         val state = _ui.value
@@ -106,7 +120,8 @@ class GameTransferViewModel @Inject constructor(
         _ui.update { it.copy(checking = true, preview = null, previewError = null, folderUri = uri) }
         checkJob = viewModelScope.launch {
             try {
-                val preview = service.preview(snapshot, state.selected.toList(), state.target, uri, state.choice, state.readBack)
+                val layout = if (state.target == TransferTarget.FOLDER) state.layout else TargetFolderLayouts.Layout.LIBRARY
+                val preview = service.preview(snapshot, state.selected.toList(), state.target, uri, state.choice, state.readBack, layout)
                 _ui.update { it.copy(checking = false, preview = preview) }
             } catch (e: CancellationException) {
                 _ui.update { it.copy(checking = false) }
@@ -143,8 +158,10 @@ class GameTransferViewModel @Inject constructor(
         if (keys.isEmpty()) return
         val previous = finished.preview
         service.clear()
+        // A retry keeps the folder names the run had, so the files land next to the ones that made it.
         _ui.update { it.copy(selected = keys, target = previous.target, choice = previous.choice, readBack = previous.readBack,
-            folderUri = previous.folderUri ?: it.folderUri) }
+            folderUri = previous.folderUri ?: it.folderUri,
+            layout = if (previous.target == TransferTarget.FOLDER) previous.layout else it.layout) }
         check(previous.folderUri)
     }
 

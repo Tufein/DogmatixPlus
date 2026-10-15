@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Outils → Copier ou envoyer des jeux : noms de dossier pour d’autres systèmes (3.5.0) -->
+    <string name="layouts35_title">Noms de dossier</string>
+    <string name="layouts35_hint">Les noms que prennent les dossiers de console à la destination. Choisis les noms d’un autre système pour remplir une carte destinée à ce système.</string>
+    <string name="layouts35_target_folder_note">Tu choisis le dossier ensuite. Les dossiers de console prennent les noms choisis sous Noms de dossier.</string>
+
+    <string name="layouts35_library">Comme dans cette bibliothèque</string>
+    <string name="layouts35_library_hint">Les dossiers de console gardent les noms qu’ils ont ici.</string>
+    <string name="layouts35_esde">ES-DE</string>
+    <string name="layouts35_esde_hint">Noms courts comme gba, snes, megadrive, psx. Choisis le dossier ROMs d’ES-DE.</string>
+    <string name="layouts35_batocera">Batocera</string>
+    <string name="layouts35_batocera_hint">Batocera 42 ou plus récent, dans roms (gamecube, megacd, wswan, lynx…). Choisis la carte ou son dossier roms.</string>
+    <string name="layouts35_knulli">Knulli</string>
+    <string name="layouts35_knulli_hint">Dans roms, avec les noms propres à Knulli (segacd, o2em…). Choisis la carte ou son dossier roms.</string>
+    <string name="layouts35_arkos">ArkOS</string>
+    <string name="layouts35_arkos_hint">Directement sur la carte EASYROMS (gba, gc, coleco, pokemonmini…). Choisis la carte.</string>
+    <string name="layouts35_rocknix">ROCKNIX</string>
+    <string name="layouts35_rocknix_hint">Dans roms sur la carte de jeux (gamecube, sgfx, neocd…). Choisis la carte ou son dossier roms.</string>
+    <string name="layouts35_onion">OnionOS (Miyoo Mini)</string>
+    <string name="layouts35_onion_hint">Dans Roms, en majuscules (GBA, SFC, FC, MD, PS…). Choisis la carte ou son dossier Roms.</string>
+    <string name="layouts35_muos">muOS</string>
+    <string name="layouts35_muos_hint">Dans ROMS, avec des noms auxquels muOS attribue lui-même un core (gba, snes, psx…). Choisis la carte ou son dossier ROMS.</string>
+
+    <string name="layouts35_example">Tes jeux : %1$s</string>
+    <string name="layouts35_example_pair">%1$s → %2$s</string>
+    <string name="layouts35_example_none">%1$s → non pris en charge</string>
+    <string name="layouts35_note">Cela ne règle que les noms de dossier. L’autre système peut encore demander ses propres listes de jeux, fichiers BIOS et cores d’émulateur.</string>
+
+    <string name="layouts35_preview_names">Noms de dossier : %1$s</string>
+    <string name="layouts35_preview_folders">Dossiers de console : %1$s</string>
+    <string name="layouts35_unsupported_title">Non copiés : %1$s n’a pas de dossier pour ces consoles</string>
+    <string name="layouts35_unsupported_line">%1$s (%2$s)</string>
+    <string name="layouts35_case_title">Déjà présent avec d’autres majuscules. Les jeux vont dans le dossier existant, mais %1$s ne cherche peut-être que le nom exact :</string>
+    <string name="layouts35_case_line">%1$s (attendu : %2$s)</string>
+    <string name="layouts35_deep_title">%1$s ne regarde qu’un niveau de dossier dans un dossier de console, ces jeux risquent donc de ne pas y apparaître :</string>
+    <string name="layouts35_app_folder">C’est l’un des dossiers de votre bibliothèque : les noms de dossiers de votre bibliothèque sont donc utilisés ici. D’autres noms de dossiers y mettraient chaque jeu une seconde fois.</string>
+</resources>

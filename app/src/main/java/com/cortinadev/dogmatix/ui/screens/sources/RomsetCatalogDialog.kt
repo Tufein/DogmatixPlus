@@ -90,6 +90,7 @@ private fun ProviderHeader(provider: RomsetCatalog.Provider) {
     Column(Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 2.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(provider.name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
         Text(stringResource(licenceText(provider.licence)), style = MaterialTheme.typography.bodySmall)
+        if (provider.kind == RomsetCatalog.Kind.HOMEBREW_HUB) Text(stringResource(R.string.providers35_hh_terms), style = MaterialTheme.typography.bodySmall)
         Text(stringResource(R.string.src31_provider_site, provider.homepage), style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(stringResource(R.string.src31_provider_list, provider.provenance), style = MaterialTheme.typography.bodySmall,
@@ -120,7 +121,11 @@ internal fun RomsetChoice(
         Checkbox(checked || alreadyAdded, onCheckedChange = null, enabled = enabled)
         Column(Modifier.weight(1f)) {
             Text(entry.consoleName, style = MaterialTheme.typography.titleSmall)
-            Text(stringResource(R.string.src31_entry_files, providerName, entry.fileCount), style = MaterialTheme.typography.bodySmall)
+            Text(
+                if (entry.fileCount > 0) stringResource(R.string.src31_entry_files, providerName, entry.fileCount)
+                else stringResource(R.string.providers35_entry_live, providerName),
+                style = MaterialTheme.typography.bodySmall
+            )
             Text(
                 when {
                     alreadyAdded -> stringResource(R.string.romset28_already_added)

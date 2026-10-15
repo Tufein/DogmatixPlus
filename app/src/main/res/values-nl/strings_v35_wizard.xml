@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "Set up a new handheld" checklist (3.5.0) -->
+    <string name="wizard35_title">Nieuwe handheld instellen</string>
+    <string name="wizard35_hint">Een checklist van verse installatie tot speelklare handheld: instellingen, spellen, emulators, saves</string>
+    <string name="wizard35_kw">nieuw apparaat, nieuwe handheld, instellen, eerste keer, opstarten, beginnen, checklist, wizard, terugzetten, verhuizen, overzetten, migreren</string>
+    <string name="wizard35_intro">Zes stappen van een verse installatie naar een handheld die klaar is om te spelen. Elke stap opent het scherm dat het werk doet; er start niets zonder dat je het bevestigt. Sla over wat je niet nodig hebt.</string>
+    <string name="wizard35_loading">Even kijken wat er al op deze handheld staat…</string>
+    <string name="wizard35_summary_ready">Deze handheld is klaar</string>
+    <string name="wizard35_summary_steps">Stappen afgehandeld: %1$d van %2$d</string>
+    <string name="wizard35_summary_next">Volgende: %1$s</string>
+    <string name="wizard35_summary_optional_left">Alles wat nodig is, is klaar. Optioneel: %1$s</string>
+    <string name="wizard35_summary_all_settled">Elke stap is klaar, overgeslagen of niet nodig.</string>
+    <string name="wizard35_start_over">Opnieuw beginnen</string>
+    <string name="wizard35_start_over_title">Checklist opnieuw beginnen?</string>
+    <string name="wizard35_start_over_text">Stappen die je hebt overgeslagen of zelf als klaar hebt gemarkeerd, krijgen weer de status die de app zelf ziet. Je instellingen, spellen en saves blijven zoals ze zijn.</string>
+    <string name="wizard35_state_todo">Te doen</string>
+    <string name="wizard35_state_done">Klaar</string>
+    <string name="wizard35_state_skipped">Overgeslagen</string>
+    <string name="wizard35_state_not_needed">Niet nodig</string>
+    <string name="wizard35_optional">Optioneel</string>
+    <string name="wizard35_step_sources">Instellingen en bronnen</string>
+    <string name="wizard35_step_library">Spellenmap en consoles</string>
+    <string name="wizard35_step_emulators">Emulators</string>
+    <string name="wizard35_step_games">Spellen</string>
+    <string name="wizard35_step_saves">Saves</string>
+    <string name="wizard35_step_launcher">Launcher</string>
+    <string name="wizard35_step_of">Stap %1$d van %2$d</string>
+    <string name="wizard35_d_sources_none">Haal je instellingen en bronnen van je andere handheld: zet een back-upbestand terug of gebruik je eigen cloud (cloud-back-up of apparaatsynchronisatie).</string>
+    <plurals name="wizard35_d_sources_ok">
+        <item quantity="one">Er is %1$d bron ingesteld op deze handheld.</item>
+        <item quantity="other">Er zijn %1$d bronnen ingesteld op deze handheld.</item>
+    </plurals>
+    <string name="wizard35_d_sources_cloud">Je eigen cloud is gekoppeld, dus je instellingen en bronnen kunnen daarvandaan komen.</string>
+    <string name="wizard35_d_library_no_folder">Kies de map met je spellen, of de map waar nieuwe downloads naartoe moeten.</string>
+    <string name="wizard35_d_library_empty">Nog geen spellen gevonden in de spellenmap. Zet ze erin (of download ze) en scan de map opnieuw.</string>
+    <string name="wizard35_d_library_unmatched">Er staan bestanden in de spellenmap, maar niet in een consolemap die de app herkent. Het bibliotheekoverzicht laat zien wat er gevonden is.</string>
+    <plurals name="wizard35_d_library_ok">
+        <item quantity="one">Spellen gevonden voor %1$d console.</item>
+        <item quantity="other">Spellen gevonden voor %1$d consoles.</item>
+    </plurals>
+    <string name="wizard35_d_emulators_waiting">Zodra er spellen zijn, zie je hier welke consoles nog een emulator nodig hebben.</string>
+    <string name="wizard35_d_emulators_unchecked">De app kent geen emulators voor de consoles in je bibliotheek. Kies zelf een app per console.</string>
+    <string name="wizard35_d_emulators_missing">Consoles zonder emulator: %1$d van %2$d.</string>
+    <string name="wizard35_d_emulators_ok">Elke console met spellen heeft een emulator om ze te starten.</string>
+    <string name="wizard35_d_games_waiting">Zodra je bronnen of een back-up erin staan, vergelijkt deze stap je favorieten, collecties en verlanglijst met wat er op deze handheld staat.</string>
+    <string name="wizard35_d_games_nothing">Geen favorieten, collecties, verlanglijst of RomM-bibliotheek om mee te vergelijken. Je kunt wel spellen van een ander apparaat kopiëren.</string>
+    <plurals name="wizard35_d_games_missing">
+        <item quantity="one">%1$d spel uit je favorieten en collecties staat nog niet op deze handheld.</item>
+        <item quantity="other">%1$d spellen uit je favorieten en collecties staan nog niet op deze handheld.</item>
+    </plurals>
+    <string name="wizard35_d_games_ok">Al je favorieten en collectiespellen staan op deze handheld.</string>
+    <string name="wizard35_count_favourites">Favorieten die ontbreken: %1$d van %2$d</string>
+    <string name="wizard35_count_collections">Collectiespellen die ontbreken: %1$d van %2$d</string>
+    <string name="wizard35_count_wishlist">Verlanglijst, nog niet op deze handheld: %1$d van %2$d</string>
+    <string name="wizard35_count_romm">RomM-server, nog niet op deze handheld: %1$d van %2$d spellen</string>
+    <string name="wizard35_copy_pointer">Spellen op je andere handheld of pc? Haal ze over met Spellen kopiëren of versturen.</string>
+    <string name="wizard35_d_saves_no_romm">Saves synchroniseren gaat via je RomM-server. Zonder server valt hier niets in te stellen.</string>
+    <string name="wizard35_d_saves_no_folders">RomM is gekoppeld. Vertel de synchronisatie waar je emulators hun saves bewaren.</string>
+    <string name="wizard35_d_saves_ready">Saves synchroniseren is ingesteld. Draai het één keer om je saves naar deze handheld te halen.</string>
+    <string name="wizard35_d_saves_running">De saves worden nu gesynchroniseerd…</string>
+    <plurals name="wizard35_d_saves_conflicts">
+        <item quantity="one">%1$d save vraagt om een keuze: hij is hier én op de server veranderd.</item>
+        <item quantity="other">%1$d saves vragen om een keuze: ze zijn hier én op de server veranderd.</item>
+    </plurals>
+    <string name="wizard35_d_saves_error">De laatste synchronisatie is niet afgerond. Bij Saves synchroniseren zie je wat er misging.</string>
+    <string name="wizard35_d_saves_ok">De saves zijn op deze handheld gesynchroniseerd.</string>
+    <string name="wizard35_d_saves_auto">Saves synchroniseren gaat op deze handheld vanzelf.</string>
+    <string name="wizard35_d_launcher_todo">Gebruik je ES-DE, Pegasus, Daijishō of een andere launcher? Controleer of hij je spellen en covers ziet.</string>
+    <string name="wizard35_d_launcher_ok">Je launcher is ingericht. De frontend-check laat de details zien.</string>
+    <string name="wizard35_emu_wanted">Nog geen spellen (favoriet of wens)</string>
+    <string name="wizard35_emu_suggestion">Nog geen emulator geïnstalleerd. Aanrader: %1$s</string>
+    <string name="wizard35_emu_none">Nog geen emulator gevonden.</string>
+    <string name="wizard35_emu_check">Controleren</string>
+    <string name="wizard35_act_check_console">%1$s controleren</string>
+    <string name="wizard35_act_restore_file">Back-upbestand terugzetten</string>
+    <string name="wizard35_act_cloud">Uit mijn eigen cloud</string>
+    <string name="wizard35_act_pick_folder">Spellenmap kiezen</string>
+    <string name="wizard35_act_scan">Map opnieuw scannen</string>
+    <string name="wizard35_act_download_favourites">Ontbrekende favorieten downloaden</string>
+    <string name="wizard35_act_download_collection">%1$s downloaden</string>
+    <string name="wizard35_act_romm">RomM instellen</string>
+    <string name="wizard35_skip">Overslaan</string>
+    <string name="wizard35_mark_done">Markeren als klaar</string>
+    <string name="wizard35_undo">Ongedaan maken</string>
+    <string name="wizard35_marked_done">Je hebt deze stap zelf als klaar gemarkeerd.</string>
+    <string name="wizard35_marked_skipped">Je hebt deze stap overgeslagen.</string>
+    <string name="wizard35_scan_started">De spellenmap wordt gescand…</string>
+    <string name="wizard35_sync_started">Synchronisatie van saves gestart</string>
+    <string name="wizard35_hint_title">Nieuwe handheld?</string>
+    <string name="wizard35_hint_text">Een korte checklist haalt je instellingen en bronnen over, en daarna spellen, emulators en saves. Je vindt hem altijd terug bij Bibliotheekhulpmiddelen.</string>
+    <string name="wizard35_hint_open">Instellen</string>
+    <string name="wizard35_hint_dismiss">Verbergen</string>
+</resources>

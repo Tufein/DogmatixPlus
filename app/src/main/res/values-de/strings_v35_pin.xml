@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pin35_action">Zum Startbildschirm hinzufügen</string>
+    <string name="pin35_requested">„%1$s“ wird zum Startbildschirm hinzugefügt</string>
+    <string name="pin35_unsupported">Dein Launcher kann keine Verknüpfungen zum Startbildschirm hinzufügen.</string>
+    <string name="pin35_failed">Die Verknüpfung konnte nicht hinzugefügt werden.</string>
+    <string name="pin35_no_files">Die Dateien dieses Spiels sind nicht mehr auf diesem Gerät.</string>
+    <string name="pin35_disabled">Dieses Spiel wurde vom Gerät entfernt.</string>
+    <string name="pin35_setting_title">Zuletzt gespielt im Symbolmenü</string>
+    <string name="pin35_setting_hint">Halte das App-Symbol gedrückt, um eines deiner 3 zuletzt gespielten Spiele direkt zu starten</string>
+    <string name="pin35_group_recent">Zuletzt gespielt</string>
+</resources>

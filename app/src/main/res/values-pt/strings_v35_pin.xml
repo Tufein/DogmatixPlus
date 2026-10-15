@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pin35_action">Adicionar ao ecrã principal</string>
+    <string name="pin35_requested">A adicionar «%1$s» ao ecrã principal</string>
+    <string name="pin35_unsupported">O teu launcher não consegue adicionar atalhos ao ecrã principal.</string>
+    <string name="pin35_failed">Não foi possível adicionar o atalho.</string>
+    <string name="pin35_no_files">Os ficheiros deste jogo já não estão neste dispositivo.</string>
+    <string name="pin35_disabled">Este jogo foi removido do dispositivo.</string>
+    <string name="pin35_setting_title">Jogados recentemente no menu do ícone</string>
+    <string name="pin35_setting_hint">Mantém premido o ícone da app para iniciar logo um dos 3 últimos jogos que jogaste</string>
+    <string name="pin35_group_recent">Jogados recentemente</string>
+</resources>

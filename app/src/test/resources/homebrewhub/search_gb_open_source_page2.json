@@ -1,0 +1,217 @@
+{
+ "results": 110,
+ "page_total": 11,
+ "page_current": 2,
+ "page_elements": 10,
+ "sort": "firstadded_date",
+ "order": "desc",
+ "entries": [
+  {
+   "title": "Rex Runner GB",
+   "slug": "rex-runner-gb",
+   "developer": "The Void",
+   "typetag": "game",
+   "platform": "GB",
+   "license": "MIT",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "rex-runner.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "Game (Boy) of Life",
+   "slug": "game_boy_of_life",
+   "developer": "StudioGuma",
+   "typetag": "game",
+   "platform": "GB",
+   "license": "GPL-3.0-or-later",
+   "assetLicense": "CC-BY-SA-4.0",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "life.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "Bit Bang",
+   "slug": "bit_bang",
+   "developer": "StudioGuma",
+   "typetag": "game",
+   "platform": "GB",
+   "license": "GPL-3.0-or-later",
+   "assetLicense": "CC-BY-SA-4.0",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "bit_bang.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "Conways Game of Life",
+   "slug": "life-gb",
+   "developer": "xoxo_grease",
+   "typetag": "demo",
+   "platform": "GB",
+   "license": "MIT",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "life.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "Max Pirate",
+   "slug": "maxpirate",
+   "developer": "Lemmy Hawkins",
+   "typetag": "game",
+   "platform": "GB",
+   "license": "MIT",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "maxpirate.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "SpeedP",
+   "slug": "speedp",
+   "developer": "Konstantin Dobrev",
+   "typetag": "game",
+   "platform": "GB",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "speedp.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "Hover Defender",
+   "slug": "hover-defender",
+   "developer": "Konstantin Dobrev",
+   "typetag": "game",
+   "platform": "GB",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": false,
+     "filename": "HoverDefenderInstructionBooklet.pdf",
+     "playable": false
+    },
+    {
+     "default": true,
+     "filename": "hoverdefender.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "Pelmanism",
+   "slug": "gbccardgame",
+   "developer": "TeamKNOx",
+   "platform": "GB",
+   "license": "MIT",
+   "files": [
+    {
+     "default": true,
+     "filename": "pelmanism.gb",
+     "playable": true
+    },
+    {
+     "description": "release",
+     "filename": "gbccardgame.zip"
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "GB-Clock (MBC3 RTC handling by GBC)",
+   "slug": "gb-clock",
+   "developer": "TeamKNOx",
+   "typetag": "demo",
+   "platform": "GB",
+   "license": "MIT",
+   "files": [
+    {
+     "default": true,
+     "filename": "clock.gb",
+     "playable": true
+    },
+    {
+     "description": "release",
+     "filename": "gbcclock.zip"
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "GB-SHELL",
+   "slug": "gbcshell",
+   "developer": "TeamKNOx",
+   "typetag": "demo",
+   "platform": "GB",
+   "license": "MIT",
+   "files": [
+    {
+     "default": true,
+     "filename": "shell.gb",
+     "playable": true
+    },
+    {
+     "description": "release",
+     "filename": "gbcshell.zip"
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  }
+ ]
+}

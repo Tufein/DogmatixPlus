@@ -471,6 +471,15 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
         val request = com.cortinadev.dogmatix.ui.screens.game.PendingHandoff.consume() ?: return@LaunchedEffect
         navController.navigate(com.cortinadev.dogmatix.ui.screens.game.GameHandoffRoute.of(request.consoleId, request.fileName, receive = true, code = request.code))
     }
+    // 3.5: a game shortcut that could not start its game by itself: that game's page (unless it is already open).
+    val gameShortcut by com.cortinadev.dogmatix.ui.shortcut.PendingGameShortcut.request.collectAsState()
+    LaunchedEffect(gameShortcut) {
+        val request = com.cortinadev.dogmatix.ui.shortcut.PendingGameShortcut.consumeOpen() ?: return@LaunchedEffect
+        val top = navController.currentBackStackEntry
+        val shown = top?.destination?.route == NavRoutes.Game.route &&
+            top.arguments?.getString(GamePageModel.ARG_CONSOLE) == request.consoleId && top.arguments?.getString(GamePageModel.ARG_FILE) == request.fileName
+        if (!shown) navController.navigate(GamePageModel.route(request.consoleId, request.fileName))
+    }
     // After a gamepad section switch the focus ring goes away: focus is parked on an invisible
     // sink (clearing it would make Compose re-focus the first tab). The next D-pad press puts
     // it back on the active tab (see Gamepad.interceptKey).
@@ -631,6 +640,8 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     composable(NavRoutes.LibraryRepair.route) { com.cortinadev.dogmatix.ui.screens.tools.LibraryRepairScreen(onNavigate = { navController.navigate(it) }) }
                     composable(NavRoutes.ReportProblem.route) { com.cortinadev.dogmatix.ui.screens.tools.ReportProblemScreen() }
                     composable(NavRoutes.FrontendCovers.route) { com.cortinadev.dogmatix.ui.screens.tools.FrontendCoversScreen() }
+                    composable(NavRoutes.RetroArchPlaylists.route) { com.cortinadev.dogmatix.ui.screens.tools.RetroArchPlaylistsScreen() }
+                    composable(NavRoutes.NewHandheld.route) { com.cortinadev.dogmatix.ui.screens.tools.NewHandheldScreen(navController) }
                     composable(NavRoutes.Tools.route) { ToolsHubScreen(navController) }
                     composable(NavRoutes.Sets.route) { SetsScreen() }
                     composable(NavRoutes.Storage.route) { StorageScreen() }

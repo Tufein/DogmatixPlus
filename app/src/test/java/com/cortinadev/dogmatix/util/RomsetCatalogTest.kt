@@ -55,10 +55,10 @@ class RomsetCatalogTest {
         val libretro = catalog.entriesOf("libretro")
         assertEquals(29, libretro.size)
         assertEquals(317, libretro.sumOf { it.fileCount })
-        assertEquals(30, catalog.entries.size)
+        assertEquals(32, catalog.entries.size)
         val urls = catalog.entries.flatMap { it.urls }
         assertEquals(urls.size, urls.toSet().size)
-        catalog.entries.forEach { e ->
+        catalog.entries.filter { catalog.provider(it.providerId)!!.kind == RomsetCatalog.Kind.LISTING }.forEach { e ->
             e.urls.forEach {
                 assertTrue(it.startsWith(e.baseUrl))
                 assertFalse(it.contains(' '))
@@ -72,7 +72,7 @@ class RomsetCatalogTest {
 
     @Test fun everyProviderIsAttributedWithHomepageProvenanceAndTerms() {
         val catalog = RomsetCatalog.parse(document())
-        assertEquals(listOf("libretro", "scummvm"), catalog.providers.map { it.id })
+        assertEquals(listOf("libretro", "scummvm", "homebrew_hub"), catalog.providers.map { it.id })
         val libretro = catalog.provider("libretro")!!
         assertEquals("Libretro", libretro.name)
         assertEquals(RomsetCatalog.Licence.PUBLISHED, libretro.licence)
@@ -104,9 +104,8 @@ class RomsetCatalogTest {
     }
 
     @Test fun anEntryMayListSeveralFoldersButOnlyValidUniqueOnes() {
-        fun scummvm(change: (JsonObject) -> Unit): String = root().also { r ->
-            change(r.getAsJsonArray("entries").last().asJsonObject)
-        }.toString()
+        fun scummvmOf(r: JsonObject) = r.getAsJsonArray("entries").single { it.asJsonObject.get("provider").asString == "scummvm" }.asJsonObject
+        fun scummvm(change: (JsonObject) -> Unit): String = root().also { r -> change(scummvmOf(r)) }.toString()
         fun folders(vararg names: String) = JsonArray().apply { names.forEach { add(it) } }
         // Both spellings at once, an escaping or duplicated folder, too many folders, none at all.
         assertThrows(IllegalArgumentException::class.java) { RomsetCatalog.parse(scummvm { it.addProperty("folder", "Dreamweb") }) }
@@ -120,7 +119,7 @@ class RomsetCatalogTest {
         // One address may not be offered by two entries.
         val clash = root().also { r ->
             val entries = r.getAsJsonArray("entries")
-            entries.add(JsonParser.parseString(entries.last().toString()).asJsonObject.apply {
+            entries.add(JsonParser.parseString(scummvmOf(r).toString()).asJsonObject.apply {
                 addProperty("id", "pc_scummvm_more"); addProperty("consoleKey", "scummvm_more")
                 add("folders", folders("Dreamweb"))
             })
@@ -177,17 +176,17 @@ class RomsetCatalogTest {
         // Not reviewed in the app: refused.
         assertThrows(IllegalArgumentException::class.java) { RomsetCatalog.parse(doc) }
         val catalog = RomsetCatalog.parse(doc, trustedWithExample)
-        assertEquals(listOf("libretro", "scummvm", "example_homebrew"), catalog.providers.map { it.id })
+        assertEquals(listOf("libretro", "scummvm", "homebrew_hub", "example_homebrew"), catalog.providers.map { it.id })
         val gameBoys = catalog.entries.filter { it.id == "nintendo_gameboy" }
-        assertEquals(2, gameBoys.size)
-        assertEquals(2, gameBoys.map { it.key }.toSet().size)
+        assertEquals(3, gameBoys.size)
+        assertEquals(3, gameBoys.map { it.key }.toSet().size)
         assertEquals("https://example.org/homebrew/Game%20Boy/", gameBoys.single { it.providerId == "example_homebrew" }.url)
         assertEquals(RomsetCatalog.Licence.PUBLIC_DOMAIN, catalog.provider("example_homebrew")!!.licence)
 
         val onlyExample = RomsetCatalog.filter(catalog, "example_homebrew", "")
         assertEquals(listOf("nintendo_gameboy"), onlyExample.map { it.id })
         val groups = RomsetCatalog.groups(catalog, RomsetCatalog.filter(catalog, null, "game boy"))
-        assertEquals(listOf("libretro", "example_homebrew"), groups.map { it.first.id })
+        assertEquals(listOf("libretro", "homebrew_hub", "example_homebrew"), groups.map { it.first.id })
         // The provider's name is searchable too.
         assertEquals(setOf("example_homebrew"), RomsetCatalog.filter(catalog, null, "Example Homebrew").map { it.providerId }.toSet())
     }
@@ -208,7 +207,7 @@ class RomsetCatalogTest {
 
     @Test fun entriesGoToTheUsersOwnConsoleThroughTheAliasRules() {
         val catalog = RomsetCatalog.parse(document())
-        val gb = catalog.entries.single { it.id == "nintendo_gameboy" }
+        val gb = catalog.entries.single { it.id == "nintendo_gameboy" && it.providerId == "libretro" }
         val genesis = catalog.entries.single { it.id == "sega_genesis" }
         val psx = catalog.entries.single { it.id == "sony_playstation" }
 
@@ -227,7 +226,7 @@ class RomsetCatalogTest {
 
     @Test fun anAmbiguousMatchMakesANewConsoleInsteadOfGuessing() {
         val catalog = RomsetCatalog.parse(document())
-        val gb = catalog.entries.single { it.id == "nintendo_gameboy" }
+        val gb = catalog.entries.single { it.id == "nintendo_gameboy" && it.providerId == "libretro" }
         val two = listOf(RomsetCatalog.ConsoleRef("handheld_a", "Handheld A", aliases = listOf("gb")), RomsetCatalog.ConsoleRef("handheld_b", "Handheld B", aliases = listOf("gameboy")))
         assertFalse(RomsetCatalog.mapConsole(gb, two).existing)
         // The same manufacturer settles it.
@@ -236,6 +235,62 @@ class RomsetCatalogTest {
         // SNES never lands on NES.
         val snes = catalog.entries.single { it.id == "nintendo_super_nintendo_entertainment_system" }
         assertFalse(RomsetCatalog.mapConsole(snes, listOf(RomsetCatalog.ConsoleRef("nintendo_nes", "NES"))).existing)
+    }
+
+    @Test fun homebrewHubIsAttributedAndOffersTheApiSearchForGameBoyAndGameBoyColor() {
+        val catalog = RomsetCatalog.parse(document())
+        val hub = catalog.provider("homebrew_hub")!!
+        assertEquals("Homebrew Hub", hub.name)
+        assertEquals("https://hh.gbdev.io/", hub.homepage)
+        assertEquals("https://github.com/gbdev/database", hub.provenance)
+        assertEquals(RomsetCatalog.Licence.FREE_LICENCE, hub.licence)
+        assertEquals(RomsetCatalog.Kind.HOMEBREW_HUB, hub.kind)
+        assertEquals(RomsetCatalog.Kind.LISTING, catalog.provider("libretro")!!.kind)
+        val entries = catalog.entriesOf("homebrew_hub")
+        assertEquals(listOf("nintendo_gameboy", "nintendo_gameboy_color"), entries.map { it.id })
+        assertEquals(listOf("https://hh3.gbdev.io/api/search?platform=GB"), entries[0].urls)
+        assertEquals("https://hh3.gbdev.io/api/search?platform=GBC", entries[1].url)
+        entries.forEach { e ->
+            assertTrue(HomebrewHub.isSource(e.url))
+            // The list is read when scanning: no count to show.
+            assertEquals(0, e.fileCount)
+            assertEquals("", e.folder)
+        }
+        // The same console as Libretro's Game Boy entry, and the user's own Game Boy Color.
+        val gbc = entries[1]
+        assertEquals(RomsetCatalog.Mapping("my_gbc", "GBC", true),
+            RomsetCatalog.mapConsole(gbc, listOf(RomsetCatalog.ConsoleRef("my_gbc", "GBC"), RomsetCatalog.ConsoleRef("nintendo_gameboy", "Game Boy"))))
+        assertEquals(RomsetCatalog.Mapping("nintendo_gameboy", "Game Boy", true),
+            RomsetCatalog.mapConsole(entries[0], listOf(RomsetCatalog.ConsoleRef("nintendo_gameboy", "Game Boy"))))
+        assertEquals(RomsetCatalog.Mapping("nintendo_gameboy_color", "Game Boy Color", false), RomsetCatalog.mapConsole(gbc, emptyList()))
+        assertEquals(setOf("homebrew_hub"), RomsetCatalog.filter(catalog, null, "homebrew hub").map { it.providerId }.toSet())
+    }
+
+    @Test fun providersWithoutListingsNameAPlatformAndNeverAFolderOrAddress() {
+        fun withHub(change: (JsonObject) -> Unit): String = root().also { r ->
+            change(r.getAsJsonArray("entries").first { it.asJsonObject.get("provider").asString == "homebrew_hub" }.asJsonObject)
+        }.toString()
+        assertThrows(IllegalArgumentException::class.java) { RomsetCatalog.parse(withHub { it.addProperty("folder", "GB") }) }
+        assertThrows(IllegalArgumentException::class.java) { RomsetCatalog.parse(withHub { it.add("folders", JsonArray().apply { add("GB") }) }) }
+        assertThrows(IllegalArgumentException::class.java) { RomsetCatalog.parse(withHub { it.addProperty("platform", "GBA") }) }
+        assertThrows(IllegalArgumentException::class.java) { RomsetCatalog.parse(withHub { it.addProperty("platform", "GB&tags=x") }) }
+        assertThrows(IllegalArgumentException::class.java) { RomsetCatalog.parse(withHub { it.remove("platform") }) }
+        assertThrows(IllegalArgumentException::class.java) { RomsetCatalog.parse(withHub { it.addProperty("fileCount", 0) }) }
+        // Both entries naming the same platform would offer one address twice.
+        assertThrows(IllegalArgumentException::class.java) { RomsetCatalog.parse(withHub { it.addProperty("platform", "GBC") }) }
+        // A count, when the asset gives one, is shown like any other.
+        assertEquals(12, RomsetCatalog.parse(withHub { it.addProperty("fileCount", 12) }).entriesOf("homebrew_hub").first().fileCount)
+        // A listing entry cannot name a platform, and the provider cannot move to another address.
+        val listing = root().also { it.getAsJsonArray("entries")[0].asJsonObject.addProperty("platform", "GB") }
+        assertThrows(IllegalArgumentException::class.java) { RomsetCatalog.parse(listing.toString()) }
+        val moved = root().also { r ->
+            r.getAsJsonArray("providers").first { it.asJsonObject.get("id").asString == "homebrew_hub" }.asJsonObject
+                .addProperty("baseUrl", "https://hh.example/api/")
+        }
+        assertThrows(IllegalArgumentException::class.java) { RomsetCatalog.parse(moved.toString()) }
+        // How a provider is read comes from the review, not from the asset.
+        val asListing = RomsetCatalog.TRUSTED + ("homebrew_hub" to RomsetCatalog.TRUSTED.getValue("homebrew_hub").copy(kind = RomsetCatalog.Kind.LISTING))
+        assertThrows(IllegalArgumentException::class.java) { RomsetCatalog.parse(document(), asListing) }
     }
 
     @Test fun h5aiSourcesPreserveRootRelativeDownloadLinksAndParseTheActualSizeColumn() {

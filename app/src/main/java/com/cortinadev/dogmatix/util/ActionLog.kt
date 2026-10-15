@@ -43,6 +43,11 @@ object ActionReason {
     const val OFFLINE_COLLECTION = "offline_collection"
     /** Moved away or written by a fix of Tools -> Library repair (3.0.0). */
     const val REPAIR = "repair"
+    /**
+     * Tools -> RetroArch playlists (3.5.0): a playlist written, or the previous version of one it
+     * replaced (kept in the trash; restoring it moves the newer version to the trash first).
+     */
+    const val RETROARCH_PLAYLIST = "retroarch_playlist"
     /** Trash emptied by the retention setting. */
     const val EXPIRED = "expired"
     /** Moves. */

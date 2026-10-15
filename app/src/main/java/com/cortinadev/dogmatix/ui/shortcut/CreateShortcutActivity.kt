@@ -49,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.lifecycle.lifecycleScope
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.data.local.AppSettings
 import com.cortinadev.dogmatix.data.local.LookSettings
@@ -76,12 +77,13 @@ import com.cortinadev.dogmatix.ui.theme.dogmatixBackground
 import com.cortinadev.dogmatix.util.AppShortcut
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
  * The "create shortcut" picker (`ACTION_CREATE_SHORTCUT`): a launcher or a frontend such as Cocoon
- * opens it when the user adds a Dogmatix+ shortcut, and gets back the chosen console, saved view or
- * the Downloads section. It wears the app's own theme and accent, and works with the D-pad.
+ * opens it when the user adds a Dogmatix+ shortcut, and gets back the chosen console, saved view,
+ * section or (3.5) recently played game. It wears the app's own theme and accent, and works with the D-pad.
  */
 @AndroidEntryPoint
 class CreateShortcutActivity : AppCompatActivity() {
@@ -125,20 +127,31 @@ class CreateShortcutActivity : AppCompatActivity() {
         }
     }
 
+    private var choosing = false
+
     private fun choose(option: AppShortcut) {
-        setResult(Activity.RESULT_OK, ShortcutManagerCompat.createShortcutResultIntent(this, shortcuts.shortcutFor(option)))
-        finish()
+        if (choosing) return
+        choosing = true
+        // A game's shortcut loads its cover first (3.5); the others are ready at once.
+        lifecycleScope.launch {
+            val shortcut = runCatching { shortcuts.shortcutFor(option) }.getOrNull()
+            if (shortcut != null) setResult(Activity.RESULT_OK, ShortcutManagerCompat.createShortcutResultIntent(this@CreateShortcutActivity, shortcut))
+            finish()
+        }
     }
 }
 
 /** The groups the picker lists, in the order [com.cortinadev.dogmatix.util.AppShortcuts.plan] makes them. */
 private enum class Kind(val label: Int, val icon: Int) {
     SECTION(R.string.shortcut_group_sections, R.drawable.ic_download),
+    /** 3.5: recently played games, which start straight in their emulator. */
+    GAME(R.string.pin35_group_recent, R.drawable.ic_play_circle),
     VIEW(R.string.shortcut_group_views, R.drawable.ic_bookmark),
     CONSOLE(R.string.shortcut_group_consoles, R.drawable.ic_controller)
 }
 
 private fun kindOf(option: AppShortcut): Kind = when {
+    option.game != null -> Kind.GAME
     option.id.startsWith("console:") -> Kind.CONSOLE
     option.route != null || option.id.startsWith("section:") -> Kind.SECTION
     else -> Kind.VIEW

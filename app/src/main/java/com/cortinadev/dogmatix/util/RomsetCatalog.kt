@@ -12,9 +12,11 @@ import java.time.LocalDate
  * Schema 2 lists the providers that publish the content (name, homepage, where the list comes
  * from, what kind of permission covers it) and every entry names its provider. A provider is
  * only accepted when it is also in [TRUSTED] with the same base address and provenance, so a
- * changed asset cannot point the app at a server nobody reviewed. Every entry is a plain HTTP
- * directory listing below that base address: the kind of source the scanner reads (a table of
- * links, files only, sub-folders are not walked). Schema 1 (one Libretro list) is still read.
+ * changed asset cannot point the app at a server nobody reviewed. Every entry of a [Kind.LISTING]
+ * provider is a plain HTTP directory listing below that base address: the kind of source the
+ * scanner reads (a table of links, files only, sub-folders are not walked). A provider without
+ * listings has its own reviewed reader ([Kind.HOMEBREW_HUB]); its entries name what to read
+ * (`platform`) instead of folders. Schema 1 (one Libretro list) is still read.
  */
 object RomsetCatalog {
     const val ASSET = "romsets.json"
@@ -39,13 +41,22 @@ object RomsetCatalog {
         companion object { fun of(key: String): Licence? = entries.firstOrNull { it.key == key } }
     }
 
-    /** A reviewed provider: the only base address and provenance its entries may use. */
-    data class Trusted(val baseUrl: String, val provenance: String)
+    /** How a provider's entries are read. Part of the review: the asset cannot change it. */
+    enum class Kind {
+        /** Web directory listings below the base address. */
+        LISTING,
+        /** The Homebrew Hub API, one search per console ([HomebrewHub]). */
+        HOMEBREW_HUB
+    }
+
+    /** A reviewed provider: the only base address and provenance its entries may use, and how they are read. */
+    data class Trusted(val baseUrl: String, val provenance: String, val kind: Kind = Kind.LISTING)
 
     /** Providers that have been reviewed. A provider in the asset but not here is refused. */
     val TRUSTED: Map<String, Trusted> = mapOf(
         "libretro" to Trusted("https://buildbot.libretro.com/assets/cores/", "https://github.com/libretro/libretro-content"),
-        "scummvm" to Trusted("https://downloads.scummvm.org/frs/extras/", "https://www.scummvm.org/games/")
+        "scummvm" to Trusted("https://downloads.scummvm.org/frs/extras/", "https://www.scummvm.org/games/"),
+        "homebrew_hub" to Trusted(HomebrewHub.API, "https://github.com/gbdev/database", Kind.HOMEBREW_HUB)
     )
 
     data class Provider(
@@ -55,7 +66,8 @@ object RomsetCatalog {
         val provenance: String,
         val licence: Licence,
         val baseUrl: String,
-        val checkedAt: String
+        val checkedAt: String,
+        val kind: Kind = Kind.LISTING
     )
 
     data class Entry(
@@ -67,18 +79,21 @@ object RomsetCatalog {
         val shortName: String,
         val aliases: List<String>,
         val folder: String,
+        /** Files at the last check; 0 when the provider's list is only read when scanning. */
         val fileCount: Int,
         val providerId: String = "libretro",
         val baseUrl: String = "https://buildbot.libretro.com/assets/cores/",
         /** Further folders of the same system, for providers that publish one folder per game. */
-        val moreFolders: List<String> = emptyList()
+        val moreFolders: List<String> = emptyList(),
+        /** The source address of a provider without listings (see [Kind]); [folder] is then empty. */
+        val index: String? = null
     ) {
         /** Unique within the catalogue: two providers may offer the same console. */
         val key: String get() = "$providerId:$id"
-        /** The first (often only) folder. */
-        val url: String get() = urlOf(folder)
-        /** Every folder of the entry, each a listing the scanner reads. */
-        val urls: List<String> get() = (listOf(folder) + moreFolders).map(::urlOf)
+        /** The first (often only) folder, or the provider's index. */
+        val url: String get() = index ?: urlOf(folder)
+        /** Every folder of the entry, each a listing the scanner reads (or the one index). */
+        val urls: List<String> get() = index?.let(::listOf) ?: (listOf(folder) + moreFolders).map(::urlOf)
         private fun urlOf(name: String): String = baseUrl.toHttpUrl().newBuilder().addPathSegment(name).addPathSegment("").build().toString()
     }
 
@@ -104,14 +119,17 @@ object RomsetCatalog {
             val maker = string(obj, "manufacturerId").also { require(slug.matches(it)) }
             val key = string(obj, "consoleKey").also { require(slug.matches(it)) }
             val id = string(obj, "id").also { require(it == "${maker}_${key}") }
-            val folders = folders(obj)
+            val index = indexOf(obj, provider)
+            val folders = if (index == null) folders(obj) else listOf("")
             val aliases = obj.getAsJsonArray("aliases").map { alias ->
                 require(alias.isJsonPrimitive && alias.asJsonPrimitive.isString)
                 alias.asString.also { require(it.isNotBlank() && it.length <= 64 && it.none(Char::isISOControl)) }
             }.distinct().also { require(it.size <= 16) }
+            // A list read only when scanning has no count to show, unless the asset gives one.
+            val fileCount = if (index != null && !obj.has("fileCount")) 0 else integer(obj, "fileCount").also { require(it in 1..100_000) }
             Entry(id, maker, string(obj, "manufacturerName"), key, string(obj, "consoleName"),
-                string(obj, "shortName"), aliases, folders.first(), integer(obj, "fileCount").also { require(it in 1..100_000) },
-                provider.id, provider.baseUrl, folders.drop(1))
+                string(obj, "shortName"), aliases, folders.first(), fileCount,
+                provider.id, provider.baseUrl, folders.drop(1), index)
         }
         require(entries.map { it.key }.distinct().size == entries.size)
         // No address is offered twice, whichever entry lists it.
@@ -122,6 +140,18 @@ object RomsetCatalog {
         // A provider without entries is not shown.
         val used = providers.filter { p -> entries.any { it.providerId == p.id } }
         return Catalog(checkedAt, used, entries.sortedWith(compareBy({ it.consoleName.lowercase() }, { it.providerId })))
+    }
+
+    /**
+     * The source address of an entry of a provider without listings, or null for a listing
+     * provider. Such an entry names what to read, never an address or a folder.
+     */
+    private fun indexOf(obj: JsonObject, provider: Provider): String? = when (provider.kind) {
+        Kind.LISTING -> { require(!obj.has("platform")); null }
+        Kind.HOMEBREW_HUB -> {
+            require(!obj.has("folder") && !obj.has("folders"))
+            HomebrewHub.sourceUrl(HomebrewHub.Platform.of(string(obj, "platform")) ?: throw IllegalArgumentException("Unknown platform"))
+        }
     }
 
     /** The folder of an entry (`folder`), or several (`folders`) for one system published per game. */
@@ -162,7 +192,7 @@ object RomsetCatalog {
             val homepage = string(obj, "homepage").also { require(https(it)) }
             val licence = Licence.of(string(obj, "licence")) ?: throw IllegalArgumentException("Unknown licence")
             val checked = obj.get("checkedAt")?.let { date(string(obj, "checkedAt")) } ?: checkedAt
-            Provider(id, string(obj, "name"), homepage, provenance, licence, baseUrl, checked)
+            Provider(id, string(obj, "name"), homepage, provenance, licence, baseUrl, checked, reviewed.kind)
         }
         require(providers.map { it.id }.distinct().size == providers.size)
         return providers

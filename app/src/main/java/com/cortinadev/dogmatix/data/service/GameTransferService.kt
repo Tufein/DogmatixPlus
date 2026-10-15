@@ -23,6 +23,7 @@ import com.cortinadev.dogmatix.util.RemoteSend.Outcome
 import com.cortinadev.dogmatix.util.RommPlatformMapper
 import com.cortinadev.dogmatix.util.StorageHelper
 import com.cortinadev.dogmatix.util.StoredZip
+import com.cortinadev.dogmatix.util.TargetFolderLayouts
 import com.cortinadev.dogmatix.util.VerifiedCopy
 import com.cortinadev.dogmatix.util.WebDavPaths
 import com.cortinadev.dogmatix.util.WebDavXml
@@ -68,6 +69,9 @@ data class TransferPlace(
 /** A selected game whose files on the device are not all there or not the ones recorded; it is left out. */
 data class TransferUnavailable(val title: String, val consoleId: String, val missing: Int, val changed: Int)
 
+/** A selected game the chosen folder names have no folder for (3.5.0); it is left out. */
+data class TransferUnsupported(val title: String, val consoleId: String)
+
 data class TransferPreview(
     val profileId: String,
     val restrictions: LibraryRestrictions,
@@ -83,7 +87,19 @@ data class TransferPreview(
     val copy: PackageCopyPlan.Plan?,
     /** RomM. */
     val romm: List<RemoteSend.RommGame>?,
-    val records: Map<String, GamePackages.Manifest>
+    val records: Map<String, GamePackages.Manifest>,
+    /** Folder names at the destination (3.5.0; folder only, RomM and the NAS keep the library's). */
+    val layout: TargetFolderLayouts.Layout = TargetFolderLayouts.Layout.LIBRARY,
+    /** Another system's folder names were asked for but the folder is one of the app's library folders: the library's own names are used (see [layout]). */
+    val layoutIgnored: Boolean = false,
+    /** Games [layout] has no folder for; they are not copied. */
+    val unsupported: List<TransferUnsupported> = emptyList(),
+    /** Titles of games whose files sit deeper than the other system looks ([TargetFolderLayouts.Layout.maxSubfolders]). */
+    val tooDeep: List<String> = emptyList(),
+    /** Planned folders that already exist there under other letter case; the copy goes into the existing one. */
+    val caseDifferences: List<TargetFolderLayouts.CaseDifference> = emptyList(),
+    /** For another system's folder names: the console folders the copy writes to, spelled as they are (or will be) there. */
+    val consoleFolders: List<String> = emptyList()
 ) {
     val canStart: Boolean get() = when (target) {
         TransferTarget.ROMM -> romm.orEmpty().any { it.sends || it.decision == RemoteSend.RommDecision.PRESENT }
@@ -169,7 +185,8 @@ class GameTransferService @Inject constructor(
         target: TransferTarget,
         folderUri: String?,
         choice: CopyConflictChoice,
-        readBack: Boolean
+        readBack: Boolean,
+        layout: TargetFolderLayouts.Layout = TargetFolderLayouts.Layout.LIBRARY
     ): TransferPreview = withContext(Dispatchers.IO) {
         val fresh = packageTransfer.snapshot()
         check(fresh.profileId == snapshot.profileId && fresh.restrictions == snapshot.restrictions) { "Profile changed" }
@@ -193,13 +210,28 @@ class GameTransferService @Inject constructor(
                 val uri = requireNotNull(folderUri) { "Pick a folder" }
                 val root = DiskScanner.rootOf(uri) ?: error("Not a folder")
                 val destination = SafDestination(context, root)
-                val plan = PackageCopyPlan.plan(sources, { destination.existing(it) }, choice, StorageHelper.getFreeBytes(context, uri))
                 val key = StorageAvailabilityService.key(uri)
                 val volume = runCatching { DocumentsContract.getTreeDocumentId(Uri.parse(uri)).substringBefore(':') }.getOrNull()
                 val path = runCatching { DocumentsContract.getTreeDocumentId(Uri.parse(uri)).substringAfter(':') }.getOrDefault("")
+                // Folder names for another system: every planned path (and so what is already there,
+                // the space, the copy, its check and the results) follows from the games' new folders.
                 val appFolder = storage.configuredLocations().any { it.key == key }
+                // In one of the app's own library folders other names would put every game there a second time.
+                val used = if (appFolder) TargetFolderLayouts.Layout.LIBRARY else layout
+                val placement = TargetFolderLayouts.place(used, sources, path.trimEnd('/').substringAfterLast('/').ifEmpty { null }) {
+                    destination.spelling(it)
+                }
+                val plan = PackageCopyPlan.plan(placement.sources, { destination.existing(it) }, choice, StorageHelper.getFreeBytes(context, uri))
                 TransferPreview(fresh.profileId, fresh.restrictions, target, uri, TransferPlace(target, volume, path, appFolder),
-                    choice, false, unavailable, plan, null, recordMap)
+                    choice, false, unavailable, plan, null, recordMap, used,
+                    layoutIgnored = used != layout,
+                    unsupported = placement.unsupported.map { TransferUnsupported(it.title, it.consoleId) },
+                    tooDeep = placement.tooDeep.map { it.title },
+                    caseDifferences = placement.caseDifferences,
+                    consoleFolders = if (used == TargetFolderLayouts.Layout.LIBRARY) emptyList() else {
+                        val copied = plan.games.filter { it.decision == PackageCopyPlan.Decision.COPY || it.decision == PackageCopyPlan.Decision.RENAMED }.map { it.key }.toSet()
+                        placement.sources.filter { it.key in copied }.map { it.folder }.distinct()
+                    })
             }
             TransferTarget.NAS -> {
                 val session = cloudConnection.open()
@@ -664,6 +696,26 @@ class GameTransferService @Inject constructor(
             val parent = dir(path.substringBeforeLast('/', ""), create = false) ?: return null
             val entry = child(parent, path.substringAfterLast('/')) ?: return null
             return PackageCopyPlan.Existing(entry.isDirectory, entry.size)
+        }
+
+        /**
+         * [path] as the folders along it are really spelled here (they are found whatever their
+         * letter case, like [dir] finds them); the part that does not exist yet stays as given.
+         */
+        fun spelling(path: String): String {
+            val names = path.split('/').filter { it.isNotEmpty() }
+            val out = ArrayList<String>()
+            var dir = root
+            for ((i, name) in names.withIndex()) {
+                val found = child(dir, name)
+                if (found == null || !found.isDirectory) {
+                    out += names.drop(i)
+                    break
+                }
+                out += found.name
+                dir = DiskScanner.dirOf(dir, found)
+            }
+            return out.joinToString("/")
         }
     }
 

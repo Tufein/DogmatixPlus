@@ -935,6 +935,7 @@ fun SettingsScreen(
                 }
             }
         },
+        SettingsRow(SettingsSection.FRONTENDS) { RecentGamesMenuSettingRow() },
         SettingsRow(SettingsSection.FRONTENDS, key = SettingKeys.ESDE) {
             SettingRow(
                 icon = R.drawable.ic_frontends,

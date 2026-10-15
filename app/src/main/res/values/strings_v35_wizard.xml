@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "Set up a new handheld" checklist (3.5.0) -->
+    <string name="wizard35_title">Set up a new handheld</string>
+    <string name="wizard35_hint">A checklist from a fresh install to a handheld that is ready to play: settings, games, emulators, saves</string>
+    <string name="wizard35_kw">new device, new handheld, set up, setup, first start, getting started, checklist, wizard, restore, move, migrate, transfer</string>
+    <string name="wizard35_intro">Six steps from a fresh install to a handheld that is ready to play. Each step opens the screen that does the work; nothing starts without your confirmation. Skip what you don\'t need.</string>
+    <string name="wizard35_loading">Looking at what this handheld already has…</string>
+    <string name="wizard35_summary_ready">This handheld is ready</string>
+    <string name="wizard35_summary_steps">Steps taken care of: %1$d of %2$d</string>
+    <string name="wizard35_summary_next">Next: %1$s</string>
+    <string name="wizard35_summary_optional_left">Everything needed is done. Optional: %1$s</string>
+    <string name="wizard35_summary_all_settled">Every step is done, skipped or not needed.</string>
+    <string name="wizard35_start_over">Start over</string>
+    <string name="wizard35_start_over_title">Start the checklist over?</string>
+    <string name="wizard35_start_over_text">Steps you skipped or marked as done yourself go back to what the app sees. Your settings, games and saves are not touched.</string>
+    <string name="wizard35_state_todo">To do</string>
+    <string name="wizard35_state_done">Done</string>
+    <string name="wizard35_state_skipped">Skipped</string>
+    <string name="wizard35_state_not_needed">Not needed</string>
+    <string name="wizard35_optional">Optional</string>
+    <string name="wizard35_step_sources">Settings and sources</string>
+    <string name="wizard35_step_library">Games folder and consoles</string>
+    <string name="wizard35_step_emulators">Emulators</string>
+    <string name="wizard35_step_games">Games</string>
+    <string name="wizard35_step_saves">Saves</string>
+    <string name="wizard35_step_launcher">Launcher</string>
+    <string name="wizard35_step_of">Step %1$d of %2$d</string>
+    <string name="wizard35_d_sources_none">Bring your settings and sources over from your other handheld: restore a backup file, or use your own cloud (cloud backup or device sync).</string>
+    <plurals name="wizard35_d_sources_ok">
+        <item quantity="one">%1$d source is set up on this handheld.</item>
+        <item quantity="other">%1$d sources are set up on this handheld.</item>
+    </plurals>
+    <string name="wizard35_d_sources_cloud">Your own cloud is connected, so your settings and sources can come from there.</string>
+    <string name="wizard35_d_library_no_folder">Choose the folder that holds your games, or where new downloads should go.</string>
+    <string name="wizard35_d_library_empty">No games found in the games folder yet. Put them there (or download them) and scan the folder again.</string>
+    <string name="wizard35_d_library_unmatched">There are files in the games folder, but none in a console folder the app recognises. Library overview shows what was found.</string>
+    <plurals name="wizard35_d_library_ok">
+        <item quantity="one">Games found for %1$d console.</item>
+        <item quantity="other">Games found for %1$d consoles.</item>
+    </plurals>
+    <string name="wizard35_d_emulators_waiting">Once there are games, this step shows which consoles still need an emulator.</string>
+    <string name="wizard35_d_emulators_unchecked">The app knows no emulators for the consoles in your library. Pick an app per console yourself.</string>
+    <string name="wizard35_d_emulators_missing">Consoles without an emulator: %1$d of %2$d.</string>
+    <string name="wizard35_d_emulators_ok">Every console with games has an emulator to start them.</string>
+    <string name="wizard35_d_games_waiting">Once sources or a backup are in, this step compares your favourites, collections and wishlist with what is on this handheld.</string>
+    <string name="wizard35_d_games_nothing">No favourites, collections, wishlist or RomM library to compare with. You can still copy games over from another device.</string>
+    <plurals name="wizard35_d_games_missing">
+        <item quantity="one">%1$d game from your favourites and collections is not on this handheld yet.</item>
+        <item quantity="other">%1$d games from your favourites and collections are not on this handheld yet.</item>
+    </plurals>
+    <string name="wizard35_d_games_ok">All your favourites and collection games are on this handheld.</string>
+    <string name="wizard35_count_favourites">Favourites missing: %1$d of %2$d</string>
+    <string name="wizard35_count_collections">Collection games missing: %1$d of %2$d</string>
+    <string name="wizard35_count_wishlist">Wishlist, not on this handheld yet: %1$d of %2$d</string>
+    <string name="wizard35_count_romm">RomM server, not on this handheld yet: %1$d of %2$d games</string>
+    <string name="wizard35_copy_pointer">Games on your other handheld or PC? Bring them across with Copy or send games.</string>
+    <string name="wizard35_d_saves_no_romm">Save sync goes through your RomM server. Without one, there is nothing to set up here.</string>
+    <string name="wizard35_d_saves_no_folders">RomM is connected. Tell save sync where your emulators keep their saves.</string>
+    <string name="wizard35_d_saves_ready">Save sync is set up. Run it once to bring your saves to this handheld.</string>
+    <string name="wizard35_d_saves_running">Saves are being synced…</string>
+    <plurals name="wizard35_d_saves_conflicts">
+        <item quantity="one">%1$d save needs a decision: it changed both here and on the server.</item>
+        <item quantity="other">%1$d saves need a decision: they changed both here and on the server.</item>
+    </plurals>
+    <string name="wizard35_d_saves_error">The last save sync did not finish. Save sync shows what went wrong.</string>
+    <string name="wizard35_d_saves_ok">Saves have been synced on this handheld.</string>
+    <string name="wizard35_d_saves_auto">Save sync runs by itself on this handheld.</string>
+    <string name="wizard35_d_launcher_todo">Using ES-DE, Pegasus, Daijishō or another launcher? Check that it sees your games and covers.</string>
+    <string name="wizard35_d_launcher_ok">Your launcher is set up. Frontend check shows the details.</string>
+    <string name="wizard35_emu_wanted">No games yet (favourite or wish)</string>
+    <string name="wizard35_emu_suggestion">No emulator installed yet. Suggested: %1$s</string>
+    <string name="wizard35_emu_none">No emulator found for it yet.</string>
+    <string name="wizard35_emu_check">Check</string>
+    <string name="wizard35_act_check_console">Check %1$s</string>
+    <string name="wizard35_act_restore_file">Restore a backup file</string>
+    <string name="wizard35_act_cloud">From my own cloud</string>
+    <string name="wizard35_act_pick_folder">Choose games folder</string>
+    <string name="wizard35_act_scan">Scan folder again</string>
+    <string name="wizard35_act_download_favourites">Download missing favourites</string>
+    <string name="wizard35_act_download_collection">Download %1$s</string>
+    <string name="wizard35_act_romm">Set up RomM</string>
+    <string name="wizard35_skip">Skip</string>
+    <string name="wizard35_mark_done">Mark as done</string>
+    <string name="wizard35_undo">Undo</string>
+    <string name="wizard35_marked_done">You marked this step as done.</string>
+    <string name="wizard35_marked_skipped">You skipped this step.</string>
+    <string name="wizard35_scan_started">Scanning the games folder…</string>
+    <string name="wizard35_sync_started">Save sync started</string>
+    <string name="wizard35_hint_title">New handheld?</string>
+    <string name="wizard35_hint_text">A short checklist brings over your settings and sources, then games, emulators and saves. You can always find it in Library tools.</string>
+    <string name="wizard35_hint_open">Set up</string>
+    <string name="wizard35_hint_dismiss">Hide</string>
+</resources>

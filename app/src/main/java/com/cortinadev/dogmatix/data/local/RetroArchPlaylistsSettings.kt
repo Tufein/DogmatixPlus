@@ -1,0 +1,43 @@
+package com.cortinadev.dogmatix.data.local
+
+import android.content.Context
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
+import com.cortinadev.dogmatix.util.RetroArchPlaylists
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/**
+ * RetroArch playlists (3.5.0): RetroArch's playlists folder the user picked (a SAF tree) and the
+ * playlists switched off. Off ones are stored rather than chosen ones, so a console that gets its
+ * first games later is written too.
+ */
+@Singleton
+class RetroArchPlaylistsSettings @Inject constructor(@param:ApplicationContext private val context: Context) {
+
+    /** [excluded]: libretro system names ("Nintendo - Game Boy Advance") not to write. */
+    data class Values(val folder: String = "", val excluded: Set<String> = emptySet())
+
+    private val folderKey = stringPreferencesKey(RetroArchPlaylists.FOLDER_KEY)
+    private val excludedKey = stringSetPreferencesKey(RetroArchPlaylists.EXCLUDED_KEY)
+
+    val values: Flow<Values> = context.dataStore.data.map { Values(it[folderKey].orEmpty(), it[excludedKey].orEmpty()) }
+
+    suspend fun setFolder(uri: String) = context.dataStore.edit { it[folderKey] = uri }
+
+    /** Switches the playlist of [system] on or off. */
+    suspend fun setIncluded(system: String, included: Boolean) = context.dataStore.edit {
+        val now = it[excludedKey].orEmpty()
+        it[excludedKey] = if (included) now - system else now + system
+    }
+
+    /** All of [systems] on ([included]) or off; the others keep their choice. */
+    suspend fun setAll(systems: Collection<String>, included: Boolean) = context.dataStore.edit {
+        val now = it[excludedKey].orEmpty()
+        it[excludedKey] = if (included) now - systems.toSet() else now + systems
+    }
+}

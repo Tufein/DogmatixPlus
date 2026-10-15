@@ -422,6 +422,9 @@ private fun reasonText(e: ActionEntry): String? {
         ActionReason.FREE_SPACE -> stringResource(R.string.hist24_r_free_space)
         ActionReason.OFFLINE_COLLECTION -> stringResource(R.string.hist24_r_offline_collection)
         ActionReason.REPAIR -> stringResource(R.string.repair30_hist_reason)
+        ActionReason.RETROARCH_PLAYLIST -> stringResource(
+            if (e.kind == ActionKind.REMOVED) R.string.playlists35_hist_replaced else R.string.playlists35_title
+        )
         ActionReason.EXPIRED -> stringResource(R.string.hist24_r_expired)
         ActionReason.TO_SD, ActionReason.TO_INTERNAL -> stringResource(
             when {

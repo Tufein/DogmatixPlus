@@ -13,6 +13,7 @@ import com.cortinadev.dogmatix.data.model.Manufacturer
 import com.cortinadev.dogmatix.data.model.UrlEntry
 import com.cortinadev.dogmatix.util.ListingCheck
 import com.cortinadev.dogmatix.util.FileParsingUtils
+import com.cortinadev.dogmatix.util.HomebrewHub
 import com.cortinadev.dogmatix.util.HttpHeadersUtils
 import com.cortinadev.dogmatix.util.RommSource
 import com.cortinadev.dogmatix.util.ScrapingConstants
@@ -79,8 +80,10 @@ class DatabaseScrapingService @Inject constructor(
      * asks to slow down (429), is overloaded (5xx) or does not answer in time is tried again with a
      * growing pause — what its `Retry-After` asks, else 3, 6, 12, 24 s — and from then on gets one
      * request at a time. 404 / 403 are final. With [conditional] headers a 304 counts as an answer.
+     * [json] asks for (and accepts) a JSON answer instead of a web page. With [maxBytes] the body is
+     * cut off there, so an answer that is far too large is never held in memory whole.
      */
-    private suspend fun makeRequest(url: String, conditional: Map<String, String> = emptyMap()): Connection.Response {
+    private suspend fun makeRequest(url: String, conditional: Map<String, String> = emptyMap(), json: Boolean = false, maxBytes: Int = 0): Connection.Response {
         val gate = hostGate(url)
         var attempt = 0
         while (true) {
@@ -90,6 +93,8 @@ class DatabaseScrapingService @Inject constructor(
                         .userAgent(ScrapingConstants.USER_AGENT)
                         .timeout(ScrapingConstants.CONNECTION_TIMEOUT_MS.toInt())
                     HttpHeadersUtils.configureBrowserHeaders(connection)
+                    if (json) connection.ignoreContentType(true).header("Accept", "application/json")
+                    if (maxBytes > 0) connection.maxBodySize(maxBytes)
                     conditional.forEach { (k, v) -> connection.header(k, v) }
                     connection.ignoreHttpErrors(true).execute().also { it.bufferUp() }
                 }
@@ -186,6 +191,46 @@ class DatabaseScrapingService @Inject constructor(
         return SourceIndexResult(files.size, write.tags, write.newFiles, servedBy = servedBy, etag = etag, lastModified = lastModified, bodyHash = bodyHash)
     }
 
+    /**
+     * Indexes a Homebrew Hub source ([HomebrewHub]): the API's search for one console, page by
+     * page. The first page holds the newest entries and the total, so when it is the same as last
+     * time (see [ListingCheck.sameBody]) the rows are kept without reading the other pages; a
+     * forced rescan reads them all. Any page that is not the expected answer fails the source,
+     * which then keeps what it gave last time.
+     */
+    private suspend fun scrapeHomebrewHub(entry: UrlEntry, console: Console, previous: ListingCheck.Previous?, force: Boolean): SourceIndexResult =
+        withContext(Dispatchers.IO) {
+            val platform = HomebrewHub.platformOf(entry.url) ?: throw IllegalArgumentException("Not a Homebrew Hub source")
+            val t0 = System.currentTimeMillis()
+            val first = homebrewHubPage(platform, 1)
+            val bodyHash = ListingCheck.hash(first) + "|hb${HomebrewHub.PARSER_VERSION}"
+            if (ListingCheck.sameBody(entry, previous, force, bodyHash)) {
+                Log.i("DatabaseScrapingService", "${entry.url} unchanged (same first page) in ${System.currentTimeMillis() - t0} ms")
+                return@withContext SourceIndexResult(previous!!.files, 0, unchanged = true, bodyHash = bodyHash)
+            }
+            val firstPage = HomebrewHub.parsePage(first.toString(Charsets.UTF_8), 1)
+            // An empty or cut-short answer must not wipe or thin out what the source gave before.
+            require(firstPage.results > 0 && firstPage.total > 0) { "Homebrew Hub listed no entries" }
+            val manifests = ArrayList(firstPage.entries)
+            for (page in 2..firstPage.total) {
+                manifests += HomebrewHub.parsePage(homebrewHubPage(platform, page).toString(Charsets.UTF_8), page).entries
+            }
+            require(manifests.size >= firstPage.results) { "Homebrew Hub listed ${manifests.size} of ${firstPage.results} entries" }
+            val contentTypeTag = FileParsingUtils.normalizeTag(entry.contentType.name)
+            val rows = HomebrewHub.games(manifests, platform).map { HomebrewHub.row(it, console.id, listOf(contentTypeTag)) }
+            require(rows.isNotEmpty() || (previous?.rows ?: 0) == 0) { "Homebrew Hub gave no games" }
+            val write = downloadableFileDao.replaceSource(console.id, entry.url, rows.map { it.first }, rows.map { it.second }, System.currentTimeMillis())
+            Log.i("DatabaseScrapingService", "Indexed ${rows.size} of ${manifests.size} Homebrew Hub entries (${write.newFiles} new) " +
+                "from ${firstPage.total} pages in ${System.currentTimeMillis() - t0} ms")
+            SourceIndexResult(rows.size, write.tags, write.newFiles, bodyHash = bodyHash)
+        }
+
+    private suspend fun homebrewHubPage(platform: HomebrewHub.Platform, page: Int): ByteArray {
+        val response = makeRequest(HomebrewHub.pageUrl(platform, page), json = true, maxBytes = HomebrewHub.MAX_PAGE_BYTES + 1)
+        require(response.url().host.equals(HomebrewHub.HOST, ignoreCase = true)) { "Homebrew Hub answered from another host" }
+        return response.bodyAsBytes().also { require(it.size <= HomebrewHub.MAX_PAGE_BYTES) { "Homebrew Hub page too large" } }
+    }
+
     /** Sources of one kind scanned at the same time: torrents wait on the swarm, HTTP on the server. */
     private val httpLimit = Semaphore(ScrapingConstants.PARALLEL_HTTP)
     private val torrentLimit = Semaphore(ScrapingConstants.PARALLEL_TORRENTS)
@@ -195,6 +240,7 @@ class DatabaseScrapingService @Inject constructor(
      * Routes each URL entry to the right scraper:
      *   TORRENT → TorrentScrapingService
      *   romm:// → RommScrapingService (a platform of the RomM server set in Settings)
+     *   Homebrew Hub search → [scrapeHomebrewHub]
      *   HTTP    → [scrapeHttpSource] (with its reserve addresses)
      *
      * The sources run side by side, a few of each kind at a time (see [ScrapingConstants]), so a
@@ -240,6 +286,7 @@ class DatabaseScrapingService @Inject constructor(
                                     when {
                                         isTorrent -> scrapeTorrent(urlEntry, console)
                                         isRomm -> rommScrapingService.scrapeAndInsert(urlEntry, console)
+                                        HomebrewHub.isSource(urlEntry.url) -> scrapeHomebrewHub(urlEntry, console, previous, force)
                                         else -> scrapeHttpSource(urlEntry, console, previous, force)
                                     }
                                 }

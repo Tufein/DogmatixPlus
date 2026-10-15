@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Content catalogue: providers without directory listings (Homebrew Hub) -->
+    <string name="providers35_hh_terms">Nur Einträge, deren Lizenz das Weitergeben erlaubt, werden angezeigt (etwa MIT, GPL oder Creative Commons, manche nur für nicht-kommerzielle Nutzung); Einträge ohne angegebene Lizenz werden ausgelassen. Jedes Spiel erhält seine Lizenz und seinen Autor als Tag. Die Dateien werden aus dem Repository gbdev/database auf GitHub geladen.</string>
+    <string name="providers35_entry_live">%1$s · die Liste wird beim Scannen vom Anbieter abgerufen</string>
+</resources>

@@ -374,6 +374,10 @@ class HomeViewModel @Inject constructor(
     private val _searchRequests = Channel<Unit>(Channel.CONFLATED)
     val searchRequests: Flow<Unit> = _searchRequests.receiveAsFlow()
 
+    /** 3.5.0: asks the screen to open "Download everything shown" for the filters a request just applied. */
+    private val _bulkRequests = Channel<Unit>(Channel.CONFLATED)
+    val bulkRequests: Flow<Unit> = _bulkRequests.receiveAsFlow()
+
     private fun onQuickAction(action: QuickAction) {
         when (action) {
             QuickAction.SEARCH -> _searchRequests.trySend(Unit)
@@ -581,6 +585,13 @@ class HomeViewModel @Inject constructor(
             if (it) _sort.value = SortOption.NEWEST
         }
         request.collectionId?.let { _collectionId.value = it }
+        if (request.openBulk) {
+            // A hand-off that counted the whole library (the new-handheld wizard): a source, genre or decade left on Home would shrink the preview.
+            _source.value = SourceFilter.ALL
+            _genres.value = emptySet()
+            _decades.value = emptySet()
+            _bulkRequests.trySend(Unit)
+        }
     }
 
     fun toggleConsoleFilter(consoleId: String) {

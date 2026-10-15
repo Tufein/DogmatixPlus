@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Ferramentas → Copiar ou enviar jogos: nomes de pasta para outros sistemas (3.5.0) -->
+    <string name="layouts35_title">Nomes de pasta</string>
+    <string name="layouts35_hint">Os nomes que as pastas de consola recebem no destino. Escolhe os nomes de outro sistema para preencher um cartão para esse sistema.</string>
+    <string name="layouts35_target_folder_note">A pasta escolhes a seguir. As pastas de consola recebem os nomes escolhidos em Nomes de pasta.</string>
+
+    <string name="layouts35_library">Como nesta biblioteca</string>
+    <string name="layouts35_library_hint">As pastas de consola mantêm os nomes que têm aqui.</string>
+    <string name="layouts35_esde">ES-DE</string>
+    <string name="layouts35_esde_hint">Nomes curtos como gba, snes, megadrive, psx. Escolhe a pasta ROMs do ES-DE.</string>
+    <string name="layouts35_batocera">Batocera</string>
+    <string name="layouts35_batocera_hint">Batocera 42 ou mais recente, dentro de roms (gamecube, megacd, wswan, lynx…). Escolhe o cartão ou a pasta roms dele.</string>
+    <string name="layouts35_knulli">Knulli</string>
+    <string name="layouts35_knulli_hint">Dentro de roms, com os nomes próprios do Knulli (segacd, o2em…). Escolhe o cartão ou a pasta roms dele.</string>
+    <string name="layouts35_arkos">ArkOS</string>
+    <string name="layouts35_arkos_hint">Diretamente no cartão EASYROMS (gba, gc, coleco, pokemonmini…). Escolhe o cartão.</string>
+    <string name="layouts35_rocknix">ROCKNIX</string>
+    <string name="layouts35_rocknix_hint">Dentro de roms no cartão de jogos (gamecube, sgfx, neocd…). Escolhe o cartão ou a pasta roms dele.</string>
+    <string name="layouts35_onion">OnionOS (Miyoo Mini)</string>
+    <string name="layouts35_onion_hint">Dentro de Roms, em maiúsculas (GBA, SFC, FC, MD, PS…). Escolhe o cartão ou a pasta Roms dele.</string>
+    <string name="layouts35_muos">muOS</string>
+    <string name="layouts35_muos_hint">Dentro de ROMS, com nomes a que o muOS atribui um core sozinho (gba, snes, psx…). Escolhe o cartão ou a pasta ROMS dele.</string>
+
+    <string name="layouts35_example">Os teus jogos: %1$s</string>
+    <string name="layouts35_example_pair">%1$s → %2$s</string>
+    <string name="layouts35_example_none">%1$s → não suportado</string>
+    <string name="layouts35_note">Isto só define os nomes de pasta. O outro sistema pode ainda querer as suas próprias listas de jogos, ficheiros BIOS e cores de emulador.</string>
+
+    <string name="layouts35_preview_names">Nomes de pasta: %1$s</string>
+    <string name="layouts35_preview_folders">Pastas de consola: %1$s</string>
+    <string name="layouts35_unsupported_title">Não copiados: %1$s não tem pasta para estas consolas</string>
+    <string name="layouts35_unsupported_line">%1$s (%2$s)</string>
+    <string name="layouts35_case_title">Já existe com outras maiúsculas. Os jogos vão para a pasta que lá está, mas o %1$s pode procurar apenas o nome exato:</string>
+    <string name="layouts35_case_line">%1$s (esperado: %2$s)</string>
+    <string name="layouts35_deep_title">O %1$s só procura um nível de pasta dentro de uma pasta de consola, por isso estes jogos podem não aparecer:</string>
+    <string name="layouts35_app_folder">Esta é uma das pastas da tua biblioteca, por isso aqui usam-se os nomes de pasta da tua biblioteca. Outros nomes de pasta colocariam cada jogo uma segunda vez.</string>
+</resources>

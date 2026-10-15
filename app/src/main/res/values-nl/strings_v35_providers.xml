@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Content catalogue: providers without directory listings (Homebrew Hub) -->
+    <string name="providers35_hh_terms">Alleen items met een licentie die delen toestaat worden getoond (zoals MIT, GPL of Creative Commons, soms alleen voor niet-commercieel gebruik); items zonder licentie worden overgeslagen. Elke game krijgt zijn licentie en maker als label. De bestanden worden gedownload uit de gbdev/database-repository op GitHub.</string>
+    <string name="providers35_entry_live">%1$s · de lijst wordt tijdens het scannen bij de aanbieder opgehaald</string>
+</resources>

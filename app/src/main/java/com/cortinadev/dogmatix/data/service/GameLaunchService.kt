@@ -150,6 +150,18 @@ class GameLaunchService @Inject constructor(
     fun effective(consoleId: String, fileName: String, game: GameLaunch): GameEmulatorOverrides.Resolution<GameHandler> =
         GameEmulatorOverrides.resolve(gamePreferred(consoleId, fileName), preferred(consoleId), game.handlers, { it.key }, { it.packageName })
 
+    /**
+     * What Play starts without asking, out of [choices]: the game's one file (or the playlist that
+     * holds every disc) with the app remembered for it, the game's own choice before the
+     * console's. Null when Play has to ask: several files, or nothing remembered that is installed
+     * now. The game page's Play and the 3.5 home-screen shortcuts both decide through this.
+     */
+    fun direct(consoleId: String, fileName: String, choices: List<GameLaunch>): Pair<GameLaunch, GameHandler>? {
+        val single = choices.singleOrNull() ?: choices.firstOrNull()?.takeIf { it.name.endsWith(".m3u", ignoreCase = true) } ?: return null
+        val handler = effective(consoleId, fileName, single).handler ?: return null
+        return single to handler
+    }
+
     /** The catalogue emulators installed for each of [consoleIds] (RetroArch once per core); consoles without any are left out. */
     suspend fun catalogueTargets(consoleIds: Collection<String>): Map<String, List<PlayTarget>> = withContext(Dispatchers.IO) {
         val installed = installedPackages()

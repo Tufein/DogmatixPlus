@@ -170,6 +170,17 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <!-- 3.5 game shortcuts (home screen, icon menu): start the game in its emulator, no screen
+             of its own. Not exported: launchers start shortcuts on behalf of this app (LauncherApps),
+             so no other app can send it a game. Its own empty task, so the emulator returns home. -->
+        <activity
+            android:name=".ui.shortcut.GameShortcutActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <service
             android:name=".data.service.DownloadForegroundService"
             android:enabled="true"

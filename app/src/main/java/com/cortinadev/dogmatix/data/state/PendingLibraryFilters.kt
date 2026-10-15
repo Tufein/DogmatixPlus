@@ -20,7 +20,12 @@ data class LibraryFilterRequest(
     /** Show only what recent rescans found (`new=1`). */
     val newOnly: Boolean? = null,
     /** Show one own collection (`collection=<id>`). */
-    val collectionId: Long? = null
+    val collectionId: Long? = null,
+    /**
+     * 3.5.0 "Set up a new handheld": once the filters are applied, open "Download everything shown"
+     * (its preview with the space check; nothing starts without the user's confirmation there).
+     */
+    val openBulk: Boolean = false
 )
 
 /**

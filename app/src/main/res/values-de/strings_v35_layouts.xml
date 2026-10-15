@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tools → Spiele kopieren oder senden: Ordnernamen für andere Systeme (3.5.0) -->
+    <string name="layouts35_title">Ordnernamen</string>
+    <string name="layouts35_hint">Die Namen, die die Konsolenordner am Ziel bekommen. Wähle die Namen eines anderen Systems, um eine Karte für dieses System zu füllen.</string>
+    <string name="layouts35_target_folder_note">Den Ordner wählst du als Nächstes. Die Konsolenordner bekommen die unter Ordnernamen gewählten Namen.</string>
+
+    <string name="layouts35_library">Wie in dieser Bibliothek</string>
+    <string name="layouts35_library_hint">Die Konsolenordner behalten die Namen, die sie hier haben.</string>
+    <string name="layouts35_esde">ES-DE</string>
+    <string name="layouts35_esde_hint">Kurznamen wie gba, snes, megadrive, psx. Wähle den ROMs-Ordner von ES-DE.</string>
+    <string name="layouts35_batocera">Batocera</string>
+    <string name="layouts35_batocera_hint">Batocera 42 oder neuer, in roms (gamecube, megacd, wswan, lynx…). Wähle die Karte oder ihren roms-Ordner.</string>
+    <string name="layouts35_knulli">Knulli</string>
+    <string name="layouts35_knulli_hint">In roms, mit Knullis eigenen Namen (segacd, o2em…). Wähle die Karte oder ihren roms-Ordner.</string>
+    <string name="layouts35_arkos">ArkOS</string>
+    <string name="layouts35_arkos_hint">Direkt auf der EASYROMS-Karte (gba, gc, coleco, pokemonmini…). Wähle die Karte.</string>
+    <string name="layouts35_rocknix">ROCKNIX</string>
+    <string name="layouts35_rocknix_hint">In roms auf der Spielekarte (gamecube, sgfx, neocd…). Wähle die Karte oder ihren roms-Ordner.</string>
+    <string name="layouts35_onion">OnionOS (Miyoo Mini)</string>
+    <string name="layouts35_onion_hint">In Roms, in Großbuchstaben (GBA, SFC, FC, MD, PS…). Wähle die Karte oder ihren Roms-Ordner.</string>
+    <string name="layouts35_muos">muOS</string>
+    <string name="layouts35_muos_hint">In ROMS, mit Namen, denen muOS selbst einen Core zuweist (gba, snes, psx…). Wähle die Karte oder ihren ROMS-Ordner.</string>
+
+    <string name="layouts35_example">Deine Spiele: %1$s</string>
+    <string name="layouts35_example_pair">%1$s → %2$s</string>
+    <string name="layouts35_example_none">%1$s → nicht unterstützt</string>
+    <string name="layouts35_note">Das legt nur die Ordnernamen fest. Das andere System braucht eventuell noch eigene Spielelisten, BIOS-Dateien und Emulator-Cores.</string>
+
+    <string name="layouts35_preview_names">Ordnernamen: %1$s</string>
+    <string name="layouts35_preview_folders">Konsolenordner: %1$s</string>
+    <string name="layouts35_unsupported_title">Nicht kopiert: %1$s hat keinen Ordner für diese Konsolen</string>
+    <string name="layouts35_unsupported_line">%1$s (%2$s)</string>
+    <string name="layouts35_case_title">Schon vorhanden, mit anderer Groß- und Kleinschreibung. Die Spiele kommen in den vorhandenen Ordner, aber %1$s sucht vielleicht nur nach dem genauen Namen:</string>
+    <string name="layouts35_case_line">%1$s (erwartet: %2$s)</string>
+    <string name="layouts35_deep_title">%1$s schaut in einem Konsolenordner nur eine Ordnerebene tief, daher erscheinen diese Spiele dort eventuell nicht:</string>
+    <string name="layouts35_app_folder">Das ist einer deiner Bibliotheksordner, deshalb gelten hier die Ordnernamen deiner Bibliothek. Andere Ordnernamen würden jedes Spiel ein zweites Mal darin ablegen.</string>
+</resources>

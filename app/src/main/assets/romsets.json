@@ -19,6 +19,15 @@
       "licence": "published",
       "baseUrl": "https://downloads.scummvm.org/frs/extras/",
       "checkedAt": "2026-10-13"
+    },
+    {
+      "id": "homebrew_hub",
+      "name": "Homebrew Hub",
+      "homepage": "https://hh.gbdev.io/",
+      "provenance": "https://github.com/gbdev/database",
+      "licence": "free_licence",
+      "baseUrl": "https://hh3.gbdev.io/api/",
+      "checkedAt": "2026-10-15"
     }
   ],
   "entries": [
@@ -490,6 +499,36 @@
         "God of Thunder"
       ],
       "fileCount": 57
+    },
+    {
+      "provider": "homebrew_hub",
+      "id": "nintendo_gameboy",
+      "manufacturerId": "nintendo",
+      "manufacturerName": "Nintendo",
+      "consoleKey": "gameboy",
+      "consoleName": "Game Boy",
+      "shortName": "GB",
+      "aliases": [
+        "gb",
+        "gameboy",
+        "game boy"
+      ],
+      "platform": "GB"
+    },
+    {
+      "provider": "homebrew_hub",
+      "id": "nintendo_gameboy_color",
+      "manufacturerId": "nintendo",
+      "manufacturerName": "Nintendo",
+      "consoleKey": "gameboy_color",
+      "consoleName": "Game Boy Color",
+      "shortName": "GBC",
+      "aliases": [
+        "gbc",
+        "gameboycolor",
+        "game boy color"
+      ],
+      "platform": "GBC"
     }
   ]
 }

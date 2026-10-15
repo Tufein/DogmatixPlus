@@ -366,6 +366,12 @@ fun HomeScreen(
             restoreState = true
         }
     }
+    // 3.5.0: on a fresh install (nothing indexed, no source at all) the empty library points to the checklist.
+    val newHandheldHint: @Composable () -> Unit = {
+        com.cortinadev.dogmatix.ui.screens.tools.NewHandheldHint(
+            onOpen = { navController.navigate(com.cortinadev.dogmatix.ui.screens.tools.NEW_HANDHELD_ROUTE) { launchSingleTop = true } }
+        )
+    }
     val discoverBlock: @Composable () -> Unit = {
         DiscoverBlock(
             knownTitles = discoverIndex.knownTitles,
@@ -579,6 +585,8 @@ fun HomeScreen(
 
     // 7.0: the Search shortcut puts the cursor in the search box (the same as the Y button).
     LaunchedEffect(Unit) { viewModel.searchRequests.collect { searchActive = true } }
+    // 3.5.0: "Set up a new handheld" asked for the missing favourites / a collection: its preview.
+    LaunchedEffect(Unit) { viewModel.bulkRequests.collect { showBulk = true } }
 
     LaunchedEffect(isLandscape) {
         Gamepad.presses.collect { button ->
@@ -775,7 +783,8 @@ fun HomeScreen(
                             onGoToSources = goToSources,
                             onClearFilters = clearFilters,
                             loadMoreSize = loadMoreSize,
-                            illustrated = false
+                            illustrated = false,
+                            emptyLibraryExtra = newHandheldHint
                         )
                     }
                     }
@@ -886,7 +895,8 @@ fun HomeScreen(
                     onGoToSources = goToSources,
                     onClearFilters = clearFilters,
                     loadMoreSize = loadMoreSize,
-                    illustrated = true
+                    illustrated = true,
+                    emptyLibraryExtra = newHandheldHint
                 )
             }
 
@@ -1035,7 +1045,9 @@ private fun ResultList(
     /** Room for the Milou illustration in the empty library state (portrait). */
     illustrated: Boolean = false,
     /** 6.0: compact lists (tighter rows). */
-    dense: Boolean = false
+    dense: Boolean = false,
+    /** 3.5.0: shown under the empty-library state (the "Set up a new handheld" hint). */
+    emptyLibraryExtra: (@Composable () -> Unit)? = null
 ) {
     if (results.isEmpty()) {
         // The flags are read only here: while the list has rows, a new search or a library change
@@ -1052,6 +1064,7 @@ private fun ResultList(
                     onAction = onGoToSources,
                     actionFocus = firstRowFocus
                 )
+                emptyLibraryExtra?.invoke()
             }
             else -> EmptyBox(modifier) {
                 val wish = onAddWish != null && query.trim().length >= 2

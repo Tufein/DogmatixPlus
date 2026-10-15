@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tools → Spellen kopiëren of versturen: mapnamen voor andere systemen (3.5.0) -->
+    <string name="layouts35_title">Mapnamen</string>
+    <string name="layouts35_hint">De namen die de consolemappen op de bestemming krijgen. Kies de namen van een ander systeem om een kaart voor dat systeem te vullen.</string>
+    <string name="layouts35_target_folder_note">Je kiest de map hierna. De consolemappen krijgen de namen die je bij Mapnamen hebt gekozen.</string>
+
+    <string name="layouts35_library">Zoals in deze bibliotheek</string>
+    <string name="layouts35_library_hint">De consolemappen houden de namen die ze hier hebben.</string>
+    <string name="layouts35_esde">ES-DE</string>
+    <string name="layouts35_esde_hint">Korte namen zoals gba, snes, megadrive, psx. Kies de ROMs-map van ES-DE.</string>
+    <string name="layouts35_batocera">Batocera</string>
+    <string name="layouts35_batocera_hint">Batocera 42 of nieuwer, in roms (gamecube, megacd, wswan, lynx…). Kies de kaart of de roms-map erop.</string>
+    <string name="layouts35_knulli">Knulli</string>
+    <string name="layouts35_knulli_hint">In roms, met de eigen namen van Knulli (segacd, o2em…). Kies de kaart of de roms-map erop.</string>
+    <string name="layouts35_arkos">ArkOS</string>
+    <string name="layouts35_arkos_hint">Direct op de EASYROMS-kaart (gba, gc, coleco, pokemonmini…). Kies de kaart.</string>
+    <string name="layouts35_rocknix">ROCKNIX</string>
+    <string name="layouts35_rocknix_hint">In roms op de spellenkaart (gamecube, sgfx, neocd…). Kies de kaart of de roms-map erop.</string>
+    <string name="layouts35_onion">OnionOS (Miyoo Mini)</string>
+    <string name="layouts35_onion_hint">In Roms, in hoofdletters (GBA, SFC, FC, MD, PS…). Kies de kaart of de Roms-map erop.</string>
+    <string name="layouts35_muos">muOS</string>
+    <string name="layouts35_muos_hint">In ROMS, met namen waar muOS zelf een core aan koppelt (gba, snes, psx…). Kies de kaart of de ROMS-map erop.</string>
+
+    <string name="layouts35_example">Jouw spellen: %1$s</string>
+    <string name="layouts35_example_pair">%1$s → %2$s</string>
+    <string name="layouts35_example_none">%1$s → niet ondersteund</string>
+    <string name="layouts35_note">Dit regelt alleen de mapnamen. Het andere systeem wil misschien nog zijn eigen spellijsten, BIOS-bestanden en emulatorcores.</string>
+
+    <string name="layouts35_preview_names">Mapnamen: %1$s</string>
+    <string name="layouts35_preview_folders">Consolemappen: %1$s</string>
+    <string name="layouts35_unsupported_title">Niet gekopieerd: %1$s heeft geen map voor deze consoles</string>
+    <string name="layouts35_unsupported_line">%1$s (%2$s)</string>
+    <string name="layouts35_case_title">Staat er al, met andere hoofdletters. De spellen gaan naar de map die er staat, maar %1$s zoekt misschien alleen de exacte naam:</string>
+    <string name="layouts35_case_line">%1$s (verwacht: %2$s)</string>
+    <string name="layouts35_deep_title">%1$s kijkt maar één map diep in een consolemap, dus deze spellen verschijnen daar misschien niet:</string>
+    <string name="layouts35_app_folder">Dit is een van je bibliotheekmappen, dus hier gelden de mapnamen van je bibliotheek. Andere mapnamen zouden elk spel er een tweede keer in zetten.</string>
+</resources>

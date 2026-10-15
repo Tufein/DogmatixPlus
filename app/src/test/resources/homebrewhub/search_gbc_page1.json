@@ -1,0 +1,244 @@
+{
+ "results": 448,
+ "page_total": 45,
+ "page_current": 1,
+ "page_elements": 10,
+ "sort": "firstadded_date",
+ "order": "desc",
+ "entries": [
+  {
+   "title": "Precrna Rupa",
+   "slug": "precrna-rupa",
+   "developer": [
+    "Maja Milas",
+    "Giorgio Pomettini",
+    "Noemi Frulio"
+   ],
+   "typetag": "game",
+   "platform": "GBC",
+   "tags": [
+    "Adventure",
+    "RPG"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "precrna-rupa.gbc",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2026-09-14T20:21:19Z"
+  },
+  {
+   "title": "U R 4 GUYS",
+   "slug": "ur4guys",
+   "developer": "Wolfman Digital",
+   "typetag": "game",
+   "platform": "GBC",
+   "gameLicense": "CC-BY-NC-4.0",
+   "assetsLicense": "CC-BY-NC-4.0",
+   "tags": [
+    "Arcade",
+    "Action"
+   ],
+   "files": [
+    {
+     "filename": "ur4guys.gbc",
+     "type": "rom",
+     "default": true,
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2026-06-11T07:44:05Z"
+  },
+  {
+   "title": "Pacman",
+   "slug": "pacman",
+   "developer": "Dark Fader",
+   "typetag": "game",
+   "platform": "GBC",
+   "tags": [
+    "event:bung-2nd-coding-compo"
+   ],
+   "files": [
+    {
+     "description": "release and source archive",
+     "filename": "pacman_df.zip"
+    },
+    {
+     "default": true,
+     "filename": "pacman.gbc",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2026-06-03T14:00:51Z"
+  },
+  {
+   "title": "GBHack",
+   "slug": "gbhack",
+   "developer": "statico",
+   "typetag": "game",
+   "platform": "GBC",
+   "license": "MIT",
+   "tags": [
+    "RPG",
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "gbhack.gbc",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2026-04-17T09:59:22Z"
+  },
+  {
+   "title": "Rickroll PCM",
+   "slug": "rickroll-pcm",
+   "developer": "FijiAura",
+   "typetag": "demo",
+   "platform": "GBC",
+   "files": [
+    {
+     "default": true,
+     "filename": "rickroll.gbc",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2025-11-29T18:42:03Z"
+  },
+  {
+   "title": "[PREVIEW] KULI",
+   "slug": "leanart_kuli",
+   "developer": "Lean Art",
+   "typetag": "game",
+   "platform": "GBC",
+   "tags": [
+    "No AI",
+    "GBJam",
+    "8x8",
+    "Multiplayer",
+    "8-Bit",
+    "Puzzle",
+    "event:gbcompo25"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/kuli_jam.gbc",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2025-11-26T18:20:22Z"
+  },
+  {
+   "title": "Neon Nova",
+   "slug": "playinstinct_neon-nova",
+   "developer": "playinstinct",
+   "typetag": "music",
+   "platform": "GBC",
+   "tags": [
+    "8-Bit",
+    "Music",
+    "Driving",
+    "Retro",
+    "Neon",
+    "Racing",
+    "event:gbcompo25"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/NEON-NOVA_jam.gbc",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2025-11-26T18:20:22Z"
+  },
+  {
+   "title": "MEMORY PALACES",
+   "slug": "syfartistry_memory-palace",
+   "developer": "syfartistry",
+   "typetag": "game",
+   "platform": "GBC",
+   "tags": [
+    "memory",
+    "Pixel Art",
+    "Retro",
+    "Surreal",
+    "Adventure",
+    "Puzzle",
+    "Top-Down",
+    "event:gbcompo25"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/MEMORYPALACE_jam .gbc",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2025-11-26T18:20:22Z"
+  },
+  {
+   "title": "Civ GB",
+   "slug": "messiahm_civ-gb",
+   "developer": "Messiahm",
+   "typetag": "game",
+   "platform": "GBC",
+   "tags": [
+    "Strategy",
+    "GBJam",
+    "event:gbcompo25"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/CivGB Demo.gbc",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2025-11-26T18:20:22Z"
+  },
+  {
+   "title": "SpaceBalls",
+   "slug": "fingerflinger_spaceballs",
+   "developer": "fingerflinger",
+   "typetag": "game",
+   "platform": "GBC",
+   "tags": [
+    "Action",
+    "event:gbcompo25"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/spaceballs_jam.gbc",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2025-11-26T18:20:22Z"
+  }
+ ]
+}

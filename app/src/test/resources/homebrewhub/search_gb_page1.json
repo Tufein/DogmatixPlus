@@ -1,0 +1,248 @@
+{
+ "results": 913,
+ "page_total": 92,
+ "page_current": 1,
+ "page_elements": 10,
+ "sort": "firstadded_date",
+ "order": "desc",
+ "entries": [
+  {
+   "title": "Dorotea",
+   "slug": "dorotea",
+   "developer": "Pasquale 'Pasqui industry' Pignataro",
+   "typetag": "game",
+   "platform": "GB",
+   "license": "CC-BY-NC-ND-4.0",
+   "tags": [
+    "Adventure"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "pasquiindustry_dorotea_en_v_1_1_0.gb",
+     "playable": true
+    },
+    {
+     "default": false,
+     "filename": "pasquiindustry_dorotea_it_v_1_1_0.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2026-07-25T11:22:36Z"
+  },
+  {
+   "title": "Scorching Light",
+   "slug": "scorching-light",
+   "developer": "Pasquale 'Pasqui industry' Pignataro",
+   "typetag": "game",
+   "platform": "GB",
+   "license": "CC-BY-NC-ND-4.0",
+   "tags": [
+    "Adventure"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "pasquiindustry_scorchinglight_en_v1_0_1.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2026-07-25T11:22:36Z"
+  },
+  {
+   "title": "totp-gb",
+   "slug": "totp-gb",
+   "developer": "dmang-dev",
+   "typetag": "tool",
+   "platform": "GB",
+   "gameLicense": "MIT",
+   "assetsLicense": "MIT",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "totp-gb.gb",
+     "playable": true
+    },
+    {
+     "default": false,
+     "filename": "totp-gbc.gbc",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2026-06-02T13:20:49Z"
+  },
+  {
+   "title": "FACTORY DANGER",
+   "slug": "factory-danger",
+   "developer": "Albert Gonzalez",
+   "typetag": "game",
+   "platform": "GB",
+   "tags": [
+    "Platform"
+   ],
+   "files": [
+    {
+     "filename": "factory_danger_v01.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2026-02-12T18:01:15Z"
+  },
+  {
+   "title": "Max Pirate Extra Boom",
+   "slug": "maxpirateeb",
+   "developer": "Lemmy Hawkins",
+   "typetag": "game",
+   "platform": "GB",
+   "license": "MIT",
+   "tags": [
+    "Open Source",
+    "Action"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "maxpirateeb.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2025-12-30T23:54:37Z"
+  },
+  {
+   "title": "Sliding Puzzle",
+   "slug": "lucidlyes_sliding-puzzle",
+   "developer": "LucidLyes",
+   "typetag": "game",
+   "platform": "GB",
+   "tags": [
+    "Puzzle",
+    "event:gbcompo25"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/Sliding_Puzzle_GB.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2025-11-26T18:20:22Z"
+  },
+  {
+   "title": "CartBound - The GB Hardware Quest",
+   "slug": "chunkysteveo_cartbound-the-gb-hardware-quest-gbc25-jam",
+   "developer": "ChunkySteveo",
+   "typetag": "game",
+   "platform": "GB",
+   "tags": [
+    "gameboyrom",
+    "GBJam",
+    "Adventure",
+    "gbcompo2025",
+    "event:gbcompo25"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/cartbound_jam.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2025-11-26T18:20:22Z"
+  },
+  {
+   "title": "Scoundrel",
+   "slug": "avivbeeri_scoundrel-gb",
+   "developer": "Aviv",
+   "typetag": "game",
+   "platform": "GB",
+   "tags": [
+    "solitaire",
+    "Dungeon Crawler",
+    "Card Game",
+    "event:gbcompo25"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/SCOUNDREL_jam.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2025-11-26T18:20:22Z"
+  },
+  {
+   "title": "DropBlox!",
+   "slug": "studio-anchor_dropblox",
+   "developer": "studio-anchor",
+   "typetag": "game",
+   "platform": "GB",
+   "tags": [
+    "gbcompo",
+    "Action",
+    "gbcompo2025",
+    "gbdk2020",
+    "gameboy-color",
+    "gbdk",
+    "event:gbcompo25"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/dropblox!_prealpha_jam.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2025-11-26T18:20:22Z"
+  },
+  {
+   "title": "Polar Peril",
+   "slug": "howdyriceball_polar-peril",
+   "developer": "howdy riceball",
+   "typetag": "game",
+   "platform": "GB",
+   "tags": [
+    "Pixel Art",
+    "2D",
+    "8-Bit",
+    "Top-Down",
+    "Cute",
+    "Short",
+    "Retro",
+    "Adventure",
+    "Puzzle",
+    "event:gbcompo25"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/polarperil_jam.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database",
+   "firstadded_date": "2025-11-26T18:20:22Z"
+  }
+ ]
+}

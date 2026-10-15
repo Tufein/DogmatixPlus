@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pin35_action">Añadir a la pantalla de inicio</string>
+    <string name="pin35_requested">Añadiendo «%1$s» a la pantalla de inicio</string>
+    <string name="pin35_unsupported">Tu launcher no puede añadir accesos directos a la pantalla de inicio.</string>
+    <string name="pin35_failed">No se pudo añadir el acceso directo.</string>
+    <string name="pin35_no_files">Los archivos de este juego ya no están en este dispositivo.</string>
+    <string name="pin35_disabled">Este juego se eliminó del dispositivo.</string>
+    <string name="pin35_setting_title">Jugados recientemente en el menú del icono</string>
+    <string name="pin35_setting_hint">Mantén pulsado el icono de la app para iniciar directamente uno de los 3 últimos juegos que jugaste</string>
+    <string name="pin35_group_recent">Jugados recientemente</string>
+</resources>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "Set up a new handheld" checklist (3.5.0) -->
+    <string name="wizard35_title">Neuen Handheld einrichten</string>
+    <string name="wizard35_hint">Eine Checkliste von der frischen Installation bis zum spielbereiten Handheld: Einstellungen, Spiele, Emulatoren, Spielstände</string>
+    <string name="wizard35_kw">neues Gerät, neuer Handheld, einrichten, erster Start, Einstieg, Checkliste, Assistent, wiederherstellen, umziehen, übertragen, migrieren</string>
+    <string name="wizard35_intro">Sechs Schritte von der frischen Installation zu einem spielbereiten Handheld. Jeder Schritt öffnet den Bildschirm, der die Arbeit erledigt; nichts startet, ohne dass du es bestätigst. Überspring, was du nicht brauchst.</string>
+    <string name="wizard35_loading">Mal sehen, was dieser Handheld schon hat…</string>
+    <string name="wizard35_summary_ready">Dieser Handheld ist bereit</string>
+    <string name="wizard35_summary_steps">Erledigte Schritte: %1$d von %2$d</string>
+    <string name="wizard35_summary_next">Als Nächstes: %1$s</string>
+    <string name="wizard35_summary_optional_left">Alles Nötige ist erledigt. Optional: %1$s</string>
+    <string name="wizard35_summary_all_settled">Jeder Schritt ist erledigt, übersprungen oder nicht nötig.</string>
+    <string name="wizard35_start_over">Neu beginnen</string>
+    <string name="wizard35_start_over_title">Checkliste neu beginnen?</string>
+    <string name="wizard35_start_over_text">Schritte, die du übersprungen oder selbst als erledigt markiert hast, bekommen wieder den Status, den die App selbst sieht. Deine Einstellungen, Spiele und Spielstände bleiben unberührt.</string>
+    <string name="wizard35_state_todo">Offen</string>
+    <string name="wizard35_state_done">Erledigt</string>
+    <string name="wizard35_state_skipped">Übersprungen</string>
+    <string name="wizard35_state_not_needed">Nicht nötig</string>
+    <string name="wizard35_optional">Optional</string>
+    <string name="wizard35_step_sources">Einstellungen und Quellen</string>
+    <string name="wizard35_step_library">Spieleordner und Konsolen</string>
+    <string name="wizard35_step_emulators">Emulatoren</string>
+    <string name="wizard35_step_games">Spiele</string>
+    <string name="wizard35_step_saves">Spielstände</string>
+    <string name="wizard35_step_launcher">Launcher</string>
+    <string name="wizard35_step_of">Schritt %1$d von %2$d</string>
+    <string name="wizard35_d_sources_none">Hol deine Einstellungen und Quellen von deinem anderen Handheld: Stell eine Sicherungsdatei wieder her oder nutze deine eigene Cloud (Cloud-Sicherung oder Gerätesynchronisierung).</string>
+    <plurals name="wizard35_d_sources_ok">
+        <item quantity="one">%1$d Quelle ist auf diesem Handheld eingerichtet.</item>
+        <item quantity="other">%1$d Quellen sind auf diesem Handheld eingerichtet.</item>
+    </plurals>
+    <string name="wizard35_d_sources_cloud">Deine eigene Cloud ist verbunden, Einstellungen und Quellen können also von dort kommen.</string>
+    <string name="wizard35_d_library_no_folder">Wähl den Ordner mit deinen Spielen oder den Ordner, in den neue Downloads sollen.</string>
+    <string name="wizard35_d_library_empty">Im Spieleordner wurden noch keine Spiele gefunden. Leg sie dort ab (oder lade sie herunter) und durchsuche den Ordner erneut.</string>
+    <string name="wizard35_d_library_unmatched">Im Spieleordner liegen Dateien, aber in keinem Konsolenordner, den die App erkennt. Die Bibliotheksübersicht zeigt, was gefunden wurde.</string>
+    <plurals name="wizard35_d_library_ok">
+        <item quantity="one">Spiele für %1$d Konsole gefunden.</item>
+        <item quantity="other">Spiele für %1$d Konsolen gefunden.</item>
+    </plurals>
+    <string name="wizard35_d_emulators_waiting">Sobald es Spiele gibt, siehst du hier, welche Konsolen noch einen Emulator brauchen.</string>
+    <string name="wizard35_d_emulators_unchecked">Die App kennt keine Emulatoren für die Konsolen in deiner Bibliothek. Wähl selbst eine App pro Konsole.</string>
+    <string name="wizard35_d_emulators_missing">Konsolen ohne Emulator: %1$d von %2$d.</string>
+    <string name="wizard35_d_emulators_ok">Jede Konsole mit Spielen hat einen Emulator, der sie startet.</string>
+    <string name="wizard35_d_games_waiting">Sobald Quellen oder eine Sicherung da sind, vergleicht dieser Schritt deine Favoriten, Sammlungen und Wunschliste mit dem, was auf diesem Handheld ist.</string>
+    <string name="wizard35_d_games_nothing">Keine Favoriten, Sammlungen, Wunschliste oder RomM-Bibliothek zum Vergleichen. Du kannst trotzdem Spiele von einem anderen Gerät kopieren.</string>
+    <plurals name="wizard35_d_games_missing">
+        <item quantity="one">%1$d Spiel aus deinen Favoriten und Sammlungen ist noch nicht auf diesem Handheld.</item>
+        <item quantity="other">%1$d Spiele aus deinen Favoriten und Sammlungen sind noch nicht auf diesem Handheld.</item>
+    </plurals>
+    <string name="wizard35_d_games_ok">Alle deine Favoriten und Sammlungsspiele sind auf diesem Handheld.</string>
+    <string name="wizard35_count_favourites">Fehlende Favoriten: %1$d von %2$d</string>
+    <string name="wizard35_count_collections">Fehlende Sammlungsspiele: %1$d von %2$d</string>
+    <string name="wizard35_count_wishlist">Wunschliste, noch nicht auf diesem Handheld: %1$d von %2$d</string>
+    <string name="wizard35_count_romm">RomM-Server, noch nicht auf diesem Handheld: %1$d von %2$d Spielen</string>
+    <string name="wizard35_copy_pointer">Spiele auf deinem anderen Handheld oder PC? Hol sie mit „Spiele kopieren oder senden“ herüber.</string>
+    <string name="wizard35_d_saves_no_romm">Die Spielstand-Synchronisierung läuft über deinen RomM-Server. Ohne Server gibt es hier nichts einzurichten.</string>
+    <string name="wizard35_d_saves_no_folders">RomM ist verbunden. Sag der Synchronisierung, wo deine Emulatoren ihre Spielstände ablegen.</string>
+    <string name="wizard35_d_saves_ready">Die Synchronisierung ist eingerichtet. Starte sie einmal, um deine Spielstände auf diesen Handheld zu holen.</string>
+    <string name="wizard35_d_saves_running">Spielstände werden gerade synchronisiert…</string>
+    <plurals name="wizard35_d_saves_conflicts">
+        <item quantity="one">%1$d Spielstand braucht eine Entscheidung: Er wurde hier und auf dem Server geändert.</item>
+        <item quantity="other">%1$d Spielstände brauchen eine Entscheidung: Sie wurden hier und auf dem Server geändert.</item>
+    </plurals>
+    <string name="wizard35_d_saves_error">Die letzte Synchronisierung wurde nicht abgeschlossen. Unter „Spielstände synchronisieren“ siehst du, was schiefging.</string>
+    <string name="wizard35_d_saves_ok">Die Spielstände wurden auf diesem Handheld synchronisiert.</string>
+    <string name="wizard35_d_saves_auto">Die Spielstände werden auf diesem Handheld automatisch synchronisiert.</string>
+    <string name="wizard35_d_launcher_todo">Nutzt du ES-DE, Pegasus, Daijishō oder einen anderen Launcher? Prüf, ob er deine Spiele und Cover sieht.</string>
+    <string name="wizard35_d_launcher_ok">Dein Launcher ist eingerichtet. Der Frontend-Check zeigt die Details.</string>
+    <string name="wizard35_emu_wanted">Noch keine Spiele (Favorit oder Wunsch)</string>
+    <string name="wizard35_emu_suggestion">Noch kein Emulator installiert. Empfehlung: %1$s</string>
+    <string name="wizard35_emu_none">Noch kein Emulator gefunden.</string>
+    <string name="wizard35_emu_check">Prüfen</string>
+    <string name="wizard35_act_check_console">%1$s prüfen</string>
+    <string name="wizard35_act_restore_file">Sicherungsdatei wiederherstellen</string>
+    <string name="wizard35_act_cloud">Aus meiner eigenen Cloud</string>
+    <string name="wizard35_act_pick_folder">Spieleordner wählen</string>
+    <string name="wizard35_act_scan">Ordner neu durchsuchen</string>
+    <string name="wizard35_act_download_favourites">Fehlende Favoriten herunterladen</string>
+    <string name="wizard35_act_download_collection">%1$s herunterladen</string>
+    <string name="wizard35_act_romm">RomM einrichten</string>
+    <string name="wizard35_skip">Überspringen</string>
+    <string name="wizard35_mark_done">Als erledigt markieren</string>
+    <string name="wizard35_undo">Rückgängig</string>
+    <string name="wizard35_marked_done">Du hast diesen Schritt selbst als erledigt markiert.</string>
+    <string name="wizard35_marked_skipped">Du hast diesen Schritt übersprungen.</string>
+    <string name="wizard35_scan_started">Der Spieleordner wird durchsucht…</string>
+    <string name="wizard35_sync_started">Synchronisierung der Spielstände gestartet</string>
+    <string name="wizard35_hint_title">Neuer Handheld?</string>
+    <string name="wizard35_hint_text">Eine kurze Checkliste holt deine Einstellungen und Quellen, danach Spiele, Emulatoren und Spielstände. Du findest sie jederzeit unter Bibliothekswerkzeuge.</string>
+    <string name="wizard35_hint_open">Einrichten</string>
+    <string name="wizard35_hint_dismiss">Ausblenden</string>
+</resources>

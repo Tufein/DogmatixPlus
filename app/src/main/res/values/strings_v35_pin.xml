@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pin35_action">Add to home screen</string>
+    <string name="pin35_requested">Adding “%1$s” to the home screen</string>
+    <string name="pin35_unsupported">Your launcher cannot add shortcuts to the home screen.</string>
+    <string name="pin35_failed">The shortcut could not be added.</string>
+    <string name="pin35_no_files">The game\'s files are no longer on this device.</string>
+    <string name="pin35_disabled">This game was removed from the device.</string>
+    <string name="pin35_setting_title">Recently played in the icon menu</string>
+    <string name="pin35_setting_hint">Long-press the app icon to start one of the last 3 games you played straight away</string>
+    <string name="pin35_group_recent">Recently played</string>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pin35_action">Op startscherm zetten</string>
+    <string name="pin35_requested">“%1$s” wordt op het startscherm gezet</string>
+    <string name="pin35_unsupported">Je launcher kan geen snelkoppelingen op het startscherm zetten.</string>
+    <string name="pin35_failed">De snelkoppeling kon niet worden toegevoegd.</string>
+    <string name="pin35_no_files">De bestanden van dit spel staan niet meer op dit apparaat.</string>
+    <string name="pin35_disabled">Dit spel is van het apparaat verwijderd.</string>
+    <string name="pin35_setting_title">Laatst gespeeld in het icoonmenu</string>
+    <string name="pin35_setting_hint">Houd het app-icoon ingedrukt om een van je laatste 3 gespeelde spellen meteen te starten</string>
+    <string name="pin35_group_recent">Laatst gespeeld</string>
+</resources>

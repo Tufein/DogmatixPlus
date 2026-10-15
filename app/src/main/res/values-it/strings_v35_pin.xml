@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pin35_action">Aggiungi alla schermata Home</string>
+    <string name="pin35_requested">Aggiunta di «%1$s» alla schermata Home</string>
+    <string name="pin35_unsupported">Il tuo launcher non può aggiungere scorciatoie alla schermata Home.</string>
+    <string name="pin35_failed">Impossibile aggiungere la scorciatoia.</string>
+    <string name="pin35_no_files">I file di questo gioco non sono più su questo dispositivo.</string>
+    <string name="pin35_disabled">Questo gioco è stato rimosso dal dispositivo.</string>
+    <string name="pin35_setting_title">Giocati di recente nel menu dell’icona</string>
+    <string name="pin35_setting_hint">Tieni premuta l’icona dell’app per avviare subito uno degli ultimi 3 giochi a cui hai giocato</string>
+    <string name="pin35_group_recent">Giocati di recente</string>
+</resources>

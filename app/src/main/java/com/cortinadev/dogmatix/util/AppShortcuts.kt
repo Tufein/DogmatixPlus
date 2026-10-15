@@ -4,7 +4,8 @@ import java.net.URLEncoder
 
 /**
  * One app shortcut (the kind launchers show on a long press, and frontends such as Cocoon import
- * as a game tile): a console's library, a saved view, or the Downloads section.
+ * as a game tile): a console's library, a saved view, the Downloads section, or (3.5) a game that
+ * starts straight in its emulator.
  */
 data class AppShortcut(
     val id: String,
@@ -15,7 +16,9 @@ data class AppShortcut(
     /** The console it belongs to, so a frontend can file it under that platform. */
     val consoleId: String? = null,
     /** 7.0: a quick action (Surprise me, Search) instead of a link or a section; see [QuickActions]. */
-    val quick: QuickAction? = null
+    val quick: QuickAction? = null,
+    /** 3.5: the library key of a game to start ([GameShortcuts.Key.value]) instead of anything above. */
+    val game: String? = null
 )
 
 /** Builds the shortcuts Dogmatix+ offers. Pure JVM so it can be unit-tested. */
@@ -39,15 +42,21 @@ object AppShortcuts {
         consoleId = consoleId
     )
 
+    /** 3.5: a game to start, labelled with its clean title; null when the key cannot be carried (see [GameShortcuts.key]). */
+    fun game(consoleId: String, fileName: String, label: String): AppShortcut? =
+        GameShortcuts.key(consoleId, fileName)?.let { AppShortcut(it.shortcutId, label, consoleId = consoleId, game = it.value) }
+
     fun view(view: LibraryView) = AppShortcut(
         id = "view:${view.id}", label = view.name, deepLink = view.deepLink(),
         consoleId = view.consoles.singleOrNull()
     )
 
     /**
-     * The quick actions first (Surprise me, Downloads, Search: what a long press of the icon shows
-     * on top), then saved views, then consoles A–Z, cut to [max]. Without [surprise] / [search]
-     * it is Downloads first, as before.
+     * (3.5) The recently played [games] first, newest first and at most [GameShortcuts.RECENT_COUNT]
+     * (none when [showGames] is off): a launcher shows only the first few shortcuts of the icon
+     * menu, and the games are what that menu is for. Then the quick actions (Surprise me,
+     * Downloads, Search), saved views, then consoles A–Z, cut to [max]. Without [surprise] /
+     * [search] it is Downloads first among them, as before.
      */
     fun plan(
         downloads: AppShortcut,
@@ -55,9 +64,12 @@ object AppShortcuts {
         views: List<LibraryView>,
         max: Int = MAX_DYNAMIC,
         surprise: AppShortcut? = null,
-        search: AppShortcut? = null
+        search: AppShortcut? = null,
+        games: List<AppShortcut> = emptyList(),
+        showGames: Boolean = true
     ): List<AppShortcut> =
-        (listOfNotNull(surprise, downloads, search) + views.map(::view) + consoles.sortedBy { it.second.lowercase() }.map { (id, name) -> console(id, name) })
+        (GameShortcuts.menuGames(games, showGames, { it.id }) + listOfNotNull(surprise, downloads, search) + views.map(::view) +
+            consoles.sortedBy { it.second.lowercase() }.map { (id, name) -> console(id, name) })
             .distinctBy { it.id }
             .take(max.coerceAtLeast(0))
 }

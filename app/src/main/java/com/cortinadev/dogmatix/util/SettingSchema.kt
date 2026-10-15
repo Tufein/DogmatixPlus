@@ -42,6 +42,10 @@ object SettingSchema {
         put(VersionPreferences.OVERRIDES_KEY, "s")
         put(DownloadPresets.KEY, "s")
         putAll(FrontendCovers.SETTING_TYPES)
+        putAll(GameShortcuts.SETTING_TYPES)
+        putAll(RetroArchPlaylists.SETTING_TYPES)
+        putAll(NewHandheldPlan.SETTING_TYPES)
+        putAll(TargetFolderLayouts.SETTING_TYPES)
     }
 
     fun localName(name: String): String =

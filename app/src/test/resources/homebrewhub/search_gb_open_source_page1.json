@@ -1,0 +1,212 @@
+{
+ "results": 110,
+ "page_total": 11,
+ "page_current": 1,
+ "page_elements": 10,
+ "sort": "firstadded_date",
+ "order": "desc",
+ "entries": [
+  {
+   "title": "totp-gb",
+   "slug": "totp-gb",
+   "developer": "dmang-dev",
+   "typetag": "tool",
+   "platform": "GB",
+   "gameLicense": "MIT",
+   "assetsLicense": "MIT",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "totp-gb.gb",
+     "playable": true
+    },
+    {
+     "default": false,
+     "filename": "totp-gbc.gbc",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "Max Pirate Extra Boom",
+   "slug": "maxpirateeb",
+   "developer": "Lemmy Hawkins",
+   "typetag": "game",
+   "platform": "GB",
+   "license": "MIT",
+   "tags": [
+    "Open Source",
+    "Action"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "maxpirateeb.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "Still Got the Blues",
+   "slug": "leanart_sgb",
+   "developer": "Lean Art",
+   "typetag": "tool",
+   "platform": "GB",
+   "gameLicense": "MIT",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/sgb_jam.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "DMG vs. Super Game Boy",
+   "slug": "drludos_dmg-vs-super-game-boy",
+   "developer": "Dr. Ludos",
+   "typetag": "game",
+   "platform": "GB",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/DMGvsSGB_jam.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "Pocket Aquarium",
+   "slug": "creativenamegames_pocket-aquarium",
+   "developer": "creativenamegames",
+   "typetag": "game",
+   "platform": "GB",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/Pocket Aquarium 2.5_jam.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "El Jamon Volador",
+   "slug": "mateusdigital_el-jamon-volador",
+   "developer": "mateus.digital",
+   "typetag": "game",
+   "platform": "GB",
+   "gameLicense": "GPL-3.0-only",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/el-jamon-volador_1.2.1.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "Pizza Palace",
+   "slug": "zone-booth_pizza-palace",
+   "developer": "Zone Booth",
+   "typetag": "game",
+   "platform": "GB",
+   "gameLicense": "GPL-3.0-only",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/pizza_palace.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "Conway's Life for Game Boy",
+   "slug": "novasquirrel_conways-life-for-game-boy",
+   "developer": "NovaSquirrel",
+   "typetag": "game",
+   "platform": "GB",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/life.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "Piropa",
+   "slug": "zenzoa_piropa",
+   "developer": "sg",
+   "typetag": "game",
+   "platform": "GB",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "files/piropa-2.1.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  },
+  {
+   "title": "Turbocharged",
+   "slug": "turbocharged",
+   "developer": "All You Can Execute",
+   "typetag": "demo",
+   "platform": "GB",
+   "tags": [
+    "Open Source"
+   ],
+   "files": [
+    {
+     "default": true,
+     "filename": "turbocharged.gb",
+     "playable": true
+    }
+   ],
+   "basepath": "database-gb",
+   "baserepo": "https://github.com/gbdev/database"
+  }
+ ]
+}

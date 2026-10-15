@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tools → Copy or send games: folder names for other systems (3.5.0) -->
+    <string name="layouts35_title">Folder names</string>
+    <string name="layouts35_hint">The names the console folders get at the destination. Pick another system\'s names to fill a card for that system.</string>
+    <string name="layouts35_target_folder_note">You pick the folder next. The console folders get the names chosen under Folder names.</string>
+
+    <string name="layouts35_library">As in this library</string>
+    <string name="layouts35_library_hint">The console folders keep the names they have here.</string>
+    <string name="layouts35_esde">ES-DE</string>
+    <string name="layouts35_esde_hint">Short names like gba, snes, megadrive, psx. Pick ES-DE\'s ROMs folder.</string>
+    <string name="layouts35_batocera">Batocera</string>
+    <string name="layouts35_batocera_hint">Batocera 42 or newer, inside roms (gamecube, megacd, wswan, lynx…). Pick the card or its roms folder.</string>
+    <string name="layouts35_knulli">Knulli</string>
+    <string name="layouts35_knulli_hint">Inside roms, with Knulli\'s own names (segacd, o2em…). Pick the card or its roms folder.</string>
+    <string name="layouts35_arkos">ArkOS</string>
+    <string name="layouts35_arkos_hint">Straight on the EASYROMS card (gba, gc, coleco, pokemonmini…). Pick the card.</string>
+    <string name="layouts35_rocknix">ROCKNIX</string>
+    <string name="layouts35_rocknix_hint">Inside roms on the games card (gamecube, sgfx, neocd…). Pick the card or its roms folder.</string>
+    <string name="layouts35_onion">OnionOS (Miyoo Mini)</string>
+    <string name="layouts35_onion_hint">Inside Roms, in capitals (GBA, SFC, FC, MD, PS…). Pick the card or its Roms folder.</string>
+    <string name="layouts35_muos">muOS</string>
+    <string name="layouts35_muos_hint">Inside ROMS, names muOS gives a core by itself (gba, snes, psx…). Pick the card or its ROMS folder.</string>
+
+    <string name="layouts35_example">Your games: %1$s</string>
+    <string name="layouts35_example_pair">%1$s → %2$s</string>
+    <string name="layouts35_example_none">%1$s → not supported</string>
+    <string name="layouts35_note">This only sets the folder names. The other system may still want its own game lists, BIOS files and emulator cores.</string>
+
+    <string name="layouts35_preview_names">Folder names: %1$s</string>
+    <string name="layouts35_preview_folders">Console folders: %1$s</string>
+    <string name="layouts35_unsupported_title">Not copied: %1$s has no folder for these consoles</string>
+    <string name="layouts35_unsupported_line">%1$s (%2$s)</string>
+    <string name="layouts35_case_title">Already there with other capitals. The games go into the folder that is there, but %1$s may only look for the exact name:</string>
+    <string name="layouts35_case_line">%1$s (expected: %2$s)</string>
+    <string name="layouts35_deep_title">%1$s only looks one folder deep inside a console folder, so these games may not show up there:</string>
+    <string name="layouts35_app_folder">This is one of your library folders, so the folder names of your library are used here. Other folder names would add every game to it a second time.</string>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pin35_action">Ajouter à l’écran d’accueil</string>
+    <string name="pin35_requested">Ajout de « %1$s » à l’écran d’accueil</string>
+    <string name="pin35_unsupported">Votre lanceur ne peut pas ajouter de raccourcis à l’écran d’accueil.</string>
+    <string name="pin35_failed">Le raccourci n’a pas pu être ajouté.</string>
+    <string name="pin35_no_files">Les fichiers de ce jeu ne sont plus sur cet appareil.</string>
+    <string name="pin35_disabled">Ce jeu a été retiré de l’appareil.</string>
+    <string name="pin35_setting_title">Joués récemment dans le menu de l’icône</string>
+    <string name="pin35_setting_hint">Appuyez longuement sur l’icône de l’app pour lancer directement l’un des 3 derniers jeux auxquels vous avez joué</string>
+    <string name="pin35_group_recent">Joués récemment</string>
+</resources>

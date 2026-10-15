@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Strumenti → Copia o invia giochi: nomi delle cartelle per altri sistemi (3.5.0) -->
+    <string name="layouts35_title">Nomi delle cartelle</string>
+    <string name="layouts35_hint">I nomi che le cartelle delle console ricevono nella destinazione. Scegli i nomi di un altro sistema per riempire una scheda per quel sistema.</string>
+    <string name="layouts35_target_folder_note">La cartella la scegli dopo. Le cartelle delle console ricevono i nomi scelti in Nomi delle cartelle.</string>
+
+    <string name="layouts35_library">Come in questa libreria</string>
+    <string name="layouts35_library_hint">Le cartelle delle console mantengono i nomi che hanno qui.</string>
+    <string name="layouts35_esde">ES-DE</string>
+    <string name="layouts35_esde_hint">Nomi brevi come gba, snes, megadrive, psx. Scegli la cartella ROMs di ES-DE.</string>
+    <string name="layouts35_batocera">Batocera</string>
+    <string name="layouts35_batocera_hint">Batocera 42 o successivo, dentro roms (gamecube, megacd, wswan, lynx…). Scegli la scheda o la sua cartella roms.</string>
+    <string name="layouts35_knulli">Knulli</string>
+    <string name="layouts35_knulli_hint">Dentro roms, con i nomi propri di Knulli (segacd, o2em…). Scegli la scheda o la sua cartella roms.</string>
+    <string name="layouts35_arkos">ArkOS</string>
+    <string name="layouts35_arkos_hint">Direttamente sulla scheda EASYROMS (gba, gc, coleco, pokemonmini…). Scegli la scheda.</string>
+    <string name="layouts35_rocknix">ROCKNIX</string>
+    <string name="layouts35_rocknix_hint">Dentro roms sulla scheda dei giochi (gamecube, sgfx, neocd…). Scegli la scheda o la sua cartella roms.</string>
+    <string name="layouts35_onion">OnionOS (Miyoo Mini)</string>
+    <string name="layouts35_onion_hint">Dentro Roms, in maiuscolo (GBA, SFC, FC, MD, PS…). Scegli la scheda o la sua cartella Roms.</string>
+    <string name="layouts35_muos">muOS</string>
+    <string name="layouts35_muos_hint">Dentro ROMS, con nomi a cui muOS assegna da solo un core (gba, snes, psx…). Scegli la scheda o la sua cartella ROMS.</string>
+
+    <string name="layouts35_example">I tuoi giochi: %1$s</string>
+    <string name="layouts35_example_pair">%1$s → %2$s</string>
+    <string name="layouts35_example_none">%1$s → non supportato</string>
+    <string name="layouts35_note">Questo imposta solo i nomi delle cartelle. L’altro sistema potrebbe volere ancora i propri elenchi di giochi, file BIOS e core degli emulatori.</string>
+
+    <string name="layouts35_preview_names">Nomi delle cartelle: %1$s</string>
+    <string name="layouts35_preview_folders">Cartelle delle console: %1$s</string>
+    <string name="layouts35_unsupported_title">Non copiati: %1$s non ha una cartella per queste console</string>
+    <string name="layouts35_unsupported_line">%1$s (%2$s)</string>
+    <string name="layouts35_case_title">Già presente con maiuscole diverse. I giochi vanno nella cartella esistente, ma %1$s potrebbe cercare solo il nome esatto:</string>
+    <string name="layouts35_case_line">%1$s (atteso: %2$s)</string>
+    <string name="layouts35_deep_title">%1$s guarda solo un livello di cartella dentro una cartella della console, quindi questi giochi potrebbero non comparire:</string>
+    <string name="layouts35_app_folder">Questa è una delle cartelle della tua libreria, quindi qui si usano i nomi di cartella della tua libreria. Altri nomi di cartella metterebbero ogni gioco una seconda volta.</string>
+</resources>

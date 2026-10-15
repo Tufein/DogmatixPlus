@@ -88,7 +88,9 @@ class TrashService @Inject constructor(
         }
     }
 
-    suspend fun restore(id: String) = withContext(Dispatchers.IO) { gate.lock.withLock {
+    suspend fun restore(id: String) = withContext(Dispatchers.IO) {
+        makeRoomForPrevious(id)
+        gate.lock.withLock {
         val operation = history.get(id)?.takeIf { it.kind == "trash" && it.phase !in setOf("done", "purging") } ?: return@withLock
         gate.hold("*")
         try {
@@ -119,6 +121,29 @@ class TrashService @Inject constructor(
             )
         } finally { gate.release("*") }
     } }
+
+    /**
+     * 3.5.0: the previous version of a file that a tool replaced (Tools -> RetroArch playlists) comes
+     * back where a newer version of the same name stands now, and a restore never writes over a
+     * different file. That newer version goes to the trash first, as an operation of its own that
+     * can be restored in turn. Only for removals recorded with [ActionReason.RETROARCH_PLAYLIST].
+     */
+    private suspend fun makeRoomForPrevious(id: String) {
+        val operation = history.get(id)?.takeIf { it.kind == "trash" && it.phase in setOf("stored", "restoring") } ?: return
+        val receipt = operation.files.singleOrNull()?.takeIf { it.relativePath == null } ?: return
+        if (actionLog.removal(id)?.reason != ActionReason.RETROARCH_PLAYLIST) return
+        val parent = StorageHelper.getDocumentFile(context, receipt.parent) ?: return
+        val name = receipt.name.substringAfterLast('/')
+        val current = parent.findFile(name)?.takeIf { it.isFile } ?: return
+        if (copier.hash(current.uri) == receipt.hash) return
+        // Nothing is moved aside unless the restore that follows can actually bring the backup back.
+        val backup = DocumentFile.fromSingleUri(context, Uri.parse(receipt.target))?.takeIf { it.exists() } ?: return
+        if (copier.hash(backup.uri) != receipt.hash) return
+        move(
+            listOf(RemovalFile(current.uri.toString(), receipt.parent, name, current.length(), name)),
+            name, fileName = name, reason = ActionReason.RETROARCH_PLAYLIST
+        )
+    }
 
     /** Verifies the original contents, rather than assuming an absent backup was restored. */
     suspend fun restoredFiles(id: String): Int = withContext(Dispatchers.IO) {

@@ -2,4 +2,6 @@
 <!-- Full-backup rules (Android 11 and older). The cloud backup passphrase and this device's id stay on the device. -->
 <full-backup-content>
     <exclude domain="file" path="datastore/dav_device.preferences_pb"/>
+    <!-- The "Set up a new handheld" progress belongs to this handheld only. -->
+    <exclude domain="file" path="datastore/new_handheld.preferences_pb"/>
 </full-backup-content>

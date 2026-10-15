@@ -369,6 +369,6 @@ fun ActionPill(
     ) {
         val color = if (enabled) fg else scheme.onSurfaceVariant.copy(alpha = 0.6f)
         icon?.let { Icon(painterResource(it), contentDescription = null, tint = color, modifier = Modifier.size(16.dp)) }
-        Text(label, style = MaterialTheme.typography.labelLarge, color = color, maxLines = 1)
+        Text(label, style = MaterialTheme.typography.labelLarge, color = color)
     }
 }

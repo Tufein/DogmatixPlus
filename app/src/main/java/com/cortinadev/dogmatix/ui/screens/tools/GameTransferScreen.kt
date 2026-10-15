@@ -54,6 +54,7 @@ import com.cortinadev.dogmatix.util.PackageCopyPlan
 import com.cortinadev.dogmatix.util.RemoteSend
 import com.cortinadev.dogmatix.util.RemoteSend.Outcome
 import com.cortinadev.dogmatix.util.RemoteSend.RommDecision
+import com.cortinadev.dogmatix.util.TargetFolderLayouts
 
 /**
  * Tools → Copy or send games (3.1.0): whole game packages, every recorded file with its folders,
@@ -166,7 +167,8 @@ private fun LazyListScope.setupItems(ui: GameTransferUi, mainFocus: FocusRequest
 
     item(key = "whereHeader") { SectionHeader(stringResource(R.string.transfer31_where)) }
     item(key = "t:folder") {
-        Choice(stringResource(R.string.transfer31_target_folder), listOf(stringResource(R.string.transfer31_target_folder_note)),
+        Choice(stringResource(R.string.transfer31_target_folder), listOf(stringResource(
+            if (ui.layout == TargetFolderLayouts.Layout.LIBRARY) R.string.transfer31_target_folder_note else R.string.layouts35_target_folder_note)),
             ui.target == TransferTarget.FOLDER, { viewModel.setTarget(TransferTarget.FOLDER) }, Modifier.focusRequester(mainFocus))
     }
     item(key = "t:romm") {
@@ -186,6 +188,8 @@ private fun LazyListScope.setupItems(ui: GameTransferUi, mainFocus: FocusRequest
             icon = if (ui.readBack) R.drawable.ic_checkbox_on else R.drawable.ic_checkbox_off,
             badge = { Pill(stringResource(if (ui.readBack) R.string.transfer31_on else R.string.transfer31_off), tone = if (ui.readBack) PillTone.Accent else PillTone.Neutral) })
     }
+
+    if (ui.target == TransferTarget.FOLDER) layoutItems(ui, viewModel)
 
     item(key = "conflictHeader") { SectionHeader(stringResource(R.string.transfer31_conflict_title), subtitle = stringResource(R.string.transfer31_conflict_hint)) }
     item(key = "c:skip") {
@@ -230,6 +234,58 @@ private fun LazyListScope.setupItems(ui: GameTransferUi, mainFocus: FocusRequest
     }
 }
 
+/**
+ * Folder names for another system (3.5.0): one row per layout with its explanation and what the
+ * console folders of the selected games (all games while none is picked) would become.
+ */
+private fun LazyListScope.layoutItems(ui: GameTransferUi, viewModel: GameTransferViewModel) {
+    val records = ui.snapshot?.records.orEmpty()
+    val picked = records.filter { it.sourceIdentity in ui.selected }.ifEmpty { records }
+    val samples = picked.distinctBy { it.consoleId }.take(3)
+    item(key = "layoutHeader") { SectionHeader(stringResource(R.string.layouts35_title), subtitle = stringResource(R.string.layouts35_hint)) }
+    TargetFolderLayouts.Layout.entries.forEach { layout ->
+        item(key = "layout:" + layout.key) {
+            val examples = samples.mapNotNull { record ->
+                val from = record.subPath.ifEmpty { ConsoleFormatter.getConsoleShortName(record.consoleId) }
+                val to = TargetFolderLayouts.destinationFolder(layout, record.consoleId, record.subPath, null)
+                when {
+                    layout == TargetFolderLayouts.Layout.LIBRARY && record.subPath.isEmpty() -> null
+                    to == null -> stringResource(R.string.layouts35_example_none, from)
+                    else -> stringResource(R.string.layouts35_example_pair, from, to)
+                }
+            }
+            Choice(stringResource(layoutTitle(layout)), listOfNotNull(stringResource(layoutHint(layout)),
+                examples.takeIf { it.isNotEmpty() }?.let { stringResource(R.string.layouts35_example, it.joinToString(", ")) }),
+                ui.layout == layout, { viewModel.setLayout(layout) })
+        }
+    }
+    if (ui.layout != TargetFolderLayouts.Layout.LIBRARY) item(key = "layoutNote") {
+        InfoCard(listOf(stringResource(R.string.layouts35_note)), icon = R.drawable.ic_info)
+    }
+}
+
+private fun layoutTitle(layout: TargetFolderLayouts.Layout): Int = when (layout) {
+    TargetFolderLayouts.Layout.LIBRARY -> R.string.layouts35_library
+    TargetFolderLayouts.Layout.ES_DE -> R.string.layouts35_esde
+    TargetFolderLayouts.Layout.BATOCERA -> R.string.layouts35_batocera
+    TargetFolderLayouts.Layout.KNULLI -> R.string.layouts35_knulli
+    TargetFolderLayouts.Layout.ARKOS -> R.string.layouts35_arkos
+    TargetFolderLayouts.Layout.ROCKNIX -> R.string.layouts35_rocknix
+    TargetFolderLayouts.Layout.ONION -> R.string.layouts35_onion
+    TargetFolderLayouts.Layout.MUOS -> R.string.layouts35_muos
+}
+
+private fun layoutHint(layout: TargetFolderLayouts.Layout): Int = when (layout) {
+    TargetFolderLayouts.Layout.LIBRARY -> R.string.layouts35_library_hint
+    TargetFolderLayouts.Layout.ES_DE -> R.string.layouts35_esde_hint
+    TargetFolderLayouts.Layout.BATOCERA -> R.string.layouts35_batocera_hint
+    TargetFolderLayouts.Layout.KNULLI -> R.string.layouts35_knulli_hint
+    TargetFolderLayouts.Layout.ARKOS -> R.string.layouts35_arkos_hint
+    TargetFolderLayouts.Layout.ROCKNIX -> R.string.layouts35_rocknix_hint
+    TargetFolderLayouts.Layout.ONION -> R.string.layouts35_onion_hint
+    TargetFolderLayouts.Layout.MUOS -> R.string.layouts35_muos_hint
+}
+
 /** A row that is one of several options (radio). */
 @Composable
 private fun Choice(title: String, lines: List<String>, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -244,6 +300,12 @@ private fun LazyListScope.previewItems(preview: TransferPreview, mainFocus: Focu
     item(key = "summary") {
         val lines = ArrayList<String>()
         lines += stringResource(R.string.transfer31_to, placeText(preview.place))
+        if (preview.layout != TargetFolderLayouts.Layout.LIBRARY) {
+            lines += stringResource(R.string.layouts35_preview_names, stringResource(layoutTitle(preview.layout)))
+            if (preview.consoleFolders.isNotEmpty()) lines += stringResource(R.string.layouts35_preview_folders,
+                preview.consoleFolders.take(8).joinToString(", ") + if (preview.consoleFolders.size > 8)
+                    ", " + pluralStringResource(R.plurals.transfer31_more, preview.consoleFolders.size - 8, preview.consoleFolders.size - 8) else "")
+        }
         lines += stringResource(if (preview.target == TransferTarget.FOLDER) R.string.transfer31_to_copy else R.string.transfer31_to_send, formatBytes(preview.bytesToSend))
         if (copy != null && copy.bytesPresent > 0) lines += stringResource(R.string.transfer31_present, formatBytes(copy.bytesPresent))
         if (preview.target == TransferTarget.FOLDER) copy?.let { plan ->
@@ -257,6 +319,9 @@ private fun LazyListScope.previewItems(preview: TransferPreview, mainFocus: Focu
             formatBytes(PackageCopyPlan.MARGIN_BYTES))), danger = true)
     }
     if (preview.place.appFolder) item(key = "appFolder") { InfoCard(listOf(stringResource(R.string.transfer31_app_folder)), icon = R.drawable.ic_info) }
+    if (preview.layoutIgnored) item(key = "layoutIgnored") { InfoCard(listOf(stringResource(R.string.layouts35_app_folder)), icon = R.drawable.ic_info) }
+    // What is left out or may be wrong comes before the buttons: Copy holds the focus.
+    layoutPreviewItems(preview)
     item(key = "actions") {
         ToolsActions {
             ActionPill(stringResource(if (preview.target == TransferTarget.FOLDER) R.string.transfer31_start_copy else R.string.transfer31_start_send),
@@ -315,6 +380,28 @@ private fun LazyListScope.previewItems(preview: TransferPreview, mainFocus: Focu
     }
 }
 
+/** What the chosen folder names leave out or may get wrong (3.5.0); nothing for the library's own names. */
+private fun LazyListScope.layoutPreviewItems(preview: TransferPreview) {
+    if (preview.layout == TargetFolderLayouts.Layout.LIBRARY) return
+    if (preview.unsupported.isNotEmpty()) item(key = "layoutUnsupported") {
+        InfoCard(listOf(stringResource(R.string.layouts35_unsupported_title, stringResource(layoutTitle(preview.layout)))) +
+            preview.unsupported.take(MAX_LINES).map { stringResource(R.string.layouts35_unsupported_line, it.title, ConsoleFormatter.getConsoleDisplayName(it.consoleId).replace('\n', ' ')) } +
+            listOfNotNull(if (preview.unsupported.size > MAX_LINES) pluralStringResource(R.plurals.transfer31_more, preview.unsupported.size - MAX_LINES, preview.unsupported.size - MAX_LINES) else null),
+            icon = R.drawable.ic_warning)
+    }
+    if (preview.caseDifferences.isNotEmpty()) item(key = "layoutCase") {
+        InfoCard(listOf(stringResource(R.string.layouts35_case_title, stringResource(layoutTitle(preview.layout)))) +
+            preview.caseDifferences.map { stringResource(R.string.layouts35_case_line, it.actual, it.expected) },
+            icon = R.drawable.ic_warning, danger = true)
+    }
+    if (preview.tooDeep.isNotEmpty()) item(key = "layoutDeep") {
+        InfoCard(listOf(stringResource(R.string.layouts35_deep_title, stringResource(layoutTitle(preview.layout)))) +
+            preview.tooDeep.take(30) + listOfNotNull(if (preview.tooDeep.size > 30) pluralStringResource(R.plurals.transfer31_more, preview.tooDeep.size - 30, preview.tooDeep.size - 30) else null),
+            icon = R.drawable.ic_warning)
+    }
+    item(key = "layoutNote") { InfoCard(listOf(stringResource(R.string.layouts35_note)), icon = R.drawable.ic_info) }
+}
+
 @Composable
 private fun placeText(place: TransferPlace): String = when (place.target) {
     TransferTarget.FOLDER -> {
@@ -330,7 +417,10 @@ private fun placeText(place: TransferPlace): String = when (place.target) {
 
 private fun LazyListScope.runItems(run: TransferRun, mainFocus: FocusRequester, onOpen: (String) -> Unit, onStop: () -> Unit,
     onRetry: () -> Unit, onDone: () -> Unit) {
-    item(key = "place") { InfoCard(listOf(stringResource(R.string.transfer31_to, placeText(run.preview.place)))) }
+    item(key = "place") {
+        InfoCard(listOf(stringResource(R.string.transfer31_to, placeText(run.preview.place))) + listOfNotNull(
+            run.preview.layout.takeIf { it != TargetFolderLayouts.Layout.LIBRARY }?.let { stringResource(R.string.layouts35_preview_names, stringResource(layoutTitle(it))) }))
+    }
     if (run.running) {
         item(key = "progress") {
             Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {

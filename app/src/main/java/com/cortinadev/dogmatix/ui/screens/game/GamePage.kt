@@ -264,13 +264,11 @@ private fun GamePageContent(
             try {
                 val choices = viewModel.gameLauncher.choices(rom)
                 // One file, or a playlist that holds every disc: the remembered app starts it directly.
-                val single = choices.singleOrNull() ?: choices.firstOrNull()?.takeIf { it.name.endsWith(".m3u", ignoreCase = true) }
-                val resolved = single?.let { viewModel.gameLauncher.effective(rom.consoleId, rom.fileName, it) }
-                val handler = resolved?.handler
+                val direct = viewModel.gameLauncher.direct(rom.consoleId, rom.fileName, choices)
                 if (choices.isEmpty() || choices.all { it.handlers.isEmpty() }) showMessage(missingEmulator)
-                else if (single != null && handler != null) {
+                else if (direct != null) {
                     // A remembered app that fails is no dead end: the chooser opens.
-                    if (!start(single, handler, false, false)) { staleChoice = false; launchChoices = choices }
+                    if (!start(direct.first, direct.second, false, false)) { staleChoice = false; launchChoices = choices }
                 } else {
                     // A remembered app that is not offered any more (uninstalled): say so above the choices.
                     staleChoice = choices.any { viewModel.gameLauncher.effective(rom.consoleId, rom.fileName, it).missingGameOverride } ||
@@ -281,6 +279,12 @@ private fun GamePageContent(
             catch (_: Exception) { showMessage(planError) }
             finally { preparing = false }
         }
+    }
+    // 3.5: a home-screen shortcut that could not start the game by itself opened this page: Play
+    // runs once the game shows as on the device (the chooser, or why it cannot start).
+    val shortcutPlay by com.cortinadev.dogmatix.ui.shortcut.PendingGameShortcut.play.collectAsState()
+    LaunchedEffect(shortcutPlay, owned, downloading) {
+        if (shortcutPlay != null && owned && !downloading && com.cortinadev.dogmatix.ui.shortcut.PendingGameShortcut.consumePlay(rom.consoleId, rom.fileName)) play()
     }
     if (showWhen) {
         DownloadWhenDialog(onDismiss = { showWhen = false }, onConfirm = { condition -> showWhen = false; download(item, condition) })
@@ -431,6 +435,8 @@ private fun GamePageContent(
                         finally { preparing = false }
                     }
                 }, icon = R.drawable.ic_settings)
+                // 3.5: an icon that starts the game straight in its emulator.
+                HomeScreenPill(rom, showMessage)
             }
             val switch = state.switch
             // The live ranking (the same as the Versions tab), so a pin or a preference change shows at once.
