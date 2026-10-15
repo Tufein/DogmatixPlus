@@ -276,7 +276,7 @@ object RetroArchPlaylists {
 
     /** `folder` + an `.m3u` line (relative, `./` and `\` allowed) as a lower-cased `folder/name`; null for an empty, comment or absolute line. */
     private fun resolve(folder: String, line: String): String? {
-        val l = line.trim().removePrefix("﻿").replace('\\', '/')
+        val l = line.trim().removePrefix("\uFEFF").replace('\\', '/')
         if (l.isEmpty() || l.startsWith("#") || l.startsWith("/") || ':' in l) return null
         val parts = ArrayList<String>(folder.split('/'))
         for (part in l.split('/')) {
@@ -326,7 +326,7 @@ object RetroArchPlaylists {
         if (bytes == null) return Read.New
         if (bytes.size > MAX_PLAYLIST_BYTES) return Read.Kept(LeftAlone.TOO_BIG)
         if (startsWith(bytes, RZIP)) return Read.Kept(LeftAlone.COMPRESSED)
-        val text = strictUtf8(bytes)?.removePrefix("﻿") ?: return Read.Kept(LeftAlone.UNREADABLE)
+        val text = strictUtf8(bytes)?.removePrefix("\uFEFF") ?: return Read.Kept(LeftAlone.UNREADABLE)
         if (text.isBlank()) return Read.New
         if (text.trimStart().first() != '{') {
             val binary = text.any { it.isISOControl() && it != '\n' && it != '\r' && it != '\t' }

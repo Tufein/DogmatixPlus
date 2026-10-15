@@ -356,7 +356,7 @@ class RetroArchPlaylistsTest {
         assertTrue(RetroArchPlaylists.read(ByteArray(0)) is RetroArchPlaylists.Read.New)
         assertTrue(RetroArchPlaylists.read(" \n".toByteArray()) is RetroArchPlaylists.Read.New)
         assertTrue(RetroArchPlaylists.read(null) is RetroArchPlaylists.Read.New)
-        val bom = "﻿{\"version\": \"1.0\", \"items\": []}".toByteArray()
+        val bom = "\uFEFF{\"version\": \"1.0\", \"items\": []}".toByteArray()
         val read = RetroArchPlaylists.read(bom)
         assertTrue(read is RetroArchPlaylists.Read.Json)
         // An older JSON version keeps its version: only entries are added.
