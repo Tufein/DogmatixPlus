@@ -29,7 +29,7 @@ The app includes no games. **Sources → More romsets** offers optional free con
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [3.5.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.5.0)** (Android build 47).
+**Latest release: [3.6.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.6.0)** (Android build 48).
 
 ## Install
 

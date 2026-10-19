@@ -1274,11 +1274,8 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Giochi sulla schermata Home: nella pagina di un gioco, «Aggiungi alla schermata Home» crea un collegamento che avvia il gioco direttamente nel suo emulatore. Con una pressione lunga sull’icona di Dogmatix+ si avvia uno degli ultimi tre giochi (disattivabile nelle impostazioni).</item>
-        <item>Configura una nuova console portatile: una lista di controllo dall’installazione appena fatta alla console pronta: ripristina le impostazioni, scegli la cartella dei giochi, controlla gli emulatori, scarica i preferiti mancanti e configura i salvataggi e il launcher. Nulla parte senza la tua conferma.</item>
-        <item>Playlist di RetroArch: scrive playlist .lpl per i giochi del dispositivo. Vedi prima cosa verrà aggiunto; una playlist esistente viene solo ampliata e il vecchio file va in Cestino e ripristino.</item>
-        <item>Nomi di cartelle per altri sistemi: copiando giochi su una scheda SD o su una cartella USB, le cartelle delle console possono avere i nomi attesi da ES-DE, Batocera, Knulli, ArkOS, ROCKNIX, OnionOS o muOS. I giochi per cui un sistema non ha una cartella vengono elencati e lasciati fuori.</item>
-        <item>Homebrew Hub nel catalogo dei contenuti: homebrew gratuiti per Game Boy e Game Boy Color, solo le voci la cui licenza consente la condivisione, ciascuna con licenza e autore.</item>
+        <item>Le playlist di RetroArch si aggiornano in modo più sicuro: la nuova playlist viene scritta sull’archiviazione prima che la vecchia vada in Cestino e ripristino, quindi una scheda piena o una chiavetta scollegata non lasciano mai RetroArch senza playlist.</item>
+        <item>Nomi di cartelle per OnionOS: Copia o invia giochi ora avvisa dei giochi con un apostrofo nel nome di una sottocartella, che OnionOS non apre.</item>
     </string-array>
 
     <!-- 4.0 -->

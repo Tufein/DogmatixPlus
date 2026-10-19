@@ -1328,11 +1328,8 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Des jeux sur l’écran d’accueil : sur la page d’un jeu, « Ajouter à l’écran d’accueil » crée un raccourci qui lance le jeu directement dans son émulateur. Un appui long sur l’icône de Dogmatix+ lance l’un de vos trois derniers jeux (désactivable dans les réglages).</item>
-        <item>Configurer une nouvelle console portable : une liste de contrôle de l’installation toute neuve à la console prête : restaurer vos réglages, choisir le dossier des jeux, vérifier les émulateurs, télécharger les favoris manquants, configurer les sauvegardes et le lanceur. Rien ne démarre sans votre confirmation.</item>
-        <item>Playlists RetroArch : écrit des playlists .lpl pour les jeux de l’appareil. Vous voyez d’abord ce qui sera ajouté ; une playlist existante est seulement complétée et l’ancien fichier va dans Corbeille et récupération.</item>
-        <item>Noms de dossiers pour d’autres systèmes : en copiant des jeux vers une carte SD ou un dossier USB, les dossiers de consoles peuvent être nommés comme l’attendent ES-DE, Batocera, Knulli, ArkOS, ROCKNIX, OnionOS ou muOS. Les jeux pour lesquels un système n’a pas de dossier sont listés et laissés de côté.</item>
-        <item>Homebrew Hub dans le catalogue de contenus : des homebrews Game Boy et Game Boy Color gratuits, uniquement ceux dont la licence autorise le partage, chacun avec sa licence et son auteur.</item>
+        <item>Les playlists RetroArch se mettent à jour plus sûrement : la nouvelle playlist est d’abord écrite sur le stockage avant que l’ancienne n’aille dans Corbeille et récupération. Une carte pleine ou une clé débranchée ne laisse donc jamais RetroArch sans playlist.</item>
+        <item>Noms de dossiers pour OnionOS : Copier ou envoyer des jeux avertit désormais des jeux dont un sous-dossier a une apostrophe dans son nom, qu’OnionOS n’ouvre pas.</item>
     </string-array>
 
     <!-- 4.0 -->

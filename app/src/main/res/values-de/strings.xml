@@ -1323,11 +1323,8 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Spiele auf dem Startbildschirm: Auf der Spielseite legt „Zum Startbildschirm hinzufügen“ eine Verknüpfung an, die das Spiel direkt im Emulator startet. Ein langer Druck auf das Dogmatix+-Symbol startet eines deiner drei zuletzt gespielten Spiele (in den Einstellungen abschaltbar).</item>
-        <item>Neuen Handheld einrichten: eine Checkliste von der frischen Installation bis zum fertigen Handheld: Einstellungen wiederherstellen, Spieleordner wählen, Emulatoren prüfen, fehlende Favoriten laden sowie Saves und Launcher einrichten. Nichts startet ohne deine Bestätigung.</item>
-        <item>RetroArch-Playlists: schreibt .lpl-Playlists für die Spiele auf deinem Gerät. Du siehst vorher, was hinzugefügt wird; eine vorhandene Playlist wird nur ergänzt, die alte Datei landet in Papierkorb und Wiederherstellung.</item>
-        <item>Ordnernamen für andere Systeme: Beim Kopieren von Spielen auf eine SD-Karte oder in einen USB-Ordner können die Konsolenordner so heißen, wie ES-DE, Batocera, Knulli, ArkOS, ROCKNIX, OnionOS oder muOS sie erwarten. Spiele, für die ein System keinen Ordner hat, werden aufgelistet und ausgelassen.</item>
-        <item>Homebrew Hub im Inhaltskatalog: freie Game-Boy- und Game-Boy-Color-Homebrew, nur Einträge, deren Lizenz die Weitergabe erlaubt, jeweils mit Lizenz und Autor.</item>
+        <item>RetroArch-Playlists werden sicherer aktualisiert: Die neue Playlist wird erst auf den Speicher geschrieben, bevor die alte in Papierkorb und Wiederherstellung wandert. Eine volle Karte oder ein abgezogener Stick lässt RetroArch so nie ohne Playlist zurück.</item>
+        <item>Ordnernamen für OnionOS: Spiele kopieren oder senden warnt jetzt vor Spielen mit einem Apostroph im Namen eines Unterordners, die OnionOS nicht öffnet.</item>
     </string-array>
 
     <!-- 4.0 -->
