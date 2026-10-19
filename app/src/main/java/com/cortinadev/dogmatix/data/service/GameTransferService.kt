@@ -96,6 +96,8 @@ data class TransferPreview(
     val unsupported: List<TransferUnsupported> = emptyList(),
     /** Titles of games whose files sit deeper than the other system looks ([TargetFolderLayouts.Layout.maxSubfolders]). */
     val tooDeep: List<String> = emptyList(),
+    /** Titles of games with an apostrophe in a subfolder name, which OnionOS does not open (3.6). */
+    val apostrophes: List<String> = emptyList(),
     /** Planned folders that already exist there under other letter case; the copy goes into the existing one. */
     val caseDifferences: List<TargetFolderLayouts.CaseDifference> = emptyList(),
     /** For another system's folder names: the console folders the copy writes to, spelled as they are (or will be) there. */
@@ -227,6 +229,7 @@ class GameTransferService @Inject constructor(
                     layoutIgnored = used != layout,
                     unsupported = placement.unsupported.map { TransferUnsupported(it.title, it.consoleId) },
                     tooDeep = placement.tooDeep.map { it.title },
+                    apostrophes = placement.apostrophes.map { it.title },
                     caseDifferences = placement.caseDifferences,
                     consoleFolders = if (used == TargetFolderLayouts.Layout.LIBRARY) emptyList() else {
                         val copied = plan.games.filter { it.decision == PackageCopyPlan.Decision.COPY || it.decision == PackageCopyPlan.Decision.RENAMED }.map { it.key }.toSet()

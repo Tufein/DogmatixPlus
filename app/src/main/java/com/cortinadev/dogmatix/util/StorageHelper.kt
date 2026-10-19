@@ -130,6 +130,19 @@ object StorageHelper {
         requireSafeName(fileName)
         val directory = if (subPath.isEmpty()) dir else createDirectory(dir, subPath)
             ?: throw IOException("Could not create directory $subPath")
+        val tmp = stageBytes(context, directory, bytes)
+        val tmpName = tmp.name
+        try {
+            return publishStagedFile(context, directory, tmp, fileName, VerifiedCopy.hash(bytes.inputStream()))
+        } finally { if (tmp.name == tmpName) runCatching { tmp.delete() } }
+    }
+
+    /**
+     * 3.6: writes [bytes] to a hidden staging file in [directory] without touching anything else, so
+     * a caller can do its other work (moving the old file to the trash) only once the new content
+     * is safely on the storage; [publishStagedFile] then gives it its name. Delete it when done.
+     */
+    fun stageBytes(context: Context, directory: DocumentFile, bytes: ByteArray): DocumentFile {
         val tmpName = ".dogmatix-write-${UUID.randomUUID()}.part"
         val tmp = directory.createFile("application/octet-stream", tmpName)
             ?: throw IOException("Could not create $tmpName")
@@ -137,8 +150,11 @@ object StorageHelper {
         try {
             context.contentResolver.openOutputStream(tmp.uri, "wt")?.use { it.write(bytes) }
                 ?: throw IOException("Could not write $tmpName")
-            return publishStagedFile(context, directory, tmp, fileName, VerifiedCopy.hash(bytes.inputStream()))
-        } finally { if (tmp.name == tmpName) runCatching { tmp.delete() } }
+        } catch (e: Exception) {
+            runCatching { tmp.delete() }
+            throw e
+        }
+        return tmp
     }
 
     data class Recovery(val id: String, val fileName: String, val backupName: String, val sha256: String) {

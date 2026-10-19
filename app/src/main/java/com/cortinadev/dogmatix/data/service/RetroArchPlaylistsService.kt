@@ -313,26 +313,34 @@ class RetroArchPlaylistsService @Inject constructor(
         }
         // The playlist keeps its own spelling ("nintendo - game boy.lpl").
         val name = entry.name
-        val before = journal.entries.value.map { it.id }.toSet()
-        trash.move(
-            listOf(RemovalFile(entry.uri.toString(), folder, name, entry.size, name)),
-            title = name, fileName = name, reason = ActionReason.RETROARCH_PLAYLIST
-        )
-        val operation = journal.entries.value.firstOrNull { op ->
-            op.id !in before && op.kind == "trash" && op.files.any { it.source == entry.uri.toString() }
-        } ?: error("The previous version was not kept")
-        // Changed between reading and the backup (RetroArch saved it meanwhile): put it back as it is.
-        val read = existing.bytes ?: ByteArray(0)
-        if (operation.files.single().hash != VerifiedCopy.hash(read.inputStream())) {
-            trash.restore(operation.id)
-            return Outcome(leftAlone = true)
-        }
+        // The new content is on the storage before the old file moves, so a failed write (full card,
+        // unplugged stick) never leaves the folder without its playlist.
+        val staged = StorageHelper.stageBytes(context, root, bytes)
+        val stagedName = staged.name
         try {
-            StorageHelper.writeBytesSafely(context, root, "", name, bytes)
-        } catch (e: Exception) {
-            // Nothing new was published: the previous version goes back where it was.
-            runCatching { trash.restore(operation.id) }.onFailure { Log.w(TAG, "Could not put a playlist back: ${it.message}") }
-            throw e
+            val before = journal.entries.value.map { it.id }.toSet()
+            trash.move(
+                listOf(RemovalFile(entry.uri.toString(), folder, name, entry.size, name)),
+                title = name, fileName = name, reason = ActionReason.RETROARCH_PLAYLIST
+            )
+            val operation = journal.entries.value.firstOrNull { op ->
+                op.id !in before && op.kind == "trash" && op.files.any { it.source == entry.uri.toString() }
+            } ?: error("The previous version was not kept")
+            // Changed between reading and the backup (RetroArch saved it meanwhile): put it back as it is.
+            val read = existing.bytes ?: ByteArray(0)
+            if (operation.files.single().hash != VerifiedCopy.hash(read.inputStream())) {
+                trash.restore(operation.id)
+                return Outcome(leftAlone = true)
+            }
+            try {
+                StorageHelper.publishStagedFile(context, root, staged, name, VerifiedCopy.hash(bytes.inputStream()))
+            } catch (e: Exception) {
+                // Nothing new was published: the previous version goes back where it was.
+                runCatching { trash.restore(operation.id) }.onFailure { Log.w(TAG, "Could not put a playlist back: ${it.message}") }
+                throw e
+            }
+        } finally {
+            if (staged.name == stagedName) runCatching { staged.delete() }
         }
         record(name, plan.add.size)
         return Outcome(updated = true, entries = plan.add.size)

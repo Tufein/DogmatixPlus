@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="layouts36_apostrophe_title">%1$s öffnet keine Unterordner mit einem Apostroph im Namen, deshalb erscheinen diese Spiele dort vielleicht nicht:</string>
+</resources>

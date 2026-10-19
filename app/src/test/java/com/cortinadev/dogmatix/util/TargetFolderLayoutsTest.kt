@@ -255,6 +255,16 @@ class TargetFolderLayoutsTest {
         assertTrue(TargetFolderLayouts.place(Layout.ONION, listOf(mario), "Roms").caseDifferences.isEmpty())
     }
 
+    @Test fun `onion subfolders with an apostrophe are flagged and other systems are not`() {
+        val quote = Source("q", "Pokemon's Saga.7z", "sony_playstation", "psx", listOf(part("Pokemon's Saga/Saga.cue", 10)))
+        val plain = Source("p", "Saga.7z", "sony_playstation", "psx", listOf(part("Saga/Saga.cue", 10)))
+        // An apostrophe in the file name itself is fine: only folder names are the problem.
+        val fileOnly = Source("f", "Saga.7z", "sony_playstation", "psx", listOf(part("Saga/Pokemon's.cue", 10)))
+        assertEquals(listOf("q"), TargetFolderLayouts.place(Layout.ONION, listOf(quote, plain, fileOnly), null).apostrophes.map { it.key })
+        assertTrue(TargetFolderLayouts.place(Layout.ES_DE, listOf(quote), null).apostrophes.isEmpty())
+        assertTrue(TargetFolderLayouts.place(Layout.LIBRARY, listOf(quote), null).apostrophes.isEmpty())
+    }
+
     @Test fun `games deeper than onion looks are flagged but still copied`() {
         val placement = TargetFolderLayouts.place(Layout.ONION, listOf(disc, deep), null)
         assertEquals(listOf("e"), placement.tooDeep.map { it.key })

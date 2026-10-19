@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="layouts36_apostrophe_title">%1$s n’ouvre pas les sous-dossiers dont le nom contient une apostrophe, ces jeux risquent donc de ne pas apparaître :</string>
+</resources>

@@ -352,7 +352,9 @@ object TargetFolderLayouts {
         val unsupported: List<PackageCopyPlan.Source>,
         /** Games whose files sit deeper below the console folder than the system looks ([Layout.maxSubfolders]). */
         val tooDeep: List<PackageCopyPlan.Source>,
-        val caseDifferences: List<CaseDifference>
+        val caseDifferences: List<CaseDifference>,
+        /** 3.6: games with a subfolder whose name has an apostrophe, which [Layout.ONION] does not open. */
+        val apostrophes: List<PackageCopyPlan.Source> = emptyList()
     )
 
     /**
@@ -391,7 +393,11 @@ object TargetFolderLayouts {
         val deep = if (limit == null) emptyList() else placed.filter { s ->
             s.parts.any { p -> !PackageCopyPlan.isSaveOrState(p.path) && p.path.count { it == '/' } > limit }
         }
-        return Placement(placed, unsupported, deep, differences.values.toList())
+        // Onion's documentation: a subfolder name must not contain an apostrophe.
+        val apostrophes = if (layout != Layout.ONION) emptyList() else placed.filter { s ->
+            s.parts.any { p -> !PackageCopyPlan.isSaveOrState(p.path) && p.path.substringBeforeLast('/', "").contains('\'') }
+        }
+        return Placement(placed, unsupported, deep, differences.values.toList(), apostrophes)
     }
 
     /** Only the first folder along [expected] that is spelled differently ("roms" of "roms/gba"), not every console folder inside it. */

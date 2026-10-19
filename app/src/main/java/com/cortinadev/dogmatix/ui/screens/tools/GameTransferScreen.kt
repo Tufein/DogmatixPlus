@@ -399,6 +399,11 @@ private fun LazyListScope.layoutPreviewItems(preview: TransferPreview) {
             preview.tooDeep.take(30) + listOfNotNull(if (preview.tooDeep.size > 30) pluralStringResource(R.plurals.transfer31_more, preview.tooDeep.size - 30, preview.tooDeep.size - 30) else null),
             icon = R.drawable.ic_warning)
     }
+    if (preview.apostrophes.isNotEmpty()) item(key = "layoutApostrophe") {
+        InfoCard(listOf(stringResource(R.string.layouts36_apostrophe_title, stringResource(layoutTitle(preview.layout)))) +
+            preview.apostrophes.take(30) + listOfNotNull(if (preview.apostrophes.size > 30) pluralStringResource(R.plurals.transfer31_more, preview.apostrophes.size - 30, preview.apostrophes.size - 30) else null),
+            icon = R.drawable.ic_warning)
+    }
     item(key = "layoutNote") { InfoCard(listOf(stringResource(R.string.layouts35_note)), icon = R.drawable.ic_info) }
 }
 
