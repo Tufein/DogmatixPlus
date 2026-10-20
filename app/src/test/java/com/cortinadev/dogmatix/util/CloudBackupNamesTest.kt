@@ -85,7 +85,7 @@ class CloudBackupNamesTest {
 
     @Test fun `the installation id is part of the name and tells devices with the same name apart`() {
         val at = Instant.parse("2026-10-04T21:14:59Z")
-        assertEquals("dogmatix-20261004-2114-retroid-pocket-5.a1b2c3d4.dgxb", CloudBackupNames.fileName(at, "Retroid Pocket 5", "A1B2C3D4-0000-4000-8000-000000000000"))
+        assertEquals("valkyr-20261004-2114-retroid-pocket-5.a1b2c3d4.dgxb", CloudBackupNames.fileName(at, "Retroid Pocket 5", "A1B2C3D4-0000-4000-8000-000000000000"))
         assertEquals("a1b2c3d4", CloudBackupNames.shortId("a1b2c3d4-0000-4000-8000-000000000000"))
         assertEquals("", CloudBackupNames.shortId(""))
         val parsed = CloudBackupNames.parseName("dogmatix-20261004-2114-retroid-pocket-5.a1b2c3d4.dgxb")!!
@@ -109,7 +109,7 @@ class CloudBackupNamesTest {
     @Test fun `a name in another script still has its own backups`() {
         val a = CloudBackupNames.fileName(Instant.parse("2026-10-04T21:14:59Z"), "掌机", "aaaaaaaa-0")
         val b = CloudBackupNames.fileName(Instant.parse("2026-10-04T21:14:59Z"), "ゲーム機", "bbbbbbbb-0")
-        assertEquals("dogmatix-20261004-2114-device.aaaaaaaa.dgxb", a)
+        assertEquals("valkyr-20261004-2114-device.aaaaaaaa.dgxb", a)
         assertTrue(CloudBackupNames.toDelete(listOf(a, b), "掌机", keep = 1, deviceId = "aaaaaaaa-0").isEmpty())
         val listed = CloudBackupNames.listing(listOf(Triple(a, 1L, null), Triple(b, 1L, null)), "https://h/b/", "掌机", "aaaaaaaa-0")
         assertEquals(listOf(true, false), listed.sortedBy { it.name }.map { it.isThisDevice })
@@ -124,5 +124,26 @@ class CloudBackupNamesTest {
         // A new-style backup of another installation with the same name is never mine.
         val twin = CloudBackupNames.fileName(Instant.parse("2026-10-01T03:00:00Z"), "Thor", "bbbbbbbb-0")
         assertFalse(twin in CloudBackupNames.toDelete(listOf(twin) + old, "Thor", keep = 1, deviceId = "aaaaaaaa-0"))
+    }
+
+    @Test fun `4_0 names start with valkyr and the dogmatix names of earlier versions are still read and rotated`() {
+        val at = Instant.parse("2026-10-04T21:14:59Z")
+        assertTrue(CloudBackupNames.fileName(at, "Thor", "aaaaaaaa-0").startsWith(CloudBackupNames.PREFIX))
+        val legacy = CloudBackupNames.parseName("dogmatix-20261004-2114-thor.aaaaaaaa.dgxb")!!
+        val current = CloudBackupNames.parseName("valkyr-20261004-2114-thor.aaaaaaaa.dgxb")!!
+        assertEquals(legacy, current)
+        assertNull(CloudBackupNames.parseName("valkyr-auto-backup-2026-10-04.json"))
+        assertNull(CloudBackupNames.parseName("other-20261004-2114-thor.dgxb"))
+        // Old and new names of one installation rotate together, by the time in the name.
+        val names = (1..4).map { "dogmatix-2026100${it}-0300-thor.aaaaaaaa.dgxb" } +
+            (5..8).map { CloudBackupNames.fileName(Instant.parse("2026-10-0${it}T03:00:00Z"), "Thor", "aaaaaaaa-0") }
+        assertEquals(
+            listOf("dogmatix-20261002-0300-thor.aaaaaaaa.dgxb", "dogmatix-20261001-0300-thor.aaaaaaaa.dgxb"),
+            CloudBackupNames.toDelete(names, "Thor", keep = 6, deviceId = "aaaaaaaa-0")
+        )
+        val listed = CloudBackupNames.listing(names.map { Triple(it, 1L, null) }, "https://h/b/", "Thor", "aaaaaaaa-0")
+        assertEquals("valkyr-20261008-0300-thor.aaaaaaaa.dgxb", listed.first().name)
+        assertEquals("dogmatix-20261001-0300-thor.aaaaaaaa.dgxb", listed.last().name)
+        assertTrue(listed.all { it.isThisDevice })
     }
 }

@@ -22,7 +22,7 @@
     <string name="handoff31_mode_receive">Porta su questa console</string>
     <string name="handoff31_back_title">La via del ritorno</string>
     <string name="handoff31_back_same_way">Per tornare più tardi, fai lo stesso sull’altra console: apri questo gioco, scegli Continua su un’altra console portatile e rimandalo indietro. Il salvataggio torna per la stessa strada.</string>
-    <string name="handoff31_back_newest">Il salvataggio più recente è sulla console su cui hai giocato per ultima. Prima di spostare qualcosa, Dogmatix confronta i salvataggi di questa console e di RomM, e ti chiede cosa fare se sono cambiati entrambi.</string>
+    <string name="handoff31_back_newest">Il salvataggio più recente è sulla console su cui hai giocato per ultima. Prima di spostare qualcosa, Valkyr confronta i salvataggi di questa console e di RomM, e ti chiede cosa fare se sono cambiati entrambi.</string>
     <string name="handoff31_back_nothing_deleted">Su questa console non viene eliminato nulla. Un salvataggio che viene sostituito è prima conservato come copia di sicurezza (Salvataggi nel cloud, nella pagina del gioco).</string>
     <string name="handoff31_back_same_emulator">Gioca con %1$s su entrambe le console. Un salvataggio fatto con un altro emulatore o core potrebbe non caricarsi.</string>
     <string name="handoff31_back_memcards">DuckStation deve usare una memory card separata per ogni gioco su entrambe le console; le memory card condivise non vengono trasferite.</string>
@@ -59,8 +59,8 @@
     <string name="handoff31_code_mismatch">Questo non è il salvataggio per cui è stato creato il link (atteso: %1$s). Forse si è continuato a giocare sull’altra console, o il link è vecchio: invialo di nuovo da lì prima.</string>
     <string name="handoff31_needs_title">Se l’altra console non ha questo gioco</string>
     <string name="handoff31_needs_file">Le serve %1$s (%2$s).</string>
-    <string name="handoff31_needs_source">Il suo Dogmatix può scaricarlo dalla stessa fonte (%1$s) una volta aggiunta lì anche quella fonte.</string>
-    <string name="handoff31_needs_any_source">Il suo Dogmatix può scaricarlo dalla stessa fonte una volta aggiunta lì anche quella fonte.</string>
+    <string name="handoff31_needs_source">Il suo Valkyr può scaricarlo dalla stessa fonte (%1$s) una volta aggiunta lì anche quella fonte.</string>
+    <string name="handoff31_needs_any_source">Il suo Valkyr può scaricarlo dalla stessa fonte una volta aggiunta lì anche quella fonte.</string>
     <string name="handoff31_needs_package">Oppure copia tu il file del gioco; l’esportazione dei pacchetti (Dati dei file di gioco) permette all’altra console di verificare che la copia sia completa.</string>
     <string name="handoff31_missing_title">Questa console non ha questo gioco</string>
     <string name="handoff31_missing_search">Cerca nella libreria</string>

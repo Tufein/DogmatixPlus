@@ -137,7 +137,7 @@ private fun ConsoleList(ui: CollectionUi, onOpen: (String) -> Unit, onToggleGoal
             ui.rows.isEmpty() -> EmptyState(
                 title = stringResource(R.string.coll6_empty_title),
                 message = stringResource(R.string.coll6_empty_message),
-                illustration = R.drawable.milou,
+                illustration = R.drawable.brand_illustration,
                 modifier = Modifier.fillMaxWidth()
             )
             else -> LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 16.dp)) {

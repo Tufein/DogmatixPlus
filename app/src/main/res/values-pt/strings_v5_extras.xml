@@ -17,6 +17,6 @@
     <string name="shortcut_group_consoles">Consolas</string>
     <string name="shortcut_loading">A carregar os atalhos…</string>
     <string name="shortcut_empty_title">Sem atalhos disponíveis</string>
-    <string name="shortcut_empty_message">Abre o Dogmatix+ uma vez e tenta novamente.</string>
+    <string name="shortcut_empty_message">Abre o Valkyr uma vez e tenta novamente.</string>
     <string name="shortcut_close">Fechar</string>
 </resources>

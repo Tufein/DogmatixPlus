@@ -1193,7 +1193,7 @@ private fun ResultList(
     onClearFilters: (() -> Unit)? = null,
     /** How many rows "Load more" adds. */
     loadMoreSize: Int = Constants.DEFAULT_MAX_SEARCH_RESULTS,
-    /** Room for the Milou illustration in the empty library state (portrait). */
+    /** Room for the Valkyr illustration in the empty library state (portrait). */
     illustrated: Boolean = false,
     /** 6.0: compact lists (tighter rows). */
     dense: Boolean = false,
@@ -1210,7 +1210,7 @@ private fun ResultList(
                     title = stringResource(R.string.home_empty_library_title),
                     message = stringResource(R.string.home_empty_library_message),
                     icon = if (illustrated) null else R.drawable.ic_library,
-                    illustration = if (illustrated) R.drawable.milou else null,
+                    illustration = if (illustrated) R.drawable.brand_illustration else null,
                     actionLabel = if (onGoToSources != null) stringResource(R.string.home_go_to_sources) else null,
                     onAction = onGoToSources,
                     actionFocus = firstRowFocus

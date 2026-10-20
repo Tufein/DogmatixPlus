@@ -228,7 +228,7 @@ fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = 
                     if (ui.items.isNotEmpty()) ToolAction(stringResource(R.string.share6_chooser_wishlist)) {
                         shareScope.launch { com.cortinadev.dogmatix.data.service.GameShare.shareWishlist(context) }
                     }
-                    if (ui.items.isNotEmpty()) ToolAction(stringResource(R.string.wishlist_export)) { exportLauncher.launch("dogmatix-wishlist.json") }
+                    if (ui.items.isNotEmpty()) ToolAction(stringResource(R.string.wishlist_export)) { exportLauncher.launch("valkyr-wishlist.json") }
                 }
             }
             if (!ui.loading && ui.items.isEmpty()) {

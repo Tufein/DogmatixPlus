@@ -6,7 +6,7 @@
     <string name="playlists35_hint">Write RetroArch playlists of the games on this device, so RetroArch lists them without a scan</string>
     <string name="playlists35_kw">retroarch, playlist, playlists, lpl, libretro, scan, scan directory, content, main menu, frontend, core</string>
     <string name="playlists35_what_title">Playlists for RetroArch</string>
-    <string name="playlists35_what_body">Dogmatix+ writes one playlist per console into RetroArch\'s playlists folder, named the way RetroArch names its own (Nintendo - Game Boy Advance.lpl), listing the games on this device. RetroArch then shows them in its main menu without a scan. A playlist you already have is only added to: its entries, their cores and their order stay as they are, and games it already lists are not added again. Before it changes, its current version is kept in %1$s.</string>
+    <string name="playlists35_what_body">Valkyr writes one playlist per console into RetroArch\'s playlists folder, named the way RetroArch names its own (Nintendo - Game Boy Advance.lpl), listing the games on this device. RetroArch then shows them in its main menu without a scan. A playlist you already have is only added to: its entries, their cores and their order stay as they are, and games it already lists are not added again. Before it changes, its current version is kept in %1$s.</string>
     <string name="playlists35_section_folder">Playlists folder</string>
     <string name="playlists35_folder_title">RetroArch\'s playlists folder</string>
     <string name="playlists35_folder_none">Not picked yet</string>

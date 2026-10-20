@@ -72,14 +72,14 @@ fun DownloadPlanActions(
         Text(stringResource(R.string.plan26_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             ActionPill(stringResource(R.string.plan26_export), enabled = !ui.busy && downloads.isNotEmpty(), onClick = {
-                viewModel.exportFile(selectedNames) { exportPicker.launch("dogmatix-download-plan.json") }
+                viewModel.exportFile(selectedNames) { exportPicker.launch("valkyr-download-plan.json") }
             })
             ActionPill(shareTitle, icon = R.drawable.ic_share, enabled = !ui.busy && downloads.isNotEmpty(), onClick = {
                 viewModel.share(selectedNames) { uri ->
                     val send = Intent(Intent.ACTION_SEND).apply {
                         type = "application/json"
                         putExtra(Intent.EXTRA_STREAM, uri)
-                        clipData = ClipData.newRawUri("dogmatix-download-plan.json", uri)
+                        clipData = ClipData.newRawUri("valkyr-download-plan.json", uri)
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
                     context.startActivity(Intent.createChooser(send, shareTitle))

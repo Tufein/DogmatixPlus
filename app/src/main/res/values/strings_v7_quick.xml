@@ -48,7 +48,7 @@
     <string name="quick7_share_last12">My last 12 months in games:</string>
     <string name="quick7_card_most_played">Most played: %1$s</string>
     <string name="quick7_card_busiest">Busiest month: %1$s</string>
-    <string name="quick7_card_footer">Made with Dogmatix+</string>
+    <string name="quick7_card_footer">Made with Valkyr</string>
     <plurals name="quick7_days">
         <item quantity="one">%1$d day</item>
         <item quantity="other">%1$d days</item>

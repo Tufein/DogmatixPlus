@@ -1,18 +1,7 @@
 <resources>
     <!-- App Info -->
-    <string name="app_name">Dogmatix+</string>
-    <string name="credits_title">Credits</string>
-    <string name="credits_fork_role">Software developer · Dogmatix (UI/UX fork)</string>
-    <string name="credits_fork_name">Rafa Cortina</string>
-    <string name="credits_original_role">Alleged Software Engineer · original Milou author</string>
-    <string name="credits_original_name">santiifm</string>
-    <string name="credits_original_note">Dogmatix is a fork of Milou. All the scraping, indexing and download machinery is his work.</string>
-    <string name="credits_plus_name" translatable="false">DogmatixPlus</string>
-    <string name="credits_plus_role">Unofficial modification · library tools, backup, translations</string>
-    <string name="credits_plus_note">An unofficial modification of Dogmatix 1.2 by Rafa Cortina, itself a fork of Milou by santiifm. Their work is the foundation of everything here.</string>
+    <string name="app_name">Valkyr</string>
     <string name="credits_link_github">GitHub</string>
-    <string name="credits_link_linkedin">LinkedIn</string>
-    <string name="credits_link_web">Website</string>
     
     <!-- Navigation -->
     <string name="nav_home">Home</string>
@@ -132,20 +121,20 @@
     <string name="debrid_key_valid">%1$s: connected as %2$s</string>
     <string name="debrid_key_invalid">%1$s: %2$s</string>
     <string name="settings_frontend_shortcuts">Frontend shortcuts</string>
-    <string name="settings_frontend_shortcuts_hint">Put a Dogmatix shortcut (.dgmtx) in every platform folder, for ES-DE and similar frontends</string>
+    <string name="settings_frontend_shortcuts_hint">Put a Valkyr shortcut (.dgmtx) in every platform folder, for ES-DE and similar frontends</string>
     <string name="settings_frontend_shortcuts_action">Create</string>
     <string name="frontend_shortcuts_done">%1$d shortcuts created</string>
     <string name="frontend_shortcuts_partial">%1$d shortcuts created, %2$d failed</string>
     <string name="frontend_shortcuts_none">No download directory set</string>
-    <string name="dgmtx_invalid">Not a Dogmatix shortcut file</string>
+    <string name="dgmtx_invalid">Not a Valkyr shortcut file</string>
     <string name="settings_esde">Configure ES-DE</string>
-    <string name="settings_esde_hint">Pick your ES-DE folder and Dogmatix adds itself to every platform (close ES-DE first)</string>
+    <string name="settings_esde_hint">Pick your ES-DE folder and Valkyr adds itself to every platform (close ES-DE first)</string>
     <string name="settings_esde_action">Set up</string>
     <string name="esde_configured">ES-DE: %1$d systems ready, %2$d shortcuts — restart ES-DE</string>
     <string name="esde_folders_skipped">%1$d folders have no matching ES-DE system</string>
     <string name="esde_not_installed">ES-DE is not installed on this device</string>
     <string name="settings_iisu">Configure iiSU</string>
-    <string name="settings_iisu_hint">Pick iiSU\'s iiSULauncher folder and Dogmatix adds itself as an emulator (restart iiSU after)</string>
+    <string name="settings_iisu_hint">Pick iiSU\'s iiSULauncher folder and Valkyr adds itself as an emulator (restart iiSU after)</string>
     <string name="settings_iisu_action">Set up</string>
     <string name="iisu_configured">iiSU: %1$d consoles ready, %2$d shortcuts — restart iiSU</string>
     <string name="iisu_folders_skipped">%1$d folders have no matching iiSU console</string>
@@ -159,7 +148,7 @@
     <string name="settings_daijisho">Set up Daijishō</string>
     <string name="settings_daijisho_hint">Daijishō has no importable emulator config: get the values to add by hand</string>
     <string name="settings_daijisho_action">Show</string>
-    <string name="daijisho_dialog_title">Add Dogmatix to Daijishō</string>
+    <string name="daijisho_dialog_title">Add Valkyr to Daijishō</string>
     <string name="daijisho_dialog_body">%1$d shortcuts are in place. Daijishō keeps its players in a private database, so the entry has to be added by hand: open Settings › Library › Add an emulator and fill it in with these values (leave the kill-processes switch off), then sync.</string>
     <string name="daijisho_field_name">Emulator name</string>
     <string name="daijisho_field_arguments">Emulator am start arguments</string>
@@ -167,7 +156,7 @@
     <string name="dialog_copy">Copy</string>
     <string name="dialog_close">Close</string>
     <string name="onboarding_esde_title">Connect to ES-DE</string>
-    <string name="onboarding_esde_body">ES-DE is installed on this device. Pick its data folder (the one with gamelists and downloaded_media, usually ES-DE) and Dogmatix will appear inside every platform as "★ Search for more games…". Close ES-DE first — you can also do this later from Settings.</string>
+    <string name="onboarding_esde_body">ES-DE is installed on this device. Pick its data folder (the one with gamelists and downloaded_media, usually ES-DE) and Valkyr will appear inside every platform as "★ Search for more games…". Close ES-DE first — you can also do this later from Settings.</string>
     <string name="onboarding_esde_choose">Choose ES-DE folder</string>
     <string name="onboarding_esde_configuring">Setting up ES-DE…</string>
     <string name="nav_romm">RomM</string>
@@ -188,7 +177,7 @@
     <string name="romm_upload_missing">Upload what the server lacks</string>
     <string name="romm_upload_missing_hint">Sends finished downloads that RomM does not list yet (needs Mark games already in RomM)</string>
     <string name="romm_upload_missing_action">Upload</string>
-    <string name="romm_upload_missing_needs_marks">Turn on Mark games already in RomM first, so Dogmatix knows what the server has</string>
+    <string name="romm_upload_missing_needs_marks">Turn on Mark games already in RomM first, so Valkyr knows what the server has</string>
     <string name="romm_upload_missing_none">Nothing to upload: the server has everything this app downloaded</string>
     <plurals name="romm_upload_missing_started">
         <item quantity="one">%1$d upload started</item>
@@ -234,7 +223,6 @@
     <string name="settings_favorite_languages_empty">No languages indexed yet</string>
     <string name="settings_reset_default">Reset</string>
     <string name="settings_done">Done</string>
-    <string name="settings_about">About &amp; contact</string>
     <string name="settings_change">Change</string>
     <string name="settings_not_set">Not set</string>
     <string name="settings_gamepad_layout">Gamepad layout</string>
@@ -251,8 +239,8 @@
     <string name="language_es">Español</string>
     
     <!-- Top Bar -->
-    <string name="topbar_title">Dogmatix+</string>
-    <string name="topbar_logo_desc">Dogmatix+</string>
+    <string name="topbar_title">Valkyr</string>
+    <string name="topbar_logo_desc">Valkyr</string>
     
     <!-- Search & Filter -->
     <string name="search_library">Search library</string>
@@ -417,12 +405,12 @@
     <string name="mime_octet_stream">application/octet-stream</string>
     
     <!-- HTTP -->
-    <string name="http_user_agent">Dogmatix Downloader/1.0</string>
+    <string name="http_user_agent">Valkyr Downloader/1.0</string>
     <string name="http_accept">*/*</string>
     <string name="http_method_get">GET</string>
     <!-- Onboarding -->
-    <string name="onboarding_welcome_title">Welcome to Dogmatix+</string>
-    <string name="onboarding_welcome_body">Dogmatix indexes the contents of ROM sources — torrents, magnets and web directories — tags every file by console, region and language, and lets you browse, filter and download straight to your ROMs folder. Archives are extracted automatically.</string>
+    <string name="onboarding_welcome_title">Welcome to Valkyr</string>
+    <string name="onboarding_welcome_body">Valkyr indexes the contents of ROM sources — torrents, magnets and web directories — tags every file by console, region and language, and lets you browse, filter and download straight to your ROMs folder. Archives are extracted automatically.</string>
     <string name="onboarding_welcome_point_1">Sources are indexed, not downloaded: browse thousands of titles without filling your storage.</string>
     <string name="onboarding_welcome_point_2">Filter by console, region, language, tag and source; ✓ marks what you already own.</string>
     <string name="onboarding_welcome_point_3">Downloads land in a folder per console, ready for frontends such as ES-DE.</string>
@@ -432,7 +420,7 @@
     <string name="onboarding_folder_choose">Choose folder</string>
     <string name="onboarding_folder_change">Change folder</string>
     <string name="onboarding_sources_title">Add your sources</string>
-    <string name="onboarding_sources_body">Dogmatix ships with no sources. Import a sources JSON (for example the one shared from another device) and every console in it will be indexed right away. You can also add consoles and URLs by hand later in the Sources tab.</string>
+    <string name="onboarding_sources_body">Valkyr ships with no sources. Import a sources JSON (for example the one shared from another device) and every console in it will be indexed right away. You can also add consoles and URLs by hand later in the Sources tab.</string>
     <string name="onboarding_sources_import">Import JSON</string>
     <string name="onboarding_skip">Skip for now</string>
     <string name="onboarding_continue">Continue</string>
@@ -458,16 +446,16 @@
     <string name="settings_backup_import_action">Import</string>
     <string name="backup_export_done">Backup saved: %1$d settings, %2$d consoles, %3$d favourites, %4$d downloads</string>
     <string name="backup_export_failed">Backup failed: %1$s</string>
-    <string name="backup_invalid">This file is not a Dogmatix backup</string>
+    <string name="backup_invalid">This file is not a Valkyr backup</string>
     <string name="backup_import_title">Restore backup?</string>
-    <string name="backup_import_message">Backup from %1$s (Dogmatix %2$s).\n\nYour current settings, sources and favourites are replaced, then every source is scanned again.</string>
+    <string name="backup_import_message">Backup from %1$s (Valkyr %2$s).\n\nYour current settings, sources and favourites are replaced, then every source is scanned again.</string>
     <string name="backup_import_action">Restore</string>
     <string name="backup_import_done">Restored %1$d settings, %2$d consoles, %3$d favourites, %4$d downloads</string>
     <plurals name="backup_import_repick">
         <item quantity="one">%1$d folder is not accessible on this install: pick it again in Settings or Sources</item>
         <item quantity="other">%1$d folders are not accessible on this install: pick them again in Settings or Sources</item>
     </plurals>
-    <string name="backup_import_restart">Restart Dogmatix to see the restored downloads list</string>
+    <string name="backup_import_restart">Restart Valkyr to see the restored downloads list</string>
     <string name="backup_import_failed">Restore failed: %1$s</string>
     <string name="tools_scanning">Reading your download folders…</string>
     <string name="tools_no_folder">Pick a download directory in Settings first</string>
@@ -528,7 +516,7 @@
     <string name="language_fr">Français</string>
     <string name="language_de">Deutsch</string>
     <string name="backup_import_busy">Wait until the source scan has finished, then restore the backup</string>
-    <string name="backup_newer_version">This backup was made by a newer version of Dogmatix: update the app to restore it</string>
+    <string name="backup_newer_version">This backup was made by a newer version of Valkyr: update the app to restore it</string>
 
     <!-- Save sync (RomM) -->
     <string name="nav_save_sync">Save sync</string>
@@ -547,7 +535,7 @@
     <string name="save_sync_emulator_pick">Which emulator is this folder for?</string>
     <string name="save_sync_emulator_pick_hint">Its in-game saves are synced under this name. Save states are not.</string>
     <string name="save_sync_auto">Sync automatically</string>
-    <string name="save_sync_auto_hint">When Dogmatix opens and when you come back to it from a game</string>
+    <string name="save_sync_auto_hint">When Valkyr opens and when you come back to it from a game</string>
     <string name="save_sync_now">Sync now</string>
     <string name="save_sync_action">Sync</string>
     <string name="save_sync_busy">Syncing…</string>
@@ -640,23 +628,23 @@
     <string name="wishlist_added">%1$s added to the wishlist</string>
     <string name="wishlist_exists">That game is already on the wishlist</string>
     <string name="storage_move">Move the library to another storage</string>
-    <string name="storage_move_hint">Copies every game to a folder you pick, checks each copy, then removes the original and switches Dogmatix to the new folder</string>
+    <string name="storage_move_hint">Copies every game to a folder you pick, checks each copy, then removes the original and switches Valkyr to the new folder</string>
     <string name="storage_move_action">Move</string>
     <string name="storage_move_title">Move the library?</string>
-    <string name="storage_move_message">The games in the download folder (%1$s) are copied to the folder you picked. Each copy is checked, and only then is the original deleted; a game that cannot be copied stays where it is. Stop your downloads first and keep Dogmatix open: if it is interrupted, start this again and it carries on. Folders you gave a console of its own are not moved.</string>
+    <string name="storage_move_message">The games in the download folder (%1$s) are copied to the folder you picked. Each copy is checked, and only then is the original deleted; a game that cannot be copied stays where it is. Stop your downloads first and keep Valkyr open: if it is interrupted, start this again and it carries on. Folders you gave a console of its own are not moved.</string>
     <string name="storage_move_confirm">Move</string>
     <string name="storage_move_running">Moving: %1$d of %2$d files · %3$s of %4$s</string>
     <string name="storage_move_stop">Stop</string>
     <string name="storage_move_ok">OK</string>
-    <string name="storage_move_done">Moved %1$d files. Dogmatix now uses the new folder.</string>
-    <string name="storage_move_done_failed">%1$d files could not be moved and were left where they were. Dogmatix still uses the old folder; start the move again to retry.</string>
+    <string name="storage_move_done">Moved %1$d files. Valkyr now uses the new folder.</string>
+    <string name="storage_move_done_failed">%1$d files could not be moved and were left where they were. Valkyr still uses the old folder; start the move again to retry.</string>
     <string name="storage_move_no_source">No download folder is set</string>
     <string name="storage_move_cannot_open">Could not open that folder</string>
     <string name="storage_move_overlap">Pick a folder that is not inside the download folder, or the other way round</string>
     <string name="storage_move_downloads_active">Stop the downloads first</string>
     <string name="storage_move_no_room">Not enough room there: %1$s needed, %2$s free</string>
     <string name="nav_frontends">Frontend check</string>
-    <string name="tools_frontends_hint">Is Dogmatix hooked up to ES-DE, iiSU, Daijishō, Pegasus and RetroArch?</string>
+    <string name="tools_frontends_hint">Is Valkyr hooked up to ES-DE, iiSU, Daijishō, Pegasus and RetroArch?</string>
     <string name="frontend_status_ready">Ready</string>
     <string name="frontend_status_todo">To do</string>
     <string name="frontend_status_manual">By hand</string>
@@ -767,7 +755,7 @@
     <string name="settings_prereleases">Include pre-releases</string>
     <string name="settings_prereleases_hint">The update check also offers pre-releases</string>
     <string name="settings_update_check">Check for updates</string>
-    <string name="settings_update_check_hint">Looks at the DogmatixPlus releases on GitHub</string>
+    <string name="settings_update_check_hint">Looks at the Valkyr releases on GitHub</string>
     <string name="settings_update_check_action">Check</string>
     <string name="update_none">You have the latest version (%1$s)</string>
     <string name="update_failed">Could not check for updates</string>
@@ -839,7 +827,7 @@
     <string name="update_offer_message">Download it and install it now? The download is checked against the release\'s checksums; Android then asks you to confirm.</string>
     <string name="update_offer_install">Install</string>
     <string name="update_downloading">Downloading the update… %1$d%%</string>
-    <string name="update_allow_installs">Allow installing apps from Dogmatix+, then tap Install again</string>
+    <string name="update_allow_installs">Allow installing apps from Valkyr, then tap Install again</string>
     <string name="update_no_apk">The release has no %1$s</string>
     <string name="update_no_checksum">The release has no checksum for the APK; not installed</string>
     <string name="update_checksum_mismatch">The download does not match the release\'s checksum; not installed</string>
@@ -949,7 +937,7 @@
     <string name="qr_show_title">Sources as QR code</string>
     <string name="qr_show_hint">On the other device: Sources → Share → Read QR code. With several codes, read them all (any order).</string>
     <string name="qr_part">Code %1$d of %2$d</string>
-    <string name="qr_none_found">No Dogmatix+ QR code found in the picture</string>
+    <string name="qr_none_found">No Valkyr QR code found in the picture</string>
     <string name="qr_progress">Read %1$d of %2$d codes; read the others too</string>
     <string name="qr_import_title">Take over these sources?</string>
     <string name="qr_import_message">Your sources are replaced by the ones in the QR codes, then every source is read again.</string>
@@ -1046,16 +1034,16 @@
     <string name="bios_note_boot_logo">boot logo only</string>
     <string name="bios_note_original_bios_mode">only with the original BIOS mode</string>
     <string name="bios_note_neogeo_set">the MAME / FBNeo BIOS set (versions differ)</string>
-    <string name="shortcut_pick_title">Add a Dogmatix+ shortcut</string>
-    <string name="shortcut_pick_label">Dogmatix+ shortcut</string>
+    <string name="shortcut_pick_title">Add a Valkyr shortcut</string>
+    <string name="shortcut_pick_label">Valkyr shortcut</string>
     <string name="settings_cocoon">Cocoon</string>
-    <string name="settings_cocoon_hint">Add Dogmatix+ to Cocoon as tiles: per console, a saved view or Downloads</string>
-    <string name="cocoon_dialog_title">Dogmatix+ in Cocoon</string>
-    <string name="cocoon_dialog_body">Cocoon picks up Android app shortcuts, and Dogmatix+ offers one for each console, each saved view and Downloads.\n\n1. In Cocoon, open Add Games and choose the Android shortcuts.\n2. Pick Dogmatix+ and the console or view you want.\n3. Give it the console\'s platform, so it sits with that console\'s games.\n\nThe tile opens Dogmatix+ on that console or view. New consoles and views appear in the list by themselves.\n\nTip: in Cocoon, prefer these tiles over the .dgmtx shortcut files (Settings → Frontend shortcuts): Cocoon would list those files as games and try to start them in the emulator.</string>
+    <string name="settings_cocoon_hint">Add Valkyr to Cocoon as tiles: per console, a saved view or Downloads</string>
+    <string name="cocoon_dialog_title">Valkyr in Cocoon</string>
+    <string name="cocoon_dialog_body">Cocoon picks up Android app shortcuts, and Valkyr offers one for each console, each saved view and Downloads.\n\n1. In Cocoon, open Add Games and choose the Android shortcuts.\n2. Pick Valkyr and the console or view you want.\n3. Give it the console\'s platform, so it sits with that console\'s games.\n\nThe tile opens Valkyr on that console or view. New consoles and views appear in the list by themselves.\n\nTip: in Cocoon, prefer these tiles over the .dgmtx shortcut files (Settings → Frontend shortcuts): Cocoon would list those files as games and try to start them in the emulator.</string>
     <string name="settings_resume">Continue interrupted downloads</string>
     <string name="settings_resume_hint">Retry carries on where it stopped (no space, app closed), when the server allows it</string>
     <string name="settings_requeue">Continue the queue after a restart</string>
-    <string name="settings_requeue_hint">Downloads cut off by closing the app or a reboot start again when you open Dogmatix+</string>
+    <string name="settings_requeue_hint">Downloads cut off by closing the app or a reboot start again when you open Valkyr</string>
     <string name="settings_per_server">Per server</string>
     <string name="settings_per_server_hint">At most this many downloads at once from one server, so it does not block you</string>
     <string name="settings_wishlist_auto">Download wishlist games automatically</string>
@@ -1153,8 +1141,8 @@
     <string name="bulk_duplicates_free">Removing duplicate games would free %1$s</string>
     <string name="bulk_free_up">Show duplicates</string>
     <plurals name="save_sync_bg_conflicts">
-        <item quantity="one">%d save changed on both sides — open Dogmatix to choose</item>
-        <item quantity="other">%d saves changed on both sides — open Dogmatix to choose</item>
+        <item quantity="one">%d save changed on both sides — open Valkyr to choose</item>
+        <item quantity="other">%d saves changed on both sides — open Valkyr to choose</item>
     </plurals>
     <plurals name="save_sync_bg_failed">
         <item quantity="one">%d save could not be synced</item>
@@ -1322,9 +1310,9 @@
     <string name="downloads_left">%1$s left</string>
     <string name="downloads_eta_hours">about %1$d h %2$d min</string>
     <string name="downloads_eta_minutes">about %1$d min</string>
-    <string name="whats_new_title">New in Dogmatix+ %1$s</string>
+    <string name="whats_new_title">New in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Smoother controls: after switching sections or closing a dialog, the first D-pad press now takes you straight into the screen, focus returns to the game or row you came from, lists scroll faster with the next row already in view, L1/R1 page through long lists, and B closes sheets and search fields consistently.</item>
+        <item>Dogmatix+ is now Valkyr: a new name and a new icon. Your settings, library, downloads and saves carry over, and the app keeps updating in place.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -232,7 +232,7 @@ object SearchIndex {
             screen(SearchGroup.TOOLS, NavRoutes.Frontends, R.string.nav_frontends, R.string.tools_frontends_hint, R.string.find8_kw_frontends),
             screen(SearchGroup.TOOLS, NavRoutes.FrontendMetadata, R.string.meta7_title, R.string.meta7_hint, R.string.find8_kw_metadata),
             screen(SearchGroup.TOOLS, NavRoutes.Profiles, R.string.settings_profiles, R.string.settings_profiles_hint, R.string.find8_kw_profiles),
-            screen(SearchGroup.TOOLS, NavRoutes.Contact, R.string.settings_about, R.string.find8_hint_about),
+            screen(SearchGroup.TOOLS, NavRoutes.Contact, R.string.brand40_about_title, R.string.find8_hint_about),
 
             // Everything online.
             screen(SearchGroup.CLOUD, NavRoutes.Cloud, R.string.nav_cloud, R.string.settings_v5_cloud_hint),

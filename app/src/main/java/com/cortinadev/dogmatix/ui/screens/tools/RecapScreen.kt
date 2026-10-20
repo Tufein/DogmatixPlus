@@ -114,7 +114,7 @@ fun RecapScreen(viewModel: RecapViewModel = hiltViewModel()) {
                     EmptyState(
                         title = stringResource(R.string.quick7_empty_title),
                         message = stringResource(R.string.quick7_empty_message),
-                        illustration = R.drawable.milou,
+                        illustration = R.drawable.brand_illustration,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

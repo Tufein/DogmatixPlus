@@ -28,7 +28,7 @@
     <string name="health6_check_again">Verificar de novo</string>
     <string name="health6_share">Partilhar relatório</string>
     <string name="health6_share_chooser">Partilhar relatório de estado</string>
-    <string name="health6_report_title">Relatório de estado do Dogmatix+</string>
+    <string name="health6_report_title">Relatório de estado do Valkyr</string>
     <string name="health6_report_app">Versão da app %1$s</string>
     <string name="health6_row_checking">Verificando…</string>
     <string name="health6_covers_cleared">A procurar capas de novo</string>
@@ -85,7 +85,7 @@
     <string name="health6_d_notif_ok">Podem aparecer avisos de fila concluída e da lista de desejos.</string>
     <string name="health6_d_notif_off">As notificações estão desativadas: não aparecem avisos de fila nem da lista de desejos.</string>
     <string name="health6_d_battery_ok">As tarefas em segundo plano não têm limites.</string>
-    <string name="health6_d_battery_hint">O Android pode atrasar análises, cópias e sincronização em segundo plano. Opcional: excluir o Dogmatix+.</string>
+    <string name="health6_d_battery_hint">O Android pode atrasar análises, cópias e sincronização em segundo plano. Opcional: excluir o Valkyr.</string>
     <string name="health6_d_update_ok">Atualizado. Versão mais recente: %1$s.</string>
     <string name="health6_d_update_available">A versão %1$s está disponível.</string>
     <string name="health6_d_update_unknown">Não foi possível procurar atualizações (offline?).</string>

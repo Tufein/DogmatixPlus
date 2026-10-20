@@ -63,13 +63,13 @@ private fun Wordmark(modifier: Modifier = Modifier) {
     Column(modifier = modifier, horizontalAlignment = Alignment.End) {
         val title = stringResource(R.string.topbar_title)
         val accent = MaterialTheme.colorScheme.primary
-        // "Dogmatix+": the plus in the accent colour.
+        // "Valkyr": the initial V in the accent colour.
         Text(
             buildAnnotatedString {
-                if (title.endsWith("+")) {
-                    append(title.dropLast(1))
-                    withStyle(SpanStyle(color = accent)) { append("+") }
-                } else append(title)
+                if (title.isNotEmpty()) {
+                    withStyle(SpanStyle(color = accent)) { append(title.take(1)) }
+                    append(title.drop(1))
+                }
             },
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold)
         )

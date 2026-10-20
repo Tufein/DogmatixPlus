@@ -12,7 +12,7 @@
     <string name="recovery_purge">Eliminar definitivamente</string>
     <string name="recovery_purge_warning">Se eliminarán definitivamente las copias de recuperación. No se puede deshacer.</string>
     <string name="recovery_days">Conservar %1$d días</string>
-    <string name="recovery_automatic">Vaciar los elementos caducados al abrir Dogmatix+. Desactivado por defecto.</string>
+    <string name="recovery_automatic">Vaciar los elementos caducados al abrir Valkyr. Desactivado por defecto.</string>
     <string name="recovery_share">Compartir informe de acciones</string>
     <string name="recovery_space">Copias de recuperación: %1$s</string>
     <string name="recovery_empty">Todavía no hay acciones registradas.</string>

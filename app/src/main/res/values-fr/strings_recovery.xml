@@ -12,7 +12,7 @@
     <string name="recovery_purge">Supprimer définitivement</string>
     <string name="recovery_purge_warning">Les copies de récupération seront supprimées définitivement. Cette action est irréversible.</string>
     <string name="recovery_days">Conserver %1$d jours</string>
-    <string name="recovery_automatic">Vider automatiquement les éléments expirés à l’ouverture de Dogmatix+. Désactivé par défaut.</string>
+    <string name="recovery_automatic">Vider automatiquement les éléments expirés à l’ouverture de Valkyr. Désactivé par défaut.</string>
     <string name="recovery_share">Partager le rapport d’actions</string>
     <string name="recovery_space">Copies de récupération : %1$s</string>
     <string name="recovery_empty">Aucune action enregistrée.</string>

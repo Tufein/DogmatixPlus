@@ -6,7 +6,7 @@
     <string name="playlists35_hint">Escribe listas de RetroArch con los juegos de este dispositivo, para que RetroArch los muestre sin escanear</string>
     <string name="playlists35_kw">retroarch, lista, listas, playlist, playlists, lpl, libretro, escanear, escaneo, contenido, menú principal, frontend, núcleo, core</string>
     <string name="playlists35_what_title">Listas para RetroArch</string>
-    <string name="playlists35_what_body">Dogmatix+ escribe una lista por consola en la carpeta de listas de RetroArch, con el nombre que RetroArch da a las suyas (Nintendo - Game Boy Advance.lpl), con los juegos de este dispositivo. RetroArch los muestra entonces en su menú principal sin escanear. Una lista que ya tienes solo se amplía: sus entradas, sus núcleos y su orden se quedan como están, y los juegos que ya contiene no se añaden otra vez. Antes de que cambie, su versión actual se guarda en %1$s.</string>
+    <string name="playlists35_what_body">Valkyr escribe una lista por consola en la carpeta de listas de RetroArch, con el nombre que RetroArch da a las suyas (Nintendo - Game Boy Advance.lpl), con los juegos de este dispositivo. RetroArch los muestra entonces en su menú principal sin escanear. Una lista que ya tienes solo se amplía: sus entradas, sus núcleos y su orden se quedan como están, y los juegos que ya contiene no se añaden otra vez. Antes de que cambie, su versión actual se guarda en %1$s.</string>
     <string name="playlists35_section_folder">Carpeta de listas</string>
     <string name="playlists35_folder_title">Carpeta de listas de RetroArch</string>
     <string name="playlists35_folder_none">Aún sin elegir</string>

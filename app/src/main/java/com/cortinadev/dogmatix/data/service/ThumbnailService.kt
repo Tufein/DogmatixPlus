@@ -44,7 +44,7 @@ class ThumbnailService @Inject constructor() {
         TlsTrust.apply(c)
         return try {
             c.connectTimeout = 10_000; c.readTimeout = 15_000
-            c.setRequestProperty("User-Agent", "DogmatixPlus")
+            c.setRequestProperty("User-Agent", "Valkyr")
             if (c.responseCode != 200) null else c.inputStream.use { s ->
                 val buf = ByteArray(300); var n = 0
                 while (n < buf.size) { val r = s.read(buf, n, buf.size - n); if (r < 0) break; n += r }

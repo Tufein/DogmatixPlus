@@ -350,7 +350,7 @@ class FrontendMetadataTest {
         assertEquals(1, m.added)
         assertEquals(
             text(
-                "# Game information added by Dogmatix+. Entries you wrote yourself are never overwritten.", "",
+                "# Game information added by Valkyr. Entries you wrote yourself are never overwritten.", "",
                 "game: The Legend of Zelda", "file: Zelda.gba", "developer: Nintendo", "publisher: Nintendo", "genre: Adventure",
                 "release: 1992", "rating: 85%", "description: A hero."
             ),

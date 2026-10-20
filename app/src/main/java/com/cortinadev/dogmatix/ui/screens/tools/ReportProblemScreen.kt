@@ -88,7 +88,7 @@ fun ReportProblemScreen(viewModel: ReportProblemViewModel = hiltViewModel()) {
     fun share() = viewModel.prepare { text, cleaned ->
         if (cleaned) ToastUtil.showInfo(context, cleanedMessage)
         val send = Intent(Intent.ACTION_SEND).setType("text/plain")
-            .putExtra(Intent.EXTRA_SUBJECT, "[${ui.category.label}] Dogmatix+ problem report")
+            .putExtra(Intent.EXTRA_SUBJECT, "[${ui.category.label}] Valkyr problem report")
             .putExtra(Intent.EXTRA_TEXT, text)
         context.startActivity(Intent.createChooser(send, shareTitle))
     }

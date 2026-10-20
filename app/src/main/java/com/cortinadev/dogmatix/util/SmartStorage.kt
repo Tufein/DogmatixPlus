@@ -307,7 +307,7 @@ object SmartStorage {
             existing.replace(custom, patched)
         } else {
             val base = existing ?: ("<?xml version=\"1.0\"?>\n" +
-                "<!-- Systems changed by Dogmatix+; your edits are kept. -->\n" +
+                "<!-- Systems changed by Valkyr; your edits are kept. -->\n" +
                 "<systemList>\n</systemList>\n")
             val end = base.lastIndexOf("</systemList>")
             if (end < 0) return null

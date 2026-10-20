@@ -95,7 +95,7 @@ fun HistoryScreen(
             !ui.hasAny -> EmptyState(
                 title = stringResource(R.string.coll6_history_empty_title),
                 message = stringResource(R.string.coll6_history_empty_message),
-                illustration = R.drawable.milou,
+                illustration = R.drawable.brand_illustration,
                 modifier = Modifier.fillMaxWidth()
             )
             else -> LazyColumn(state = listState, verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 16.dp)) {

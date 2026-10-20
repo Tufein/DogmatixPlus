@@ -39,8 +39,8 @@ class GameShareTextTest {
 
     @Test
     fun `file name is safe`() {
-        assertEquals("dogmatix-pokemon-emerald-usa.png", GameShareText.fileName("Pokémon Emerald (USA)!".replace("é", "e")))
-        assertEquals("dogmatix-game.png", GameShareText.fileName("???"))
+        assertEquals("valkyr-pokemon-emerald-usa.png", GameShareText.fileName("Pokémon Emerald (USA)!".replace("é", "e")))
+        assertEquals("valkyr-game.png", GameShareText.fileName("???"))
         assertTrue(GameShareText.fileName("../../etc/passwd").none { it == '/' })
         assertTrue(GameShareText.fileName("a".repeat(300)).length < 70)
     }

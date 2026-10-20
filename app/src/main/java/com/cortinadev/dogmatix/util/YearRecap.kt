@@ -113,8 +113,8 @@ object Recap {
         DateTimeFormatter.ofPattern(if (withYear) "LLLL yyyy" else "LLLL", locale).format(month).replaceFirstChar { it.titlecase(locale) }
 
     fun fileName(period: RecapPeriod): String = when (period) {
-        is RecapPeriod.Year -> "dogmatix-recap-${period.year}.png"
-        RecapPeriod.Last12Months -> "dogmatix-recap-last-12-months.png"
+        is RecapPeriod.Year -> "valkyr-recap-${period.year}.png"
+        RecapPeriod.Last12Months -> "valkyr-recap-last-12-months.png"
     }
 
     private class Download(val at: Long, val consoleId: String, val bytes: Long)

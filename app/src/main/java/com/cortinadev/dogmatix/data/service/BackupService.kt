@@ -74,7 +74,7 @@ class BackupService @Inject constructor(
         val skippedSettings: Int = 0
     )
 
-    class InvalidBackupException : IllegalArgumentException("Not a Dogmatix backup")
+    class InvalidBackupException : IllegalArgumentException("Not a Valkyr backup")
 
     /** The file was written by a newer Dogmatix whose format this version does not know. */
     class NewerBackupException(val version: Int) : IllegalArgumentException("Backup format $version is newer than ${BackupJson.VERSION}")

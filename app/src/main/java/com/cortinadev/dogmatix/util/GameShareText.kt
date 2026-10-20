@@ -57,7 +57,7 @@ object GameShareText {
             .joinToString("")
             .replace(Regex("-+"), "-").trim('-')
             .take(48).trim('-')
-        return "dogmatix-${slug.ifEmpty { "game" }}.$extension"
+        return "valkyr-${slug.ifEmpty { "game" }}.$extension"
     }
 
     /** The wishlist as a text list: header, one line per wish (console in brackets), a "+N" line. */

@@ -34,7 +34,7 @@
     <string name="romm5_fw_checking">Buscando los archivos que faltan en RomM…</string>
     <string name="romm5_fw_running">Trayendo %1$d de %2$d…</string>
     <string name="romm5_fw_no_folder">Elige primero la carpeta de BIOS.</string>
-    <string name="romm5_fw_no_write">Dogmatix+ solo puede leer la carpeta de BIOS. Vuelve a elegirla para permitir la escritura.</string>
+    <string name="romm5_fw_no_write">Valkyr solo puede leer la carpeta de BIOS. Vuelve a elegirla para permitir la escritura.</string>
     <string name="romm5_fw_pick_folder">Elegir carpeta</string>
     <string name="romm5_fw_nothing_missing">No falta nada: están todos los archivos BIOS.</string>
     <string name="romm5_fw_server_problem">No se pudo consultar RomM: %1$s</string>

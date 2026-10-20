@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.0: the app is called Valkyr; the About screen -->
+<resources>
+    <string name="brand40_about_title">Over Valkyr</string>
+    <string name="brand40_about_subtitle">Versie, projectpagina en credits</string>
+    <string name="brand40_about_tagline">Retrogames vinden, downloaden en ordenen op je telefoon of handheld.</string>
+    <string name="brand40_about_made_by">Gemaakt door Tufein. Vragen, ideeën en problemen zijn welkom op GitHub.</string>
+    <string name="brand40_link_project">Projectpagina</string>
+    <string name="brand40_link_issues">Probleem melden</string>
+    <string name="brand40_libraries_title">Opensourcebibliotheken en lettertypen</string>
+    <string name="brand40_libraries_note">Valkyr is gebouwd met deze opensourceprojecten. Elke link opent het project; daar staat ook de licentie.</string>
+    <string name="brand40_data_title">Spelgegevens en diensten</string>
+    <string name="brand40_data_note">Spelinformatie, covers, controles en achievements komen van deze projecten en diensten. Hun gegevens blijven van hen.</string>
+    <string name="brand40_settings_hint">Versie, projectpagina, een probleem melden en credits</string>
+</resources>

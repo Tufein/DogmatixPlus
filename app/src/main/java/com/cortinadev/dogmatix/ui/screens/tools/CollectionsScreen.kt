@@ -203,7 +203,7 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
                         title = stringResource(R.string.tools5_collections_empty_title),
                         message = stringResource(R.string.tools5_collections_empty_message),
                         modifier = Modifier.fillMaxWidth(),
-                        illustration = R.drawable.milou,
+                        illustration = R.drawable.brand_illustration,
                         actionLabel = stringResource(R.string.collections_new),
                         onAction = { creating = true },
                         actionFocus = firstFocus

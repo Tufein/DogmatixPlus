@@ -28,7 +28,7 @@
     <string name="health6_check_again">Erneut prüfen</string>
     <string name="health6_share">Bericht teilen</string>
     <string name="health6_share_chooser">Zustandsbericht teilen</string>
-    <string name="health6_report_title">Dogmatix+ Zustandsbericht</string>
+    <string name="health6_report_title">Valkyr Zustandsbericht</string>
     <string name="health6_report_app">App-Version %1$s</string>
     <string name="health6_row_checking">Prüfe…</string>
     <string name="health6_covers_cleared">Cover werden erneut gesucht</string>
@@ -85,7 +85,7 @@
     <string name="health6_d_notif_ok">Hinweise zu fertigen Warteschlangen und Wunschlisten-Treffern können erscheinen.</string>
     <string name="health6_d_notif_off">Benachrichtigungen sind aus, daher erscheinen keine Hinweise zu Warteschlange und Wunschliste.</string>
     <string name="health6_d_battery_ok">Hintergrundaufgaben laufen ohne Einschränkung.</string>
-    <string name="health6_d_battery_hint">Android kann Scans, Backups und Sync im Hintergrund verzögern. Optional: Dogmatix+ ausnehmen.</string>
+    <string name="health6_d_battery_hint">Android kann Scans, Backups und Sync im Hintergrund verzögern. Optional: Valkyr ausnehmen.</string>
     <string name="health6_d_update_ok">Aktuell. Neueste Version: %1$s.</string>
     <string name="health6_d_update_available">Version %1$s ist verfügbar.</string>
     <string name="health6_d_update_unknown">Updates konnten nicht gesucht werden (offline?).</string>

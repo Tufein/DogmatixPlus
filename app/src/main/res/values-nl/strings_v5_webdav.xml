@@ -11,13 +11,13 @@
     <!-- Server -->
     <string name="dav_section_server">Server</string>
     <string name="dav_server">Serveradres</string>
-    <string name="dav_server_dialog_hint">Het adres van je WebDAV-server, bijvoorbeeld https://cloud.voorbeeld.nl. Nextcloud en ownCloud worden herkend: Dogmatix zoekt zelf het bestandsadres (…/remote.php/dav/files/jouw-naam/). Een geplakte link uit de webinterface werkt ook.</string>
+    <string name="dav_server_dialog_hint">Het adres van je WebDAV-server, bijvoorbeeld https://cloud.voorbeeld.nl. Nextcloud en ownCloud worden herkend: Valkyr zoekt zelf het bestandsadres (…/remote.php/dav/files/jouw-naam/). Een geplakte link uit de webinterface werkt ook.</string>
     <string name="dav_user">Gebruikersnaam</string>
     <string name="dav_user_dialog_hint">De accountnaam op de server.</string>
     <string name="dav_password">App-wachtwoord</string>
     <string name="dav_password_dialog_hint">Gebruik een app-wachtwoord, niet je hoofdwachtwoord: Nextcloud en ownCloud maken er een onder Instellingen → Beveiliging. Het blijft op dit apparaat en komt nooit in een back-upbestand.</string>
     <string name="dav_folder">Map</string>
-    <string name="dav_folder_dialog_hint">De map op de server waarin Dogmatix zijn bestanden bewaart (wordt aangemaakt als ze ontbreekt), bijvoorbeeld Dogmatix of Games/Dogmatix.</string>
+    <string name="dav_folder_dialog_hint">De map op de server waarin Valkyr zijn bestanden bewaart (wordt aangemaakt als ze ontbreekt), bijvoorbeeld Valkyr of Games/Valkyr.</string>
     <string name="dav_test">Verbinding testen</string>
     <string name="dav_test_action">Testen</string>
     <string name="dav_test_busy">Bezig met testen…</string>
@@ -33,7 +33,7 @@
     <string name="dav_cert_check">Controleren</string>
     <string name="dav_cert_forget">Vergeten</string>
     <string name="dav_cert_dialog_title">Dit certificaat vertrouwen?</string>
-    <string name="dav_cert_dialog_message">%1$s toont een certificaat dat Android niet vertrouwt. Als je deze vingerafdruk herkent, accepteert Dogmatix precies dit certificaat voor deze server, en niets anders.</string>
+    <string name="dav_cert_dialog_message">%1$s toont een certificaat dat Android niet vertrouwt. Als je deze vingerafdruk herkent, accepteert Valkyr precies dit certificaat voor deze server, en niets anders.</string>
     <string name="dav_cert_dialog_details">%1$s · geldig tot %2$s</string>
     <string name="dav_cert_trust">Vertrouwen</string>
     <string name="dav_cert_none">Kon geen certificaat van dit adres lezen</string>
@@ -106,7 +106,7 @@
     <string name="dav_sync_held_apply">Toepassen</string>
     <!-- Errors -->
     <string name="dav_err_auth">De server accepteerde de gebruikersnaam of het wachtwoord niet. Gebruik bij Nextcloud of ownCloud een app-wachtwoord (Instellingen → Beveiliging).</string>
-    <string name="dav_err_digest">Deze server biedt alleen Digest-inloggen aan, dat Dogmatix niet ondersteunt. Zet Basic-authenticatie aan op de server of gebruik een app-wachtwoord.</string>
+    <string name="dav_err_digest">Deze server biedt alleen Digest-inloggen aan, dat Valkyr niet ondersteunt. Zet Basic-authenticatie aan op de server of gebruik een app-wachtwoord.</string>
     <string name="dav_err_forbidden">Je bent ingelogd, maar dit account mag die map niet gebruiken (alleen-lezen deling of de map van iemand anders).</string>
     <string name="dav_err_not_found">Niet gevonden (404). Controleer het serveradres en de map. Bij Nextcloud en ownCloud eindigt het adres op /remote.php/dav/files/jouw-naam/.</string>
     <string name="dav_err_not_webdav">Dat adres antwoordt niet als WebDAV (het lijkt een gewone webpagina). Gebruik bij Nextcloud of ownCloud https://jouw-server/remote.php/dav/files/jouw-naam/.</string>
@@ -124,8 +124,8 @@
     <string name="dav_err_bad_url">Dat is geen geldig webadres.</string>
     <string name="dav_err_bad_response">Het antwoord van de server was onleesbaar of het bestand kwam onvolledig aan.</string>
     <string name="dav_err_passphrase">Verkeerde wachtzin of beschadigde back-up. Stel de wachtzin in waarmee de back-up is gemaakt (Wachtzin voor back-ups) en probeer het opnieuw.</string>
-    <string name="dav_err_not_backup">Dit is geen versleutelde Dogmatix-back-up.</string>
-    <string name="dav_err_sync_newer">Het synchronisatiebestand op de server is geschreven door een nieuwere Dogmatix. Werk de app bij om te synchroniseren.</string>
+    <string name="dav_err_not_backup">Dit is geen versleutelde Valkyr-back-up.</string>
+    <string name="dav_err_sync_newer">Het synchronisatiebestand op de server is geschreven door een nieuwere Valkyr. Werk de app bij om te synchroniseren.</string>
     <string name="dav_err_sync_unreadable">Het synchronisatiebestand op de server is onleesbaar; het is ongemoeid gelaten.</string>
     <string name="dav_err_not_configured">Er is nog geen WebDAV-server ingesteld.</string>
     <string name="dav_err_no_passphrase">Stel eerst een wachtzin voor back-ups in (minstens 8 tekens).</string>

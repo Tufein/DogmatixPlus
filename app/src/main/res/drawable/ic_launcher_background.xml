@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Dogmatix+ icon background: the app's orange accent, lighter at the top. -->
+<!-- Valkyr icon background: AMOLED black with a faint warm glow at the top. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <gradient
         android:angle="270"
-        android:startColor="#FF9A3C"
-        android:endColor="#F06A00"
+        android:startColor="#1C1206"
+        android:endColor="#000000"
         android:type="linear" />
 </shape>

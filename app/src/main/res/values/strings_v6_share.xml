@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 6.0: sharing, "Continue playing" widget, RomM wishlist alerts -->
 <resources>
-    <string name="share6_card_footer">Found with Dogmatix+</string>
-    <string name="share6_game_message">%1$s (%2$s), found with Dogmatix+</string>
+    <string name="share6_card_footer">Found with Valkyr</string>
+    <string name="share6_game_message">%1$s (%2$s), found with Valkyr</string>
     <string name="share6_chooser_game">Share game</string>
     <string name="share6_chooser_wishlist">Share the wishlist</string>
     <string name="share6_failed">Could not share</string>

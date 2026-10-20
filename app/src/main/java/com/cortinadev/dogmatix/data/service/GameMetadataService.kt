@@ -25,7 +25,7 @@ class GameMetadataService @Inject constructor(
     private val dao: GameMetadataDao,
     private val thumbnails: ThumbnailService
 ) {
-    private val userAgent = "Dogmatix/${BuildConfig.VERSION_NAME}"
+    private val userAgent = "Valkyr/${BuildConfig.VERSION_NAME}"
 
     /**
      * Details for a game; with [fileName] (the No-Intro / Redump name), libretro-thumbnails supplies

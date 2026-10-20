@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.0: the app is called Valkyr; the About screen -->
+<resources>
+    <string name="brand40_about_title">About Valkyr</string>
+    <string name="brand40_about_subtitle">Version, project page and credits</string>
+    <string name="brand40_about_tagline">Find, download and organise retro games on your phone or handheld.</string>
+    <string name="brand40_about_made_by">Made by Tufein. Questions, ideas and problems are welcome on GitHub.</string>
+    <string name="brand40_link_project">Project page</string>
+    <string name="brand40_link_issues">Report an issue</string>
+    <string name="brand40_libraries_title">Open-source libraries and fonts</string>
+    <string name="brand40_libraries_note">Valkyr is built with these open-source projects. Each link opens the project, where you find its licence.</string>
+    <string name="brand40_data_title">Game data and services</string>
+    <string name="brand40_data_note">Game information, covers, checks and achievements come from these projects and services. Their data stays theirs.</string>
+    <string name="brand40_settings_hint">Version, project page, reporting an issue and credits</string>
+    <!-- The widget title: the accent "V", then the rest of the name (not translated). -->
+    <string name="brand40_widget_initial" translatable="false">V</string>
+    <string name="brand40_widget_rest" translatable="false">alkyr</string>
+</resources>

@@ -4,7 +4,7 @@
     <string name="meta7_subtitle">Naam, beschrijving, genre, jaar en ontwikkelaar in ES-DE en Pegasus</string>
     <string name="meta7_hint">Vul de spelinfo van je launcher aan: beschrijving, genre, jaar en ontwikkelaar</string>
     <string name="meta7_what_title">Wat dit doet</string>
-    <string name="meta7_what_body">Dogmatix+ zoekt de spellen op je apparaat op (eerst je RomM-server, daarna de spellendatabases) en schrijft weg wat je launcher toont: naam, beschrijving, genre, releasejaar, ontwikkelaar en beoordeling. Alleen lege velden worden aangevuld. Wat jij of je scraper heeft ingevuld, wordt nooit gewijzigd, verwijderd of herschikt.</string>
+    <string name="meta7_what_body">Valkyr zoekt de spellen op je apparaat op (eerst je RomM-server, daarna de spellendatabases) en schrijft weg wat je launcher toont: naam, beschrijving, genre, releasejaar, ontwikkelaar en beoordeling. Alleen lege velden worden aangevuld. Wat jij of je scraper heeft ingevuld, wordt nooit gewijzigd, verwijderd of herschikt.</string>
     <string name="meta7_warn_title">Dit wijzigt de eigen bestanden van je launcher</string>
     <string name="meta7_warn_body">De gamelist.xml van ES-DE en de metadata.txt van Pegasus worden ter plekke aangepast. De eerste keer dat een bestand wordt aangeraakt, blijft er een kopie naast staan als gamelist.xml.dogmatix-bak of metadata.txt.dogmatix-bak. Sluit ES-DE eerst af: het schrijft zijn eigen gamelists weg bij het afsluiten en maakt dit dan ongedaan.</string>
     <string name="meta7_section_where">Waar schrijven</string>

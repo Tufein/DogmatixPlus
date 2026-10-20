@@ -11,13 +11,13 @@
     <!-- Server -->
     <string name="dav_section_server">Server</string>
     <string name="dav_server">Serveradresse</string>
-    <string name="dav_server_dialog_hint">Die Adresse deines WebDAV-Servers, zum Beispiel https://cloud.beispiel.de. Nextcloud und ownCloud werden erkannt: Dogmatix findet die Dateiadresse (…/remote.php/dav/files/dein-name/) selbst. Ein eingefügter Link aus der Weboberfläche funktioniert ebenfalls.</string>
+    <string name="dav_server_dialog_hint">Die Adresse deines WebDAV-Servers, zum Beispiel https://cloud.beispiel.de. Nextcloud und ownCloud werden erkannt: Valkyr findet die Dateiadresse (…/remote.php/dav/files/dein-name/) selbst. Ein eingefügter Link aus der Weboberfläche funktioniert ebenfalls.</string>
     <string name="dav_user">Benutzername</string>
     <string name="dav_user_dialog_hint">Der Kontoname auf dem Server.</string>
     <string name="dav_password">App-Passwort</string>
     <string name="dav_password_dialog_hint">Nimm ein App-Passwort, nicht dein Hauptpasswort: Nextcloud und ownCloud erstellen eins unter Einstellungen → Sicherheit. Es bleibt auf diesem Gerät und kommt nie in eine Sicherungsdatei.</string>
     <string name="dav_folder">Ordner</string>
-    <string name="dav_folder_dialog_hint">Der Ordner auf dem Server, in dem Dogmatix seine Dateien ablegt (wird angelegt, falls er fehlt), zum Beispiel Dogmatix oder Spiele/Dogmatix.</string>
+    <string name="dav_folder_dialog_hint">Der Ordner auf dem Server, in dem Valkyr seine Dateien ablegt (wird angelegt, falls er fehlt), zum Beispiel Valkyr oder Spiele/Valkyr.</string>
     <string name="dav_test">Verbindung testen</string>
     <string name="dav_test_action">Testen</string>
     <string name="dav_test_busy">Teste …</string>
@@ -33,7 +33,7 @@
     <string name="dav_cert_check">Prüfen</string>
     <string name="dav_cert_forget">Vergessen</string>
     <string name="dav_cert_dialog_title">Diesem Zertifikat vertrauen?</string>
-    <string name="dav_cert_dialog_message">%1$s zeigt ein Zertifikat, dem Android nicht vertraut. Wenn du diesen Fingerabdruck erkennst, akzeptiert Dogmatix genau dieses Zertifikat für diesen Server und sonst nichts.</string>
+    <string name="dav_cert_dialog_message">%1$s zeigt ein Zertifikat, dem Android nicht vertraut. Wenn du diesen Fingerabdruck erkennst, akzeptiert Valkyr genau dieses Zertifikat für diesen Server und sonst nichts.</string>
     <string name="dav_cert_dialog_details">%1$s · gültig bis %2$s</string>
     <string name="dav_cert_trust">Vertrauen</string>
     <string name="dav_cert_none">Von dieser Adresse konnte kein Zertifikat gelesen werden</string>
@@ -106,7 +106,7 @@
     <string name="dav_sync_held_apply">Anwenden</string>
     <!-- Errors -->
     <string name="dav_err_auth">Der Server hat Benutzername oder Passwort nicht akzeptiert. Nimm bei Nextcloud oder ownCloud ein App-Passwort (Einstellungen → Sicherheit).</string>
-    <string name="dav_err_digest">Dieser Server bietet nur die Digest-Anmeldung an, die Dogmatix nicht unterstützt. Aktiviere auf dem Server die Basic-Authentifizierung oder nimm ein App-Passwort.</string>
+    <string name="dav_err_digest">Dieser Server bietet nur die Digest-Anmeldung an, die Valkyr nicht unterstützt. Aktiviere auf dem Server die Basic-Authentifizierung oder nimm ein App-Passwort.</string>
     <string name="dav_err_forbidden">Du bist angemeldet, aber dieses Konto darf diesen Ordner nicht nutzen (schreibgeschützte Freigabe oder der Ordner eines anderen Kontos).</string>
     <string name="dav_err_not_found">Nicht gefunden (404). Prüfe Serveradresse und Ordner. Bei Nextcloud und ownCloud endet die Adresse auf /remote.php/dav/files/dein-name/.</string>
     <string name="dav_err_not_webdav">Diese Adresse antwortet nicht als WebDAV (sie sieht nach einer normalen Webseite aus). Nimm bei Nextcloud oder ownCloud https://dein-server/remote.php/dav/files/dein-name/.</string>
@@ -124,8 +124,8 @@
     <string name="dav_err_bad_url">Das ist keine gültige Webadresse.</string>
     <string name="dav_err_bad_response">Die Antwort des Servers war nicht lesbar oder die Datei kam unvollständig an.</string>
     <string name="dav_err_passphrase">Falsche Passphrase oder beschädigte Sicherung. Lege die Passphrase fest, mit der die Sicherung erstellt wurde (Sicherungs-Passphrase), und versuche es erneut.</string>
-    <string name="dav_err_not_backup">Das ist keine verschlüsselte Dogmatix-Sicherung.</string>
-    <string name="dav_err_sync_newer">Die Sync-Datei auf dem Server stammt von einer neueren Dogmatix-Version. Aktualisiere die App, um abzugleichen.</string>
+    <string name="dav_err_not_backup">Das ist keine verschlüsselte Valkyr-Sicherung.</string>
+    <string name="dav_err_sync_newer">Die Sync-Datei auf dem Server stammt von einer neueren Valkyr-Version. Aktualisiere die App, um abzugleichen.</string>
     <string name="dav_err_sync_unreadable">Die Sync-Datei auf dem Server ist nicht lesbar; sie wurde nicht verändert.</string>
     <string name="dav_err_not_configured">Es ist noch kein WebDAV-Server eingerichtet.</string>
     <string name="dav_err_no_passphrase">Lege zuerst eine Sicherungs-Passphrase fest (mindestens 8 Zeichen).</string>

@@ -6,7 +6,7 @@
     <string name="playlists35_hint">Escreva playlists do RetroArch com os jogos deste dispositivo, para que o RetroArch os mostre sem procurar conteúdo</string>
     <string name="playlists35_kw">retroarch, playlist, playlists, lista, lpl, libretro, procurar, digitalizar, scan, conteúdo, menu principal, frontend, núcleo, core</string>
     <string name="playlists35_what_title">Playlists para o RetroArch</string>
-    <string name="playlists35_what_body">O Dogmatix+ escreve uma playlist por consola na pasta de playlists do RetroArch, com o nome que o RetroArch dá às suas (Nintendo - Game Boy Advance.lpl), com os jogos deste dispositivo. O RetroArch mostra-os então no menu principal sem procurar conteúdo. Uma playlist que já tem é só completada: as entradas, os núcleos delas e a ordem ficam como estão, e os jogos que ela já tem não são adicionados outra vez. Antes de mudar, a versão atual fica guardada em %1$s.</string>
+    <string name="playlists35_what_body">O Valkyr escreve uma playlist por consola na pasta de playlists do RetroArch, com o nome que o RetroArch dá às suas (Nintendo - Game Boy Advance.lpl), com os jogos deste dispositivo. O RetroArch mostra-os então no menu principal sem procurar conteúdo. Uma playlist que já tem é só completada: as entradas, os núcleos delas e a ordem ficam como estão, e os jogos que ela já tem não são adicionados outra vez. Antes de mudar, a versão atual fica guardada em %1$s.</string>
     <string name="playlists35_section_folder">Pasta de playlists</string>
     <string name="playlists35_folder_title">Pasta de playlists do RetroArch</string>
     <string name="playlists35_folder_none">Ainda não escolhida</string>

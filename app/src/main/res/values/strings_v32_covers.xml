@@ -5,7 +5,7 @@
     <string name="covers32_subtitle">Put cover images where iiSU, Daijishō or another launcher can show them</string>
     <string name="covers32_hint">Write cover images for your games into the folder your launcher reads them from</string>
     <string name="covers32_kw">artwork, box art, boxart, images, media, thumbnails, iisu, daijisho, pegasus, retroarch, emulationstation, launcher, frontend</string>
-    <string name="covers32_what_body">Dogmatix+ puts one cover per game into a folder you pick, named the way your launcher looks for it: in a sub-folder per console named like your console folders, all in one folder, or arranged as RetroArch, Pegasus or EmulationStation do. The covers come from your RomM server, libretro thumbnails or covers found earlier, and are saved as PNG. Images that are already there are kept unless you choose to replace them.</string>
+    <string name="covers32_what_body">Valkyr puts one cover per game into a folder you pick, named the way your launcher looks for it: in a sub-folder per console named like your console folders, all in one folder, or arranged as RetroArch, Pegasus or EmulationStation do. The covers come from your RomM server, libretro thumbnails or covers found earlier, and are saved as PNG. Images that are already there are kept unless you choose to replace them.</string>
     <string name="covers32_other">Another launcher</string>
     <string name="covers32_hint_other">For any other launcher: pick the folder it reads cover images from, often called media, covers, images or artwork. Its settings or documentation usually say which.</string>
     <string name="covers32_folder_title_other">Folder for your launcher\'s covers</string>

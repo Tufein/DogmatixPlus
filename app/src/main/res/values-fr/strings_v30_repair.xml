@@ -23,7 +23,7 @@
     <string name="repair30_fix_all_title">Corriger les éléments sûrs ?</string>
     <string name="repair30_fix_all_go">Corriger</string>
     <string name="repair30_share">Partager le rapport</string>
-    <string name="repair30_report_title">Dogmatix+ réparation de la bibliothèque</string>
+    <string name="repair30_report_title">Valkyr réparation de la bibliothèque</string>
     <string name="repair30_sev_high">Bloque un jeu</string>
     <string name="repair30_sev_medium">À examiner</string>
     <string name="repair30_sev_low">Rangement</string>

@@ -113,7 +113,7 @@ object GameShare {
                 wishes.sortedByDescending { it.addedAt }.map { it.title to it.consoleId?.let(ConsoleFormatter::getConsoleDisplayName) }
             ) { app.getString(R.string.share6_wishlist_more, it) }
             val file = withContext(Dispatchers.IO) {
-                File(File(app.cacheDir, "exports").apply { mkdirs() }, "dogmatix-wishlist.json")
+                File(File(app.cacheDir, "exports").apply { mkdirs() }, "valkyr-wishlist.json")
                     .also { it.writeText(WishlistShare.export(wishes), Charsets.UTF_8) }
             }
             val uri = FileProvider.getUriForFile(app, "${app.packageName}.provider", file)

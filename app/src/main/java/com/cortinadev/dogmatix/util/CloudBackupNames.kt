@@ -9,7 +9,7 @@ import java.util.Locale
 
 /**
  * Names, listing and rotation of the encrypted backups in the cloud:
- * `<folder>/backups/dogmatix-<yyyyMMdd-HHmm>-<device>.<id>.dgxb`, the time in UTC (so the order is
+ * `<folder>/backups/valkyr-<yyyyMMdd-HHmm>-<device>.<id>.dgxb` (`dogmatix-…` before 4.0, still read), the time in UTC (so the order is
  * the same whatever time zone each handheld is in), the device as a short slug and (6.0) a short
  * stable id of the installation. Several handhelds share one folder: each one only ever rotates
  * (deletes) its own backups, recognised by the id (two handhelds with the same model name, or a
@@ -19,7 +19,9 @@ import java.util.Locale
  */
 object CloudBackupNames {
 
-    const val PREFIX = "dogmatix-"
+    const val PREFIX = "valkyr-"
+    /** The prefix of backups made before 4.0; still listed, restored and rotated. */
+    const val LEGACY_PREFIX = "dogmatix-"
     const val EXTENSION = ".dgxb"
     const val DEFAULT_KEEP = 7
     /** The choices offered for "Backups to keep". */
@@ -28,7 +30,7 @@ object CloudBackupNames {
     const val INTERVAL_HOURS = 24
 
     private val STAMP: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm", Locale.ROOT)
-    private val NAME = Regex("""^dogmatix-(\d{8}-\d{4})-([a-z0-9-]+?)(?:\.([0-9a-f]{6,12}))?\.dgxb$""", RegexOption.IGNORE_CASE)
+    private val NAME = Regex("""^(?:valkyr|dogmatix)-(\d{8}-\d{4})-([a-z0-9-]+?)(?:\.([0-9a-f]{6,12}))?\.dgxb$""", RegexOption.IGNORE_CASE)
 
     /** A backup name taken apart: when, the device slug, and the installation id ("" for a name made before 6.0). */
     data class Parsed(val time: Long, val slug: String, val id: String)

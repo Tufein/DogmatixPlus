@@ -3,8 +3,6 @@
 <resources>
     <string name="settings_v5_preview_game" translatable="false">Chrono Trigger</string>
     <string name="settings_v5_accent_dynamic" translatable="false">Material You</string>
-    <string name="about_v5_lineage_dogmatix" translatable="false">Dogmatix</string>
-    <string name="about_v5_lineage_milou" translatable="false">Milou</string>
     <string name="settings_v5_animations">Animations</string>
     <string name="settings_v5_animations_hint">Smooth movement between screens, rows and charts; off makes everything instant</string>
     <string name="settings_v5_glow">Background glow</string>
@@ -48,7 +46,6 @@
     <string name="save_sync_v5_side_device">This device</string>
     <string name="save_sync_v5_side_server">RomM server</string>
     <string name="save_sync_v5_newer">Newer</string>
-    <string name="about_v5_subtitle">Who made Dogmatix+ and what it is built on</string>
     <plurals name="settings_v5_covers_reset_done">
         <item quantity="one">%1$d game will be looked up again</item>
         <item quantity="other">%1$d games will be looked up again</item>

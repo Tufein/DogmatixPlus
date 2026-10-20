@@ -187,14 +187,14 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
             }
             item { ToolsGroup(stringResource(R.string.tools_group_export), icon = R.drawable.ic_share) }
             item {
-                val launch = { csvLauncher.launch("dogmatixplus-collection-${LocalDate.now()}.csv") }
+                val launch = { csvLauncher.launch("valkyr-collection-${LocalDate.now()}.csv") }
                 ToolRow(
                     stringResource(R.string.tools_export_csv), listOf(stringResource(R.string.tools_export_csv_hint)), launch,
                     icon = R.drawable.ic_table_view
                 ) { ToolAction(stringResource(R.string.tools_export_action), onClick = launch) }
             }
             item {
-                val launch = { htmlLauncher.launch("dogmatixplus-collection-${LocalDate.now()}.html") }
+                val launch = { htmlLauncher.launch("valkyr-collection-${LocalDate.now()}.html") }
                 ToolRow(
                     stringResource(R.string.tools_export_html), listOf(stringResource(R.string.tools_export_html_hint)), launch,
                     icon = R.drawable.ic_web

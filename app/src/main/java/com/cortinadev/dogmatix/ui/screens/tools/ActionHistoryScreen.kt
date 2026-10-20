@@ -241,7 +241,7 @@ fun ActionHistoryScreen(
             !ui.hasAny -> EmptyState(
                 title = stringResource(R.string.hist24_empty_title),
                 message = stringResource(R.string.hist24_empty_message),
-                illustration = R.drawable.milou,
+                illustration = R.drawable.brand_illustration,
                 actionLabel = stringResource(R.string.recovery_title),
                 onAction = { onNavigate(NavRoutes.Recovery.route) },
                 actionFocus = emptyFocus,

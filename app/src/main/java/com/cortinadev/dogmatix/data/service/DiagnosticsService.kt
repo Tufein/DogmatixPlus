@@ -80,7 +80,7 @@ class DiagnosticsService @Inject constructor(
         val downloads = downloadService.getDownloads().groupingBy { it.status.name }.eachCount()
         val consoles = consoleDao.getAllConsoles().first()
         val report = buildString {
-            appendLine("DogmatixPlus diagnostics — ${SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ROOT).format(Date())}")
+            appendLine("Valkyr diagnostics — ${SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ROOT).format(Date())}")
             appendLine()
             appendLine("App: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) ${if (BuildConfig.DEBUG) "debug" else "release"}")
             appendLine("Android: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}), ${Build.MANUFACTURER} ${Build.MODEL}, ABI ${Build.SUPPORTED_ABIS.firstOrNull()}")
@@ -181,7 +181,7 @@ class DiagnosticsService @Inject constructor(
     suspend fun share(chooserTitle: String) {
         val file = withContext(Dispatchers.IO) {
             val dir = File(context.cacheDir, "exports").apply { mkdirs() }
-            File(dir, "dogmatixplus-diagnostics.txt").apply { writeText(buildReport()) }
+            File(dir, "valkyr-diagnostics.txt").apply { writeText(buildReport()) }
         }
         val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
         val send = Intent(Intent.ACTION_SEND).apply {

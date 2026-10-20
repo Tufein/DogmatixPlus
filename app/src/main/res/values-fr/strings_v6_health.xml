@@ -28,7 +28,7 @@
     <string name="health6_check_again">Revérifier</string>
     <string name="health6_share">Partager le rapport</string>
     <string name="health6_share_chooser">Partager le rapport d\'état</string>
-    <string name="health6_report_title">Rapport d\'état de Dogmatix+</string>
+    <string name="health6_report_title">Rapport d\'état de Valkyr</string>
     <string name="health6_report_app">Version de l\'appli %1$s</string>
     <string name="health6_row_checking">Vérification…</string>
     <string name="health6_covers_cleared">Nouvelle recherche des jaquettes</string>
@@ -85,7 +85,7 @@
     <string name="health6_d_notif_ok">Les alertes de file terminée et de liste de souhaits peuvent s\'afficher.</string>
     <string name="health6_d_notif_off">Les notifications sont désactivées : pas d\'alerte de file ni de liste de souhaits.</string>
     <string name="health6_d_battery_ok">Les tâches en arrière-plan ne sont pas limitées.</string>
-    <string name="health6_d_battery_hint">Android peut retarder analyses, sauvegardes et synchro en arrière-plan. Facultatif : exclure Dogmatix+.</string>
+    <string name="health6_d_battery_hint">Android peut retarder analyses, sauvegardes et synchro en arrière-plan. Facultatif : exclure Valkyr.</string>
     <string name="health6_d_update_ok">À jour. Dernière version : %1$s.</string>
     <string name="health6_d_update_available">La version %1$s est disponible.</string>
     <string name="health6_d_update_unknown">Impossible de chercher des mises à jour (hors ligne ?).</string>

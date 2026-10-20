@@ -12,7 +12,7 @@
     <string name="recovery_purge">Elimina definitivamente</string>
     <string name="recovery_purge_warning">Le copie di ripristino verranno eliminate definitivamente. Non si può annullare.</string>
     <string name="recovery_days">Conserva per %1$d giorni</string>
-    <string name="recovery_automatic">Svuota gli elementi scaduti all’apertura di Dogmatix+. Disattivato inizialmente.</string>
+    <string name="recovery_automatic">Svuota gli elementi scaduti all’apertura di Valkyr. Disattivato inizialmente.</string>
     <string name="recovery_share">Condividi rapporto operazioni</string>
     <string name="recovery_space">Copie di ripristino: %1$s</string>
     <string name="recovery_empty">Nessuna operazione registrata.</string>

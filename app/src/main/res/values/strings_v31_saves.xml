@@ -22,7 +22,7 @@
     <string name="handoff31_mode_receive">Bring to this handheld</string>
     <string name="handoff31_back_title">The way back</string>
     <string name="handoff31_back_same_way">To come back later, do the same on the other handheld: open this game, choose Continue on another handheld and send it back. The save returns the same way.</string>
-    <string name="handoff31_back_newest">The newest save is on the handheld you played on last. Before anything moves, Dogmatix compares the saves on this handheld and on RomM, and asks you when both have changed.</string>
+    <string name="handoff31_back_newest">The newest save is on the handheld you played on last. Before anything moves, Valkyr compares the saves on this handheld and on RomM, and asks you when both have changed.</string>
     <string name="handoff31_back_nothing_deleted">Nothing is deleted on this handheld. A save that gets replaced is kept as a safety copy first (Cloud saves on the game page).</string>
     <string name="handoff31_back_same_emulator">Play it with %1$s on both handhelds. A save made by another emulator or core may not load.</string>
     <string name="handoff31_back_memcards">DuckStation has to use a separate memory card per game on both handhelds; shared memory cards are not handed over.</string>
@@ -59,8 +59,8 @@
     <string name="handoff31_code_mismatch">This is not the save the link was made for (expected %1$s). The other handheld may have played on since, or the link is old: send it again from there first.</string>
     <string name="handoff31_needs_title">If the other handheld does not have this game</string>
     <string name="handoff31_needs_file">It needs %1$s (%2$s).</string>
-    <string name="handoff31_needs_source">Its Dogmatix can download it from the same source (%1$s) once that source is added there too.</string>
-    <string name="handoff31_needs_any_source">Its Dogmatix can download it from the same source once that source is added there too.</string>
+    <string name="handoff31_needs_source">Its Valkyr can download it from the same source (%1$s) once that source is added there too.</string>
+    <string name="handoff31_needs_any_source">Its Valkyr can download it from the same source once that source is added there too.</string>
     <string name="handoff31_needs_package">Or copy the game file over yourself; the package export (Game package records) lets the other handheld check that the copy is complete.</string>
     <string name="handoff31_missing_title">This handheld does not have this game</string>
     <string name="handoff31_missing_search">Search the library</string>

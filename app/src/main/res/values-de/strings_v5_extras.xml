@@ -17,6 +17,6 @@
     <string name="shortcut_group_consoles">Konsolen</string>
     <string name="shortcut_loading">Verknüpfungen werden geladen…</string>
     <string name="shortcut_empty_title">Keine Verknüpfungen verfügbar</string>
-    <string name="shortcut_empty_message">Öffne Dogmatix+ einmal und versuche es erneut.</string>
+    <string name="shortcut_empty_message">Öffne Valkyr einmal und versuche es erneut.</string>
     <string name="shortcut_close">Schließen</string>
 </resources>

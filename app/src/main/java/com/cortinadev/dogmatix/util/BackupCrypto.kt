@@ -42,8 +42,8 @@ object BackupCrypto {
 
     private val HEADER_BYTES = MAGIC.size + SALT_BYTES + IV_BYTES
 
-    /** The file does not start with the DGXB1 header: not an encrypted Dogmatix backup. */
-    class NotEncryptedException : IllegalArgumentException("Not an encrypted Dogmatix backup")
+    /** The file does not start with the DGXB1 header: not an encrypted Valkyr backup. */
+    class NotEncryptedException : IllegalArgumentException("Not an encrypted Valkyr backup")
 
     /** Wrong passphrase, or the file was changed or cut short. */
     class UnreadableException(cause: Throwable? = null) : GeneralSecurityException("Wrong passphrase or damaged backup", cause)

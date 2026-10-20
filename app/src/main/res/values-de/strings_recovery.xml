@@ -12,7 +12,7 @@
     <string name="recovery_purge">Endgültig löschen</string>
     <string name="recovery_purge_warning">Die Sicherungskopien werden endgültig gelöscht. Dies kann nicht rückgängig gemacht werden.</string>
     <string name="recovery_days">%1$d Tage behalten</string>
-    <string name="recovery_automatic">Abgelaufene Papierkorbeinträge beim Öffnen von Dogmatix+ automatisch löschen. Standardmäßig aus.</string>
+    <string name="recovery_automatic">Abgelaufene Papierkorbeinträge beim Öffnen von Valkyr automatisch löschen. Standardmäßig aus.</string>
     <string name="recovery_share">Aktionsbericht teilen</string>
     <string name="recovery_space">Sicherungskopien: %1$s</string>
     <string name="recovery_empty">Noch keine Aktionen aufgezeichnet.</string>

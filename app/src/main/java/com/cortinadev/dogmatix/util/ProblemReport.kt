@@ -146,7 +146,7 @@ object ProblemReport {
         fun at(ms: Long) = time.format(Instant.ofEpochMilli(ms))
         fun on(s: ReportSection) = s in sections
         val out = buildString {
-            appendLine("## Dogmatix+ problem report")
+            appendLine("## Valkyr problem report")
             appendLine()
             appendLine("**Category:** ${category.label}")
             if (facts.generatedAt > 0) appendLine("Prepared on the device on ${at(facts.generatedAt)}. The app did not send it; the reporter reviewed it before sharing.")
@@ -163,7 +163,7 @@ object ProblemReport {
 
             heading("App version and build")
             if (on(ReportSection.APP)) {
-                appendLine("- Dogmatix+ ${facts.appVersion} (build ${facts.buildCode}), ${if (facts.debugBuild) "debug" else "release"}")
+                appendLine("- Valkyr ${facts.appVersion} (build ${facts.buildCode}), ${if (facts.debugBuild) "debug" else "release"}")
                 appendLine("- Package: ${facts.packageName}")
                 appendLine("- Signing: ${facts.signing.label}")
             } else appendLine(NOT_INCLUDED)

@@ -5,8 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,13 +31,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.cortinadev.dogmatix.BuildConfig
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.ui.components.IconTile
-import com.cortinadev.dogmatix.ui.components.NavChevron
 import com.cortinadev.dogmatix.ui.components.Panel
 import com.cortinadev.dogmatix.ui.components.PanelTone
 import com.cortinadev.dogmatix.ui.components.Pill
@@ -50,23 +46,47 @@ import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
 import androidx.compose.ui.focus.focusRequester
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 
-private data class CreditLink(val iconRes: Int, val labelRes: Int, val url: String, val display: String)
+/** A row that opens a web page: a name and, at the end, its address or licence. */
+private data class CreditLink(val iconRes: Int, val label: String, val url: String, val display: String)
 
-private val plusLinks = listOf(
-    CreditLink(R.drawable.ic_github, R.string.credits_link_github, "https://github.com/Tufein/DogmatixPlus", "github.com/Tufein/DogmatixPlus"),
+/** The project on GitHub. The repository keeps its old address until it is renamed there. */
+private const val PROJECT_URL = "https://github.com/Tufein/DogmatixPlus"
+
+/** The open-source libraries and fonts the app is built with (see gradle/libs.versions.toml and res/font). */
+private val libraryLinks = listOf(
+    CreditLink(R.drawable.ic_build, "Jetpack Compose · AndroidX", "https://developer.android.com/jetpack/androidx", "Apache-2.0"),
+    CreditLink(R.drawable.ic_build, "Kotlin · kotlinx.coroutines", "https://github.com/Kotlin/kotlinx.coroutines", "Apache-2.0"),
+    CreditLink(R.drawable.ic_build, "Dagger Hilt", "https://github.com/google/dagger", "Apache-2.0"),
+    CreditLink(R.drawable.ic_build, "Gson", "https://github.com/google/gson", "Apache-2.0"),
+    CreditLink(R.drawable.ic_build, "Coil", "https://github.com/coil-kt/coil", "Apache-2.0"),
+    CreditLink(R.drawable.ic_build, "jsoup", "https://jsoup.org", "MIT"),
+    CreditLink(R.drawable.ic_build, "ZXing", "https://github.com/zxing/zxing", "Apache-2.0"),
+    CreditLink(R.drawable.ic_build, "7-Zip-JBinding", "https://github.com/borisbrodski/sevenzipjbinding", "LGPL-2.1"),
+    CreditLink(R.drawable.ic_build, "libtorrent4j", "https://github.com/aldenml/libtorrent4j", "MIT"),
+    CreditLink(R.drawable.ic_text_size, "Space Mono", "https://fonts.google.com/specimen/Space+Mono", "OFL-1.1"),
+    CreditLink(R.drawable.ic_text_size, "Manrope", "https://fonts.google.com/specimen/Manrope", "OFL-1.1"),
 )
 
-private val forkLinks = listOf(
-    CreditLink(R.drawable.ic_github, R.string.credits_link_github, "https://github.com/cortinadev", "github.com/cortinadev"),
-    CreditLink(R.drawable.ic_linkedin, R.string.credits_link_linkedin, "https://www.linkedin.com/in/rafa-cortina", "linkedin.com/in/rafa-cortina"),
-    CreditLink(R.drawable.ic_web, R.string.credits_link_web, "https://cortina.dev", "cortina.dev"),
+/** Where game information, artwork, checks and achievements come from, and the services the app talks to. */
+private val dataLinks = listOf(
+    CreditLink(R.drawable.ic_trophy, "RetroAchievements", "https://retroachievements.org", "retroachievements.org"),
+    CreditLink(R.drawable.ic_globe, "RAWG", "https://rawg.io", "rawg.io"),
+    CreditLink(R.drawable.ic_globe, "TheGamesDB", "https://thegamesdb.net", "thegamesdb.net"),
+    CreditLink(R.drawable.ic_image, "libretro-thumbnails", "https://github.com/libretro-thumbnails/libretro-thumbnails", "github.com/libretro-thumbnails"),
+    CreditLink(R.drawable.ic_check_circle, "No-Intro", "https://no-intro.org", "no-intro.org"),
+    CreditLink(R.drawable.ic_check_circle, "Redump", "http://redump.org", "redump.org"),
+    CreditLink(R.drawable.ic_check_circle, "TOSEC", "https://www.tosecdev.org", "tosecdev.org"),
+    CreditLink(R.drawable.ic_cloud, "RomM", "https://github.com/rommapp/romm", "github.com/rommapp/romm"),
+    CreditLink(R.drawable.ic_frontends, "ES-DE", "https://es-de.org", "es-de.org"),
+    CreditLink(R.drawable.ic_gamepad, "Libretro", "https://www.libretro.com", "libretro.com"),
+    CreditLink(R.drawable.ic_gamepad, "ScummVM", "https://www.scummvm.org", "scummvm.org"),
+    CreditLink(R.drawable.ic_gamepad, "Homebrew Hub", "https://hh.gbdev.io", "hh.gbdev.io"),
 )
 
-private val originalLinks = listOf(
-    CreditLink(R.drawable.ic_github, R.string.credits_link_github, "https://github.com/santiifm", "github.com/santiifm"),
-    CreditLink(R.drawable.ic_linkedin, R.string.credits_link_linkedin, "https://www.linkedin.com/in/santiifm", "linkedin.com/in/santiifm"),
-)
-
+/**
+ * About Valkyr (4.0): the app with its version and links to the project and its issues, then the
+ * third-party projects it uses, each opening its own page.
+ */
 @Composable
 fun ContactScreen(navController: NavController) {
     val isLandscape = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp
@@ -85,55 +105,51 @@ fun ContactScreen(navController: NavController) {
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         ScreenTitle(
-            text = stringResource(R.string.credits_title),
-            subtitle = stringResource(R.string.about_v5_subtitle),
-            icon = R.drawable.ic_heart,
+            text = stringResource(R.string.brand40_about_title),
+            subtitle = stringResource(R.string.brand40_about_subtitle),
+            icon = R.drawable.ic_info,
             modifier = Modifier.widthIn(max = 860.dp)
         )
-        // This build first, then the projects it is built on: DogmatixPlus -> Dogmatix -> Milou.
-        PlusCard(Modifier.fillMaxWidth().widthIn(max = 860.dp))
+        AppCard(Modifier.fillMaxWidth().widthIn(max = 860.dp))
         if (isLandscape) {
             Row(
                 modifier = Modifier.widthIn(max = 860.dp),
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
                 verticalAlignment = Alignment.Top
             ) {
-                ForkCard(Modifier.weight(1f))
-                OriginalCard(Modifier.weight(1f))
+                LibrariesCard(Modifier.weight(1f))
+                DataCard(Modifier.weight(1f))
             }
         } else {
-            ForkCard(Modifier.fillMaxWidth())
-            OriginalCard(Modifier.fillMaxWidth())
+            LibrariesCard(Modifier.fillMaxWidth().widthIn(max = 860.dp))
+            DataCard(Modifier.fillMaxWidth().widthIn(max = 860.dp))
         }
     }
 }
 
-/** The hero card: the mascot, this build's name and version, and the line it descends from. */
-@OptIn(ExperimentalLayoutApi::class)
+/** The hero card: the mark, the name and version, what the app does, and the project links. */
 @Composable
-private fun PlusCard(modifier: Modifier = Modifier) {
+private fun AppCard(modifier: Modifier = Modifier) {
     Panel(modifier = modifier, tone = PanelTone.Accent, contentPadding = PaddingValues(18.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Image(
-                painterResource(R.drawable.milou),
+                painterResource(R.drawable.brand_mark),
                 contentDescription = null,
                 modifier = Modifier.size(72.dp)
             )
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        stringResource(R.string.credits_plus_name),
+                        stringResource(R.string.app_name),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
                     )
                     Pill("v" + BuildConfig.VERSION_NAME, tone = PillTone.Strong)
                 }
                 Text(
-                    stringResource(R.string.credits_plus_role),
+                    stringResource(R.string.brand40_about_tagline),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -142,93 +158,69 @@ private fun PlusCard(modifier: Modifier = Modifier) {
         }
         Spacer(Modifier.height(12.dp))
         Text(
-            stringResource(R.string.credits_plus_note),
+            stringResource(R.string.brand40_about_made_by),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(Modifier.height(10.dp))
-        // DogmatixPlus › Dogmatix › Milou
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Pill(stringResource(R.string.credits_plus_name), tone = PillTone.Accent, icon = R.drawable.ic_sparkle)
-            NavChevron(Modifier.align(Alignment.CenterVertically))
-            Pill(stringResource(R.string.about_v5_lineage_dogmatix), tone = PillTone.Neutral)
-            NavChevron(Modifier.align(Alignment.CenterVertically))
-            Pill(stringResource(R.string.about_v5_lineage_milou), tone = PillTone.Neutral)
-        }
         Spacer(Modifier.height(8.dp))
-        plusLinks.forEach { LinkRow(it) }
+        LinkRow(CreditLink(R.drawable.ic_github, stringResource(R.string.brand40_link_project), PROJECT_URL, PROJECT_URL.removePrefix("https://")))
+        LinkRow(CreditLink(R.drawable.ic_bug, stringResource(R.string.brand40_link_issues), "$PROJECT_URL/issues", "GitHub Issues"))
     }
 }
 
 @Composable
-private fun ForkCard(modifier: Modifier = Modifier) = CreditCard(
-    name = stringResource(R.string.credits_fork_name),
-    role = stringResource(R.string.credits_fork_role),
-    icon = R.drawable.ic_palette,
-    links = forkLinks,
+private fun LibrariesCard(modifier: Modifier = Modifier) = CreditCard(
+    title = stringResource(R.string.brand40_libraries_title),
+    note = stringResource(R.string.brand40_libraries_note),
+    icon = R.drawable.ic_build,
+    links = libraryLinks,
     modifier = modifier
 )
 
 @Composable
-private fun OriginalCard(modifier: Modifier = Modifier) = CreditCard(
-    name = stringResource(R.string.credits_original_name),
-    role = stringResource(R.string.credits_original_role),
-    note = stringResource(R.string.credits_original_note),
-    icon = R.drawable.ic_build,
-    links = originalLinks,
+private fun DataCard(modifier: Modifier = Modifier) = CreditCard(
+    title = stringResource(R.string.brand40_data_title),
+    note = stringResource(R.string.brand40_data_note),
+    icon = R.drawable.ic_globe,
+    links = dataLinks,
     modifier = modifier
 )
 
 @Composable
 private fun CreditCard(
-    name: String,
-    role: String,
+    title: String,
+    note: String,
     icon: Int,
     links: List<CreditLink>,
-    modifier: Modifier = Modifier,
-    note: String? = null
+    modifier: Modifier = Modifier
 ) {
     Panel(modifier = modifier, contentPadding = PaddingValues(18.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             IconTile(icon, size = 38.dp)
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = role,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = accentInk(),
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(top = 2.dp)
-                )
-            }
-        }
-        if (note != null) {
             Text(
-                text = note,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 10.dp)
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = accentInk(),
+                modifier = Modifier.weight(1f)
             )
         }
+        Text(
+            text = note,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 10.dp)
+        )
         Spacer(Modifier.height(10.dp))
         links.forEach { LinkRow(it) }
     }
 }
 
-/** A link with its service's mark; opens in the browser. */
+/** A link with its mark; opens in the browser. Both texts wrap rather than being cut off. */
 @Composable
 private fun LinkRow(link: CreditLink) {
     val uriHandler = LocalUriHandler.current
     val source = rememberFocusSource()
-    val label = stringResource(link.labelRes)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -247,16 +239,15 @@ private fun LinkRow(link: CreditLink) {
             tint = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = label,
+            text = link.label,
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f, fill = false)
         )
         Text(
             text = link.display,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.End,
             modifier = Modifier.weight(1f)
         )

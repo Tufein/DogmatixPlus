@@ -54,14 +54,14 @@ class HealthRollupTest {
 
     @Test fun `report groups rows and redacts addresses`() {
         val text = HealthReport.text(
-            "Dogmatix+ health", "7 of 9 fine", "Version 6.0.0",
+            "Valkyr health", "7 of 9 fine", "Version 6.0.0",
             listOf(
                 HealthReport.Row("Library", "Sources", "OK", "3 sources"),
                 HealthReport.Row("Library", "Covers", "Look at this", "4 without a cover"),
                 HealthReport.Row("Cloud", "RomM", "Problem", "No answer from https://romm.example.com/api?token=abc12345")
             )
         )
-        assertTrue(text.startsWith("Dogmatix+ health\n7 of 9 fine"))
+        assertTrue(text.startsWith("Valkyr health\n7 of 9 fine"))
         assertTrue(text.contains("\nLIBRARY\n[OK] Sources: 3 sources\n[Look at this] Covers"))
         assertTrue(text.contains("\nCLOUD\n[Problem] RomM"))
         assertFalse(text.contains("romm.example.com"))

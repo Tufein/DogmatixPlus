@@ -23,7 +23,7 @@
     <string name="repair30_fix_all_title">Fix safe items?</string>
     <string name="repair30_fix_all_go">Fix</string>
     <string name="repair30_share">Share report</string>
-    <string name="repair30_report_title">Dogmatix+ library repair</string>
+    <string name="repair30_report_title">Valkyr library repair</string>
     <string name="repair30_sev_high">Stops a game</string>
     <string name="repair30_sev_medium">Worth a look</string>
     <string name="repair30_sev_low">Tidy-up</string>

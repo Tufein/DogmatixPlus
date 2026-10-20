@@ -162,7 +162,7 @@ fun PackageTransferScreen(viewModel: PackageTransferViewModel = hiltViewModel(),
             restored?.let { count -> item { InfoCard(listOf(stringResource(R.string.package_transfer_restored, count)), accent = true) } }
             item {
                 Button(onClick = {
-                    snapshot?.let { selected -> pendingExport = selected; exportPicker.launch("Dogmatix-packages-${System.currentTimeMillis()}.json") }
+                    snapshot?.let { selected -> pendingExport = selected; exportPicker.launch("valkyr-packages-${System.currentTimeMillis()}.json") }
                 }, enabled = !busy && snapshot?.records?.isNotEmpty() == true,
                     modifier = Modifier.fillMaxWidth().focusRequester(exportFocus).testTag("package-transfer-export")) {
                     Text(stringResource(R.string.package_transfer_export, snapshot?.records?.size ?: 0))

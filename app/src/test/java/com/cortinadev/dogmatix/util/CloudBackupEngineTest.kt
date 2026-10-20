@@ -85,16 +85,16 @@ class CloudBackupEngineTest {
         days.forEach { CloudBackupEngine.upload(store, c.serverUrl, c.rootUrl, sealed, "Thor", keep = 3, now = it) }
         CloudBackupEngine.upload(store, c.serverUrl, c.rootUrl, sealed, "Odin", keep = 1, now = Instant.parse("2026-10-01T05:00:00Z"))
         val last = CloudBackupEngine.upload(store, c.serverUrl, c.rootUrl, sealed, "Odin", keep = 1, now = Instant.parse("2026-10-02T05:00:00Z"))
-        assertEquals(listOf("dogmatix-20261001-0500-odin.dgxb"), last.deleted)
+        assertEquals(listOf("valkyr-20261001-0500-odin.dgxb"), last.deleted)
 
         val listed = CloudBackupEngine.list(store, c.rootUrl, "Thor")
         assertEquals(
             listOf("20261005-0300-thor", "20261004-0300-thor", "20261003-0300-thor", "20261002-0500-odin"),
-            listed.map { it.name.removePrefix("dogmatix-").removeSuffix(".dgxb") }
+            listed.map { it.name.removePrefix("valkyr-").removeSuffix(".dgxb") }
         )
         assertTrue(listed[0].isThisDevice)
         assertEquals(sealed.size.toLong(), listed[0].size)
-        assertEquals("https://nas.local/dav/Games/Dogmatix/backups/dogmatix-20261005-0300-thor.dgxb", listed[0].url)
+        assertEquals("https://nas.local/dav/Games/Dogmatix/backups/valkyr-20261005-0300-thor.dgxb", listed[0].url)
 
         assertEquals(json, CloudBackupEngine.download(store, listed[3].url, "passphrase one"))
         try {

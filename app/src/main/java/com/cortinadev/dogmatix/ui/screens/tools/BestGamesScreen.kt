@@ -104,7 +104,7 @@ fun BestGamesScreen(
             EmptyState(
                 title = stringResource(R.string.top7_no_consoles_title),
                 message = stringResource(R.string.top7_no_consoles_message),
-                illustration = R.drawable.milou,
+                illustration = R.drawable.brand_illustration,
                 modifier = Modifier.fillMaxWidth()
             )
         }

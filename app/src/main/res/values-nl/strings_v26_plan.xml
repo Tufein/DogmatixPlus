@@ -17,7 +17,7 @@
     <string name="plan26_owned">Al aanwezig op dit apparaat</string>
     <string name="plan26_name_conflict">Een andere console gebruikt deze bestandsnaam al in het plan</string>
     <string name="plan26_export_failed">Geen geschikte downloads of het plan kon niet worden geëxporteerd. Selecteer wachtende, gepauzeerde of mislukte downloads (maximaal 3.000).</string>
-    <string name="plan26_import_failed">Dit plan kon niet worden gelezen of toegepast. Kies een geldig Dogmatix-downloadplan in JSON van maximaal 2 MiB.</string>
+    <string name="plan26_import_failed">Dit plan kon niet worden gelezen of toegepast. Kies een geldig Valkyr-downloadplan in JSON van maximaal 2 MiB.</string>
     <string name="plan26_imported">%1$d games toegevoegd aan de wachtrij</string>
     <string name="plan26_saved">Downloadplan opgeslagen</string>
     <string name="plan26_ambiguous">Meerdere verschillende bestanden op dit apparaat hebben deze naam; er wordt niets toegevoegd</string>

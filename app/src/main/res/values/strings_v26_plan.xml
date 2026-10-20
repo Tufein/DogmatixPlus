@@ -17,7 +17,7 @@
     <string name="plan26_owned">Already owned on this device</string>
     <string name="plan26_name_conflict">Another console already uses this filename in the plan</string>
     <string name="plan26_export_failed">No eligible downloads, or the plan could not be exported. Select waiting, paused or failed downloads (maximum 3,000).</string>
-    <string name="plan26_import_failed">This plan could not be read or applied. Choose a valid Dogmatix download-plan JSON file of at most 2 MiB.</string>
+    <string name="plan26_import_failed">This plan could not be read or applied. Choose a valid Valkyr download-plan JSON file of at most 2 MiB.</string>
     <string name="plan26_imported">%1$d games added to the queue</string>
     <string name="plan26_saved">Download plan saved</string>
     <string name="plan26_ambiguous">Several different files match this name on this device; nothing will be queued</string>

@@ -48,7 +48,7 @@
     <string name="quick7_share_last12">Mijn laatste 12 maanden in games:</string>
     <string name="quick7_card_most_played">Meest gespeeld: %1$s</string>
     <string name="quick7_card_busiest">Drukste maand: %1$s</string>
-    <string name="quick7_card_footer">Gemaakt met Dogmatix+</string>
+    <string name="quick7_card_footer">Gemaakt met Valkyr</string>
     <plurals name="quick7_days">
         <item quantity="one">%1$d dag</item>
         <item quantity="other">%1$d dagen</item>

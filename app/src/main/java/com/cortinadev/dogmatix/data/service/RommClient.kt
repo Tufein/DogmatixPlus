@@ -147,7 +147,7 @@ class RommClient @Inject constructor(
      * collection (`is_favorite=true`; servers that do not know the flag ignore it and go by the name).
      */
     suspend fun createCollection(name: String, favourite: Boolean = false): Int = withContext(Dispatchers.IO) {
-        val (body, type) = JsonHttp.multipartBody(mapOf("name" to name, "description" to "Dogmatix+"))
+        val (body, type) = JsonHttp.multipartBody(mapOf("name" to name, "description" to "Valkyr"))
         val query = if (favourite) "?is_favorite=true&is_public=false" else ""
         val obj = JsonHttp.requireOk(JsonHttp.request("POST", "${baseUrl()}/api/collections$query", headers(), body = body, contentType = type)).json
             ?.takeIf { it.isJsonObject }?.asJsonObject ?: throw RommException("RomM did not return the new collection")

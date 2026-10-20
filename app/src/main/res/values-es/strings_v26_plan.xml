@@ -17,7 +17,7 @@
     <string name="plan26_owned">Ya está en este dispositivo</string>
     <string name="plan26_name_conflict">Otra consola ya usa este nombre de archivo en el plan</string>
     <string name="plan26_export_failed">No hay descargas aptas o no se pudo exportar el plan. Selecciona descargas en espera, pausadas o fallidas (máximo 3.000).</string>
-    <string name="plan26_import_failed">No se pudo leer o aplicar este plan. Elige un archivo JSON válido de plan Dogmatix de hasta 2 MiB.</string>
+    <string name="plan26_import_failed">No se pudo leer o aplicar este plan. Elige un archivo JSON válido de plan Valkyr de hasta 2 MiB.</string>
     <string name="plan26_imported">%1$d juegos añadidos a la cola</string>
     <string name="plan26_saved">Plan de descargas guardado</string>
     <string name="plan26_ambiguous">Varios archivos diferentes de este dispositivo tienen este nombre; no se añadirá ninguno</string>

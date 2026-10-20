@@ -34,7 +34,7 @@
     <string name="romm5_fw_checking">A procurar no RomM os ficheiros em falta…</string>
     <string name="romm5_fw_running">A buscar %1$d de %2$d…</string>
     <string name="romm5_fw_no_folder">Escolhe primeiro a pasta de BIOS.</string>
-    <string name="romm5_fw_no_write">O Dogmatix+ só pode ler a pasta de BIOS. Escolhe-a de novo para permitir a escrita.</string>
+    <string name="romm5_fw_no_write">O Valkyr só pode ler a pasta de BIOS. Escolhe-a de novo para permitir a escrita.</string>
     <string name="romm5_fw_pick_folder">Escolher pasta</string>
     <string name="romm5_fw_nothing_missing">Não falta nada: todos os ficheiros BIOS estão lá.</string>
     <string name="romm5_fw_server_problem">Não foi possível consultar o RomM: %1$s</string>

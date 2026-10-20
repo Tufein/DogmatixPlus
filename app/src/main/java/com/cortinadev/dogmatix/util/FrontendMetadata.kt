@@ -653,7 +653,7 @@ object FrontendMetadata {
 
     /** [existing] metadata file (null / blank = none yet) with [items] (file name → details) merged in. */
     fun pegasusMerge(existing: String?, items: Map<String, GameMeta>): Merge {
-        val header = "# Game information added by Dogmatix+. Entries you wrote yourself are never overwritten.\n"
+        val header = "# Game information added by Valkyr. Entries you wrote yourself are never overwritten.\n"
         if (existing == null || existing.isBlank()) {
             val fresh = items.entries.filter { it.value.hasData }.distinctBy { pathKey(it.key) }
             if (fresh.isEmpty()) return Merge(null, skipped = items.size)

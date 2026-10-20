@@ -193,7 +193,7 @@ fun FreeSpaceScreen(
                     EmptyState(
                         title = summary,
                         message = stringResource(R.string.space7_subtitle),
-                        illustration = R.drawable.milou,
+                        illustration = R.drawable.brand_illustration,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

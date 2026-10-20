@@ -28,7 +28,7 @@
     <string name="health6_check_again">Controlla di nuovo</string>
     <string name="health6_share">Condividi rapporto</string>
     <string name="health6_share_chooser">Condividi rapporto di stato</string>
-    <string name="health6_report_title">Rapporto di stato di Dogmatix+</string>
+    <string name="health6_report_title">Rapporto di stato di Valkyr</string>
     <string name="health6_report_app">Versione app %1$s</string>
     <string name="health6_row_checking">Controllo…</string>
     <string name="health6_covers_cleared">Nuova ricerca delle copertine</string>
@@ -85,7 +85,7 @@
     <string name="health6_d_notif_ok">Possono comparire avvisi di coda completata e della lista dei desideri.</string>
     <string name="health6_d_notif_off">Le notifiche sono disattivate: nessun avviso di coda o lista dei desideri.</string>
     <string name="health6_d_battery_ok">Le attività in background non hanno limiti.</string>
-    <string name="health6_d_battery_hint">Android può ritardare scansioni, backup e sincronizzazione in background. Facoltativo: escludi Dogmatix+.</string>
+    <string name="health6_d_battery_hint">Android può ritardare scansioni, backup e sincronizzazione in background. Facoltativo: escludi Valkyr.</string>
     <string name="health6_d_update_ok">Aggiornato. Ultima versione: %1$s.</string>
     <string name="health6_d_update_available">È disponibile la versione %1$s.</string>
     <string name="health6_d_update_unknown">Impossibile cercare aggiornamenti (offline?).</string>

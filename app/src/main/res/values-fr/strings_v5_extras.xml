@@ -17,6 +17,6 @@
     <string name="shortcut_group_consoles">Consoles</string>
     <string name="shortcut_loading">Chargement des raccourcis…</string>
     <string name="shortcut_empty_title">Aucun raccourci disponible</string>
-    <string name="shortcut_empty_message">Ouvrez Dogmatix+ une fois, puis réessayez.</string>
+    <string name="shortcut_empty_message">Ouvrez Valkyr une fois, puis réessayez.</string>
     <string name="shortcut_close">Fermer</string>
 </resources>

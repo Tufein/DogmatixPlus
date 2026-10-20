@@ -172,7 +172,7 @@ class UpdateInstaller @Inject constructor(@param:ApplicationContext private val 
         readTimeout = 30_000
         instanceFollowRedirects = true
         setRequestProperty("Accept", "application/vnd.github+json, application/octet-stream, */*")
-        setRequestProperty("User-Agent", "DogmatixPlus/${BuildConfig.VERSION_NAME}")
+        setRequestProperty("User-Agent", "Valkyr/${BuildConfig.VERSION_NAME}")
     }
 
     private suspend fun install(apk: File) {

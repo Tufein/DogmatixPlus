@@ -22,7 +22,7 @@
     <string name="handoff31_mode_receive">Auf dieses Handheld holen</string>
     <string name="handoff31_back_title">Der Weg zurück</string>
     <string name="handoff31_back_same_way">Um später zurückzukommen, mach dasselbe auf dem anderen Handheld: Öffne dieses Spiel, wähle Auf anderem Handheld weiterspielen und sende es zurück. Der Spielstand kommt auf demselben Weg zurück.</string>
-    <string name="handoff31_back_newest">Der neueste Spielstand ist auf dem Handheld, auf dem du zuletzt gespielt hast. Bevor sich etwas bewegt, vergleicht Dogmatix die Spielstände auf diesem Handheld und auf RomM und fragt dich, wenn sich beide geändert haben.</string>
+    <string name="handoff31_back_newest">Der neueste Spielstand ist auf dem Handheld, auf dem du zuletzt gespielt hast. Bevor sich etwas bewegt, vergleicht Valkyr die Spielstände auf diesem Handheld und auf RomM und fragt dich, wenn sich beide geändert haben.</string>
     <string name="handoff31_back_nothing_deleted">Auf diesem Handheld wird nichts gelöscht. Ein Spielstand, der ersetzt wird, wird zuerst als Sicherheitskopie aufbewahrt (Spielstände in der Cloud auf der Spielseite).</string>
     <string name="handoff31_back_same_emulator">Spiele es auf beiden Handhelds mit %1$s. Ein Spielstand eines anderen Emulators oder Cores lädt eventuell nicht.</string>
     <string name="handoff31_back_memcards">DuckStation muss auf beiden Handhelds eine eigene Memory Card pro Spiel verwenden; gemeinsame Memory Cards werden nicht übergeben.</string>
@@ -59,8 +59,8 @@
     <string name="handoff31_code_mismatch">Das ist nicht der Spielstand, für den der Link erstellt wurde (erwartet: %1$s). Vielleicht wurde auf dem anderen Handheld weitergespielt oder der Link ist alt: Sende ihn dort zuerst erneut.</string>
     <string name="handoff31_needs_title">Wenn das andere Handheld dieses Spiel nicht hat</string>
     <string name="handoff31_needs_file">Es braucht %1$s (%2$s).</string>
-    <string name="handoff31_needs_source">Sein Dogmatix kann es aus derselben Quelle (%1$s) herunterladen, sobald diese Quelle dort auch hinzugefügt ist.</string>
-    <string name="handoff31_needs_any_source">Sein Dogmatix kann es aus derselben Quelle herunterladen, sobald diese Quelle dort auch hinzugefügt ist.</string>
+    <string name="handoff31_needs_source">Sein Valkyr kann es aus derselben Quelle (%1$s) herunterladen, sobald diese Quelle dort auch hinzugefügt ist.</string>
+    <string name="handoff31_needs_any_source">Sein Valkyr kann es aus derselben Quelle herunterladen, sobald diese Quelle dort auch hinzugefügt ist.</string>
     <string name="handoff31_needs_package">Oder kopiere die Spieldatei selbst; mit dem Paketexport (Spieldatei-Einträge) kann das andere Handheld prüfen, ob die Kopie vollständig ist.</string>
     <string name="handoff31_missing_title">Dieses Handheld hat dieses Spiel nicht</string>
     <string name="handoff31_missing_search">In der Bibliothek suchen</string>

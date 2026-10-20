@@ -28,7 +28,7 @@
     <string name="health6_check_again">Opnieuw controleren</string>
     <string name="health6_share">Rapport delen</string>
     <string name="health6_share_chooser">Gezondheidsrapport delen</string>
-    <string name="health6_report_title">Dogmatix+ gezondheidsrapport</string>
+    <string name="health6_report_title">Valkyr gezondheidsrapport</string>
     <string name="health6_report_app">App-versie %1$s</string>
     <string name="health6_row_checking">Controleren…</string>
     <string name="health6_covers_cleared">Covers worden opnieuw gezocht</string>
@@ -85,7 +85,7 @@
     <string name="health6_d_notif_ok">Meldingen voor afgeronde wachtrijen en verlanglijsttreffers kunnen verschijnen.</string>
     <string name="health6_d_notif_off">Meldingen staan uit, dus wachtrij- en verlanglijstmeldingen kunnen niet verschijnen.</string>
     <string name="health6_d_battery_ok">Achtergrondtaken kunnen zonder beperking draaien.</string>
-    <string name="health6_d_battery_hint">Android kan scans, back-ups en synchronisatie op de achtergrond uitstellen. Optioneel: Dogmatix+ uitzonderen.</string>
+    <string name="health6_d_battery_hint">Android kan scans, back-ups en synchronisatie op de achtergrond uitstellen. Optioneel: Valkyr uitzonderen.</string>
     <string name="health6_d_update_ok">Bijgewerkt. Nieuwste release: %1$s.</string>
     <string name="health6_d_update_available">Versie %1$s is beschikbaar.</string>
     <string name="health6_d_update_unknown">Kon niet naar updates zoeken (offline?).</string>

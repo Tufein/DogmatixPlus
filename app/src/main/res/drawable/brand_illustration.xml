@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Valkyr illustration for empty states and the welcome screen: the winged V over a soft glow.
+     Transparent background, so it works on the light, dark and black themes. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="180dp"
+    android:height="120dp"
+    android:viewportWidth="180"
+    android:viewportHeight="120">
+    <!-- glow -->
+    <path android:fillColor="#FF7F00" android:fillAlpha="0.08" android:pathData="M90,60 m-80,0 a80,52 0 1,0 160,0 a80,52 0 1,0 -160,0 Z" />
+    <path android:fillColor="#FF7F00" android:fillAlpha="0.10" android:pathData="M90,60 m-56,0 a56,38 0 1,0 112,0 a56,38 0 1,0 -112,0 Z" />
+    <!-- shadow under the point -->
+    <path android:fillColor="#FF7F00" android:fillAlpha="0.25" android:pathData="M90,110 m-22,0 a22,3.5 0 1,0 44,0 a22,3.5 0 1,0 -44,0 Z" />
+    <path android:fillColor="#FF7F00" android:pathData="M90.00,98.28 L64.50,25.78 L79.26,25.78 L90.00,71.42 Z M64.50,25.78 L38.98,17.72 L69.84,41.00 Z M69.84,41.00 L43.02,40.54 L74.70,54.78 Z M74.70,54.78 L52.40,60.68 L79.04,67.10 Z" />
+    <path android:fillColor="#FF9A3C" android:pathData="M90.00,98.28 L115.50,25.78 L100.74,25.78 L90.00,71.42 Z M115.50,25.78 L141.02,17.72 L110.16,41.00 Z M110.16,41.00 L136.98,40.54 L105.30,54.78 Z M105.30,54.78 L127.60,60.68 L100.96,67.10 Z" />
+</vector>

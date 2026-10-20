@@ -44,7 +44,6 @@
     <string name="save_sync_v5_side_device">Dit apparaat</string>
     <string name="save_sync_v5_side_server">RomM-server</string>
     <string name="save_sync_v5_newer">Nieuwer</string>
-    <string name="about_v5_subtitle">Wie Dogmatix+ maakte en waarop het gebouwd is</string>
     <plurals name="settings_v5_covers_reset_done">
         <item quantity="one">%1$d game wordt opnieuw opgezocht</item>
         <item quantity="other">%1$d games worden opnieuw opgezocht</item>

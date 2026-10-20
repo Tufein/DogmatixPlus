@@ -17,6 +17,6 @@
     <string name="shortcut_group_consoles">Consoles</string>
     <string name="shortcut_loading">Snelkoppelingen laden…</string>
     <string name="shortcut_empty_title">Geen snelkoppelingen beschikbaar</string>
-    <string name="shortcut_empty_message">Open Dogmatix+ één keer en probeer het opnieuw.</string>
+    <string name="shortcut_empty_message">Open Valkyr één keer en probeer het opnieuw.</string>
     <string name="shortcut_close">Sluiten</string>
 </resources>

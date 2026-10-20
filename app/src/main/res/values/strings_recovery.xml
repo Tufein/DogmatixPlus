@@ -12,7 +12,7 @@
     <string name="recovery_purge">Delete permanently</string>
     <string name="recovery_purge_warning">This removes the recovery copies permanently. It cannot be undone.</string>
     <string name="recovery_days">Keep for %1$d days</string>
-    <string name="recovery_automatic">Automatically empty expired trash when Dogmatix+ opens. Off by default.</string>
+    <string name="recovery_automatic">Automatically empty expired trash when Valkyr opens. Off by default.</string>
     <string name="recovery_share">Share action report</string>
     <string name="recovery_space">Recovery copies: %1$s</string>
     <string name="recovery_empty">No recorded actions yet.</string>

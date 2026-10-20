@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.0: the app is called Valkyr; the About screen -->
+<resources>
+    <string name="brand40_about_title">Acerca de Valkyr</string>
+    <string name="brand40_about_subtitle">Versión, página del proyecto y créditos</string>
+    <string name="brand40_about_tagline">Encuentra, descarga y organiza juegos retro en tu móvil o consola portátil.</string>
+    <string name="brand40_about_made_by">Hecho por Tufein. Las preguntas, ideas y problemas son bienvenidos en GitHub.</string>
+    <string name="brand40_link_project">Página del proyecto</string>
+    <string name="brand40_link_issues">Informar de un problema</string>
+    <string name="brand40_libraries_title">Bibliotecas y fuentes de código abierto</string>
+    <string name="brand40_libraries_note">Valkyr está hecho con estos proyectos de código abierto. Cada enlace abre el proyecto, donde está su licencia.</string>
+    <string name="brand40_data_title">Datos de juegos y servicios</string>
+    <string name="brand40_data_note">La información de los juegos, las portadas, las comprobaciones y los logros vienen de estos proyectos y servicios. Sus datos siguen siendo suyos.</string>
+    <string name="brand40_settings_hint">Versión, página del proyecto, informar de un problema y créditos</string>
+</resources>

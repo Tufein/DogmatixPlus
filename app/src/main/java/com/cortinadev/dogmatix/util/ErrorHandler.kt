@@ -4,7 +4,7 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineExceptionHandler
 
 object ErrorHandler {
-    private const val TAG = "MilouErrorHandler"
+    private const val TAG = "ValkyrErrorHandler"
 
     fun logError(tag: String = TAG, message: String, throwable: Throwable? = null) {
         if (throwable != null) {

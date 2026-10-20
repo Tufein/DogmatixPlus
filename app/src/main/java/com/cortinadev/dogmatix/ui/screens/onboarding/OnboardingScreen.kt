@@ -186,7 +186,7 @@ fun OnboardingScreen(
                         when (shown) {
                             0 -> {
                                 Image(
-                                    painterResource(R.drawable.milou),
+                                    painterResource(R.drawable.brand_illustration),
                                     contentDescription = null,
                                     modifier = Modifier.widthIn(max = 160.dp).heightIn(max = 120.dp)
                                 )

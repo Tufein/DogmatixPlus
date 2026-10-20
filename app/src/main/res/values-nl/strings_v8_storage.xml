@@ -5,7 +5,7 @@
     <string name="store8_switch_title">Slimme opslag</string>
     <string name="store8_switch_hint">Uit. Zet aan om de interne opslag te bewaren voor de consoles die je speelt</string>
     <string name="store8_explain_title">Hele consoles verhuizen, nooit losse games</string>
-    <string name="store8_explain">Dogmatix+ en frontends zoals ES-DE geven elke console één map, dus een console verhuist met zijn hele map. Consoles met een favoriet, een onlangs gespeelde game of een nieuwe download blijven op de interne opslag; de rest gaat naar de SD-kaart en komt terug zodra je ze weer speelt. Hiervoor zijn de speelgegevens van ES-DE nodig. ES-DE volgt vanzelf als het in Dogmatix+ is ingesteld en zijn systemen uit de downloadmap leest (start ES-DE daarna opnieuw). Anders, en in Daijishō, Pegasus of RetroArch-afspeellijsten, wijs je een verhuisde console naar zijn nieuwe map.</string>
+    <string name="store8_explain">Valkyr en frontends zoals ES-DE geven elke console één map, dus een console verhuist met zijn hele map. Consoles met een favoriet, een onlangs gespeelde game of een nieuwe download blijven op de interne opslag; de rest gaat naar de SD-kaart en komt terug zodra je ze weer speelt. Hiervoor zijn de speelgegevens van ES-DE nodig. ES-DE volgt vanzelf als het in Valkyr is ingesteld en zijn systemen uit de downloadmap leest (start ES-DE daarna opnieuw). Anders, en in Daijishō, Pegasus of RetroArch-afspeellijsten, wijs je een verhuisde console naar zijn nieuwe map.</string>
     <string name="store8_sd_title">Bibliotheekmap op de SD-kaart</string>
     <string name="store8_sd_none">Nog geen map gekozen</string>
     <string name="store8_sd_choose">Kiezen</string>

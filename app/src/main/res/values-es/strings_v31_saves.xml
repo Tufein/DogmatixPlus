@@ -22,7 +22,7 @@
     <string name="handoff31_mode_receive">Traer a esta portátil</string>
     <string name="handoff31_back_title">El camino de vuelta</string>
     <string name="handoff31_back_same_way">Para volver más tarde, haz lo mismo en la otra portátil: abre este juego, elige Seguir en otra portátil y envíalo de vuelta. La partida vuelve por el mismo camino.</string>
-    <string name="handoff31_back_newest">La partida más reciente está en la portátil en la que jugaste por última vez. Antes de mover nada, Dogmatix compara las partidas de esta portátil y de RomM, y te pregunta si ambas han cambiado.</string>
+    <string name="handoff31_back_newest">La partida más reciente está en la portátil en la que jugaste por última vez. Antes de mover nada, Valkyr compara las partidas de esta portátil y de RomM, y te pregunta si ambas han cambiado.</string>
     <string name="handoff31_back_nothing_deleted">No se borra nada en esta portátil. Una partida que se sustituye se guarda antes como copia de seguridad (Partidas en la nube, en la página del juego).</string>
     <string name="handoff31_back_same_emulator">Juega con %1$s en ambas portátiles. Una partida hecha con otro emulador o núcleo puede no cargar.</string>
     <string name="handoff31_back_memcards">DuckStation debe usar una tarjeta de memoria distinta por juego en ambas portátiles; las tarjetas compartidas no se traspasan.</string>
@@ -59,8 +59,8 @@
     <string name="handoff31_code_mismatch">Esta no es la partida para la que se creó el enlace (se esperaba %1$s). Puede que se siguiera jugando en la otra portátil o que el enlace sea antiguo: vuelve a enviarla primero desde allí.</string>
     <string name="handoff31_needs_title">Si la otra portátil no tiene este juego</string>
     <string name="handoff31_needs_file">Necesita %1$s (%2$s).</string>
-    <string name="handoff31_needs_source">Su Dogmatix puede descargarlo de la misma fuente (%1$s) cuando esa fuente también esté añadida allí.</string>
-    <string name="handoff31_needs_any_source">Su Dogmatix puede descargarlo de la misma fuente cuando esa fuente también esté añadida allí.</string>
+    <string name="handoff31_needs_source">Su Valkyr puede descargarlo de la misma fuente (%1$s) cuando esa fuente también esté añadida allí.</string>
+    <string name="handoff31_needs_any_source">Su Valkyr puede descargarlo de la misma fuente cuando esa fuente también esté añadida allí.</string>
     <string name="handoff31_needs_package">O copia tú mismo el archivo del juego; la exportación de paquetes (Datos de archivos de juegos) permite a la otra portátil comprobar que la copia está completa.</string>
     <string name="handoff31_missing_title">Esta portátil no tiene este juego</string>
     <string name="handoff31_missing_search">Buscar en la biblioteca</string>

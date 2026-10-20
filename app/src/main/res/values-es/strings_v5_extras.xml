@@ -17,6 +17,6 @@
     <string name="shortcut_group_consoles">Consolas</string>
     <string name="shortcut_loading">Cargando accesos directos…</string>
     <string name="shortcut_empty_title">No hay accesos directos disponibles</string>
-    <string name="shortcut_empty_message">Abre Dogmatix+ una vez y vuelve a intentarlo.</string>
+    <string name="shortcut_empty_message">Abre Valkyr una vez y vuelve a intentarlo.</string>
     <string name="shortcut_close">Cerrar</string>
 </resources>

@@ -48,8 +48,8 @@ object DgmtxFile {
 
     /** Body of the shortcut written into a platform folder. */
     fun contentForConsole(consoleId: String, consoleName: String): String = buildString {
-        append("# Dogmatix shortcut — ").append(consoleName).append('\n')
-        append("# Opening this file shows this platform's games in Dogmatix.\n")
+        append("# Valkyr shortcut — ").append(consoleName).append('\n')
+        append("# Opening this file shows this platform's games in Valkyr.\n")
         append(libraryLink(consoleId)).append('\n')
     }
 

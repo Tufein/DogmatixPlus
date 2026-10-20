@@ -17,7 +17,7 @@
     <string name="plan26_owned">Già presente su questo dispositivo</string>
     <string name="plan26_name_conflict">Un’altra console usa già questo nome di file nel piano</string>
     <string name="plan26_export_failed">Nessun download idoneo o esportazione non riuscita. Seleziona download in attesa, in pausa o non riusciti (massimo 3.000).</string>
-    <string name="plan26_import_failed">Impossibile leggere o applicare il piano. Scegli un file JSON valido di piano Dogmatix di massimo 2 MiB.</string>
+    <string name="plan26_import_failed">Impossibile leggere o applicare il piano. Scegli un file JSON valido di piano Valkyr di massimo 2 MiB.</string>
     <string name="plan26_imported">%1$d giochi aggiunti alla coda</string>
     <string name="plan26_saved">Piano di download salvato</string>
     <string name="plan26_ambiguous">Più file diversi su questo dispositivo hanno questo nome; non verrà aggiunto nulla</string>

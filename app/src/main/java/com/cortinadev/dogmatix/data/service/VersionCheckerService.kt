@@ -82,7 +82,7 @@ class VersionCheckerService @Inject constructor(
                 connection.connectTimeout = REQUEST_TIMEOUT
                 connection.readTimeout = REQUEST_TIMEOUT
                 connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
-                connection.setRequestProperty("User-Agent", "DogmatixPlus/${BuildConfig.VERSION_NAME}")
+                connection.setRequestProperty("User-Agent", "Valkyr/${BuildConfig.VERSION_NAME}")
 
                 try {
                     if (connection.responseCode != HttpURLConnection.HTTP_OK) return@withContext null

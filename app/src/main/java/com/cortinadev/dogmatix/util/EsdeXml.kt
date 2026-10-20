@@ -15,7 +15,7 @@ object EsdeXml {
     /** Label of the Dogmatix `<command>`; `<altemulator>` entries refer to it. */
     const val COMMAND_LABEL = "Dogmatix"
 
-    const val SHORTCUT_DESC = "Browse and download games for this platform with Dogmatix."
+    const val SHORTCUT_DESC = "Browse and download games for this platform with Valkyr."
 
     private const val COMMAND =
         "<command label=\"$COMMAND_LABEL\">%EMULATOR_$EMULATOR_NAME% " +
@@ -34,7 +34,7 @@ object EsdeXml {
             "        </rule>\n" +
             "    </emulator>\n"
         if (existing == null) {
-            return "<?xml version=\"1.0\"?>\n<!-- Added by Dogmatix -->\n<ruleList>\n$block</ruleList>\n"
+            return "<?xml version=\"1.0\"?>\n<!-- Added by Valkyr -->\n<ruleList>\n$block</ruleList>\n"
         }
         val idx = existing.lastIndexOf("</ruleList>")
         if (idx < 0) return null
@@ -60,7 +60,7 @@ object EsdeXml {
     fun patchCustomSystems(existing: String?, bundled: String, folders: Collection<String>): SystemsPatch {
         var content = existing
             ?: ("<?xml version=\"1.0\"?>\n" +
-                "<!-- Systems with Dogmatix shortcuts. Added by Dogmatix; your edits are kept. -->\n" +
+                "<!-- Systems with Valkyr shortcuts. Added by Valkyr; your edits are kept. -->\n" +
                 "<systemList>\n</systemList>\n")
         val configured = mutableListOf<String>()
         val missing = mutableListOf<String>()

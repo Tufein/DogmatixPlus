@@ -44,7 +44,6 @@
     <string name="save_sync_v5_side_device">Este dispositivo</string>
     <string name="save_sync_v5_side_server">Servidor RomM</string>
     <string name="save_sync_v5_newer">Mais recente</string>
-    <string name="about_v5_subtitle">Quem fez o Dogmatix+ e em que se baseia</string>
     <plurals name="settings_v5_covers_reset_done">
         <item quantity="one">%1$d jogo vai ser procurado de novo</item>
         <item quantity="other">%1$d jogos vão ser procurados de novo</item>

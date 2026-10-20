@@ -4,7 +4,7 @@
     <string name="meta7_subtitle">Nom, description, genre, année et développeur dans ES-DE et Pegasus</string>
     <string name="meta7_hint">Complète les infos de jeu de votre lanceur : description, genre, année et développeur</string>
     <string name="meta7_what_title">Ce que fait cet outil</string>
-    <string name="meta7_what_body">Dogmatix+ recherche les jeux présents sur votre appareil (d\'abord sur votre serveur RomM, puis dans les bases de données de jeux) et écrit ce que votre lanceur affiche : nom, description, genre, année de sortie, développeur et note. Seuls les champs vides sont remplis. Ce que vous ou votre scraper avez saisi n\'est jamais modifié, supprimé ni réordonné.</string>
+    <string name="meta7_what_body">Valkyr recherche les jeux présents sur votre appareil (d\'abord sur votre serveur RomM, puis dans les bases de données de jeux) et écrit ce que votre lanceur affiche : nom, description, genre, année de sortie, développeur et note. Seuls les champs vides sont remplis. Ce que vous ou votre scraper avez saisi n\'est jamais modifié, supprimé ni réordonné.</string>
     <string name="meta7_warn_title">Ceci modifie les propres fichiers de votre lanceur</string>
     <string name="meta7_warn_body">Le gamelist.xml d\'ES-DE et le metadata.txt de Pegasus sont modifiés sur place. La première fois qu\'un fichier est touché, une copie est conservée à côté sous le nom gamelist.xml.dogmatix-bak ou metadata.txt.dogmatix-bak. Fermez d\'abord ES-DE : il réécrit ses propres gamelists en quittant et annulerait ces changements.</string>
     <string name="meta7_section_where">Où écrire</string>

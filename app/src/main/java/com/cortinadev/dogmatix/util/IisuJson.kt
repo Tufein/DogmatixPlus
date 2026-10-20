@@ -33,7 +33,7 @@ object IisuJson {
     const val EMULATOR_ID = "DOGMATIX"
 
     /** Name iiSU shows in the emulator picker. */
-    private const val EMULATOR_NAME = "Dogmatix"
+    private const val EMULATOR_NAME = "Valkyr"
 
     /** Label of the launch command inside the entry. */
     private const val COMMAND_DESCRIPTION = "Search for more games"

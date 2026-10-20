@@ -12,7 +12,7 @@
     <string name="recovery_purge">Definitief verwijderen</string>
     <string name="recovery_purge_warning">Dit verwijdert de herstelkopieën definitief. Dit kan niet ongedaan worden gemaakt.</string>
     <string name="recovery_days">%1$d dagen bewaren</string>
-    <string name="recovery_automatic">Verlopen prullenbak automatisch legen bij het openen van Dogmatix+. Standaard uit.</string>
+    <string name="recovery_automatic">Verlopen prullenbak automatisch legen bij het openen van Valkyr. Standaard uit.</string>
     <string name="recovery_share">Actierapport delen</string>
     <string name="recovery_space">Herstelkopieën: %1$s</string>
     <string name="recovery_empty">Nog geen acties geregistreerd.</string>

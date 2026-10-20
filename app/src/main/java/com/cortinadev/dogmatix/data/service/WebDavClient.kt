@@ -247,7 +247,7 @@ class WebDavClient(
         for (hop in 0..MAX_REDIRECTS) {
             val request = try {
                 val builder = Request.Builder().url(target).method(verb, body)
-                    .header("User-Agent", "DogmatixPlus/${BuildConfig.VERSION_NAME}")
+                    .header("User-Agent", "Valkyr/${BuildConfig.VERSION_NAME}")
                 authorization?.let { builder.header("Authorization", it) }
                 headers.forEach { (k, v) -> builder.header(k, v) }
                 builder.build()

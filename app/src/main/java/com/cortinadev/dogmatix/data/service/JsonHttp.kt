@@ -22,7 +22,7 @@ object JsonHttp {
         val ok: Boolean get() = code in 200..299
     }
 
-    val userAgent = "Dogmatix/${BuildConfig.VERSION_NAME}"
+    val userAgent = "Valkyr/${BuildConfig.VERSION_NAME}"
 
     fun request(
         method: String,
@@ -96,7 +96,7 @@ object JsonHttp {
 
     /** `multipart/form-data` body + its Content-Type (TorBox ignores url-encoded fields). */
     fun multipartBody(fields: Map<String, String>): Pair<ByteArray, String> {
-        val boundary = "----Dogmatix" + System.nanoTime()
+        val boundary = "----Valkyr" + System.nanoTime()
         val sb = StringBuilder()
         fields.forEach { (k, v) ->
             sb.append("--").append(boundary).append("\r\n")
@@ -109,7 +109,7 @@ object JsonHttp {
 
     /** `multipart/form-data` body carrying one file under [fieldName], + its Content-Type. */
     fun multipartFileBody(fieldName: String, fileName: String, bytes: ByteArray): Pair<ByteArray, String> {
-        val boundary = "----Dogmatix" + System.nanoTime()
+        val boundary = "----Valkyr" + System.nanoTime()
         // RFC 7578: the file name goes as a quoted string; quotes and line breaks cannot appear in it.
         val safeName = fileName.replace("\"", "%22").replace("\r", "").replace("\n", "")
         val head = "--$boundary\r\n" +

@@ -28,7 +28,7 @@
     <string name="health6_check_again">Check again</string>
     <string name="health6_share">Share report</string>
     <string name="health6_share_chooser">Share health report</string>
-    <string name="health6_report_title">Dogmatix+ health report</string>
+    <string name="health6_report_title">Valkyr health report</string>
     <string name="health6_report_app">App version %1$s</string>
     <string name="health6_row_checking">Checking…</string>
     <string name="health6_covers_cleared">Looking for covers again</string>
@@ -85,7 +85,7 @@
     <string name="health6_d_notif_ok">Alerts for finished queues and wishlist hits can show.</string>
     <string name="health6_d_notif_off">Notifications are off, so queue-done and wishlist alerts cannot show.</string>
     <string name="health6_d_battery_ok">Background jobs can run without limits.</string>
-    <string name="health6_d_battery_hint">Android may delay scans, backups and sync in the background. Optional: exempt Dogmatix+.</string>
+    <string name="health6_d_battery_hint">Android may delay scans, backups and sync in the background. Optional: exempt Valkyr.</string>
     <string name="health6_d_update_ok">Up to date. Newest release: %1$s.</string>
     <string name="health6_d_update_available">Version %1$s is available.</string>
     <string name="health6_d_update_unknown">Could not look for updates (offline?).</string>

@@ -193,7 +193,7 @@ fun UpNextScreen(onOpenGame: (String, String) -> Unit, viewModel: UpNextViewMode
                         EmptyState(
                             title = stringResource(R.string.next30_empty_title),
                             message = stringResource(R.string.next30_empty_message),
-                            illustration = R.drawable.milou,
+                            illustration = R.drawable.brand_illustration,
                             actionLabel = stringResource(R.string.next30_empty_action),
                             onAction = { viewModel.setTab(UpNextTab.FOR_YOU) },
                             actionFocus = emptyFocus,

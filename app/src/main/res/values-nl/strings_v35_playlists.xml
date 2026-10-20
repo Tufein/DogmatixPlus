@@ -6,7 +6,7 @@
     <string name="playlists35_hint">Schrijf RetroArch-afspeellijsten van de games op dit apparaat, zodat RetroArch ze toont zonder te scannen</string>
     <string name="playlists35_kw">retroarch, afspeellijst, afspeellijsten, playlist, playlists, lpl, libretro, scannen, scan, content, hoofdmenu, frontend, core</string>
     <string name="playlists35_what_title">Afspeellijsten voor RetroArch</string>
-    <string name="playlists35_what_body">Dogmatix+ schrijft per console één afspeellijst in de afspeellijstenmap van RetroArch, met de naam die RetroArch zelf ook gebruikt (Nintendo - Game Boy Advance.lpl), met de games op dit apparaat erin. RetroArch toont ze dan in zijn hoofdmenu zonder te scannen. Een afspeellijst die je al hebt wordt alleen aangevuld: de items erin, hun cores en hun volgorde blijven zoals ze zijn, en games die er al in staan komen er niet nog een keer bij. Voordat hij verandert, wordt de huidige versie bewaard in %1$s.</string>
+    <string name="playlists35_what_body">Valkyr schrijft per console één afspeellijst in de afspeellijstenmap van RetroArch, met de naam die RetroArch zelf ook gebruikt (Nintendo - Game Boy Advance.lpl), met de games op dit apparaat erin. RetroArch toont ze dan in zijn hoofdmenu zonder te scannen. Een afspeellijst die je al hebt wordt alleen aangevuld: de items erin, hun cores en hun volgorde blijven zoals ze zijn, en games die er al in staan komen er niet nog een keer bij. Voordat hij verandert, wordt de huidige versie bewaard in %1$s.</string>
     <string name="playlists35_section_folder">Map met afspeellijsten</string>
     <string name="playlists35_folder_title">Afspeellijstenmap van RetroArch</string>
     <string name="playlists35_folder_none">Nog niet gekozen</string>

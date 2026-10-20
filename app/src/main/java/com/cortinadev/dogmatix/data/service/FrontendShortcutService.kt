@@ -50,7 +50,7 @@ class FrontendShortcutService @Inject constructor(
         val downloadDir = settingsRepository.downloadDirectory.first()
         val resolved = pathResolver.resolveAll(view.consoles, downloadDir, settingsRepository.separateByConsole.first(), customDirs)
         val name = "★ " + DatMatcher.safeFileName(view.name) + "." + DgmtxFile.EXTENSION
-        val body = "# Dogmatix shortcut — ${view.name}\n# Opening this file shows this saved view in Dogmatix.\n${view.deepLink()}\n"
+        val body = "# Valkyr shortcut — ${view.name}\n# Opening this file shows this saved view in Valkyr.\n${view.deepLink()}\n"
         view.consoles.count { consoleId ->
             val path = resolved[consoleId] ?: return@count false
             val baseUri = customDirs[consoleId] ?: downloadDir

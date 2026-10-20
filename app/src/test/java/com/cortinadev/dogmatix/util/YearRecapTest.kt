@@ -212,8 +212,8 @@ class YearRecapTest {
     }
 
     @Test fun `file names say what the card covers`() {
-        assertEquals("dogmatix-recap-2026.png", Recap.fileName(RecapPeriod.Year(2026)))
-        assertEquals("dogmatix-recap-last-12-months.png", Recap.fileName(RecapPeriod.Last12Months))
+        assertEquals("valkyr-recap-2026.png", Recap.fileName(RecapPeriod.Year(2026)))
+        assertEquals("valkyr-recap-last-12-months.png", Recap.fileName(RecapPeriod.Last12Months))
     }
 
     @Test fun `month names are written out and capitalised`() {

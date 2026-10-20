@@ -34,7 +34,7 @@
     <string name="romm5_fw_checking">Ontbrekende bestanden op RomM zoeken…</string>
     <string name="romm5_fw_running">%1$d van %2$d ophalen…</string>
     <string name="romm5_fw_no_folder">Kies eerst de BIOS-map.</string>
-    <string name="romm5_fw_no_write">Dogmatix+ mag de BIOS-map alleen lezen. Kies hem opnieuw om schrijven toe te staan.</string>
+    <string name="romm5_fw_no_write">Valkyr mag de BIOS-map alleen lezen. Kies hem opnieuw om schrijven toe te staan.</string>
     <string name="romm5_fw_pick_folder">Map kiezen</string>
     <string name="romm5_fw_nothing_missing">Er ontbreekt niets: elk BIOS-bestand is er.</string>
     <string name="romm5_fw_server_problem">RomM kon niet gevraagd worden: %1$s</string>

@@ -247,7 +247,7 @@ fun EmptyState(
     message: String,
     modifier: Modifier = Modifier,
     icon: Int? = null,
-    /** A larger picture (for example the Milou mascot, R.drawable.milou) instead of the icon. */
+    /** A larger picture (for example the Valkyr illustration, R.drawable.brand_illustration) instead of the icon. */
     illustration: Int? = null,
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,

@@ -1,17 +1,7 @@
 <resources>
     <!-- App Info -->
-    <string name="app_name">Dogmatix+</string>
-    <string name="credits_title">Credits</string>
-    <string name="credits_fork_role">Softwareontwikkelaar · Dogmatix (UI/UX-fork)</string>
-    <string name="credits_fork_name">Rafa Cortina</string>
-    <string name="credits_original_role">Zogenaamd software-engineer · oorspronkelijke maker van Milou</string>
-    <string name="credits_original_name">santiifm</string>
-    <string name="credits_original_note">Dogmatix is een fork van Milou. Al het scrapen, indexeren en downloaden is zijn werk.</string>
-    <string name="credits_plus_role">Onofficiële aanpassing · bibliotheekhulpmiddelen, back-up, vertalingen</string>
-    <string name="credits_plus_note">Een onofficiële aanpassing van Dogmatix 1.2 van Rafa Cortina, zelf een fork van Milou van santiifm. Hun werk is de basis van alles hier.</string>
+    <string name="app_name">Valkyr</string>
     <string name="credits_link_github">GitHub</string>
-    <string name="credits_link_linkedin">LinkedIn</string>
-    <string name="credits_link_web">Website</string>
 
     <!-- Navigation -->
     <string name="nav_home">Start</string>
@@ -131,20 +121,20 @@
     <string name="debrid_key_valid">%1$s: verbonden als %2$s</string>
     <string name="debrid_key_invalid">%1$s: %2$s</string>
     <string name="settings_frontend_shortcuts">Frontend-snelkoppelingen</string>
-    <string name="settings_frontend_shortcuts_hint">Zet een Dogmatix-snelkoppeling (.dgmtx) in elke platformmap, voor ES-DE en vergelijkbare frontends</string>
+    <string name="settings_frontend_shortcuts_hint">Zet een Valkyr-snelkoppeling (.dgmtx) in elke platformmap, voor ES-DE en vergelijkbare frontends</string>
     <string name="settings_frontend_shortcuts_action">Maken</string>
     <string name="frontend_shortcuts_done">%1$d snelkoppelingen gemaakt</string>
     <string name="frontend_shortcuts_partial">%1$d snelkoppelingen gemaakt, %2$d mislukt</string>
     <string name="frontend_shortcuts_none">Geen downloadmap ingesteld</string>
-    <string name="dgmtx_invalid">Geen Dogmatix-snelkoppelingsbestand</string>
+    <string name="dgmtx_invalid">Geen Valkyr-snelkoppelingsbestand</string>
     <string name="settings_esde">ES-DE instellen</string>
-    <string name="settings_esde_hint">Kies je ES-DE-map en Dogmatix voegt zich toe aan elk platform (sluit ES-DE eerst)</string>
+    <string name="settings_esde_hint">Kies je ES-DE-map en Valkyr voegt zich toe aan elk platform (sluit ES-DE eerst)</string>
     <string name="settings_esde_action">Instellen</string>
     <string name="esde_configured">ES-DE: %1$d systemen klaar, %2$d snelkoppelingen — start ES-DE opnieuw</string>
     <string name="esde_folders_skipped">%1$d mappen hebben geen passend ES-DE-systeem</string>
     <string name="esde_not_installed">ES-DE is niet geïnstalleerd op dit toestel</string>
     <string name="settings_iisu">iiSU instellen</string>
-    <string name="settings_iisu_hint">Kies de iiSULauncher-map van iiSU en Dogmatix voegt zich toe als emulator (start iiSU daarna opnieuw)</string>
+    <string name="settings_iisu_hint">Kies de iiSULauncher-map van iiSU en Valkyr voegt zich toe als emulator (start iiSU daarna opnieuw)</string>
     <string name="settings_iisu_action">Instellen</string>
     <string name="iisu_configured">iiSU: %1$d consoles klaar, %2$d snelkoppelingen — start iiSU opnieuw</string>
     <string name="iisu_folders_skipped">%1$d mappen hebben geen passende iiSU-console</string>
@@ -158,7 +148,7 @@
     <string name="settings_daijisho">Daijishō instellen</string>
     <string name="settings_daijisho_hint">Daijishō heeft geen importeerbare emulatorconfig: vraag de waarden op om ze met de hand toe te voegen</string>
     <string name="settings_daijisho_action">Tonen</string>
-    <string name="daijisho_dialog_title">Dogmatix toevoegen aan Daijishō</string>
+    <string name="daijisho_dialog_title">Valkyr toevoegen aan Daijishō</string>
     <string name="daijisho_dialog_body">%1$d snelkoppelingen staan klaar. Daijishō bewaart zijn spelers in een eigen database, dus de regel moet je met de hand toevoegen: open Settings › Library › Add an emulator en vul deze waarden in (laat de kill-processes-schakelaar uit), en synchroniseer daarna.</string>
     <string name="daijisho_field_name">Emulatornaam</string>
     <string name="daijisho_field_arguments">Am-start-argumenten van de emulator</string>
@@ -166,7 +156,7 @@
     <string name="dialog_copy">Kopiëren</string>
     <string name="dialog_close">Sluiten</string>
     <string name="onboarding_esde_title">Koppelen met ES-DE</string>
-    <string name="onboarding_esde_body">ES-DE is op dit toestel geïnstalleerd. Kies de gegevensmap (die met gamelists en downloaded_media, meestal ES-DE) en Dogmatix verschijnt in elk platform als "★ Search for more games…". Sluit ES-DE eerst — je kunt dit ook later doen via Instellingen.</string>
+    <string name="onboarding_esde_body">ES-DE is op dit toestel geïnstalleerd. Kies de gegevensmap (die met gamelists en downloaded_media, meestal ES-DE) en Valkyr verschijnt in elk platform als "★ Search for more games…". Sluit ES-DE eerst — je kunt dit ook later doen via Instellingen.</string>
     <string name="onboarding_esde_choose">ES-DE-map kiezen</string>
     <string name="onboarding_esde_configuring">ES-DE instellen…</string>
     <string name="nav_romm">RomM</string>
@@ -187,7 +177,7 @@
     <string name="romm_upload_missing">Upload wat de server mist</string>
     <string name="romm_upload_missing_hint">Stuurt voltooide downloads die RomM nog niet kent (vereist Markeer games die al in RomM staan)</string>
     <string name="romm_upload_missing_action">Uploaden</string>
-    <string name="romm_upload_missing_needs_marks">Zet eerst Markeer games die al in RomM staan aan, zodat Dogmatix weet wat de server heeft</string>
+    <string name="romm_upload_missing_needs_marks">Zet eerst Markeer games die al in RomM staan aan, zodat Valkyr weet wat de server heeft</string>
     <string name="romm_upload_missing_none">Niets te uploaden: de server heeft alles wat deze app downloadde</string>
     <plurals name="romm_upload_missing_started">
         <item quantity="one">%1$d upload gestart</item>
@@ -233,7 +223,6 @@
     <string name="settings_favorite_languages_empty">Nog geen talen geïndexeerd</string>
     <string name="settings_reset_default">Herstellen</string>
     <string name="settings_done">Klaar</string>
-    <string name="settings_about">Over &amp; contact</string>
     <string name="settings_change">Wijzigen</string>
     <string name="settings_not_set">Niet ingesteld</string>
     <string name="settings_gamepad_layout">Gamepad-indeling</string>
@@ -250,8 +239,8 @@
     <string name="language_es">Español</string>
 
     <!-- Top Bar -->
-    <string name="topbar_title">Dogmatix+</string>
-    <string name="topbar_logo_desc">Dogmatix+</string>
+    <string name="topbar_title">Valkyr</string>
+    <string name="topbar_logo_desc">Valkyr</string>
 
     <!-- Search & Filter -->
     <string name="search_library">Bibliotheek doorzoeken</string>
@@ -416,12 +405,12 @@
     <string name="mime_octet_stream">application/octet-stream</string>
 
     <!-- HTTP -->
-    <string name="http_user_agent">Dogmatix Downloader/1.0</string>
+    <string name="http_user_agent">Valkyr Downloader/1.0</string>
     <string name="http_accept">*/*</string>
     <string name="http_method_get">GET</string>
     <!-- Onboarding -->
-    <string name="onboarding_welcome_title">Welkom bij Dogmatix+</string>
-    <string name="onboarding_welcome_body">Dogmatix indexeert de inhoud van ROM-bronnen — torrents, magnets en webmappen —, tagt elk bestand op console, regio en taal, en laat je bladeren, filteren en direct naar je ROM-map downloaden. Archieven worden automatisch uitgepakt.</string>
+    <string name="onboarding_welcome_title">Welkom bij Valkyr</string>
+    <string name="onboarding_welcome_body">Valkyr indexeert de inhoud van ROM-bronnen — torrents, magnets en webmappen —, tagt elk bestand op console, regio en taal, en laat je bladeren, filteren en direct naar je ROM-map downloaden. Archieven worden automatisch uitgepakt.</string>
     <string name="onboarding_welcome_point_1">Bronnen worden geïndexeerd, niet gedownload: blader door duizenden titels zonder je opslag te vullen.</string>
     <string name="onboarding_welcome_point_2">Filter op console, regio, taal, tag en bron; ✓ markeert wat je al hebt.</string>
     <string name="onboarding_welcome_point_3">Downloads komen in een map per console, klaar voor frontends zoals ES-DE.</string>
@@ -431,7 +420,7 @@
     <string name="onboarding_folder_choose">Map kiezen</string>
     <string name="onboarding_folder_change">Andere map</string>
     <string name="onboarding_sources_title">Voeg je bronnen toe</string>
-    <string name="onboarding_sources_body">Dogmatix wordt zonder bronnen geleverd. Importeer een bronnen-JSON (bijvoorbeeld een die je vanaf een ander toestel deelde) en elke console erin wordt meteen geïndexeerd. Je kunt later ook met de hand consoles en URL\'s toevoegen in het tabblad Bronnen.</string>
+    <string name="onboarding_sources_body">Valkyr wordt zonder bronnen geleverd. Importeer een bronnen-JSON (bijvoorbeeld een die je vanaf een ander toestel deelde) en elke console erin wordt meteen geïndexeerd. Je kunt later ook met de hand consoles en URL\'s toevoegen in het tabblad Bronnen.</string>
     <string name="onboarding_sources_import">JSON importeren</string>
     <string name="onboarding_skip">Nu overslaan</string>
     <string name="onboarding_continue">Doorgaan</string>
@@ -457,16 +446,16 @@
     <string name="settings_backup_import_action">Importeren</string>
     <string name="backup_export_done">Back-up opgeslagen: %1$d instellingen, %2$d consoles, %3$d favorieten, %4$d downloads</string>
     <string name="backup_export_failed">Back-up mislukt: %1$s</string>
-    <string name="backup_invalid">Dit bestand is geen Dogmatix-back-up</string>
+    <string name="backup_invalid">Dit bestand is geen Valkyr-back-up</string>
     <string name="backup_import_title">Back-up terugzetten?</string>
-    <string name="backup_import_message">Back-up van %1$s (Dogmatix %2$s).\n\nJe huidige instellingen, bronnen en favorieten worden vervangen, daarna wordt elke bron opnieuw gescand.</string>
+    <string name="backup_import_message">Back-up van %1$s (Valkyr %2$s).\n\nJe huidige instellingen, bronnen en favorieten worden vervangen, daarna wordt elke bron opnieuw gescand.</string>
     <string name="backup_import_action">Terugzetten</string>
     <string name="backup_import_done">Teruggezet: %1$d instellingen, %2$d consoles, %3$d favorieten, %4$d downloads</string>
     <plurals name="backup_import_repick">
         <item quantity="one">%1$d map is niet toegankelijk op deze installatie: kies hem opnieuw in Instellingen of Bronnen</item>
         <item quantity="other">%1$d mappen zijn niet toegankelijk op deze installatie: kies ze opnieuw in Instellingen of Bronnen</item>
     </plurals>
-    <string name="backup_import_restart">Start Dogmatix opnieuw om de teruggezette downloadlijst te zien</string>
+    <string name="backup_import_restart">Start Valkyr opnieuw om de teruggezette downloadlijst te zien</string>
     <string name="backup_import_failed">Terugzetten mislukt: %1$s</string>
     <string name="tools_scanning">Je downloadmappen worden gelezen…</string>
     <string name="tools_no_folder">Kies eerst een downloadmap in Instellingen</string>
@@ -527,7 +516,7 @@
     <string name="language_fr">Français</string>
     <string name="language_de">Deutsch</string>
     <string name="backup_import_busy">Wacht tot de bronnenscan klaar is en zet de back-up daarna terug</string>
-    <string name="backup_newer_version">Deze back-up is gemaakt met een nieuwere versie van Dogmatix: werk de app bij om hem terug te zetten</string>
+    <string name="backup_newer_version">Deze back-up is gemaakt met een nieuwere versie van Valkyr: werk de app bij om hem terug te zetten</string>
 
     <!-- Save sync (RomM) -->
     <string name="nav_save_sync">Saves synchroniseren</string>
@@ -546,7 +535,7 @@
     <string name="save_sync_emulator_pick">Van welke emulator is deze map?</string>
     <string name="save_sync_emulator_pick_hint">De in-game saves worden onder deze naam gesynchroniseerd. Save states niet.</string>
     <string name="save_sync_auto">Automatisch synchroniseren</string>
-    <string name="save_sync_auto_hint">Als Dogmatix opent en als je vanuit een spel terugkomt</string>
+    <string name="save_sync_auto_hint">Als Valkyr opent en als je vanuit een spel terugkomt</string>
     <string name="save_sync_now">Nu synchroniseren</string>
     <string name="save_sync_action">Synchroniseer</string>
     <string name="save_sync_busy">Bezig…</string>
@@ -639,23 +628,23 @@
     <string name="wishlist_added">%1$s toegevoegd aan de verlanglijst</string>
     <string name="wishlist_exists">Die game staat al op de verlanglijst</string>
     <string name="storage_move">Bibliotheek naar een andere opslag verplaatsen</string>
-    <string name="storage_move_hint">Kopieert elke game naar een map die je kiest, controleert elke kopie, haalt dan het origineel weg en zet Dogmatix op de nieuwe map</string>
+    <string name="storage_move_hint">Kopieert elke game naar een map die je kiest, controleert elke kopie, haalt dan het origineel weg en zet Valkyr op de nieuwe map</string>
     <string name="storage_move_action">Verplaatsen</string>
     <string name="storage_move_title">Bibliotheek verplaatsen?</string>
-    <string name="storage_move_message">De games in de downloadmap (%1$s) worden gekopieerd naar de map die je koos. Elke kopie wordt gecontroleerd en pas daarna wordt het origineel verwijderd; een game die niet te kopiëren is, blijft staan. Stop eerst je downloads en laat Dogmatix open: wordt het onderbroken, start dit dan opnieuw en het gaat verder. Mappen die je een console apart gaf, worden niet verplaatst.</string>
+    <string name="storage_move_message">De games in de downloadmap (%1$s) worden gekopieerd naar de map die je koos. Elke kopie wordt gecontroleerd en pas daarna wordt het origineel verwijderd; een game die niet te kopiëren is, blijft staan. Stop eerst je downloads en laat Valkyr open: wordt het onderbroken, start dit dan opnieuw en het gaat verder. Mappen die je een console apart gaf, worden niet verplaatst.</string>
     <string name="storage_move_confirm">Verplaatsen</string>
     <string name="storage_move_running">Verplaatsen: %1$d van %2$d bestanden · %3$s van %4$s</string>
     <string name="storage_move_stop">Stop</string>
     <string name="storage_move_ok">OK</string>
-    <string name="storage_move_done">%1$d bestanden verplaatst. Dogmatix gebruikt nu de nieuwe map.</string>
-    <string name="storage_move_done_failed">%1$d bestanden konden niet worden verplaatst en bleven staan. Dogmatix gebruikt nog de oude map; start het verplaatsen opnieuw om het nog eens te proberen.</string>
+    <string name="storage_move_done">%1$d bestanden verplaatst. Valkyr gebruikt nu de nieuwe map.</string>
+    <string name="storage_move_done_failed">%1$d bestanden konden niet worden verplaatst en bleven staan. Valkyr gebruikt nog de oude map; start het verplaatsen opnieuw om het nog eens te proberen.</string>
     <string name="storage_move_no_source">Er is geen downloadmap ingesteld</string>
     <string name="storage_move_cannot_open">Kon die map niet openen</string>
     <string name="storage_move_overlap">Kies een map die niet in de downloadmap zit, of andersom</string>
     <string name="storage_move_downloads_active">Stop eerst de downloads</string>
     <string name="storage_move_no_room">Daar is te weinig ruimte: %1$s nodig, %2$s vrij</string>
     <string name="nav_frontends">Frontend-check</string>
-    <string name="tools_frontends_hint">Is Dogmatix gekoppeld aan ES-DE, iiSU, Daijishō, Pegasus en RetroArch?</string>
+    <string name="tools_frontends_hint">Is Valkyr gekoppeld aan ES-DE, iiSU, Daijishō, Pegasus en RetroArch?</string>
     <string name="frontend_status_ready">Klaar</string>
     <string name="frontend_status_todo">Te doen</string>
     <string name="frontend_status_manual">Met de hand</string>
@@ -766,7 +755,7 @@
     <string name="settings_prereleases">Voorlopige versies meenemen</string>
     <string name="settings_prereleases_hint">De updatecontrole biedt ook voorlopige versies aan</string>
     <string name="settings_update_check">Controleren op updates</string>
-    <string name="settings_update_check_hint">Kijkt naar de DogmatixPlus-releases op GitHub</string>
+    <string name="settings_update_check_hint">Kijkt naar de Valkyr-releases op GitHub</string>
     <string name="settings_update_check_action">Controleer</string>
     <string name="update_none">Je hebt de nieuwste versie (%1$s)</string>
     <string name="update_failed">Kon niet controleren op updates</string>
@@ -838,7 +827,7 @@
     <string name="update_offer_message">Nu downloaden en installeren? De download wordt gecontroleerd met de controlegetallen van de release; daarna vraagt Android om te bevestigen.</string>
     <string name="update_offer_install">Installeren</string>
     <string name="update_downloading">Update wordt gedownload… %1$d%%</string>
-    <string name="update_allow_installs">Sta het installeren van apps door Dogmatix+ toe en tik daarna opnieuw op Installeren</string>
+    <string name="update_allow_installs">Sta het installeren van apps door Valkyr toe en tik daarna opnieuw op Installeren</string>
     <string name="update_no_apk">De release bevat geen %1$s</string>
     <string name="update_no_checksum">De release heeft geen controlegetal voor de APK; niet geïnstalleerd</string>
     <string name="update_checksum_mismatch">De download klopt niet met het controlegetal van de release; niet geïnstalleerd</string>
@@ -948,7 +937,7 @@
     <string name="qr_show_title">Bronnen als QR-code</string>
     <string name="qr_show_hint">Op het andere toestel: Bronnen → Delen → QR-code lezen. Bij meerdere codes: lees ze allemaal (volgorde maakt niet uit).</string>
     <string name="qr_part">Code %1$d van %2$d</string>
-    <string name="qr_none_found">Geen Dogmatix+-QR-code gevonden in de afbeelding</string>
+    <string name="qr_none_found">Geen Valkyr-QR-code gevonden in de afbeelding</string>
     <string name="qr_progress">%1$d van %2$d codes gelezen; lees ook de andere</string>
     <string name="qr_import_title">Deze bronnen overnemen?</string>
     <string name="qr_import_message">Je bronnen worden vervangen door die uit de QR-codes; daarna wordt elke bron opnieuw gelezen.</string>
@@ -1045,16 +1034,16 @@
     <string name="bios_note_boot_logo">alleen het opstartlogo</string>
     <string name="bios_note_original_bios_mode">alleen met de originele BIOS-modus</string>
     <string name="bios_note_neogeo_set">de BIOS-set van MAME / FBNeo (versies verschillen)</string>
-    <string name="shortcut_pick_title">Dogmatix+-snelkoppeling toevoegen</string>
-    <string name="shortcut_pick_label">Dogmatix+-snelkoppeling</string>
+    <string name="shortcut_pick_title">Valkyr-snelkoppeling toevoegen</string>
+    <string name="shortcut_pick_label">Valkyr-snelkoppeling</string>
     <string name="settings_cocoon">Cocoon</string>
-    <string name="settings_cocoon_hint">Zet Dogmatix+ als tegels in Cocoon: per console, een opgeslagen weergave of Downloads</string>
-    <string name="cocoon_dialog_title">Dogmatix+ in Cocoon</string>
-    <string name="cocoon_dialog_body">Cocoon neemt app-snelkoppelingen van Android over, en Dogmatix+ biedt er een voor elke console, elke opgeslagen weergave en Downloads.\n\n1. Open in Cocoon Add Games en kies de Android-snelkoppelingen.\n2. Kies Dogmatix+ en de console of weergave die je wilt.\n3. Geef hem het platform van die console, dan staat hij bij de games van die console.\n\nDe tegel opent Dogmatix+ op die console of weergave. Nieuwe consoles en weergaven verschijnen vanzelf in de lijst.\n\nTip: gebruik in Cocoon liever deze tegels dan de .dgmtx-bestanden (Instellingen → Frontend-snelkoppelingen): Cocoon ziet die bestanden als games en probeert ze in de emulator te starten.</string>
+    <string name="settings_cocoon_hint">Zet Valkyr als tegels in Cocoon: per console, een opgeslagen weergave of Downloads</string>
+    <string name="cocoon_dialog_title">Valkyr in Cocoon</string>
+    <string name="cocoon_dialog_body">Cocoon neemt app-snelkoppelingen van Android over, en Valkyr biedt er een voor elke console, elke opgeslagen weergave en Downloads.\n\n1. Open in Cocoon Add Games en kies de Android-snelkoppelingen.\n2. Kies Valkyr en de console of weergave die je wilt.\n3. Geef hem het platform van die console, dan staat hij bij de games van die console.\n\nDe tegel opent Valkyr op die console of weergave. Nieuwe consoles en weergaven verschijnen vanzelf in de lijst.\n\nTip: gebruik in Cocoon liever deze tegels dan de .dgmtx-bestanden (Instellingen → Frontend-snelkoppelingen): Cocoon ziet die bestanden als games en probeert ze in de emulator te starten.</string>
     <string name="settings_resume">Onderbroken downloads hervatten</string>
     <string name="settings_resume_hint">Opnieuw proberen gaat verder waar hij stopte (geen ruimte, app gesloten), als de server het toestaat</string>
     <string name="settings_requeue">Wachtrij hervatten na een herstart</string>
-    <string name="settings_requeue_hint">Downloads die onderbroken werden door het sluiten van de app of een herstart, starten weer als je Dogmatix+ opent</string>
+    <string name="settings_requeue_hint">Downloads die onderbroken werden door het sluiten van de app of een herstart, starten weer als je Valkyr opent</string>
     <string name="settings_per_server">Per server</string>
     <string name="settings_per_server_hint">Hoogstens zoveel downloads tegelijk van één server, zodat die je niet blokkeert</string>
     <string name="settings_wishlist_auto">Verlanglijst-games automatisch downloaden</string>
@@ -1152,8 +1141,8 @@
     <string name="bulk_duplicates_free">Dubbele games verwijderen maakt %1$s vrij</string>
     <string name="bulk_free_up">Dubbele games tonen</string>
     <plurals name="save_sync_bg_conflicts">
-        <item quantity="one">%d save is op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
-        <item quantity="other">%d saves zijn op beide kanten gewijzigd — open Dogmatix om te kiezen</item>
+        <item quantity="one">%d save is op beide kanten gewijzigd — open Valkyr om te kiezen</item>
+        <item quantity="other">%d saves zijn op beide kanten gewijzigd — open Valkyr om te kiezen</item>
     </plurals>
     <plurals name="save_sync_bg_failed">
         <item quantity="one">%d save kon niet worden gesynchroniseerd</item>
@@ -1321,9 +1310,9 @@
     <string name="downloads_left">nog %1$s</string>
     <string name="downloads_eta_hours">ongeveer %1$d u %2$d min</string>
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
-    <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
+    <string name="whats_new_title">Nieuw in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Soepelere besturing: na het wisselen van sectie of het sluiten van een venster brengt de eerste D-pad-druk je meteen in het scherm, de focus keert terug naar het spel of de rij waar je vandaan kwam, lijsten scrollen sneller met de volgende rij al in beeld, L1/R1 bladeren door lange lijsten en B sluit bladen en zoekvelden overal hetzelfde.</item>
+        <item>Dogmatix+ heet nu Valkyr: een nieuwe naam en een nieuw icoon. Je instellingen, bibliotheek, downloads en saves gaan gewoon mee, en de app blijft zichzelf bijwerken zoals altijd.</item>
     </string-array>
 
     <!-- 4.0 -->

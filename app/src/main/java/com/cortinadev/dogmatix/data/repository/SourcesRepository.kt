@@ -220,7 +220,7 @@ class SourcesRepository @Inject constructor(
      */
     suspend fun exportToFile(): File = withContext(Dispatchers.IO) {
         val dir = File(context.cacheDir, "exports").apply { mkdirs() }
-        File(dir, "dogmatix-sources.json").apply { writeText(exportDocument(includeFavourites = true)) }
+        File(dir, "valkyr-sources.json").apply { writeText(exportDocument(includeFavourites = true)) }
     }
 
     /**

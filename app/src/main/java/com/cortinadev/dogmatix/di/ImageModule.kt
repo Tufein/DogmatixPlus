@@ -33,7 +33,7 @@ object ImageModule {
             .readTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(rommAuth)
             .addInterceptor { chain ->
-                chain.proceed(chain.request().newBuilder().header("User-Agent", "DogmatixPlus/${BuildConfig.VERSION_NAME}").build())
+                chain.proceed(chain.request().newBuilder().header("User-Agent", "Valkyr/${BuildConfig.VERSION_NAME}").build())
             }
             .sslSocketFactory(TlsTrust.liveSocketFactory, TlsTrust.liveTrustManager)
             .hostnameVerifier(TlsTrust.liveHostnameVerifier)

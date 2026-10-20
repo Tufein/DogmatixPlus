@@ -54,7 +54,7 @@ class ProblemReportTest {
         }
         assertTrue(out.contains("**Category:** Bug"))
         assertTrue(out.contains("1. \n2. \n3. "))
-        assertTrue(out.contains("Dogmatix+ 3.0.0 (build 42), release"))
+        assertTrue(out.contains("Valkyr 3.0.0 (build 42), release"))
         assertTrue(out.contains("production app"))
         assertTrue(out.contains("Second display: yes"))
         assertTrue(out.contains("Controller connected: yes"))
@@ -76,7 +76,7 @@ class ProblemReportTest {
 
     @Test fun `switched off sections are not written`() {
         val out = ProblemReport.build(facts, ReportText(), ReportCategory.IDEA, setOf(ReportSection.APP), zone = utc)
-        assertTrue(out.contains("Dogmatix+ 3.0.0"))
+        assertTrue(out.contains("Valkyr 3.0.0"))
         assertFalse(out.contains("Thor"))
         assertFalse(out.contains("RetroArch"))
         assertFalse(out.contains("Health checks"))

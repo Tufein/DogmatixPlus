@@ -16,7 +16,7 @@ package com.cortinadev.dogmatix.util
 object DaijishoSetup {
 
     /** What to type in "Emulator name". */
-    const val NAME = "Dogmatix"
+    const val NAME = "Valkyr"
 
     /**
      * What to type in "Accepted filename regex". Daijishō uses group 1 as the scraping

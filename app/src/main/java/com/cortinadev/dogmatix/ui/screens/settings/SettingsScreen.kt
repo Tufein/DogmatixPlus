@@ -245,7 +245,7 @@ fun SettingsScreen(
     }
     // The shell's instance, so the rescan after a restore survives leaving Settings.
     val sourcesViewModel: SourcesViewModel = hiltViewModel(LocalActivity.current as ComponentActivity)
-    fun exportBackup() = backupExportLauncher.launch("dogmatix-backup-${LocalDate.now()}.json")
+    fun exportBackup() = backupExportLauncher.launch("valkyr-backup-${LocalDate.now()}.json")
     val backupBusyMessage = stringResource(R.string.backup_import_busy)
     fun importBackup() {
         // A restore replaces every source: not while they are being scanned (the ViewModel checks again).
@@ -1106,9 +1106,9 @@ fun SettingsScreen(
         },
         SettingsRow(SettingsSection.APP) {
             SettingRow(
-                icon = R.drawable.ic_heart,
-                title = stringResource(R.string.settings_about),
-                hint = stringResource(R.string.credits_fork_name) + " · " + stringResource(R.string.credits_original_name),
+                icon = R.drawable.ic_info,
+                title = stringResource(R.string.brand40_about_title),
+                hint = stringResource(R.string.brand40_settings_hint),
                 onClick = { navController.navigate(NavRoutes.Contact.route) },
             ) { NavChevron() }
         }

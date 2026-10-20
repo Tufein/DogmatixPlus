@@ -100,9 +100,10 @@ class DownloadPlanService @Inject constructor(
         val dir = File(context.cacheDir, "exports").apply { mkdirs() }
         // Only this feature's old temporary documents are removed; each share has its own URI.
         val staleBefore = System.currentTimeMillis() - 86_400_000L
-        dir.listFiles()?.filter { it.name.startsWith("dogmatix-download-plan-") && it.lastModified() < staleBefore }
+        // 4.0 names them valkyr-…; the dogmatix-… ones of earlier versions are cleaned up too.
+        dir.listFiles()?.filter { f -> (f.name.startsWith("valkyr-download-plan-") || f.name.startsWith("dogmatix-download-plan-")) && f.lastModified() < staleBefore }
             ?.forEach { it.delete() }
-        val file = File(dir, "dogmatix-download-plan-${UUID.randomUUID()}.json")
+        val file = File(dir, "valkyr-download-plan-${UUID.randomUUID()}.json")
         file.writeText(DownloadPlans.encode(plan), Charsets.UTF_8)
         FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
     }

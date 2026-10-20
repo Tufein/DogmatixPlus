@@ -17,6 +17,6 @@
     <string name="shortcut_group_consoles">Console</string>
     <string name="shortcut_loading">Caricamento delle scorciatoie…</string>
     <string name="shortcut_empty_title">Nessuna scorciatoia disponibile</string>
-    <string name="shortcut_empty_message">Apri Dogmatix+ una volta, poi riprova.</string>
+    <string name="shortcut_empty_message">Apri Valkyr una volta, poi riprova.</string>
     <string name="shortcut_close">Chiudi</string>
 </resources>
