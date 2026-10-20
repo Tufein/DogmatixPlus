@@ -137,6 +137,11 @@ import com.cortinadev.dogmatix.ui.components.selectLegendEntry
 import com.cortinadev.dogmatix.ui.components.focusRing
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 import com.cortinadev.dogmatix.ui.components.swapFaceButtons
+import com.cortinadev.dogmatix.ui.components.ContentEntry
+import com.cortinadev.dogmatix.ui.components.DialogButton
+import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
+import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.ui.screens.home.components.BulkDownloadDialog
 import com.cortinadev.dogmatix.ui.screens.home.components.CollectionPickerDialog
@@ -249,6 +254,10 @@ fun HomeScreen(
     val shelvesFocus = remember { FocusRequester() }
     // Whether the shelves are on screen, for the lambdas and the gamepad collector defined before it is known.
     val shelvesNow = remember { mutableStateOf(false) }
+    // 3.9.0: the game whose page was opened from here (console id, file name). Back on Home the
+    // cursor returns to its row or card instead of being lost; saved with the back stack entry.
+    var returnGame by rememberSaveable { mutableStateOf<Pair<String, String>?>(null) }
+    val returnFocus = remember { FocusRequester() }
     // The game under the cursor also goes to a second screen, when there is one.
     LaunchedEffect(focusedItem) { SecondScreenState.focus(focusedItem) }
     // With touch there is no cursor: the game whose details are open goes to the second screen.
@@ -441,7 +450,10 @@ fun HomeScreen(
 
     // 8.0: the game page when the shell provides it, else the details card.
     val openGame: (DownloadableFileWithTags) -> Unit = { item ->
-        if (onOpenGame != null) onOpenGame(item.file.consoleId, item.file.fileName) else viewModel.openDetails(item)
+        if (onOpenGame != null) {
+            returnGame = item.file.consoleId to item.file.fileName
+            onOpenGame(item.file.consoleId, item.file.fileName)
+        } else viewModel.openDetails(item)
     }
     val onRowClick: (DownloadableFileWithTags) -> Unit = if (onOpenGame != null) openGame else onFileClick
 
@@ -467,6 +479,7 @@ fun HomeScreen(
     // The hero's Play: the game page opens and presses its own Play (the same path as a 3.5 game
     // shortcut), so the emulator choice, missing files and errors are handled in one place.
     val playFromShelf: (String, String) -> Unit = { consoleId, fileName ->
+        returnGame = consoleId to fileName
         onOpenGame?.invoke(consoleId, fileName)
         com.cortinadev.dogmatix.ui.shortcut.PendingGameShortcut.submit(consoleId, fileName, play = true)
     }
@@ -480,7 +493,7 @@ fun HomeScreen(
     }
     val shelvesPanel: @Composable (Modifier, (@Composable () -> Unit)?) -> Unit = { modifier, header ->
         HomeShelves(
-            onOpenGame = { c, f -> onOpenGame?.invoke(c, f) },
+            onOpenGame = { c, f -> returnGame = c to f; onOpenGame?.invoke(c, f) },
             onPlay = playFromShelf,
             onOpenConsole = openConsoleList,
             onOpenForYou = { navController.navigate(NavRoutes.UpNext.route) },
@@ -491,8 +504,30 @@ fun HomeScreen(
             onFocusTaken = { shelvesFocusPending = false },
             landscape = isLandscape,
             header = header,
-            afterHero = { ContinuePlayingShelf(onOpenGame = openGame) }
+            afterHero = { ContinuePlayingShelf(onOpenGame = openGame) },
+            returnGame = returnGame,
+            returnFocus = returnFocus
         )
+    }
+    // 3.9.0: back from a game page, the cursor goes back to that game (gamepad only, and not
+    // while a ZL / ZR switch keeps it hidden); its row may need a few frames to be laid out.
+    LaunchedEffect(Unit) {
+        if (returnGame == null) return@LaunchedEffect
+        if (Gamepad.connected.value && !Gamepad.pointerHidden.value) {
+            if (!returnFocus.requestFocusWhenReady(10)) (if (shelvesNow.value) shelvesFocus else listFocus).requestFocusWhenReady(2)
+        }
+        returnGame = null
+    }
+    // The press that brings a hidden cursor back lands on the hero (shelves) or the first row on screen.
+    ContentEntry(NavRoutes.Home.route, if (showShelves) shelvesFocus else listFocus)
+    // 3.9.0: shelves ⇄ list (B, the List pill, a cleared search) throws away the side that held the
+    // cursor; hand it to the side that is now shown instead of leaving it nowhere.
+    LaunchedEffect(showShelves) {
+        withFrameNanos { }
+        withFrameNanos { }
+        if (Gamepad.connected.value && !Gamepad.pointerHidden.value && !Gamepad.contentFocused && !searchActive && returnGame == null) {
+            (if (showShelves) shelvesFocus else listFocus).requestFocusWhenReady(3)
+        }
     }
 
 
@@ -500,6 +535,7 @@ fun HomeScreen(
         var removal by remember(item) { mutableStateOf<List<com.cortinadev.dogmatix.data.service.RemovalFile>?>(null) }
         LaunchedEffect(item) { removal = runCatching { viewModel.removalPlan(item) }.getOrNull() }
         AlertDialog(
+            modifier = Modifier.closeOnGamepadB { ownedDialogItem = null },
             onDismissRequest = { ownedDialogItem = null },
             title = { Text(stripExtension(item.file.name)) },
             text = { Column(Modifier.verticalScroll(rememberScrollState())) {
@@ -508,20 +544,20 @@ fun HomeScreen(
                 removal?.forEach { Text("${it.path} · ${com.cortinadev.dogmatix.ui.components.formatBytes(it.bytes)}") }
             } },
             confirmButton = {
-                TextButton(onClick = {
+                DialogButton(stringResource(R.string.owned_download_again), onClick = {
                     ownedDialogItem = null
                     download(item)
-                }) { Text(stringResource(R.string.owned_download_again)) }
+                }, initialFocus = rememberInitialFocus())
             },
             dismissButton = {
-                TextButton(enabled = !removal.isNullOrEmpty(), onClick = {
-                    val plan = removal ?: return@TextButton
+                DialogButton(stringResource(R.string.owned_delete), enabled = !removal.isNullOrEmpty(), onClick = {
+                    val plan = removal ?: return@DialogButton
                     ownedDialogItem = null
                     scope.launch {
                         val ok = runCatching { viewModel.removePlan(plan, item.file.name, item.file.consoleId, item.file.fileName) }.getOrDefault(false)
                         showMessage((if (ok) deletedMessage else deleteFailedMessage).format(item.file.name))
                     }
-                }) { Text(stringResource(R.string.owned_delete)) }
+                })
             }
         )
     }
@@ -649,6 +685,9 @@ fun HomeScreen(
             showFilterSheet -> showFilterSheet = false
             expandedFilter != null -> expandedFilter = null
             searchActive -> { focusManager.clearFocus(); searchActive = false }
+            // 3.9.0: B in the landscape filter panel goes back to the games first (a second B
+            // then clears search and filters, as before), like closing the filter sheet upright.
+            filtersHaveFocus -> runCatching { (if (shelvesNow.value) shelvesFocus else listFocus).requestFocus() }
             query.isNotEmpty() -> viewModel.setSearch("")
             showCollectionPicker -> showCollectionPicker = false
             activeFilterCount > 0 || sort != SortOption.NAME_ASC -> viewModel.clearAllFilters()
@@ -683,7 +722,7 @@ fun HomeScreen(
                 } else showFilterSheet = !showFilterSheet
                 GamepadButton.NEXT_PANEL -> if (isLandscape) {
                     if (shelvesNow.value) runCatching { shelvesFocus.requestFocus() }
-                    else if (runCatching { listFocus.requestFocus() }.isFailure) focusManager.moveFocus(FocusDirection.Right)
+                    else if (!runCatching { listFocus.requestFocus() }.getOrDefault(false)) focusManager.moveFocus(FocusDirection.Right)
                 } else showFilterSheet = false
                 else -> Unit
             }
@@ -869,6 +908,8 @@ fun HomeScreen(
                                 .onFocusChanged { listHasFocus = it.hasFocus }
                                 .focusGroup(),
                             firstRowFocus = listFocus,
+                            returnGame = returnGame,
+                            returnFocus = returnFocus,
                             contentShift = contentShift,
                             showCover = listCovers,
                             dense = compactLists,
@@ -988,6 +1029,8 @@ fun HomeScreen(
                         .padding(horizontal = 12.dp)
                         .onFocusChanged { listHasFocus = it.hasFocus },
                     firstRowFocus = listFocus,
+                    returnGame = returnGame,
+                    returnFocus = returnFocus,
                     showCover = listCovers,
                     dense = compactLists,
                     downloadProgress = progressOf,
@@ -1021,12 +1064,15 @@ fun HomeScreen(
                 ) {
                     // The sheet is its own window: gamepad keys never reach the Activity while it
                     // is open, so the shortcuts that leave the sheet are handled right here.
-                    LaunchedEffect(Unit) { runCatching { filterFocus.requestFocus() } }
+                    LaunchedEffect(Unit) { filterFocus.requestFocusWhenReady(10) }
                     Box(
                         modifier = Modifier.swapFaceButtons().onPreviewKeyEvent { event ->
                             if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                             when (event.key) {
                                 Key.ButtonR1, Key.ButtonThumbRight -> { showFilterSheet = false; true }
+                                // 3.9.0: B closes an open filter row first, then the sheet (not only
+                                // through the system's B-to-Back fallback, which some pads lack).
+                                Key.ButtonB -> { if (expandedFilter != null) expandedFilter = null else showFilterSheet = false; true }
                                 Key.ButtonY -> { showFilterSheet = false; searchActive = true; true }
                                 Key.ButtonL2 -> { showFilterSheet = false; Gamepad.presses.tryEmit(GamepadButton.PREV_TAB); true }
                                 Key.ButtonR2 -> { showFilterSheet = false; Gamepad.presses.tryEmit(GamepadButton.NEXT_TAB); true }
@@ -1128,6 +1174,9 @@ private fun ResultList(
     /** The list is sorted by name, so ◀ ▶ jumps by first letter (otherwise by ten rows). */
     byName: Boolean = true,
     firstRowFocus: FocusRequester? = null,
+    /** 3.9.0: the row of this game (console id, file name) takes [returnFocus]. */
+    returnGame: Pair<String, String>? = null,
+    returnFocus: FocusRequester? = null,
     contentShift: () -> Int = { 0 },
     /** 5.0: RA achievement count for the badge (0 = unknown). */
     achievementCount: (DownloadableFileWithTags) -> Int = { 0 },
@@ -1211,7 +1260,7 @@ private fun ResultList(
         }
         listState.scrollToItem(target)
         withFrameNanos { }
-        runCatching { newPageFocus.requestFocus() }
+        newPageFocus.requestFocusWhenReady(3)
         pendingFocusIndex = null
     }
     LazyColumn(
@@ -1231,8 +1280,7 @@ private fun ResultList(
                     try {
                         listState.scrollToItem(target)
                         withFrameNanos { }
-                        withFrameNanos { }
-                        runCatching { jumpFocus.requestFocus() }
+                        jumpFocus.requestFocusWhenReady(3)
                     } finally {
                         if (jumpTarget == target) jumpTarget = null
                     }
@@ -1267,7 +1315,10 @@ private fun ResultList(
                     index == jumpTarget -> Modifier.focusRequester(jumpFocus)
                     index == focusIndex && firstRowFocus != null -> Modifier.focusRequester(firstRowFocus)
                     else -> Modifier
-                }.onFocusChanged { if (it.isFocused) { currentIndex = index; onRowFocused(item) } }
+                }.then(
+                    if (returnFocus != null && returnGame != null && returnGame.first == item.file.consoleId && returnGame.second == item.file.fileName)
+                        Modifier.focusRequester(returnFocus) else Modifier
+                ).onFocusChanged { if (it.isFocused) { currentIndex = index; onRowFocused(item) } }
             )
         }
         if (hasMore) {

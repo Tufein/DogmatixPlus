@@ -76,6 +76,7 @@ import com.cortinadev.dogmatix.ui.components.DialogButton
 import com.cortinadev.dogmatix.ui.components.LegendEntry
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
+import com.cortinadev.dogmatix.ui.components.ContentEntry
 
 @Composable
 fun DownloadScreen(
@@ -157,14 +158,22 @@ fun DownloadScreen(
     LaunchedEffect(filterCriteria) { focusedRow = null }
     val barFocus = remember { FocusRequester() }
     var barFocused by remember { mutableStateOf(false) }
+    // 3.9.0: the press that brings a hidden cursor back (after ZL / ZR) lands on the first download.
+    val firstRowFocus = remember { FocusRequester() }
+    ContentEntry(NavRoutes.Downloads.route, firstRowFocus)
     // Clearing the selection takes the bar away under the cursor (B clears it from a row instead,
-    // and that row keeps the focus). Park focus on the section tab once the new tree is laid out,
-    // or Compose leaves it on the shell's invisible sink and the ring disappears.
+    // and that row keeps the focus). Park focus on the first download (3.9.0; the section tab when
+    // the list is empty) once the new tree is laid out, or the ring disappears.
+    // 3.9.0: only on that change, not when the screen opens: opening Downloads used to pull the
+    // cursor onto its tab, even after a ZL / ZR switch that hides it on purpose.
+    val wasSelecting = remember { booleanArrayOf(false) }
     LaunchedEffect(selectionMode) {
-        if (!selectionMode && focusedRow == null) {
+        val cleared = wasSelecting[0] && !selectionMode
+        wasSelecting[0] = selectionMode
+        if (cleared && focusedRow == null) {
             withFrameNanos { }
             withFrameNanos { }
-            runCatching { Gamepad.sectionFocus.requestFocus() }
+            if (!runCatching { firstRowFocus.requestFocus() }.getOrDefault(false)) runCatching { Gamepad.sectionFocus.requestFocus() }
         }
     }
     LaunchedEffect(selectionMode) {
@@ -371,7 +380,9 @@ fun DownloadScreen(
                         sweep = sweep,
                         // Rows glide to their new place when the queue is reordered or a row goes;
                         // no fades (they would need an alpha layer per row).
-                        modifier = Modifier.animateItem(fadeInSpec = null, placementSpec = itemPlacement, fadeOutSpec = null),
+                        modifier = Modifier
+                            .animateItem(fadeInSpec = null, placementSpec = itemPlacement, fadeOutSpec = null)
+                            .then(if (index == 0) Modifier.focusRequester(firstRowFocus) else Modifier),
                         onRowFocused = { row, focused ->
                             if (focused) focusedRow = row else if (focusedRow?.fileName == row.fileName) focusedRow = null
                         }

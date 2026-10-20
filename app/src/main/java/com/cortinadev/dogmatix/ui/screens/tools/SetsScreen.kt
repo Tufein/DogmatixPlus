@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -99,10 +100,7 @@ fun SetsScreen(viewModel: SetsViewModel = hiltViewModel()) {
     val ui by viewModel.ui.collectAsState()
     val context = LocalContext.current
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        withFrameNanos { }
-        runCatching { firstFocus.requestFocus() }
-    }
+    LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
     val report = ui.report
     val summary = when {
         ui.scanning -> stringResource(R.string.tools_scanning)

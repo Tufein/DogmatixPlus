@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -119,10 +120,7 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
     val wishCount by viewModel.wishCount.collectAsState()
     val collectionCount by viewModel.collectionCount.collectAsState()
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        withFrameNanos { }
-        runCatching { firstFocus.requestFocus() }
-    }
+    LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
     val go: (NavRoutes) -> Unit = { route -> navController.navigate(route.route) }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {

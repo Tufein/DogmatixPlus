@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -178,10 +179,7 @@ fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = 
         ActivityResultContracts.OpenDocument()
     ) { uri -> uri?.let { viewModel.import(context, it.toString()) } }
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        withFrameNanos { }
-        runCatching { firstFocus.requestFocus() }
-    }
+    LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
     // X removes the wish under the cursor; A opens the library on it (the tap on a row does the same).
     var focusedWish by remember { mutableStateOf<Long?>(null) }
     LaunchedEffect(showAdd) {

@@ -138,7 +138,7 @@ fun OnboardingScreen(
     // on the root so B / Back are still caught here instead of leaving the app.
     LaunchedEffect(step) {
         repeat(2) { withFrameNanos { } }
-        if (runCatching { stepFocus[step.coerceIn(0, 3)].requestFocus() }.isFailure) runCatching { rootFocus.requestFocus() }
+        if (!runCatching { stepFocus[step.coerceIn(0, 3)].requestFocus() }.getOrDefault(false)) runCatching { rootFocus.requestFocus() }
     }
     BackHandler(enabled = step > 0) { step-- }
 

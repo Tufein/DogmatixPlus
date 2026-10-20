@@ -392,7 +392,7 @@ private fun GamePageContent(
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(rom.consoleId, rom.fileName) {
         repeat(5) {
-            if (runCatching { firstFocus.requestFocus() }.isSuccess) return@LaunchedEffect
+            if (runCatching { firstFocus.requestFocus() }.getOrDefault(false)) return@LaunchedEffect
             withFrameNanos { }
         }
     }

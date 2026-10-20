@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -177,10 +178,7 @@ fun StorageScreen(viewModel: StorageViewModel = hiltViewModel()) {
         )
     }
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        withFrameNanos { }
-        runCatching { firstFocus.requestFocus() }
-    }
+    LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
     // What A does depends on the row under the cursor, so the legend follows it.
     var focusKind by remember { mutableStateOf(StorageFocus.REFRESH) }
     val back = LegendEntry("B", stringResource(R.string.pad_back))

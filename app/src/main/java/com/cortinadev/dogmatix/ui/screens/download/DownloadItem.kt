@@ -311,8 +311,10 @@ fun DownloadRow(
         }
     }
     // The selection bar owns the actions while ticking rows.
+    // 3.9.0: 8 dp apart (was 4): touch targets this small grow to 48 dp only into free space, so
+    // with 4 dp gaps a thumb meant for Pause could land on Delete next to it.
     val actionButtons: @Composable () -> Unit = {
-        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (queuePosition != null && !selectionMode) {
                 ActionButton(R.drawable.ic_arrow_upward, stringResource(R.string.queue_move_up), actionSize, scheme.onSurface) { actions.moveUp() }
                 ActionButton(R.drawable.ic_arrow_downward, stringResource(R.string.queue_move_down), actionSize, scheme.onSurface) { actions.moveDown() }

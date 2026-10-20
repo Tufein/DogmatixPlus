@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -71,7 +72,7 @@ fun RecapScreen(viewModel: RecapViewModel = hiltViewModel()) {
     var sharing by remember { mutableStateOf(false) }
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(ui.loading) {
-        if (!ui.loading) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
+        if (!ui.loading) { firstFocus.requestFocusWhenReady() }
     }
     PublishLegend(
         if (ui.loading) null else listOf(

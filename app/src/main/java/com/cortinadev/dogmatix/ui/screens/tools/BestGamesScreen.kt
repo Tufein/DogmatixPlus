@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -114,7 +115,7 @@ fun BestGamesScreen(
 @Composable
 private fun NoAccount(onOpenRetroAchievements: () -> Unit) {
     val focus = remember { FocusRequester() }
-    LaunchedEffect(Unit) { withFrameNanos { }; runCatching { focus.requestFocus() } }
+    LaunchedEffect(Unit) { focus.requestFocusWhenReady() }
     Column(Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         ToolsTitle(stringResource(R.string.top7_title), icon = R.drawable.ic_military_tech, subtitle = stringResource(R.string.top7_subtitle))
         EmptyState(
@@ -132,7 +133,7 @@ private fun NoAccount(onOpenRetroAchievements: () -> Unit) {
 @Composable
 private fun ConsoleList(consoles: List<BestConsole>, onOpen: (String) -> Unit) {
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(consoles.isNotEmpty()) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
+    LaunchedEffect(consoles.isNotEmpty()) { firstFocus.requestFocusWhenReady() }
     Column(Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         ToolsTitle(stringResource(R.string.top7_title), icon = R.drawable.ic_military_tech, subtitle = stringResource(R.string.top7_subtitle))
         LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp), contentPadding = PaddingValues(bottom = 16.dp)) {
@@ -170,7 +171,7 @@ private fun BestList(detail: BestDetail, viewModel: BestGamesViewModel, onOpenLi
 
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(detail.console.id, detail.rows.isNotEmpty()) {
-        if (detail.rows.isNotEmpty()) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
+        if (detail.rows.isNotEmpty()) { firstFocus.requestFocusWhenReady() }
     }
     // A opens the game in the library, or wishes it when it is missing; the legend says which.
     var focusedGame by remember { mutableStateOf<Int?>(null) }

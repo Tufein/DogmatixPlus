@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -170,7 +171,7 @@ fun DatScreen(navController: NavController, viewModel: DatViewModel = hiltViewMo
     }
     BackHandler(enabled = selected != null) { viewModel.cancel(); selected = null }
     val firstFocus = androidx.compose.runtime.remember { FocusRequester() }
-    LaunchedEffect(selected, consoles.size) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
+    LaunchedEffect(selected, consoles.size) { firstFocus.requestFocusWhenReady() }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         val consoleId = selected

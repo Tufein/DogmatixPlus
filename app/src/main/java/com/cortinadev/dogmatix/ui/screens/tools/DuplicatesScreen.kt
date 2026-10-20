@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -85,10 +86,7 @@ fun DuplicatesScreen(viewModel: DuplicatesViewModel = hiltViewModel()) {
     }
 
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        withFrameNanos { }
-        runCatching { firstFocus.requestFocus() }
-    }
+    LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
 
     val summary = when {
         ui.scanning -> stringResource(R.string.tools_scanning)

@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -87,10 +88,7 @@ fun LibraryRepairScreen(onNavigate: (String) -> Unit, viewModel: LibraryRepairVi
         else -> "idle"
     }
     // Something focusable is always focused: Start, Stop, or Check again.
-    LaunchedEffect(stateKey) {
-        withFrameNanos { }
-        runCatching { mainFocus.requestFocus() }
-    }
+    LaunchedEffect(stateKey) { mainFocus.requestFocusWhenReady() }
     // A finding that went (fixed, profile switched) closes its dialogs.
     LaunchedEffect(report) {
         val ids = report?.findings?.map { it.id }?.toSet().orEmpty()

@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -157,7 +158,7 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
     var creating by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf<CollectionWithCount?>(null) }
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(collections?.size) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
+    LaunchedEffect(collections?.size) { firstFocus.requestFocusWhenReady() }
 
     if (smartCreating || editingRule != null) {
         SmartRuleDialog(editingRule?.name.orEmpty(), editingRule?.id?.let { rules[it] }, consoles,

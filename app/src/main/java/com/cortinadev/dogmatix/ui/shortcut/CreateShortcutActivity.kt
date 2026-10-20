@@ -165,7 +165,7 @@ private fun ShortcutPicker(options: List<AppShortcut>?, onPick: (AppShortcut) ->
         if (options.isNullOrEmpty()) return@LaunchedEffect
         repeat(8) {
             withFrameNanos { }
-            if (runCatching { firstFocus.requestFocus() }.isSuccess) return@LaunchedEffect
+            if (runCatching { firstFocus.requestFocus() }.getOrDefault(false)) return@LaunchedEffect
         }
     }
     Box(

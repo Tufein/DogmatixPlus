@@ -24,7 +24,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +41,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.ui.common.Gamepad
+import com.cortinadev.dogmatix.ui.components.ContentEntry
 import com.cortinadev.dogmatix.ui.components.IconTile
 import com.cortinadev.dogmatix.ui.components.NavChevron
 import com.cortinadev.dogmatix.ui.components.focusRing
@@ -55,8 +60,11 @@ import com.cortinadev.dogmatix.ui.theme.accentInk
 @Composable
 fun MoreScreen(onOpen: (NavRoutes) -> Unit, modifier: Modifier = Modifier) {
     val firstFocus = remember { FocusRequester() }
+    // 3.9.0: back from a screen opened here, the cursor returns to the row that opened it
+    // (saved with the back stack entry), not to the top of the list.
+    var lastOpened by rememberSaveable { mutableStateOf<String?>(null) }
     // Like rememberInitialFocus, but not after a ZL / ZR section switch: the shell then parks the
-    // cursor out of sight on purpose and the next D-pad press brings it back on the More tab.
+    // cursor out of sight on purpose and the next D-pad press brings it back on that same row.
     LaunchedEffect(Unit) {
         repeat(5) {
             withFrameNanos { }
@@ -64,9 +72,10 @@ fun MoreScreen(onOpen: (NavRoutes) -> Unit, modifier: Modifier = Modifier) {
             if (runCatching { firstFocus.requestFocus() }.getOrDefault(false)) return@LaunchedEffect
         }
     }
+    ContentEntry(NavRoutes.More.route, firstFocus)
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val columns = MoreMenu.columnsFor(maxWidth.value.toInt())
-        val first = MoreMenu.groups.first().items.first()
+        val entryRoute = lastOpened ?: MoreMenu.groups.first().items.first().route.route
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = Dimens.gutter, end = Dimens.gutter, top = 12.dp, bottom = Dimens.section),
@@ -92,11 +101,11 @@ fun MoreScreen(onOpen: (NavRoutes) -> Unit, modifier: Modifier = Modifier) {
                             line.forEach { item ->
                                 MoreRow(
                                     item = item,
-                                    onClick = { onOpen(item.route) },
+                                    onClick = { lastOpened = item.route.route; onOpen(item.route) },
                                     modifier = Modifier
                                         .weight(1f)
                                         .fillMaxHeight()
-                                        .then(if (item == first) Modifier.focusRequester(firstFocus) else Modifier)
+                                        .then(if (item.route.route == entryRoute) Modifier.focusRequester(firstFocus) else Modifier)
                                 )
                             }
                             // An odd last row keeps the width of its neighbours above.

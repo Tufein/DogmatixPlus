@@ -85,6 +85,7 @@ private val HeroRadius = 20.dp
  * @param focusOnShow take the focus once the shelves are known; [onFocusTaken] is called after.
  * @param header drawn above the hero, scrolling with the shelves (the console chips in landscape).
  * @param afterHero drawn under the hero (the RomM "Continue playing" shelf).
+ * @param returnGame 3.9.0: the game (console id, file name) whose card or hero button takes [returnFocus].
  */
 @Composable
 fun HomeShelves(
@@ -100,6 +101,8 @@ fun HomeShelves(
     landscape: Boolean = false,
     header: (@Composable () -> Unit)? = null,
     afterHero: (@Composable () -> Unit)? = null,
+    returnGame: Pair<String, String>? = null,
+    returnFocus: FocusRequester? = null,
     viewModel: ShelvesViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -116,7 +119,9 @@ fun HomeShelves(
         onFocusTaken = onFocusTaken,
         landscape = landscape,
         header = header,
-        afterHero = afterHero
+        afterHero = afterHero,
+        returnGame = returnGame,
+        returnFocus = returnFocus
     )
 }
 
@@ -139,7 +144,9 @@ fun ShelvesContent(
     landscape: Boolean = false,
     header: (@Composable () -> Unit)? = null,
     afterHero: (@Composable () -> Unit)? = null,
-    lookup: Boolean = true
+    lookup: Boolean = true,
+    returnGame: Pair<String, String>? = null,
+    returnFocus: FocusRequester? = null
 ) {
     val hasTarget = state != null && !state.isEmpty
     // A on the hero is Play: the focus starts there (gamepad only: a touch user sees no ring),
@@ -198,6 +205,7 @@ fun ShelvesContent(
                     onPlay = { onPlay(hero.game.consoleId, hero.game.fileName) },
                     onOpen = { onOpenGame(hero.game.consoleId, hero.game.fileName) },
                     focus = initialFocus,
+                    returnFocus = returnFocus?.takeIf { returnGame == hero.game.consoleId to hero.game.fileName },
                     lookup = lookup,
                     modifier = Modifier.padding(horizontal = ShelfGutter)
                 )
@@ -214,6 +222,8 @@ fun ShelvesContent(
                 games = state.forYou,
                 onOpenGame = onOpenGame,
                 firstFocus = if (firstShelf == "foryou") initialFocus else null,
+                returnGame = returnGame,
+                returnFocus = returnFocus,
                 coverWidth = coverWidth,
                 coverHeight = coverHeight,
                 lookup = lookup
@@ -233,6 +243,8 @@ fun ShelvesContent(
                 games = shelf.games,
                 onOpenGame = onOpenGame,
                 firstFocus = if (firstShelf == shelf.key) initialFocus else null,
+                returnGame = returnGame,
+                returnFocus = returnFocus,
                 coverWidth = coverWidth,
                 coverHeight = coverHeight,
                 lookup = lookup
@@ -262,6 +274,8 @@ private fun CoverShelf(
     lookup: Boolean,
     icon: Int? = null,
     dot: Color? = null,
+    returnGame: Pair<String, String>? = null,
+    returnFocus: FocusRequester? = null,
     seeAll: @Composable () -> Unit
 ) {
     val scheme = MaterialTheme.colorScheme
@@ -293,7 +307,10 @@ private fun CoverShelf(
                     width = coverWidth,
                     coverHeight = coverHeight,
                     lookup = lookup,
-                    modifier = if (index == 0 && firstFocus != null) Modifier.focusRequester(firstFocus) else Modifier
+                    modifier = (if (index == 0 && firstFocus != null) Modifier.focusRequester(firstFocus) else Modifier).then(
+                        if (returnFocus != null && returnGame != null && returnGame.first == game.consoleId && returnGame.second == game.fileName)
+                            Modifier.focusRequester(returnFocus) else Modifier
+                    )
                 )
             }
             item(key = "all", contentType = "all") { seeAll() }
@@ -315,7 +332,8 @@ private fun HeroCard(
     onOpen: () -> Unit,
     focus: FocusRequester,
     lookup: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    returnFocus: FocusRequester? = null
 ) {
     val scheme = MaterialTheme.colorScheme
     val tokens = LocalDogmatixTokens.current
@@ -345,6 +363,8 @@ private fun HeroCard(
         if (lookup) GameCover(game.consoleId, game.fileName, title, coverModifier, coverShape)
         else CoverImage(null, game.consoleId, coverModifier, coverShape)
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Back from this game's page the cursor returns to the hero's main button.
+            val mainFocus = Modifier.focusRequester(focus).then(returnFocus?.let { Modifier.focusRequester(it) } ?: Modifier)
             SectionTitle(stringResource(R.string.shelves38_continue_title), icon = R.drawable.ic_play_circle)
             Text(
                 title,
@@ -361,10 +381,10 @@ private fun HeroCard(
             Spacer(Modifier.height(2.dp))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (game.owned) {
-                    HeroButton(stringResource(R.string.shelves38_play), R.drawable.ic_play_arrow, primary = true, onClick = onPlay, modifier = Modifier.focusRequester(focus))
+                    HeroButton(stringResource(R.string.shelves38_play), R.drawable.ic_play_arrow, primary = true, onClick = onPlay, modifier = mainFocus)
                     HeroButton(stringResource(R.string.shelves38_game_page), R.drawable.ic_info, primary = false, onClick = onOpen)
                 } else {
-                    HeroButton(stringResource(R.string.shelves38_game_page), R.drawable.ic_info, primary = true, onClick = onOpen, modifier = Modifier.focusRequester(focus))
+                    HeroButton(stringResource(R.string.shelves38_game_page), R.drawable.ic_info, primary = true, onClick = onOpen, modifier = mainFocus)
                 }
             }
         }

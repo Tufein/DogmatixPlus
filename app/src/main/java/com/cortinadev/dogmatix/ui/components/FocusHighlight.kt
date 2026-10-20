@@ -118,6 +118,8 @@ fun Modifier.focusRing(
 /**
  * Grows the element a little while it is focused (cover tiles, cards). Uses the placement-free
  * `graphicsLayer` lambda without alpha, so it needs no offscreen buffer and no recomposition.
+ * 3.9.0: [Motion.FAST] (was 200 ms): with a held D-pad the card under the cursor kept growing
+ * after the cursor had already moved on, which made the shelves feel sluggish.
  */
 @Composable
 fun Modifier.focusScale(interactionSource: MutableInteractionSource, scale: Float = 1.04f): Modifier {
@@ -127,7 +129,7 @@ fun Modifier.focusScale(interactionSource: MutableInteractionSource, scale: Floa
         trackInteractions(interactionSource) { focused, _ ->
             val target = if (focused) 1f else 0f
             if (progress.targetValue != target) launch {
-                if (reduce) progress.snapTo(target) else progress.animateTo(target, Motion.spec(false, Motion.MEDIUM))
+                if (reduce) progress.snapTo(target) else progress.animateTo(target, Motion.spec(false, Motion.FAST))
             }
         }
     }

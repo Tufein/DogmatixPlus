@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -55,10 +56,7 @@ class FrontendCheckViewModel @Inject constructor(settings: SettingsRepository, a
 fun FrontendCheckScreen(navController: NavController, viewModel: FrontendCheckViewModel = hiltViewModel()) {
     val findings by viewModel.findings.collectAsState()
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        withFrameNanos { }
-        runCatching { firstFocus.requestFocus() }
-    }
+    LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         ToolsTitle(stringResource(R.string.nav_frontends), icon = NavRoutes.Frontends.icon)
         LazyColumn(

@@ -160,6 +160,18 @@ import com.cortinadev.dogmatix.ui.components.QuickMenuOverlay
 import com.cortinadev.dogmatix.ui.screens.search.SearchAllScreen
 import com.cortinadev.dogmatix.ui.screens.cloud.CloudBackupScreen
 import com.cortinadev.dogmatix.ui.screens.cloud.CloudScreen
+import com.cortinadev.dogmatix.ui.components.DialogButton
+import com.cortinadev.dogmatix.ui.components.ProvideSnappyScrolling
+import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
+import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
+import com.cortinadev.dogmatix.util.PadFocus
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalFocusManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -238,12 +250,15 @@ class MainActivity : AppCompatActivity() {
                     LocalDensity provides Density(density.density, density.fontScale * TextSize.factor(textSize))
                 ) {
                     ProvideTvMode(tvSetting) {
+                        // 3.9.0: D-pad focus moves scroll lists quickly and keep the next row in sight.
+                        ProvideSnappyScrolling {
                         when (onboardingDone) {
                             null -> Unit                      // DataStore not read yet: avoid flashing the wrong screen
                             false -> OnboardingHost()
                             true -> DogmatixApp(pendingFilters)
                         }
                         WhatsNewAfterUpdate(onboardingDone)
+                        }
                     }
                 }
             }
@@ -440,11 +455,12 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
 
     if (rescanErrorMessage != null) {
         AlertDialog(
+            modifier = Modifier.closeOnGamepadB { sourcesViewModel.clearRescanError() },
             onDismissRequest = { sourcesViewModel.clearRescanError() },
             title = { Text(stringResource(R.string.scrape_error_title)) },
             text = { Text(rescanErrorMessage ?: "") },
             confirmButton = {
-                TextButton(onClick = { sourcesViewModel.clearRescanError() }) { Text(stringResource(android.R.string.ok)) }
+                DialogButton(stringResource(android.R.string.ok), onClick = { sourcesViewModel.clearRescanError() }, initialFocus = rememberInitialFocus())
             }
         )
     }
@@ -487,8 +503,18 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
     }
     // After a gamepad section switch the focus ring goes away: focus is parked on an invisible
     // sink (clearing it would make Compose re-focus the first tab). The next D-pad press puts
-    // it back on the active tab (see Gamepad.interceptKey).
+    // it back inside the new screen, or on the rail for ◀ (see Gamepad.interceptKey).
     val focusSink = remember { FocusRequester() }
+    // 3.9.0: the screen area, so "enter the screen" can be asked of it.
+    val contentFocus = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+    var contentHeightPx by remember { mutableIntStateOf(0) }
+    val pageDensity = LocalDensity.current
+    DisposableEffect(Unit) {
+        Gamepad.shellHosted = true
+        onDispose { Gamepad.shellHosted = false; Gamepad.shellFocused = false; Gamepad.contentFocused = false }
+    }
+    SideEffect { Gamepad.railOnLeft = isLandscape }
     LaunchedEffect(currentRoute) {
         if (Gamepad.pointerHidden.value) {
             withFrameNanos { }
@@ -506,6 +532,30 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     navController.switchTo(neighbourTab(route, delta))
                 }
                 GamepadButton.FOCUS_TAB -> runCatching { Gamepad.sectionFocus.requestFocus() }
+                // 3.9.0: the press that brings the cursor back enters the screen: the item it
+                // asked for, else its first focusable item, else (nothing focusable) the active tab.
+                GamepadButton.FOCUS_CONTENT -> {
+                    val entry = route?.let(Gamepad::contentEntry)
+                    val entered = (entry != null && runCatching { entry.requestFocus() }.getOrDefault(false)) ||
+                        runCatching { contentFocus.requestFocus() }.getOrDefault(false)
+                    if (entered || runCatching { Gamepad.sectionFocus.requestFocus() }.getOrDefault(false)) Gamepad.shellFocused = true
+                }
+                // 3.9.0: L1 / R1 page through the list under the cursor, on screens where they
+                // have no job of their own; a page is a run of ▲ / ▼ steps, so lists, grids and
+                // lazy rows that are not composed yet all follow.
+                GamepadButton.PREV_PANEL, GamepadButton.NEXT_PANEL -> if (PadFocus.shouldersPage(route) && Gamepad.contentFocused) {
+                    val forward = button == GamepadButton.NEXT_PANEL
+                    val viewportDp = with(pageDensity) { contentHeightPx.toDp().value.toInt() }
+                    val direction = if (forward) FocusDirection.Down else FocusDirection.Up
+                    for (step in 0 until PadFocus.pageSteps(viewportDp)) {
+                        if (!focusManager.moveFocus(direction)) break
+                        // Left the screen (header, bottom bar): one step back and stop at the edge.
+                        if (!Gamepad.contentFocused) {
+                            focusManager.moveFocus(if (forward) FocusDirection.Up else FocusDirection.Down)
+                            break
+                        }
+                    }
+                }
                 else -> Unit
             }
         }
@@ -537,6 +587,8 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                 .fillMaxSize()
                 .windowInsetsPadding(contentInsets())
                 .tvSafeArea()
+                // 3.9.0: whether anything in the shell holds the focus (see Gamepad.interceptKey).
+                .onFocusChanged { Gamepad.shellFocused = it.hasFocus }
         ) {
             // 3.8.0: a slim header in both orientations; the sections sit in a rail on the left in
             // landscape (no vertical space lost) and in the bottom bar upright.
@@ -554,7 +606,16 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     onSelect = navController::switchTo
                 )
             }
-            Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .onSizeChanged { contentHeightPx = it.height }
+                    .onFocusChanged { Gamepad.contentFocused = it.hasFocus }
+                    // No focus group here (it would change where ◀ / ▶ lead): the requester hands
+                    // the focus to the first focusable of the screen in composition order.
+                    .focusRequester(contentFocus)
+            ) {
                 val reduceMotion = LocalReduceMotion.current
                 NavHost(
                     navController = navController,
@@ -563,16 +624,17 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     // 5.0: a quick fade with a short slide in the direction of travel (tabs left/right,
                     // screens opened from More from the right). Short, because a fade costs frames
                     // on low-end handhelds; nothing at all with animations off.
+                    // 3.9.0: a little quicker (fade 120 ms, slide 200 ms) so a ZL / ZR switch feels direct.
                     enterTransition = {
                         if (reduceMotion) EnterTransition.None
-                        else fadeIn(tween(Motion.MEDIUM)) + slideInHorizontally(tween(Motion.SLOW)) { full ->
+                        else fadeIn(tween(Motion.FAST)) + slideInHorizontally(tween(Motion.MEDIUM)) { full ->
                             travelDirection(initialState.destination.route, targetState.destination.route) * full / 24
                         }
                     },
                     exitTransition = { if (reduceMotion) ExitTransition.None else fadeOut(tween(Motion.FAST)) },
                     popEnterTransition = {
                         if (reduceMotion) EnterTransition.None
-                        else fadeIn(tween(Motion.MEDIUM)) + slideInHorizontally(tween(Motion.SLOW)) { full ->
+                        else fadeIn(tween(Motion.FAST)) + slideInHorizontally(tween(Motion.MEDIUM)) { full ->
                             -travelDirection(targetState.destination.route, initialState.destination.route) * full / 24
                         }
                     },

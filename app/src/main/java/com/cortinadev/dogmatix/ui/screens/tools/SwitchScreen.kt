@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -106,7 +107,7 @@ fun SwitchScreen(viewModel: SwitchViewModel = hiltViewModel()) {
     val ui by viewModel.ui.collectAsState()
     val context = LocalContext.current
     val firstFocus = androidx.compose.runtime.remember { FocusRequester() }
-    LaunchedEffect(ui.loading) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
+    LaunchedEffect(ui.loading) { firstFocus.requestFocusWhenReady() }
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         ToolsTitle(stringResource(R.string.nav_switch), icon = NavRoutes.Switch.icon)
         val all = ui.rows.flatMap { it.toFetch }

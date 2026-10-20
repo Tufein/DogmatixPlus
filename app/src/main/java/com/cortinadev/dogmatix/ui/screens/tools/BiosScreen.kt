@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -90,7 +91,7 @@ fun BiosScreen(viewModel: BiosViewModel = hiltViewModel()) {
         }
     }
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(ui.loading) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
+    LaunchedEffect(ui.loading) { firstFocus.requestFocusWhenReady() }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         ToolsTitle(stringResource(R.string.nav_bios), icon = NavRoutes.Bios.icon)

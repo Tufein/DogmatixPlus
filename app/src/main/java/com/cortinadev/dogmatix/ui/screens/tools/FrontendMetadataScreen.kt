@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -68,7 +69,7 @@ fun FrontendMetadataScreen(
     val canRun = !run.running && targets.any
     val firstFocus = remember { FocusRequester() }
     var focused by remember { mutableStateOf<Focused?>(null) }
-    LaunchedEffect(Unit) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
+    LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
 
     PublishLegend(
         when (focused) {

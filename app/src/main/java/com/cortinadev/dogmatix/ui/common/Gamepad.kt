@@ -12,6 +12,7 @@ import androidx.compose.ui.focus.FocusRequester
 import com.cortinadev.dogmatix.ui.components.LegendEntry
 import com.cortinadev.dogmatix.ui.navigation.tabRouteFor
 import com.cortinadev.dogmatix.util.PadDirection
+import com.cortinadev.dogmatix.util.PadFocus
 import com.cortinadev.dogmatix.util.SelectHold
 import kotlinx.coroutines.channels.BufferOverflow
 import com.cortinadev.dogmatix.util.RemoteKey
@@ -26,8 +27,9 @@ import kotlinx.coroutines.flow.asStateFlow
  * ZL / ZR switch sections, LB / RB switch panels inside a screen, Select stars a game,
  * R3 collapses / expands the filter panel, Start (6.0) is a screen's own extra action (Library: surprise me).
  * 8.0: a short SELECT press fires on release; holding it opens the quick menu (see [Gamepad.quickMenuOpen]).
+ * FOCUS_TAB / FOCUS_CONTENT are not buttons: the press that brings a hidden cursor back (3.9.0).
  */
-enum class GamepadButton { PREV_TAB, NEXT_TAB, PREV_PANEL, NEXT_PANEL, X, Y, FAVOURITE, TOGGLE_FILTERS, FOCUS_TAB, START }
+enum class GamepadButton { PREV_TAB, NEXT_TAB, PREV_PANEL, NEXT_PANEL, X, Y, FAVOURITE, TOGGLE_FILTERS, FOCUS_TAB, FOCUS_CONTENT, START }
 
 /**
  * Process-wide gamepad state: whether one is connected (drives the button legend)
@@ -117,11 +119,44 @@ object Gamepad {
     }
 
     /**
-     * After a section switch the focus ring is hidden; the next D-pad press only brings it
-     * back (on the active tab) instead of moving anything. Set by the shell.
+     * After a section switch the focus ring is hidden. 3.9.0: the next D-pad press brings it back
+     * *inside* the new screen (its first item, see [contentEntry]), or on the rail for ◀ in
+     * landscape, instead of only waking it on the tab. Set by the shell.
      */
     val pointerHidden = MutableStateFlow(false)
     private var swallowNextUp = false
+
+    // ---- 3.9.0: where the cursor is, for the press that brings it back ----
+
+    /** The shell (rail / bars / screens) is on screen; onboarding has no shell and is left alone. */
+    @Volatile var shellHosted = false
+
+    /** Something in the shell holds the focus (false after the focused item went away). */
+    @Volatile var shellFocused = false
+
+    /** Something inside the current screen (not the rail, bar or header) holds the focus. */
+    @Volatile var contentFocused = false
+
+    /** Landscape: the sections sit in a rail on the left, so ◀ from a hidden cursor goes there. */
+    @Volatile var railOnLeft = false
+
+    private val contentEntries = HashMap<String, FocusRequester>()
+    private var lastLostWake = Long.MIN_VALUE / 2
+    private const val LOST_WAKE_GAP_MS = 1_000L
+
+    /**
+     * A screen's preferred first item for the press that brings the cursor back (the hero on Home,
+     * the first download, the More row last opened). Keyed by route; screens without one get the
+     * top-left item of the screen.
+     */
+    fun setContentEntry(route: String, requester: FocusRequester) { contentEntries[route] = requester }
+
+    /** Drops [requester] for [route], unless another one has replaced it meanwhile. */
+    fun clearContentEntry(route: String, requester: FocusRequester) {
+        if (contentEntries[route] === requester) contentEntries.remove(route)
+    }
+
+    fun contentEntry(route: String): FocusRequester? = contentEntries[route]
 
     /** Call from Activity.dispatchKeyEvent, before the views see the key. */
     fun interceptKey(event: KeyEvent): Boolean {
@@ -153,10 +188,29 @@ object Gamepad {
             else -> false
         }
         if (!dpad) return false
-        if (event.action == KeyEvent.ACTION_DOWN && pointerHidden.value) {
+        // Hidden on purpose (ZL / ZR) or lost (the focused item went away, a tab was tapped): the
+        // first press brings the cursor back where it is useful. Without this Compose would put it
+        // on the first focusable of the window, the Games tab or the header, wherever the user was.
+        // A "lost" wake is never repeated within a second: should the focus bookkeeping ever be
+        // wrong, at most one press is spent on it and the next one moves as before.
+        val lost = shellHosted && !shellFocused && event.eventTime - lastLostWake > LOST_WAKE_GAP_MS
+        if (event.action == KeyEvent.ACTION_DOWN && (pointerHidden.value || lost)) {
+            if (!pointerHidden.value) lastLostWake = event.eventTime
             pointerHidden.value = false
             swallowNextUp = true
-            presses.tryEmit(GamepadButton.FOCUS_TAB)
+            val direction = when (event.keyCode) {
+                KeyEvent.KEYCODE_DPAD_UP -> PadDirection.UP
+                KeyEvent.KEYCODE_DPAD_DOWN -> PadDirection.DOWN
+                KeyEvent.KEYCODE_DPAD_LEFT -> PadDirection.LEFT
+                KeyEvent.KEYCODE_DPAD_RIGHT -> PadDirection.RIGHT
+                else -> null
+            }
+            presses.tryEmit(
+                when (PadFocus.wakeTarget(direction, railOnLeft)) {
+                    PadFocus.WakeTarget.TAB -> GamepadButton.FOCUS_TAB
+                    PadFocus.WakeTarget.CONTENT -> GamepadButton.FOCUS_CONTENT
+                }
+            )
             return true
         }
         if (event.action == KeyEvent.ACTION_UP && swallowNextUp) {

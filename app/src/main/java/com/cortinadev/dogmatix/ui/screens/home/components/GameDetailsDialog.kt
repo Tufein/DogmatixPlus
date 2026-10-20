@@ -188,7 +188,7 @@ fun GameDetailsDialog(
         // gamepad press acts instead of merely initialising focus.
         LaunchedEffect(Unit) {
             repeat(5) {
-                if (runCatching { downloadFocus.requestFocus() }.isSuccess) return@LaunchedEffect
+                if (runCatching { downloadFocus.requestFocus() }.getOrDefault(false)) return@LaunchedEffect
                 withFrameNanos { }
             }
         }

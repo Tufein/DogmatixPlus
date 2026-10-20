@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -124,7 +125,7 @@ private fun CompletionRing(owned: Int, total: Int, size: androidx.compose.ui.uni
 private fun ConsoleList(ui: CollectionUi, onOpen: (String) -> Unit, onToggleGoal: (String) -> Unit) {
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(ui.rows.isNotEmpty()) {
-        if (ui.rows.isNotEmpty()) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
+        if (ui.rows.isNotEmpty()) { firstFocus.requestFocusWhenReady() }
     }
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         ToolsTitle(stringResource(R.string.coll6_goals_title), icon = R.drawable.ic_collection_goals, subtitle = stringResource(R.string.coll6_goals_subtitle))
@@ -231,7 +232,7 @@ private fun MissingList(open: MissingUi, row: ConsoleProgress?, viewModel: Colle
     val name = row?.name ?: ConsoleFormatter.getConsoleDisplayName(open.consoleId)
     val titles = open.titles
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(open.consoleId, titles == null) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
+    LaunchedEffect(open.consoleId, titles == null) { firstFocus.requestFocusWhenReady() }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp),

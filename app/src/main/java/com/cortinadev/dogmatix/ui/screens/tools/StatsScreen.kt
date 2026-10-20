@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import android.text.format.DateUtils
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -123,10 +124,7 @@ fun StatsScreen(viewModel: StatsViewModel = hiltViewModel()) {
         }
         // Everything on this screen is a card the D-pad can stop on, so a pad can scroll through it.
         val firstFocus = remember { FocusRequester() }
-        LaunchedEffect(Unit) {
-            withFrameNanos { }
-            runCatching { firstFocus.requestFocus() }
-        }
+        LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
         val now = remember { System.currentTimeMillis() }
         val thisMonth = d.perMonth.lastOrNull()
         val topConsole = d.perConsole.firstOrNull()

@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -475,10 +476,7 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel(), onNav
     }
 
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(ui.path.size, ui.loading) {
-        withFrameNanos { }
-        runCatching { firstFocus.requestFocus() }
-    }
+    LaunchedEffect(ui.path.size, ui.loading) { firstFocus.requestFocusWhenReady() }
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         if (ui.atRoots) ToolsTitle(stringResource(R.string.nav_files), icon = NavRoutes.Files.icon)
         else {

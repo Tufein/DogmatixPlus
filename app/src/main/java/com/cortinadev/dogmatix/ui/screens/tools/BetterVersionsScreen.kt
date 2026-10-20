@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -86,10 +87,7 @@ fun BetterVersionsScreen(viewModel: BetterVersionsViewModel = hiltViewModel(), o
     }
 
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        withFrameNanos { }
-        runCatching { firstFocus.requestFocus() }
-    }
+    LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
 
     // X downloads the row under the cursor, Y ignores it; A (or a tap) selects it.
     var focusedId by remember { mutableStateOf<String?>(null) }

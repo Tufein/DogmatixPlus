@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 3.9.0 smoother controls: L1 / R1 jump a page in long lists (button legend). -->
+    <string name="controls39_pad_page">Page</string>
+</resources>

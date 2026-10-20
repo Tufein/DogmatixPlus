@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -71,7 +72,7 @@ fun HistoryScreen(
     val listState = rememberLazyListState()
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(ui.loading, ui.hasAny) {
-        if (!ui.loading && ui.hasAny) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
+        if (!ui.loading && ui.hasAny) { firstFocus.requestFocusWhenReady() }
     }
     // Next page when the end of the list comes into view.
     LaunchedEffect(listState, ui.hasMore, ui.shown) {

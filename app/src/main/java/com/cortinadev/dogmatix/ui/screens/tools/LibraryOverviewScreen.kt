@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import android.text.format.DateUtils
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
@@ -75,10 +76,7 @@ fun LibraryOverviewScreen(viewModel: LibraryOverviewViewModel = hiltViewModel())
     }
 
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        withFrameNanos { }
-        runCatching { firstFocus.requestFocus() }
-    }
+    LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
 
     val overview = ui.overview
     val notes = listOfNotNull(

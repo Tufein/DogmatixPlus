@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.next
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -115,10 +116,7 @@ fun UpNextScreen(onOpenGame: (String, String) -> Unit, viewModel: UpNextViewMode
     }
 
     // The first tab chip takes focus, so the D-pad always has a place to start.
-    LaunchedEffect(Unit) {
-        withFrameNanos { }
-        runCatching { firstFocus.requestFocus() }
-    }
+    LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
 
     val focusedRow = focusedKey?.removePrefix(ROW)?.takeIf { focusedKey?.startsWith(ROW) == true }?.let { k -> rows?.firstOrNull { it.key == k } }
     val focusedSuggestion = focusedKey?.removePrefix(SUGGESTION)?.takeIf { focusedKey?.startsWith(SUGGESTION) == true }

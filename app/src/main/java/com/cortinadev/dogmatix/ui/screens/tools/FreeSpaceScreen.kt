@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.tools
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import android.text.format.DateUtils
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -106,13 +107,10 @@ fun FreeSpaceScreen(
     }
 
     val firstFocus = remember { FocusRequester() }
-    LaunchedEffect(Unit) {
-        withFrameNanos { }
-        runCatching { firstFocus.requestFocus() }
-    }
+    LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
     // The row under the cursor leaves the list when its game is removed: park the focus on the top row.
     LaunchedEffect(ui.removing) {
-        if (!ui.removing) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
+        if (!ui.removing) { firstFocus.requestFocusWhenReady() }
     }
     // Y picks the biggest games for the chosen amount; X removes what is ticked (A ticks, as a click).
     LaunchedEffect(confirm) {

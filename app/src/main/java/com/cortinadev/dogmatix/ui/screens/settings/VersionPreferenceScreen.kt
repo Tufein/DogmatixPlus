@@ -1,5 +1,6 @@
 package com.cortinadev.dogmatix.ui.screens.settings
 
+import com.cortinadev.dogmatix.ui.components.requestFocusWhenReady
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -82,7 +83,7 @@ fun VersionPreferenceScreen(viewModel: VersionPreferenceViewModel = hiltViewMode
     val ui by viewModel.ui.collectAsState()
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(ui.loaded) {
-        if (ui.loaded) { withFrameNanos { }; runCatching { firstFocus.requestFocus() } }
+        if (ui.loaded) { firstFocus.requestFocusWhenReady() }
     }
     PublishLegend(listOf(LegendEntry("A", stringResource(R.string.pad_change)), LegendEntry("B", stringResource(R.string.pad_back))))
     var pickConsole by remember { mutableStateOf(false) }
@@ -345,7 +346,7 @@ private fun RuleRow(icon: Int, title: Int, hint: Int, on: Boolean, onChange: (Bo
 @Composable
 private fun ConsoleDialog(consoles: List<ConsoleChoice>, selected: String?, onPick: (String?) -> Unit, onDismiss: () -> Unit) {
     val initial = remember { FocusRequester() }
-    LaunchedEffect(Unit) { withFrameNanos { }; runCatching { initial.requestFocus() } }
+    LaunchedEffect(Unit) { initial.requestFocusWhenReady() }
     AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,
@@ -382,7 +383,7 @@ private fun PickRow(text: String, selected: Boolean, modifier: Modifier, onClick
 @Composable
 private fun AddDialog(title: String, options: List<Pair<String, String>>, onPick: (String) -> Unit, onDismiss: () -> Unit) {
     val initial = remember { FocusRequester() }
-    LaunchedEffect(Unit) { withFrameNanos { }; runCatching { initial.requestFocus() } }
+    LaunchedEffect(Unit) { initial.requestFocusWhenReady() }
     AlertDialog(
         modifier = Modifier.closeOnGamepadB(onDismiss),
         onDismissRequest = onDismiss,

@@ -148,14 +148,14 @@ fun SideRail(currentRoute: String, activeDownloads: Int, onSelect: (NavRoutes) -
     }
 }
 
-/** 0 → 1 when [selected] turns on (and back), animated and read only while drawing. */
+/** 0 → 1 when [selected] turns on (and back), animated and read only while drawing (3.9.0: [Motion.FAST]). */
 @Composable
 private fun rememberSelectionProgress(selected: Boolean): () -> Float {
     val reduce = LocalReduceMotion.current
     val progress = remember { Animatable(if (selected) 1f else 0f) }
     LaunchedEffect(selected, reduce) {
         val target = if (selected) 1f else 0f
-        if (reduce) progress.snapTo(target) else progress.animateTo(target, Motion.spec(false, Motion.MEDIUM))
+        if (reduce) progress.snapTo(target) else progress.animateTo(target, Motion.spec(false, Motion.FAST))
     }
     return { progress.value }
 }
@@ -282,6 +282,8 @@ fun BottomTabs(currentRoute: String, activeDownloads: Int, onSelect: (NavRoutes)
 fun legendFor(route: String): List<LegendEntry> {
     val section = LegendEntry("ZL · ZR", stringResource(R.string.pad_section))
     val back = LegendEntry("B", stringResource(R.string.pad_back))
+    // 3.9.0: on these screens L1 / R1 page through the list (see PadFocus.shouldersPage).
+    val page = LegendEntry("LB · RB", stringResource(R.string.controls39_pad_page))
     return when (route) {
         NavRoutes.Home.route -> listOf(
             LegendEntry("A", stringResource(R.string.pad_download)), back,
@@ -294,15 +296,15 @@ fun legendFor(route: String): List<LegendEntry> {
             LegendEntry("X", stringResource(R.string.pad_delete)),
             selectLegendEntry(R.string.pad_tick), section
         )
-        NavRoutes.Sources.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
-        NavRoutes.Duplicates.route -> listOf(LegendEntry("A", stringResource(R.string.pad_delete)), back, section)
+        NavRoutes.Sources.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, page, section)
+        NavRoutes.Duplicates.route -> listOf(LegendEntry("A", stringResource(R.string.pad_delete)), back, page, section)
         NavRoutes.Overview.route -> listOf(LegendEntry("A", stringResource(R.string.pad_rescan)), back, section)
-        NavRoutes.Tools.route, NavRoutes.More.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
+        NavRoutes.Tools.route, NavRoutes.More.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, page, section)
         NavRoutes.Sets.route -> listOf(LegendEntry("A", stringResource(R.string.pad_apply)), back, section)
-        NavRoutes.Storage.route -> listOf(LegendEntry("A", stringResource(R.string.pad_delete)), back, section)
-        NavRoutes.Wishlist.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
-        NavRoutes.Collections.route, NavRoutes.Switch.route, NavRoutes.Dat.route, NavRoutes.Bios.route, NavRoutes.Stats.route, NavRoutes.RetroAchievements.route, NavRoutes.Profiles.route, NavRoutes.Frontends.route, NavRoutes.Cloud.route, NavRoutes.CollectionGoals.route, NavRoutes.History.route, NavRoutes.Health.route, NavRoutes.Recap.route, NavRoutes.BestGames.route, NavRoutes.FrontendMetadata.route, NavRoutes.BetterVersions.route, NavRoutes.FreeSpace.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
-        NavRoutes.Files.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), LegendEntry("B", stringResource(R.string.files_up)), section)
+        NavRoutes.Storage.route -> listOf(LegendEntry("A", stringResource(R.string.pad_delete)), back, page, section)
+        NavRoutes.Wishlist.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, page, section)
+        NavRoutes.Collections.route, NavRoutes.Switch.route, NavRoutes.Dat.route, NavRoutes.Bios.route, NavRoutes.Stats.route, NavRoutes.RetroAchievements.route, NavRoutes.Profiles.route, NavRoutes.Frontends.route, NavRoutes.Cloud.route, NavRoutes.CollectionGoals.route, NavRoutes.History.route, NavRoutes.Health.route, NavRoutes.Recap.route, NavRoutes.BestGames.route, NavRoutes.FrontendMetadata.route, NavRoutes.BetterVersions.route, NavRoutes.FreeSpace.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, page, section)
+        NavRoutes.Files.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), LegendEntry("B", stringResource(R.string.files_up)), page, section)
         NavRoutes.Settings.route, NavRoutes.Romm.route, NavRoutes.SaveSync.route, NavRoutes.CloudBackup.route -> listOf(
             LegendEntry("A", stringResource(R.string.pad_change)),
             LegendEntry("◀ ▶", stringResource(R.string.pad_adjust)), back, section
