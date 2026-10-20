@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cortinadev.dogmatix.R
 import com.cortinadev.dogmatix.ui.components.focusRing
@@ -73,7 +74,10 @@ fun SearchField(
      * Horizontal shift (px) of the box's left edge and content, read in the draw / placement
      * phases only: lets the filter panel animation drag the field along without re-measuring it.
      */
-    contentShift: () -> Int = { 0 }
+    contentShift: () -> Int = { 0 },
+    /** 3.8.0: the Home search box is taller (52 dp) and rounder than the 44 dp default. */
+    height: Dp = 44.dp,
+    cornerRadius: Dp = 12.dp
 ) {
     val scheme = MaterialTheme.colorScheme
     val source = remember { MutableInteractionSource() }
@@ -102,10 +106,10 @@ fun SearchField(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(44.dp)
+            .height(height)
             .drawBehind {
                 val shift = contentShift().toFloat()
-                val radius = CornerRadius(12.dp.toPx())
+                val radius = CornerRadius(cornerRadius.toPx())
                 val area = Size(size.width - shift, size.height)
                 drawRoundRect(fill, topLeft = Offset(shift, 0f), size = area, cornerRadius = radius)
                 if (highlight.alpha > 0f) drawRoundRect(
@@ -121,7 +125,7 @@ fun SearchField(
                     style = Stroke(stroke)
                 )
             }
-            .focusRing(source, 12.dp, startShift = contentShift)
+            .focusRing(source, cornerRadius, startShift = contentShift)
             // pointerInput (not clickable): no focusable node, so the D-pad never lands on the box
             // and no focusProperties are needed here. A `canFocus = false` on this Row would leak
             // into the text field whenever the Row has no focus target of its own.

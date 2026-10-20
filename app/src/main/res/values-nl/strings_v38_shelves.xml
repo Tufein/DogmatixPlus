@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shelves38_continue_title">Verder spelen</string>
+    <string name="shelves38_play">Spelen</string>
+    <string name="shelves38_game_page">Gamepagina</string>
+    <string name="shelves38_played_ago">Gespeeld %1$s</string>
+    <string name="shelves38_downloaded_ago">Gedownload %1$s</string>
+    <string name="shelves38_not_on_device">Niet meer op dit apparaat</string>
+    <string name="shelves38_for_you_title">Nieuw voor jou</string>
+    <string name="shelves38_see_all">Bekijk alles</string>
+    <string name="shelves38_see_all_console">Alle %1$s-games</string>
+    <string name="shelves38_on_device_count">Op dit apparaat: %1$d</string>
+    <string name="shelves38_newest">Nieuwste in je bronnen</string>
+    <string name="shelves38_list">Lijst</string>
+    <string name="shelves38_list_cd">Toon de hele bibliotheek als lijst</string>
+    <string name="shelves38_overview">Overzicht</string>
+    <string name="shelves38_overview_cd">Terug naar het overzicht (wist zoeken en filters)</string>
+    <string name="shelves38_empty_title">Hier is nog niets te zien</string>
+    <string name="shelves38_empty_message">Games die je speelt of downloadt verschijnen hier. De hele bibliotheek staat in de lijst.</string>
+    <string name="shelves38_show_list">Toon als lijst</string>
+</resources>
