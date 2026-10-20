@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saves37_layout_gc">Cartes mémoire GameCube (MemoryCardA.USA.raw et autres) et, si tu le choisis, les dossiers GCI de Dolphin (GC/USA/Card A, un fichier par sauvegarde) et les sauvegardes Wii. Chacun contient les sauvegardes de nombreux jeux, donc rien n’est synchronisé ici tant que tu n’as pas choisi un jeu RomM auquel le rattacher. Dolphin écrit un fichier de carte quand le port A GameCube est réglé sur une carte mémoire, et un dossier GCI quand il est réglé sur un dossier GCI.</string>
+    <string name="saves37_gci_title">Dossiers GCI (GameCube)</string>
+    <string name="saves37_gci_off">Non synchronisés. Chaque dossier GCI (GC/USA/Card A, GC/EUR/Card B…) contient les sauvegardes de nombreux jeux, un fichier par sauvegarde, donc les dossiers ne sont synchronisés qu’une fois que tu as choisi un jeu RomM auquel les rattacher.</string>
+    <string name="saves37_gci_on">Synchronisés, un paquet par dossier GCI, conservés sur RomM avec %1$s. Un paquet est synchronisé en entier : un paquet plus récent du serveur ne remplace jamais le dossier de cette console sans te demander.</string>
+    <string name="saves37_wii_title">Sauvegardes Wii</string>
+    <string name="saves37_wii_off">Non synchronisées. Les sauvegardes des jeux Wii dans le dossier Wii de Dolphin (Wii/title/00010000) sont synchronisées en un seul paquet, une fois que tu as choisi un jeu RomM auquel les rattacher. Choisis pour cela le dossier utilisateur de Dolphin (celui qui contient GC et Wii), pas le dossier GC.</string>
+    <string name="saves37_wii_on">Synchronisées en un seul paquet, conservées sur RomM avec %1$s. Seules les données de sauvegarde des jeux voyagent, jamais les chaînes installées ni les fichiers système de la Wii. Un paquet plus récent du serveur ne remplace jamais les sauvegardes Wii de cette console sans te demander.</string>
+    <string name="saves37_wii_channels">Synchroniser aussi les sauvegardes des chaînes de disque</string>
+    <string name="saves37_wii_channels_hint">Les chaînes que certains disques installent (comme celle de Wii Fit) gardent leurs sauvegardes dans Wii/title/00010004. Activé : ces sauvegardes voyagent dans un second paquet, rattaché au même jeu.</string>
+    <string name="saves37_gci_dialog_title">Synchroniser les dossiers GCI</string>
+    <string name="saves37_gci_dialog_hint">RomM conserve chaque sauvegarde avec un jeu. Cherche le jeu auquel rattacher les dossiers GCI de ce dossier ; n’importe quel jeu GameCube de ton RomM convient. Choisis le même jeu sur chaque console.</string>
+    <string name="saves37_wii_dialog_title">Synchroniser les sauvegardes Wii</string>
+    <string name="saves37_wii_dialog_hint">RomM conserve chaque sauvegarde avec un jeu. Cherche le jeu auquel rattacher les sauvegardes Wii de ce dossier ; n’importe quel jeu Wii de ton RomM convient. Choisis le même jeu sur chaque console.</string>
+    <string name="saves37_bundle_whole">Chaque paquet est synchronisé en entier (jusqu’à 64 Mo et 4096 fichiers). S’il a changé des deux côtés, rien n’est fusionné : tu choisis un côté, et la copie de l’autre côté est d’abord gardée comme copie de sécurité. Ferme Dolphin avant de synchroniser.</string>
+    <string name="saves37_wii_unreachable">%1$s : les sauvegardes Wii n’ont pas été synchronisées. Choisis le dossier utilisateur de Dolphin (celui qui contient GC et Wii) au lieu du dossier GC.</string>
+    <string name="saves37_wii_no_nand">%1$s : Dolphin n’a pas encore de dossier Wii ici. Lance une fois un jeu Wii dans Dolphin, puis synchronise à nouveau.</string>
+    <string name="saves37_bundle_skipped">%1$s n’a pas été synchronisé : %2$s</string>
+    <string name="saves37_bundle_too_large">%1$s n’a pas été synchronisé : plus de %2$d Mo ou trop de fichiers.</string>
+</resources>

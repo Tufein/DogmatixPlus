@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saves37_layout_gc">GameCube-Speicherkarten (MemoryCardA.USA.raw und ähnliche) und auf Wunsch Dolphins GCI-Ordner (GC/USA/Card A, eine Datei pro Spielstand) und Wii-Spielstände. Jedes davon enthält die Spielstände vieler Spiele, daher wird hier nichts synchronisiert, bis du ein RomM-Spiel wählst, bei dem es aufbewahrt wird. Dolphin schreibt eine Kartendatei, wenn GameCube-Slot A auf eine Speicherkarte eingestellt ist, und einen GCI-Ordner, wenn er auf einen GCI-Ordner eingestellt ist.</string>
+    <string name="saves37_gci_title">GCI-Ordner (GameCube)</string>
+    <string name="saves37_gci_off">Nicht synchronisiert. Jeder GCI-Ordner (GC/USA/Card A, GC/EUR/Card B…) enthält die Spielstände vieler Spiele, eine Datei pro Spielstand, daher werden die Ordner erst synchronisiert, wenn du ein RomM-Spiel wählst, bei dem sie aufbewahrt werden.</string>
+    <string name="saves37_gci_on">Synchronisiert, ein Paket pro GCI-Ordner, auf RomM bei %1$s aufbewahrt. Ein Paket wird als Ganzes synchronisiert: Ein neueres vom Server ersetzt den Ordner auf diesem Handheld nie, ohne dich zu fragen.</string>
+    <string name="saves37_wii_title">Wii-Spielstände</string>
+    <string name="saves37_wii_off">Nicht synchronisiert. Die Spielstände von Wii-Spielen in Dolphins Wii-Ordner (Wii/title/00010000) werden als ein Paket synchronisiert, erst wenn du ein RomM-Spiel wählst, bei dem sie aufbewahrt werden. Wähle dafür Dolphins Benutzerordner (den mit GC und Wii darin), nicht den GC-Ordner.</string>
+    <string name="saves37_wii_on">Als ein Paket synchronisiert, auf RomM bei %1$s aufbewahrt. Nur die Spielstanddaten der Spiele werden übertragen, nie installierte Kanäle oder Wii-Systemdateien. Ein neueres Paket vom Server ersetzt die Wii-Spielstände auf diesem Handheld nie, ohne dich zu fragen.</string>
+    <string name="saves37_wii_channels">Auch Spielstände von Disc-Kanälen synchronisieren</string>
+    <string name="saves37_wii_channels_hint">Kanäle, die manche Discs installieren (etwa der von Wii Fit), speichern in Wii/title/00010004. An: Diese Spielstände werden als zweites Paket übertragen, beim selben Spiel aufbewahrt.</string>
+    <string name="saves37_gci_dialog_title">GCI-Ordner synchronisieren</string>
+    <string name="saves37_gci_dialog_hint">RomM bewahrt jeden Spielstand bei einem Spiel auf. Suche das Spiel, bei dem die GCI-Ordner dieses Ordners aufbewahrt werden; jedes GameCube-Spiel auf deinem RomM ist geeignet. Wähle auf jedem Handheld dasselbe Spiel.</string>
+    <string name="saves37_wii_dialog_title">Wii-Spielstände synchronisieren</string>
+    <string name="saves37_wii_dialog_hint">RomM bewahrt jeden Spielstand bei einem Spiel auf. Suche das Spiel, bei dem die Wii-Spielstände dieses Ordners aufbewahrt werden; jedes Wii-Spiel auf deinem RomM ist geeignet. Wähle auf jedem Handheld dasselbe Spiel.</string>
+    <string name="saves37_bundle_whole">Jedes Paket wird als Ganzes synchronisiert (bis 64 MB und 4096 Dateien). Hat es sich auf beiden Seiten geändert, wird nichts zusammengeführt: Du wählst eine Seite, und die Kopie der anderen Seite wird vorher als Sicherheitskopie aufbewahrt. Schließe Dolphin vor dem Synchronisieren.</string>
+    <string name="saves37_wii_unreachable">%1$s: Wii-Spielstände wurden nicht synchronisiert. Wähle Dolphins Benutzerordner (den mit GC und Wii darin) statt des GC-Ordners.</string>
+    <string name="saves37_wii_no_nand">%1$s: Dolphin hat hier noch keinen Wii-Ordner. Starte einmal ein Wii-Spiel in Dolphin und synchronisiere dann erneut.</string>
+    <string name="saves37_bundle_skipped">%1$s wurde nicht synchronisiert: %2$s</string>
+    <string name="saves37_bundle_too_large">%1$s wurde nicht synchronisiert: größer als %2$d MB oder zu viele Dateien.</string>
+</resources>

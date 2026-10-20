@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saves37_layout_gc">Cartões de memória de GameCube (MemoryCardA.USA.raw e semelhantes) e, se escolheres, as pastas GCI do Dolphin (GC/USA/Card A, um ficheiro por save) e os saves de Wii. Cada um guarda os saves de muitos jogos, por isso nada aqui é sincronizado até escolheres um jogo do RomM onde o guardar. O Dolphin escreve um ficheiro de cartão quando a entrada A de GameCube está num cartão de memória, e uma pasta GCI quando está numa pasta GCI.</string>
+    <string name="saves37_gci_title">Pastas GCI (GameCube)</string>
+    <string name="saves37_gci_off">Não sincronizadas. Cada pasta GCI (GC/USA/Card A, GC/EUR/Card B…) guarda os saves de muitos jogos, um ficheiro por save, por isso as pastas só são sincronizadas quando escolheres um jogo do RomM onde as guardar.</string>
+    <string name="saves37_gci_on">Sincronizadas, um pacote por pasta GCI, guardadas no RomM com %1$s. Um pacote é sincronizado por inteiro: um mais recente do servidor nunca substitui a pasta desta consola sem te perguntar.</string>
+    <string name="saves37_wii_title">Saves de Wii</string>
+    <string name="saves37_wii_off">Não sincronizados. Os saves dos jogos de Wii na pasta Wii do Dolphin (Wii/title/00010000) são sincronizados como um único pacote, só quando escolheres um jogo do RomM onde os guardar. Para isso escolhe a pasta de utilizador do Dolphin (a que contém GC e Wii), não a pasta GC.</string>
+    <string name="saves37_wii_on">Sincronizados como um único pacote, guardados no RomM com %1$s. Só viajam os dados de save dos jogos, nunca canais instalados nem ficheiros de sistema da Wii. Um pacote mais recente do servidor nunca substitui os saves de Wii desta consola sem te perguntar.</string>
+    <string name="saves37_wii_channels">Sincronizar também saves de canais de disco</string>
+    <string name="saves37_wii_channels_hint">Os canais que alguns discos instalam (como o do Wii Fit) guardam os saves em Wii/title/00010004. Ligado: estes saves viajam como segundo pacote, guardado com o mesmo jogo.</string>
+    <string name="saves37_gci_dialog_title">Sincronizar pastas GCI</string>
+    <string name="saves37_gci_dialog_hint">O RomM guarda cada save com um jogo. Procura o jogo onde guardar as pastas GCI desta pasta; qualquer jogo de GameCube do teu RomM serve. Escolhe o mesmo jogo em cada consola.</string>
+    <string name="saves37_wii_dialog_title">Sincronizar saves de Wii</string>
+    <string name="saves37_wii_dialog_hint">O RomM guarda cada save com um jogo. Procura o jogo onde guardar os saves de Wii desta pasta; qualquer jogo de Wii do teu RomM serve. Escolhe o mesmo jogo em cada consola.</string>
+    <string name="saves37_bundle_whole">Cada pacote é sincronizado por inteiro (até 64 MB e 4096 ficheiros). Se mudou dos dois lados, nada é juntado: escolhes um lado, e a cópia do outro lado é primeiro guardada como cópia de segurança. Fecha o Dolphin antes de sincronizar.</string>
+    <string name="saves37_wii_unreachable">%1$s: os saves de Wii não foram sincronizados. Escolhe a pasta de utilizador do Dolphin (a que contém GC e Wii) em vez da pasta GC.</string>
+    <string name="saves37_wii_no_nand">%1$s: o Dolphin ainda não tem aqui uma pasta Wii. Inicia uma vez um jogo de Wii no Dolphin e sincroniza de novo.</string>
+    <string name="saves37_bundle_skipped">%1$s não foi sincronizado: %2$s</string>
+    <string name="saves37_bundle_too_large">%1$s não foi sincronizado: tem mais de %2$d MB ou demasiados ficheiros.</string>
+</resources>

@@ -77,6 +77,29 @@ class SaveSyncViewModel @Inject constructor(
         })
     }
 
+    /**
+     * Syncs [label]'s Dolphin GCI folders ([DolphinBundleKind.GCI]) or Wii saves ([DolphinBundleKind.WII])
+     * as bundles kept with RomM game [rom] from now on; null stops syncing them (nothing is deleted).
+     */
+    fun setDolphinBundles(context: Context, label: String, kind: com.cortinadev.dogmatix.util.DolphinBundleKind, rom: com.cortinadev.dogmatix.util.SaveSyncPlanner.RomCandidate?) = executeWithToast(context, TAG) {
+        val id = rom?.id
+        val name = rom?.let { it.name.ifBlank { it.fsName } }.orEmpty()
+        appSettings.setSaveSyncEmulatorFolders(appSettings.saveSyncEmulatorFolders.first().map { folder ->
+            when {
+                folder.label != label || folder.layout != com.cortinadev.dogmatix.util.SaveFolderLayout.GC_MEMCARDS -> folder
+                kind == com.cortinadev.dogmatix.util.DolphinBundleKind.GCI -> folder.copy(gciRomId = id, gciRomName = name)
+                else -> folder.copy(wiiRomId = id, wiiRomName = name, wiiChannels = folder.wiiChannels && id != null)
+            }
+        })
+    }
+
+    /** Whether [label]'s Wii bundle also takes the saves of channels discs install (`Wii/title/00010004`). */
+    fun setWiiChannels(context: Context, label: String, on: Boolean) = executeWithToast(context, TAG) {
+        appSettings.setSaveSyncEmulatorFolders(appSettings.saveSyncEmulatorFolders.first().map { folder ->
+            if (folder.label != label || folder.wiiRomId == null) folder else folder.copy(wiiChannels = on)
+        })
+    }
+
     fun removeEmulatorFolder(context: Context, label: String) = executeWithToast(context, TAG) {
         appSettings.setSaveSyncEmulatorFolders(appSettings.saveSyncEmulatorFolders.first().filterNot { it.label == label })
     }

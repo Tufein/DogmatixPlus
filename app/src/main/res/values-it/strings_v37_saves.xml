@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saves37_layout_gc">Memory card GameCube (MemoryCardA.USA.raw e simili) e, se lo scegli, le cartelle GCI di Dolphin (GC/USA/Card A, un file per salvataggio) e i salvataggi Wii. Ognuno contiene i salvataggi di molti giochi, quindi qui non viene sincronizzato nulla finché non scegli un gioco RomM a cui associarlo. Dolphin scrive un file di card quando lo slot A del GameCube è impostato su memory card, e una cartella GCI quando è impostato su cartella GCI.</string>
+    <string name="saves37_gci_title">Cartelle GCI (GameCube)</string>
+    <string name="saves37_gci_off">Non sincronizzate. Ogni cartella GCI (GC/USA/Card A, GC/EUR/Card B…) contiene i salvataggi di molti giochi, un file per salvataggio, quindi le cartelle vengono sincronizzate solo quando scegli un gioco RomM a cui associarle.</string>
+    <string name="saves37_gci_on">Sincronizzate, un pacchetto per cartella GCI, conservate su RomM con %1$s. Un pacchetto viene sincronizzato per intero: uno più recente dal server non sostituisce mai la cartella di questa console senza chiedertelo.</string>
+    <string name="saves37_wii_title">Salvataggi Wii</string>
+    <string name="saves37_wii_off">Non sincronizzati. I salvataggi dei giochi Wii nella cartella Wii di Dolphin (Wii/title/00010000) vengono sincronizzati come un unico pacchetto, solo quando scegli un gioco RomM a cui associarli. Per questo scegli la cartella utente di Dolphin (quella che contiene GC e Wii), non la cartella GC.</string>
+    <string name="saves37_wii_on">Sincronizzati come un unico pacchetto, conservati su RomM con %1$s. Viaggiano solo i dati di salvataggio dei giochi, mai i canali installati o i file di sistema della Wii. Un pacchetto più recente dal server non sostituisce mai i salvataggi Wii di questa console senza chiedertelo.</string>
+    <string name="saves37_wii_channels">Sincronizza anche i salvataggi dei canali da disco</string>
+    <string name="saves37_wii_channels_hint">I canali che alcuni dischi installano (come quello di Wii Fit) tengono i salvataggi in Wii/title/00010004. Attivo: questi salvataggi viaggiano come secondo pacchetto, associato allo stesso gioco.</string>
+    <string name="saves37_gci_dialog_title">Sincronizza cartelle GCI</string>
+    <string name="saves37_gci_dialog_hint">RomM conserva ogni salvataggio con un gioco. Cerca il gioco a cui associare le cartelle GCI di questa cartella; va bene qualsiasi gioco GameCube del tuo RomM. Scegli lo stesso gioco su ogni console.</string>
+    <string name="saves37_wii_dialog_title">Sincronizza salvataggi Wii</string>
+    <string name="saves37_wii_dialog_hint">RomM conserva ogni salvataggio con un gioco. Cerca il gioco a cui associare i salvataggi Wii di questa cartella; va bene qualsiasi gioco Wii del tuo RomM. Scegli lo stesso gioco su ogni console.</string>
+    <string name="saves37_bundle_whole">Ogni pacchetto viene sincronizzato per intero (fino a 64 MB e 4096 file). Se è cambiato da entrambe le parti non si unisce nulla: scegli una parte, e la copia dell’altra viene prima conservata come copia di sicurezza. Chiudi Dolphin prima di sincronizzare.</string>
+    <string name="saves37_wii_unreachable">%1$s: i salvataggi Wii non sono stati sincronizzati. Scegli la cartella utente di Dolphin (quella che contiene GC e Wii) invece della cartella GC.</string>
+    <string name="saves37_wii_no_nand">%1$s: Dolphin non ha ancora una cartella Wii qui. Avvia una volta un gioco Wii in Dolphin, poi sincronizza di nuovo.</string>
+    <string name="saves37_bundle_skipped">%1$s non è stato sincronizzato: %2$s</string>
+    <string name="saves37_bundle_too_large">%1$s non è stato sincronizzato: supera %2$d MB o contiene troppi file.</string>
+</resources>

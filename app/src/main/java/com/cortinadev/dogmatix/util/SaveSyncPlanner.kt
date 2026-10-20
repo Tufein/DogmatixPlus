@@ -155,10 +155,14 @@ object SaveSyncPlanner {
         /** Kinds without a picked folder of their own (only emulators' folders): server files for no known folder stay on the server. */
         noRootFolder: Set<SaveKind> = emptySet(),
         /** Emulator folders whose shared memory cards are not synced: server copies of them stay on the server. */
-        holdSharedCards: Set<String> = emptySet()
+        holdSharedCards: Set<String> = emptySet(),
+        /** Sync paths of the Dolphin bundles the device takes: every other server bundle stays on the server. */
+        syncedBundles: Set<String> = emptySet()
     ): List<SaveSyncAction> {
-        val remotes = if (holdSharedCards.isEmpty()) remotes else remotes.filterNot { r ->
-            EmulatorSaveLayouts.isSharedCard(r.fileName) && holdSharedCards.any { it.equals(r.emulator.orEmpty(), ignoreCase = true) }
+        val bundlePaths = syncedBundles.map { it.lowercase() }.toSet()
+        val remotes = remotes.filterNot { r ->
+            (EmulatorSaveLayouts.isSharedCard(r.fileName) && holdSharedCards.any { it.equals(r.emulator.orEmpty(), ignoreCase = true) }) ||
+                (DolphinSaveBundles.isBundleName(r.fileName) && "${r.emulator.orEmpty()}/${r.fileName}".lowercase() !in bundlePaths)
         }
         val actions = mutableListOf<SaveSyncAction>()
         val recordByPath = records.associateBy { key(it.kind, it.path) }
@@ -204,9 +208,9 @@ object SaveSyncPlanner {
                 when {
                     localChanged && remoteChanged -> SaveSyncAction.Conflict(local, remote)
                     localChanged -> SaveSyncAction.Upload(local, remote.romId, remote)
-                    // A shared memory card (DuckStation's, every PS2 and GameCube card) holds many games'
-                    // saves: replacing it is always the user's call, however large it is.
-                    remoteChanged && EmulatorSaveLayouts.isSharedCard(local) -> SaveSyncAction.Conflict(local, remote)
+                    // A shared memory card (DuckStation's, every PS2 and GameCube card) or a Dolphin bundle
+                    // holds many games' saves: replacing it is always the user's call, however large it is.
+                    remoteChanged && EmulatorSaveLayouts.isChosenGameOnly(local) -> SaveSyncAction.Conflict(local, remote)
                     remoteChanged -> SaveSyncAction.Download(remote, local.path, local)
                     else -> SaveSyncAction.InSync(local, remote)
                 }

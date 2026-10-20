@@ -51,7 +51,14 @@ interface SaveStore {
         /** Kinds listed only through emulators' own folders: server files of other emulators have no place here. */
         val noRootFolder: Set<SaveKind> = emptySet(),
         /** Emulator folders (labels) whose shared memory cards the user has not chosen to sync. */
-        val holdSharedCards: Set<String> = emptySet()
+        val holdSharedCards: Set<String> = emptySet(),
+        /**
+         * Sync paths (`Dolphin (standalone)/GCI-USA-A.gcifolder.zip`) of the Dolphin bundles this
+         * device takes ([DolphinSaveBundles]): server bundles of any other path stay on the server.
+         */
+        val syncedBundles: Set<String> = emptySet(),
+        /** Why parts of the device were left out (a bundle too large, a folder out of reach), shown with the result. */
+        val problems: List<String> = emptyList()
     )
 
     /** Kinds with a picked folder are the keys of [Listing.topFolders]. */
@@ -84,7 +91,7 @@ class SaveSyncEngine(
     suspend fun sync(records: MutableMap<String, SaveSyncRecord>, confirmDeletions: Boolean = false): Pair<SaveSyncResult, List<SaveConflict>> {
         val listing = store.list()
         val remotes = SaveSyncPlanner.latestPerName(listing.topFolders.keys.flatMap { server.list(it) })
-        val planned = SaveSyncPlanner.plan(listing.files, remotes, records.values.toList(), listing.topFolders, syncDeletions(), listing.noRootFolder, listing.holdSharedCards)
+        val planned = SaveSyncPlanner.plan(listing.files, remotes, records.values.toList(), listing.topFolders, syncDeletions(), listing.noRootFolder, listing.holdSharedCards, listing.syncedBundles)
         // A lot of deletions at once usually means something is wrong (a folder emptied, a wrong
         // server), not that the user cleaned up: hold them back until the user says yes.
         val deletions = planned.count { it is SaveSyncAction.DeleteRemote || it is SaveSyncAction.DeleteLocal }
@@ -94,7 +101,7 @@ class SaveSyncEngine(
         var uploaded = 0; var downloaded = 0; var unchanged = 0; var notMatched = listing.tooLarge; var failed = 0
         var deletedOnDevice = 0; var deletedOnServer = 0
         val conflicts = mutableListOf<SaveConflict>()
-        val errors = mutableListOf<String>()
+        val errors = listing.problems.take(5).toMutableList()
         val unmatched = mutableListOf<String>()
         val transfers = actions.count { it.isTransfer() }
         var done = 0
@@ -182,8 +189,8 @@ class SaveSyncEngine(
     }
 
     private suspend fun findRom(local: LocalSaveFile): Int? {
-        // A shared memory card goes with the game the user chose for it, or nowhere.
-        if (EmulatorSaveLayouts.isSharedCard(local)) return local.fixedRomId
+        // A shared memory card or a Dolphin bundle goes with the game the user chose for it, or nowhere.
+        if (EmulatorSaveLayouts.isChosenGameOnly(local)) return local.fixedRomId
         val cacheKey = key(local)
         val askedAt = notFoundCache[cacheKey]
         if (askedAt != null && clock() - askedAt < NOT_FOUND_RETRY_MS) return null

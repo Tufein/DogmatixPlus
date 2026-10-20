@@ -39,6 +39,9 @@ import com.cortinadev.dogmatix.util.MemoryCard
 import com.cortinadev.dogmatix.util.SaveFolderLayout
 import com.cortinadev.dogmatix.util.SavePack
 import com.cortinadev.dogmatix.util.BoundedStreams
+import com.cortinadev.dogmatix.util.DolphinBundle
+import com.cortinadev.dogmatix.util.DolphinBundleKind
+import com.cortinadev.dogmatix.util.DolphinSaveBundles
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
@@ -261,6 +264,8 @@ class SaveSyncService @Inject constructor(
             val emulatorFolders = appSettings.saveSyncEmulatorFolders.first()
             val holdSharedCards = mutableSetOf<String>()
             val packFiles = mutableMapOf<String, List<PackFile>>()
+            val syncedBundles = mutableSetOf<String>()
+            val problems = mutableListOf<String>()
             // Memory cards (DuckStation, AetherSX2 / NetherSX2, Dolphin's GameCube cards): one level, only
             // cards; shared cards only when the user chose a game for them. Folders (Dolphin's GCI
             // folders, PCSX2's folder cards) are never looked into.
@@ -297,6 +302,48 @@ class SaveSyncService @Inject constructor(
                     )
                     packFiles[SaveSyncEngine.key(file)] = inside
                     files += file to DocumentsContract.buildDocumentUriUsingTree(tree, dir.documentId)
+                }
+            }
+            // Dolphin's GCI folders and Wii saves: one bundle each, only those the user chose a game for.
+            fun scanBundles(folder: EmulatorSaveFolder) {
+                if (folder.dolphinBundles.isEmpty()) return
+                val (tree, gcId) = layoutRoot(folder)
+                val userId = dolphinUserFolder(folder, tree)
+                for (bundle in folder.dolphinBundles) {
+                    val path = "${folder.label}/${bundle.fileName}"
+                    if (bundle.kind == DolphinBundleKind.WII && userId == null) {
+                        problems += context.getString(R.string.saves37_wii_unreachable, folder.label)
+                        continue
+                    }
+                    val rootId = bundleRoot(tree, if (bundle.kind == DolphinBundleKind.GCI) gcId else requireNotNull(userId), bundle)
+                        ?: throw IOException("${folder.label}/${bundle.devicePath} cannot be read; pick the folder again")
+                    val inside = if (rootId.isEmpty()) emptyList() else bundleContents(tree, rootId, bundle)
+                        ?: throw IOException("${folder.label}/${bundle.devicePath} cannot be read; pick the folder again")
+                    val checked = runCatching {
+                        DolphinSaveBundles.checkEntries(bundle, inside.map { it.path })
+                        SavePack.packedSize(inside.map { it.path to it.size })
+                    }
+                    val size = checked.getOrNull()
+                    if (size == null) {
+                        val e = checked.exceptionOrNull()
+                        problems += context.getString(R.string.saves37_bundle_skipped, bundle.devicePath, e?.message ?: e?.javaClass?.simpleName.orEmpty())
+                        tooLarge++
+                        continue
+                    }
+                    if (size > DolphinSaveBundles.MAX_BYTES) {
+                        problems += context.getString(R.string.saves37_bundle_too_large, bundle.devicePath, (DolphinSaveBundles.MAX_BYTES shr 20).toInt())
+                        tooLarge++
+                        continue
+                    }
+                    // Taken from now on, also when empty: a bundle on the server then comes down into the empty folder.
+                    syncedBundles += path
+                    if (inside.isEmpty()) continue
+                    val file = LocalSaveFile(
+                        SaveKind.SAVE, path, size, inside.maxOf { it.modified }, folder.platforms,
+                        SaveFolderLayout.GC_MEMCARDS, folder.romIdOf(bundle)
+                    )
+                    packFiles[SaveSyncEngine.key(file)] = inside
+                    files += file to DocumentsContract.buildDocumentUriUsingTree(tree, rootId)
                 }
             }
             fun scan(treeUri: String, kindOf: (String) -> SaveKind, kinds: List<SaveKind>, under: EmulatorSaveFolder? = null) {
@@ -336,7 +383,8 @@ class SaveSyncService @Inject constructor(
                     throw IOException(context.getString(R.string.save_sync_emulator_clash, folder.label))
                 when (folder.layout) {
                     SaveFolderLayout.FILES -> scan(folder.uri, { SaveKind.SAVE }, listOf(SaveKind.SAVE), folder)
-                    SaveFolderLayout.MEMCARDS, SaveFolderLayout.PS2_MEMCARDS, SaveFolderLayout.GC_MEMCARDS -> scanCards(folder)
+                    SaveFolderLayout.MEMCARDS, SaveFolderLayout.PS2_MEMCARDS -> scanCards(folder)
+                    SaveFolderLayout.GC_MEMCARDS -> { scanCards(folder); scanBundles(folder) }
                     SaveFolderLayout.SAVEDATA -> scanPacks(folder)
                 }
             }
@@ -346,11 +394,12 @@ class SaveSyncService @Inject constructor(
                 if (savesUri.isNotBlank()) add(if (savesUri == statesUri) SaveKind.entries else listOf(SaveKind.SAVE))
                 if (statesUri.isNotBlank()) add(listOf(SaveKind.STATE))
             }.flatten().toSet()
-            SaveStore.Listing(files.map { it.first }, topFolders, tooLarge, topFolders.keys - rooted, holdSharedCards)
+            SaveStore.Listing(files.map { it.first }, topFolders, tooLarge, topFolders.keys - rooted, holdSharedCards, syncedBundles, problems)
         }
 
         override suspend fun read(file: LocalSaveFile): ByteArray = withContext(Dispatchers.IO) {
             if (file.layout == SaveFolderLayout.SAVEDATA) return@withContext readPack(file)
+            if (DolphinSaveBundles.isBundle(file)) return@withContext readPack(file, DolphinSaveBundles.MAX_ENTRIES)
             val uri = documents[SaveSyncEngine.key(file)] ?: throw IOException("${file.name} is no longer on the device")
             val limit = if (file.layout.holdsSharedCards) cardLimit else readLimit
             val coroutine = currentCoroutineContext()
@@ -369,7 +418,10 @@ class SaveSyncService @Inject constructor(
             // "DraStic (standalone)/Game.dsv" goes into DraStic's own folder when one is picked for it.
             val emulator = if (kind == SaveKind.SAVE) EmulatorSaveFolders.locate(path, appSettings.saveSyncEmulatorFolders.first()) else null
             when (emulator?.first?.layout) {
-                SaveFolderLayout.MEMCARDS, SaveFolderLayout.PS2_MEMCARDS, SaveFolderLayout.GC_MEMCARDS ->
+                SaveFolderLayout.GC_MEMCARDS -> return@withContext DolphinSaveBundles.parse(emulator.second)
+                    ?.let { writeBundle(emulator.first, it, emulator.second, path, bytes) }
+                    ?: writeCard(emulator.first, emulator.second, path, bytes)
+                SaveFolderLayout.MEMCARDS, SaveFolderLayout.PS2_MEMCARDS ->
                     return@withContext writeCard(emulator.first, emulator.second, path, bytes)
                 SaveFolderLayout.SAVEDATA -> return@withContext writePack(emulator.first, emulator.second, path, bytes)
                 else -> Unit
@@ -393,11 +445,11 @@ class SaveSyncService @Inject constructor(
         override suspend fun backup(file: LocalSaveFile) {
             val bytes = read(file)
             keepSafetyCopy(file.kind, file.path, bytes)
-            if (file.layout == SaveFolderLayout.SAVEDATA) packCopies += SaveHandoff.sha256(bytes)
+            if (file.layout == SaveFolderLayout.SAVEDATA || DolphinSaveBundles.isBundle(file)) packCopies += SaveHandoff.sha256(bytes)
         }
 
         /** A PPSSPP save folder as its pack; the files must still be what the listing saw. */
-        private suspend fun readPack(file: LocalSaveFile): ByteArray {
+        private suspend fun readPack(file: LocalSaveFile, maxEntries: Int = SavePack.MAX_ENTRIES): ByteArray {
             val inside = packs[SaveSyncEngine.key(file)] ?: throw IOException("${file.name} is no longer on the device")
             var total = 0L
             val contents = inside.map { part ->
@@ -420,7 +472,7 @@ class SaveSyncService @Inject constructor(
                 if (part.size > 0L && bytes.size.toLong() != part.size) throw IOException("${file.name} changed while it was being read; try again")
                 part.path to bytes
             }
-            return SavePack.pack(contents)
+            return SavePack.pack(contents, maxEntries)
         }
 
         /** A memory card goes straight into the folder of cards; a shared one only when the user chose to sync them. */
@@ -485,6 +537,116 @@ class SaveSyncService @Inject constructor(
             packs = packs + (SaveSyncEngine.key(file) to after.map { (p, doc) -> PackFile(p, doc.uri, doc.length(), doc.lastModified()) })
             documents = documents + (SaveSyncEngine.key(file) to dir.uri)
             return file
+        }
+
+        /**
+         * Unpacks a Dolphin bundle into its folder (`GC/USA/Card A`, `Wii/title/00010000`), only when
+         * the user chose to sync it. Every file is checked first (names, shape, count, size); what the
+         * folder held is kept as a safety copy (unless this store copied exactly that already); then
+         * each file is written atomically and the bundle's files the new one no longer has are
+         * removed, all based on a listing that must succeed. A failure puts the old files back.
+         */
+        private suspend fun writeBundle(folder: EmulatorSaveFolder, bundle: DolphinBundle, inside: String, path: String, bytes: ByteArray): LocalSaveFile {
+            if ('/' in inside) throw IOException("$inside is not a Dolphin bundle")
+            val romId = folder.romIdOf(bundle) ?: throw IOException("${bundle.devicePath} is not synced for ${folder.label}")
+            val entries = DolphinSaveBundles.unpack(bundle, bytes)
+            val tree = folder.uri.toUri()
+            val (_, gcId) = layoutRoot(folder)
+            val baseId = if (bundle.kind == DolphinBundleKind.GCI) gcId
+            else dolphinUserFolder(folder, tree) ?: throw IOException(context.getString(R.string.saves37_wii_unreachable, folder.label))
+            // Wii: Dolphin makes its NAND (`Wii`) itself; only `title/<type>` below it is made here.
+            if (bundle.kind == DolphinBundleKind.WII && query(tree, baseId)?.any { it.isDir && it.name.equals("Wii", ignoreCase = true) } != true) {
+                throw IOException(context.getString(R.string.saves37_wii_no_nand, folder.label))
+            }
+            val rootDoc = bundleDirectory(tree, baseId, bundle)
+            val rootId = DocumentsContract.getDocumentId(rootDoc.uri)
+            // Strict: a listing that fails stops here, nothing is removed on its word.
+            val before = bundleContents(tree, rootId, bundle) ?: throw IOException("${bundle.devicePath} cannot be read; pick the folder again")
+            var oldFiles: List<Pair<String, ByteArray>> = emptyList()
+            if (before.isNotEmpty()) {
+                if (before.size > DolphinSaveBundles.MAX_ENTRIES || before.sumOf { it.size } > DolphinSaveBundles.MAX_BYTES) {
+                    throw IOException("${bundle.devicePath} is too large to replace safely")
+                }
+                var total = 0L
+                oldFiles = before.map { part ->
+                    currentCoroutineContext().ensureActive()
+                    val data = context.contentResolver.openInputStream(part.uri)?.use { input ->
+                        BoundedStreams.readAll(
+                            input, part.size, DolphinSaveBundles.MAX_BYTES - total,
+                            tooLarge = { IOException("${bundle.devicePath} is too large to replace safely") },
+                            changed = { IOException("${bundle.devicePath}/${part.path} changed while it was being read; try again") }
+                        )
+                    } ?: throw IOException("Could not read ${bundle.devicePath}/${part.path}")
+                    total += data.size
+                    part.path to data
+                }
+                val old = SavePack.pack(oldFiles, DolphinSaveBundles.MAX_ENTRIES)
+                if (SaveHandoff.sha256(old) !in packCopies) keepSafetyCopy(SaveKind.SAVE, path, old)
+            }
+            currentCoroutineContext().ensureActive()
+            // Replaced as a whole or not at all: once writing starts it is not stopped half-way.
+            withContext(NonCancellable) {
+                try {
+                    val dirs = HashMap<String, DocumentFile>()
+                    entries.forEach { (entryPath, data) ->
+                        val sub = entryPath.substringBeforeLast('/', "")
+                        val dir = if (sub.isEmpty()) rootDoc else dirs.getOrPut(sub) {
+                            StorageHelper.createDirectory(rootDoc, sub) ?: throw IOException("Could not create ${bundle.devicePath}/$sub")
+                        }
+                        StorageHelper.writeBytesSafely(context, dir, "", entryPath.substringAfterLast('/'), data)
+                    }
+                    val keep = entries.map { ArchivePlanKey.of(it.first) }.toSet()
+                    before.filter { ArchivePlanKey.of(it.path) !in keep }.forEach { part ->
+                        if (!DocumentsContract.deleteDocument(context.contentResolver, part.uri)) throw IOException("Could not replace ${bundle.devicePath}/${part.path}")
+                    }
+                } catch (e: Exception) {
+                    restoreBundle(tree, rootDoc, rootId, bundle, oldFiles)
+                    throw e
+                }
+            }
+            val after = bundleContents(tree, rootId, bundle) ?: throw IOException("${bundle.devicePath} cannot be read; pick the folder again")
+            val file = LocalSaveFile(
+                SaveKind.SAVE, path, SavePack.packedSize(after.map { it.path to it.size }),
+                after.maxOfOrNull { it.modified } ?: 0L, folder.platforms, SaveFolderLayout.GC_MEMCARDS, romId
+            )
+            packs = packs + (SaveSyncEngine.key(file) to after)
+            documents = documents + (SaveSyncEngine.key(file) to rootDoc.uri)
+            return file
+        }
+
+        /** Puts a bundle's folder back to exactly [files] after a failed replace (best effort; the safety copy stays). */
+        private fun restoreBundle(tree: Uri, rootDoc: DocumentFile, rootId: String, bundle: DolphinBundle, files: List<Pair<String, ByteArray>>) {
+            runCatching {
+                val wanted = files.map { ArchivePlanKey.of(it.first) }.toSet()
+                // Only removes files a successful listing shows; a failed one leaves everything as it is.
+                bundleContents(tree, rootId, bundle)?.filter { ArchivePlanKey.of(it.path) !in wanted }?.forEach {
+                    DocumentsContract.deleteDocument(context.contentResolver, it.uri)
+                }
+                files.forEach { (p, data) ->
+                    StorageHelper.writeBytesSafely(context, rootDoc, p.substringBeforeLast('/', ""), p.substringAfterLast('/'), data)
+                }
+            }.onFailure { Log.w(TAG, "Could not restore ${bundle.devicePath} after a failed replace", it) }
+        }
+
+        /** The folder of [bundle] below [baseId] (Dolphin's `GC` or user folder), made when missing; existing folders are found whatever their case. */
+        private fun bundleDirectory(tree: Uri, baseId: String, bundle: DolphinBundle): DocumentFile {
+            var id = baseId
+            var doc = DocumentFile.fromTreeUri(context, DocumentsContract.buildDocumentUriUsingTree(tree, baseId))
+                ?: throw IOException("${bundle.devicePath} cannot be reached; pick the folder again")
+            for (part in bundleSegments(bundle)) {
+                val children = query(tree, id) ?: throw IOException("${bundle.devicePath} cannot be read; pick the folder again")
+                val existing = DolphinSaveBundles.pick(children.filter { it.isDir }.map { it.name }, part)?.let { name -> children.first { it.isDir && it.name == name } }
+                if (existing != null) {
+                    id = existing.documentId
+                    doc = DocumentFile.fromTreeUri(context, DocumentsContract.buildDocumentUriUsingTree(tree, id))
+                        ?: throw IOException("${bundle.devicePath} cannot be reached; pick the folder again")
+                } else {
+                    if (children.any { it.name.equals(part, ignoreCase = true) }) throw IOException("${bundle.devicePath}: $part is not a folder")
+                    doc = StorageHelper.createDirectory(doc, part) ?: throw IOException("Could not create ${bundle.devicePath}")
+                    id = DocumentsContract.getDocumentId(doc.uri)
+                }
+            }
+            return doc
         }
 
         /** Puts a save folder back to exactly [files] after a failed replace (best effort; the safety copy stays). */
@@ -587,6 +749,69 @@ class SaveSyncService @Inject constructor(
             return true
         }
         return if (walk("", folderId, 1)) out else null
+    }
+
+    /**
+     * Dolphin's user folder (holding `GC` and `Wii`) of a Dolphin folder, as a document of its tree:
+     * the picked folder when `GC` sits inside it; null when the user picked `GC` itself (the Wii
+     * folder next to it is then out of reach).
+     */
+    private fun dolphinUserFolder(folder: EmulatorSaveFolder, tree: Uri): String? {
+        if (innerPath(folder).isEmpty()) return null
+        return runCatching { DocumentsContract.getTreeDocumentId(tree) }.getOrNull() ?: throw IOException("Pick the folder again (no access)")
+    }
+
+    /** The folders from the base (`GC`, or Dolphin's user folder for Wii) down to [bundle]'s folder. */
+    private fun bundleSegments(bundle: DolphinBundle): List<String> = when (bundle.kind) {
+        DolphinBundleKind.GCI -> listOf(bundle.region, "Card ${bundle.slot}")
+        DolphinBundleKind.WII -> listOf("Wii", "title", bundle.titleType)
+    }
+
+    /** The document of [bundle]'s folder below [baseId]: "" when it does not exist (yet), null when a listing failed. */
+    private fun bundleRoot(tree: Uri, baseId: String, bundle: DolphinBundle): String? {
+        var id = baseId
+        for (part in bundleSegments(bundle)) {
+            val dirs = query(tree, id)?.filter { it.isDir } ?: return null
+            val name = DolphinSaveBundles.pick(dirs.map { it.name }, part) ?: return ""
+            id = dirs.first { it.name == name }.documentId
+        }
+        return id
+    }
+
+    /**
+     * The files of a bundle's folder, by their path in the bundle; null when any listing fails (the
+     * bundle is then neither sent nor replaced). GCI: the `.gci` files of the folder. Wii: the files
+     * below `<title>/data/` of every title folder (8 hex digits); `content/` and everything else of
+     * a title is never looked into. Hidden files (the app's own staging files) are left out.
+     */
+    private fun bundleContents(tree: Uri, rootId: String, bundle: DolphinBundle): List<PackFile>? {
+        val out = mutableListOf<PackFile>()
+        val top = query(tree, rootId) ?: return null
+        fun file(path: String, child: Child) { out += PackFile(path, DocumentsContract.buildDocumentUriUsingTree(tree, child.documentId), child.size, child.modified) }
+        when (bundle.kind) {
+            DolphinBundleKind.GCI -> top.filter { !it.isDir && DolphinSaveBundles.isGciFile(it.name) }.forEach { file(it.name, it) }
+            DolphinBundleKind.WII -> {
+                // Deeper than a Wii save goes or more files than a bundle takes: listed anyway, so the bundle's check refuses it.
+                fun walk(prefix: String, id: String, depth: Int): Boolean {
+                    val children = query(tree, id) ?: return false
+                    for (child in children) {
+                        if (child.name.startsWith(".")) continue
+                        val path = "$prefix/${child.name}"
+                        if (child.isDir) { if (depth < 12 && !walk(path, child.documentId, depth + 1)) return false }
+                        else file(path, child)
+                        if (out.size > DolphinSaveBundles.MAX_ENTRIES) return true
+                    }
+                    return true
+                }
+                for (title in top.filter { it.isDir && DolphinSaveBundles.isWiiTitle(it.name) }) {
+                    val inside = query(tree, title.documentId) ?: return null
+                    val data = inside.firstOrNull { it.isDir && it.name == "data" } ?: continue
+                    if (!walk("${title.name}/data", data.documentId, 3)) return null
+                    if (out.size > DolphinSaveBundles.MAX_ENTRIES) break
+                }
+            }
+        }
+        return out
     }
 
     /** One provider query per folder; null when it cannot be read. */
@@ -844,7 +1069,7 @@ class SaveSyncService @Inject constructor(
             else if (local.platformHints.isNotEmpty() && !EmulatorSaveFolders.platformFits(key.consoleId, local.platformHints)) false
             else if (local.layout == SaveFolderLayout.FILES) CloudSaves.belongsToGame(local.name, stem)
             else EmulatorSaveLayouts.belongsToGame(local, key.fileName) || (
-                local.kind == SaveKind.SAVE && !EmulatorSaveLayouts.isSharedCard(local.name) && layoutLookups++ < MAX_HANDOFF_LOOKUPS &&
+                local.kind == SaveKind.SAVE && !EmulatorSaveLayouts.isSharedCard(local.name) && !DolphinSaveBundles.isBundle(local) && layoutLookups++ < MAX_HANDOFF_LOOKUPS &&
                     layoutMatch(local).let { it is SaveSyncPlanner.RomMatch.Found && it.romId == romId })
         }
         val ordinary = locals.filter { it.kind == SaveKind.SAVE && SaveHandoff.isInGameSave(it.name) }

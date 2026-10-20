@@ -28,8 +28,31 @@ data class EmulatorSaveFolder(
      * (RomM stores every save with a game): its id and name, null = not synced.
      */
     val sharedCardsRomId: Int? = null,
-    val sharedCardsRomName: String = ""
-)
+    val sharedCardsRomName: String = "",
+    /**
+     * Dolphin folders only: Dolphin's GCI folders (`GC/<region>/Card A|B`) are synced, one bundle per
+     * folder, once the user picks a RomM game to keep them with; null = not synced ([DolphinSaveBundles]).
+     */
+    val gciRomId: Int? = null,
+    val gciRomName: String = "",
+    /** Dolphin folders only: the Wii saves (`Wii/title/00010000`) as one bundle, kept with this game; null = not synced. */
+    val wiiRomId: Int? = null,
+    val wiiRomName: String = "",
+    /** Dolphin folders only: also the saves of channels discs install (`Wii/title/00010004`), as a second bundle. */
+    val wiiChannels: Boolean = false
+) {
+    /** The Dolphin bundles this folder syncs, from the user's choices. */
+    val dolphinBundles: List<DolphinBundle>
+        get() = if (layout != SaveFolderLayout.GC_MEMCARDS) emptyList()
+        else DolphinSaveBundles.all(gciRomId != null, wiiRomId != null, wiiChannels)
+
+    /** The RomM game [bundle] is kept with, or null when it is not synced. */
+    fun romIdOf(bundle: DolphinBundle): Int? = when {
+        bundle !in dolphinBundles -> null
+        bundle.kind == DolphinBundleKind.GCI -> gciRomId
+        else -> wiiRomId
+    }
+}
 
 object EmulatorSaveFolders {
     /**
@@ -65,7 +88,7 @@ object EmulatorSaveFolders {
         Preset("PPSSPP (standalone)", setOf("psp", "playstationportable"), "PSP/SAVEDATA", SaveFolderLayout.SAVEDATA, "ppsspp"),
         // Both apps keep `Mcd001.ps2` / `Mcd002.ps2` in the `memcards` folder of their data folder.
         Preset("AetherSX2 - NetherSX2 (standalone)", setOf("ps2", "playstation2"), "AetherSX2 or NetherSX2 data folder/memcards", SaveFolderLayout.PS2_MEMCARDS, "nethersx2"),
-        // GameCube cards only (`GC/MemoryCardA.USA.raw`); GCI folders and Wii saves are left out (see GC_MEMCARDS).
+        // GameCube cards (`GC/MemoryCardA.USA.raw`); GCI folders and Wii saves as opt-in bundles (see DolphinSaveBundles).
         Preset("Dolphin (standalone)", setOf("ngc", "gc", "gamecube"), "Dolphin user folder/GC", SaveFolderLayout.GC_MEMCARDS, "dolphin", setOf("dolphin_mmjr"))
     )
 
@@ -118,6 +141,11 @@ object EmulatorSaveFolders {
                 addProperty("uri", f.uri)
                 if (f.layout != SaveFolderLayout.FILES) addProperty("layout", f.layout.name)
                 f.sharedCardsRomId?.let { addProperty("sharedCardsRomId", it); addProperty("sharedCardsRomName", f.sharedCardsRomName) }
+                if (f.layout == SaveFolderLayout.GC_MEMCARDS) {
+                    f.gciRomId?.let { addProperty("gciRomId", it); addProperty("gciRomName", f.gciRomName) }
+                    f.wiiRomId?.let { addProperty("wiiRomId", it); addProperty("wiiRomName", f.wiiRomName) }
+                    if (f.wiiChannels) addProperty("wiiChannels", true)
+                }
             })
         }
     }.toString()
@@ -130,10 +158,17 @@ object EmulatorSaveFolders {
             // An unknown layout (written by a newer version) is not read as plain files: the folder is skipped.
             val layout = o.get("layout")?.takeUnless { it.isJsonNull }?.asString?.let { name -> SaveFolderLayout.entries.firstOrNull { it.name == name } ?: return@mapNotNull null }
                 ?: SaveFolderLayout.FILES
-            val shared = o.get("sharedCardsRomId")?.takeUnless { it.isJsonNull }?.let { runCatching { it.asInt }.getOrNull() }?.takeIf { it > 0 && layout.holdsSharedCards }
+            fun romId(name: String, allowed: Boolean) = o.get(name)?.takeUnless { it.isJsonNull }?.let { runCatching { it.asInt }.getOrNull() }?.takeIf { it > 0 && allowed }
+            fun romName(name: String, id: Int?) = if (id != null) o.get(name)?.takeUnless { it.isJsonNull }?.let { runCatching { it.asString }.getOrNull() }.orEmpty().take(200) else ""
+            val shared = romId("sharedCardsRomId", layout.holdsSharedCards)
+            val dolphin = layout == SaveFolderLayout.GC_MEMCARDS
+            val gci = romId("gciRomId", dolphin)
+            val wii = romId("wiiRomId", dolphin)
             EmulatorSaveFolder(
                 label, o.getAsJsonArray("platforms")?.map { ConsoleFolderAliases.normalize(it.asString) }?.toSet().orEmpty(), uri, layout,
-                shared, if (shared != null) o.get("sharedCardsRomName")?.takeUnless { it.isJsonNull }?.asString.orEmpty().take(200) else ""
+                shared, romName("sharedCardsRomName", shared),
+                gci, romName("gciRomName", gci), wii, romName("wiiRomName", wii),
+                wii != null && o.get("wiiChannels")?.takeUnless { it.isJsonNull }?.let { runCatching { it.asBoolean }.getOrNull() } == true
             )
         }.distinctBy { it.label.lowercase() }
     }.getOrDefault(emptyList())

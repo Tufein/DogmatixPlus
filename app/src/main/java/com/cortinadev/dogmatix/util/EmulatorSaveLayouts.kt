@@ -38,9 +38,10 @@ enum class SaveFolderLayout {
     /**
      * Dolphin's `GC` folder: GameCube memory card images (`MemoryCardA.USA.raw`,
      * `MemoryCardB.EUR.raw`), each holding the saves of many games, so every card is a shared card.
-     * Dolphin's GCI folders (`GC/<region>/Card A/01-GALE-Name.gci`, one file per save) are left
-     * out on purpose: their names carry a maker and game code, not a ROM's name, so tying them to a
-     * game would be a guess. Wii saves live in Dolphin's NAND (`Wii/title/…`), out of reach too.
+     * Dolphin's GCI folders (`GC/<region>/Card A/01-GALE-Name.gci`, one file per save) and Wii saves
+     * (`Wii/title/00010000/<title>/data/`) are never tied to a ROM by name (their names carry a maker
+     * and game code, not a ROM's name): they travel as opt-in bundles kept with a game the user
+     * chose ([DolphinSaveBundles]).
      */
     GC_MEMCARDS;
 
@@ -144,7 +145,13 @@ object EmulatorSaveLayouts {
      * Whether the sync path [path] is a memory card or a PPSSPP save folder: one file that holds
      * several saves, so its removal from a device is never copied to the server.
      */
-    fun holdsSeveralSaves(path: String): Boolean = path.substringAfterLast('/').let { isPackName(it) || isCardImage(it) }
+    fun holdsSeveralSaves(path: String): Boolean = path.substringAfterLast('/').let { isPackName(it) || isCardImage(it) || DolphinSaveBundles.isBundleName(it) }
+
+    /**
+     * Whether the device file [local] holds the saves of many games and goes only with the game the
+     * user chose for it: a shared memory card or a Dolphin bundle ([DolphinSaveBundles]).
+     */
+    fun isChosenGameOnly(local: LocalSaveFile): Boolean = isSharedCard(local) || DolphinSaveBundles.isBundle(local)
 
     // ---- AetherSX2 / NetherSX2 ------------------------------------------------------------------
 
@@ -335,8 +342,9 @@ object EmulatorSaveLayouts {
 object SavePack {
     const val MAX_ENTRIES = 512
 
-    fun pack(files: List<Pair<String, ByteArray>>): ByteArray {
-        require(files.size <= MAX_ENTRIES) { "Too many files in one save folder" }
+    /** [maxEntries] is larger for Dolphin's bundles ([DolphinSaveBundles.MAX_ENTRIES]). */
+    fun pack(files: List<Pair<String, ByteArray>>, maxEntries: Int = MAX_ENTRIES): ByteArray {
+        require(files.size <= maxEntries) { "Too many files in one save folder" }
         val entries = files.map { (path, bytes) -> ArchivePlan.safeRelativePath(path) to bytes }.sortedBy { it.first }
         require(entries.map { ArchivePlan.portableKey(it.first) }.distinct().size == entries.size) { "Two files of the save folder have the same name" }
         val out = ByteArrayOutputStream()
@@ -366,15 +374,20 @@ object SavePack {
         30L + name + size + 46L + name
     }
 
-    /** The files of a pack (any ordinary zip), paths checked; throws for anything unsafe or larger than [maxBytes] in all. */
-    fun unpack(bytes: ByteArray, maxBytes: Long): List<Pair<String, ByteArray>> {
+    /**
+     * The files of a pack (any ordinary zip), paths checked; throws for anything unsafe or larger than
+     * [maxBytes] in all. [checkName] sees every file's name as the zip has it and may refuse it.
+     */
+    fun unpack(bytes: ByteArray, maxBytes: Long, maxEntries: Int = MAX_ENTRIES, checkName: (String) -> Unit = {}): List<Pair<String, ByteArray>> {
         val out = mutableListOf<Pair<String, ByteArray>>()
         var total = 0L
         ZipInputStream(ByteArrayInputStream(bytes), Charsets.UTF_8).use { zip ->
             while (true) {
                 val entry = zip.nextEntry ?: break
                 if (entry.isDirectory) continue
-                if (out.size >= MAX_ENTRIES) throw IOException("Too many files in the save")
+                if (out.size >= maxEntries) throw IOException("Too many files in the save")
+                // The name as the zip has it, before it is cleaned up (Dolphin's bundles refuse any name that would be).
+                checkName(entry.name)
                 val path = ArchivePlan.safeRelativePath(entry.name)
                 val buffer = ByteArrayOutputStream()
                 val chunk = ByteArray(64 * 1024)

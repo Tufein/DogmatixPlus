@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saves37_layout_gc">GameCube-geheugenkaarten (MemoryCardA.USA.raw en dergelijke), en als je dat kiest de GCI-mappen van Dolphin (GC/USA/Card A, één bestand per save) en Wii-saves. Elk daarvan bevat de saves van veel games, dus hier wordt niets gesynchroniseerd tot je een RomM-game kiest om het bij te bewaren. Dolphin schrijft een kaartbestand als GameCube-slot A op een geheugenkaart staat, en een GCI-map als het op een GCI-map staat.</string>
+    <string name="saves37_gci_title">GCI-mappen (GameCube)</string>
+    <string name="saves37_gci_off">Niet gesynchroniseerd. Elke GCI-map (GC/USA/Card A, GC/EUR/Card B…) bevat de saves van veel games, één bestand per save, dus de mappen worden pas gesynchroniseerd als je een RomM-game kiest om ze bij te bewaren.</string>
+    <string name="saves37_gci_on">Gesynchroniseerd, één bundel per GCI-map, op RomM bewaard bij %1$s. Een bundel wordt als geheel gesynchroniseerd: een nieuwere van de server vervangt de map op deze handheld nooit zonder het je te vragen.</string>
+    <string name="saves37_wii_title">Wii-saves</string>
+    <string name="saves37_wii_off">Niet gesynchroniseerd. De saves van Wii-games in de map Wii van Dolphin (Wii/title/00010000) worden als één bundel gesynchroniseerd, pas als je een RomM-game kiest om ze bij te bewaren. Kies hiervoor de gebruikersmap van Dolphin (de map met GC en Wii erin), niet de map GC.</string>
+    <string name="saves37_wii_on">Gesynchroniseerd als één bundel, op RomM bewaard bij %1$s. Alleen de savegegevens van de games gaan mee, nooit geïnstalleerde kanalen of systeembestanden van de Wii. Een nieuwere bundel van de server vervangt de Wii-saves op deze handheld nooit zonder het je te vragen.</string>
+    <string name="saves37_wii_channels">Ook saves van disckanalen synchroniseren</string>
+    <string name="saves37_wii_channels_hint">Kanalen die sommige discs installeren (zoals dat van Wii Fit) bewaren hun saves in Wii/title/00010004. Aan: deze saves gaan mee als tweede bundel, bewaard bij dezelfde game.</string>
+    <string name="saves37_gci_dialog_title">GCI-mappen synchroniseren</string>
+    <string name="saves37_gci_dialog_hint">RomM bewaart elke save bij een game. Zoek de game waarbij de GCI-mappen van deze map bewaard worden; elke GameCube-game op je RomM is goed. Kies op elke handheld dezelfde game.</string>
+    <string name="saves37_wii_dialog_title">Wii-saves synchroniseren</string>
+    <string name="saves37_wii_dialog_hint">RomM bewaart elke save bij een game. Zoek de game waarbij de Wii-saves van deze map bewaard worden; elke Wii-game op je RomM is goed. Kies op elke handheld dezelfde game.</string>
+    <string name="saves37_bundle_whole">Elke bundel wordt als geheel gesynchroniseerd (tot 64 MB en 4096 bestanden). Is hij aan beide kanten veranderd, dan wordt er niets samengevoegd: jij kiest één kant, en de kopie van de andere kant wordt eerst als veiligheidskopie bewaard. Sluit Dolphin voordat je synchroniseert.</string>
+    <string name="saves37_wii_unreachable">%1$s: Wii-saves zijn niet gesynchroniseerd. Kies de gebruikersmap van Dolphin (de map met GC en Wii erin) in plaats van de map GC.</string>
+    <string name="saves37_wii_no_nand">%1$s: Dolphin heeft hier nog geen map Wii. Start één keer een Wii-game in Dolphin en synchroniseer dan opnieuw.</string>
+    <string name="saves37_bundle_skipped">%1$s is niet gesynchroniseerd: %2$s</string>
+    <string name="saves37_bundle_too_large">%1$s is niet gesynchroniseerd: groter dan %2$d MB of te veel bestanden.</string>
+</resources>

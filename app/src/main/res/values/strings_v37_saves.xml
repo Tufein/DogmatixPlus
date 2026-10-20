@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saves37_layout_gc">GameCube memory cards (MemoryCardA.USA.raw and the like), and if you choose so Dolphin\'s GCI folders (GC/USA/Card A, one file per save) and Wii saves. Each of them holds the saves of many games, so nothing here is synced until you choose a RomM game to keep it with. Dolphin writes a card file when GameCube slot A is set to a memory card, and a GCI folder when it is set to a GCI folder.</string>
+    <string name="saves37_gci_title">GCI folders (GameCube)</string>
+    <string name="saves37_gci_off">Not synced. Each GCI folder (GC/USA/Card A, GC/EUR/Card B…) holds the saves of many games, one file per save, so the folders are only synced once you choose a RomM game to keep them with.</string>
+    <string name="saves37_gci_on">Synced, one bundle per GCI folder, kept on RomM with %1$s. A bundle is synced as a whole: a newer one from the server never replaces this handheld\'s folder without asking you.</string>
+    <string name="saves37_wii_title">Wii saves</string>
+    <string name="saves37_wii_off">Not synced. The saves of Wii games in Dolphin\'s Wii folder (Wii/title/00010000) are synced as one bundle, only once you choose a RomM game to keep them with. Pick Dolphin\'s user folder (the one that holds GC and Wii) for this, not the GC folder.</string>
+    <string name="saves37_wii_on">Synced as one bundle, kept on RomM with %1$s. Only the games\' save data travels, never installed channels or Wii system files. A newer bundle from the server never replaces this handheld\'s Wii saves without asking you.</string>
+    <string name="saves37_wii_channels">Also sync saves of disc channels</string>
+    <string name="saves37_wii_channels_hint">Channels some discs install (such as Wii Fit\'s) keep their saves in Wii/title/00010004. On: these saves travel as a second bundle, kept with the same game.</string>
+    <string name="saves37_gci_dialog_title">Sync GCI folders</string>
+    <string name="saves37_gci_dialog_hint">RomM keeps every save with a game. Search for the game to keep this folder\'s GCI folders with; any GameCube game on your RomM will do. Choose the same game on every handheld.</string>
+    <string name="saves37_wii_dialog_title">Sync Wii saves</string>
+    <string name="saves37_wii_dialog_hint">RomM keeps every save with a game. Search for the game to keep this folder\'s Wii saves with; any Wii game on your RomM will do. Choose the same game on every handheld.</string>
+    <string name="saves37_bundle_whole">Each bundle is synced as a whole (up to 64 MB and 4096 files). When it changed on both sides there is no merging: you choose one side, and the other side\'s copy is kept as a safety copy first. Close Dolphin before you sync.</string>
+    <string name="saves37_wii_unreachable">%1$s: Wii saves were not synced. Pick Dolphin\'s user folder (the one that holds GC and Wii) instead of the GC folder.</string>
+    <string name="saves37_wii_no_nand">%1$s: Dolphin has no Wii folder here yet. Start a Wii game in Dolphin once, then sync again.</string>
+    <string name="saves37_bundle_skipped">%1$s was not synced: %2$s</string>
+    <string name="saves37_bundle_too_large">%1$s was not synced: it is larger than %2$d MB or holds too many files.</string>
+</resources>

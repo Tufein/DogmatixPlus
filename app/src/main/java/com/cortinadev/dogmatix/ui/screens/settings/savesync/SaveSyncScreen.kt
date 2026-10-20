@@ -154,6 +154,18 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
             )
         }
     }
+    // Dolphin's GCI folders and Wii saves: the game their bundles are kept with on RomM is chosen here.
+    var bundleFor by remember { mutableStateOf<Pair<String, com.cortinadev.dogmatix.util.DolphinBundleKind>?>(null) }
+    bundleFor?.let { (label, kind) ->
+        emulatorFolders.firstOrNull { it.label == label }?.let { folder ->
+            DolphinBundleDialog(
+                folder = folder,
+                kind = kind,
+                viewModel = viewModel,
+                onDone = { bundleFor = null; viewModel.clearGameResults() }
+            )
+        }
+    }
     pickedEmulatorFolder?.let { uri ->
         EmulatorPresetDialog(
             onPick = { preset -> viewModel.addEmulatorFolder(context, preset, uri); pickedEmulatorFolder = null },
@@ -213,6 +225,11 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
                     )
                 }
             }
+            dolphinBundleRows(
+                folder,
+                onChoose = { kind -> bundleFor = folder.label to kind },
+                onChannels = { on -> viewModel.setWiiChannels(context, folder.label, on) }
+            ).forEach { add(it) }
         }
         add {
             SettingRow(
@@ -611,7 +628,7 @@ private fun layoutHint(layout: SaveFolderLayout): String? = when (layout) {
     SaveFolderLayout.MEMCARDS -> stringResource(R.string.saves31_layout_memcards)
     SaveFolderLayout.SAVEDATA -> stringResource(R.string.saves31_layout_savedata)
     SaveFolderLayout.PS2_MEMCARDS -> stringResource(R.string.saves32_layout_ps2)
-    SaveFolderLayout.GC_MEMCARDS -> stringResource(R.string.saves32_layout_gc)
+    SaveFolderLayout.GC_MEMCARDS -> stringResource(R.string.saves37_layout_gc)
     SaveFolderLayout.FILES -> null
 }
 
