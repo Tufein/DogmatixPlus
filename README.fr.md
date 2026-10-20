@@ -31,7 +31,7 @@ Valkyr rassemble les jeux des sources que *vous* ajoutez dans une seule grande l
 
 **Dernière version : [4.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.1.0)** (build Android 53).
 
-*Jusqu’à la 3.9.0, l’application s’appelait Dogmatix+. Valkyr 4.1.0 a son propre identifiant d’application et s’installe donc à côté de l’ancienne : utilisez *Réglages → Sauvegarder* dans l’ancienne appli et *Restaurer une sauvegarde* dans Valkyr, puis supprimez l’ancienne.*
+Jusqu’à la 3.9.0, l’application s’appelait Dogmatix+. Valkyr 4.1.0 a son propre identifiant d’application et s’installe donc à côté de l’ancienne : utilisez *Réglages → Sauvegarder* dans l’ancienne appli et *Restaurer une sauvegarde* dans Valkyr, puis supprimez l’ancienne.
 
 ## Installation
 

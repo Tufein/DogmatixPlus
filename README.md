@@ -31,7 +31,7 @@ The app includes no games. **Sources → More romsets** offers optional free con
 
 **Latest release: [4.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.1.0)** (Android build 53).
 
-*Until 3.9.0 the app was called Dogmatix+. Valkyr 4.1.0 has its own app id, so it installs next to the old app: use *Settings → Back up* in the old app and *Restore backup* in Valkyr, then remove the old app.*
+Until 3.9.0 the app was called Dogmatix+. Valkyr 4.1.0 has its own app id, so it installs next to the old app: use *Settings → Back up* in the old app and *Restore backup* in Valkyr, then remove the old app.
 
 ## Install
 

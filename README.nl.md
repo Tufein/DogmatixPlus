@@ -31,7 +31,7 @@ Valkyr houdt één grote, doorzoekbare lijst bij van de games uit de bronnen die
 
 **Laatste release: [4.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.1.0)** (Android build 53).
 
-*Tot en met 3.9.0 heette de app Dogmatix+. Valkyr 4.1.0 heeft een eigen app-id en installeert dus naast de oude app: gebruik *Instellingen → Back-up maken* in de oude app en *Back-up terugzetten* in Valkyr, en verwijder daarna de oude app.*
+Tot en met 3.9.0 heette de app Dogmatix+. Valkyr 4.1.0 heeft een eigen app-id en installeert dus naast de oude app: gebruik *Instellingen → Back-up maken* in de oude app en *Back-up terugzetten* in Valkyr, en verwijder daarna de oude app.
 
 ## Installeren
 

@@ -31,7 +31,7 @@ Valkyr mantiene una gran lista, con buscador, de los juegos de las fuentes que *
 
 **Última versión: [4.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.1.0)** (build de Android 53).
 
-*Hasta la 3.9.0 la app se llamaba Dogmatix+. Valkyr 4.1.0 tiene su propio ID de aplicación y se instala junto a la app antigua: usa *Ajustes → Copia de seguridad* en la app antigua y *Restaurar copia* en Valkyr, y luego elimina la app antigua.*
+Hasta la 3.9.0 la app se llamaba Dogmatix+. Valkyr 4.1.0 tiene su propio ID de aplicación y se instala junto a la app antigua: usa *Ajustes → Copia de seguridad* en la app antigua y *Restaurar copia* en Valkyr, y luego elimina la app antigua.
 
 ## Instalar
 
