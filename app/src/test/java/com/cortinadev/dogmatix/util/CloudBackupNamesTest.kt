@@ -13,7 +13,7 @@ class CloudBackupNamesTest {
 
     @Test fun `names carry the UTC time and the device`() {
         assertEquals(
-            "dogmatix-20261004-2114-retroid-pocket-5.dgxb",
+            "valkyr-20261004-2114-retroid-pocket-5.dgxb",
             CloudBackupNames.fileName(Instant.parse("2026-10-04T21:14:59Z"), "Retroid Pocket 5")
         )
     }
