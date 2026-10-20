@@ -10,22 +10,16 @@ Valkyr rassemble les jeux des sources que *vous* ajoutez dans une seule grande l
 
 <table>
   <tr>
-    <td align="center" valign="top"><img src="docs/screenshots/library.png" width="210" alt="La bibliothèque"><br><sub>Vos jeux dans une seule liste — un ✓ vert veut dire que vous l’avez déjà</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/duplicates.png" width="210" alt="Jeux en double"><br><sub>Trouvez les jeux que vous avez en double</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/overview.png" width="210" alt="Aperçu de la bibliothèque"><br><sub>Voyez votre collection console par console</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/scan-progress.png" width="210" alt="Progression du scan"><br><sub>Voyez où en est un scan</sub></td>
-  </tr>
-  <tr>
-    <td align="center" valign="top"><img src="docs/screenshots/delete-dialog.png" width="210" alt="Confirmation de suppression"><br><sub>Vous voyez toujours quels fichiers vont disparaître</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/settings.png" width="210" alt="Paramètres"><br><sub>Les nouveaux outils sont dans les Paramètres</sub></td>
-    <td></td>
-    <td></td>
+    <td align="center" valign="top"><img src="docs/screenshots/home.png" width="210" alt="L’accueil avec le jeu à reprendre et une étagère par console"><br><sub>Accueil : reprenez là où vous vous êtes arrêté, avec une étagère de jaquettes par console</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/game.png" width="210" alt="La page d’un jeu"><br><sub>Chaque jeu a sa propre page avec un grand bouton Jouer</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/downloads.png" width="210" alt="La file de téléchargement"><br><sub>Suivez vos téléchargements et toute la file</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/more.png" width="210" alt="L’écran Plus"><br><sub>Tout le reste est à portée de main dans Plus</sub></td>
   </tr>
 </table>
 
-<p align="center"><img src="docs/screenshots/library-landscape.png" width="720" alt="La bibliothèque en mode paysage sur une console portable"></p>
+<p align="center"><img src="docs/screenshots/home-landscape.png" width="720" alt="L’accueil en mode paysage sur une console portable"><br><sub>Sur une console portable en mode paysage, les sections sont dans une barre à gauche</sub></p>
 
-<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="La nouvelle vue d'ensemble du cloud (titres et chiffres inventés)"><br><sub>La nouvelle vue d'ensemble du cloud (titres et chiffres inventés)</sub></p>
+<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="La vue d’ensemble du cloud (titres et chiffres inventés)"><br><sub>La vue d’ensemble du cloud : RomM, synchro des sauvegardes et copies de sécurité d’un coup d’œil (noms et chiffres inventés)</sub></p>
 
 *Les captures d’écran utilisent des titres de jeux inventés et des fichiers vides de substitution, et montrent l’application en anglais.*
 

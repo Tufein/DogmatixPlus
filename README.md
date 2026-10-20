@@ -10,22 +10,16 @@ The app includes no games. **Sources → More romsets** offers optional free con
 
 <table>
   <tr>
-    <td align="center" valign="top"><img src="docs/screenshots/library.png" width="210" alt="The library"><br><sub>Your games in one list — a green ✓ means you already have it</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/duplicates.png" width="210" alt="Duplicate games"><br><sub>Find games you have twice</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/overview.png" width="210" alt="Library overview"><br><sub>See your collection per console</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/scan-progress.png" width="210" alt="Scan progress"><br><sub>See how far a scan is</sub></td>
-  </tr>
-  <tr>
-    <td align="center" valign="top"><img src="docs/screenshots/delete-dialog.png" width="210" alt="Delete confirmation"><br><sub>You always see which files will go</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/settings.png" width="210" alt="Settings"><br><sub>The new tools are in Settings</sub></td>
-    <td></td>
-    <td></td>
+    <td align="center" valign="top"><img src="docs/screenshots/home.png" width="210" alt="Home with the game to continue and a shelf per console"><br><sub>Home: carry on where you left off, with a shelf of covers per console</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/game.png" width="210" alt="A game page"><br><sub>Every game has its own page with a big Play button</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/downloads.png" width="210" alt="The download queue"><br><sub>Follow your downloads and the whole queue</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/more.png" width="210" alt="The More screen"><br><sub>Everything else is one tap away under More</sub></td>
   </tr>
 </table>
 
-<p align="center"><img src="docs/screenshots/library-landscape.png" width="720" alt="The library in landscape on a handheld"></p>
+<p align="center"><img src="docs/screenshots/home-landscape.png" width="720" alt="Home in landscape on a handheld"><br><sub>On a handheld in landscape the sections sit in a rail on the left</sub></p>
 
-<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="The new Cloud hub (titles and numbers are made up)"><br><sub>The new Cloud hub (titles and numbers are made up)</sub></p>
+<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="The Cloud hub (titles and numbers are made up)"><br><sub>The Cloud hub: RomM, save sync and backups at a glance (names and numbers are made up)</sub></p>
 
 *The screenshots use made-up game titles and empty placeholder files.*
 

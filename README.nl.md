@@ -10,22 +10,16 @@ Valkyr houdt één grote, doorzoekbare lijst bij van de games uit de bronnen die
 
 <table>
   <tr>
-    <td align="center" valign="top"><img src="docs/screenshots/library.png" width="210" alt="De bibliotheek"><br><sub>Je games in één lijst — een groene ✓ betekent dat je de game al hebt</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/duplicates.png" width="210" alt="Dubbele games"><br><sub>Vind games die je dubbel hebt</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/overview.png" width="210" alt="Bibliotheekoverzicht"><br><sub>Bekijk je collectie per console</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/scan-progress.png" width="210" alt="Scanvoortgang"><br><sub>Zie hoe ver een scan is</sub></td>
-  </tr>
-  <tr>
-    <td align="center" valign="top"><img src="docs/screenshots/delete-dialog.png" width="210" alt="Bevestiging van het verwijderen"><br><sub>Je ziet altijd welke bestanden verdwijnen</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/settings.png" width="210" alt="Instellingen"><br><sub>De nieuwe hulpmiddelen staan in Instellingen</sub></td>
-    <td></td>
-    <td></td>
+    <td align="center" valign="top"><img src="docs/screenshots/home.png" width="210" alt="Start met de game om verder te spelen en een plank per console"><br><sub>Start: speel verder waar je gebleven was, met een plank hoesjes per console</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/game.png" width="210" alt="Een gamepagina"><br><sub>Elke game heeft een eigen pagina met een grote Spelen-knop</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/downloads.png" width="210" alt="De downloadwachtrij"><br><sub>Volg je downloads en de hele wachtrij</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/more.png" width="210" alt="Het scherm Meer"><br><sub>Al het andere zit onder Meer, één tik verderop</sub></td>
   </tr>
 </table>
 
-<p align="center"><img src="docs/screenshots/library-landscape.png" width="720" alt="De bibliotheek in liggende stand op een handheld"></p>
+<p align="center"><img src="docs/screenshots/home-landscape.png" width="720" alt="Start in liggende stand op een handheld"><br><sub>Op een handheld in liggende stand staan de onderdelen in een balk links</sub></p>
 
-<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="Het nieuwe cloud-overzicht (titels en cijfers zijn verzonnen)"><br><sub>Het nieuwe cloud-overzicht (titels en cijfers zijn verzonnen)</sub></p>
+<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="Het cloud-overzicht (titels en cijfers zijn verzonnen)"><br><sub>Het cloud-overzicht: RomM, savesynchronisatie en back-ups in één oogopslag (namen en cijfers zijn verzonnen)</sub></p>
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 

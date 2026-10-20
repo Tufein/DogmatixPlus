@@ -10,22 +10,16 @@ Valkyr mantiene una gran lista, con buscador, de los juegos de las fuentes que *
 
 <table>
   <tr>
-    <td align="center" valign="top"><img src="docs/screenshots/library.png" width="210" alt="La biblioteca"><br><sub>Tus juegos en una sola lista — una ✓ verde significa que ya lo tienes</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/duplicates.png" width="210" alt="Juegos duplicados"><br><sub>Encuentra los juegos que tienes dos veces</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/overview.png" width="210" alt="Resumen de la biblioteca"><br><sub>Mira tu colección por consola</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/scan-progress.png" width="210" alt="Progreso del escaneo"><br><sub>Mira cómo va un escaneo</sub></td>
-  </tr>
-  <tr>
-    <td align="center" valign="top"><img src="docs/screenshots/delete-dialog.png" width="210" alt="Confirmación de borrado"><br><sub>Siempre ves qué archivos se van a borrar</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/settings.png" width="210" alt="Ajustes"><br><sub>Las herramientas nuevas están en Ajustes</sub></td>
-    <td></td>
-    <td></td>
+    <td align="center" valign="top"><img src="docs/screenshots/home.png" width="210" alt="Inicio con el juego para seguir jugando y un estante por consola"><br><sub>Inicio: sigue donde lo dejaste, con un estante de portadas por consola</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/game.png" width="210" alt="La página de un juego"><br><sub>Cada juego tiene su propia página con un gran botón Jugar</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/downloads.png" width="210" alt="La cola de descargas"><br><sub>Sigue tus descargas y toda la cola</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/more.png" width="210" alt="La pantalla Más"><br><sub>Todo lo demás está a un toque, en Más</sub></td>
   </tr>
 </table>
 
-<p align="center"><img src="docs/screenshots/library-landscape.png" width="720" alt="La biblioteca en horizontal en una consola portátil"></p>
+<p align="center"><img src="docs/screenshots/home-landscape.png" width="720" alt="Inicio en horizontal en una consola portátil"><br><sub>En una consola portátil en horizontal, las secciones van en una barra a la izquierda</sub></p>
 
-<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="El nuevo resumen de la nube (títulos y cifras inventados)"><br><sub>El nuevo resumen de la nube (títulos y cifras inventados)</sub></p>
+<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="El resumen de la nube (títulos y cifras inventados)"><br><sub>El resumen de la nube: RomM, sincronización de partidas y copias de seguridad de un vistazo (nombres y cifras inventados)</sub></p>
 
 *Las capturas de pantalla usan títulos de juegos inventados y archivos vacíos de relleno. Las capturas muestran la app en inglés.*
 

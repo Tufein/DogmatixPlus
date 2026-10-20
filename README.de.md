@@ -10,22 +10,16 @@ Valkyr führt eine große, durchsuchbare Liste mit den Spielen aus den Quellen, 
 
 <table>
   <tr>
-    <td align="center" valign="top"><img src="docs/screenshots/library.png" width="210" alt="Die Bibliothek"><br><sub>Deine Spiele in einer Liste — ein grünes ✓ bedeutet, dass du das Spiel schon hast</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/duplicates.png" width="210" alt="Doppelte Spiele"><br><sub>Finde Spiele, die du doppelt hast</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/overview.png" width="210" alt="Bibliotheksübersicht"><br><sub>Sieh deine Sammlung pro Konsole</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/scan-progress.png" width="210" alt="Scan-Fortschritt"><br><sub>Sieh, wie weit ein Scan ist</sub></td>
-  </tr>
-  <tr>
-    <td align="center" valign="top"><img src="docs/screenshots/delete-dialog.png" width="210" alt="Löschbestätigung"><br><sub>Du siehst immer, welche Dateien gelöscht werden</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/settings.png" width="210" alt="Einstellungen"><br><sub>Die neuen Werkzeuge findest du in den Einstellungen</sub></td>
-    <td></td>
-    <td></td>
+    <td align="center" valign="top"><img src="docs/screenshots/home.png" width="210" alt="Start mit dem Spiel zum Weiterspielen und einem Regal pro Konsole"><br><sub>Start: spiel weiter, wo du aufgehört hast, mit einem Regal voller Cover pro Konsole</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/game.png" width="210" alt="Eine Spielseite"><br><sub>Jedes Spiel hat eine eigene Seite mit einem großen Spielen-Knopf</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/downloads.png" width="210" alt="Die Download-Warteschlange"><br><sub>Behalte deine Downloads und die ganze Warteschlange im Blick</sub></td>
+    <td align="center" valign="top"><img src="docs/screenshots/more.png" width="210" alt="Der Bereich Mehr"><br><sub>Alles andere ist unter Mehr nur einen Tipp entfernt</sub></td>
   </tr>
 </table>
 
-<p align="center"><img src="docs/screenshots/library-landscape.png" width="720" alt="Die Bibliothek im Querformat auf einem Handheld"></p>
+<p align="center"><img src="docs/screenshots/home-landscape.png" width="720" alt="Start im Querformat auf einem Handheld"><br><sub>Auf einem Handheld im Querformat liegen die Bereiche in einer Leiste links</sub></p>
 
-<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="Die neue Cloud-Übersicht (Titel und Zahlen sind erfunden)"><br><sub>Die neue Cloud-Übersicht (Titel und Zahlen sind erfunden)</sub></p>
+<p align="center"><img src="docs/screenshots/cloud-hub.png" width="460" alt="Die Cloud-Übersicht (Titel und Zahlen sind erfunden)"><br><sub>Die Cloud-Übersicht: RomM, Spielstand-Sync und Backups auf einen Blick (Namen und Zahlen sind erfunden)</sub></p>
 
 *Die Screenshots verwenden erfundene Spieltitel und leere Platzhalterdateien und zeigen die App auf Englisch.*
 
