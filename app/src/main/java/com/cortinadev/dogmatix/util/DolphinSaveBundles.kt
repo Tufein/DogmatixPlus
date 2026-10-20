@@ -9,7 +9,7 @@ enum class DolphinBundleKind { GCI, WII }
  * One opt-in bundle of a Dolphin folder: many saves that travel as one zip ([SavePack]), kept on
  * RomM with the game the user chose for them (never matched to a ROM by name).
  *
- * - [DolphinBundleKind.GCI]: `GC/<region>/Card A|B/*.gci`, Dolphin's GCI folder of one region and
+ * - [DolphinBundleKind.GCI]: the `.gci` files in `GC/<region>/Card A|B`, Dolphin's GCI folder of one region and
  *   slot; the zip holds the `.gci` files flat (`01-GALE-SuperSmashBros.gci`).
  * - [DolphinBundleKind.WII]: `Wii/title/<titleType>/<title>/data/…`, the saves of Wii titles in
  *   Dolphin's NAND; the zip holds `<title>/data/<file>` paths. Never `content/` (a title's installed
