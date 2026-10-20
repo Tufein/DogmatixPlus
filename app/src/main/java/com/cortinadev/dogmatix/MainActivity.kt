@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.focusable
 import androidx.compose.runtime.remember
@@ -108,11 +109,15 @@ import com.cortinadev.dogmatix.ui.components.FreeSpaceText
 import com.cortinadev.dogmatix.ui.components.BottomTabs
 import com.cortinadev.dogmatix.ui.components.GamepadLegend
 import com.cortinadev.dogmatix.ui.components.NoGamepadHint
-import com.cortinadev.dogmatix.ui.components.PortraitHeader
-import com.cortinadev.dogmatix.ui.components.TopTabs
+import com.cortinadev.dogmatix.ui.components.ShellHeader
+import com.cortinadev.dogmatix.ui.components.SideRail
+import com.cortinadev.dogmatix.ui.screens.more.MoreScreen
+import androidx.compose.foundation.layout.Row
 import com.cortinadev.dogmatix.ui.components.legendFor
 import com.cortinadev.dogmatix.ui.navigation.NavRoutes
 import com.cortinadev.dogmatix.ui.navigation.switchToTab
+import com.cortinadev.dogmatix.ui.navigation.neighbourTab
+import com.cortinadev.dogmatix.ui.navigation.travelDirection
 import com.cortinadev.dogmatix.ui.screens.contact.ContactScreen
 import com.cortinadev.dogmatix.ui.screens.download.DownloadScreen
 import com.cortinadev.dogmatix.ui.screens.download.DownloadViewModel
@@ -150,7 +155,7 @@ import com.cortinadev.dogmatix.util.QuickAction
 import com.cortinadev.dogmatix.ui.components.ProvideTvMode
 import com.cortinadev.dogmatix.ui.components.LocalTvMode
 import com.cortinadev.dogmatix.ui.components.tvSafeArea
-import com.cortinadev.dogmatix.ui.components.tabRouteFor
+import com.cortinadev.dogmatix.ui.navigation.tabRouteFor
 import com.cortinadev.dogmatix.ui.components.QuickMenuOverlay
 import com.cortinadev.dogmatix.ui.screens.search.SearchAllScreen
 import com.cortinadev.dogmatix.ui.screens.cloud.CloudBackupScreen
@@ -492,15 +497,13 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
     }
     LaunchedEffect(Unit) {
         Gamepad.presses.collect { button ->
-            val tabs = NavRoutes.tabs
             val route = navController.currentBackStackEntry?.destination?.route
-            val index = tabs.indexOfFirst { it.route == tabRouteFor(route.orEmpty()) }.coerceAtLeast(0)
             when (button) {
                 GamepadButton.PREV_TAB, GamepadButton.NEXT_TAB -> {
                     val delta = if (button == GamepadButton.PREV_TAB) -1 else 1
                     Gamepad.pointerHidden.value = true
                     runCatching { focusSink.requestFocus() }
-                    navController.switchTo(tabs[((index + delta) % tabs.size + tabs.size) % tabs.size])
+                    navController.switchTo(neighbourTab(route, delta))
                 }
                 GamepadButton.FOCUS_TAB -> runCatching { Gamepad.sectionFocus.requestFocus() }
                 else -> Unit
@@ -535,25 +538,30 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                 .windowInsetsPadding(contentInsets())
                 .tvSafeArea()
         ) {
-            if (isLandscape) {
-                TopTabs(
-                    currentRoute = currentRoute,
-                    onSelect = navController::switchTo,
-                    activeDownloads = activeDownloadCount,
-                    onOpenCloud = { navController.openCloud() }
-                )
-            } else {
-                PortraitHeader(trailing = { FreeSpaceText(freeBytes) }, onOpenCloud = { navController.openCloud() })
-            }
+            // 3.8.0: a slim header in both orientations; the sections sit in a rail on the left in
+            // landscape (no vertical space lost) and in the bottom bar upright.
+            ShellHeader(
+                slim = isLandscape,
+                trailing = if (isLandscape) null else ({ FreeSpaceText(freeBytes) }),
+                onOpenCloud = { navController.openCloud() }
+            )
 
-            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            if (isLandscape) {
+                SideRail(
+                    currentRoute = currentRoute,
+                    activeDownloads = activeDownloadCount,
+                    onSelect = navController::switchTo
+                )
+            }
+            Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
                 val reduceMotion = LocalReduceMotion.current
                 NavHost(
                     navController = navController,
                     startDestination = NavRoutes.Home.route,
                     modifier = Modifier.fillMaxSize(),
                     // 5.0: a quick fade with a short slide in the direction of travel (tabs left/right,
-                    // screens opened from Settings from the right). Short, because a fade costs frames
+                    // screens opened from More from the right). Short, because a fade costs frames
                     // on low-end handhelds; nothing at all with animations off.
                     enterTransition = {
                         if (reduceMotion) EnterTransition.None
@@ -679,7 +687,11 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     }
                     composable(NavRoutes.BetterVersions.route) { BetterVersionsScreen(onRecovery = { navController.navigate(NavRoutes.Recovery.route) }) }
                     composable(NavRoutes.SearchAll.route) { SearchAllScreen(navController) }
+                    composable(NavRoutes.More.route) {
+                        MoreScreen(onOpen = { route -> navController.navigate(route.route) { launchSingleTop = true } })
+                    }
                 }
+            }
             }
 
             // On a TV the remote is the controller: show the legend there too.
@@ -707,24 +719,9 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
             onDownloads = { navController.switchTo(NavRoutes.Downloads) },
             onSetQueueHeld = downloadViewModel::setHeld,
             onTools = { navController.navigate(NavRoutes.Tools.route) { launchSingleTop = true } },
-            onSettings = { navController.switchTo(NavRoutes.Settings) }
+            onSettings = { navController.navigate(NavRoutes.Settings.route) { launchSingleTop = true } }
         )
     }
-    }
-}
-
-/**
- * +1 when going "right" (a later tab, or deeper from Settings), -1 when going back "left": the
- * side the new screen slides in from.
- */
-private fun travelDirection(from: String?, to: String?): Int {
-    val tabs = NavRoutes.tabs.map { it.route }
-    val a = tabs.indexOf(from)
-    val b = tabs.indexOf(to)
-    return when {
-        a >= 0 && b >= 0 -> if (b >= a) 1 else -1
-        b < 0 -> 1      // into a screen opened from Settings
-        else -> -1      // back out to a tab
     }
 }
 

@@ -1,7 +1,16 @@
 package com.cortinadev.dogmatix.ui.components
 
-import com.cortinadev.dogmatix.ui.theme.accentInk
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
+import com.cortinadev.dogmatix.ui.navigation.tabRouteFor
+import com.cortinadev.dogmatix.ui.theme.Dimens
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.LaunchedEffect
@@ -14,7 +23,6 @@ import androidx.compose.ui.text.withStyle
 import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
 import com.cortinadev.dogmatix.ui.theme.Motion
 import com.cortinadev.dogmatix.ui.theme.tabular
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -82,78 +90,63 @@ private fun Wordmark(modifier: Modifier = Modifier) {
     }
 }
 
-/** The tab a route belongs to: the screens opened from Settings keep Settings lit. */
-fun tabRouteFor(route: String): String = when {
-    NavRoutes.tabs.any { it.route == route } -> route
-    route == NavRoutes.Game.route || route.startsWith("game/") -> NavRoutes.Home.route   // 8.0: a game page belongs to the Library
-    else -> NavRoutes.Settings.route
-}
-
-/** Landscape header: title, numbered section tabs (ZL / ZR), rescan status. */
+/**
+ * 3.8.0 header, in both orientations: the wordmark, then cloud and rescan status on the right.
+ * Slim in landscape (the rail on the left already carries the sections), a little taller upright.
+ */
 @Composable
-fun TopTabs(currentRoute: String, onSelect: (NavRoutes) -> Unit, activeDownloads: Int = 0, onOpenCloud: () -> Unit = {}) {
-    val scheme = MaterialTheme.colorScheme
-    val litRoute = tabRouteFor(currentRoute)
-    val tabHeight = tvSized(48.dp)   // 8.0 TV mode: bigger targets for the D-pad and the sofa
+fun ShellHeader(
+    slim: Boolean,
+    trailing: @Composable (() -> Unit)? = null,
+    onOpenCloud: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = tabHeight)
-            .padding(start = 20.dp, end = 16.dp),
+            .heightIn(min = tvSized(if (slim) 44.dp else 56.dp))
+            .padding(start = 20.dp, end = Dimens.gutter),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Wordmark(modifier = Modifier.padding(end = 20.dp))
-        NavRoutes.tabs.forEachIndexed { index, route ->
-            val selected = route.route == litRoute
-            val source = rememberFocusSource()
-            val underline = rememberSelectionProgress(selected)
-            Box(
-                modifier = Modifier
-                    .heightIn(min = tabHeight)
-                    .focusRequester(Gamepad.tabFocus.getValue(route.route))
-                    .clip(RoundedCornerShape(8.dp))
-                    .focusRing(source, 8.dp)
-                    .clickable(interactionSource = source, indication = null) { onSelect(route) }
-                    .drawBehind {
-                        val p = underline()
-                        if (p > 0f) {
-                            // Grows from the middle when the tab becomes the current one.
-                            val h = 3.dp.toPx()
-                            val w = size.width * 0.7f * p
-                            drawRoundRect(
-                                color = scheme.primary,
-                                topLeft = Offset((size.width - w) / 2, size.height - h),
-                                size = Size(w, h),
-                                cornerRadius = CornerRadius(h / 2)
-                            )
-                        }
-                    }
-                    .padding(horizontal = 16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.align(Alignment.Center),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        "0${index + 1}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (selected) scheme.primary else scheme.onSurfaceVariant
-                    )
-                    Text(
-                        stringResource(route.labelRes),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = if (selected) scheme.onSurface else scheme.onSurfaceVariant
-                    )
-                    if (route == NavRoutes.Downloads && activeDownloads > 0) CountBadge(activeDownloads)
-                }
-            }
-        }
+        Wordmark()
         Spacer(Modifier.weight(1f))
         CloudStatusIndicator(onClick = onOpenCloud, modifier = Modifier.padding(end = 8.dp))
-        RescanIndicator(modifier = Modifier.widthIn(max = 260.dp))
+        RescanIndicator(modifier = Modifier.widthIn(max = if (slim) 260.dp else 200.dp))
+        trailing?.let { Spacer(Modifier.padding(start = 12.dp)); it() }
     }
-    HorizontalDivider(color = scheme.outlineVariant, thickness = 1.dp)
+}
+
+/**
+ * Landscape (3.8.0): a slim rail on the left with the four sections, so no vertical space goes to
+ * a bar. It grows with the longest label (big text, long languages) up to [Dimens.railMaxWidth];
+ * longer labels wrap, they are never cut off.
+ */
+@Composable
+fun SideRail(currentRoute: String, activeDownloads: Int, onSelect: (NavRoutes) -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    val litRoute = tabRouteFor(currentRoute)
+    Row(modifier = Modifier.fillMaxHeight()) {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(IntrinsicSize.Max)
+                .widthIn(min = tvSized(Dimens.railMinWidth), max = tvSized(Dimens.railMaxWidth))
+                .selectableGroup()
+                .padding(horizontal = 6.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            NavRoutes.tabs.forEach { route ->
+                NavEntry(
+                    route = route,
+                    selected = route.route == litRoute,
+                    badge = if (route == NavRoutes.Downloads) activeDownloads else 0,
+                    onSelect = onSelect,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+        VerticalDivider(color = scheme.outlineVariant, thickness = 1.dp)
+    }
 }
 
 /** 0 → 1 when [selected] turns on (and back), animated and read only while drawing. */
@@ -168,106 +161,120 @@ private fun rememberSelectionProgress(selected: Boolean): () -> Float {
     return { progress.value }
 }
 
-/** The number of running downloads on the Downloads tab. */
+/** The number of running downloads, on the Downloads entry. */
 @Composable
-private fun CountBadge(count: Int) {
+private fun CountBadge(count: Int, modifier: Modifier = Modifier) {
     val scheme = MaterialTheme.colorScheme
     Text(
         count.toString(),
         style = MaterialTheme.typography.labelSmall.tabular(),
         color = scheme.onPrimary,
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(50))
             .background(scheme.primary)
-            .padding(horizontal = 6.dp, vertical = 1.dp)
+            .padding(horizontal = 5.dp, vertical = 1.dp)
     )
 }
 
-/** Portrait header: title plus rescan status. */
+/**
+ * One section in the bottom bar or the rail: icon on a pill that widens in when the section is
+ * the current one, the label always visible under it (it wraps, never ellipsized), at least
+ * [Dimens.navItem] high. The whole entry is the touch and D-pad target; it takes the section's
+ * [Gamepad.tabFocus] requester so B, ZL / ZR and the "wake the cursor" press land on it.
+ */
 @Composable
-fun PortraitHeader(trailing: @Composable (() -> Unit)? = null, onOpenCloud: () -> Unit = {}) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 56.dp)
-            .padding(horizontal = 20.dp),
-        verticalAlignment = Alignment.CenterVertically
+private fun NavEntry(
+    route: NavRoutes,
+    selected: Boolean,
+    badge: Int,
+    onSelect: (NavRoutes) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val scheme = MaterialTheme.colorScheme
+    val source = rememberFocusSource()
+    val pill = rememberSelectionProgress(selected)
+    val pillColor = scheme.primaryContainer
+    val tint = if (selected) scheme.onPrimaryContainer else scheme.onSurfaceVariant
+    val shape = RoundedCornerShape(Dimens.tile)
+    Column(
+        modifier = modifier
+            .heightIn(min = tvSized(Dimens.navItem))
+            .focusRequester(Gamepad.tabFocus.getValue(route.route))
+            .clip(shape)
+            .focusRing(source, Dimens.tile)
+            .selectable(
+                selected = selected,
+                interactionSource = source,
+                indication = null,
+                role = Role.Tab,
+                onClick = { onSelect(route) }
+            )
+            .padding(horizontal = 4.dp, vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Wordmark()
-        Spacer(Modifier.weight(1f))
-        CloudStatusIndicator(onClick = onOpenCloud, modifier = Modifier.padding(end = 8.dp))
-        RescanIndicator(modifier = Modifier.widthIn(max = 200.dp))
-        trailing?.let { Spacer(Modifier.padding(start = 12.dp)); it() }
+        Box(
+            modifier = Modifier
+                .size(tvSized(Dimens.indicatorWidth), tvSized(Dimens.indicatorHeight))
+                .drawBehind {
+                    val p = pill()
+                    if (p > 0f) {
+                        val h = size.height
+                        val w = size.width * (0.5f + 0.5f * p)
+                        drawRoundRect(
+                            pillColor.copy(alpha = pillColor.alpha * p),
+                            topLeft = Offset((size.width - w) / 2, 0f),
+                            size = Size(w, h),
+                            cornerRadius = CornerRadius(h / 2)
+                        )
+                    }
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(painterResource(route.icon), contentDescription = null, tint = tint, modifier = Modifier.size(tvSized(24.dp)))
+            if (badge > 0) {
+                CountBadge(
+                    badge,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 2.dp, y = (-4).dp)
+                )
+            }
+        }
+        Spacer(Modifier.height(4.dp))
+        Text(
+            stringResource(route.labelRes),
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium),
+            color = if (selected) scheme.onSurface else scheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
-/** Portrait bottom bar with the four sections. */
+/** Portrait bottom bar with the four sections (3.8.0: Games, Downloads, Sources, More). */
 @Composable
 fun BottomTabs(currentRoute: String, activeDownloads: Int, onSelect: (NavRoutes) -> Unit) {
     val scheme = MaterialTheme.colorScheme
+    val litRoute = tabRouteFor(currentRoute)
     Column {
         HorizontalDivider(color = scheme.outlineVariant, thickness = 1.dp)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 64.dp)
-                .background(scheme.background),
-            verticalAlignment = Alignment.CenterVertically
+                .background(scheme.background)
+                .selectableGroup()
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            val litRoute = tabRouteFor(currentRoute)
             NavRoutes.tabs.forEach { route ->
-                val selected = route.route == litRoute
-                val source = rememberFocusSource()
-                val pill = rememberSelectionProgress(selected)
-                val pillColor = scheme.primaryContainer
-                val tint = if (selected) scheme.onPrimaryContainer else scheme.onSurfaceVariant
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .heightIn(min = 64.dp)
-                        .focusRequester(Gamepad.tabFocus.getValue(route.route))
-                        .clip(RoundedCornerShape(8.dp))
-                        .focusRing(source)
-                        .clickable(interactionSource = source, indication = null) { onSelect(route) }
-                        .padding(vertical = 6.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Box(
-                        modifier = Modifier.drawBehind {
-                            val p = pill()
-                            if (p > 0f) {
-                                // A pill behind the icon that widens in when the tab becomes current.
-                                val h = 30.dp.toPx()
-                                val w = 56.dp.toPx() * (0.5f + 0.5f * p)
-                                drawRoundRect(
-                                    pillColor.copy(alpha = pillColor.alpha * p),
-                                    topLeft = Offset((size.width - w) / 2, (size.height - h) / 2),
-                                    size = Size(w, h),
-                                    cornerRadius = CornerRadius(h / 2)
-                                )
-                            }
-                        },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(painterResource(route.icon), contentDescription = stringResource(route.labelRes), tint = tint, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp).size(22.dp))
-                        if (route == NavRoutes.Downloads && activeDownloads > 0) {
-                            Text(
-                                activeDownloads.toString(),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = scheme.onPrimary,
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .padding(start = 14.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(scheme.primary)
-                                    .padding(horizontal = 5.dp)
-                            )
-                        }
-                    }
-                    Spacer(Modifier.height(4.dp))
-                    Text(stringResource(route.labelRes), style = MaterialTheme.typography.labelSmall, color = if (selected) scheme.onSurface else scheme.onSurfaceVariant)
-                }
+                NavEntry(
+                    route = route,
+                    selected = route.route == litRoute,
+                    badge = if (route == NavRoutes.Downloads) activeDownloads else 0,
+                    onSelect = onSelect,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
@@ -292,7 +299,7 @@ fun legendFor(route: String): List<LegendEntry> {
         NavRoutes.Sources.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
         NavRoutes.Duplicates.route -> listOf(LegendEntry("A", stringResource(R.string.pad_delete)), back, section)
         NavRoutes.Overview.route -> listOf(LegendEntry("A", stringResource(R.string.pad_rescan)), back, section)
-        NavRoutes.Tools.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
+        NavRoutes.Tools.route, NavRoutes.More.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
         NavRoutes.Sets.route -> listOf(LegendEntry("A", stringResource(R.string.pad_apply)), back, section)
         NavRoutes.Storage.route -> listOf(LegendEntry("A", stringResource(R.string.pad_delete)), back, section)
         NavRoutes.Wishlist.route -> listOf(LegendEntry("A", stringResource(R.string.pad_open)), back, section)
