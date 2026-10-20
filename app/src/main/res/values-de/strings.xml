@@ -1323,7 +1323,7 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Ein neues Aussehen: Home startet mit Regalen voller großer Cover (weiterspielen, neu für dich, ein Regal pro Konsole). Die Navigation ist eine Leiste unten oder, auf einem Handheld, eine schmale Seitenleiste mit Spiele, Downloads, Quellen und Mehr; Einstellungen, Tools und der Rest liegen unter Mehr. Die Spielseite beginnt mit einem großen Cover und einer großen Schaltfläche Spielen oder Download.</item>
+        <item>Flüssigere Steuerung: Nach dem Wechsel des Bereichs oder dem Schließen eines Dialogs führt der erste D-Pad-Druck direkt in den Bildschirm, der Fokus kehrt zum Spiel oder zur Zeile zurück, von der du kamst, Listen scrollen schneller mit bereits sichtbarer nächster Zeile, L1/R1 blättern durch lange Listen und B schließt Blätter und Suchfelder überall gleich.</item>
     </string-array>
 
     <!-- 4.0 -->

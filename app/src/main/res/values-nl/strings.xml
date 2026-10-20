@@ -1323,7 +1323,7 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Een nieuw jasje: Home opent met planken vol grote covers (verder spelen, nieuw voor jou, een plank per console). De navigatie zit in een balk onderaan, of een smalle zijbalk op een handheld, met Games, Downloads, Bronnen en Meer; Instellingen, Tools en de rest staan onder Meer. De spelpagina begint met een grote cover en één grote knop Spelen of Download.</item>
+        <item>Soepelere besturing: na het wisselen van sectie of het sluiten van een venster brengt de eerste D-pad-druk je meteen in het scherm, de focus keert terug naar het spel of de rij waar je vandaan kwam, lijsten scrollen sneller met de volgende rij al in beeld, L1/R1 bladeren door lange lijsten en B sluit bladen en zoekvelden overal hetzelfde.</item>
     </string-array>
 
     <!-- 4.0 -->

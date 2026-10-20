@@ -29,7 +29,7 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 *Les captures d’écran utilisent des titres de jeux inventés et des fichiers vides de substitution, et montrent l’application en anglais.*
 
-**Dernière version : [3.8.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.8.0)** (build Android 50).
+**Dernière version : [3.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.9.0)** (build Android 51).
 
 ## Installation
 

@@ -1324,7 +1324,7 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>A new look: Home opens on shelves of big covers (continue playing, new for you, one shelf per console). Navigation is a bottom bar, or a slim side bar on a handheld, with Games, Downloads, Sources and More; Settings, Tools and the rest are under More. The game page starts with a large cover and one big Play or Download button.</item>
+        <item>Smoother controls: after switching sections or closing a dialog, the first D-pad press now takes you straight into the screen, focus returns to the game or row you came from, lists scroll faster with the next row already in view, L1/R1 page through long lists, and B closes sheets and search fields consistently.</item>
     </string-array>
 
     <!-- 4.0 -->

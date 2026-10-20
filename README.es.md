@@ -29,7 +29,7 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 *Las capturas de pantalla usan títulos de juegos inventados y archivos vacíos de relleno. Las capturas muestran la app en inglés.*
 
-**Última versión: [3.8.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.8.0)** (build de Android 50).
+**Última versión: [3.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.9.0)** (build de Android 51).
 
 ## Instalar
 

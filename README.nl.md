@@ -29,7 +29,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [3.8.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.8.0)** (Android build 50).
+**Laatste release: [3.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.9.0)** (Android build 51).
 
 ## Installeren
 

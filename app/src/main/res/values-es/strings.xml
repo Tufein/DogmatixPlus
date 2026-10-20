@@ -1297,7 +1297,7 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Un nuevo aspecto: Inicio se abre con estantes de carátulas grandes (seguir jugando, nuevo para ti, un estante por consola). La navegación es una barra inferior, o una barra lateral estrecha en una portátil, con Juegos, Descargas, Fuentes y Más; Ajustes, Herramientas y el resto están en Más. La página del juego empieza con una carátula grande y un botón grande de Jugar o Descargar.</item>
+        <item>Control más fluido: tras cambiar de sección o cerrar un diálogo, la primera pulsación del D-pad te lleva directamente a la pantalla, el foco vuelve al juego o a la fila de la que vienes, las listas se desplazan más rápido con la siguiente fila ya a la vista, L1/R1 pasan páginas en listas largas y B cierra hojas y campos de búsqueda de forma uniforme.</item>
     </string-array>
 
     <!-- 4.0 -->

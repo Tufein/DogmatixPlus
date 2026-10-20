@@ -1328,7 +1328,7 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Un nouveau look : l’accueil s’ouvre sur des étagères de grandes jaquettes (continuer à jouer, nouveau pour vous, une étagère par console). La navigation est une barre en bas, ou une barre latérale fine sur une console portable, avec Jeux, Téléchargements, Sources et Plus ; Réglages, Outils et le reste sont sous Plus. La page d’un jeu commence par une grande jaquette et un grand bouton Jouer ou Télécharger.</item>
+        <item>Commandes plus fluides : après un changement de section ou la fermeture d’une boîte de dialogue, le premier appui sur la croix vous mène directement dans l’écran, le focus revient au jeu ou à la ligne d’où vous veniez, les listes défilent plus vite avec la ligne suivante déjà visible, L1/R1 font défiler les longues listes page par page et B ferme partout de la même façon les feuilles et les champs de recherche.</item>
     </string-array>
 
     <!-- 4.0 -->

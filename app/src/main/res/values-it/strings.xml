@@ -1274,7 +1274,7 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Un nuovo aspetto: la Home si apre con scaffali di copertine grandi (continua a giocare, nuovo per te, uno scaffale per console). La navigazione è una barra in basso, o una barra laterale sottile su una console portatile, con Giochi, Download, Fonti e Altro; Impostazioni, Strumenti e il resto sono sotto Altro. La pagina del gioco inizia con una copertina grande e un grande pulsante Gioca o Scarica.</item>
+        <item>Controlli più fluidi: dopo aver cambiato sezione o chiuso una finestra, la prima pressione del D-pad ti porta subito nella schermata, il focus torna al gioco o alla riga da cui arrivi, le liste scorrono più veloci con la riga successiva già visibile, L1/R1 scorrono le liste lunghe a pagine e B chiude fogli e campi di ricerca sempre allo stesso modo.</item>
     </string-array>
 
     <!-- 4.0 -->

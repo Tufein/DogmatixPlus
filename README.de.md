@@ -29,7 +29,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 *Die Screenshots verwenden erfundene Spieltitel und leere Platzhalterdateien und zeigen die App auf Englisch.*
 
-**Neueste Version: [3.8.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.8.0)** (Android-Build 50).
+**Neueste Version: [3.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.9.0)** (Android-Build 51).
 
 ## Installation
 
