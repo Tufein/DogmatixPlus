@@ -29,7 +29,7 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 *Las capturas de pantalla usan títulos de juegos inventados y archivos vacíos de relleno. Las capturas muestran la app en inglés.*
 
-**Última versión: [3.7.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.7.0)** (build de Android 49).
+**Última versión: [3.8.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.8.0)** (build de Android 50).
 
 ## Instalar
 
@@ -56,6 +56,7 @@ Necesitas **Android 10 o más reciente**. La app no está en Google Play.
 - **Una búsqueda que perdona errores** (acentos, guiones, letras repetidas), con búsquedas recientes, **Sorpréndeme** y **Más como este**. **Buscar todo** también encuentra ajustes, herramientas y pantallas.
 - **Filtra** por consola, región, idioma, tipo, género, década y *Nuevo*; **ordena** por nombre, tamaño o novedad. Un **✓** verde marca lo que ya tienes.
 - **Una página para cada juego**: imagen, Descargar o Jugar, la mejor versión, favorito, colecciones, compartir, notas, capturas y manuales, y una pestaña *Versiones* que explica cómo puntúa cada versión.
+- **Primero las carátulas**: Inicio se abre con estantes de carátulas grandes (seguir jugando, nuevo para ti, un estante por consola); la navegación está en una barra inferior, o en una barra lateral estrecha en una portátil, con Juegos, Descargas, Fuentes y Más. La página del juego empieza con una carátula grande y un botón grande de Jugar o Descargar.
 - **A continuación y Para ti**: una lista de juegos personal por perfil y sugerencias de tu propia biblioteca que siempre dicen por qué se eligieron.
 - **Colecciones y objetivos**: favoritos, listas propias, colecciones por reglas (consola, idioma, género, año, jugado), objetivos de colección, historial de juego, un resumen anual y los mejores juegos por consola según RetroAchievements.
 - **Lista de deseos**: anota los juegos que quieres, recibe un aviso cuando aparezca uno, descárgalos automáticamente y comparte la lista.

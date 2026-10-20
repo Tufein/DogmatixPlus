@@ -1323,7 +1323,7 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Dolphin-Saves: Unter Einstellungen → Spielstand-Sync lassen sich die GameCube-Speicherordner (GCI) und die Wii-Saves von Dolphin jetzt bei einem RomM-Spiel ablegen. Sie werden als Ganzes synchronisiert: Eine neuere Kopie auf dem Server wird nie stillschweigend geladen, und die ersetzte Kopie bleibt zuerst erhalten. Es wird nie etwas gelöscht.</item>
+        <item>Ein neues Aussehen: Home startet mit Regalen voller großer Cover (weiterspielen, neu für dich, ein Regal pro Konsole). Die Navigation ist eine Leiste unten oder, auf einem Handheld, eine schmale Seitenleiste mit Spiele, Downloads, Quellen und Mehr; Einstellungen, Tools und der Rest liegen unter Mehr. Die Spielseite beginnt mit einem großen Cover und einer großen Schaltfläche Spielen oder Download.</item>
     </string-array>
 
     <!-- 4.0 -->

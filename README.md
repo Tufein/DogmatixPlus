@@ -29,7 +29,7 @@ The app includes no games. **Sources → More romsets** offers optional free con
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [3.7.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.7.0)** (Android build 49).
+**Latest release: [3.8.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.8.0)** (Android build 50).
 
 ## Install
 
@@ -56,6 +56,7 @@ You need **Android 10 or newer**. The app is not on Google Play.
 - **Search that forgives mistakes** (accents, dashes, doubled letters), with recent searches, **Surprise me** and **More like this**. **Search everything** also finds settings, tools and screens.
 - **Filter** by console, region, language, type, genre, decade and *New*; **sort** by name, size or newest. A green **✓** marks what you already have.
 - **A page for every game**: art, Download or Play, the best version, favourite, collections, share, notes, screenshots and manuals, and a *Versions* tab that explains how each version scores.
+- **Covers first**: Home opens on shelves of big covers (continue playing, new for you, one shelf per console), navigation sits in a bottom bar, or a slim side bar on a handheld, with Games, Downloads, Sources and More. The game page starts with a large cover and one big Play or Download button.
 - **Up next and For you**: a personal play list per profile, and suggestions from your own library that always say why they were picked.
 - **Collections and goals**: favourites, your own lists, rule-based collections (console, language, genre, year, played), collection goals, play history, a yearly recap and the best games per console from RetroAchievements.
 - **Wishlist**: note games you want, get told when one appears, download them automatically and share the list.

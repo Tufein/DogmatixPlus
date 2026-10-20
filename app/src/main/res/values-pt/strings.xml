@@ -1274,7 +1274,7 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Saves do Dolphin: em Definições → Sincronização de saves, as pastas de saves de GameCube (GCI) e os saves de Wii do Dolphin podem agora ficar com um jogo do RomM. Sincronizam como um conjunto: uma cópia mais recente no servidor nunca é descarregada em silêncio e a cópia substituída é primeiro guardada. Nunca se apaga nada.</item>
+        <item>Um novo aspeto: o Início abre com prateleiras de capas grandes (continuar a jogar, novo para ti, uma prateleira por consola). A navegação é uma barra em baixo, ou uma barra lateral estreita numa portátil, com Jogos, Downloads, Fontes e Mais; Definições, Ferramentas e o resto estão em Mais. A página do jogo começa com uma capa grande e um botão grande Jogar ou Download.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -1323,7 +1323,7 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Dolphin-saves: onder Instellingen → Savesynchronisatie kunnen de GameCube-savemappen (GCI) en de Wii-saves van Dolphin nu bij een RomM-spel worden bewaard. Ze synchroniseren als één geheel: een nieuwere kopie op de server wordt nooit stilletjes gedownload en de kopie die wordt vervangen blijft eerst bewaard. Er wordt nooit iets verwijderd.</item>
+        <item>Een nieuw jasje: Home opent met planken vol grote covers (verder spelen, nieuw voor jou, een plank per console). De navigatie zit in een balk onderaan, of een smalle zijbalk op een handheld, met Games, Downloads, Bronnen en Meer; Instellingen, Tools en de rest staan onder Meer. De spelpagina begint met een grote cover en één grote knop Spelen of Download.</item>
     </string-array>
 
     <!-- 4.0 -->

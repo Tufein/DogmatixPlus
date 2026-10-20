@@ -1328,7 +1328,7 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Sauvegardes Dolphin : dans Réglages → Synchro des sauvegardes, les dossiers de sauvegarde GameCube (GCI) et les sauvegardes Wii de Dolphin peuvent maintenant être rattachés à un jeu RomM. Ils se synchronisent en bloc : une copie plus récente sur le serveur n’est jamais téléchargée en silence et la copie remplacée est d’abord conservée. Rien n’est jamais supprimé.</item>
+        <item>Un nouveau look : l’accueil s’ouvre sur des étagères de grandes jaquettes (continuer à jouer, nouveau pour vous, une étagère par console). La navigation est une barre en bas, ou une barre latérale fine sur une console portable, avec Jeux, Téléchargements, Sources et Plus ; Réglages, Outils et le reste sont sous Plus. La page d’un jeu commence par une grande jaquette et un grand bouton Jouer ou Télécharger.</item>
     </string-array>
 
     <!-- 4.0 -->

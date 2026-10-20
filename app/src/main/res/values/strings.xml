@@ -1324,7 +1324,7 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Dolphin saves: under Settings → Save sync, the GameCube save folders (GCI) and the Wii saves of Dolphin can now be kept with a RomM game. They sync as a whole bundle: a newer copy on the server is never downloaded silently, and the copy that is replaced is kept first. Nothing is ever deleted.</item>
+        <item>A new look: Home opens on shelves of big covers (continue playing, new for you, one shelf per console). Navigation is a bottom bar, or a slim side bar on a handheld, with Games, Downloads, Sources and More; Settings, Tools and the rest are under More. The game page starts with a large cover and one big Play or Download button.</item>
     </string-array>
 
     <!-- 4.0 -->

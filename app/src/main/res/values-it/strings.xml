@@ -1274,7 +1274,7 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Salvataggi di Dolphin: in Impostazioni → Sincronizzazione dei salvataggi, le cartelle dei salvataggi GameCube (GCI) e i salvataggi Wii di Dolphin si possono ora tenere con un gioco di RomM. Si sincronizzano come un insieme: una copia più recente sul server non viene mai scaricata in silenzio e la copia sostituita viene prima conservata. Non viene mai eliminato nulla.</item>
+        <item>Un nuovo aspetto: la Home si apre con scaffali di copertine grandi (continua a giocare, nuovo per te, uno scaffale per console). La navigazione è una barra in basso, o una barra laterale sottile su una console portatile, con Giochi, Download, Fonti e Altro; Impostazioni, Strumenti e il resto sono sotto Altro. La pagina del gioco inizia con una copertina grande e un grande pulsante Gioca o Scarica.</item>
     </string-array>
 
     <!-- 4.0 -->
