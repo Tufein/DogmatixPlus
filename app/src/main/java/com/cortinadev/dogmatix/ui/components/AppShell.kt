@@ -8,7 +8,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextAlign
 import com.cortinadev.dogmatix.ui.navigation.tabRouteFor
 import com.cortinadev.dogmatix.ui.theme.Dimens
 import androidx.compose.animation.core.Animatable
@@ -246,7 +245,6 @@ private fun NavEntry(
             stringResource(route.labelRes),
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium),
             color = if (selected) scheme.onSurface else scheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
         )
     }
 }
