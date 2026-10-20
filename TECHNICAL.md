@@ -142,7 +142,7 @@ Valkyr is made for handhelds with a small landscape screen and a controller, wit
 - **Library rows**: *Library overview*, *Duplicate games*, *Back up* and *Restore backup* (see [Library tools](#library-tools)).
 
 ### Under the hood
-- The Kotlin package is `com.cortinadev.dogmatix`; the application id is `com.tufein.dogmatixplus` (kept through the rename to Valkyr so installed apps keep updating).
+- The Kotlin package is `com.tufein.valkyr`; the application id is `com.tufein.valkyr` (kept through the rename to Valkyr so installed apps keep updating).
 - Room schema at v9 with explicit migrations (search key, download history, game metadata cache, per-console short name and folder aliases, favourites, debrid resume ids).
 - All source handling lives in `SourcesRepository`; the JSON format is read and written by one pure `SourcesJson` object shared by the bundled asset, the Room `urls` column and export/import. Sources are routed by URL: `magnet:`/`.torrent` → libtorrent, `romm://` → the RomM API, anything else → HTML directory scraping.
 - Downloads are routed in `DownloadService.perform()`: debrid service (when selected; `DebridClient` implemented by `TorBoxClient` and `RealDebridClient`) → HTTP with resume; torrent → libtorrent; HTTP otherwise (with the RomM credentials when the file comes from the RomM server). Integrations talk to their APIs with a tiny `JsonHttp` helper over `HttpURLConnection` + Gson — no OkHttp.
@@ -170,17 +170,17 @@ Requirements: JDK 17 or newer (the releases were built with JDK 21), Android SDK
 git clone https://github.com/Tufein/DogmatixPlus.git
 cd DogmatixPlus
 
-./gradlew assembleDebug      # debug APK (applicationId com.tufein.dogmatixplus.debug)
+./gradlew assembleDebug      # debug APK (applicationId com.tufein.valkyr.debug)
 ./gradlew assembleRelease    # release APK (minified, signed with the debug keystore)
 ./gradlew test               # JVM unit tests
 ./gradlew lint
 ```
 
-The debug build uses the `.debug` application-id suffix so it can be installed next to a release build. The Kotlin package is `com.cortinadev.dogmatix`.
+The debug build uses the `.debug` application-id suffix so it can be installed next to a release build. The Kotlin package is `com.tufein.valkyr`.
 
 ### Project structure
 ```
-app/src/main/java/com/cortinadev/dogmatix/
+app/src/main/java/com/tufein/valkyr/
 ├── data/        Room entities/DAOs, repositories, services (scraping, torrents, downloads, extraction, library scan, backup)
 ├── di/          Hilt modules
 ├── ui/
@@ -213,7 +213,6 @@ app/src/test/                       JVM unit tests
 - **Checking the APKs**: `aapt2` (package, version, languages) and `apksigner` (signature) on every APK before it was released
 - **Test data**: small Python 3 scripts (not part of this repository) ran a local web server with made-up game indexes, so scans, the progress display and the duplicate finder could be tried without any real sources
 - **Releases**: git and the GitHub REST API for commits, tags and the release with its APKs and checksums
-- **AI assistance**: an AI coding assistant wrote and refactored code, tests and documentation, and independent AI review passes were run over the changes before they were published (see [Credits](#credits))
 
 ## Deep links
 
@@ -281,8 +280,6 @@ Valkyr is made by [Tufein](https://github.com/Tufein).
 | [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Covers for launchers and RetroArch playlists |
 | [No-Intro](https://no-intro.org), [Redump](http://redump.org), [TOSEC](https://www.tosecdev.org) | DAT checks |
 | [RomM](https://github.com/rommapp/romm), [ES-DE](https://es-de.org), [Libretro](https://www.libretro.com), [ScummVM](https://www.scummvm.org), [Homebrew Hub](https://hh.gbdev.io) | The server, launcher and free content catalogues the app works with |
-
-Valkyr was **made with the help of A.I.**: the code, the tests and this documentation were written together with an AI assistant, then checked in several independent review rounds and tried on an emulator. Decisions, direction and publishing are the maintainer's.
 
 
 ## Library recovery

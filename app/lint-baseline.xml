@@ -7,7 +7,7 @@
         errorLine1="                    runCatching { NotificationManagerCompat.from(this@DownloadForegroundService).notify(NOTIFICATION_ID, buildNotification(held, actions, waiting)) }"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/DownloadForegroundService.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/DownloadForegroundService.kt"
             line="100"
             column="35"/>
     </issue>
@@ -18,7 +18,7 @@
         errorLine1="                    runCatching { context.contentResolver.openInputStream(Uri.parse(f.uri))?.use { it.readNBytes(SetChecker.MAX_SHEET_BYTES.toInt()) }?.toString(Charsets.UTF_8) }.getOrNull()"
         errorLine2="                                                                                                      ~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/FileExplorerScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/FileExplorerScreen.kt"
             line="207"
             column="103"/>
     </issue>
@@ -29,7 +29,7 @@
         errorLine1="        context.contentResolver.openInputStream(file.uri.toUri())?.use { it.readNBytes(SetChecker.MAX_SHEET_BYTES.toInt()) }?.toString(Charsets.UTF_8)"
         errorLine2="                                                                            ~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/LibraryToolsService.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/LibraryToolsService.kt"
             line="51"
             column="77"/>
     </issue>
@@ -40,7 +40,7 @@
         errorLine1="            startActivityAndCollapse(intent)"
         errorLine2="                                     ~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/QueueTileService.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/QueueTileService.kt"
             line="98"
             column="38"/>
     </issue>
@@ -128,7 +128,7 @@
         errorLine1="        context.createConfigurationContext(Configuration(config).apply { setLocale(Locale.ENGLISH) })"
         errorLine2="                                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/search/SearchAllScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/search/SearchAllScreen.kt"
             line="338"
             column="74"/>
     </issue>
@@ -392,7 +392,7 @@
         errorLine1="    val wide = LocalConfiguration.current.screenWidthDp >= 600"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/sources/components/ConsoleCard.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/sources/components/ConsoleCard.kt"
             line="112"
             column="16"/>
     </issue>
@@ -403,7 +403,7 @@
         errorLine1="    val isLandscape = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/contact/ContactScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/contact/ContactScreen.kt"
             line="70"
             column="66"/>
     </issue>
@@ -414,7 +414,7 @@
         errorLine1="    val isLandscape = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/contact/ContactScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/contact/ContactScreen.kt"
             line="70"
             column="23"/>
     </issue>
@@ -425,7 +425,7 @@
         errorLine1="    return if (config.orientation == Configuration.ORIENTATION_LANDSCAPE &amp;&amp; config.screenWidthDp >= 800) 2 else 1"
         errorLine2="                                                                            ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/settings/SettingsKit.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/settings/SettingsKit.kt"
             line="132"
             column="77"/>
     </issue>
@@ -436,7 +436,7 @@
         errorLine1="    val columns = if (LocalConfiguration.current.screenWidthDp >= 560) 4 else 2"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/ToolsComponents.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/ToolsComponents.kt"
             line="330"
             column="23"/>
     </issue>
@@ -447,7 +447,7 @@
         errorLine1="        screenWidthDp = config.screenWidthDp,"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/components/TvLayout.kt"
+            file="src/main/java/com/tufein/valkyr/ui/components/TvLayout.kt"
             line="41"
             column="25"/>
     </issue>
@@ -458,7 +458,7 @@
         errorLine1="        screenHeightDp = config.screenHeightDp,"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/components/TvLayout.kt"
+            file="src/main/java/com/tufein/valkyr/ui/components/TvLayout.kt"
             line="42"
             column="26"/>
     </issue>
@@ -469,7 +469,7 @@
         errorLine1="        horizontal = TvMode.sidePaddingDp(config.screenWidthDp).dp,"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/components/TvLayout.kt"
+            file="src/main/java/com/tufein/valkyr/ui/components/TvLayout.kt"
             line="70"
             column="43"/>
     </issue>
@@ -480,7 +480,7 @@
         errorLine1="        vertical = TvMode.edgePaddingDp(config.screenHeightDp).dp"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/components/TvLayout.kt"
+            file="src/main/java/com/tufein/valkyr/ui/components/TvLayout.kt"
             line="71"
             column="41"/>
     </issue>
@@ -491,7 +491,7 @@
         errorLine1="                                    SetProblem.Kind.EMPTY_SHEET -> context.getString(R.string.sets_empty_sheet)"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/FileExplorerScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/FileExplorerScreen.kt"
             line="431"
             column="68"/>
     </issue>
@@ -502,7 +502,7 @@
         errorLine1="                                    SetProblem.Kind.MISSING_DISCS -> context.getString(R.string.sets_missing_discs, p.missing.joinToString(&quot;, &quot;))"
         errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/FileExplorerScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/FileExplorerScreen.kt"
             line="432"
             column="70"/>
     </issue>
@@ -513,7 +513,7 @@
         errorLine1="                                    SetProblem.Kind.MISSING_TRACKS -> context.getString(R.string.sets_missing_tracks, p.missing.joinToString(&quot;, &quot;))"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/FileExplorerScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/FileExplorerScreen.kt"
             line="433"
             column="71"/>
     </issue>
@@ -524,7 +524,7 @@
         errorLine1="                ToastUtil.showInfo(context, context.getString(R.string.health6_covers_cleared))"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/HealthScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/HealthScreen.kt"
             line="339"
             column="45"/>
     </issue>
@@ -535,7 +535,7 @@
         errorLine1="                if (!startSettings(context, fix)) ToastUtil.showError(context, context.getString(R.string.health6_no_settings))"
         errorLine2="                                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/HealthScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/HealthScreen.kt"
             line="344"
             column="80"/>
     </issue>
@@ -546,7 +546,7 @@
         errorLine1="            ToastUtil.showError(context, context.getString(R.string.romm5_save_failed, context.getString(rommErrorText(kind))))"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/cloud/sections/RommGameSection.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/cloud/sections/RommGameSection.kt"
             line="102"
             column="42"/>
     </issue>
@@ -557,7 +557,7 @@
         errorLine1="            ToastUtil.showError(context, context.getString(R.string.romm5_save_failed, context.getString(rommErrorText(kind))))"
         errorLine2="                                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/cloud/sections/RommGameSection.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/cloud/sections/RommGameSection.kt"
             line="102"
             column="88"/>
     </issue>
@@ -568,7 +568,7 @@
         errorLine1="                    (if (m.to == SmartStorage.Place.SD) context.getString(R.string.store8_to_sd) else context.getString(R.string.store8_to_internal)) +"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/SmartStorageSection.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/SmartStorageSection.kt"
             line="154"
             column="57"/>
     </issue>
@@ -579,7 +579,7 @@
         errorLine1="                    (if (m.to == SmartStorage.Place.SD) context.getString(R.string.store8_to_sd) else context.getString(R.string.store8_to_internal)) +"
         errorLine2="                                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/SmartStorageSection.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/SmartStorageSection.kt"
             line="154"
             column="103"/>
     </issue>
@@ -590,7 +590,7 @@
         errorLine1="        context.startActivity(Intent.createChooser(send, context.getString(R.string.sources_export_share_title)))"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/sources/SourcesScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/sources/SourcesScreen.kt"
             line="140"
             column="58"/>
     </issue>
@@ -601,7 +601,7 @@
         errorLine1="                        if (queued > 0) ToastUtil.showSuccess(context, context.resources.getQuantityString(R.plurals.top7_queued, queued, queued))"
         errorLine2="                                                                       ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/BestGamesScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/BestGamesScreen.kt"
             line="458"
             column="72"/>
     </issue>
@@ -612,7 +612,7 @@
         errorLine1="    val resources = LocalContext.current.resources"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/BetterVersionsScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/BetterVersionsScreen.kt"
             line="268"
             column="21"/>
     </issue>
@@ -623,7 +623,7 @@
         errorLine1="private fun swatchFill(color: Color): Modifier ="
         errorLine2="            ~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/settings/SettingsScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/settings/SettingsScreen.kt"
             line="1456"
             column="13"/>
     </issue>
@@ -634,7 +634,7 @@
         errorLine1="    backModifier: Modifier"
         errorLine2="    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/game/GamePage.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/game/GamePage.kt"
             line="448"
             column="5"/>
     </issue>
@@ -645,7 +645,7 @@
         errorLine1="private fun Examples(onPick: (String) -> Unit, first: Modifier) {"
         errorLine2="                                               ~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/search/SearchAllScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/search/SearchAllScreen.kt"
             line="296"
             column="48"/>
     </issue>
@@ -656,7 +656,7 @@
         errorLine1="    modifier: Modifier = Modifier,"
         errorLine2="    ~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/settings/SettingsKit.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/settings/SettingsKit.kt"
             line="232"
             column="5"/>
     </issue>
@@ -667,7 +667,7 @@
         errorLine1="private fun RunRow(smart: SmartStorageUi, focus: Modifier) {"
         errorLine2="                                          ~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/SmartStorageSection.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/SmartStorageSection.kt"
             line="241"
             column="43"/>
     </issue>
@@ -678,7 +678,7 @@
         errorLine1="private fun MoveRow(move: SmartStorage.Move, wait: SmartStorage.Wait?, focus: Modifier) {"
         errorLine2="                                                                       ~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/SmartStorageSection.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/SmartStorageSection.kt"
             line="300"
             column="72"/>
     </issue>
@@ -689,7 +689,7 @@
         errorLine1="fun TagChip(text: String, emphasized: Boolean = false, modifier: Modifier = Modifier, colors: TagColors? = null) {"
         errorLine2="                                                       ~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/components/TagChip.kt"
+            file="src/main/java/com/tufein/valkyr/ui/components/TagChip.kt"
             line="43"
             column="56"/>
     </issue>
@@ -7916,7 +7916,7 @@
         errorLine1="        object : X509TrustManager {"
         errorLine2="        ~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/TlsTrust.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/TlsTrust.kt"
             line="75"
             column="9"/>
     </issue>
@@ -7927,7 +7927,7 @@
         errorLine1="        val capture = object : X509TrustManager {"
         errorLine2="                      ~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/TlsTrust.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/TlsTrust.kt"
             line="127"
             column="23"/>
     </issue>
@@ -7938,7 +7938,7 @@
         errorLine1="    private class PinnedTrustManager(private val fingerprint: String) : X509TrustManager {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/TlsTrust.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/TlsTrust.kt"
             line="147"
             column="19"/>
     </issue>
@@ -7949,7 +7949,7 @@
         errorLine1="    private class PinnedLeafTrust(private val fingerprint: String, private val fallback: X509TrustManager) : X509TrustManager {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/WebDavClient.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/WebDavClient.kt"
             line="311"
             column="19"/>
     </issue>
@@ -7960,7 +7960,7 @@
         errorLine1="            acquire()"
         errorLine2="            ~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/DownloadForegroundService.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/DownloadForegroundService.kt"
             line="72"
             column="13"/>
     </issue>
@@ -8044,7 +8044,7 @@
         errorLine1="    val focusIndex = listState.firstVisibleItemIndex"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/home/HomeScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/home/HomeScreen.kt"
             line="1063"
             column="32"/>
     </issue>
@@ -8077,7 +8077,7 @@
         errorLine1="        remember { mutableStateOf(0.5f) }"
         errorLine2="                   ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/download/DownloadScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/download/DownloadScreen.kt"
             line="217"
             column="20"/>
     </issue>
@@ -8088,7 +8088,7 @@
         errorLine1="    var currentIndex by remember { mutableStateOf(0) }"
         errorLine2="                                   ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/home/HomeScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/home/HomeScreen.kt"
             line="1068"
             column="36"/>
     </issue>
@@ -8099,7 +8099,7 @@
         errorLine1="    var index by remember { mutableStateOf(0) }"
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/WishlistScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/WishlistScreen.kt"
             line="312"
             column="29"/>
     </issue>
@@ -9056,7 +9056,7 @@
         errorLine1="                runCatching { ShortcutManagerCompat.setDynamicShortcuts(context, plan.mapIndexed { i, s -> build(s, rank = i) }) }"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/AppShortcutService.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/AppShortcutService.kt"
             line="62"
             column="31"/>
     </issue>
@@ -9067,7 +9067,7 @@
         errorLine1="            s.deepLink?.let { data = Uri.parse(it) }"
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/AppShortcutService.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/AppShortcutService.kt"
             line="90"
             column="38"/>
     </issue>
@@ -9078,7 +9078,7 @@
         errorLine1="            s.deepLink?.let { data = Uri.parse(it) }"
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/AppShortcutService.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/AppShortcutService.kt"
             line="90"
             column="38"/>
     </issue>
@@ -9089,7 +9089,7 @@
         errorLine1="                .apply { if (summary.newFiles > 0) { action = Intent.ACTION_VIEW; data = Uri.parse(&quot;dogmatix://library?new=1&quot;) } }"
         errorLine2="                                                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/AutoScanScheduler.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/AutoScanScheduler.kt"
             line="140"
             column="90"/>
     </issue>
@@ -9100,7 +9100,7 @@
         errorLine1="                .apply { if (summary.newFiles > 0) { action = Intent.ACTION_VIEW; data = Uri.parse(&quot;dogmatix://library?new=1&quot;) } }"
         errorLine2="                                                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/AutoScanScheduler.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/AutoScanScheduler.kt"
             line="140"
             column="90"/>
     </issue>
@@ -9111,7 +9111,7 @@
         errorLine1="        val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/widget/ContinueWidget.kt"
+            file="src/main/java/com/tufein/valkyr/widget/ContinueWidget.kt"
             line="160"
             column="19"/>
     </issue>
@@ -9122,7 +9122,7 @@
         errorLine1="            .apply { if (link != null) { action = Intent.ACTION_VIEW; data = Uri.parse(link) } }"
         errorLine2="                                                                             ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/widget/ContinueWidget.kt"
+            file="src/main/java/com/tufein/valkyr/widget/ContinueWidget.kt"
             line="191"
             column="78"/>
     </issue>
@@ -9133,7 +9133,7 @@
         errorLine1="            .apply { if (link != null) { action = Intent.ACTION_VIEW; data = Uri.parse(link) } }"
         errorLine2="                                                                             ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/widget/ContinueWidget.kt"
+            file="src/main/java/com/tufein/valkyr/widget/ContinueWidget.kt"
             line="191"
             column="78"/>
     </issue>
@@ -9144,7 +9144,7 @@
         errorLine1="                    runCatching { context.contentResolver.openInputStream(Uri.parse(f.uri))?.use { it.readNBytes(SetChecker.MAX_SHEET_BYTES.toInt()) }?.toString(Charsets.UTF_8) }.getOrNull()"
         errorLine2="                                                                          ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/FileExplorerScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/FileExplorerScreen.kt"
             line="207"
             column="75"/>
     </issue>
@@ -9155,7 +9155,7 @@
         errorLine1="        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/GameShare.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/GameShare.kt"
             line="159"
             column="22"/>
     </issue>
@@ -9166,7 +9166,7 @@
         errorLine1="        val save = canvas.save()"
         errorLine2="                   ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/GameShare.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/GameShare.kt"
             line="177"
             column="20"/>
     </issue>
@@ -9177,7 +9177,7 @@
         errorLine1="        Intent(Intent.ACTION_VIEW, Uri.parse(link), context, MainActivity::class.java)"
         errorLine2="                                   ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/NotificationActionReceiver.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/NotificationActionReceiver.kt"
             line="92"
             column="36"/>
     </issue>
@@ -9188,7 +9188,7 @@
         errorLine1="            val scaled = if (divisor == 1) bitmap else Bitmap.createScaledBitmap(bitmap, w, h, false)"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/sources/components/QrShare.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/sources/components/QrShare.kt"
             line="108"
             column="56"/>
     </issue>
@@ -9199,7 +9199,7 @@
         errorLine1="        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/RecapShare.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/RecapShare.kt"
             line="95"
             column="22"/>
     </issue>
@@ -9210,7 +9210,7 @@
         errorLine1="        return runCatching { Color(android.graphics.Color.parseColor(hex)) }.getOrDefault(default)"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/theme/ThemeMode.kt"
+            file="src/main/java/com/tufein/valkyr/ui/theme/ThemeMode.kt"
             line="56"
             column="36"/>
     </issue>
@@ -9221,7 +9221,7 @@
         errorLine1="                Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse(&quot;package:${context.packageName}&quot;))"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/data/service/UpdateInstaller.kt"
+            file="src/main/java/com/tufein/valkyr/data/service/UpdateInstaller.kt"
             line="50"
             column="68"/>
     </issue>
@@ -9232,7 +9232,7 @@
         errorLine1="        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/widget/WidgetUpdater.kt"
+            file="src/main/java/com/tufein/valkyr/widget/WidgetUpdater.kt"
             line="173"
             column="22"/>
     </issue>
@@ -9243,7 +9243,7 @@
         errorLine1="                if (link != null) { action = Intent.ACTION_VIEW; data = Uri.parse(link) }"
         errorLine2="                                                                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/widget/WidgetUpdater.kt"
+            file="src/main/java/com/tufein/valkyr/widget/WidgetUpdater.kt"
             line="191"
             column="73"/>
     </issue>
@@ -9254,7 +9254,7 @@
         errorLine1="                if (link != null) { action = Intent.ACTION_VIEW; data = Uri.parse(link) }"
         errorLine2="                                                                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/widget/WidgetUpdater.kt"
+            file="src/main/java/com/tufein/valkyr/widget/WidgetUpdater.kt"
             line="191"
             column="73"/>
     </issue>
@@ -9265,7 +9265,7 @@
         errorLine1="                    app.contentResolver.openOutputStream(Uri.parse(uri), &quot;wt&quot;)?.use { it.write(text.toByteArray(Charsets.UTF_8)) } ?: error(&quot;cannot write&quot;)"
         errorLine2="                                                         ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/WishlistScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/WishlistScreen.kt"
             line="123"
             column="58"/>
     </issue>
@@ -9276,7 +9276,7 @@
         errorLine1="                    app.contentResolver.openInputStream(Uri.parse(uri))?.use { it.readBytes().toString(Charsets.UTF_8) }"
         errorLine2="                                                        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/ui/screens/tools/WishlistScreen.kt"
+            file="src/main/java/com/tufein/valkyr/ui/screens/tools/WishlistScreen.kt"
             line="137"
             column="57"/>
     </issue>
@@ -9364,7 +9364,7 @@
         errorLine1="        append(&apos;﻿&apos;)   // so spreadsheets read UTF-8 names correctly"
         errorLine2="                ~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/util/CollectionExport.kt"
+            file="src/main/java/com/tufein/valkyr/util/CollectionExport.kt"
             line="18"
             column="17"/>
     </issue>
@@ -9375,7 +9375,7 @@
         errorLine1="        val trimmed = text.trimStart(&apos;﻿&apos;, &apos; &apos;, &apos;\n&apos;, &apos;\r&apos;, &apos;\t&apos;)"
         errorLine2="                                      ~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/util/DatParser.kt"
+            file="src/main/java/com/tufein/valkyr/util/DatParser.kt"
             line="21"
             column="39"/>
     </issue>
@@ -9386,7 +9386,7 @@
         errorLine1="        var i = if (t.startsWith(&quot;﻿&quot;)) 1 else 0"
         errorLine2="                                  ~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/util/FrontendMetadata.kt"
+            file="src/main/java/com/tufein/valkyr/util/FrontendMetadata.kt"
             line="248"
             column="35"/>
     </issue>
@@ -9397,7 +9397,7 @@
         errorLine1="    private val xmlDeclaration = Regex(&quot;&quot;&quot;^﻿?\s*&lt;\?xml\s[^>]*?encoding\s*=\s*[&quot;&apos;]([^&quot;&apos;]+)[&quot;&apos;]&quot;&quot;&quot;, RegexOption.IGNORE_CASE)"
         errorLine2="                                           ~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/util/FrontendMetadata.kt"
+            file="src/main/java/com/tufein/valkyr/util/FrontendMetadata.kt"
             line="353"
             column="44"/>
     </issue>
@@ -9408,7 +9408,7 @@
         errorLine1="        val bom = if (text.startsWith(&quot;﻿&quot;)) &quot;﻿&quot; else &quot;&quot;"
         errorLine2="                                       ~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/util/FrontendMetadata.kt"
+            file="src/main/java/com/tufein/valkyr/util/FrontendMetadata.kt"
             line="555"
             column="40"/>
     </issue>
@@ -9419,7 +9419,7 @@
         errorLine1="        val bom = if (text.startsWith(&quot;﻿&quot;)) &quot;﻿&quot; else &quot;&quot;"
         errorLine2="                                             ~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/util/FrontendMetadata.kt"
+            file="src/main/java/com/tufein/valkyr/util/FrontendMetadata.kt"
             line="555"
             column="46"/>
     </issue>
@@ -9430,7 +9430,7 @@
         errorLine1="        text.removePrefix(&quot;﻿&quot;).lineSequence()"
         errorLine2="                           ~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/util/ListImport.kt"
+            file="src/main/java/com/tufein/valkyr/util/ListImport.kt"
             line="15"
             column="28"/>
     </issue>
@@ -9441,7 +9441,7 @@
         errorLine1="        text.lineSequence().map { it.trim().removePrefix(&quot;﻿&quot;) }.filter { it.isNotEmpty() &amp;&amp; !it.startsWith(&quot;#&quot;) }.distinct().toList()"
         errorLine2="                                                          ~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/util/SetChecker.kt"
+            file="src/main/java/com/tufein/valkyr/util/SetChecker.kt"
             line="21"
             column="59"/>
     </issue>
@@ -9452,7 +9452,7 @@
         errorLine1="        val text = xml.trimStart(&apos;﻿&apos;, &apos; &apos;, &apos;\n&apos;, &apos;\r&apos;, &apos;\t&apos;)"
         errorLine2="                                  ~">
         <location
-            file="src/main/java/com/cortinadev/dogmatix/util/WebDavXml.kt"
+            file="src/main/java/com/tufein/valkyr/util/WebDavXml.kt"
             line="146"
             column="35"/>
     </issue>

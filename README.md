@@ -29,15 +29,15 @@ The app includes no games. **Sources → More romsets** offers optional free con
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [4.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.0.0)** (Android build 52).
+**Latest release: [4.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.1.0)** (Android build 53).
 
-*Until 3.9.0 the app was called Dogmatix+; 4.0.0 updates it in place.*
+*Until 3.9.0 the app was called Dogmatix+. Valkyr 4.1.0 has its own app id, so it installs next to the old app: use *Settings → Back up* in the old app and *Restore backup* in Valkyr, then remove the old app.*
 
 ## Install
 
 1. Open the **[Releases page](https://github.com/Tufein/DogmatixPlus/releases)** on your phone or handheld, or download there and copy the file over.
 2. Download one of the two files:
-   - **`DogmatixPlus-release.apk`** — *the normal choice.* Signed releases update the app in place and keep your app data, also when you come from Dogmatix+ (the app's earlier name). The file names still carry that earlier name.
+   - **`DogmatixPlus-release.apk`** — *the normal choice.* Signed releases update the app in place and keep your app data. The file names still carry the app's earlier name.
    - **`DogmatixPlus-debug.apk`** — a separate test app with its own data, for trying things out next to your normal app.
 3. Open the file and allow **"install unknown apps"** if Android asks.
 
@@ -160,8 +160,6 @@ Valkyr is made by [Tufein](https://github.com/Tufein). It is built with these op
 | [RetroAchievements](https://retroachievements.org), [RAWG](https://rawg.io), [TheGamesDB](https://thegamesdb.net), [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Achievements, game information and covers |
 | [No-Intro](https://no-intro.org), [Redump](http://redump.org), [TOSEC](https://www.tosecdev.org) | DAT checks |
 | [RomM](https://github.com/rommapp/romm), [ES-DE](https://es-de.org), [Libretro](https://www.libretro.com), [ScummVM](https://www.scummvm.org), [Homebrew Hub](https://hh.gbdev.io) | Server, launcher and free content the app works with |
-
-Valkyr was **made with the help of A.I.**: the code, the tests and the documentation were written together with an AI assistant and checked in several review rounds. Decisions, direction and publishing are the maintainer's.
 
 ## Disclaimer
 

@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Dogmatix+ is now Valkyr: a new name and a new icon. Your settings, library, downloads and saves carry over, and the app keeps updating in place.</item>
+        <item>Valkyr now has its own app id and installs next to Dogmatix+. Use Back up in the old app and Restore backup in Valkyr to bring your settings, sources and wishlist over; after that Valkyr updates in place.</item>
     </string-array>
 
     <!-- 4.0 -->

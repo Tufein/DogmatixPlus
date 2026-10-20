@@ -29,15 +29,15 @@ Valkyr mantiene una gran lista, con buscador, de los juegos de las fuentes que *
 
 *Las capturas de pantalla usan títulos de juegos inventados y archivos vacíos de relleno. Las capturas muestran la app en inglés.*
 
-**Última versión: [4.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.0.0)** (build de Android 52).
+**Última versión: [4.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.1.0)** (build de Android 53).
 
-*Hasta la 3.9.0 la app se llamaba Dogmatix+; la 4.0.0 la actualiza sin reinstalar.*
+*Hasta la 3.9.0 la app se llamaba Dogmatix+. Valkyr 4.1.0 tiene su propio ID de aplicación y se instala junto a la app antigua: usa *Ajustes → Copia de seguridad* en la app antigua y *Restaurar copia* en Valkyr, y luego elimina la app antigua.*
 
 ## Instalar
 
 1. Abre la **[página de Releases](https://github.com/Tufein/DogmatixPlus/releases)** en tu móvil o en tu consola portátil, o descarga el archivo allí y cópialo al dispositivo.
 2. Descarga uno de los dos archivos:
-   - **`DogmatixPlus-release.apk`** — *la opción normal.* Las versiones firmadas actualizan la app y conservan sus datos, también si vienes de Dogmatix+ (el nombre anterior de la app). Los nombres de archivo todavía llevan ese nombre anterior.
+   - **`DogmatixPlus-release.apk`** — *la opción normal.* Las versiones firmadas actualizan la app y conservan sus datos. Los nombres de archivo todavía llevan el nombre anterior de la app.
    - **`DogmatixPlus-debug.apk`** — una app de prueba separada con sus propios datos, para probar cosas junto a tu app normal.
 3. Abre el archivo y permite **«Instalar aplicaciones desconocidas»** si Android te lo pide.
 
@@ -160,8 +160,6 @@ Valkyr está hecho por [Tufein](https://github.com/Tufein). Se basa en estos pro
 | [RetroAchievements](https://retroachievements.org), [RAWG](https://rawg.io), [TheGamesDB](https://thegamesdb.net), [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Logros, información de juegos y portadas |
 | [No-Intro](https://no-intro.org), [Redump](http://redump.org), [TOSEC](https://www.tosecdev.org) | Comprobaciones DAT |
 | [RomM](https://github.com/rommapp/romm), [ES-DE](https://es-de.org), [Libretro](https://www.libretro.com), [ScummVM](https://www.scummvm.org), [Homebrew Hub](https://hh.gbdev.io) | Servidor, lanzador y contenido gratuito con los que funciona la app |
-
-Valkyr se **hizo con la ayuda de la IA**: el código, las pruebas y la documentación se escribieron junto con un asistente de IA y se comprobaron en varias rondas de revisión. Las decisiones, la dirección y la publicación son de quien mantiene el proyecto.
 
 ## Aviso legal
 

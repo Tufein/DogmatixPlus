@@ -29,15 +29,15 @@ Valkyr führt eine große, durchsuchbare Liste mit den Spielen aus den Quellen, 
 
 *Die Screenshots verwenden erfundene Spieltitel und leere Platzhalterdateien und zeigen die App auf Englisch.*
 
-**Neueste Version: [4.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.0.0)** (Android-Build 52).
+**Neueste Version: [4.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.1.0)** (Android-Build 53).
 
-*Bis 3.9.0 hieß die App Dogmatix+; 4.0.0 aktualisiert sie direkt.*
+*Bis 3.9.0 hieß die App Dogmatix+. Valkyr 4.1.0 hat eine eigene App-ID und wird daher neben der alten App installiert: Nutze *Einstellungen → Sichern* in der alten App und *Sicherung wiederherstellen* in Valkyr und entferne danach die alte App.*
 
 ## Installation
 
 1. Öffne die **[Releases-Seite](https://github.com/Tufein/DogmatixPlus/releases)** auf deinem Handy oder Handheld, oder lade die Datei dort herunter und kopiere sie auf dein Gerät.
 2. Lade eine der beiden Dateien herunter:
-   - **`DogmatixPlus-release.apk`** — *die normale Wahl.* Signierte Releases aktualisieren die App und behalten die App-Daten, auch wenn du von Dogmatix+ (dem früheren Namen der App) kommst. Die Dateinamen tragen noch diesen früheren Namen.
+   - **`DogmatixPlus-release.apk`** — *die normale Wahl.* Signierte Releases aktualisieren die App und behalten die App-Daten. Die Dateinamen tragen noch den früheren Namen der App.
    - **`DogmatixPlus-debug.apk`** — eine separate Test-App mit eigenen Daten, zum Ausprobieren neben deiner normalen App.
 3. Öffne die Datei und erlaube **„Unbekannte Apps installieren“**, wenn Android danach fragt.
 
@@ -160,8 +160,6 @@ Valkyr wird von [Tufein](https://github.com/Tufein) entwickelt. Es baut auf dies
 | [RetroAchievements](https://retroachievements.org), [RAWG](https://rawg.io), [TheGamesDB](https://thegamesdb.net), [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Erfolge, Spielinfos und Cover |
 | [No-Intro](https://no-intro.org), [Redump](http://redump.org), [TOSEC](https://www.tosecdev.org) | DAT-Prüfungen |
 | [RomM](https://github.com/rommapp/romm), [ES-DE](https://es-de.org), [Libretro](https://www.libretro.com), [ScummVM](https://www.scummvm.org), [Homebrew Hub](https://hh.gbdev.io) | Server, Launcher und freie Inhalte, mit denen die App arbeitet |
-
-Valkyr wurde **mit Hilfe von KI entwickelt**: Der Code, die Tests und die Dokumentation wurden zusammen mit einem KI-Assistenten geschrieben und in mehreren Prüfrunden kontrolliert. Entscheidungen, Ausrichtung und Veröffentlichung liegen beim Betreuer des Projekts.
 
 ## Haftungsausschluss
 

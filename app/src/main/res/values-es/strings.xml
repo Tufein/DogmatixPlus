@@ -1286,7 +1286,7 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Dogmatix+ ahora es Valkyr: nuevo nombre y nuevo icono. Tus ajustes, biblioteca, descargas y partidas guardadas se conservan, y la app se sigue actualizando como siempre.</item>
+        <item>Valkyr ahora tiene su propio ID de aplicación y se instala junto a Dogmatix+. Usa Copia de seguridad en la app antigua y Restaurar copia en Valkyr para traer tus ajustes, fuentes y lista de deseos; después Valkyr se actualiza en su sitio.</item>
     </string-array>
 
     <!-- 4.0 -->

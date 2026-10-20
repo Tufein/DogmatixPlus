@@ -29,15 +29,15 @@ Valkyr houdt één grote, doorzoekbare lijst bij van de games uit de bronnen die
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [4.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.0.0)** (Android build 52).
+**Laatste release: [4.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.1.0)** (Android build 53).
 
-*Tot en met 3.9.0 heette de app Dogmatix+; 4.0.0 werkt hem gewoon bij.*
+*Tot en met 3.9.0 heette de app Dogmatix+. Valkyr 4.1.0 heeft een eigen app-id en installeert dus naast de oude app: gebruik *Instellingen → Back-up maken* in de oude app en *Back-up terugzetten* in Valkyr, en verwijder daarna de oude app.*
 
 ## Installeren
 
 1. Open de **[Releases-pagina](https://github.com/Tufein/DogmatixPlus/releases)** op je telefoon of handheld, of download het bestand daar en kopieer het naar je toestel.
 2. Download een van de twee bestanden:
-   - **`DogmatixPlus-release.apk`** — *de gewone keuze.* Ondertekende releases werken de bestaande app bij en behouden je gegevens, ook als je van Dogmatix+ komt (de vorige naam van de app). De bestandsnamen dragen nog die oude naam.
+   - **`DogmatixPlus-release.apk`** — *de gewone keuze.* Ondertekende releases werken de app bij en behouden je gegevens. De bestandsnamen dragen nog de vroegere naam van de app.
    - **`DogmatixPlus-debug.apk`** — een aparte testapp met eigen gegevens, om dingen uit te proberen naast je gewone app.
 3. Open het bestand en sta **"Onbekende apps installeren"** toe als Android erom vraagt.
 
@@ -160,8 +160,6 @@ Valkyr wordt gemaakt door [Tufein](https://github.com/Tufein). Het is gebouwd me
 | [RetroAchievements](https://retroachievements.org), [RAWG](https://rawg.io), [TheGamesDB](https://thegamesdb.net), [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Achievements, spelinformatie en covers |
 | [No-Intro](https://no-intro.org), [Redump](http://redump.org), [TOSEC](https://www.tosecdev.org) | DAT-controles |
 | [RomM](https://github.com/rommapp/romm), [ES-DE](https://es-de.org), [Libretro](https://www.libretro.com), [ScummVM](https://www.scummvm.org), [Homebrew Hub](https://hh.gbdev.io) | Server, launcher en gratis content waarmee de app werkt |
-
-Valkyr is **gemaakt met hulp van AI**: de code, de tests en de documentatie zijn samen met een AI-assistent geschreven en in meerdere controlerondes nagekeken. De beslissingen, de richting en het publiceren liggen bij de beheerder.
 
 ## Disclaimer
 

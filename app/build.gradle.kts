@@ -14,17 +14,17 @@ val secrets = Properties().apply {
 fun secret(name: String): String = (secrets.getProperty(name) ?: System.getenv(name) ?: "").trim().trim('"')
 
 android {
-    namespace = "com.cortinadev.dogmatix"
+    namespace = "com.tufein.valkyr"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.tufein.dogmatixplus"
+        applicationId = "com.tufein.valkyr"
         minSdk = 29
         targetSdk = 36
-        versionCode = 52
-        versionName = "4.0.0"
+        versionCode = 53
+        versionName = "4.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -63,7 +63,7 @@ android {
 
     buildTypes {
         debug {
-            // Installs alongside the release build (com.tufein.dogmatixplus.debug).
+            // Installs alongside the release build (com.tufein.valkyr.debug).
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
             signingConfig = signingConfigs.findByName("testDebug") ?: signingConfigs.getByName("debug")

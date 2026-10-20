@@ -41,6 +41,6 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 # Durable recovery data must remain readable across signed app updates.
--keep class com.cortinadev.dogmatix.data.service.LibraryOperation { *; }
--keep class com.cortinadev.dogmatix.data.service.OperationFile { *; }
--keep class com.cortinadev.dogmatix.data.service.OperationDirectory { *; }
+-keep class com.tufein.valkyr.data.service.LibraryOperation { *; }
+-keep class com.tufein.valkyr.data.service.OperationFile { *; }
+-keep class com.tufein.valkyr.data.service.OperationDirectory { *; }
