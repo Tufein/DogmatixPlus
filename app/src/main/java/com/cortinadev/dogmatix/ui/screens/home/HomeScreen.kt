@@ -258,7 +258,7 @@ fun HomeScreen(
     val collapseFilters = {
         filtersCollapsed = true
         listWide = true
-        if (filtersHaveFocus) runCatching { listFocus.requestFocus() }
+        if (filtersHaveFocus) runCatching { (if (shelvesNow.value) shelvesFocus else listFocus).requestFocus() }
     }
     val expandFilters = {
         filtersCollapsed = false
@@ -806,7 +806,7 @@ fun HomeScreen(
                                 onValueChange = viewModel::setSearch,
                                 active = searchActive,
                                 onActivate = { searchActive = true },
-                                onDismiss = { searchActive = false; runCatching { listFocus.requestFocus() } },
+                                onDismiss = { searchActive = false; runCatching { (if (shelvesNow.value) shelvesFocus else listFocus).requestFocus() } },
                                 focusRequester = searchFocus,
                                 contentShift = contentShift,
                                 trailing = viewSwitch,
@@ -913,7 +913,7 @@ fun HomeScreen(
                         onValueChange = viewModel::setSearch,
                         active = searchActive,
                         onActivate = { searchActive = true },
-                        onDismiss = { searchActive = false; runCatching { listFocus.requestFocus() } },
+                        onDismiss = { searchActive = false; runCatching { (if (shelvesNow.value) shelvesFocus else listFocus).requestFocus() } },
                         focusRequester = searchFocus,
                         trailing = viewSwitch,
                         height = SearchHeight,

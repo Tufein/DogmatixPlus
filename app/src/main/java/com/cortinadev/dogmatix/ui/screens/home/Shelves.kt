@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -143,14 +144,18 @@ fun ShelvesContent(
     val hasTarget = state != null && !state.isEmpty
     // A on the hero is Play: the focus starts there (gamepad only: a touch user sees no ring),
     // once per visit, never while the cursor is parked after a section switch.
-    LaunchedEffect(hasTarget, focusOnShow) {
-        if (!hasTarget || !focusOnShow) return@LaunchedEffect
-        onFocusTaken()
-        if (!Gamepad.connected.value || Gamepad.pointerHidden.value) return@LaunchedEffect
-        repeat(5) {
-            if (runCatching { initialFocus.requestFocus() }.getOrDefault(false)) return@LaunchedEffect
-            withFrameNanos { }
+    // Keyed on the target only: a change of [focusOnShow] must not restart (and cancel) the retries.
+    val wantFocus by rememberUpdatedState(focusOnShow)
+    val focusTaken by rememberUpdatedState(onFocusTaken)
+    LaunchedEffect(hasTarget) {
+        if (!hasTarget || !wantFocus) return@LaunchedEffect
+        if (Gamepad.connected.value && !Gamepad.pointerHidden.value) {
+            for (attempt in 0 until 5) {
+                if (runCatching { initialFocus.requestFocus() }.getOrDefault(false)) break
+                withFrameNanos { }
+            }
         }
+        focusTaken()
     }
     if (state != null && state.isEmpty) {
         Column(modifier = modifier.fillMaxSize()) {

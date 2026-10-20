@@ -8,7 +8,6 @@ import com.cortinadev.dogmatix.data.model.SortOption
 import com.cortinadev.dogmatix.data.repository.DownloadableFileRepository
 import com.cortinadev.dogmatix.data.service.ActionLogService
 import com.cortinadev.dogmatix.data.service.ForYouService
-import com.cortinadev.dogmatix.data.service.GameShortcutService
 import com.cortinadev.dogmatix.data.service.LibraryIndexService
 import com.cortinadev.dogmatix.data.service.PlayHistoryService
 import com.cortinadev.dogmatix.data.service.ProfileService
@@ -37,6 +36,9 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import com.cortinadev.dogmatix.util.SearchNormalizer
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
@@ -50,6 +52,9 @@ private const val FOR_YOU_DELAY_MS = 4_000L
 
 /** Names per IN (...) query, well below SQLite's 999 variables. */
 private const val CHUNK = 400
+
+/** Library rows a started file may stand for (as GameShortcutService). */
+private const val MAX_MATCHES = 8
 
 /**
  * Backs the 3.8.0 Home shelves ([HomeShelves]). Reads only what the app already keeps: the games
@@ -65,12 +70,28 @@ class ShelvesViewModel @Inject constructor(
     private val library: LibraryIndexService,
     private val profiles: ProfileService,
     private val actionLog: ActionLogService,
-    private val gameShortcuts: GameShortcutService,
     private val playHistory: PlayHistoryService,
     private val upNext: UpNextService,
     private val forYouService: ForYouService,
-    rescans: RescanStateHolder
+    private val rescans: RescanStateHolder
 ) : ViewModel() {
+
+    /**
+     * The library's file names per console, read once per rescan (the only thing that changes them):
+     * a burst of owned keys, a new history line or coming back to Home only filters these in memory.
+     */
+    private class NameCache(val rescanAt: Long, val consoles: List<Pair<String, Int>>, val names: Map<String, List<String>>)
+    private val nameLock = Mutex()
+    @Volatile private var nameCache: NameCache? = null
+
+    private suspend fun names(): NameCache = nameLock.withLock {
+        val at = rescans.lastRescanTime.value
+        nameCache?.takeIf { it.rescanAt == at }?.let { return@withLock it }
+        // Unfiltered: the profile's hidden consoles are applied by the callers, so a profile switch reuses this.
+        val consoles = fileDao.getConsolesWithFiles(SearchNormalizer.likePattern("*").ifEmpty { "*" }, null).map { it.id to it.fileCount }
+        val names = consoles.associate { (id, _) -> id to fileDao.fileNamesFor(id) }
+        NameCache(at, consoles, names).also { nameCache = it }
+    }
 
     /** Suggestions of "For you", once known (kept by [ForYouService] for a while per profile). */
     private val suggestions = MutableStateFlow(forYouService.cached()?.suggestions.orEmpty())
@@ -128,7 +149,9 @@ class ShelvesViewModel @Inject constructor(
             ShelvesModel.State(hero, withoutHiddenTags(forYou, restrictions), shelves)
         }.flowOn(Dispatchers.IO)
             .distinctUntilChanged()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+            .stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+    private class Console(val id: String, val fileCount: Int)
 
     private class ConsoleGames(
         val keys: Set<String>,
@@ -145,10 +168,11 @@ class ShelvesViewModel @Inject constructor(
     )
 
     private suspend fun consoleGames(keys: Set<String>, restrictions: LibraryRestrictions): ConsoleGames {
-        val consoles = repository.getConsolesWithFiles(query = "*").filter { it.id !in restrictions.hiddenConsoles }
+        val cache = names()
+        val consoles = cache.consoles.filter { it.first !in restrictions.hiddenConsoles }.map { Console(it.first, it.second) }
         val owned = HashMap<String, List<ShelvesModel.Game>>()
         if (keys.isNotEmpty()) for (console in consoles) {
-            val names = fileDao.fileNamesFor(console.id).filter { LibraryKeys.isOwned(console.id, it, keys) }.distinct()
+            val names = cache.names[console.id].orEmpty().filter { LibraryKeys.isOwned(console.id, it, keys) }.distinct()
             if (names.isEmpty()) continue
             val rows = names.chunked(CHUNK).flatMap { fileDao.filesByFileNames(it) }
                 .filter { it.consoleId == console.id }
@@ -173,9 +197,16 @@ class ShelvesViewModel @Inject constructor(
         fun owned(consoleId: String, fileName: String) = LibraryKeys.isOwned(consoleId, fileName, inputs.keys)
         // Started from Dogmatix+ (the same record the app icon's recent games come from).
         val plays = GameShortcuts.recentPlays(inputs.entries, inputs.profile, ShelvesModel.RECENT_LOOK_BACK)
-        safe { gameShortcuts.recentGames(plays) }.orEmpty().forEach { game ->
-            val row = game.rows.firstOrNull { owned(it.consoleId, it.fileName) } ?: game.rows.first()
-            events += ShelvesModel.Recent(ShelvesModel.Game(row.consoleId, row.fileName, row.name, owned(row.consoleId, row.fileName)), game.play.at, ShelvesModel.RecentKind.PLAYED)
+        // The started file is matched to library rows the way the icon menu's recent games are, on the cached names.
+        if (plays.isNotEmpty()) safe {
+            val cache = names()
+            plays.forEach { play ->
+                val matches = GameShortcuts.libraryMatches(play.consoleId, play.fileName, cache.names[play.consoleId].orEmpty()).take(MAX_MATCHES)
+                if (matches.isEmpty()) return@forEach
+                val rows = fileDao.filesByFileNames(matches).filter { it.consoleId == play.consoleId }
+                val row = rows.firstOrNull { owned(it.consoleId, it.fileName) } ?: rows.firstOrNull() ?: return@forEach
+                events += ShelvesModel.Recent(ShelvesModel.Game(row.consoleId, row.fileName, row.name, owned(row.consoleId, row.fileName)), play.at, ShelvesModel.RecentKind.PLAYED)
+            }
         }
         inputs.plays.take(ShelvesModel.RECENT_LOOK_BACK).forEach {
             events += ShelvesModel.Recent(ShelvesModel.Game(it.consoleId, it.fileName, it.title, owned(it.consoleId, it.fileName)), it.at, ShelvesModel.RecentKind.PLAYED)

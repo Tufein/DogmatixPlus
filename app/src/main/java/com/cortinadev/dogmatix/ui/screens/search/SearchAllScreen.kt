@@ -168,7 +168,9 @@ fun SearchAllScreen(navController: NavController, viewModel: SearchAllViewModel 
         if (tab != null) {
             navController.switchToTab(tab.route)
         } else {
-            navController.navigate(target.route) { launchSingleTop = true }
+            // An existing entry (Settings already open under the search): go back to it instead of stacking a second one.
+            val existing = runCatching { navController.getBackStackEntry(target.route) }.isSuccess
+            if (!existing || !navController.popBackStack(target.route, false)) navController.navigate(target.route) { launchSingleTop = true }
         }
     }
 

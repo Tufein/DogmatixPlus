@@ -283,8 +283,18 @@ private fun GamePageContent(
     // 3.5: a home-screen shortcut that could not start the game by itself opened this page: Play
     // runs once the game shows as on the device (the chooser, or why it cannot start).
     val shortcutPlay by com.cortinadev.dogmatix.ui.shortcut.PendingGameShortcut.play.collectAsState()
-    LaunchedEffect(shortcutPlay, owned, downloading) {
-        if (shortcutPlay != null && owned && !downloading && com.cortinadev.dogmatix.ui.shortcut.PendingGameShortcut.consumePlay(rom.consoleId, rom.fileName)) play()
+    LaunchedEffect(shortcutPlay, owned, downloading, ownedKeys.isEmpty()) {
+        if (shortcutPlay == null) return@LaunchedEffect
+        if (owned && !downloading) {
+            if (com.cortinadev.dogmatix.ui.shortcut.PendingGameShortcut.consumePlay(rom.consoleId, rom.fileName)) play()
+            return@LaunchedEffect
+        }
+        // Not playable here (not on the device, or downloading) once the index knows the device:
+        // drop the request, so a later visit of this page never starts the game unasked.
+        if (ownedKeys.isNotEmpty() || downloading) {
+            kotlinx.coroutines.delay(1_500)
+            com.cortinadev.dogmatix.ui.shortcut.PendingGameShortcut.consumePlay(rom.consoleId, rom.fileName)
+        }
     }
     if (showWhen) {
         DownloadWhenDialog(onDismiss = { showWhen = false }, onConfirm = { condition -> showWhen = false; download(item, condition) })
