@@ -549,12 +549,11 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     val direction = if (forward) FocusDirection.Down else FocusDirection.Up
                     for (step in 0 until PadFocus.pageSteps(viewportDp)) {
                         if (!focusManager.moveFocus(direction)) break
-                        // Left the screen (header, bottom bar): one step back and stop at the edge.
-                        if (!Gamepad.contentFocused) {
-                            focusManager.moveFocus(if (forward) FocusDirection.Up else FocusDirection.Down)
-                            break
-                        }
                     }
+                    // Ran off the screen (into the header or the bottom bar): one step back, so a
+                    // page jump stops at the list's edge. Focus events settle by the next frame.
+                    withFrameNanos { }
+                    if (!Gamepad.contentFocused) focusManager.moveFocus(if (forward) FocusDirection.Up else FocusDirection.Down)
                 }
                 else -> Unit
             }

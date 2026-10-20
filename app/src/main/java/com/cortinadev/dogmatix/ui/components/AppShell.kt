@@ -179,7 +179,8 @@ private fun CountBadge(count: Int, modifier: Modifier = Modifier) {
  * One section in the bottom bar or the rail: icon on a pill that widens in when the section is
  * the current one, the label always visible under it (it wraps, never ellipsized), at least
  * [Dimens.navItem] high. The whole entry is the touch and D-pad target; it takes the section's
- * [Gamepad.tabFocus] requester so B, ZL / ZR and the "wake the cursor" press land on it.
+ * [Gamepad.tabFocus] requester so B and ◀ from a hidden cursor in landscape land on it (3.9.0:
+ * other wake-up presses enter the screen instead, see [Gamepad.contentEntry]).
  */
 @Composable
 private fun NavEntry(

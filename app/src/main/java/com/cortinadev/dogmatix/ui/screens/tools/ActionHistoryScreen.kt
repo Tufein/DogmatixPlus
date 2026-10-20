@@ -253,7 +253,8 @@ fun ActionHistoryScreen(
                     onValueChange = viewModel::setQuery,
                     active = searching,
                     onActivate = { searching = true },
-                    onDismiss = { searching = false },
+                    // 3.9.0: B in the field hands the cursor to the filters below, not to nowhere.
+                    onDismiss = { searching = false; runCatching { firstFocus.requestFocus() } },
                     placeholder = stringResource(R.string.hist24_search_hint),
                     focusRequester = fieldFocus,
                     modifier = Modifier

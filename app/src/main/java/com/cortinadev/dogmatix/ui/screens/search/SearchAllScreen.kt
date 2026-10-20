@@ -186,7 +186,8 @@ fun SearchAllScreen(navController: NavController, viewModel: SearchAllViewModel 
             onValueChange = viewModel::setQuery,
             active = active,
             onActivate = { active = true },
-            onDismiss = { active = false },
+            // 3.9.0: B in the field hands the cursor to the results instead of leaving it nowhere.
+            onDismiss = { active = false; focusResults() },
             placeholder = stringResource(R.string.find8_field_hint),
             focusRequester = fieldFocus,
             modifier = Modifier

@@ -46,6 +46,8 @@ import com.cortinadev.dogmatix.ui.components.Pill
 import com.cortinadev.dogmatix.ui.components.PillTone
 import com.cortinadev.dogmatix.ui.components.ScreenTitle
 import com.cortinadev.dogmatix.ui.components.focusRing
+import com.cortinadev.dogmatix.ui.components.rememberInitialFocus
+import androidx.compose.ui.focus.focusRequester
 import com.cortinadev.dogmatix.ui.components.rememberFocusSource
 
 private data class CreditLink(val iconRes: Int, val labelRes: Int, val url: String, val display: String)
@@ -69,10 +71,14 @@ private val originalLinks = listOf(
 fun ContactScreen(navController: NavController) {
     val isLandscape = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp
 
+    // 3.9.0: the cursor starts on the first link (the screen had no focus of its own, so the
+    // first D-pad press was spent finding it).
+    val firstFocus = rememberInitialFocus()
     // No background of its own: the app's glow shows through, the cards sit on it.
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .focusRequester(firstFocus)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
