@@ -82,6 +82,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -150,9 +151,13 @@ import com.cortinadev.dogmatix.ui.secondscreen.SecondScreenState
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.LetterJump
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 private const val FAV_ALL = "all"
+/** 3.8.0: the search box and the filter button next to it (a comfortable touch target). */
+private val SearchHeight = 52.dp
 private const val FAV_ONLY = "only"
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -235,6 +240,15 @@ fun HomeScreen(
     // Row under the D-pad cursor: X opens its details card.
     var focusedItem by remember { mutableStateOf<DownloadableFileWithTags?>(null) }
     val focusManager = LocalFocusManager.current
+    // 3.8.0 "covers first": while nothing narrows the library, Home shows shelves of big covers
+    // (HomeShelves) instead of the list. The list stays one press away: the List pill in the search
+    // box, a console shelf's "See all", or any search or filter. [listMode] is the List pill.
+    var listMode by rememberSaveable { mutableStateOf(false) }
+    // The hero takes the focus once per visit of Home (not again after a search is cleared).
+    var shelvesFocusPending by rememberSaveable { mutableStateOf(true) }
+    val shelvesFocus = remember { FocusRequester() }
+    // Whether the shelves are on screen, for the lambdas and the gamepad collector defined before it is known.
+    val shelvesNow = remember { mutableStateOf(false) }
     // The game under the cursor also goes to a second screen, when there is one.
     LaunchedEffect(focusedItem) { SecondScreenState.focus(focusedItem) }
     // With touch there is no cursor: the game whose details are open goes to the second screen.
@@ -248,6 +262,8 @@ fun HomeScreen(
     }
     val expandFilters = {
         filtersCollapsed = false
+        // The filter panel belongs to the list: opening it from the shelves shows the list.
+        if (shelvesNow.value) listMode = true
         if (railHasFocus) scope.launch { withFrameNanos { }; withFrameNanos { }; runCatching { filterFocus.requestFocus() } }
     }
 
@@ -429,6 +445,57 @@ fun HomeScreen(
     }
     val onRowClick: (DownloadableFileWithTags) -> Unit = if (onOpenGame != null) openGame else onFileClick
 
+    // 3.8.0: shelves in the start state (see ShelvesModel.isStartState); an empty library keeps its own empty state.
+    val startState = ShelvesModel.isStartState(query, activeFilterCount, sort == SortOption.NAME_ASC)
+    val showShelves = onOpenGame != null && startState && !listMode && !libraryEmptyState.value
+    SideEffect { shelvesNow.value = showShelves }
+    // After a shelf leads to the list (a console's "See all", a chip in landscape) the cursor goes to
+    // its first row once the new results are in (gamepad only).
+    val focusListAfterChange: () -> Unit = {
+        val before = viewModel.results.value
+        if (Gamepad.connected.value) scope.launch {
+            withTimeoutOrNull(5_000) { viewModel.results.first { it !== before } }
+            withFrameNanos { }
+            withFrameNanos { }
+            runCatching { listFocus.requestFocus() }
+        }
+    }
+    val openConsoleList: (String) -> Unit = { consoleId ->
+        viewModel.setConsoleSelection(setOf(consoleId))
+        focusListAfterChange()
+    }
+    // The hero's Play: the game page opens and presses its own Play (the same path as a 3.5 game
+    // shortcut), so the emulator choice, missing files and errors are handled in one place.
+    val playFromShelf: (String, String) -> Unit = { consoleId, fileName ->
+        onOpenGame?.invoke(consoleId, fileName)
+        com.cortinadev.dogmatix.ui.shortcut.PendingGameShortcut.submit(consoleId, fileName, play = true)
+    }
+    val goToShelves: () -> Unit = {
+        listMode = false
+        if (!startState) viewModel.clearAllFilters()
+    }
+    // The pill at the end of the search box: List from the shelves, Overview back from the list.
+    val viewSwitch: (@Composable () -> Unit)? = if (onOpenGame == null) null else {
+        { ViewSwitchPill(shelves = showShelves, onClick = { if (showShelves) listMode = true else goToShelves() }) }
+    }
+    val shelvesPanel: @Composable (Modifier, (@Composable () -> Unit)?) -> Unit = { modifier, header ->
+        HomeShelves(
+            onOpenGame = { c, f -> onOpenGame?.invoke(c, f) },
+            onPlay = playFromShelf,
+            onOpenConsole = openConsoleList,
+            onOpenForYou = { navController.navigate(NavRoutes.UpNext.route) },
+            onShowList = { listMode = true },
+            modifier = modifier,
+            initialFocus = shelvesFocus,
+            focusOnShow = shelvesFocusPending && !searchActive,
+            onFocusTaken = { shelvesFocusPending = false },
+            landscape = isLandscape,
+            header = header,
+            afterHero = { ContinuePlayingShelf(onOpenGame = openGame) }
+        )
+    }
+
+
     ownedDialogItem?.let { item ->
         var removal by remember(item) { mutableStateOf<List<com.cortinadev.dogmatix.data.service.RemovalFile>?>(null) }
         LaunchedEffect(item) { removal = runCatching { viewModel.removalPlan(item) }.getOrNull() }
@@ -559,10 +626,16 @@ fun HomeScreen(
     val legendSearch = listOf(
         LegendEntry("A", stringResource(R.string.pad_keyboard)), LegendEntry("B", stringResource(R.string.pad_close_keyboard))
     )
+    // 3.8.0: on the shelves A opens a game (Play on the hero's button).
+    val legendShelves = listOf(
+        LegendEntry("A", stringResource(R.string.pad_open)), LegendEntry("Y", stringResource(R.string.pad_search)),
+        LegendEntry("START", stringResource(R.string.disc6_pad_surprise))
+    )
     val legend = when {
         detailsState != null -> legendDetails
         searchActive -> legendSearch
         filtersHaveFocus || showFilterSheet -> legendFilters
+        showShelves -> legendShelves
         else -> legendList
     }
     val published = remember(legend) { Legend(legend) }
@@ -579,6 +652,8 @@ fun HomeScreen(
             query.isNotEmpty() -> viewModel.setSearch("")
             showCollectionPicker -> showCollectionPicker = false
             activeFilterCount > 0 || sort != SortOption.NAME_ASC -> viewModel.clearAllFilters()
+            // 3.8.0: from the whole list back to the shelves.
+            listMode && onOpenGame != null -> listMode = false
             else -> runCatching { Gamepad.sectionFocus.requestFocus() }
         }
     }
@@ -600,13 +675,15 @@ fun HomeScreen(
                 GamepadButton.START -> if (viewModel.details.value == null && !searchActive) results.randomOrNull()?.let(openGame)
                 GamepadButton.PREV_PANEL -> if (isLandscape) {
                     filtersCollapsed = false
+                    if (shelvesNow.value) listMode = true
                     scope.launch { withFrameNanos { }; withFrameNanos { }; runCatching { filterFocus.requestFocus() } }
                 } else showFilterSheet = true
                 GamepadButton.TOGGLE_FILTERS -> if (isLandscape) {
-                    if (filtersCollapsed) expandFilters() else collapseFilters()
+                    if (filtersCollapsed || shelvesNow.value) expandFilters() else collapseFilters()
                 } else showFilterSheet = !showFilterSheet
                 GamepadButton.NEXT_PANEL -> if (isLandscape) {
-                    if (runCatching { listFocus.requestFocus() }.isFailure) focusManager.moveFocus(FocusDirection.Right)
+                    if (shelvesNow.value) runCatching { shelvesFocus.requestFocus() }
+                    else if (runCatching { listFocus.requestFocus() }.isFailure) focusManager.moveFocus(FocusDirection.Right)
                 } else showFilterSheet = false
                 else -> Unit
             }
@@ -624,7 +701,9 @@ fun HomeScreen(
             val panelWidth = 216.dp
             val railWidth = 48.dp
             val dividerWidth = 1.dp
-            val targetWidth = if (filtersCollapsed) railWidth else panelWidth
+            // 3.8.0: the shelves use the room; the panel stays folded to its rail while they show.
+            val panelCollapsed = filtersCollapsed || showShelves
+            val targetWidth = if (panelCollapsed) railWidth else panelWidth
             val currentWidth = remember { Animatable(targetWidth, Dp.VectorConverter) }
             // Re-laying out the list at its new width is one heavy frame; let it land before
             // the slide starts so the animation itself runs at full frame rate.
@@ -632,7 +711,7 @@ fun HomeScreen(
                 withFrameNanos { }
                 withFrameNanos { }
                 currentWidth.animateTo(targetWidth, tween(250))
-                listWide = filtersCollapsed
+                listWide = panelCollapsed
             }
             val listWidth = maxWidth - (if (listWide) railWidth else panelWidth) - dividerWidth
             // The list is anchored to the right edge and only uncovered / covered by the panel:
@@ -669,7 +748,7 @@ fun HomeScreen(
                             .layoutId("rail")
                             .graphicsLayer { alpha = 1f - panelAlpha(); compositingStrategy = CompositingStrategy.ModulateAlpha }
                             .drawBehind { drawRect(sideFill) }
-                            .focusProperties { onEnter = { if (!filtersCollapsed) cancelFocusChange() } }
+                            .focusProperties { onEnter = { if (!panelCollapsed) cancelFocusChange() } }
                             .onFocusChanged { railHasFocus = it.hasFocus }
                             .focusGroup()
                     ) {
@@ -680,7 +759,7 @@ fun HomeScreen(
                             .layoutId("panel")
                             .graphicsLayer { alpha = panelAlpha(); compositingStrategy = CompositingStrategy.ModulateAlpha }
                             .drawBehind { drawRect(sideFill) }
-                            .focusProperties { onEnter = { if (filtersCollapsed) cancelFocusChange() } }
+                            .focusProperties { onEnter = { if (panelCollapsed) cancelFocusChange() } }
                             .focusGroup()
                     ) {
                     FilterPanel(
@@ -721,19 +800,35 @@ fun HomeScreen(
                             .fillMaxSize()
                             .padding(start = 12.dp, end = 12.dp, top = 12.dp)
                     ) {
-                        SearchField(
-                            value = query,
-                            onValueChange = viewModel::setSearch,
-                            active = searchActive,
-                            onActivate = { searchActive = true },
-                            onDismiss = { searchActive = false; runCatching { listFocus.requestFocus() } },
-                            focusRequester = searchFocus,
-                            contentShift = contentShift
-                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            SearchField(
+                                value = query,
+                                onValueChange = viewModel::setSearch,
+                                active = searchActive,
+                                onActivate = { searchActive = true },
+                                onDismiss = { searchActive = false; runCatching { listFocus.requestFocus() } },
+                                focusRequester = searchFocus,
+                                contentShift = contentShift,
+                                trailing = viewSwitch,
+                                height = SearchHeight,
+                                cornerRadius = 16.dp,
+                                modifier = Modifier.weight(1f)
+                            )
+                            // The panel is folded while the shelves show: this opens it (and the list).
+                            if (showShelves) FilterButton(count = activeFilterCount) { expandFilters() }
+                        }
                         if (query.isEmpty() && recentSearches.isNotEmpty()) RecentSearchesRow(
                             recentSearches, onPick = viewModel::setSearch, onClear = viewModel::clearRecentSearches,
                             modifier = Modifier.padding(start = 6.dp, top = 8.dp)
                         )
+                        if (showShelves) shelvesPanel(Modifier.weight(1f).padding(top = 8.dp)) {
+                            ConsoleChips(
+                                options = consoleOptions,
+                                selected = selectedConsoles,
+                                onSelect = { viewModel.setConsoleSelection(it); focusListAfterChange() },
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                        } else {
                         if (query.isEmpty() && activeFilterCount == 0) ContinuePlayingShelf(
                             onOpenGame = openGame,
                             modifier = Modifier.padding(top = 8.dp)
@@ -786,6 +881,7 @@ fun HomeScreen(
                             illustrated = false,
                             emptyLibraryExtra = newHandheldHint
                         )
+                        }
                     }
                     }
                 }
@@ -819,6 +915,9 @@ fun HomeScreen(
                         onActivate = { searchActive = true },
                         onDismiss = { searchActive = false; runCatching { listFocus.requestFocus() } },
                         focusRequester = searchFocus,
+                        trailing = viewSwitch,
+                        height = SearchHeight,
+                        cornerRadius = 16.dp,
                         modifier = Modifier.weight(1f)
                     )
                     FilterButton(count = activeFilterCount) { showFilterSheet = true }
@@ -827,11 +926,12 @@ fun HomeScreen(
                     recentSearches, onPick = viewModel::setSearch, onClear = viewModel::clearRecentSearches,
                     modifier = Modifier.padding(start = 20.dp, end = 16.dp, top = 6.dp)
                 )
-                if (query.isEmpty() && activeFilterCount == 0) ContinuePlayingShelf(
+                // The shelves have their own Continue playing and New for you.
+                if (!showShelves && query.isEmpty() && activeFilterCount == 0) ContinuePlayingShelf(
                     onOpenGame = openGame,
                     modifier = Modifier.padding(start = 14.dp, end = 10.dp, top = 6.dp)
                 )
-                if (query.isEmpty() && activeFilterCount == 0 && onOpenGame != null) com.cortinadev.dogmatix.ui.screens.next.UpNextShelf(
+                if (!showShelves && query.isEmpty() && activeFilterCount == 0 && onOpenGame != null) com.cortinadev.dogmatix.ui.screens.next.UpNextShelf(
                     onOpenGame = onOpenGame,
                     onOpenAll = { navController.navigate(NavRoutes.UpNext.route) },
                     modifier = Modifier.padding(start = 14.dp, end = 10.dp, top = 6.dp)
@@ -842,6 +942,7 @@ fun HomeScreen(
                     onSelect = viewModel::setConsoleSelection,
                     modifier = Modifier.padding(vertical = 10.dp)
                 )
+                if (showShelves) shelvesPanel(Modifier.weight(1f), null) else {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(start = 28.dp, end = 16.dp, bottom = 6.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -898,6 +999,7 @@ fun HomeScreen(
                     illustrated = true,
                     emptyLibraryExtra = newHandheldHint
                 )
+                }
             }
 
             if (showFilterSheet) {
@@ -1397,13 +1499,13 @@ private fun FilterButton(count: Int, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
     val active = count > 0
-    val shape = RoundedCornerShape(12.dp)
+    val shape = RoundedCornerShape(16.dp)
     Row(
         modifier = Modifier
-            .height(44.dp)
+            .height(SearchHeight)
             .background(if (active) scheme.primary else scheme.surfaceContainer, shape)
             .border(1.dp, if (active) Color.Transparent else LocalDogmatixTokens.current.hairline, shape)
-            .focusRing(source, 12.dp, onAccent = active)
+            .focusRing(source, 16.dp, onAccent = active)
             .clickable(interactionSource = source, indication = null, onClick = onClick)
             .padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -1480,5 +1582,40 @@ private fun ConsoleChip(label: String, selected: Boolean, color: Color?, count: 
                 maxLines = 1
             )
         }
+    }
+}
+
+/**
+ * 3.8.0: the pill at the end of the search box that switches between the shelves and the list.
+ * On the shelves it shows the whole library as the list; on the list it goes back to the shelves
+ * (clearing search and filters, which is what the shelves are: the library with nothing narrowing it).
+ */
+@Composable
+private fun ViewSwitchPill(shelves: Boolean, onClick: () -> Unit) {
+    val scheme = MaterialTheme.colorScheme
+    val source = rememberFocusSource()
+    val shape = RoundedCornerShape(12.dp)
+    val description = stringResource(if (shelves) R.string.shelves38_list_cd else R.string.shelves38_overview_cd)
+    Row(
+        modifier = Modifier
+            .defaultMinSize(minHeight = 40.dp)
+            .background(scheme.surfaceContainerHigh, shape)
+            .focusRing(source, 12.dp)
+            .clickable(interactionSource = source, indication = null, onClickLabel = description, onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Icon(
+            painterResource(if (shelves) R.drawable.ic_list else R.drawable.ic_grid),
+            contentDescription = null,
+            tint = accentInk(),
+            modifier = Modifier.size(18.dp)
+        )
+        Text(
+            stringResource(if (shelves) R.string.shelves38_list else R.string.shelves38_overview),
+            style = MaterialTheme.typography.labelLarge,
+            color = scheme.onSurface
+        )
     }
 }

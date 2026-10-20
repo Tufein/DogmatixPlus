@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shelves38_continue_title">Continua a giocare</string>
+    <string name="shelves38_play">Gioca</string>
+    <string name="shelves38_game_page">Pagina del gioco</string>
+    <string name="shelves38_played_ago">Giocato %1$s</string>
+    <string name="shelves38_downloaded_ago">Scaricato %1$s</string>
+    <string name="shelves38_not_on_device">Non è più su questo dispositivo</string>
+    <string name="shelves38_for_you_title">Novità per te</string>
+    <string name="shelves38_see_all">Vedi tutto</string>
+    <string name="shelves38_see_all_console">Tutti i giochi %1$s</string>
+    <string name="shelves38_on_device_count">Su questo dispositivo: %1$d</string>
+    <string name="shelves38_newest">I più recenti delle tue fonti</string>
+    <string name="shelves38_list">Elenco</string>
+    <string name="shelves38_list_cd">Mostra tutta la libreria come elenco</string>
+    <string name="shelves38_overview">Panoramica</string>
+    <string name="shelves38_overview_cd">Torna alla panoramica (cancella ricerca e filtri)</string>
+    <string name="shelves38_empty_title">Ancora niente da mostrare</string>
+    <string name="shelves38_empty_message">Qui compaiono i giochi che giochi o scarichi. Tutta la libreria è nell’elenco.</string>
+    <string name="shelves38_show_list">Mostra come elenco</string>
+</resources>
