@@ -44,26 +44,35 @@ class HomeScreenPillViewModel @Inject constructor(private val games: GameShortcu
  */
 @Composable
 fun HomeScreenPill(file: DownloadableFileEntity, onMessage: (String) -> Unit, modifier: Modifier = Modifier, viewModel: HomeScreenPillViewModel = hiltViewModel()) {
+    ActionPill(
+        stringResource(R.string.pin35_action),
+        onClick = rememberHomeScreenPin(file, onMessage, viewModel),
+        modifier = modifier,
+        icon = R.drawable.ic_shortcut
+    )
+}
+
+/**
+ * 3.8: the "Add to home screen" action on its own, for the game page's round button: asks the
+ * launcher for the icon and reports the outcome through [onMessage].
+ */
+@Composable
+fun rememberHomeScreenPin(file: DownloadableFileEntity, onMessage: (String) -> Unit, viewModel: HomeScreenPillViewModel = hiltViewModel()): () -> Unit {
     val title = remember(file.consoleId, file.fileName, file.name) { viewModel.labelOf(file) }
     val requested = stringResource(R.string.pin35_requested, title)
     val unsupported = stringResource(R.string.pin35_unsupported)
     val noEmulator = stringResource(R.string.play_no_handler)
     val failed = stringResource(R.string.pin35_failed)
-    ActionPill(
-        stringResource(R.string.pin35_action),
-        onClick = {
-            viewModel.pin(file) { result ->
-                onMessage(
-                    when (result) {
-                        PinResult.REQUESTED -> requested
-                        PinResult.UNSUPPORTED -> unsupported
-                        PinResult.NO_EMULATOR -> noEmulator
-                        PinResult.FAILED -> failed
-                    }
-                )
-            }
-        },
-        modifier = modifier,
-        icon = R.drawable.ic_shortcut
-    )
+    return {
+        viewModel.pin(file) { result ->
+            onMessage(
+                when (result) {
+                    PinResult.REQUESTED -> requested
+                    PinResult.UNSUPPORTED -> unsupported
+                    PinResult.NO_EMULATOR -> noEmulator
+                    PinResult.FAILED -> failed
+                }
+            )
+        }
+    }
 }

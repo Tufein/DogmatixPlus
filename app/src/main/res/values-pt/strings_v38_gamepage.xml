@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 3.8 game page: the round quick actions and the More actions card. -->
+<resources>
+    <string name="gamepage38_more">Mais</string>
+    <string name="gamepage38_more_actions">Mais ações</string>
+    <string name="gamepage38_home_screen">Ecrã principal</string>
+</resources>

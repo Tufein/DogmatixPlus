@@ -372,3 +372,94 @@ fun ActionPill(
         Text(label, style = MaterialTheme.typography.labelLarge, color = color)
     }
 }
+
+/**
+ * 3.8: the one big action of a page (the game page's Play / Download): accent fill, at least
+ * 56 dp high, 18 dp corners and a larger label that may wrap (never cut). Give it
+ * `Modifier.fillMaxWidth()` where the thumb should reach it anywhere.
+ */
+@Composable
+fun LargePrimaryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: Int? = null,
+    enabled: Boolean = true
+) {
+    val scheme = MaterialTheme.colorScheme
+    val source = rememberFocusSource()
+    val shape = RoundedCornerShape(18.dp)
+    Row(
+        modifier = modifier
+            .defaultMinSize(minHeight = 56.dp)
+            .focusRing(source, cornerRadius = 18.dp, width = 2.dp, onAccent = true, fill = false)
+            .clip(shape)
+            .background(if (enabled) scheme.primary else scheme.surfaceContainerHigh)
+            .clickable(interactionSource = source, indication = null, enabled = enabled, onClick = onClick)
+            .padding(horizontal = 22.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
+    ) {
+        val fg = if (enabled) scheme.onPrimary else scheme.onSurfaceVariant
+        icon?.let { Icon(painterResource(it), contentDescription = null, tint = fg, modifier = Modifier.size(24.dp)) }
+        Text(text, style = MaterialTheme.typography.titleMedium, color = fg, textAlign = TextAlign.Center)
+    }
+}
+
+/**
+ * 3.8: a round quick action with its short label under it (the game page's favourite, home
+ * screen, share, more). The circle is 52 dp and the whole tile at least 64 dp wide, so it is an
+ * easy thumb and D-pad target; [selected] fills the circle with the accent (a starred game).
+ * [contentDescription] is read out with [label] when the label alone says too little (a state).
+ */
+@Composable
+fun RoundAction(
+    icon: Int,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    selected: Boolean = false,
+    tone: ActionTone = ActionTone.Neutral,
+    contentDescription: String? = null,
+    enabled: Boolean = true
+) {
+    val scheme = MaterialTheme.colorScheme
+    val source = rememberFocusSource()
+    val (bg, fg) = when {
+        selected -> scheme.primary to scheme.onPrimary
+        tone == ActionTone.Accent -> scheme.primaryContainer to scheme.onPrimaryContainer
+        tone == ActionTone.Danger -> scheme.errorContainer to scheme.onErrorContainer
+        else -> scheme.surfaceContainerHigh to scheme.onSurface
+    }
+    Column(
+        modifier = modifier
+            .widthIn(min = 64.dp)
+            .focusRing(source, cornerRadius = 16.dp)
+            .clickable(interactionSource = source, indication = null, enabled = enabled, onClick = onClick)
+            .padding(horizontal = 6.dp, vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(52.dp)
+                .clip(CircleShape)
+                .background(bg)
+                .border(1.dp, LocalDogmatixTokens.current.hairline, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painterResource(icon),
+                contentDescription = contentDescription,
+                tint = if (enabled) fg else scheme.onSurfaceVariant.copy(alpha = 0.6f),
+                modifier = Modifier.size(24.dp)
+            )
+        }
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium,
+            color = if (enabled) scheme.onSurface else scheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    }
+}

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -72,7 +73,6 @@ import com.cortinadev.dogmatix.ui.components.LegendEntry
 import com.cortinadev.dogmatix.ui.components.Panel
 import com.cortinadev.dogmatix.ui.components.Pill
 import com.cortinadev.dogmatix.ui.components.PillTone
-import com.cortinadev.dogmatix.ui.components.PrimaryButton
 import com.cortinadev.dogmatix.ui.components.TagRow
 import com.cortinadev.dogmatix.ui.components.closeOnGamepadB
 import com.cortinadev.dogmatix.ui.components.focusRing
@@ -88,12 +88,7 @@ import com.cortinadev.dogmatix.ui.screens.home.DetailsState
 import com.cortinadev.dogmatix.ui.screens.home.components.CollectionPickerDialog
 import com.cortinadev.dogmatix.ui.screens.home.components.GameDescription
 import com.cortinadev.dogmatix.ui.screens.home.components.GameFacts
-import com.cortinadev.dogmatix.ui.screens.home.components.GameHero
-import com.cortinadev.dogmatix.ui.screens.home.components.GameHeroCover
-import com.cortinadev.dogmatix.ui.screens.home.components.GameInfoPills
-import com.cortinadev.dogmatix.ui.screens.home.components.GameTitle
 import com.cortinadev.dogmatix.ui.screens.home.components.SimilarSection
-import com.cortinadev.dogmatix.ui.screens.home.components.rememberGameArt
 import com.cortinadev.dogmatix.ui.screens.tools.PublishLegend
 import com.cortinadev.dogmatix.ui.secondscreen.SecondScreenState
 import com.cortinadev.dogmatix.ui.theme.LocalReduceMotion
@@ -101,9 +96,9 @@ import com.cortinadev.dogmatix.ui.theme.tabular
 import com.cortinadev.dogmatix.util.ConsoleFormatter
 import com.cortinadev.dogmatix.util.DownloadCondition
 import com.cortinadev.dogmatix.util.FileParsingUtils
+import com.cortinadev.dogmatix.util.GameHeaderModel
 import com.cortinadev.dogmatix.util.GamePageModel
 import com.cortinadev.dogmatix.util.GamePageModel.Tab
-import com.cortinadev.dogmatix.util.TagClassifier
 import com.cortinadev.dogmatix.util.ToastUtil
 import com.cortinadev.dogmatix.util.VersionPreferences
 import java.util.Locale
@@ -116,6 +111,11 @@ import kotlinx.coroutines.launch
  * the RomM section), Versions (every variant in the sources, each downloadable), Progress
  * (RetroAchievements and cloud saves) and More like this. Portrait scrolls as one column;
  * landscape keeps the hero on the left and the tabs on the right.
+ *
+ * 3.8 "covers first": the header is GameHeader.kt (a big cover, the full title, console / year /
+ * size chips), then one big main button (Play / Download, focused first so A starts it), a row of
+ * round quick actions (favourite, home screen, share, more) and a "More actions" card with every
+ * other action; the tabs' content sits in rounded cards with 16 dp gaps.
  *
  * Gamepad: the D-pad walks the buttons (▲ ▼ scroll where nothing more can take focus), A acts,
  * B goes back, LB / RB switch tabs and Select stars the game.
@@ -387,100 +387,97 @@ private fun GamePageContent(
         }
     }
 
+    // 3.8: the round "more" button moves the focus to the first action of the More actions card.
+    val moreFocus = remember { FocusRequester() }
+    val pinToHomeScreen = rememberHomeScreenPin(rom, showMessage)
     val header: @Composable () -> Unit = {
-        Hero(
+        GameHeader(
             state = state,
             owned = owned,
             downloading = downloading,
             favourite = favourite,
             onRomm = onRomm,
             isLandscape = isLandscape,
-            onBack = onBack,
-            backModifier = Modifier
+            onBack = onBack
         )
     }
-    val actions: @Composable () -> Unit = {
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            itemVerticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+    // The big main button and the round quick actions, straight under the header for the thumb.
+    val mainActions: @Composable () -> Unit = {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // One button whose label changes, so focus stays on it when a download starts.
             val busy = primary == GamePageModel.Primary.DOWNLOADING
-            PrimaryButton(
-                stringResource(
-                    when (primary) {
-                        GamePageModel.Primary.DOWNLOAD -> R.string.details_download
-                        GamePageModel.Primary.DOWNLOAD_AGAIN -> R.string.owned_download_again
-                        GamePageModel.Primary.DOWNLOADING -> R.string.page8_downloading
-                        GamePageModel.Primary.PLAY -> R.string.play_game
-                    }
-                ),
+            GamePrimaryAction(
+                primary = primary,
                 onClick = { if (!busy && !preparing) { if (owned) play() else download(item, null) } },
-                modifier = Modifier.focusRequester(firstFocus),
-                icon = if (busy) R.drawable.ic_downloading else if (owned) R.drawable.ic_controller else R.drawable.ic_download
+                modifier = Modifier.fillMaxWidth().focusRequester(firstFocus)
             )
-            com.cortinadev.dogmatix.ui.screens.next.UpNextPill(rom.consoleId, rom.fileName)
-            onReadiness?.let { open -> ActionPill(stringResource(R.string.ready25_title), { open(rom.consoleId, rom.fileName) }, icon = R.drawable.ic_controller) }
-            onHandoff?.let { open -> ActionPill(stringResource(R.string.handoff31_action), { open(rom.consoleId, rom.fileName) }, icon = R.drawable.ic_devices) }
-            if (owned && !downloading) {
-                ActionPill(stringResource(R.string.owned_download_again), { download(item, null) }, icon = R.drawable.ic_download)
-                ActionPill(stringResource(R.string.play26_game_title), {
-                    if (!preparing) scope.launch {
-                        preparing = true
-                        try { emulatorChoices = viewModel.gameLauncher.choices(rom) }
-                        catch (e: kotlinx.coroutines.CancellationException) { throw e }
-                        catch (_: Exception) { showMessage(planError) }
-                        finally { preparing = false }
-                    }
-                }, icon = R.drawable.ic_settings)
-                // 3.5: an icon that starts the game straight in its emulator.
-                HomeScreenPill(rom, showMessage)
-            }
-            val switch = state.switch
-            // The live ranking (the same as the Versions tab), so a pin or a preference change shows at once.
-            val best = ranking?.pick ?: state.best
-            GamePageModel.actions(
+            GameQuickActions(
+                quick = GameHeaderModel.quick(owned, downloading),
+                favourite = favourite,
+                onFavourite = toggleFavourite,
+                onHomeScreen = pinToHomeScreen,
+                onShare = { scope.launch { GameShare.share(context, rom.consoleId, rom.fileName, rom.name) } },
+                onMore = { runCatching { moreFocus.requestFocus() } }
+            )
+        }
+    }
+    val moreActions: @Composable () -> Unit = {
+        val switch = state.switch
+        // The live ranking (the same as the Versions tab), so a pin or a preference change shows at once.
+        val best = ranking?.pick ?: state.best
+        GameMoreActions(modifier = Modifier.padding(horizontal = 16.dp)) {
+            GameHeaderModel.more(
                 owned = owned,
                 downloading = downloading,
+                readiness = onReadiness != null,
+                handoff = onHandoff != null,
                 betterVersion = best != null && best.file.fileName != rom.fileName,
                 updateAvailable = switch?.updateAvailable == true && switch.newestUpdate != null,
                 missingDlc = switch?.missingDlc?.size ?: 0
             ).forEach { action ->
                 when (action) {
-                    GamePageModel.Action.DOWNLOAD_BEST -> best?.let {
-                        ActionPill(stringResource(R.string.details_download_best), { download(it, null) }, icon = R.drawable.ic_award)
+                    // Always first, so the "more" button always has something to focus.
+                    GameHeaderModel.More.UP_NEXT -> com.cortinadev.dogmatix.ui.screens.next.UpNextPill(rom.consoleId, rom.fileName, modifier = PageTarget.focusRequester(moreFocus))
+                    GameHeaderModel.More.READINESS -> onReadiness?.let { open ->
+                        ActionPill(stringResource(R.string.ready25_title), { open(rom.consoleId, rom.fileName) }, modifier = PageTarget, icon = R.drawable.ic_controller)
                     }
-                    GamePageModel.Action.UPDATE -> switch?.newestUpdate?.first?.let { row ->
-                        ActionPill(stringResource(R.string.details_switch_get_update), { download(DownloadableFileWithTags(row, emptyList()), null) }, icon = R.drawable.ic_sync, tone = ActionTone.Accent)
+                    GameHeaderModel.More.HANDOFF -> onHandoff?.let { open ->
+                        ActionPill(stringResource(R.string.handoff31_action), { open(rom.consoleId, rom.fileName) }, modifier = PageTarget, icon = R.drawable.ic_devices)
                     }
-                    GamePageModel.Action.DLC -> switch?.missingDlc?.let { rows ->
+                    GameHeaderModel.More.DOWNLOAD_AGAIN -> ActionPill(stringResource(R.string.owned_download_again), { download(item, null) }, modifier = PageTarget, icon = R.drawable.ic_download)
+                    GameHeaderModel.More.EMULATOR -> ActionPill(stringResource(R.string.play26_game_title), {
+                        if (!preparing) scope.launch {
+                            preparing = true
+                            try { emulatorChoices = viewModel.gameLauncher.choices(rom) }
+                            catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                            catch (_: Exception) { showMessage(planError) }
+                            finally { preparing = false }
+                        }
+                    }, modifier = PageTarget, icon = R.drawable.ic_settings)
+                    GameHeaderModel.More.DOWNLOAD_BEST -> best?.let {
+                        ActionPill(stringResource(R.string.details_download_best), { download(it, null) }, modifier = PageTarget, icon = R.drawable.ic_award)
+                    }
+                    GameHeaderModel.More.UPDATE -> switch?.newestUpdate?.first?.let { row ->
+                        ActionPill(stringResource(R.string.details_switch_get_update), { download(DownloadableFileWithTags(row, emptyList()), null) }, modifier = PageTarget, icon = R.drawable.ic_sync, tone = ActionTone.Accent)
+                    }
+                    GameHeaderModel.More.DLC -> switch?.missingDlc?.let { rows ->
                         ActionPill(
                             stringResource(R.string.details_switch_get_dlc, rows.size),
                             { rows.forEach { row -> download(DownloadableFileWithTags(row, emptyList()), null) } },
-                            icon = R.drawable.ic_plus, tone = ActionTone.Accent
+                            modifier = PageTarget, icon = R.drawable.ic_plus, tone = ActionTone.Accent
                         )
                     }
-                    GamePageModel.Action.DOWNLOAD_WHEN -> ActionPill(stringResource(R.string.plan6_wait_for), { showWhen = true }, icon = R.drawable.ic_schedule)
-                    GamePageModel.Action.FAVOURITE -> ActionPill(
-                        stringResource(if (favourite) R.string.home_details_unfavourite else R.string.home_details_favourite),
-                        toggleFavourite,
-                        icon = R.drawable.ic_star,
-                        tone = if (favourite) ActionTone.Accent else ActionTone.Neutral
-                    )
-                    GamePageModel.Action.COLLECTIONS -> ActionPill(
+                    GameHeaderModel.More.DOWNLOAD_WHEN -> ActionPill(stringResource(R.string.plan6_wait_for), { showWhen = true }, modifier = PageTarget, icon = R.drawable.ic_schedule)
+                    GameHeaderModel.More.COLLECTIONS -> ActionPill(
                         if (state.collectionIds.isEmpty()) stringResource(R.string.details_collections)
                         else pluralStringResource(R.plurals.details_in_collections, state.collectionIds.size, state.collectionIds.size),
                         { showCollections = true },
+                        modifier = PageTarget,
                         icon = R.drawable.ic_collections
                     )
-                    GamePageModel.Action.SHARE -> ActionPill(
-                        stringResource(R.string.lead6_share),
-                        { scope.launch { GameShare.share(context, rom.consoleId, rom.fileName, rom.name) } },
-                        icon = R.drawable.ic_share
-                    )
-                    GamePageModel.Action.REMOVE -> ActionPill(stringResource(R.string.page8_remove), { prepareRemoval() }, icon = R.drawable.ic_trash, tone = ActionTone.Danger)
+                    GameHeaderModel.More.REMOVE -> ActionPill(stringResource(R.string.page8_remove), { prepareRemoval() }, modifier = PageTarget, icon = R.drawable.ic_trash, tone = ActionTone.Danger)
                 }
             }
         }
@@ -515,10 +512,11 @@ private fun GamePageContent(
                         .dpadScroll(heroScroll)
                         .verticalScroll(heroScroll)
                         .padding(bottom = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(GamePageGap)
                 ) {
                     header()
-                    actions()
+                    mainActions()
+                    moreActions()
                 }
                 Column(
                     modifier = Modifier
@@ -546,73 +544,16 @@ private fun GamePageContent(
                     .dpadScroll(scroll)
                     .verticalScroll(scroll)
                     .padding(bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(GamePageGap)
             ) {
                 header()
-                actions()
+                mainActions()
+                moreActions()
                 Box(modifier = Modifier.padding(horizontal = 16.dp)) { tabStrip() }
                 Box(modifier = Modifier.padding(horizontal = 16.dp)) { content() }
             }
         }
         SnackbarHost(snackbar, modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp))
-    }
-}
-
-/**
- * The page's top: the art softened over the console's colour (the same backdrop as the details card),
- * a back pill, the cover, the title, the info pills and the language / region tags.
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun Hero(
-    state: DetailsState,
-    owned: Boolean,
-    downloading: Boolean,
-    favourite: Boolean,
-    onRomm: Boolean,
-    isLandscape: Boolean,
-    onBack: () -> Unit,
-    backModifier: Modifier
-) {
-    val rom = state.item.file
-    val (frontUrl, backdropUrl) = rememberGameArt(state)
-    val title = state.details?.title?.takeIf { it.isNotBlank() } ?: stripExtension(rom.name)
-    val consoleName = ConsoleFormatter.getConsoleShortName(rom.consoleId)
-    // The info pills already carry the first region; the other regions and the languages follow.
-    val extraTags = remember(state.item.tags) {
-        val firstRegion = state.item.tags.firstOrNull { TagClassifier.kindOf(it) == TagClassifier.Kind.REGION }
-        GamePageModel.heroTags(state.item.tags).filter { it != firstRegion }
-    }
-    val pills: @Composable () -> Unit = {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            GameInfoPills(state, consoleName, onRomm, owned, downloading, favourite)
-            if (extraTags.isNotEmpty()) FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                extraTags.forEach { Pill(it, tone = PillTone.Neutral, icon = R.drawable.ic_translate) }
-            }
-        }
-    }
-    GameHero(backdropUrl, rom.consoleId, Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            ActionPill(stringResource(R.string.page8_back), onBack, modifier = backModifier, icon = R.drawable.ic_chevron_left)
-            if (isLandscape) {
-                Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Bottom) {
-                    GameHeroCover(frontUrl, rom.consoleId, height = 168.dp, maxRatio = 1.2f)
-                    Column(modifier = Modifier.weight(1f)) { GameTitle(title, maxLines = 4) }
-                }
-                pills()
-            } else {
-                Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Bottom) {
-                    GameHeroCover(frontUrl, rom.consoleId, height = 184.dp, maxRatio = 1.0f)
-                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        GameTitle(title, maxLines = 4)
-                    }
-                }
-                pills()
-            }
-        }
     }
 }
 
@@ -633,6 +574,7 @@ private fun TabStrip(tabs: List<Tab>, selected: Tab, onSelect: (Tab) -> Unit) {
             ActionPill(
                 stringResource(label),
                 onClick = { onSelect(t) },
+                modifier = PageTarget,
                 icon = icon,
                 tone = if (t == selected) ActionTone.Accent else ActionTone.Neutral
             )
@@ -653,29 +595,40 @@ private fun TabContent(
 ) {
     val rom = state.item.file
     val scheme = MaterialTheme.colorScheme
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        when (tab) {
-            Tab.ABOUT -> {
-                GameFacts(state)
-                GameDescription(state)
-                GameJournalSection(rom.consoleId, rom.fileName)
-                // RomM's summary, genres, screenshots, play status and rating (draws nothing without RomM).
-                RommGameSection(
-                    consoleId = rom.consoleId,
-                    fileName = rom.fileName,
-                    showSummary = state.details?.description.isNullOrBlank()
-                )
-                state.details?.let { details ->
-                    Text(stringResource(R.string.details_source, details.source), style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
+    // 3.8: every card on the page (the shared sections draw a Panel with the theme's medium shape)
+    // gets the page's rounder corners, without restyling those sections themselves.
+    val cardShape = RoundedCornerShape(GamePageCardRadius)
+    MaterialTheme(
+        colorScheme = scheme,
+        typography = MaterialTheme.typography,
+        shapes = MaterialTheme.shapes.copy(medium = cardShape)
+    ) {
+        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(GamePageGap)) {
+            when (tab) {
+                Tab.ABOUT -> {
+                    Panel(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        GameFacts(state)
+                        GameDescription(state)
+                        state.details?.let { details ->
+                            Text(stringResource(R.string.details_source, details.source), style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
+                        }
+                    }
+                    GameJournalSection(rom.consoleId, rom.fileName)
+                    // RomM's summary, genres, screenshots, play status and rating (draws nothing without RomM).
+                    RommGameSection(
+                        consoleId = rom.consoleId,
+                        fileName = rom.fileName,
+                        showSummary = state.details?.description.isNullOrBlank()
+                    )
                 }
+                Tab.VERSIONS -> Versions(state, ownedOf, downloadingOf, onDownload, viewModel, onOpenVersionPreference)
+                Tab.PROGRESS -> {
+                    AchievementsSection(consoleId = rom.consoleId, fileName = rom.fileName, title = rom.name, match = state.achievements)
+                    CloudSavesSection(consoleId = rom.consoleId, fileName = rom.fileName)
+                    Text(stringResource(R.string.page8_progress_hint), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+                }
+                Tab.SIMILAR -> SimilarSection(state.similar, onOpen = { onOpenGame(it.file.consoleId, it.file.fileName) })
             }
-            Tab.VERSIONS -> Versions(state, ownedOf, downloadingOf, onDownload, viewModel, onOpenVersionPreference)
-            Tab.PROGRESS -> {
-                AchievementsSection(consoleId = rom.consoleId, fileName = rom.fileName, title = rom.name, match = state.achievements)
-                CloudSavesSection(consoleId = rom.consoleId, fileName = rom.fileName)
-                Text(stringResource(R.string.page8_progress_hint), style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
-            }
-            Tab.SIMILAR -> SimilarSection(state.similar, onOpen = { onOpenGame(it.file.consoleId, it.file.fileName) })
         }
     }
 }
