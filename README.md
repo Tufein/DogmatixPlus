@@ -29,7 +29,7 @@ The app includes no games. **Sources → More romsets** offers optional free con
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [3.6.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.6.0)** (Android build 48).
+**Latest release: [3.7.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.7.0)** (Android build 49).
 
 ## Install
 
@@ -99,7 +99,7 @@ You need **Android 10 or newer**. The app is not on Google Play.
 
 ### Cloud and sync
 - **RomM**: send finished downloads and whole multi-file games, use it as a source, see games, genres and screenshots, sync play status, rating and favourites, fetch missing BIOS files.
-- **Save sync and cloud saves**: your saves and save states travel between handhelds and RomM, including DuckStation memory cards, PPSSPP save folders and, if you choose, whole Dolphin and NetherSX2 memory cards; conflicts ask you, and replaced copies are kept for 30 days.
+- **Save sync and cloud saves**: your saves and save states travel between handhelds and RomM, including DuckStation memory cards, PPSSPP save folders and, if you choose, wwhole Dolphin and NetherSX2 memory cards, Dolphin GameCube save folders and Wii saves; conflicts ask you, and replaced copies are kept for 30 days.
 - **Your own cloud (WebDAV)**: encrypted backups (Nextcloud, ownCloud, Synology and others) and device sync of favourites, wishlist and collections.
 - **RetroAchievements**: progress and badges per game, your profile, and which games have achievements.
 

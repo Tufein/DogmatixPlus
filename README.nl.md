@@ -29,7 +29,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [3.6.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.6.0)** (Android build 48).
+**Laatste release: [3.7.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.7.0)** (Android build 49).
 
 ## Installeren
 
@@ -99,7 +99,7 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 
 ### Cloud en synchronisatie
 - **RomM**: verstuur voltooide downloads en complete spellen met meerdere bestanden, gebruik het als bron, zie games, genres en schermafbeeldingen, synchroniseer speelstatus, beoordeling en favorieten, haal ontbrekende BIOS-bestanden op.
-- **Savesynchronisatie en cloudsaves**: je saves en savestates reizen tussen handhelds en RomM, ook DuckStation-geheugenkaarten, PPSSPP-savemappen en, als je dat kiest, hele Dolphin- en NetherSX2-geheugenkaarten; bij conflicten word je gevraagd en vervangen kopieën blijven 30 dagen bewaard.
+- **Savesynchronisatie en cloudsaves**: je saves en savestates reizen tussen handhelds en RomM, ook DuckStation-geheugenkaarten, PPSSPP-savemappen en, als je dat kiest, hele Dolphin- en NetherSX2-geheugenkaarten, Dolphin-GameCube-savemappen en Wii-saves; bij conflicten word je gevraagd en vervangen kopieën blijven 30 dagen bewaard.
 - **Je eigen cloud (WebDAV)**: versleutelde back-ups (Nextcloud, ownCloud, Synology en andere) en toestelsynchronisatie van favorieten, verlanglijst en collecties.
 - **RetroAchievements**: voortgang en badges per game, je profiel, en welke games achievements hebben.
 

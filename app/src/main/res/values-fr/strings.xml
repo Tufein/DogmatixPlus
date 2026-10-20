@@ -1328,8 +1328,7 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>Les playlists RetroArch se mettent à jour plus sûrement : la nouvelle playlist est d’abord écrite sur le stockage avant que l’ancienne n’aille dans Corbeille et récupération. Une carte pleine ou une clé débranchée ne laisse donc jamais RetroArch sans playlist.</item>
-        <item>Noms de dossiers pour OnionOS : Copier ou envoyer des jeux avertit désormais des jeux dont un sous-dossier a une apostrophe dans son nom, qu’OnionOS n’ouvre pas.</item>
+        <item>Sauvegardes Dolphin : dans Réglages → Synchro des sauvegardes, les dossiers de sauvegarde GameCube (GCI) et les sauvegardes Wii de Dolphin peuvent maintenant être rattachés à un jeu RomM. Ils se synchronisent en bloc : une copie plus récente sur le serveur n’est jamais téléchargée en silence et la copie remplacée est d’abord conservée. Rien n’est jamais supprimé.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -1323,8 +1323,7 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>RetroArch-afspeellijsten worden veiliger bijgewerkt: de nieuwe lijst wordt eerst op de opslag geschreven voordat de oude naar Prullenbak en herstel gaat, dus een volle kaart of een losgetrokken stick laat RetroArch nooit zonder lijst achter.</item>
-        <item>Mapnamen voor OnionOS: Spellen kopiëren of versturen waarschuwt nu voor spellen met een apostrof in de naam van een submap, die OnionOS niet opent.</item>
+        <item>Dolphin-saves: onder Instellingen → Savesynchronisatie kunnen de GameCube-savemappen (GCI) en de Wii-saves van Dolphin nu bij een RomM-spel worden bewaard. Ze synchroniseren als één geheel: een nieuwere kopie op de server wordt nooit stilletjes gedownload en de kopie die wordt vervangen blijft eerst bewaard. Er wordt nooit iets verwijderd.</item>
     </string-array>
 
     <!-- 4.0 -->

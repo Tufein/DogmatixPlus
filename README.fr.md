@@ -29,7 +29,7 @@ DogmatixPlus rassemble les jeux des sources que *vous* ajoutez dans une seule gr
 
 *Les captures d’écran utilisent des titres de jeux inventés et des fichiers vides de substitution, et montrent l’application en anglais.*
 
-**Dernière version : [3.6.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.6.0)** (build Android 48).
+**Dernière version : [3.7.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.7.0)** (build Android 49).
 
 ## Installation
 
@@ -99,7 +99,7 @@ Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Goo
 
 ### Cloud et synchronisation
 - **RomM** : envoyer les téléchargements terminés et des jeux complets en plusieurs fichiers, l’utiliser comme source, voir jeux, genres et captures, synchroniser statut de jeu, note et favoris, récupérer les BIOS manquants.
-- **Synchro des sauvegardes et sauvegardes cloud** : vos sauvegardes voyagent entre consoles et RomM, y compris les cartes mémoire DuckStation, les dossiers de sauvegarde PPSSPP et, si vous le choisissez, des cartes entières Dolphin et NetherSX2 ; en cas de conflit on vous demande, et les copies remplacées sont gardées 30 jours.
+- **Synchro des sauvegardes et sauvegardes cloud** : vos sauvegardes voyagent entre consoles et RomM, y compris les cartes mémoire DuckStation, les dossiers de sauvegarde PPSSPP et, si vous le choisissez, des cartes entières Dolphin et NetherSX2, dossiers de sauvegarde GameCube de Dolphin et sauvegardes Wii ; en cas de conflit on vous demande, et les copies remplacées sont gardées 30 jours.
 - **Votre propre cloud (WebDAV)** : sauvegardes chiffrées (Nextcloud, ownCloud, Synology et autres) et synchro d’appareils pour favoris, liste de souhaits et collections.
 - **RetroAchievements** : progression et badges par jeu, votre profil et les jeux qui ont des succès.
 

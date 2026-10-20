@@ -29,7 +29,7 @@ DogmatixPlus führt eine große, durchsuchbare Liste mit den Spielen aus den Que
 
 *Die Screenshots verwenden erfundene Spieltitel und leere Platzhalterdateien und zeigen die App auf Englisch.*
 
-**Neueste Version: [3.6.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.6.0)** (Android-Build 48).
+**Neueste Version: [3.7.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.7.0)** (Android-Build 49).
 
 ## Installation
 
@@ -99,7 +99,7 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 
 ### Cloud und Sync
 - **RomM**: fertige Downloads und ganze Spiele aus mehreren Dateien senden, als Quelle nutzen, Spiele, Genres und Screenshots sehen, Spielstatus, Bewertung und Favoriten abgleichen, fehlende BIOS-Dateien holen.
-- **Spielstand-Sync und Cloud-Saves**: Spielstände und Savestates wandern zwischen Handhelds und RomM, auch DuckStation-Memory-Cards, PPSSPP-Speicherordner und, wenn du es wählst, ganze Dolphin- und NetherSX2-Memory-Cards; bei Konflikten wirst du gefragt, ersetzte Kopien bleiben 30 Tage erhalten.
+- **Spielstand-Sync und Cloud-Saves**: Spielstände und Savestates wandern zwischen Handhelds und RomM, auch DuckStation-Memory-Cards, PPSSPP-Speicherordner und, wenn du es wählst, ganze Dolphin- und NetherSX2-Memory-Cards, Dolphin-GameCube-Speicherordner und Wii-Saves; bei Konflikten wirst du gefragt, ersetzte Kopien bleiben 30 Tage erhalten.
 - **Deine eigene Cloud (WebDAV)**: verschlüsselte Backups (Nextcloud, ownCloud, Synology und andere) und Geräte-Sync von Favoriten, Wunschliste und Sammlungen.
 - **RetroAchievements**: Fortschritt und Abzeichen je Spiel, dein Profil und welche Spiele Erfolge haben.
 

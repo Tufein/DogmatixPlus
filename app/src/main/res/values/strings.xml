@@ -1324,8 +1324,7 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Dogmatix+ %1$s</string>
     <string-array name="whats_new_items">
-        <item>RetroArch playlists are safer to update: the new playlist is written to the storage before the old one goes to Trash and recovery, so a full card or a pulled stick never leaves RetroArch without its playlist.</item>
-        <item>OnionOS folder names: Copy or send games now warns about games with an apostrophe in a subfolder name, which OnionOS does not open.</item>
+        <item>Dolphin saves: under Settings → Save sync, the GameCube save folders (GCI) and the Wii saves of Dolphin can now be kept with a RomM game. They sync as a whole bundle: a newer copy on the server is never downloaded silently, and the copy that is replaced is kept first. Nothing is ever deleted.</item>
     </string-array>
 
     <!-- 4.0 -->
