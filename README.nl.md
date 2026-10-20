@@ -1,10 +1,10 @@
-# DogmatixPlus
+# Valkyr
 
 [English](README.md) · **Nederlands** · [Français](README.fr.md) · [Deutsch](README.de.md) · [Español](README.es.md)
 
 **Vind, download en organiseer retrogames op je Android-telefoon of handheld.**
 
-DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronnen die *jij* toevoegt, downloadt ze in de juiste mappen en helpt je om je collectie netjes te houden. Het werkt met het touchscreen *en* met een gamecontroller, dus het is ook op handhelds zoals de Retroid, Anbernic of Kinhank helemaal op zijn plek.
+Valkyr houdt één grote, doorzoekbare lijst bij van de games uit de bronnen die *jij* toevoegt, downloadt ze in de juiste mappen en helpt je om je collectie netjes te houden. Het werkt met het touchscreen *en* met een gamecontroller, dus het is ook op handhelds zoals de Retroid, Anbernic of Kinhank helemaal op zijn plek.
 
 > **De app bevat geen games.** Voeg je eigen bronnen toe of kies optionele collecties via **Bronnen → Meer romsets**. Die catalogus verwijst naar door de uitgever aangeboden homebrew, demo’s, freeware-games en testsoftware. Je blijft zelf verantwoordelijk voor wat je downloadt.
 
@@ -18,7 +18,7 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
   <tr>
     <td align="center" valign="top"><img src="docs/screenshots/delete-dialog.png" width="210" alt="Bevestiging van het verwijderen"><br><sub>Je ziet altijd welke bestanden verdwijnen</sub></td>
     <td align="center" valign="top"><img src="docs/screenshots/settings.png" width="210" alt="Instellingen"><br><sub>De nieuwe hulpmiddelen staan in Instellingen</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/credits.png" width="210" alt="Credits"><br><sub>Credits voor iedereen die erbij betrokken was</sub></td>
+    <td></td>
     <td></td>
   </tr>
 </table>
@@ -29,15 +29,16 @@ DogmatixPlus houdt één grote, doorzoekbare lijst bij van de games uit de bronn
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [3.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.9.0)** (Android build 51).
+**Laatste release: [4.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.0.0)** (Android build 52).
+
+*Tot en met 3.9.0 heette de app Dogmatix+; 4.0.0 werkt hem gewoon bij.*
 
 ## Installeren
 
 1. Open de **[Releases-pagina](https://github.com/Tufein/DogmatixPlus/releases)** op je telefoon of handheld, of download het bestand daar en kopieer het naar je toestel.
 2. Download een van de twee bestanden:
-   - **`DogmatixPlus-release.apk`** — *de gewone keuze.* Huidige ondertekende Dogmatix+-releases werken de bestaande app bij en behouden je gegevens. Dogmatix+ heeft een eigen pakketnaam naast de oorspronkelijke Dogmatix.
+   - **`DogmatixPlus-release.apk`** — *de gewone keuze.* Ondertekende releases werken de bestaande app bij en behouden je gegevens, ook als je van Dogmatix+ komt (de vorige naam van de app). De bestandsnamen dragen nog die oude naam.
    - **`DogmatixPlus-debug.apk`** — een aparte testapp met eigen gegevens, om dingen uit te proberen naast je gewone app.
-   - **Kom je van het originele Dogmatix of een andere build?** Maak eerst een app-back-up en herstel die in Dogmatix+. Bewaar losse kopieën van je games en saves en kies de opslag opnieuw na het installeren.
 3. Open het bestand en sta **"Onbekende apps installeren"** toe als Android erom vraagt.
 
 Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
@@ -136,7 +137,7 @@ Alles werkt ook met het touchscreen. De hints verschijnen alleen als er een cont
 - Verwijderde games gaan naar de prullenbak. Herstel of leeg definitief via Hulpmiddelen → Prullenbak en herstel. Ruimte komt vrij na het legen. De bestandsverkenner gebruikt standaard ook herstelbaar verwijderen; definitief verwijderen moet je in de bevestiging kiezen.
 - **Een back-upbestand bevat je accountsleutels** (TorBox, Real-Debrid, RomM). Houd het privé.
 - **Het venster met game-info blijft leeg in de versies van de app die je hier downloadt**, omdat het een gratis sleutel van een gamedatabase nodig heeft die wordt toegevoegd wanneer de app wordt gebouwd.
-- DogmatixPlus zoekt zelf niet naar games. Het leest alleen de bronnen die **jij** toevoegt.
+- Valkyr zoekt zelf niet naar games. Het leest alleen de bronnen die **jij** toevoegt.
 - **Werkt iets niet?** *Instellingen → App en updates → Probleem melden* maakt een privérapport dat je in een GitHub-melding kunt plakken; paden, serveradressen, sleutels en tokens worden eerst verwijderd.
 
 ## Voor ontwikkelaars en gevorderden
@@ -148,18 +149,20 @@ Alles werkt ook met het touchscreen. De hints verschijnen alleen als er een cont
 
 ## Credits
 
-DogmatixPlus is een kleine laag bovenop twee andere projecten. Het meeste van wat je elke dag gebruikt, is van hen.
+Valkyr wordt gemaakt door [Tufein](https://github.com/Tufein). Het is gebouwd met deze opensourceprojecten en gegevensbronnen:
 
-| Project | Gemaakt door | Wat het bracht |
-|---|---|---|
-| **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | De oorspronkelijke app en de hele motor ervan: bronnen lezen, games sorteren op console / regio / taal, zoeken, downloaden en uitpakken. |
-| **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) | De handheldversie: bediening met een gamepad, liggende indeling, thema's, favorieten, pauzeren en hervatten, de startgids, ES-DE / iiSU / Daijishō, TorBox en Real-Debrid, RomM. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Zoeken naar dubbele games, bibliotheekoverzicht, back-up maken en terugzetten, scanvoortgang, saves synchroniseren met RomM, game-setcontrole, opslagoverzicht, verlanglijst, export, downloadplanning, controlegetal-checks, de Nederlandse, Franse, Duitse, Italiaanse en Portugese vertalingen, en deze releases. |
+| Wat | Gebruikt voor |
+|---|---|
+| [Jetpack Compose / AndroidX](https://developer.android.com/jetpack/androidx), [Kotlin coroutines](https://github.com/Kotlin/kotlinx.coroutines), [Dagger Hilt](https://github.com/google/dagger) | De app zelf (Apache-2.0) |
+| [Gson](https://github.com/google/gson), [Coil](https://github.com/coil-kt/coil), [jsoup](https://jsoup.org), [ZXing](https://github.com/zxing/zxing) | JSON, afbeeldingen, webmappen lezen, QR-codes |
+| [7-Zip-JBinding](https://github.com/borisbrodski/sevenzipjbinding), [libtorrent4j](https://github.com/aldenml/libtorrent4j) | Archieven uitpakken, torrents |
+| [Space Mono](https://fonts.google.com/specimen/Space+Mono), [Manrope](https://fonts.google.com/specimen/Manrope) | Lettertypen (SIL Open Font License) |
+| [RetroAchievements](https://retroachievements.org), [RAWG](https://rawg.io), [TheGamesDB](https://thegamesdb.net), [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Achievements, spelinformatie en covers |
+| [No-Intro](https://no-intro.org), [Redump](http://redump.org), [TOSEC](https://www.tosecdev.org) | DAT-controles |
+| [RomM](https://github.com/rommapp/romm), [ES-DE](https://es-de.org), [Libretro](https://www.libretro.com), [ScummVM](https://www.scummvm.org), [Homebrew Hub](https://hh.gbdev.io) | Server, launcher en gratis content waarmee de app werkt |
 
-DogmatixPlus is **gemaakt met hulp van AI**: de code, de tests en de documentatie zijn samen met een AI-assistent geschreven en in meerdere controlerondes nagekeken. De beslissingen, de richting en het publiceren liggen bij de beheerder.
+Valkyr is **gemaakt met hulp van AI**: de code, de tests en de documentatie zijn samen met een AI-assistent geschreven en in meerdere controlerondes nagekeken. De beslissingen, de richting en het publiceren liggen bij de beheerder.
 
 ## Disclaimer
 
 Deze app is alleen bedoeld voor educatieve doeleinden. Je bent er zelf verantwoordelijk voor dat je het wettelijke recht hebt om welke content dan ook te downloaden.
-
-Milou en Dogmatix hebben geen licentie, dus alle rechten op hun code blijven bij hun auteurs. DogmatixPlus is een onofficiële persoonlijke aanpassing en is aan geen van beide projecten gelieerd. Ben je een van de oorspronkelijke auteurs en wil je dat er iets wordt aangepast of verwijderd? Open dan een issue.

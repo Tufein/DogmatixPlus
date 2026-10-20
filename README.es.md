@@ -1,10 +1,10 @@
-# DogmatixPlus
+# Valkyr
 
 [English](README.md) · [Nederlands](README.nl.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · **Español**
 
 **Encuentra, descarga y organiza juegos retro en tu móvil Android o en tu consola portátil.**
 
-DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes que *tú* añades, los descarga en las carpetas correctas y te ayuda a mantener ordenada tu colección. Funciona con la pantalla táctil *y* con un mando de juegos, así que se siente como en casa en consolas portátiles como Retroid, Anbernic o Kinhank.
+Valkyr mantiene una gran lista, con buscador, de los juegos de las fuentes que *tú* añades, los descarga en las carpetas correctas y te ayuda a mantener ordenada tu colección. Funciona con la pantalla táctil *y* con un mando de juegos, así que se siente como en casa en consolas portátiles como Retroid, Anbernic o Kinhank.
 
 > **La app no incluye juegos.** Añade tus fuentes o elige colecciones opcionales en **Fuentes → Más romsets**: homebrew, demos, juegos freeware y programas de prueba ofrecidos por su editor. Tú sigues siendo responsable de lo que descargas.
 
@@ -18,7 +18,7 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
   <tr>
     <td align="center" valign="top"><img src="docs/screenshots/delete-dialog.png" width="210" alt="Confirmación de borrado"><br><sub>Siempre ves qué archivos se van a borrar</sub></td>
     <td align="center" valign="top"><img src="docs/screenshots/settings.png" width="210" alt="Ajustes"><br><sub>Las herramientas nuevas están en Ajustes</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/credits.png" width="210" alt="Créditos"><br><sub>Créditos para todas las personas que han participado</sub></td>
+    <td></td>
     <td></td>
   </tr>
 </table>
@@ -29,15 +29,16 @@ DogmatixPlus mantiene una gran lista, con buscador, de los juegos de las fuentes
 
 *Las capturas de pantalla usan títulos de juegos inventados y archivos vacíos de relleno. Las capturas muestran la app en inglés.*
 
-**Última versión: [3.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.9.0)** (build de Android 51).
+**Última versión: [4.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.0.0)** (build de Android 52).
+
+*Hasta la 3.9.0 la app se llamaba Dogmatix+; la 4.0.0 la actualiza sin reinstalar.*
 
 ## Instalar
 
 1. Abre la **[página de Releases](https://github.com/Tufein/DogmatixPlus/releases)** en tu móvil o en tu consola portátil, o descarga el archivo allí y cópialo al dispositivo.
 2. Descarga uno de los dos archivos:
-   - **`DogmatixPlus-release.apk`** — *la opción normal.* Las versiones firmadas actuales actualizan Dogmatix+ y conservan sus datos. Su paquete es distinto del Dogmatix original.
+   - **`DogmatixPlus-release.apk`** — *la opción normal.* Las versiones firmadas actualizan la app y conservan sus datos, también si vienes de Dogmatix+ (el nombre anterior de la app). Los nombres de archivo todavía llevan ese nombre anterior.
    - **`DogmatixPlus-debug.apk`** — una app de prueba separada con sus propios datos, para probar cosas junto a tu app normal.
-   - **¿Vienes del Dogmatix original o de otra versión?** Haz primero una copia de la app y restáurala en Dogmatix+. Guarda copias separadas de tus juegos y partidas, y vuelve a elegir el almacenamiento tras reinstalar.
 3. Abre el archivo y permite **«Instalar aplicaciones desconocidas»** si Android te lo pide.
 
 Necesitas **Android 10 o más reciente**. La app no está en Google Play.
@@ -136,7 +137,7 @@ Todo funciona también con la pantalla táctil. Las ayudas solo se muestran mien
 - Los juegos eliminados van a la papelera. Restaura o vacía en Herramientas → Papelera y recuperación. El espacio se libera al vaciarla. El explorador también permite recuperar por defecto; debes elegir la eliminación definitiva en la confirmación.
 - **Un archivo de copia de seguridad contiene tus claves de cuenta** (TorBox, Real-Debrid, RomM). Mantenlo en privado.
 - **La ventana de información del juego se queda vacía en las descargas que se ofrecen aquí**, porque necesita una clave gratuita de una base de datos de juegos que se añade cuando se crea la app.
-- DogmatixPlus no busca juegos por su cuenta. Solo lee las fuentes que **tú** añades.
+- Valkyr no busca juegos por su cuenta. Solo lee las fuentes que **tú** añades.
 - **¿Algo no funciona?** *Ajustes → Aplicación y actualizaciones → Informar de un problema* crea un informe privado que puedes pegar en una incidencia de GitHub; antes se quitan rutas, direcciones de servidor, claves y tokens.
 
 ## Para desarrolladores y usuarios avanzados
@@ -148,18 +149,20 @@ Todo funciona también con la pantalla táctil. Las ayudas solo se muestran mien
 
 ## Créditos
 
-DogmatixPlus es una pequeña capa sobre otros dos proyectos. La mayor parte de lo que usas cada día es suyo.
+Valkyr está hecho por [Tufein](https://github.com/Tufein). Se basa en estos proyectos de código abierto y fuentes de datos:
 
-| Proyecto | Creado por | Qué aportó |
-|---|---|---|
-| **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | La app original y todo su motor: leer las fuentes, ordenar los juegos por consola / región / idioma, buscar, descargar y descomprimir. |
-| **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) | La versión para consolas portátiles: control con mando, diseño horizontal, temas, favoritos, pausar y reanudar, la guía de primer inicio, ES-DE / iiSU / Daijishō, TorBox y Real-Debrid, RomM. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Buscador de juegos duplicados, resumen de la biblioteca, copia de seguridad y restaurar copia, progreso del escaneo, sincronizar partidas con RomM, comprobación de juegos de varios archivos, resumen del almacenamiento, lista de deseos, exportación, programación de descargas, comprobación de sumas, las traducciones al neerlandés, francés, alemán, italiano y portugués, y estas versiones. |
+| Qué | Para qué |
+|---|---|
+| [Jetpack Compose / AndroidX](https://developer.android.com/jetpack/androidx), [Kotlin coroutines](https://github.com/Kotlin/kotlinx.coroutines), [Dagger Hilt](https://github.com/google/dagger) | La propia app (Apache-2.0) |
+| [Gson](https://github.com/google/gson), [Coil](https://github.com/coil-kt/coil), [jsoup](https://jsoup.org), [ZXing](https://github.com/zxing/zxing) | JSON, imágenes, lectura de directorios web, códigos QR |
+| [7-Zip-JBinding](https://github.com/borisbrodski/sevenzipjbinding), [libtorrent4j](https://github.com/aldenml/libtorrent4j) | Descomprimir archivos, torrents |
+| [Space Mono](https://fonts.google.com/specimen/Space+Mono), [Manrope](https://fonts.google.com/specimen/Manrope) | Tipografías (SIL Open Font License) |
+| [RetroAchievements](https://retroachievements.org), [RAWG](https://rawg.io), [TheGamesDB](https://thegamesdb.net), [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Logros, información de juegos y portadas |
+| [No-Intro](https://no-intro.org), [Redump](http://redump.org), [TOSEC](https://www.tosecdev.org) | Comprobaciones DAT |
+| [RomM](https://github.com/rommapp/romm), [ES-DE](https://es-de.org), [Libretro](https://www.libretro.com), [ScummVM](https://www.scummvm.org), [Homebrew Hub](https://hh.gbdev.io) | Servidor, lanzador y contenido gratuito con los que funciona la app |
 
-DogmatixPlus se **hizo con la ayuda de la IA**: el código, las pruebas y la documentación se escribieron junto con un asistente de IA y se comprobaron en varias rondas de revisión. Las decisiones, la dirección y la publicación son de quien mantiene el proyecto.
+Valkyr se **hizo con la ayuda de la IA**: el código, las pruebas y la documentación se escribieron junto con un asistente de IA y se comprobaron en varias rondas de revisión. Las decisiones, la dirección y la publicación son de quien mantiene el proyecto.
 
 ## Aviso legal
 
 Esta app es solo para fines educativos. Eres responsable de asegurarte de que tienes derecho legal a descargar cualquier contenido.
-
-Milou y Dogmatix no tienen licencia, así que todos los derechos sobre su código siguen siendo de sus autores. DogmatixPlus es una modificación personal no oficial y no está vinculada a ninguno de los dos proyectos. Si eres uno de los autores originales y te gustaría que se cambiara o se retirara algo, por favor, abre una incidencia (issue).

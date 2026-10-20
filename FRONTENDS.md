@@ -1,9 +1,9 @@
 # Frontend integration (.dgmtx shortcuts)
 
-Dogmatix can appear inside a game frontend as if it were an emulator: each platform's ROM
+Valkyr can appear inside a game frontend as if it were an emulator: each platform's ROM
 folder gets a tiny `★ Search for more games....dgmtx` shortcut file, the frontend lists it
 like a game (the star keeps it at one end of the alphabetical list, away from the games),
-and "launching" it opens Dogmatix with the library already filtered to that platform —
+and "launching" it opens Valkyr with the library already filtered to that platform —
 browse, download, and the new ROM shows up in the frontend's folder.
 
 ## The `.dgmtx` format
@@ -13,11 +13,11 @@ deep link that gets applied (any filter combination from the [deep links](README
 section works):
 
 ```
-# Dogmatix shortcut — Super Nintendo
+# Valkyr shortcut — Super Nintendo
 dogmatix://library?console=nintendo_snes
 ```
 
-Dogmatix opens these files from any `ACTION_VIEW` intent with a `content://` (or readable
+Valkyr opens these files from any `ACTION_VIEW` intent with a `content://` (or readable
 `file://`) URI — from a frontend, a file manager, or `adb shell am start`.
 
 ## Creating the shortcuts
@@ -37,23 +37,23 @@ ES-DE"). Later — or after adding consoles — the same button lives in Setting
 
 Settings → **Configure ES-DE**: pick your ES-DE application data directory once (the folder
 holding `custom_systems`, `gamelists`, `downloaded_media` — default `/storage/emulated/0/ES-DE`)
-and Dogmatix does everything below by itself: deploys the shortcuts, registers itself as an
+and Valkyr does everything below by itself: deploys the shortcuts, registers itself as an
 emulator, patches each platform's system definition (starting from the `es_systems.xml` bundled
 inside the installed ES-DE, so no emulator entry is lost or outdated), writes the gamelist
 entries with `<altemulator>` — the system default emulator is untouched; only the shortcut
-launches Dogmatix — and sets the banner as the entry's cover art. Existing files are merged,
+launches Valkyr — and sets the banner as the entry's cover art. Existing files are merged,
 never truncated. Close ES-DE before running it (it rewrites gamelists on exit) and restart it
 afterwards. Run it again after adding consoles.
 
 Only console folders whose name matches an ES-DE system (`snes`, `psp`…) get an entry — which
-is automatic when the Dogmatix download directory is the ES-DE ROM directory.
+is automatic when the Valkyr download directory is the ES-DE ROM directory.
 
 ### Manual setup
 
 What the button writes, for reference or fine-tuning — two files in the ES-DE application
 data directory, then restart ES-DE:
 
-`ES-DE/custom_systems/es_find_rules.xml` — registers Dogmatix as an "emulator":
+`ES-DE/custom_systems/es_find_rules.xml` — registers Valkyr as an "emulator":
 
 ```xml
 <?xml version="1.0"?>
@@ -86,14 +86,17 @@ extensions. Example for SNES (RetroArch kept as second command):
 </systemList>
 ```
 
-`%ROMPROVIDER%` hands Dogmatix a `content://` URI with a temporary read grant, so ES-DE needs
+The command label `Dogmatix` and the emulator name `DOGMATIX` are the ones installs before 4.0 (when the app was called
+Dogmatix+) already wrote into ES-DE's files; Valkyr keeps them so existing setups and gamelists keep working.
+
+`%ROMPROVIDER%` hands Valkyr a `content://` URI with a temporary read grant, so ES-DE needs
 no special storage setup for the shortcut. Since a `.dgmtx` is a single file, `%ROMSAF%` also
 works.
 
-The first `<command>` is the system's default emulator: keep *Dogmatix* first while the folder
-only holds the shortcut, and once real games live next to it either move Dogmatix below the
+The first `<command>` is the system's default emulator: keep *Valkyr* first while the folder
+only holds the shortcut, and once real games live next to it either move Valkyr below the
 real emulator or set the alternative emulator per game (game options → *Alternative emulator*)
-so the ROMs keep launching in their emulator and only the shortcut opens Dogmatix. The per-game
+so the ROMs keep launching in their emulator and only the shortcut opens Valkyr. The per-game
 choice lives in `ES-DE/gamelists/<system>/gamelist.xml`, so it can also be written directly —
 together with a name and description for the entry:
 
@@ -101,7 +104,7 @@ together with a name and description for the entry:
 <game>
     <path>./★ Search for more games....dgmtx</path>
     <name>★ Search for more games...</name>
-    <desc>Browse and download games for this platform with Dogmatix.</desc>
+    <desc>Browse and download games for this platform with Valkyr.</desc>
     <altemulator>Dogmatix</altemulator>
 </game>
 ```
@@ -124,20 +127,20 @@ ES-DE/downloaded_media/<system>/covers/★ Search for more games....png
 Settings → **Configure iiSU**: pick iiSU's data folder once — `iiSULauncher`, inside
 `Android/media/com.iisulauncher/` on internal storage (the folder picker hides `Android/data`
 and `Android/obb`, but `Android/media` is reachable; picking the parent `com.iisulauncher`
-also works, Dogmatix descends into `iiSULauncher` by itself and refuses anything else) — and
-Dogmatix deploys the shortcuts and registers itself in iiSU's `emuladores.json`. Restart iiSU afterwards, then add or rescan the
+also works, Valkyr descends into `iiSULauncher` by itself and refuses anything else) — and
+Valkyr deploys the shortcuts and registers itself in iiSU's `emuladores.json`. Restart iiSU afterwards, then add or rescan the
 console: the shortcut shows up as a game.
 
-For each console whose folder got a shortcut, Dogmatix adds `.dgmtx`/`.DGMTX` to its
+For each console whose folder got a shortcut, Valkyr adds `.dgmtx`/`.DGMTX` to its
 `romExtensions` and appends a `DOGMATIX` emulator. Everything else is left alone — other
 consoles, other emulators, and the console's own first choice of emulator. Point the shortcut
-(and only the shortcut) at Dogmatix with the per-ROM override: focus it, press the *Details*
+(and only the shortcut) at Valkyr with the per-ROM override: focus it, press the *Details*
 button, then *Settings → Launch options → Override Emulator*. That is iiSU's equivalent of
 ES-DE's `<altemulator>`. *Add to home* on the same menu pins the shortcut to the iiSU home.
 
 Two things to know. iiSU ships `emuladores.json` as a versioned artifact it can update from
 its own repository, so *Apply emuladores.json update* wipes these additions — run the setup
-again. And on an iiSU that has not extracted its defaults yet, Dogmatix starts from the
+again. And on an iiSU that has not extracted its defaults yet, Valkyr starts from the
 `emuladores_default.json` bundled inside the installed iiSU APK, so no console is lost.
 
 ### Manual setup
@@ -152,7 +155,7 @@ its `shortName` (which is also its folder name) and add the extension and the em
   "romExtensions": [".sfc", ".SFC", ".smc", ".SMC", ".dgmtx", ".DGMTX"],
   "emulators": [
     { "id": "DOGMATIX",
-      "name": "Dogmatix",
+      "name": "Valkyr",
       "routeType": "uri",
       "commands": [
         { "description": "Search for more games",
@@ -164,8 +167,8 @@ its `shortName` (which is also its folder name) and add the extension and the em
 ```
 
 `routeType` must be `uri`: iiSU then passes `%ROM_URI%`, a `content://` URI sent with
-`FLAG_GRANT_READ_URI_PERMISSION`, which is what Dogmatix reads the shortcut through — a raw
-path would need storage permissions Dogmatix does not ask for. Spell the component out in
+`FLAG_GRANT_READ_URI_PERMISSION`, which is what Valkyr reads the shortcut through — a raw
+path would need storage permissions Valkyr does not ask for. Spell the component out in
 full and do **not** use `%PACKAGE%`: when the command uses it, iiSU rebuilds the class name
 from the chosen package, which fails on any build whose application id is not the class's
 package (`START_CLASS_NOT_FOUND`). `packages` is what fills iiSU's *emulator variant* list.
@@ -174,14 +177,14 @@ package (`START_CLASS_NOT_FOUND`). `packages` is what fills iiSU's *emulator var
 
 Daijishō keeps its platforms and players in a private database and declares no intent filter,
 deep link or configuration file, so there is no one-button setup: the emulator entry is typed
-in by hand. Settings → **Set up Daijishō** in Dogmatix deploys the shortcuts and shows the
+in by hand. Settings → **Set up Daijishō** in Valkyr deploys the shortcuts and shows the
 three values with a Copy button each.
 
 In Daijishō, go to Settings → Library → **Add an emulator** and fill it in:
 
 | Field | Value |
 |---|---|
-| Emulator name | `Dogmatix` |
+| Emulator name | `Valkyr` |
 | Emulator am start arguments | `-a android.intent.action.VIEW`<br>`-n com.cortinadev.dogmatix/com.cortinadev.dogmatix.MainActivity`<br>`-d {file.uri}`<br>`--grant-read-uri-permission` |
 | Accepted filename regex | `^(.*)\.(?:dgmtx)$` |
 | Kill package processes before am start | off |
@@ -192,15 +195,15 @@ a dot, so the shortcut is picked up without touching the platform. Doing it this
 survives *Update platforms automatically*, which re-fetches platform definitions from
 Daijishō's index and would revert an imported system.
 
-`{file.uri}` rather than `{file.path}`: Dogmatix reads the shortcut through the content
+`{file.uri}` rather than `{file.path}`: Valkyr reads the shortcut through the content
 resolver. The `--grant-read-uri-permission` flag asks Daijishō to extend its read grant on
-that URI to Dogmatix. Verified end to end on a real device: with this exact entry, a synced
-`.dgmtx` launches with `FLAG_GRANT_READ_URI_PERMISSION` set and Dogmatix opens filtered to
+that URI to Valkyr. Verified end to end on a real device: with this exact entry, a synced
+`.dgmtx` launches with `FLAG_GRANT_READ_URI_PERMISSION` set and Valkyr opens filtered to
 the platform.
 
 ## Covers for Pegasus and RetroArch
 
-Next to *Covers for ES-DE*, Dogmatix can put a game's cover where two other frontends look,
+Next to *Covers for ES-DE*, Valkyr can put a game's cover where two other frontends look,
 right after the download (Settings):
 
 - **Covers for Pegasus**: `media/<game file name without extension>/boxFront.<ext>` next to

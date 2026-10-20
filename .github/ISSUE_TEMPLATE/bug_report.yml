@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a reproducible problem in Dogmatix+
+description: Report a reproducible problem in Valkyr
 title: "[Bug] "
 body:
   - type: markdown

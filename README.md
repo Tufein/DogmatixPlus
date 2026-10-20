@@ -1,10 +1,10 @@
-# DogmatixPlus
+# Valkyr
 
 **English** · [Nederlands](README.nl.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [Español](README.es.md)
 
-**Find, download and organise retro games on your Android phone or handheld.** On your device the app is called **Dogmatix+**.
+**Find, download and organise retro games on your Android phone or handheld.**
 
-DogmatixPlus keeps one big, searchable list of the games from the sources *you* add, downloads them into the right folders, and helps you keep your collection tidy. It works with touch *and* with a game controller, so it feels at home on handhelds such as the Retroid, Anbernic or Kinhank.
+Valkyr keeps one big, searchable list of the games from the sources *you* add, downloads them into the right folders, and helps you keep your collection tidy. It works with touch *and* with a game controller, so it feels at home on handhelds such as the Retroid, Anbernic or Kinhank.
 
 The app includes no games. **Sources → More romsets** offers optional free content collections (Libretro homebrew and demos, ScummVM freeware games, Game Boy homebrew from Homebrew Hub) alongside your own sources.
 
@@ -18,7 +18,7 @@ The app includes no games. **Sources → More romsets** offers optional free con
   <tr>
     <td align="center" valign="top"><img src="docs/screenshots/delete-dialog.png" width="210" alt="Delete confirmation"><br><sub>You always see which files will go</sub></td>
     <td align="center" valign="top"><img src="docs/screenshots/settings.png" width="210" alt="Settings"><br><sub>The new tools are in Settings</sub></td>
-    <td align="center" valign="top"><img src="docs/screenshots/credits.png" width="210" alt="Credits"><br><sub>Credits for everyone involved</sub></td>
+    <td></td>
     <td></td>
   </tr>
 </table>
@@ -29,15 +29,16 @@ The app includes no games. **Sources → More romsets** offers optional free con
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [3.9.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v3.9.0)** (Android build 51).
+**Latest release: [4.0.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.0.0)** (Android build 52).
+
+*Until 3.9.0 the app was called Dogmatix+; 4.0.0 updates it in place.*
 
 ## Install
 
 1. Open the **[Releases page](https://github.com/Tufein/DogmatixPlus/releases)** on your phone or handheld, or download there and copy the file over.
 2. Download one of the two files:
-   - **`DogmatixPlus-release.apk`** — *the normal choice.* Current signed Dogmatix+ releases update in place and keep your app data. Dogmatix+ has a separate package from the original Dogmatix.
+   - **`DogmatixPlus-release.apk`** — *the normal choice.* Signed releases update the app in place and keep your app data, also when you come from Dogmatix+ (the app's earlier name). The file names still carry that earlier name.
    - **`DogmatixPlus-debug.apk`** — a separate test app with its own data, for trying things out next to your normal app.
-   - **Coming from the original Dogmatix or another build?** Make an app backup first and restore it in Dogmatix+. Keep separate copies of your games and saves, and select the storage again after reinstalling.
 3. Open the file and allow **"install unknown apps"** if Android asks.
 
 You need **Android 10 or newer**. The app is not on Google Play.
@@ -136,7 +137,7 @@ Everything also works by touch. The hints only show while a controller is connec
 - Removed games go to recovery trash. Restore or permanently empty them in Tools → Trash and recovery. Space is freed only after emptying. The file explorer also uses recovery by default; permanent deletion requires selecting that option in its confirmation.
 - **A backup file contains your account keys** (TorBox, Real-Debrid, RomM). Keep it private.
 - **The game info window stays empty in the downloads here**, because it needs a free key from a game database that is added when the app is built.
-- DogmatixPlus does not look for games on its own. It only reads the sources **you** add.
+- Valkyr does not look for games on its own. It only reads the sources **you** add.
 - **Something not working?** *Settings → App and updates → Report a problem* builds a private report you can paste into a GitHub issue; paths, server addresses, keys and tokens are removed first.
 
 ## For developers and advanced users
@@ -148,18 +149,20 @@ Everything also works by touch. The hints only show while a controller is connec
 
 ## Credits
 
-DogmatixPlus is a small layer on top of two other projects. Most of what you use every day is theirs.
+Valkyr is made by [Tufein](https://github.com/Tufein). It is built with these open-source projects and data sources:
 
-| Project | Made by | What it brought |
-|---|---|---|
-| **[Milou](https://github.com/santiifm/milou)** | [santiifm](https://github.com/santiifm) | The original app and its whole engine: reading sources, sorting games by console / region / language, searching, downloading and unpacking. |
-| **[Dogmatix](https://github.com/cortinadev/dogmatix)** | [Rafa Cortina](https://github.com/cortinadev) | The handheld version: gamepad control, landscape layout, themes, favourites, pause and resume, the first-start guide, ES-DE / iiSU / Daijishō, TorBox and Real-Debrid, RomM. |
-| **DogmatixPlus** | [Tufein](https://github.com/Tufein) | Duplicate finder, library overview, back up and restore, scan progress, save sync with RomM, game-set checks, storage overview, wishlist, export, download schedule, checksum checks, the Dutch, French, German, Italian and Portuguese translations, and these releases. |
+| What | Used for |
+|---|---|
+| [Jetpack Compose / AndroidX](https://developer.android.com/jetpack/androidx), [Kotlin coroutines](https://github.com/Kotlin/kotlinx.coroutines), [Dagger Hilt](https://github.com/google/dagger) | The app itself (Apache-2.0) |
+| [Gson](https://github.com/google/gson), [Coil](https://github.com/coil-kt/coil), [jsoup](https://jsoup.org), [ZXing](https://github.com/zxing/zxing) | JSON, images, reading web directories, QR codes |
+| [7-Zip-JBinding](https://github.com/borisbrodski/sevenzipjbinding), [libtorrent4j](https://github.com/aldenml/libtorrent4j) | Unpacking archives, torrents |
+| [Space Mono](https://fonts.google.com/specimen/Space+Mono), [Manrope](https://fonts.google.com/specimen/Manrope) | Fonts (SIL Open Font License) |
+| [RetroAchievements](https://retroachievements.org), [RAWG](https://rawg.io), [TheGamesDB](https://thegamesdb.net), [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Achievements, game information and covers |
+| [No-Intro](https://no-intro.org), [Redump](http://redump.org), [TOSEC](https://www.tosecdev.org) | DAT checks |
+| [RomM](https://github.com/rommapp/romm), [ES-DE](https://es-de.org), [Libretro](https://www.libretro.com), [ScummVM](https://www.scummvm.org), [Homebrew Hub](https://hh.gbdev.io) | Server, launcher and free content the app works with |
 
-DogmatixPlus was **made with the help of A.I.**: the code, the tests and the documentation were written together with an AI assistant and checked in several review rounds. Decisions, direction and publishing are the maintainer's.
+Valkyr was **made with the help of A.I.**: the code, the tests and the documentation were written together with an AI assistant and checked in several review rounds. Decisions, direction and publishing are the maintainer's.
 
 ## Disclaimer
 
 This app is for educational purposes only. You are responsible for making sure you have the legal right to download any content.
-
-Milou and Dogmatix have no licence, so all rights to their code stay with their authors. DogmatixPlus is an unofficial personal modification and is not affiliated with either project. If you are one of the original authors and would like something changed or removed, please open an issue.
