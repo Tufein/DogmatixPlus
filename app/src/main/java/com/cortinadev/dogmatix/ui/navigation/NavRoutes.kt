@@ -5,10 +5,14 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.cortinadev.dogmatix.R
 
 sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
-    object Home : NavRoutes("home", R.string.nav_library, R.drawable.ic_controller)
+    /** 3.8.0: the first tab reads "Games" (the library with its shelves). */
+    object Home : NavRoutes("home", R.string.shell38_tab_games, R.drawable.ic_controller)
     object Downloads : NavRoutes("downloads", R.string.nav_downloads, R.drawable.ic_download)
     object Sources : NavRoutes("sources", R.string.nav_sources, R.drawable.ic_globe)
+    /** Since 3.8.0 a normal screen, reached from [More]; it is no longer a tab. */
     object Settings : NavRoutes("settings", R.string.nav_settings, R.drawable.ic_settings)
+    /** 3.8.0: the fourth tab, one list of everything that is not a tab (settings, tools, cloud, wishlist…). */
+    object More : NavRoutes("more", R.string.shell38_more, R.drawable.ic_more_horiz)
     object Contact : NavRoutes("contact", R.string.nav_contact, R.drawable.ic_heart)
     object Romm : NavRoutes("romm", R.string.nav_romm, R.drawable.ic_server)
     object SaveSync : NavRoutes("save_sync", R.string.nav_save_sync, R.drawable.ic_cloud_sync)
@@ -76,10 +80,42 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     object SearchAll : NavRoutes("search_all", R.string.find8_title, R.drawable.ic_search)
 
     companion object {
-        /** The four sections shown as tabs; Contact, RomM and the library tools are reached from Settings. */
-        val tabs by lazy { listOf(Home, Downloads, Sources, Settings) }
-        val allRoutes by lazy { tabs + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions + FreeSpace + SearchAll + Recovery + PackageTransfer + ActionHistory + VersionPreference + UpNext + LibraryRepair + ReportProblem + GameTransfer + FrontendCovers + RetroArchPlaylists + NewHandheld }
+        /** The four sections shown as tabs (3.8.0); every other screen is reached from More. */
+        val tabs by lazy { listOf(Home, Downloads, Sources, More) }
+        val allRoutes by lazy { tabs + Settings + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions + FreeSpace + SearchAll + Recovery + PackageTransfer + ActionHistory + VersionPreference + UpNext + LibraryRepair + ReportProblem + GameTransfer + FrontendCovers + RetroArchPlaylists + NewHandheld }
     }
+}
+
+/**
+ * The tab a route belongs to: a game page belongs to the Library, every screen that is not a tab
+ * (Settings, Tools, Cloud, the wishlist…) keeps More lit.
+ */
+fun tabRouteFor(route: String): String = when {
+    NavRoutes.tabs.any { it.route == route } -> route
+    route == NavRoutes.Game.route || route.startsWith("game/") -> NavRoutes.Home.route
+    else -> NavRoutes.More.route
+}
+
+/**
+ * +1 when going "right" (a later tab, or deeper into a screen opened from More), -1 when going
+ * back "left": the side the new screen slides in from.
+ */
+fun travelDirection(from: String?, to: String?): Int {
+    val tabs = NavRoutes.tabs.map { it.route }
+    val a = tabs.indexOf(from)
+    val b = tabs.indexOf(to)
+    return when {
+        a >= 0 && b >= 0 -> if (b >= a) 1 else -1
+        b < 0 -> 1      // into a screen opened from More
+        else -> -1      // back out to a tab
+    }
+}
+
+/** The tab [delta] steps from the one [route] belongs to, wrapping around (ZL / ZR). */
+fun neighbourTab(route: String?, delta: Int): NavRoutes {
+    val tabs = NavRoutes.tabs
+    val index = tabs.indexOfFirst { it.route == tabRouteFor(route.orEmpty()) }.coerceAtLeast(0)
+    return tabs[((index + delta) % tabs.size + tabs.size) % tabs.size]
 }
 
 /**

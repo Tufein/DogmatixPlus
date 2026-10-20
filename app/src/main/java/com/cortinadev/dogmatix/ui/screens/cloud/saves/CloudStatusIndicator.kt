@@ -50,8 +50,8 @@ import com.cortinadev.dogmatix.util.CloudActivity
  * while no cloud feature is set up. The arc turns in the draw phase only (no recomposition) and
  * stands still with animations off.
  *
- * Call next to `RescanIndicator` in `TopTabs` (`CloudStatusIndicator(onClick = { onSelect(NavRoutes.Cloud) })`)
- * and in `PortraitHeader` (with a click that navigates to `NavRoutes.Cloud`), both in ui/components/AppShell.kt.
+ * Called next to `RescanIndicator` in `ShellHeader` (ui/components/AppShell.kt), with a click that
+ * opens `NavRoutes.Cloud`.
  */
 @Composable
 fun CloudStatusIndicator(onClick: () -> Unit, modifier: Modifier = Modifier) {

@@ -10,6 +10,7 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import androidx.compose.ui.focus.FocusRequester
 import com.cortinadev.dogmatix.ui.components.LegendEntry
+import com.cortinadev.dogmatix.ui.navigation.tabRouteFor
 import com.cortinadev.dogmatix.util.PadDirection
 import com.cortinadev.dogmatix.util.SelectHold
 import kotlinx.coroutines.channels.BufferOverflow
@@ -41,12 +42,15 @@ object Gamepad {
     /** One requester per section tab (keyed by route) so focus can be handed to the active tab. */
     val tabFocus: Map<String, FocusRequester> = mapOf(
         "home" to FocusRequester(), "downloads" to FocusRequester(),
-        "sources" to FocusRequester(), "settings" to FocusRequester()
+        "sources" to FocusRequester(), "more" to FocusRequester()
     )
     var currentRoute: String = "home"
 
-    /** Requester of the active section tab (screens hand focus back to the header with B). */
-    val sectionFocus: FocusRequester get() = tabFocus[currentRoute] ?: tabFocus.getValue("home")
+    /**
+     * Requester of the active section tab (screens hand focus back to the tab bar or rail with B).
+     * 3.8.0: a screen opened from More (Settings, Tools…) hands it to the More tab.
+     */
+    val sectionFocus: FocusRequester get() = tabFocus[tabRouteFor(currentRoute)] ?: tabFocus.getValue("home")
 
     /**
      * A screen can publish a context-specific button legend here (null = the section default).

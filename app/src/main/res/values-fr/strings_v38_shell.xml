@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 3.8.0 shell: tabs, rail and the More screen. -->
+    <string name="shell38_tab_games">Jeux</string>
+    <string name="shell38_more">Plus</string>
+    <string name="shell38_more_hint">Souhaits, outils, cloud, paramètres et tout ce qui n’a pas son propre onglet</string>
+    <string name="shell38_group_yours">Vos affaires</string>
+    <string name="shell38_group_tools">Outils</string>
+    <string name="shell38_group_online">En ligne</string>
+    <string name="shell38_group_app">Appli</string>
+    <string name="shell38_tools_hint">Vue d’ensemble, doublons, jeux multi-fichiers, frontends, export et tous les autres outils de la bibliothèque</string>
+    <string name="shell38_cloud_hint">RomM, sauvegarde cloud, vos autres appareils et RetroAchievements au même endroit</string>
+    <string name="shell38_save_sync_hint">Gardez vos sauvegardes de jeu à jour avec RomM</string>
+    <string name="shell38_settings_hint">Apparence, téléchargements, manette, stockage, sauvegardes et mises à jour</string>
+    <string name="shell38_contact_hint">Remerciements, liens et comment joindre le développeur</string>
+</resources>

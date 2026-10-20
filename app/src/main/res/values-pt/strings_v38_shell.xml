@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 3.8.0 shell: tabs, rail and the More screen. -->
+    <string name="shell38_tab_games">Jogos</string>
+    <string name="shell38_more">Mais</string>
+    <string name="shell38_more_hint">Desejos, ferramentas, nuvem, definições e tudo o que não tem separador próprio</string>
+    <string name="shell38_group_yours">As tuas coisas</string>
+    <string name="shell38_group_tools">Ferramentas</string>
+    <string name="shell38_group_online">Online</string>
+    <string name="shell38_group_app">App</string>
+    <string name="shell38_tools_hint">Visão geral, duplicados, conjuntos de jogos, frontends, exportar e todas as outras ferramentas da biblioteca</string>
+    <string name="shell38_cloud_hint">RomM, cópia na nuvem, os teus outros dispositivos e RetroAchievements num só sítio</string>
+    <string name="shell38_save_sync_hint">Mantém os teus saves em dia com o RomM</string>
+    <string name="shell38_settings_hint">Aspeto, transferências, comando, armazenamento, cópias de segurança e atualizações</string>
+    <string name="shell38_contact_hint">Créditos, ligações e como contactar o programador</string>
+</resources>

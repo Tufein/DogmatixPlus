@@ -208,6 +208,7 @@ object SearchIndex {
             screen(SearchGroup.TOOLS, NavRoutes.Home, R.string.nav_library, R.string.find8_hint_library, R.string.find8_kw_library),
             screen(SearchGroup.TOOLS, NavRoutes.Downloads, R.string.nav_downloads, R.string.find8_hint_downloads, R.string.find8_kw_downloads),
             screen(SearchGroup.TOOLS, NavRoutes.Sources, R.string.nav_sources, R.string.find8_hint_sources, R.string.find8_kw_sources),
+            screen(SearchGroup.TOOLS, NavRoutes.More, R.string.shell38_more, R.string.shell38_more_hint),
             screen(SearchGroup.TOOLS, NavRoutes.Tools, R.string.settings_tools, R.string.settings_tools_hint),
             screen(SearchGroup.TOOLS, NavRoutes.Overview, R.string.settings_overview, R.string.settings_overview_hint),
             screen(SearchGroup.TOOLS, NavRoutes.Duplicates, R.string.settings_duplicates, R.string.settings_duplicates_hint, R.string.find8_kw_duplicates),
