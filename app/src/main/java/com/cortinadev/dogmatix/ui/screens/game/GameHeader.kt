@@ -59,10 +59,10 @@ import java.util.Date
  */
 
 /** Corner radius of the page's cards (the 3.8 look: rounded, with air). */
-internal val GamePageCardRadius: Dp = 20.dp
+val GamePageCardRadius: Dp = 20.dp
 
 /** Gap between the page's cards. */
-internal val GamePageGap: Dp = 16.dp
+val GamePageGap: Dp = 16.dp
 
 /**
  * The page's top for [state]: reads the art and the facts, then draws [GameHeaderLayout].
@@ -143,7 +143,7 @@ internal fun GameHeader(
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun GameHeaderLayout(
+fun GameHeaderLayout(
     title: String,
     consoleId: String,
     year: String?,
@@ -199,7 +199,7 @@ private fun KeyChip(text: String, icon: Int, tone: PillTone) {
  * while it runs (one button whose label changes, so the focus stays on it when a download starts).
  */
 @Composable
-internal fun GamePrimaryAction(
+fun GamePrimaryAction(
     primary: GamePageModel.Primary,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -225,7 +225,7 @@ internal fun GamePrimaryAction(
 
 /** The round quick actions under the main button, in [quick]'s order. */
 @Composable
-internal fun GameQuickActions(
+fun GameQuickActions(
     quick: List<Quick>,
     favourite: Boolean,
     onFavourite: () -> Unit,
@@ -277,7 +277,7 @@ internal fun GameQuickActions(
 /** The rounded "More actions" card: every other action of the page as large pills. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun GameMoreActions(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+fun GameMoreActions(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Panel(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(GamePageCardRadius),
@@ -294,4 +294,4 @@ internal fun GameMoreActions(modifier: Modifier = Modifier, content: @Composable
 }
 
 /** The minimum height of the page's pills: a 48 dp touch target. */
-internal val PageTarget: Modifier = Modifier.heightIn(min = 48.dp)
+val PageTarget: Modifier = Modifier.heightIn(min = 48.dp)
