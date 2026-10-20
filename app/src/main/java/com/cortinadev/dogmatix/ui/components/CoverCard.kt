@@ -81,6 +81,8 @@ fun CoverCard(
             title,
             style = MaterialTheme.typography.titleSmall,
             color = scheme.onSurface,
+            // Always two lines high, so the console tags of a shelf line up.
+            minLines = 2,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(horizontal = 6.dp)
