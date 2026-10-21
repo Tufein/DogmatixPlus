@@ -1,5 +1,6 @@
 package com.tufein.valkyr.data.service
 
+import com.tufein.valkyr.util.CoverSources
 import com.tufein.valkyr.util.LibretroThumbnails
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -29,6 +30,60 @@ class ThumbnailService @Inject constructor() {
         }
         cache[key] = found.orEmpty()
         found
+    }
+
+    /**
+     * 4.3.0, the cover source chain: box art under every name of [LibretroThumbnails.plan] (the
+     * user's [regions] first), then title screens and snaps when [nonBoxArt] allows them. A miss
+     * is only a miss when every request was answered; a network error or a refusal (GitHub's rate
+     * limit) makes the answer [CoverSources.Answer.Unavailable], which is not stored as a miss.
+     */
+    suspend fun find(consoleId: String, fileName: String, regions: List<String>, nonBoxArt: Boolean): CoverSources.Answer = withContext(Dispatchers.IO) {
+        val system = LibretroThumbnails.systemFor(consoleId) ?: return@withContext CoverSources.Answer.Miss
+        val key = "${system.repo}|$fileName|$nonBoxArt|${regions.take(3).joinToString(",")}"
+        chainCache[key]?.let { return@withContext if (it.isEmpty()) CoverSources.Answer.Miss else CoverSources.Answer.Found(it) }
+        var failed = false
+        for ((art, name) in LibretroThumbnails.plan(fileName, regions, nonBoxArt)) {
+            when (val probe = probe(system, art, name, hops = 2)) {
+                is Probe.Found -> { chainCache[key] = probe.url; return@withContext CoverSources.Answer.Found(probe.url) }
+                Probe.Absent -> Unit
+                Probe.Failed -> failed = true
+            }
+        }
+        if (failed) CoverSources.Answer.Unavailable else CoverSources.Answer.Miss.also { chainCache[key] = "" }
+    }
+
+    private val chainCache = ConcurrentHashMap<String, String>()
+
+    private sealed interface Probe {
+        data class Found(val url: String) : Probe
+        data object Absent : Probe
+        data object Failed : Probe
+    }
+
+    private fun probe(system: LibretroThumbnails.System, art: LibretroThumbnails.Art, name: String, hops: Int): Probe {
+        val url = LibretroThumbnails.artUrl(system, art, name)
+        val (code, head) = try { status(url) } catch (e: Exception) { return Probe.Failed }
+        if (code == 404) return Probe.Absent
+        if (code != 200 || head == null) return Probe.Failed
+        LibretroThumbnails.symlinkTarget(head)?.let { target -> return if (hops > 0) probe(system, art, target, hops - 1) else Probe.Absent }
+        return Probe.Found(url)
+    }
+
+    /** The status code and, for a 200, the body's first bytes. */
+    private fun status(url: String): Pair<Int, ByteArray?> {
+        val c = URL(url).openConnection() as HttpURLConnection
+        TlsTrust.apply(c)
+        return try {
+            c.connectTimeout = 10_000; c.readTimeout = 15_000
+            c.setRequestProperty("User-Agent", "Valkyr")
+            val code = c.responseCode
+            if (code != 200) code to null else code to c.inputStream.use { s ->
+                val buf = ByteArray(300); var n = 0
+                while (n < buf.size) { val r = s.read(buf, n, buf.size - n); if (r < 0) break; n += r }
+                buf.copyOf(n)
+            }
+        } finally { c.disconnect() }
     }
 
     private fun resolve(system: LibretroThumbnails.System, name: String, hops: Int): String? {

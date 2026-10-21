@@ -46,6 +46,8 @@ object SettingSchema {
         putAll(RetroArchPlaylists.SETTING_TYPES)
         putAll(NewHandheldPlan.SETTING_TYPES)
         putAll(TargetFolderLayouts.SETTING_TYPES)
+        putAll(CoverSources.SETTING_TYPES)
+        putAll(ScreenScraper.SETTING_TYPES)
     }
 
     fun localName(name: String): String =

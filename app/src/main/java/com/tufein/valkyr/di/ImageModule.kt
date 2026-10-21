@@ -6,6 +6,7 @@ import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import com.tufein.valkyr.BuildConfig
 import com.tufein.valkyr.data.service.RommImageAuth
+import com.tufein.valkyr.data.service.ScreenScraperImageAuth
 import com.tufein.valkyr.data.service.TlsTrust
 import dagger.Module
 import dagger.Provides
@@ -19,7 +20,7 @@ import javax.inject.Singleton
 /**
  * 5.0: one image loader for the whole app (covers in lists, details, downloads, the second
  * screen). A disk cache keeps covers across starts; RomM images are signed and may use the
- * certificate the user trusted.
+ * certificate the user trusted; ScreenScraper images get the user's credentials on the way out.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -27,11 +28,13 @@ object ImageModule {
 
     @Provides
     @Singleton
-    fun provideImageLoader(@ApplicationContext context: Context, rommAuth: RommImageAuth): ImageLoader {
+    fun provideImageLoader(@ApplicationContext context: Context, rommAuth: RommImageAuth, screenScraperAuth: ScreenScraperImageAuth): ImageLoader {
         val client = OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .addInterceptor(rommAuth)
+            // 4.3.0: ScreenScraper covers are stored without credentials; this adds them to the request.
+            .addInterceptor(screenScraperAuth)
             .addInterceptor { chain ->
                 chain.proceed(chain.request().newBuilder().header("User-Agent", "Valkyr/${BuildConfig.VERSION_NAME}").build())
             }

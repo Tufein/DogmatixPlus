@@ -75,9 +75,47 @@ object LibretroThumbnails {
         return listOfNotNull(stem, noDisc, firstGroup).distinct().map(::thumbnailName)
     }
 
-    fun boxartUrl(system: System, name: String): String =
-        "https://raw.githubusercontent.com/libretro-thumbnails/${system.repo}/master/Named_Boxarts/" +
+    fun boxartUrl(system: System, name: String): String = artUrl(system, Art.BOXART, name)
+
+    /** The three kinds of picture libretro-thumbnails keeps per game (4.3.0: titles and snaps as a fallback). */
+    enum class Art(val folder: String) { BOXART("Named_Boxarts"), TITLE("Named_Titles"), SNAP("Named_Snaps") }
+
+    fun artUrl(system: System, art: Art, name: String): String =
+        "https://raw.githubusercontent.com/libretro-thumbnails/${system.repo}/master/${art.folder}/" +
             URLEncoder.encode("$name.png", "UTF-8").replace("+", "%20")
+
+    /** Box art names tried per game at most: every miss is one request. */
+    const val MAX_BOXART_NAMES = 10
+
+    /** Title screen / snap names tried per game at most (only the file's own names). */
+    const val MAX_OTHER_NAMES = 2
+
+    /** No-Intro / Redump spell a few regions differently from the version preference. */
+    private val REGION_NAMES = mapOf("UK" to "United Kingdom")
+
+    /**
+     * Names to try for the box art (4.3.0), best first: [candidates], then the bare title with the
+     * user's first three preferred [regions], with "USA, Europe", "USA", "Europe", "World" and
+     * "Japan" (a European file still finds the cover of the American release), and with no region.
+     * At most [MAX_BOXART_NAMES].
+     */
+    fun boxartNames(fileName: String, regions: List<String>): List<String> {
+        val base = candidates(fileName)
+        val title = fileName.substringBeforeLast('.').trim().substringBefore(" (").substringBefore(" [").trim()
+        if (title.isEmpty()) return base
+        val wanted = (regions.take(3).map { REGION_NAMES[it] ?: it } + listOf("USA, Europe", "USA", "Europe", "World", "Japan"))
+            .map { it.trim() }.filter { it.isNotEmpty() }.distinct()
+        val extra = wanted.map { "$title ($it)" } + title
+        return (base + extra.map(::thumbnailName)).distinct().take(MAX_BOXART_NAMES)
+    }
+
+    /** What to try, in order: every box art name, then (only with [nonBoxArt]) title screens, then snaps. */
+    fun plan(fileName: String, regions: List<String>, nonBoxArt: Boolean): List<Pair<Art, String>> {
+        val box = boxartNames(fileName, regions).map { Art.BOXART to it }
+        if (!nonBoxArt) return box
+        val own = candidates(fileName).take(MAX_OTHER_NAMES)
+        return box + own.map { Art.TITLE to it } + own.map { Art.SNAP to it }
+    }
 
     /** GitHub serves a symlinked thumbnail as a tiny text file holding the target's name; null when [body] is not one. */
     fun symlinkTarget(body: ByteArray): String? {

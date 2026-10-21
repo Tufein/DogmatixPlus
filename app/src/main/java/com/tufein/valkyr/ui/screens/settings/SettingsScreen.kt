@@ -501,15 +501,7 @@ fun SettingsScreen(
             ) { ThemedSwitch(look.compactLists) { extra.setCompactLists(context, it) } }
         },
         SettingsRow(SettingsSection.LOOK, key = SettingKeys.COVERS_RETRY) {
-            SettingRow(
-                icon = R.drawable.ic_image_search,
-                title = stringResource(R.string.settings_v5_covers_retry),
-                hint = coversReset?.let { pluralStringResource(R.plurals.settings_v5_covers_reset_done, it, it) }
-                    ?: stringResource(R.string.settings_v5_covers_retry_hint),
-                onClick = { extra.findMissingCovers(context) }
-            ) {
-                ActionPill(stringResource(R.string.settings_v5_covers_retry_action), { extra.findMissingCovers(context) }, icon = R.drawable.ic_retry)
-            }
+            com.tufein.valkyr.ui.screens.settings.covers.CoverSourcesRow(onOpen = { navController.navigate(NavRoutes.CoverSources.route) })
         },
         SettingsRow(SettingsSection.DOWNLOADS, key = SettingKeys.DOWNLOAD_DIR) {
             SettingRow(

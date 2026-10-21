@@ -420,7 +420,7 @@ private fun OnboardingHost() {
 }
 
 /** The screens built from the settings kit: they get the plain AMOLED ground (see SettingsSurface). */
-private val SettingsKitRoutes = setOf(NavRoutes.Settings.route, NavRoutes.Romm.route, NavRoutes.SaveSync.route, NavRoutes.VersionPreference.route)
+private val SettingsKitRoutes = setOf(NavRoutes.Settings.route, NavRoutes.Romm.route, NavRoutes.SaveSync.route, NavRoutes.VersionPreference.route, NavRoutes.CoverSources.route)
 
 @Composable
 private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
@@ -687,6 +687,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                             onNavigate = { navController.navigate(it) })
                     }
                     composable(NavRoutes.VersionPreference.route) { com.tufein.valkyr.ui.screens.settings.VersionPreferenceScreen() }
+                    composable(NavRoutes.CoverSources.route) { com.tufein.valkyr.ui.screens.settings.covers.CoverSourcesScreen() }
                     composable(NavRoutes.Downloads.route) { DownloadScreen(navController) }
                     composable(NavRoutes.Sources.route) { SourcesScreen() }
                     composable(NavRoutes.Settings.route) { SettingsScreen(navController) }

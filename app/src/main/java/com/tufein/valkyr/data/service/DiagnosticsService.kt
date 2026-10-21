@@ -43,7 +43,8 @@ class DiagnosticsService @Inject constructor(
     private val downloadService: DownloadService,
     private val rommLibraryService: RommLibraryService,
     private val appSettings: AppSettings,
-    private val cloudSettings: CloudSettings
+    private val cloudSettings: CloudSettings,
+    private val coverSourceSettings: com.tufein.valkyr.data.local.CoverSourceSettings
 ) {
 
     /**
@@ -68,6 +69,12 @@ class DiagnosticsService @Inject constructor(
             add(cloud.user)
             add(WebDavPaths.normalizeServer(cloud.server)?.let { WebDavPaths.hostOf(it) }.orEmpty())
             add(cloud.server.trim())
+            // 4.3.0: the ScreenScraper login and developer credentials.
+            val ss = coverSourceSettings.credentials.first()
+            add(ss.devPassword)
+            add(ss.password)
+            add(ss.devId)
+            add(ss.user)
         }.filter { it.isNotBlank() }
     }
 
