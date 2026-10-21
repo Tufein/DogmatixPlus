@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Mais três fontes de capas: TheGamesDB, SteamGridDB e IGDB (cada uma com a tua própria chave gratuita, em Definições → Fontes das capas). As definições foram reunidas em 13 cartões claros, com um só lugar por opção e uma breve descrição em cada um.</item>
+        <item>Mais rápida e leve: arranque mais rápido, menos redesenhos, menos consultas repetidas, menos despertares em segundo plano, blocos de download maiores e um APK mais pequeno. O diagnóstico mostra agora os tempos de arranque e as operações mais lentas.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -1286,7 +1286,7 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Tres fuentes de carátulas más: TheGamesDB, SteamGridDB e IGDB (cada una con tu propia clave gratuita, en Ajustes → Fuentes de portadas). Los ajustes se han reunido en 13 tarjetas claras, con un solo lugar por opción y una breve descripción en cada una.</item>
+        <item>Más rápida y ligera: arranque más rápido, menos redibujados, menos consultas repetidas, menos despertares en segundo plano, bloques de descarga mayores y un APK más pequeño. Diagnóstico muestra ahora los tiempos de inicio y las operaciones más lentas.</item>
     </string-array>
 
     <!-- 4.0 -->

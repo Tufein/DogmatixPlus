@@ -1317,7 +1317,7 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Trois sources de jaquettes en plus : TheGamesDB, SteamGridDB et IGDB (chacune avec votre propre clé gratuite, dans Réglages → Sources des jaquettes). Les réglages sont regroupés en 13 cartes claires, avec une seule place par option et une courte description par carte.</item>
+        <item>Plus rapide et plus légère : démarrage plus rapide, moins de redessins, moins de requêtes répétées, moins de réveils en arrière-plan, blocs de téléchargement plus grands et un APK plus petit. Le diagnostic indique maintenant les temps de démarrage et les opérations les plus lentes.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Drei weitere Cover-Quellen: TheGamesDB, SteamGridDB und IGDB (jeweils mit deinem eigenen kostenlosen Schlüssel, unter Einstellungen → Cover-Quellen). Die Einstellungen sind in 13 klaren Karten zusammengefasst, jede Option hat genau einen Platz und jede Karte eine kurze Beschreibung.</item>
+        <item>Schneller und leichter: schnellerer Start, weniger Neuzeichnen, weniger wiederholte Abfragen, weniger Aufwachen im Hintergrund, größere Download-Blöcke und eine kleinere APK. Die Diagnose zeigt jetzt Startzeiten und die langsamsten Vorgänge.</item>
     </string-array>
 
     <!-- 4.0 -->
