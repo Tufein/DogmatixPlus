@@ -23,9 +23,9 @@ Valkyr houdt één grote, doorzoekbare lijst bij van de games uit de bronnen die
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [4.2.0](https://github.com/Tufein/Valkyr/releases/tag/v4.2.0)** (Android build 54).
+**Laatste release: [4.3.0](https://github.com/Tufein/Valkyr/releases/tag/v4.3.0)** (Android build 55).
 
-Tot en met 3.9.0 heette de app Dogmatix+. Valkyr 4.2.0 heeft een eigen app-id en installeert dus naast de oude app: gebruik *Instellingen → Back-up maken* in de oude app en *Back-up terugzetten* in Valkyr, en verwijder daarna de oude app.
+Tot en met 3.9.0 heette de app Dogmatix+. Valkyr 4.3.0 heeft een eigen app-id en installeert dus naast de oude app: gebruik *Instellingen → Back-up maken* in de oude app en *Back-up terugzetten* in Valkyr, en verwijder daarna de oude app.
 
 ## Installeren
 
@@ -52,6 +52,7 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 - **Filter** op console, regio, taal, type, genre, decennium en *Nieuw*; **sorteer** op naam, grootte of nieuwste. Een groen **✓** toont wat je al hebt.
 - **Een pagina voor elke game**: afbeelding, Downloaden of Spelen, de beste versie, favoriet, collecties, delen, notities, schermafbeeldingen en handleidingen, en een tabblad *Versies* dat uitlegt hoe elke versie scoort.
 - **Covers eerst**: Home opent met planken vol grote covers (verder spelen, nieuw voor jou, een plank per console); de navigatie zit in een balk onderaan, of een smalle zijbalk op een handheld, met Games, Downloads, Bronnen en Meer. De spelpagina begint met een grote cover en één grote knop Spelen of Download.
+- **Covers uit meerdere bronnen**: RomM, libretro-thumbnails, [ScreenScraper](https://www.screenscraper.fr) (met je eigen inlog) en de spellendatabases, in een volgorde die jij kiest. De app meldt duidelijk als een login mislukt of een daglimiet is bereikt, en een bron die alleen even niet beschikbaar was, wordt later opnieuw gevraagd (*Instellingen → Coverbronnen*).
 - **Hierna spelen en Voor jou**: een persoonlijke speellijst per profiel, en suggesties uit je eigen bibliotheek die altijd zeggen waarom ze zijn gekozen.
 - **Collecties en doelen**: favorieten, eigen lijsten, collecties op basis van regels (console, taal, genre, jaar, gespeeld), collectiedoelen, speelgeschiedenis, een jaaroverzicht en de beste games per console van RetroAchievements.
 - **Verlanglijst**: noteer games die je wilt, krijg een melding als er een opduikt, download ze automatisch en deel de lijst.
@@ -151,7 +152,7 @@ Valkyr wordt gemaakt door [Tufein](https://github.com/Tufein). Het is gebouwd me
 | [Gson](https://github.com/google/gson), [Coil](https://github.com/coil-kt/coil), [jsoup](https://jsoup.org), [ZXing](https://github.com/zxing/zxing) | JSON, afbeeldingen, webmappen lezen, QR-codes |
 | [7-Zip-JBinding](https://github.com/borisbrodski/sevenzipjbinding), [libtorrent4j](https://github.com/aldenml/libtorrent4j) | Archieven uitpakken, torrents |
 | [Space Mono](https://fonts.google.com/specimen/Space+Mono), [Manrope](https://fonts.google.com/specimen/Manrope) | Lettertypen (SIL Open Font License) |
-| [RetroAchievements](https://retroachievements.org), [RAWG](https://rawg.io), [TheGamesDB](https://thegamesdb.net), [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Achievements, spelinformatie en covers |
+| [RetroAchievements](https://retroachievements.org), [RAWG](https://rawg.io), [TheGamesDB](https://thegamesdb.net), [ScreenScraper](https://www.screenscraper.fr), [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Achievements, spelinformatie en covers |
 | [No-Intro](https://no-intro.org), [Redump](http://redump.org), [TOSEC](https://www.tosecdev.org) | DAT-controles |
 | [RomM](https://github.com/rommapp/romm), [ES-DE](https://es-de.org), [Libretro](https://www.libretro.com), [ScummVM](https://www.scummvm.org), [Homebrew Hub](https://hh.gbdev.io) | Server, launcher en gratis content waarmee de app werkt |
 

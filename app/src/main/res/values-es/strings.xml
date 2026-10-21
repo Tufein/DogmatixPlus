@@ -1286,7 +1286,7 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>El proyecto ahora está en github.com/Tufein/Valkyr y los archivos de versión se llaman Valkyr-release.apk. Los enlaces, los informes de problemas y la búsqueda de actualizaciones lo siguen.</item>
+        <item>Mejores carátulas: Valkyr ahora consulta varias fuentes en el orden que elijas (RomM, libretro-thumbnails, ScreenScraper con tu propio acceso, bases de datos de juegos) y avisa con claridad si falla el acceso o se alcanza un límite diario. Los ajustes también están ordenados: las opciones relacionadas van juntas y las dependientes aparecen justo debajo de su interruptor.</item>
     </string-array>
 
     <!-- 4.0 -->

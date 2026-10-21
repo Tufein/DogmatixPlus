@@ -23,9 +23,9 @@ Valkyr rassemble les jeux des sources que *vous* ajoutez dans une seule grande l
 
 *Les captures d’écran utilisent des titres de jeux inventés et des fichiers vides de substitution, et montrent l’application en anglais.*
 
-**Dernière version : [4.2.0](https://github.com/Tufein/Valkyr/releases/tag/v4.2.0)** (build Android 54).
+**Dernière version : [4.3.0](https://github.com/Tufein/Valkyr/releases/tag/v4.3.0)** (build Android 55).
 
-Jusqu’à la 3.9.0, l’application s’appelait Dogmatix+. Valkyr 4.2.0 a son propre identifiant d’application et s’installe donc à côté de l’ancienne : utilisez *Réglages → Sauvegarder* dans l’ancienne appli et *Restaurer une sauvegarde* dans Valkyr, puis supprimez l’ancienne.
+Jusqu’à la 3.9.0, l’application s’appelait Dogmatix+. Valkyr 4.3.0 a son propre identifiant d’application et s’installe donc à côté de l’ancienne : utilisez *Réglages → Sauvegarder* dans l’ancienne appli et *Restaurer une sauvegarde* dans Valkyr, puis supprimez l’ancienne.
 
 ## Installation
 
@@ -52,6 +52,7 @@ Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Goo
 - **Filtrer** par console, région, langue, type, genre, décennie et *Nouveau* ; **trier** par nom, taille ou plus récent. Un **✓** vert marque ce que vous avez déjà.
 - **Une page par jeu** : visuel, Télécharger ou Jouer, la meilleure version, favori, collections, partage, notes, captures et manuels, et un onglet *Versions* qui explique comment chaque version est notée.
 - **Les jaquettes d’abord** : l’accueil s’ouvre sur des étagères de grandes jaquettes (continuer à jouer, nouveau pour vous, une étagère par console) ; la navigation est dans une barre en bas, ou une barre latérale fine sur une console portable, avec Jeux, Téléchargements, Sources et Plus. La page d’un jeu commence par une grande jaquette et un grand bouton Jouer ou Télécharger.
+- **Jaquettes de plusieurs sources** : RomM, libretro-thumbnails, [ScreenScraper](https://www.screenscraper.fr) (avec votre propre compte) et les bases de données de jeux, dans l’ordre de votre choix. L’appli dit clairement quand une connexion échoue ou qu’une limite quotidienne est atteinte, et une source simplement indisponible est réinterrogée plus tard (*Réglages → Sources de jaquettes*).
 - **À suivre et Pour vous** : une liste de jeux personnelle par profil, et des suggestions tirées de votre propre bibliothèque qui disent toujours pourquoi elles ont été choisies.
 - **Collections et objectifs** : favoris, listes personnelles, collections par règles (console, langue, genre, année, joué), objectifs de collection, historique de jeu, bilan annuel et meilleurs jeux par console selon RetroAchievements.
 - **Liste de souhaits** : notez les jeux voulus, soyez prévenu quand l’un apparaît, téléchargez-les automatiquement et partagez la liste.
@@ -151,7 +152,7 @@ Valkyr est réalisé par [Tufein](https://github.com/Tufein). Il s’appuie sur 
 | [Gson](https://github.com/google/gson), [Coil](https://github.com/coil-kt/coil), [jsoup](https://jsoup.org), [ZXing](https://github.com/zxing/zxing) | JSON, images, lecture des répertoires web, codes QR |
 | [7-Zip-JBinding](https://github.com/borisbrodski/sevenzipjbinding), [libtorrent4j](https://github.com/aldenml/libtorrent4j) | Décompression des archives, torrents |
 | [Space Mono](https://fonts.google.com/specimen/Space+Mono), [Manrope](https://fonts.google.com/specimen/Manrope) | Polices (SIL Open Font License) |
-| [RetroAchievements](https://retroachievements.org), [RAWG](https://rawg.io), [TheGamesDB](https://thegamesdb.net), [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Succès, informations sur les jeux et jaquettes |
+| [RetroAchievements](https://retroachievements.org), [RAWG](https://rawg.io), [TheGamesDB](https://thegamesdb.net), [ScreenScraper](https://www.screenscraper.fr), [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Succès, informations sur les jeux et jaquettes |
 | [No-Intro](https://no-intro.org), [Redump](http://redump.org), [TOSEC](https://www.tosecdev.org) | Vérifications DAT |
 | [RomM](https://github.com/rommapp/romm), [ES-DE](https://es-de.org), [Libretro](https://www.libretro.com), [ScummVM](https://www.scummvm.org), [Homebrew Hub](https://hh.gbdev.io) | Serveur, lanceur et contenu gratuit avec lesquels l’application fonctionne |
 

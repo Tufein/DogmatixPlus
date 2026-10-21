@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>The project now lives at github.com/Tufein/Valkyr, and the release files are named Valkyr-release.apk. Links, issue reports and update checks follow.</item>
+        <item>Better covers: Valkyr now asks several sources in an order you choose (RomM, libretro-thumbnails, ScreenScraper with your own login, game databases) and says clearly when a login fails or a daily limit is reached. Settings are also tidied: related options now sit together and dependent ones show up right under their switch.</item>
     </string-array>
 
     <!-- 4.0 -->
