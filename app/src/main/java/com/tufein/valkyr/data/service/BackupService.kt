@@ -22,6 +22,7 @@ import com.tufein.valkyr.data.repository.CollectionsRepository
 import com.tufein.valkyr.data.repository.SourcesRepository
 import com.tufein.valkyr.util.BackupJson
 import com.tufein.valkyr.util.CloudSettingKeys
+import com.tufein.valkyr.util.CoverApis
 import com.tufein.valkyr.util.ScreenScraper
 import com.tufein.valkyr.util.SourcesJson
 import com.tufein.valkyr.util.SettingSchema
@@ -250,6 +251,8 @@ class BackupService @Inject constructor(
             val backupHasDav = settings.any { it.first.startsWith("dav_") }
             // 4.3.0: the ScreenScraper passwords are not in backups either (same rule as the WebDAV password).
             val currentScreenScraper = prefs.asMap().filter { it.key.name in ScreenScraper.SETTING_TYPES }
+            // 4.4.0: the TheGamesDB / SteamGridDB keys and the Twitch client secret neither (the client id may).
+            val currentCoverApis = prefs.asMap().filter { it.key.name in CoverApis.SETTING_TYPES }
             prefs.clear()
             currentSkipped.forEach { (key, value) -> prefs.put(key.name, value) }
             settings.forEach { (name, value) ->
@@ -300,6 +303,14 @@ class BackupService @Inject constructor(
                 current = currentScreenScraper.entries.associate { it.key.name to (it.value as? String).orEmpty() },
                 restored = ScreenScraper.SETTING_TYPES.keys.associateWith { prefs[stringPreferencesKey(it)].orEmpty() },
                 backupHasScreenScraper = backupHasScreenScraper
+            ).forEach { (name, value) -> prefs[stringPreferencesKey(name)] = value }
+            val backupHasIgdbId = settings.any { it.first == CoverApis.IGDB_CLIENT_ID_KEY }
+            // A backup without a client id (older, or never set up) keeps the one this install has.
+            if (!backupHasIgdbId) currentCoverApis[stringPreferencesKey(CoverApis.IGDB_CLIENT_ID_KEY)]?.let { prefs[stringPreferencesKey(CoverApis.IGDB_CLIENT_ID_KEY)] = it as String }
+            CoverApis.keptSecrets(
+                current = currentCoverApis.entries.associate { it.key.name to (it.value as? String).orEmpty() },
+                restored = CoverApis.SETTING_TYPES.keys.associateWith { prefs[stringPreferencesKey(it)].orEmpty() },
+                backupHasIgdbId = backupHasIgdbId
             ).forEach { (name, value) -> prefs[stringPreferencesKey(name)] = value }
             // Restoring must never send the user back through the first-run tour.
             prefs[SettingsKeys.ONBOARDING_DONE] = true

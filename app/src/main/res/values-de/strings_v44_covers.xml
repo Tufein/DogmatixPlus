@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.4.0: Settings → Cover sources: TheGamesDB, SteamGridDB and IGDB (API keys, tests, state lines). -->
+<resources>
+    <string name="covers44_source_tgdb">TheGamesDB</string>
+    <string name="covers44_source_sgdb">SteamGridDB</string>
+    <string name="covers44_source_igdb">IGDB</string>
+    <string name="covers44_source_tgdb_hint">Cover von TheGamesDB, per Titel auf der Konsole des Spiels gefunden; nur die Vorderseite der Box. Braucht einen kostenlosen API-Schlüssel (unten).</string>
+    <string name="covers44_source_sgdb_hint">Artwork von SteamGridDB, per Titel gefunden: das am besten bewertete Hochformat-Bild. Es ist Community-Artwork und nicht immer die offizielle Box. Braucht einen kostenlosen API-Schlüssel (unten).</string>
+    <string name="covers44_source_igdb_hint">Cover von IGDB (betrieben von Twitch), per Titel gefunden, bevorzugt für die Konsole des Spiels. Braucht eine kostenlose Twitch-Client-ID und ein Secret (unten).</string>
+    <string name="covers44_state_needs_key">Übersprungen, bis ein API-Schlüssel eingetragen ist.</string>
+    <string name="covers44_state_needs_igdb">Übersprungen, bis Client-ID und Secret eingetragen sind.</string>
+    <string name="covers44_state_key_refused">Schlüssel abgelehnt (oder das Kontingent ist aufgebraucht): prüfen und „Schlüssel testen“ drücken.</string>
+    <string name="covers44_state_quota_month">Monatskontingent aufgebraucht: pausiert bis %1$s.</string>
+    <string name="covers44_state_ready_month">Bereit: noch %1$d Anfragen in diesem Monat.</string>
+    <string name="covers44_tgdb_title">TheGamesDB-Schlüssel</string>
+    <string name="covers44_sgdb_title">SteamGridDB-Schlüssel</string>
+    <string name="covers44_igdb_title">IGDB-Schlüssel (Twitch)</string>
+    <string name="covers44_where_title">Woher der Schlüssel kommt</string>
+    <string name="covers44_tgdb_where_hint">Lege ein kostenloses Konto auf thegamesdb.net an und beantrage dort einen API-Schlüssel (die Antragsseite ist in der API-Dokumentation verlinkt). Das kostenlose Kontingent ist pro Monat begrenzt, ein Spiel kostet eine oder zwei Anfragen.</string>
+    <string name="covers44_sgdb_where_hint">Lege ein kostenloses Konto auf steamgriddb.com an, melde dich an und öffne die Einstellungen deines Profils: Im Reiter API kannst du einen Schlüssel erzeugen. SteamGridDB-Artwork stammt von der Community und ist nicht immer die offizielle Box.</string>
+    <string name="covers44_igdb_where_hint">IGDB nutzt die Twitch-Anmeldung. Melde dich auf dev.twitch.tv mit einem Twitch-Konto an (Zwei-Faktor-Anmeldung ist Pflicht), registriere in der Konsole eine Anwendung (Kategorie: Sonstiges, beliebige Weiterleitungs-URL wie http://localhost), kopiere die Client-ID und erzeuge ein neues Secret. Beides trägst du unten ein.</string>
+    <string name="covers44_tgdb_shared_title">Schlüssel steckt schon in der App</string>
+    <string name="covers44_tgdb_shared_hint">Diese App hat bereits einen TheGamesDB-Schlüssel für die Spieldetails, hier muss also nichts eingetragen werden: Derselbe Schlüssel wird verwendet. Ein eigener Schlüssel unten ersetzt ihn.</string>
+    <string name="covers44_tgdb_key">TheGamesDB-API-Schlüssel</string>
+    <string name="covers44_tgdb_key_hint">Dein TheGamesDB-API-Schlüssel. Er wird nur an api.thegamesdb.net gesendet und kommt nie in ein Backup oder einen Problembericht.</string>
+    <string name="covers44_tgdb_key_app">Nicht festgelegt: der eigene Schlüssel der App wird verwendet</string>
+    <string name="covers44_sgdb_key">SteamGridDB-API-Schlüssel</string>
+    <string name="covers44_sgdb_key_hint">Dein SteamGridDB-API-Schlüssel. Er wird nur an steamgriddb.com gesendet und kommt nie in ein Backup oder einen Problembericht.</string>
+    <string name="covers44_igdb_client_id">Twitch-Client-ID</string>
+    <string name="covers44_igdb_client_secret">Twitch-Client-Secret</string>
+    <string name="covers44_igdb_id_hint">Die Client-ID deiner Twitch-Anwendung. Sie wird an Twitch und IGDB gesendet. Sie ist kein Geheimnis und darf daher in ein Backup.</string>
+    <string name="covers44_igdb_secret_hint">Das Client-Secret deiner Twitch-Anwendung. Es wird nur an id.twitch.tv gesendet und kommt nie in ein Backup oder einen Problembericht.</string>
+    <string name="covers44_key_set">Festgelegt</string>
+    <string name="covers44_test_title">Schlüssel testen</string>
+    <string name="covers44_test_hint">Fragt %1$s, ob der Schlüssel oben funktioniert.</string>
+    <string name="covers44_testing">%1$s wird gefragt…</string>
+    <string name="covers44_test_ok">Der Schlüssel funktioniert.</string>
+    <string name="covers44_test_ok_month">Der Schlüssel funktioniert: noch %1$d Anfragen in diesem Monat.</string>
+    <string name="covers44_test_missing">Trage zuerst den API-Schlüssel ein.</string>
+    <string name="covers44_test_missing_igdb">Trage zuerst Client-ID und Secret ein.</string>
+    <string name="covers44_test_rejected">Der Dienst hat den Schlüssel abgelehnt. Prüfe, ob er vollständig kopiert wurde.</string>
+    <string name="covers44_test_id_rejected">Twitch kennt diese Client-ID nicht.</string>
+    <string name="covers44_test_secret_rejected">Twitch kennt die Client-ID, aber das Secret stimmt nicht.</string>
+    <string name="covers44_test_rate">Gerade zu viele Anfragen. Versuche es in einer Minute erneut.</string>
+    <string name="covers44_test_busy">Der Dienst ist geschlossen oder gerade überlastet. Versuche es später erneut.</string>
+    <string name="covers44_test_offline">Keine Verbindung. Bist du offline?</string>
+    <string name="covers44_test_unreadable">Der Dienst hat geantwortet, aber nicht so, wie seine Dokumentation es beschreibt.</string>
+    <string name="covers44_search_title">Cover-Quellen: API-Schlüssel</string>
+    <string name="covers44_search_hint">Schlüssel für TheGamesDB, SteamGridDB und IGDB als Cover-Quellen, mit einem Test für jede.</string>
+    <string name="covers44_kw">thegamesdb, tgdb, steamgriddb, sgdb, igdb, twitch, api-schlüssel, client-id, secret, cover, box, scraper</string>
+</resources>

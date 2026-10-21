@@ -18,24 +18,96 @@ class CoverSourcesTest {
     private val day = 24L * 60 * 60 * 1000
     private val all = setOf(Source.LIBRETRO, Source.SCREENSCRAPER, Source.METADATA)
 
+    private val keyed = listOf(Source.THEGAMESDB, Source.STEAMGRIDDB, Source.IGDB)
+    private val everything = all + keyed
+
     @Test fun `the saved order is cleaned and completed`() {
         assertEquals(CoverSources.DEFAULT_ORDER, CoverSources.orderOf(null))
         assertEquals(CoverSources.DEFAULT_ORDER, CoverSources.orderOf("nonsense,,"))
-        assertEquals(listOf(Source.SCREENSCRAPER, Source.LIBRETRO, Source.METADATA), CoverSources.orderOf("screenscraper,libretro,metadata"))
+        assertEquals(listOf(Source.SCREENSCRAPER, Source.LIBRETRO) + keyed + Source.METADATA, CoverSources.orderOf("screenscraper,libretro,metadata"))
         // RomM never moves; a missing source comes back at its default place; duplicates go.
-        assertEquals(listOf(Source.LIBRETRO, Source.METADATA, Source.SCREENSCRAPER), CoverSources.orderOf("romm,metadata,screenscraper,metadata"))
-        assertEquals(listOf(Source.LIBRETRO, Source.SCREENSCRAPER, Source.METADATA), CoverSources.orderOf("metadata"))
-        val order = listOf(Source.METADATA, Source.LIBRETRO, Source.SCREENSCRAPER)
+        assertEquals(listOf(Source.LIBRETRO, Source.METADATA) + keyed + Source.SCREENSCRAPER, CoverSources.orderOf("romm,metadata,screenscraper,metadata"))
+        assertEquals(CoverSources.DEFAULT_ORDER, CoverSources.orderOf("metadata"))
+        val order = listOf(Source.METADATA, Source.IGDB, Source.LIBRETRO, Source.STEAMGRIDDB, Source.SCREENSCRAPER, Source.THEGAMESDB)
         assertEquals(order, CoverSources.orderOf(CoverSources.encodeOrder(order)))
+    }
+
+    @Test fun `a 4_3 order gets the new sources after screenscraper and before the metadata image`() {
+        assertEquals(
+            listOf(Source.LIBRETRO, Source.SCREENSCRAPER, Source.THEGAMESDB, Source.STEAMGRIDDB, Source.IGDB, Source.METADATA),
+            CoverSources.orderOf("libretro,screenscraper,metadata")
+        )
+        // The user's own order of the old sources is kept.
+        assertEquals(
+            listOf(Source.SCREENSCRAPER, Source.LIBRETRO, Source.THEGAMESDB, Source.STEAMGRIDDB, Source.IGDB, Source.METADATA),
+            CoverSources.orderOf("screenscraper,libretro,metadata")
+        )
+        assertEquals(
+            listOf(Source.LIBRETRO, Source.SCREENSCRAPER, Source.THEGAMESDB, Source.STEAMGRIDDB, Source.IGDB, Source.METADATA),
+            CoverSources.DEFAULT_ORDER
+        )
     }
 
     @Test fun `moving works on the value and stops at the ends`() {
         val order = CoverSources.DEFAULT_ORDER
-        assertEquals(listOf(Source.SCREENSCRAPER, Source.LIBRETRO, Source.METADATA), CoverSources.move(order, Source.SCREENSCRAPER, -1))
-        assertEquals(listOf(Source.LIBRETRO, Source.METADATA, Source.SCREENSCRAPER), CoverSources.move(order, Source.SCREENSCRAPER, 1))
+        assertEquals(listOf(Source.SCREENSCRAPER, Source.LIBRETRO, Source.THEGAMESDB, Source.STEAMGRIDDB, Source.IGDB, Source.METADATA), CoverSources.move(order, Source.SCREENSCRAPER, -1))
+        assertEquals(listOf(Source.LIBRETRO, Source.THEGAMESDB, Source.SCREENSCRAPER, Source.STEAMGRIDDB, Source.IGDB, Source.METADATA), CoverSources.move(order, Source.SCREENSCRAPER, 1))
         assertEquals(order, CoverSources.move(order, Source.LIBRETRO, -1))
         assertEquals(order, CoverSources.move(order, Source.METADATA, 5))
         assertEquals(order, CoverSources.move(order, Source.ROMM, 1))
+    }
+
+    @Test fun `the new sources start switched off until a switch was ever saved`() {
+        assertEquals(setOf(Source.THEGAMESDB, Source.STEAMGRIDDB, Source.IGDB), CoverSources.disabledOf(null))
+        // A saved (even empty) set is the user's own: nothing is added to it.
+        assertEquals(emptySet<Source>(), CoverSources.disabledOf(emptySet()))
+        assertEquals(setOf(Source.LIBRETRO), CoverSources.disabledOf(setOf("libretro")))
+        val fresh = Chain(disabled = CoverSources.disabledOf(null))
+        assertEquals(listOf(Source.ROMM, Source.LIBRETRO, Source.SCREENSCRAPER, Source.METADATA), fresh.active)
+        assertTrue(Source.IGDB.needsKey && Source.THEGAMESDB.needsKey && Source.STEAMGRIDDB.needsKey && !Source.LIBRETRO.needsKey)
+    }
+
+    @Test fun `the longer chain is asked in order and stops at the first cover`() {
+        val chain = Chain(order = listOf(Source.THEGAMESDB, Source.LIBRETRO, Source.IGDB, Source.STEAMGRIDDB, Source.SCREENSCRAPER, Source.METADATA))
+        val ask = CoverSources.plan(chain, everything, null, now) as Plan.Ask
+        assertEquals(listOf(Source.THEGAMESDB, Source.LIBRETRO, Source.IGDB, Source.STEAMGRIDDB, Source.SCREENSCRAPER, Source.METADATA), ask.sources)
+        // A source without its key is not usable and is left out; one that is switched off too.
+        val partial = CoverSources.plan(chain.copy(disabled = setOf(Source.IGDB)), everything - Source.STEAMGRIDDB, null, now) as Plan.Ask
+        assertEquals(listOf(Source.THEGAMESDB, Source.LIBRETRO, Source.SCREENSCRAPER, Source.METADATA), partial.sources)
+    }
+
+    @Test fun `a cover from a source that lost its key is looked up again`() {
+        val row = Cached("https://img/x.jpg", "igdb", now - day)
+        assertEquals(Plan.Use("https://img/x.jpg"), CoverSources.plan(Chain(), everything, row, now))
+        assertEquals(
+            Plan.Ask(listOf(Source.LIBRETRO, Source.SCREENSCRAPER, Source.THEGAMESDB, Source.STEAMGRIDDB, Source.METADATA)),
+            CoverSources.plan(Chain(), everything - Source.IGDB, row, now, unconfigured = setOf(Source.IGDB))
+        )
+        // Switched off: replaced too.
+        assertTrue(CoverSources.plan(Chain(disabled = setOf(Source.IGDB)), everything, row, now) is Plan.Ask)
+    }
+
+    @Test fun `a fresh miss asks a new source as soon as its key exists`() {
+        val miss = Cached("", CoverSources.missRecord(setOf(Source.LIBRETRO, Source.SCREENSCRAPER, Source.METADATA)), now - day)
+        assertEquals(Plan.KnownMiss, CoverSources.plan(Chain(), all, miss, now))
+        assertEquals(
+            Plan.Ask(listOf(Source.THEGAMESDB, Source.IGDB), setOf(Source.LIBRETRO, Source.SCREENSCRAPER, Source.METADATA), now - day),
+            CoverSources.plan(Chain(), all + Source.THEGAMESDB + Source.IGDB, miss, now)
+        )
+    }
+
+    @Test fun `a new source that could not answer is never stored as a miss`() {
+        val ask = Plan.Ask(listOf(Source.LIBRETRO, Source.THEGAMESDB, Source.STEAMGRIDDB, Source.IGDB))
+        val s = CoverSources.settle(
+            listOf(Source.LIBRETRO to Answer.Miss, Source.THEGAMESDB to Answer.Miss, Source.STEAMGRIDDB to Answer.Unavailable, Source.IGDB to Answer.Miss),
+            ask, now
+        )
+        assertNull(s.url)
+        assertEquals("miss:libretro+thegamesdb+igdb", s.record)
+        assertFalse(s.remember)
+        val found = CoverSources.settle(listOf(Source.LIBRETRO to Answer.Miss, Source.STEAMGRIDDB to Answer.Found("https://cdn2.steamgriddb.com/grid/a.png")), ask, now)
+        assertEquals("steamgriddb", found.record)
+        assertEquals(setOf(Source.THEGAMESDB, Source.IGDB), CoverSources.triedBy("miss:thegamesdb+igdb"))
     }
 
     @Test fun `romm is always first and switched off sources drop out`() {
@@ -125,6 +197,9 @@ class CoverSourcesTest {
         assertEquals("ss", SettingSchema.expectedType(CoverSources.DISABLED_KEY))
         assertEquals("b", SettingSchema.expectedType(CoverSources.NON_BOX_KEY))
         assertEquals("s", SettingSchema.expectedType(ScreenScraper.DEV_ID_KEY))
+        listOf(CoverApis.TGDB_KEY, CoverApis.SGDB_KEY, CoverApis.IGDB_CLIENT_ID_KEY, CoverApis.IGDB_CLIENT_SECRET_KEY).forEach {
+            assertEquals(it, "s", SettingSchema.expectedType(it))
+        }
     }
 
     @Test fun `a screenscraper cover is not kept once screenscraper is no longer set up`() {

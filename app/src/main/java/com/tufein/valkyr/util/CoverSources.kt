@@ -19,19 +19,37 @@ object CoverSources {
         ROMM("romm"),
         LIBRETRO("libretro"),
         SCREENSCRAPER("screenscraper"),
+        /** 4.4.0: TheGamesDB box art (free API key). */
+        THEGAMESDB("thegamesdb"),
+        /** 4.4.0: SteamGridDB community artwork (free API key). */
+        STEAMGRIDDB("steamgriddb"),
+        /** 4.4.0: IGDB covers (free Twitch client id and secret). */
+        IGDB("igdb"),
         /** The image a RAWG / TheGamesDB lookup already stored: a Room read, no request. */
         METADATA("metadata");
 
         /** Costs no request: a miss from it alone (offline) is not worth storing. */
         val local: Boolean get() = this == METADATA
 
+        /** Needs a key of the user's own before it can be asked (ScreenScraper has its developer login, the others an API key). */
+        val needsKey: Boolean get() = this == SCREENSCRAPER || this == THEGAMESDB || this == STEAMGRIDDB || this == IGDB
+
         companion object {
             fun of(key: String?): Source? = entries.firstOrNull { it.key == key?.trim() }
         }
     }
 
-    /** The order of the sources after RomM, until the user changes it: the free sources first, the cached metadata image last. */
-    val DEFAULT_ORDER = listOf(Source.LIBRETRO, Source.SCREENSCRAPER, Source.METADATA)
+    /**
+     * The order of the sources after RomM, until the user changes it: the free sources first, then
+     * the ones that need a key (4.4.0: TheGamesDB, SteamGridDB, IGDB after ScreenScraper), the cached metadata image last.
+     */
+    val DEFAULT_ORDER = listOf(Source.LIBRETRO, Source.SCREENSCRAPER, Source.THEGAMESDB, Source.STEAMGRIDDB, Source.IGDB, Source.METADATA)
+
+    /**
+     * The 4.4.0 sources start switched off: until the user has saved a setting for the switches, they
+     * are off, and saving their first key switches the source on (see [CoverApis.Keys.newlyConfigured]).
+     */
+    val OFF_UNTIL_SET_UP: Set<Source> = setOf(Source.THEGAMESDB, Source.STEAMGRIDDB, Source.IGDB)
 
     const val ORDER_KEY = "covers43_order"
     const val DISABLED_KEY = "covers43_disabled"
@@ -49,7 +67,9 @@ object CoverSources {
 
     fun encodeOrder(order: List<Source>): String = order.filter { it != Source.ROMM }.distinct().joinToString(",") { it.key }
 
-    fun disabledOf(keys: Set<String>?): Set<Source> = keys.orEmpty().mapNotNull { Source.of(it) }.toSet()
+    /** The switched-off sources; before the user ever touched a switch ([keys] null) the 4.4.0 sources are off. */
+    fun disabledOf(keys: Set<String>?): Set<Source> =
+        if (keys == null) OFF_UNTIL_SET_UP else keys.mapNotNull { Source.of(it) }.toSet()
 
     /** [order] with [source] moved [delta] places (works on the value, so a double press never moves the wrong entry). */
     fun move(order: List<Source>, source: Source, delta: Int): List<Source> {

@@ -7,7 +7,11 @@ import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.CoverSourceSettings
 import com.tufein.valkyr.data.service.CoverRepository
 import com.tufein.valkyr.data.service.CoverSourceStats
+import com.tufein.valkyr.data.service.IgdbService
 import com.tufein.valkyr.data.service.ScreenScraperService
+import com.tufein.valkyr.data.service.SteamGridDbService
+import com.tufein.valkyr.data.service.TheGamesDbService
+import com.tufein.valkyr.util.CoverApis
 import com.tufein.valkyr.util.CoverSources
 import com.tufein.valkyr.util.ToastUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,11 +35,14 @@ data class ScreenScraperLogin(
     val ready: Boolean get() = devId.isNotBlank() && devPassword.isNotBlank()
 }
 
-/** Settings → Cover sources (4.3.0): the source chain, the ScreenScraper login and today's counts. */
+/** Settings → Cover sources (4.3.0): the source chain, the ScreenScraper login and today's counts. 4.4.0: the keys of TheGamesDB, SteamGridDB and IGDB with a test each. */
 @HiltViewModel
 class CoverSourcesViewModel @Inject constructor(
     private val settings: CoverSourceSettings,
     private val screenScraper: ScreenScraperService,
+    private val theGamesDb: TheGamesDbService,
+    private val steamGridDb: SteamGridDbService,
+    private val igdb: IgdbService,
     private val covers: CoverRepository,
     stats: CoverSourceStats
 ) : ViewModel() {
@@ -46,7 +53,18 @@ class CoverSourcesViewModel @Inject constructor(
         ScreenScraperLogin(c.devId, c.devPassword, soft, c.user, c.password)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ScreenScraperLogin())
 
+    /** The API keys (the screen shows only whether each is set). */
+    val keys: StateFlow<CoverApis.Keys> = settings.apiKeys.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CoverApis.Keys())
+
     val stats: StateFlow<CoverSourceStats.State> = stats.state
+
+    private val _testingKey = MutableStateFlow<CoverSources.Source?>(null)
+    /** The source whose key is being tested right now. */
+    val testingKey: StateFlow<CoverSources.Source?> = _testingKey.asStateFlow()
+
+    private val _keyTests = MutableStateFlow<Map<CoverSources.Source, CoverApis.KeyTest>>(emptyMap())
+    /** The answer of the last "Test key" per source (cleared when one of its keys changes). */
+    val keyTests: StateFlow<Map<CoverSources.Source, CoverApis.KeyTest>> = _keyTests.asStateFlow()
 
     private val _testing = MutableStateFlow(false)
     val testing: StateFlow<Boolean> = _testing.asStateFlow()
@@ -68,6 +86,32 @@ class CoverSourcesViewModel @Inject constructor(
     fun set(field: CoverSourceSettings.Field, value: String) = viewModelScope.launch {
         runCatching { settings.set(field, value) }
         _testResult.value = null
+        sourceOf(field)?.let { _keyTests.value = _keyTests.value - it }
+    }
+
+    private fun sourceOf(field: CoverSourceSettings.Field): CoverSources.Source? = when (field) {
+        CoverSourceSettings.Field.TGDB_KEY -> CoverSources.Source.THEGAMESDB
+        CoverSourceSettings.Field.SGDB_KEY -> CoverSources.Source.STEAMGRIDDB
+        CoverSourceSettings.Field.IGDB_CLIENT_ID, CoverSourceSettings.Field.IGDB_CLIENT_SECRET -> CoverSources.Source.IGDB
+        else -> null
+    }
+
+    /** Checks the key(s) of [source] with the service and keeps the answer for the screen. */
+    fun testKey(source: CoverSources.Source) {
+        if (_testingKey.value != null) return
+        _testingKey.value = source
+        viewModelScope.launch {
+            val result = runCatching {
+                when (source) {
+                    CoverSources.Source.THEGAMESDB -> theGamesDb.testKey()
+                    CoverSources.Source.STEAMGRIDDB -> steamGridDb.testKey()
+                    CoverSources.Source.IGDB -> igdb.testKey()
+                    else -> CoverApis.KeyTest.Missing
+                }
+            }.getOrDefault(CoverApis.KeyTest.Offline)
+            _keyTests.value = _keyTests.value + (source to result)
+            _testingKey.value = null
+        }
     }
 
     fun testLogin() {

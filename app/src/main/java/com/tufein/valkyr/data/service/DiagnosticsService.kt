@@ -75,6 +75,12 @@ class DiagnosticsService @Inject constructor(
             add(ss.password)
             add(ss.devId)
             add(ss.user)
+            // 4.4.0: the TheGamesDB / SteamGridDB keys and the Twitch client id and secret (the app's own built-in key is not the user's).
+            val keys = coverSourceSettings.apiKeys.first()
+            add(keys.tgdb)
+            add(keys.sgdb)
+            add(keys.igdbId)
+            add(keys.igdbSecret)
         }.filter { it.isNotBlank() }
     }
 
@@ -102,6 +108,9 @@ class DiagnosticsService @Inject constructor(
             appendLine("  save sync: saves folder=${s.saveSyncSavesDir.first().isNotBlank()} states folder=${s.saveSyncStatesDir.first().isNotBlank()} auto=${s.saveSyncAuto.first()} background=${s.saveSyncBackground.first()} deletions=${s.saveSyncDeletions.first()}")
             appendLine("  3.0: resume=${appSettings.resumeDownloads.first()} requeue=${appSettings.requeueAfterRestart.first()} per server=${appSettings.perServerLimit.first()} m3u=${appSettings.autoM3u.first()} esde covers=${appSettings.esdeArtwork.first()} wishlist auto=${appSettings.wishlistAutoDownload.first()} RA key set=${appSettings.raKey.first().isNotBlank()} profile active=${appSettings.activeProfile.first().isNotBlank()}")
             appendLine("  WebDAV cloud: ${cloudSummary()}")
+            // 4.4.0: only whether the keys are set, never their value.
+            val coverKeys = coverSourceSettings.apiKeys.first()
+            appendLine("  cover sources: TheGamesDB key set=${coverKeys.tgdbKey.isNotEmpty()} (app's own=${coverKeys.tgdbShared}), SteamGridDB key set=${coverKeys.sgdbKey.isNotEmpty()}, IGDB client id set=${coverKeys.igdbClientId.isNotEmpty()} secret set=${coverKeys.igdbClientSecret.isNotEmpty()}")
             appendLine("  update channel: ${if (s.updatePreReleases.first()) "pre-releases" else "releases"}")
             appendLine()
             appendLine("Library")

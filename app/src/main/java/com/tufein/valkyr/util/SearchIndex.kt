@@ -145,6 +145,7 @@ object SearchIndex {
         SearchEntry("library_repair", SearchGroup.TOOLS, R.string.repair30_title, R.string.repair30_hint, R.drawable.ic_build, SearchTarget(NavRoutes.LibraryRepair.route)),
         SearchEntry("frontend_covers", SearchGroup.TOOLS, R.string.covers32_title, R.string.covers32_hint, R.drawable.ic_image, SearchTarget(NavRoutes.FrontendCovers.route), keywords = R.string.covers32_kw),
         SearchEntry("cover_sources", SearchGroup.TOOLS, R.string.covers43_title, R.string.covers43_row_hint, R.drawable.ic_image_search, SearchTarget(NavRoutes.CoverSources.route), keywords = R.string.covers43_kw),
+        SearchEntry("cover_sources_keys", SearchGroup.TOOLS, R.string.covers44_search_title, R.string.covers44_search_hint, R.drawable.ic_key, SearchTarget(NavRoutes.CoverSources.route), keywords = R.string.covers44_kw),
         SearchEntry("retroarch_playlists", SearchGroup.TOOLS, R.string.playlists35_title, R.string.playlists35_hint, R.drawable.ic_playlist_add, SearchTarget(NavRoutes.RetroArchPlaylists.route), keywords = R.string.playlists35_kw),
         SearchEntry("report_problem", SearchGroup.TOOLS, R.string.report30_title, R.string.report30_hint, R.drawable.ic_bug, SearchTarget(NavRoutes.ReportProblem.route), keywords = R.string.find8_kw_diagnostics),
         SearchEntry("action_history", SearchGroup.TOOLS, R.string.hist24_title, R.string.hist24_hint, R.drawable.ic_manage_history, SearchTarget(NavRoutes.ActionHistory.route), keywords = R.string.hist24_kw),
