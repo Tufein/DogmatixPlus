@@ -23,7 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -101,7 +101,7 @@ fun UpNextShelf(
     modifier: Modifier = Modifier,
     viewModel: UpNextShelfViewModel = hiltViewModel()
 ) {
-    val items by viewModel.items.collectAsState()
+    val items by viewModel.items.collectAsStateWithLifecycle()
     if (items.isEmpty()) return
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         SectionTitle(stringResource(R.string.next30_title), icon = R.drawable.ic_playlist_play, modifier = Modifier.padding(horizontal = 6.dp))
@@ -111,8 +111,8 @@ fun UpNextShelf(
             contentPadding = PaddingValues(horizontal = 6.dp, vertical = 5.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(items, key = { it.key }) { entry -> ShelfCard(entry) { onOpenGame(entry.consoleId, entry.fileName) } }
-            item(key = "all") { SeeAllCard(onOpenAll) }
+            items(items, key = { it.key }, contentType = { "card" }) { entry -> ShelfCard(entry) { onOpenGame(entry.consoleId, entry.fileName) } }
+            item(key = "all", contentType = "all") { SeeAllCard(onOpenAll) }
         }
     }
 }

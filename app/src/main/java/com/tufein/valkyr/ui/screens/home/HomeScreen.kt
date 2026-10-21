@@ -76,7 +76,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -177,48 +177,48 @@ fun HomeScreen(
      */
     onOpenGame: ((consoleId: String, fileName: String) -> Unit)? = null
 ) {
-    val results by viewModel.results.collectAsState()
-    val hasMoreResults by viewModel.hasMoreResults.collectAsState()
-    val isLoadingMore by viewModel.isLoadingMore.collectAsState()
-    val query by viewModel.searchQuery.collectAsState()
-    val recentSearches by viewModel.recentSearches.collectAsState()
-    val selectedConsoles by viewModel.selectedConsoles.collectAsState()
-    val activeTags by viewModel.activeTags.collectAsState()
-    val sort by viewModel.sort.collectAsState()
-    val consolesWithFiles by viewModel.consolesWithFiles.collectAsState()
-    val categorizedTags by viewModel.categorizedTags.collectAsState()
-    val ownedKeys by viewModel.ownedKeys.collectAsState()
-    val rommKeys by viewModel.rommKeys.collectAsState()
-    val rommBase by viewModel.rommBase.collectAsState()
-    val favouriteKeys by viewModel.favouriteKeys.collectAsState()
-    val favouritesOnly by viewModel.favouritesOnly.collectAsState()
-    val sourceFilter by viewModel.source.collectAsState()
-    val activeDownloads by viewModel.activeDownloads.collectAsState()
-    val favoriteLanguages by viewModel.favoriteLanguages.collectAsState()
-    val detailsState by viewModel.details.collectAsState()
-    val raMarks by viewModel.raMarks.collectAsState()
-    val newOnly by viewModel.newOnly.collectAsState()
-    val collectionId by viewModel.collectionId.collectAsState()
-    val collections by viewModel.collections.collectAsState()
+    val results by viewModel.results.collectAsStateWithLifecycle()
+    val hasMoreResults by viewModel.hasMoreResults.collectAsStateWithLifecycle()
+    val isLoadingMore by viewModel.isLoadingMore.collectAsStateWithLifecycle()
+    val query by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val recentSearches by viewModel.recentSearches.collectAsStateWithLifecycle()
+    val selectedConsoles by viewModel.selectedConsoles.collectAsStateWithLifecycle()
+    val activeTags by viewModel.activeTags.collectAsStateWithLifecycle()
+    val sort by viewModel.sort.collectAsStateWithLifecycle()
+    val consolesWithFiles by viewModel.consolesWithFiles.collectAsStateWithLifecycle()
+    val categorizedTags by viewModel.categorizedTags.collectAsStateWithLifecycle()
+    val ownedKeys by viewModel.ownedKeys.collectAsStateWithLifecycle()
+    val rommKeys by viewModel.rommKeys.collectAsStateWithLifecycle()
+    val rommBase by viewModel.rommBase.collectAsStateWithLifecycle()
+    val favouriteKeys by viewModel.favouriteKeys.collectAsStateWithLifecycle()
+    val favouritesOnly by viewModel.favouritesOnly.collectAsStateWithLifecycle()
+    val sourceFilter by viewModel.source.collectAsStateWithLifecycle()
+    val activeDownloads by viewModel.activeDownloads.collectAsStateWithLifecycle()
+    val favoriteLanguages by viewModel.favoriteLanguages.collectAsStateWithLifecycle()
+    val detailsState by viewModel.details.collectAsStateWithLifecycle()
+    val raMarks by viewModel.raMarks.collectAsStateWithLifecycle()
+    val newOnly by viewModel.newOnly.collectAsStateWithLifecycle()
+    val collectionId by viewModel.collectionId.collectAsStateWithLifecycle()
+    val collections by viewModel.collections.collectAsStateWithLifecycle()
     // 5.0: covers in the rows, the live download ring, placeholder rows and the empty-library state.
-    val listCovers by viewModel.listCovers.collectAsState()
-    val loadMoreSize by viewModel.loadMoreSize.collectAsState()
-    val compactLists by viewModel.compactLists.collectAsState()
+    val listCovers by viewModel.listCovers.collectAsStateWithLifecycle()
+    val loadMoreSize by viewModel.loadMoreSize.collectAsStateWithLifecycle()
+    val compactLists by viewModel.compactLists.collectAsStateWithLifecycle()
     // 6.0 search by feel: genre / decade from the cached details, and the opt-in fetch.
-    val genres by viewModel.genres.collectAsState()
-    val decades by viewModel.decades.collectAsState()
-    val discoverIndex by viewModel.discoverIndex.collectAsState()
-    val fetchState by viewModel.fetchState.collectAsState()
+    val genres by viewModel.genres.collectAsStateWithLifecycle()
+    val decades by viewModel.decades.collectAsStateWithLifecycle()
+    val discoverIndex by viewModel.discoverIndex.collectAsStateWithLifecycle()
+    val fetchState by viewModel.fetchState.collectAsStateWithLifecycle()
     // These three change often (or only matter in one corner): they are read where they are drawn
     // or in ResultList's empty branch, never here, so a change does not recompose this screen.
-    val downloadProgressState = viewModel.downloadProgress.collectAsState()
-    val isSearchingState = viewModel.isSearching.collectAsState()
-    val libraryEmptyState = viewModel.libraryEmpty.collectAsState()
+    val downloadProgressState = viewModel.downloadProgress.collectAsStateWithLifecycle()
+    val isSearchingState = viewModel.isSearching.collectAsStateWithLifecycle()
+    val libraryEmptyState = viewModel.libraryEmpty.collectAsStateWithLifecycle()
     val progressOf: (String) -> Float = remember(downloadProgressState) { { name: String -> downloadProgressState.value[name] ?: 0f } }
     val isSearching: () -> Boolean = remember(isSearchingState) { { isSearchingState.value } }
     val libraryEmpty: () -> Boolean = remember(libraryEmptyState) { { libraryEmptyState.value } }
     var showBulk by remember { mutableStateOf(false) }
-    val views by viewModel.views.collectAsState()
+    val views by viewModel.views.collectAsStateWithLifecycle()
     var savingView by remember { mutableStateOf(false) }
     var showCollectionPicker by remember { mutableStateOf(false) }
 
@@ -1291,7 +1291,7 @@ private fun ResultList(
         contentPadding = PaddingValues(top = 2.dp, bottom = 12.dp),
         verticalArrangement = Arrangement.spacedBy(if (dense) DenseRowGap else RowGap)
     ) {
-        itemsIndexed(results, key = { _, it -> it.file.id }) { index, item ->
+        itemsIndexed(results, key = { _, it -> it.file.id }, contentType = { _, _ -> "rom-row" }) { index, item ->
             RomRow(
                 item = item,
                 consoleName = getConsoleName(item.file.consoleId),
@@ -1322,7 +1322,7 @@ private fun ResultList(
             )
         }
         if (hasMore) {
-            item {
+            item(key = "load-more", contentType = "load-more") {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1592,7 +1592,7 @@ private fun ConsoleChips(
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         item { ConsoleChip(stringResource(R.string.filter_all), selected.isEmpty(), color = null, count = total.takeIf { it > 0 }) { onSelect(emptySet()) } }
-        items(options, key = { it.id }) { option ->
+        items(options, key = { it.id }, contentType = { "console-chip" }) { option ->
             val isOnly = selected.size == 1 && option.id in selected
             ConsoleChip(option.shortLabel, isOnly, color = option.color, count = option.count) { onSelect(if (isOnly) emptySet() else setOf(option.id)) }
         }

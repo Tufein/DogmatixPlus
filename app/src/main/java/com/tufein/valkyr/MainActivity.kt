@@ -79,6 +79,7 @@ import com.tufein.valkyr.ui.screens.tools.FreeSpaceScreen
 import com.tufein.valkyr.ui.screens.tools.BestGamesScreen
 import com.tufein.valkyr.ui.screens.tools.FrontendMetadataScreen
 import com.tufein.valkyr.ui.screens.tools.BetterVersionsScreen
+import com.tufein.valkyr.util.PerfLog
 import com.tufein.valkyr.util.QuickActions
 import com.tufein.valkyr.ui.screens.tools.HistoryScreen
 import com.tufein.valkyr.util.HealthFix
@@ -190,6 +191,7 @@ class MainActivity : AppCompatActivity() {
     private var secondScreen: SecondScreenPresenter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        PerfLog.mark("activity_create")
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         hideSystemBars()
@@ -225,6 +227,15 @@ class MainActivity : AppCompatActivity() {
                 ) { item -> metadataService.lookup(item.file.name, item.file.consoleId, item.file.fileName) }.also { it.start() }
             }
         }
+        // First draw: note the time and let the application build its settings-driven services.
+        window.decorView.viewTreeObserver.addOnPreDrawListener(object : android.view.ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                window.decorView.viewTreeObserver.removeOnPreDrawListener(this)
+                PerfLog.mark("first_frame")
+                (application as? DogmatixApplication)?.startDeferred()
+                return true
+            }
+        })
         setContent {
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             val settings by settingsViewModel.uiState.collectAsState()

@@ -12,6 +12,7 @@ import com.tufein.valkyr.data.model.TagKind
 import com.tufein.valkyr.data.service.ProfileService
 import com.tufein.valkyr.util.SearchNormalizer
 import javax.inject.Inject
+import com.tufein.valkyr.util.PerfLog
 import javax.inject.Singleton
 
 @Singleton
@@ -38,7 +39,7 @@ class DownloadableFileRepository @Inject constructor(
         val byKind = TagCategorizer.groupByKind(tags)
         val hidden = profiles.current()
         fun kind(k: TagKind) = byKind[k].orEmpty().toList()
-        val results = dao.queryFilesWithTags(
+        val results = PerfLog.timed("db.search") { dao.queryFilesWithTags(
             query = searchPattern(query),
             manufacturer = manufacturer,
             consoleIds = consoleIds.toList(),
@@ -64,7 +65,7 @@ class DownloadableFileRepository @Inject constructor(
             sort = sort.ordinal,
             limit = limit,
             offset = offset
-        )
+        ) }
         return results.map { result ->
             DownloadableFileWithTags(
                 file = DownloadableFileEntity(
@@ -133,13 +134,17 @@ class DownloadableFileRepository @Inject constructor(
     /** Every version of a game the library lists for its console (same cleaned title), with tags. */
     suspend fun versionsOf(file: DownloadableFileEntity): List<DownloadableFileWithTags> {
         val key = file.searchKey.ifEmpty { SearchNormalizer.key(file.name) }
-        return dao.versionsOf(file.consoleId, key).map { DownloadableFileWithTags(it, dao.tagsOf(it.id)) }
+        val rows = PerfLog.timed("db.versions") { dao.versionsOf(file.consoleId, key) }
+        if (rows.isEmpty()) return emptyList()
+        // One query for all tags instead of one per version.
+        val tags = dao.tagsOfFiles(rows.map { it.id }).groupBy({ it.fileId }, { it.tag })
+        return rows.map { DownloadableFileWithTags(it, tags[it.id].orEmpty()) }
     }
 
     suspend fun clearAll() = dao.clearAll()
 
     /** Every row of one console (Switch updates / DLC). */
-    suspend fun filesOf(consoleId: String): List<DownloadableFileEntity> = dao.filesOf(consoleId)
+    suspend fun filesOf(consoleId: String): List<DownloadableFileEntity> = PerfLog.timed("db.console_rows") { dao.filesOf(consoleId) }
 
     suspend fun backfillSearchKeys() = dao.backfillSearchKeys()
 
@@ -152,7 +157,7 @@ class DownloadableFileRepository @Inject constructor(
         manufacturer: String? = null,
         consoleIds: Set<String> = emptySet()
     ): List<String> =
-        dao.getAvailableTags(searchPattern(query), manufacturer, consoleIds.toList(), consoleIds.size)
+        PerfLog.timed("db.tags") { dao.getAvailableTags(searchPattern(query), manufacturer, consoleIds.toList(), consoleIds.size) }
 
     suspend fun getCategorizedTags(
         query: String,
@@ -160,12 +165,12 @@ class DownloadableFileRepository @Inject constructor(
         consoleIds: Set<String> = emptySet()
     ): CategorizedTags =
         TagCategorizer.categorizeTags(
-            dao.getAvailableTags(searchPattern(query), manufacturer, consoleIds.toList(), consoleIds.size)
+            PerfLog.timed("db.tags") { dao.getAvailableTags(searchPattern(query), manufacturer, consoleIds.toList(), consoleIds.size) }
         )
 
     suspend fun getConsolesWithFiles(query: String, manufacturer: String? = null): List<ConsoleWithFileCount> {
         val hidden = profiles.current().hiddenConsoles
-        return dao.getConsolesWithFiles(searchPattern(query), manufacturer).filterNot { it.id in hidden }
+        return PerfLog.timed("db.consoles") { dao.getConsolesWithFiles(searchPattern(query), manufacturer) }.filterNot { it.id in hidden }
     }
 
     private companion object {

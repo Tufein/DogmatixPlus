@@ -14,7 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -135,9 +135,9 @@ private const val PER_GROUP = 8
  */
 @Composable
 fun SearchAllScreen(navController: NavController, viewModel: SearchAllViewModel = hiltViewModel()) {
-    val query by viewModel.query.collectAsState()
-    val games by viewModel.games.collectAsState()
-    val recent by viewModel.recent.collectAsState()
+    val query by viewModel.query.collectAsStateWithLifecycle()
+    val games by viewModel.games.collectAsStateWithLifecycle()
+    val recent by viewModel.recent.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val index = rememberSearchDocs(context)
     val byId = remember { SearchIndex.entries.associateBy { it.id } }

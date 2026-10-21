@@ -15,6 +15,7 @@ import com.tufein.valkyr.data.local.dao.DownloadableFileDao
 import com.tufein.valkyr.data.repository.SettingsRepository
 import com.tufein.valkyr.util.CertTrust
 import com.tufein.valkyr.util.CrashLog
+import com.tufein.valkyr.util.PerfLog
 import com.tufein.valkyr.util.DiagnosticsRedactor
 import com.tufein.valkyr.util.WebDavPaths
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -119,6 +120,8 @@ class DiagnosticsService @Inject constructor(
             val marks = rommLibraryService.state.value
             appendLine("  games known on RomM: ${marks.games}; last read: ${if (marks.updatedAt > 0) Date(marks.updatedAt) else "never"}${marks.error?.let { "; error: $it" } ?: ""}")
             appendLine()
+            append(PerfLog.report(PerfLog.phases.all(), PerfLog.ops.slowest(10), PerfLog.coverCounts(), databaseBytes()))
+            appendLine()
             appendLine("Recent exits")
             appendLine(recentExits())
             appendLine()
@@ -130,6 +133,12 @@ class DiagnosticsService @Inject constructor(
         }
         DiagnosticsRedactor.redact(report, secrets)
     }
+
+    /** Size of the library database with its write-ahead log, in bytes; -1 when it cannot be read. */
+    private fun databaseBytes(): Long = runCatching {
+        val db = context.getDatabasePath("dogmatix_db")
+        listOf(db, java.io.File(db.path + "-wal")).sumOf { if (it.exists()) it.length() else 0L }
+    }.getOrDefault(-1L)
 
     /** What is set up for the WebDAV cloud, never the values themselves. */
     private suspend fun cloudSummary(): String {

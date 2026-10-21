@@ -1,0 +1,99 @@
+# Hand-written baseline profile for Valkyr: the app's own classes on the startup path and on the
+# screens people open first. Library code (Compose, Material 3, Coil, Room, Hilt runtime) ships
+# its own profiles inside the AARs, so only com.tufein.valkyr is listed here.
+# Rule form: H = hot, S = startup, P = post-startup (methods); a bare "L...;" line profiles a
+# class for the class-loading image. Wildcards follow the ART profile syntax ("**" crosses
+# package separators). R8 rewrites these names for the minified release build.
+# Written from reading the code, not recorded on a device: regenerate it with a Macrobenchmark
+# BaselineProfileRule on a handheld when one is at hand.
+
+# Process start: Application, Hilt component, Activity and the first composition.
+HSPLcom/tufein/valkyr/DogmatixApplication;->**(**)**
+HSPLcom/tufein/valkyr/MainActivity;->**(**)**
+HSPLcom/tufein/valkyr/MainActivity**;->**(**)**
+HSPLcom/tufein/valkyr/Hilt_**;->**(**)**
+HSPLcom/tufein/valkyr/Dagger**;->**(**)**
+HSPLcom/tufein/valkyr/di/**;->**(**)**
+SPLcom/tufein/valkyr/**_Factory;->**(**)**
+SPLcom/tufein/valkyr/**_HiltModules**;->**(**)**
+SPLcom/tufein/valkyr/**_Impl;->**(**)**
+Lcom/tufein/valkyr/DogmatixApplication;
+Lcom/tufein/valkyr/MainActivity;
+Lcom/tufein/valkyr/di/**;
+Lcom/tufein/valkyr/**_Factory;
+Lcom/tufein/valkyr/**_Impl;
+
+# Settings, DataStore and the Room database (opened on the first query).
+HSPLcom/tufein/valkyr/data/local/**;->**(**)**
+HSPLcom/tufein/valkyr/data/repository/**;->**(**)**
+HSPLcom/tufein/valkyr/data/state/**;->**(**)**
+HSPLcom/tufein/valkyr/data/model/**;->**(**)**
+Lcom/tufein/valkyr/data/local/**;
+Lcom/tufein/valkyr/data/repository/**;
+
+# Services started with the app and used by the first screens.
+HSPLcom/tufein/valkyr/data/service/DownloadService;->**(**)**
+HSPLcom/tufein/valkyr/data/service/DownloadService$**;->**(**)**
+HSPLcom/tufein/valkyr/data/service/LibraryIndexService;->**(**)**
+HSPLcom/tufein/valkyr/data/service/ProfileService;->**(**)**
+HSPLcom/tufein/valkyr/data/service/AppShortcutService;->**(**)**
+HSPLcom/tufein/valkyr/data/service/PostDownloadService;->**(**)**
+HSPLcom/tufein/valkyr/data/service/QueueSummaryService;->**(**)**
+HSPLcom/tufein/valkyr/data/service/DownloadActionRecorder;->**(**)**
+HSPLcom/tufein/valkyr/data/service/DownloadLog;->**(**)**
+HSPLcom/tufein/valkyr/data/service/BandwidthLimiter;->**(**)**
+HSPLcom/tufein/valkyr/data/service/GameMetadataService;->**(**)**
+HSPLcom/tufein/valkyr/data/service/CoverRepository;->**(**)**
+HSPLcom/tufein/valkyr/data/service/UpNextService;->**(**)**
+HSPLcom/tufein/valkyr/data/service/ContinuePlayingService;->**(**)**
+HSPLcom/tufein/valkyr/data/service/ForYouService;->**(**)**
+HSPLcom/tufein/valkyr/data/service/StorageAvailabilityService;->**(**)**
+HSPLcom/tufein/valkyr/data/service/RommImageAuth;->**(**)**
+HSPLcom/tufein/valkyr/data/service/ScreenScraperImageAuth;->**(**)**
+HSPLcom/tufein/valkyr/data/service/TlsTrust;->**(**)**
+HSPLcom/tufein/valkyr/data/service/RommTrustService;->**(**)**
+Lcom/tufein/valkyr/data/service/DownloadService;
+Lcom/tufein/valkyr/data/service/LibraryIndexService;
+
+# Shared UI: theme, shell, tabs, covers, gamepad handling, focus.
+HSPLcom/tufein/valkyr/ui/theme/**;->**(**)**
+HSPLcom/tufein/valkyr/ui/components/**;->**(**)**
+HSPLcom/tufein/valkyr/ui/common/**;->**(**)**
+HSPLcom/tufein/valkyr/ui/navigation/**;->**(**)**
+Lcom/tufein/valkyr/ui/theme/**;
+Lcom/tufein/valkyr/ui/components/**;
+Lcom/tufein/valkyr/ui/common/**;
+
+# Home: shelves, search list, filters, game details loader.
+HSPLcom/tufein/valkyr/ui/screens/home/**;->**(**)**
+HSPLcom/tufein/valkyr/ui/screens/next/**;->**(**)**
+HSPLcom/tufein/valkyr/ui/screens/cloud/saves/ContinuePlaying**;->**(**)**
+HSPLcom/tufein/valkyr/ui/screens/search/**;->**(**)**
+Lcom/tufein/valkyr/ui/screens/home/**;
+Lcom/tufein/valkyr/ui/screens/next/**;
+
+# Game page and the download queue.
+HSPLcom/tufein/valkyr/ui/screens/game/**;->**(**)**
+HSPLcom/tufein/valkyr/ui/screens/download/**;->**(**)**
+Lcom/tufein/valkyr/ui/screens/game/**;
+Lcom/tufein/valkyr/ui/screens/download/**;
+
+# First-run tour, settings view model (read on the first frame), sources.
+HSPLcom/tufein/valkyr/ui/screens/settings/SettingsViewModel;->**(**)**
+HSPLcom/tufein/valkyr/ui/screens/onboarding/**;->**(**)**
+HSPLcom/tufein/valkyr/ui/screens/more/**;->**(**)**
+HSPLcom/tufein/valkyr/ui/screens/tools/ToolsHub**;->**(**)**
+
+# Pure helpers the lists run per row.
+HSPLcom/tufein/valkyr/util/SearchNormalizer;->**(**)**
+HSPLcom/tufein/valkyr/util/ConsoleFormatter;->**(**)**
+HSPLcom/tufein/valkyr/util/TagCategorizer;->**(**)**
+HSPLcom/tufein/valkyr/util/LetterJump;->**(**)**
+HSPLcom/tufein/valkyr/util/PadFocus;->**(**)**
+HSPLcom/tufein/valkyr/util/TextSize;->**(**)**
+HSPLcom/tufein/valkyr/util/LibraryKeys;->**(**)**
+HSPLcom/tufein/valkyr/util/GameTitleCleaner;->**(**)**
+HSPLcom/tufein/valkyr/util/DownloadQueue**;->**(**)**
+HSPLcom/tufein/valkyr/util/PerfLog**;->**(**)**
+HSPLcom/tufein/valkyr/util/CrashLog;->**(**)**
+HSPLcom/tufein/valkyr/util/ConsoleAliasRegistry;->**(**)**

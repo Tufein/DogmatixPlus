@@ -3,7 +3,12 @@ package com.tufein.valkyr.di
 import android.content.Context
 import coil.ImageLoader
 import coil.disk.DiskCache
+import coil.EventListener
+import coil.decode.DataSource
 import coil.memory.MemoryCache
+import coil.request.ImageRequest
+import coil.request.SuccessResult
+import com.tufein.valkyr.util.PerfLog
 import com.tufein.valkyr.BuildConfig
 import com.tufein.valkyr.data.service.RommImageAuth
 import com.tufein.valkyr.data.service.ScreenScraperImageAuth
@@ -52,6 +57,16 @@ object ImageModule {
             }
             // Box art servers send short cache headers; a cover does not change.
             .respectCacheHeaders(false)
+            // 4.5.0: counts where each cover came from (memory, disk, network) for the Performance block of the diagnostics.
+            .eventListener(object : EventListener {
+                override fun onSuccess(request: ImageRequest, result: SuccessResult) {
+                    when (result.dataSource) {
+                        DataSource.MEMORY_CACHE, DataSource.MEMORY -> PerfLog.coverLoaded(PerfLog.CoverSource.MEMORY)
+                        DataSource.DISK -> PerfLog.coverLoaded(PerfLog.CoverSource.DISK)
+                        DataSource.NETWORK -> PerfLog.coverLoaded(PerfLog.CoverSource.NETWORK)
+                    }
+                }
+            })
             .build()
     }
 }

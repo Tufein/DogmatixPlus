@@ -26,12 +26,15 @@ import com.tufein.valkyr.data.service.VersionCheckerService
 import com.tufein.valkyr.data.service.WeeklyDigestScheduler
 import com.tufein.valkyr.util.ConsoleAliasRegistry
 import com.tufein.valkyr.util.CrashLog
+import com.tufein.valkyr.util.PerfLog
 import com.tufein.valkyr.widget.WidgetUpdater
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 import net.sf.sevenzipjbinding.SevenZip
 import java.io.File
 import javax.inject.Inject
@@ -65,35 +68,35 @@ class DogmatixApplication : Application(), ImageLoaderFactory {
 
     /** Injected so the marks of games on the RomM server are read from the first launch. */
     @Inject
-    lateinit var rommLibraryService: RommLibraryService
+    lateinit var rommLibraryService: dagger.Lazy<RommLibraryService>
 
     /** Injected so the favourites kept in step with RomM (when switched on) merge from the start. */
     @Inject
-    lateinit var rommCollectionsService: RommCollectionsService
+    lateinit var rommCollectionsService: dagger.Lazy<RommCollectionsService>
 
     /** Injected so the background save sync job follows its settings from the start. */
     @Inject
-    lateinit var saveSyncScheduler: SaveSyncScheduler
+    lateinit var saveSyncScheduler: dagger.Lazy<SaveSyncScheduler>
 
     /** Injected so finished scans are checked against the wishlist from the start. */
     @Inject
-    lateinit var wishlistRepository: WishlistRepository
+    lateinit var wishlistRepository: dagger.Lazy<WishlistRepository>
 
     /** Injected so the background source scan follows its settings from the start. */
     @Inject
-    lateinit var autoScanScheduler: AutoScanScheduler
+    lateinit var autoScanScheduler: dagger.Lazy<AutoScanScheduler>
 
     /** Injected so collections kept on the device are looked at after every scan from the start. */
     @Inject
-    lateinit var offlineCollectionsService: OfflineCollectionsService
+    lateinit var offlineCollectionsService: dagger.Lazy<OfflineCollectionsService>
 
     /** Injected so the weekly digest job follows its setting from the start. */
     @Inject
-    lateinit var weeklyDigestScheduler: WeeklyDigestScheduler
+    lateinit var weeklyDigestScheduler: dagger.Lazy<WeeklyDigestScheduler>
 
     /** Injected so the smart storage job follows its setting from the start. */
     @Inject
-    lateinit var smartStorageScheduler: com.tufein.valkyr.data.service.SmartStorageScheduler
+    lateinit var smartStorageScheduler: dagger.Lazy<com.tufein.valkyr.data.service.SmartStorageScheduler>
 
     /** Injected so the speed limit (and its night exception) applies from the first download. */
     @Inject
@@ -101,7 +104,7 @@ class DogmatixApplication : Application(), ImageLoaderFactory {
 
     /** Injected so the home-screen widget follows downloads and scans from the start. */
     @Inject
-    lateinit var widgetUpdater: WidgetUpdater
+    lateinit var widgetUpdater: dagger.Lazy<WidgetUpdater>
 
     /** Injected so finished downloads go into the statistics log from the first one. */
     @Inject
@@ -113,7 +116,7 @@ class DogmatixApplication : Application(), ImageLoaderFactory {
 
     /** Injected so the weekly automatic backup follows its settings from the start. */
     @Inject
-    lateinit var autoBackupScheduler: AutoBackupScheduler
+    lateinit var autoBackupScheduler: dagger.Lazy<AutoBackupScheduler>
 
     /** App shortcuts (consoles, saved views, Downloads) for launchers and frontends such as Cocoon. */
     @Inject
@@ -128,10 +131,14 @@ class DogmatixApplication : Application(), ImageLoaderFactory {
     lateinit var queueSummaryService: QueueSummaryService
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    
+
+    private val deferredStarted = AtomicBoolean(false)
+
     override fun onCreate() {
         super.onCreate()
+        PerfLog.mark("app_create")
         CrashLog.install(this)
+        if (BuildConfig.DEBUG) PerfLog.enableStrictMode()
         appShortcutService.start()
         postDownloadService.start()
         queueSummaryService.start()
@@ -167,6 +174,42 @@ class DogmatixApplication : Application(), ImageLoaderFactory {
             } catch (e: Exception) {
                 Log.e("DogmatixApplication", "Search key backfill failed: ${e.message}")
             }
+        }
+
+        // Services that only follow settings (schedulers, RomM marks, widget) are built after the
+        // first frame; if no screen ever draws (a worker or the download service started the
+        // process) they still start after a few seconds.
+        applicationScope.launch {
+            delay(DEFERRED_FALLBACK_MS)
+            startDeferred()
+        }
+        PerfLog.mark("app_ready")
+    }
+
+    /**
+     * Builds the services that were injected only so they start watching their settings: none of
+     * them is needed for the first frame. Called by the activity after its first draw (or by the
+     * fallback timer); runs once, on a background thread (Hilt singletons are thread safe).
+     */
+    fun startDeferred() {
+        if (!deferredStarted.compareAndSet(false, true)) return
+        applicationScope.launch {
+            PerfLog.timed("startup.deferred") {
+                runCatching {
+                    // The order of the original eager injection.
+                    rommLibraryService.get()
+                    rommCollectionsService.get()
+                    saveSyncScheduler.get()
+                    wishlistRepository.get()
+                    autoScanScheduler.get()
+                    offlineCollectionsService.get()
+                    weeklyDigestScheduler.get()
+                    smartStorageScheduler.get()
+                    widgetUpdater.get()
+                    autoBackupScheduler.get()
+                }.onFailure { Log.e("DogmatixApplication", "Deferred start failed: ${it.message}") }
+            }
+            PerfLog.mark("deferred_ready")
         }
     }
 
@@ -214,6 +257,7 @@ class DogmatixApplication : Application(), ImageLoaderFactory {
     }
 
     companion object {
+        private const val DEFERRED_FALLBACK_MS = 4_000L
         const val DOWNLOAD_CHANNEL_ID = "download_channel"
         const val SYNC_CHANNEL_ID = "sync_channel"
         const val WISHLIST_CHANNEL_ID = "wishlist_channel"

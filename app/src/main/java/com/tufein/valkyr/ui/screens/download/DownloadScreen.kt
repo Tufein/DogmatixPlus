@@ -31,7 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,32 +83,32 @@ fun DownloadScreen(
     navController: NavController,
     viewModel: DownloadViewModel = hiltViewModel()
 ) {
-    val downloads by viewModel.downloads.collectAsState()
-    val queueView by viewModel.queueView.collectAsState()
-    val filterCriteria by viewModel.queueFilters.collectAsState()
-    val details by viewModel.downloadDetails.collectAsState()
-    val uploads by viewModel.uploads.collectAsState()
-    val waitingFiles by viewModel.waitingFiles.collectAsState()
-    val waitingReasons by viewModel.waitingReasons.collectAsState()
-    val queuePositions by viewModel.queuePositions.collectAsState()
-    val itemWaits by viewModel.itemWaits.collectAsState()
-    val itemConditions by viewModel.itemConditions.collectAsState()
-    val pendingRetries by viewModel.pendingAutoRetries.collectAsState()
-    val sourceChoice by viewModel.sourceChoice.collectAsState()
+    val downloads by viewModel.downloads.collectAsStateWithLifecycle()
+    val queueView by viewModel.queueView.collectAsStateWithLifecycle()
+    val filterCriteria by viewModel.queueFilters.collectAsStateWithLifecycle()
+    val details by viewModel.downloadDetails.collectAsStateWithLifecycle()
+    val uploads by viewModel.uploads.collectAsStateWithLifecycle()
+    val waitingFiles by viewModel.waitingFiles.collectAsStateWithLifecycle()
+    val waitingReasons by viewModel.waitingReasons.collectAsStateWithLifecycle()
+    val queuePositions by viewModel.queuePositions.collectAsStateWithLifecycle()
+    val itemWaits by viewModel.itemWaits.collectAsStateWithLifecycle()
+    val itemConditions by viewModel.itemConditions.collectAsStateWithLifecycle()
+    val pendingRetries by viewModel.pendingAutoRetries.collectAsStateWithLifecycle()
+    val sourceChoice by viewModel.sourceChoice.collectAsStateWithLifecycle()
     // Names still in line, to offer "Wait for..." on the rows that have not started.
     val queuedSet = queuePositions.keys
     // Rows the "Download when..." dialog is open for (one row, or the ticked ones); null = closed.
     var whenTargets by remember { mutableStateOf<List<String>?>(null) }
     fun notStarted(row: DownloadItemModel) = row.status == DownloadStatus.DOWNLOADING &&
         (row.fileName in queuedSet || row.fileName in waitingFiles || row.fileName in itemWaits)
-    val verification by viewModel.verification.collectAsState()
-    val shortfall by viewModel.queueShortfall.collectAsState()
-    val counts by viewModel.queueCounts.collectAsState()
-    val eta by viewModel.queueEta.collectAsState()
-    val held by viewModel.held.collectAsState()
-    val progress by viewModel.queueProgress.collectAsState()
-    val need by viewModel.queueNeed.collectAsState()
-    val free by viewModel.freeBytes.collectAsState()
+    val verification by viewModel.verification.collectAsStateWithLifecycle()
+    val shortfall by viewModel.queueShortfall.collectAsStateWithLifecycle()
+    val counts by viewModel.queueCounts.collectAsStateWithLifecycle()
+    val eta by viewModel.queueEta.collectAsStateWithLifecycle()
+    val held by viewModel.held.collectAsStateWithLifecycle()
+    val progress by viewModel.queueProgress.collectAsStateWithLifecycle()
+    val need by viewModel.queueNeed.collectAsStateWithLifecycle()
+    val free by viewModel.freeBytes.collectAsStateWithLifecycle()
     val waitWifi = stringResource(R.string.wait_wifi)
     val waitCharger = stringResource(R.string.wait_charger)
     val waitNight = stringResource(R.string.wait_night)
@@ -146,11 +146,11 @@ fun DownloadScreen(
             WaitReason.HOT -> shortHot
         }
     }
-    val selection by viewModel.selection.collectAsState()
-    val showDeleteConfirmation by viewModel.showDeleteConfirmation.collectAsState()
+    val selection by viewModel.selection.collectAsStateWithLifecycle()
+    val showDeleteConfirmation by viewModel.showDeleteConfirmation.collectAsStateWithLifecycle()
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val selectionMode = selection.isNotEmpty()
-    val selected by viewModel.selectedDownloads.collectAsState()
+    val selected by viewModel.selectedDownloads.collectAsStateWithLifecycle()
 
     // Row under the D-pad cursor: SELECT ticks it, X deletes it (the in-row buttons are touch-only —
     // they sit inside the focused row's bounds, out of reach of directional focus search).
@@ -354,7 +354,7 @@ fun DownloadScreen(
                 if (queueView.rows.isEmpty()) {
                     item(key = "queue-no-matches") { QueueNoMatches(viewModel::clearQueueFilters) }
                 }
-                itemsIndexed(queueView.rows, key = { _, it -> it.fileName }) { index, item ->
+                itemsIndexed(queueView.rows, key = { _, it -> it.fileName }, contentType = { _, _ -> "download-row" }) { index, item ->
                     DownloadItem(
                         item = item,
                         details = details[item.fileName],

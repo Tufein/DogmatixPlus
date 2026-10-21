@@ -22,7 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -58,9 +58,9 @@ fun ContinuePlayingShelf(
     modifier: Modifier = Modifier,
     viewModel: ContinuePlayingViewModel = hiltViewModel()
 ) {
-    val enabled by viewModel.enabled.collectAsState()
+    val enabled by viewModel.enabled.collectAsStateWithLifecycle()
     LaunchedEffect(enabled) { if (enabled) viewModel.onShown() }
-    val shelf by viewModel.items.collectAsState()
+    val shelf by viewModel.items.collectAsStateWithLifecycle()
     if (!enabled || shelf.isEmpty()) return
 
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -75,7 +75,7 @@ fun ContinuePlayingShelf(
             contentPadding = PaddingValues(horizontal = 6.dp, vertical = 5.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(shelf, key = { "${it.row.file.consoleId}|${it.row.file.fileName}" }) { item ->
+            items(shelf, key = { "${it.row.file.consoleId}|${it.row.file.fileName}" }, contentType = { "card" }) { item ->
                 ContinueCard(item, onClick = { onOpenGame(item.row) })
             }
         }
