@@ -12,7 +12,10 @@ import androidx.room.PrimaryKey
 data class CoverEntity(
     @PrimaryKey val key: String,
     val url: String,
-    /** Where the cover came from: "libretro", "metadata" or "" for a miss. */
+    /**
+     * Where the cover came from: "libretro", "screenscraper", "metadata" (4.3.0, see CoverSources);
+     * for a miss "miss:" and the sources that answered "none" ("" for a miss from before 4.3.0).
+     */
     val source: String,
     val fetchedAt: Long
 )

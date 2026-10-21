@@ -320,7 +320,8 @@ class FrontendCoversService @Inject constructor(
                 // The image being replaced keeps its own spelling ("game.png" for "Game.png").
                 val fileName = if (item.replaces) present[item.place.name.lowercase()] ?: item.place.name else item.place.name
                 val headers = if (rommBase.isNotEmpty() && url.startsWith(rommBase)) rommHeaders else emptyMap()
-                val bytes = JsonHttp.download(url, headers, MAX_COVER_BYTES).takeIf { it.isNotEmpty() } ?: return@withContext Outcome.FAILED
+                // 4.3.0: a ScreenScraper cover is stored without its credentials; they go back on here.
+                val bytes = JsonHttp.download(covers.downloadUrl(url), headers, MAX_COVER_BYTES).takeIf { it.isNotEmpty() } ?: return@withContext Outcome.FAILED
                 val png = toPng(bytes) ?: return@withContext Outcome.FAILED
                 val dir = folders.make(item.place.dir) ?: return@withContext Outcome.FAILED
                 StorageHelper.writeBytesSafely(context, dir, "", fileName, png)

@@ -174,7 +174,6 @@ fun SettingsScreen(
     val updateOffer by extra.updateOffer.collectAsState()
     val updateProgress by extra.updateProgress.collectAsState()
     val look by extra.look.collectAsState()
-    val coversReset by extra.coversReset.collectAsState()
     val context = LocalContext.current
     // Android 13+ asks before the weekly digest may be shown.
     val digestPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
@@ -515,15 +514,7 @@ fun SettingsScreen(
             ) { ThemedSwitch(look.compactLists) { extra.setCompactLists(context, it) } }
         },
         SettingsRow(key = SettingKeys.COVERS_RETRY) {
-            SettingRow(
-                icon = R.drawable.ic_image_search,
-                title = stringResource(R.string.settings_v5_covers_retry),
-                hint = coversReset?.let { pluralStringResource(R.plurals.settings_v5_covers_reset_done, it, it) }
-                    ?: stringResource(R.string.settings_v5_covers_retry_hint),
-                onClick = { extra.findMissingCovers(context) }
-            ) {
-                ActionPill(stringResource(R.string.settings_v5_covers_retry_action), { extra.findMissingCovers(context) }, icon = R.drawable.ic_retry)
-            }
+            com.tufein.valkyr.ui.screens.settings.covers.CoverSourcesRow(onOpen = { navController.navigate(NavRoutes.CoverSources.route) })
         },
         SettingsRow(key = SettingKeys.DOWNLOAD_DIR) {
             SettingRow(

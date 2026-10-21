@@ -22,6 +22,7 @@ import com.tufein.valkyr.data.repository.CollectionsRepository
 import com.tufein.valkyr.data.repository.SourcesRepository
 import com.tufein.valkyr.util.BackupJson
 import com.tufein.valkyr.util.CloudSettingKeys
+import com.tufein.valkyr.util.ScreenScraper
 import com.tufein.valkyr.util.SourcesJson
 import com.tufein.valkyr.util.SettingSchema
 import com.google.gson.GsonBuilder
@@ -247,6 +248,8 @@ class BackupService @Inject constructor(
             // A backup from before the cloud was set up has no cloud settings: those stay as they are.
             val currentDav = prefs.asMap().filter { it.key.name.startsWith("dav_") }
             val backupHasDav = settings.any { it.first.startsWith("dav_") }
+            // 4.3.0: the ScreenScraper passwords are not in backups either (same rule as the WebDAV password).
+            val currentScreenScraper = prefs.asMap().filter { it.key.name in ScreenScraper.SETTING_TYPES }
             prefs.clear()
             currentSkipped.forEach { (key, value) -> prefs.put(key.name, value) }
             settings.forEach { (name, value) ->
@@ -291,6 +294,13 @@ class BackupService @Inject constructor(
             if (!currentDavPassword.isNullOrEmpty() &&
                 CloudSettingKeys.keepsPassword(currentDavLogin.first, currentDavLogin.second, prefs[davUrl], prefs[davUser])
             ) prefs[davPassword] = currentDavPassword
+            val backupHasScreenScraper = settings.any { it.first in ScreenScraper.SETTING_TYPES }
+            if (!backupHasScreenScraper) currentScreenScraper.forEach { (key, value) -> @Suppress("UNCHECKED_CAST") prefs[key as androidx.datastore.preferences.core.Preferences.Key<Any>] = value }
+            ScreenScraper.keptSecrets(
+                current = currentScreenScraper.entries.associate { it.key.name to (it.value as? String).orEmpty() },
+                restored = ScreenScraper.SETTING_TYPES.keys.associateWith { prefs[stringPreferencesKey(it)].orEmpty() },
+                backupHasScreenScraper = backupHasScreenScraper
+            ).forEach { (name, value) -> prefs[stringPreferencesKey(name)] = value }
             // Restoring must never send the user back through the first-run tour.
             prefs[SettingsKeys.ONBOARDING_DONE] = true
         } }

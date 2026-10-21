@@ -78,11 +78,13 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     object NewHandheld : NavRoutes(com.tufein.valkyr.ui.screens.tools.NEW_HANDHELD_ROUTE, R.string.wizard35_title, R.drawable.ic_devices)
 
     object SearchAll : NavRoutes("search_all", R.string.find8_title, R.drawable.ic_search)
+    /** 4.3.0: the cover sources, their order and the ScreenScraper login (Settings → Cover sources). */
+    object CoverSources : NavRoutes("cover_sources", R.string.covers43_title, R.drawable.ic_image_search)
 
     companion object {
         /** The four sections shown as tabs (3.8.0); every other screen is reached from More. */
         val tabs by lazy { listOf(Home, Downloads, Sources, More) }
-        val allRoutes by lazy { tabs + Settings + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions + FreeSpace + SearchAll + Recovery + PackageTransfer + ActionHistory + VersionPreference + UpNext + LibraryRepair + ReportProblem + GameTransfer + FrontendCovers + RetroArchPlaylists + NewHandheld }
+        val allRoutes by lazy { tabs + Settings + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions + FreeSpace + SearchAll + Recovery + PackageTransfer + ActionHistory + VersionPreference + UpNext + LibraryRepair + ReportProblem + GameTransfer + FrontendCovers + RetroArchPlaylists + NewHandheld + CoverSources }
     }
 }
 

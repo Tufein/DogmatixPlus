@@ -40,7 +40,8 @@ object CloudSettingKeys {
     /** Values that must never be written into a backup file nor read back from one. */
     val SECRETS: Set<String> = setOf(PASSWORD)
 
-    fun isSecret(name: String): Boolean = name in SECRETS
+    /** 4.3.0: the ScreenScraper passwords (developer and user) stay out of backups the same way. */
+    fun isSecret(name: String): Boolean = name in SECRETS || name in ScreenScraper.SECRETS
 
     /** [value] of the setting [name] brought into what the app accepts; null drops it. */
     fun sanitize(name: String, value: Any): Any? = when (name) {
