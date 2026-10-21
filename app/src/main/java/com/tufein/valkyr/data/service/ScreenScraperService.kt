@@ -29,7 +29,8 @@ import javax.inject.Singleton
 class ScreenScraperService @Inject constructor(
     private val settings: CoverSourceSettings,
     private val stats: CoverSourceStats
-) {
+) : CoverLookupSource {
+    override val source = CoverSources.Source.SCREENSCRAPER
     @Volatile private var threads = ScreenScraper.DEFAULT_THREADS
     @Volatile private var permits = Semaphore(threads)
     /** No requests before this moment (a short pause after 429, longer after a refused login or a closed API). */
@@ -50,10 +51,10 @@ class ScreenScraperService @Inject constructor(
     }
 
     /** Whether the developer credentials are filled in (without them the source is simply skipped). */
-    suspend fun configured(): Boolean = settings.credentials.first().ready
+    override suspend fun configured(): Boolean = settings.credentials.first().ready
 
     /** Whether ScreenScraper can be asked right now: credentials there, not paused, not backing off. */
-    suspend fun usable(now: Long = System.currentTimeMillis()): Boolean {
+    override suspend fun usable(now: Long): Boolean {
         val c = settings.credentials.first()
         if (!c.ready) return false
         if (now < stats.state.value.pausedUntil) return false
@@ -65,10 +66,10 @@ class ScreenScraperService @Inject constructor(
         if (ScreenScraper.isApiUrl(url)) ScreenScraper.withCredentials(url, settings.credentials.first()) else url
 
     /** The cover of a game: [fileName] on its console, else the best match of [title]'s search. */
-    suspend fun find(consoleId: String, fileName: String, title: String, regions: List<String>, nonBoxArt: Boolean): CoverSources.Answer {
+    override suspend fun find(consoleId: String, fileName: String, title: String, regions: List<String>, nonBoxArt: Boolean): CoverSources.Answer {
         val system = ScreenScraper.systemId(consoleId) ?: return CoverSources.Answer.Miss
         val c = settings.credentials.first()
-        if (!c.ready || !usable()) return CoverSources.Answer.Unavailable
+        if (!c.ready || !usable(System.currentTimeMillis())) return CoverSources.Answer.Unavailable
         val byName = call(c, ScreenScraper.gameUrl(c, system, fileName))
         when (byName.status) {
             ScreenScraper.Status.OK -> {
@@ -196,7 +197,7 @@ class ScreenScraperService @Inject constructor(
     }
 
     /** Ends a pause for the quota (the user asked to look again on a new day, or changed the login). */
-    fun clearPause() {
+    override fun clearPause() {
         if (stats.state.value.pausedUntil <= System.currentTimeMillis()) stats.pauseUntil(0)
     }
 

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.4.0: Settings → Cover sources: TheGamesDB, SteamGridDB and IGDB (API keys, tests, state lines). -->
+<resources>
+    <string name="covers44_source_tgdb">TheGamesDB</string>
+    <string name="covers44_source_sgdb">SteamGridDB</string>
+    <string name="covers44_source_igdb">IGDB</string>
+    <string name="covers44_source_tgdb_hint">Box art from TheGamesDB, found by title on the game\'s console; only the front of the box. Needs a free API key (below).</string>
+    <string name="covers44_source_sgdb_hint">Artwork from SteamGridDB, found by title: the best-voted portrait grid. It is community artwork and not always the official box. Needs a free API key (below).</string>
+    <string name="covers44_source_igdb_hint">Covers from IGDB (run by Twitch), found by title, preferring the game\'s console. Needs a free Twitch client ID and secret (below).</string>
+    <string name="covers44_state_needs_key">Skipped until an API key is filled in.</string>
+    <string name="covers44_state_needs_igdb">Skipped until the client ID and secret are filled in.</string>
+    <string name="covers44_state_key_refused">Key refused (or its allowance is used up): check it and press Test key.</string>
+    <string name="covers44_state_quota_month">Monthly allowance used up: paused until %1$s.</string>
+    <string name="covers44_state_ready_month">Ready: %1$d requests left this month.</string>
+    <string name="covers44_tgdb_title">TheGamesDB key</string>
+    <string name="covers44_sgdb_title">SteamGridDB key</string>
+    <string name="covers44_igdb_title">IGDB (Twitch) keys</string>
+    <string name="covers44_where_title">Where to get the key</string>
+    <string name="covers44_tgdb_where_hint">Make a free account on thegamesdb.net and ask for an API key there (the key request page is linked from its API documentation). The free allowance is limited per month, and a game costs one or two requests.</string>
+    <string name="covers44_sgdb_where_hint">Make a free account on steamgriddb.com, sign in and open your profile preferences: the API tab lets you generate a key. SteamGridDB art is community artwork and not always the official box.</string>
+    <string name="covers44_igdb_where_hint">IGDB uses Twitch sign-in. Log in at dev.twitch.tv with a Twitch account (two-factor sign-in is required), register an application in the console (category: other, any redirect URL such as http://localhost), then copy its Client ID and make a new secret. Both go in below.</string>
+    <string name="covers44_tgdb_shared_title">Key already in the app</string>
+    <string name="covers44_tgdb_shared_hint">This app already holds a TheGamesDB key for the game details, so nothing needs to be filled in here: the same key is used. A key of your own below replaces it.</string>
+    <string name="covers44_tgdb_key">TheGamesDB API key</string>
+    <string name="covers44_tgdb_key_hint">Your TheGamesDB API key. It is only sent to api.thegamesdb.net and is never put in a backup or a problem report.</string>
+    <string name="covers44_tgdb_key_app">Not set: the app\'s own key is used</string>
+    <string name="covers44_sgdb_key">SteamGridDB API key</string>
+    <string name="covers44_sgdb_key_hint">Your SteamGridDB API key. It is only sent to steamgriddb.com and is never put in a backup or a problem report.</string>
+    <string name="covers44_igdb_client_id">Twitch client ID</string>
+    <string name="covers44_igdb_client_secret">Twitch client secret</string>
+    <string name="covers44_igdb_id_hint">The Client ID of your Twitch application. It is sent to Twitch and IGDB. It is not a secret, so it may be in a backup.</string>
+    <string name="covers44_igdb_secret_hint">The client secret of your Twitch application. It is only sent to id.twitch.tv and is never put in a backup or a problem report.</string>
+    <string name="covers44_key_set">Set</string>
+    <string name="covers44_test_title">Test key</string>
+    <string name="covers44_test_hint">Asks %1$s whether the key above works.</string>
+    <string name="covers44_testing">Asking %1$s…</string>
+    <string name="covers44_test_ok">The key works.</string>
+    <string name="covers44_test_ok_month">The key works: %1$d requests left this month.</string>
+    <string name="covers44_test_missing">Fill in the API key first.</string>
+    <string name="covers44_test_missing_igdb">Fill in the client ID and secret first.</string>
+    <string name="covers44_test_rejected">The service refused the key. Check that it was copied completely.</string>
+    <string name="covers44_test_id_rejected">Twitch does not know this client ID.</string>
+    <string name="covers44_test_secret_rejected">Twitch knows the client ID, but the secret is wrong.</string>
+    <string name="covers44_test_rate">Too many requests right now. Try again in a minute.</string>
+    <string name="covers44_test_busy">The service is closed or too busy right now. Try again later.</string>
+    <string name="covers44_test_offline">No connection. Are you offline?</string>
+    <string name="covers44_test_unreadable">The service answered, but not in the way its documentation describes.</string>
+    <string name="covers44_search_title">Cover sources: API keys</string>
+    <string name="covers44_search_hint">Keys for TheGamesDB, SteamGridDB and IGDB as cover sources, with a test for each.</string>
+    <string name="covers44_kw">thegamesdb, tgdb, steamgriddb, sgdb, igdb, twitch, api key, client id, secret, covers, box art, scraper</string>
+</resources>

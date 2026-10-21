@@ -62,6 +62,7 @@ import com.tufein.valkyr.ui.screens.settings.SettingsSurface
 import com.tufein.valkyr.ui.screens.settings.ThemedSwitch
 import com.tufein.valkyr.ui.screens.tools.PublishLegend
 import com.tufein.valkyr.util.CardGrid
+import com.tufein.valkyr.util.CoverApis
 import com.tufein.valkyr.util.CoverSources
 import com.tufein.valkyr.util.CoverSources.Source
 import com.tufein.valkyr.util.ScreenScraper
@@ -83,6 +84,9 @@ fun CoverSourcesScreen(viewModel: CoverSourcesViewModel = hiltViewModel()) {
     val testing by viewModel.testing.collectAsState()
     val testResult by viewModel.testResult.collectAsState()
     val retried by viewModel.retried.collectAsState()
+    val keys by viewModel.keys.collectAsState()
+    val testingKey by viewModel.testingKey.collectAsState()
+    val keyTests by viewModel.keyTests.collectAsState()
     val context = LocalContext.current
     val uri = LocalUriHandler.current
     val today = ScreenScraper.dayOf(System.currentTimeMillis())
@@ -99,7 +103,7 @@ fun CoverSourcesScreen(viewModel: CoverSourcesViewModel = hiltViewModel()) {
                 SourceRow(
                     position = index + 1,
                     source = source,
-                    hint = sourceHint(source, chain, login, stats),
+                    hint = sourceHint(source, chain, login, stats, keys),
                     enabled = chain.enabled(source),
                     canUp = movable && place > 0,
                     canDown = movable && place < chain.order.lastIndex,
@@ -168,6 +172,32 @@ fun CoverSourcesScreen(viewModel: CoverSourcesViewModel = hiltViewModel()) {
         }
     )
 
+    // 4.4.0: one section per source that needs an API key of its own.
+    val theGamesDbRows: List<@Composable () -> Unit> = buildList {
+        add { InfoRow(R.drawable.ic_info, R.string.covers44_where_title, stringResource(R.string.covers44_tgdb_where_hint)) }
+        if (keys.tgdbShared) add { InfoRow(R.drawable.ic_key, R.string.covers44_tgdb_shared_title, stringResource(R.string.covers44_tgdb_shared_hint)) }
+        add {
+            val state = when {
+                keys.tgdb.isNotBlank() -> stringResource(R.string.covers44_key_set)
+                keys.tgdbShared -> stringResource(R.string.covers44_tgdb_key_app)
+                else -> stringResource(R.string.settings_not_set)
+            }
+            CredentialRow(R.drawable.ic_key, R.string.covers44_tgdb_key, state) { editing = CoverSourceSettings.Field.TGDB_KEY }
+        }
+        add { KeyTestRow(Source.THEGAMESDB, keys, testingKey, keyTests[Source.THEGAMESDB], viewModel::testKey) }
+    }
+    val steamGridDbRows: List<@Composable () -> Unit> = listOf(
+        { InfoRow(R.drawable.ic_info, R.string.covers44_where_title, stringResource(R.string.covers44_sgdb_where_hint)) },
+        { CredentialRow(R.drawable.ic_key, R.string.covers44_sgdb_key, keyState(keys.sgdb)) { editing = CoverSourceSettings.Field.SGDB_KEY } },
+        { KeyTestRow(Source.STEAMGRIDDB, keys, testingKey, keyTests[Source.STEAMGRIDDB], viewModel::testKey) }
+    )
+    val igdbRows: List<@Composable () -> Unit> = listOf(
+        { InfoRow(R.drawable.ic_info, R.string.covers44_where_title, stringResource(R.string.covers44_igdb_where_hint)) },
+        { CredentialRow(R.drawable.ic_account, R.string.covers44_igdb_client_id, keyState(keys.igdbId)) { editing = CoverSourceSettings.Field.IGDB_CLIENT_ID } },
+        { CredentialRow(R.drawable.ic_lock, R.string.covers44_igdb_client_secret, keyState(keys.igdbSecret)) { editing = CoverSourceSettings.Field.IGDB_CLIENT_SECRET } },
+        { KeyTestRow(Source.IGDB, keys, testingKey, keyTests[Source.IGDB], viewModel::testKey) }
+    )
+
     val statusRows: List<@Composable () -> Unit> = buildList {
         chain.order.forEach { source ->
             add {
@@ -193,15 +223,17 @@ fun CoverSourcesScreen(viewModel: CoverSourcesViewModel = hiltViewModel()) {
         }
     }
 
-    val cells = remember(orderRows.size, loginRows.size, statusRows.size) {
-        CardGrid.layout(
-            listOf(
-                CardGrid.Section(header = true, items = orderRows.size),
-                CardGrid.Section(header = true, items = loginRows.size),
-                CardGrid.Section(header = true, items = statusRows.size)
-            ),
-            1
-        )
+    // The sections of the screen, top to bottom: header and rows.
+    val sections: List<Pair<Pair<Int, Int>, List<@Composable () -> Unit>>> = listOf(
+        (R.string.covers43_order_title to R.drawable.ic_sort) to orderRows,
+        (R.string.covers43_ss_title to R.drawable.ic_key) to loginRows,
+        (R.string.covers44_tgdb_title to R.drawable.ic_storage) to theGamesDbRows,
+        (R.string.covers44_sgdb_title to R.drawable.ic_palette) to steamGridDbRows,
+        (R.string.covers44_igdb_title to R.drawable.ic_collections) to igdbRows,
+        (R.string.covers43_status_title to R.drawable.ic_bar_chart) to statusRows
+    )
+    val cells = remember(sections.map { it.second.size }) {
+        CardGrid.layout(sections.map { CardGrid.Section(header = true, items = it.second.size) }, 1)
     }
     val firstRow = remember { FocusRequester() }
     LaunchedEffect(Unit) { firstRow.requestFocusWhenReady() }
@@ -209,17 +241,9 @@ fun CoverSourcesScreen(viewModel: CoverSourcesViewModel = hiltViewModel()) {
     SettingsSurface {
         SettingsCardsGrid(cells = cells, columns = 1, title = { CoverSourcesTitle() }) { _, cell ->
             when (cell.kind) {
-                CardGrid.Kind.HEADER -> when (cell.section) {
-                    0 -> SettingsCardHeader(stringResource(R.string.covers43_order_title), R.drawable.ic_sort)
-                    1 -> SettingsCardHeader(stringResource(R.string.covers43_ss_title), R.drawable.ic_key)
-                    else -> SettingsCardHeader(stringResource(R.string.covers43_status_title), R.drawable.ic_bar_chart)
-                }
+                CardGrid.Kind.HEADER -> sections[cell.section].first.let { (title, icon) -> SettingsCardHeader(stringResource(title), icon) }
                 CardGrid.Kind.ITEM -> {
-                    val content = when (cell.section) {
-                        0 -> orderRows[cell.item]
-                        1 -> loginRows[cell.item]
-                        else -> statusRows[cell.item]
-                    }
+                    val content = sections[cell.section].second[cell.item]
                     Box(
                         modifier = if (cell.section == 0 && cell.item == 0) Modifier.focusRequester(firstRow) else Modifier,
                         propagateMinConstraints = true
@@ -236,12 +260,16 @@ fun CoverSourcesScreen(viewModel: CoverSourcesViewModel = hiltViewModel()) {
             CoverSourceSettings.Field.SOFT_NAME -> Triple(R.string.covers43_ss_soft_name, R.string.covers43_ss_soft_name_hint, login.softName)
             CoverSourceSettings.Field.USER -> Triple(R.string.covers43_ss_user, R.string.covers43_ss_user_hint, login.user)
             CoverSourceSettings.Field.PASSWORD -> Triple(R.string.covers43_ss_password, R.string.covers43_ss_user_hint, login.password)
+            CoverSourceSettings.Field.TGDB_KEY -> Triple(R.string.covers44_tgdb_key, R.string.covers44_tgdb_key_hint, keys.tgdb)
+            CoverSourceSettings.Field.SGDB_KEY -> Triple(R.string.covers44_sgdb_key, R.string.covers44_sgdb_key_hint, keys.sgdb)
+            CoverSourceSettings.Field.IGDB_CLIENT_ID -> Triple(R.string.covers44_igdb_client_id, R.string.covers44_igdb_id_hint, keys.igdbId)
+            CoverSourceSettings.Field.IGDB_CLIENT_SECRET -> Triple(R.string.covers44_igdb_client_secret, R.string.covers44_igdb_secret_hint, keys.igdbSecret)
         }
         CredentialDialog(
             title = stringResource(title),
             hint = stringResource(hint),
             value = value,
-            secret = field == CoverSourceSettings.Field.DEV_PASSWORD || field == CoverSourceSettings.Field.PASSWORD,
+            secret = field in SECRET_FIELDS,
             onSave = { viewModel.set(field, it) },
             onDismiss = { editing = null }
         )
@@ -266,6 +294,9 @@ internal fun sourceName(source: Source): String = stringResource(
         Source.ROMM -> R.string.covers43_source_romm
         Source.LIBRETRO -> R.string.covers43_source_libretro
         Source.SCREENSCRAPER -> R.string.covers43_source_screenscraper
+        Source.THEGAMESDB -> R.string.covers44_source_tgdb
+        Source.STEAMGRIDDB -> R.string.covers44_source_sgdb
+        Source.IGDB -> R.string.covers44_source_igdb
         Source.METADATA -> R.string.covers43_source_metadata
     }
 )
@@ -274,23 +305,30 @@ private fun sourceIcon(source: Source): Int = when (source) {
     Source.ROMM -> R.drawable.ic_server
     Source.LIBRETRO -> R.drawable.ic_image
     Source.SCREENSCRAPER -> R.drawable.ic_globe
+    Source.THEGAMESDB -> R.drawable.ic_storage
+    Source.STEAMGRIDDB -> R.drawable.ic_palette
+    Source.IGDB -> R.drawable.ic_collections
     Source.METADATA -> R.drawable.ic_description
 }
 
 /** What a source is, and below it, whether it can answer now and what it did today. */
 @Composable
-private fun sourceHint(source: Source, chain: CoverSources.Chain, login: ScreenScraperLogin, stats: CoverSourceStats.State): String {
+private fun sourceHint(source: Source, chain: CoverSources.Chain, login: ScreenScraperLogin, stats: CoverSourceStats.State, keys: CoverApis.Keys): String {
     val about = stringResource(
         when (source) {
             Source.ROMM -> R.string.covers43_source_romm_hint
             Source.LIBRETRO -> R.string.covers43_source_libretro_hint
             Source.SCREENSCRAPER -> R.string.covers43_source_screenscraper_hint
+            Source.THEGAMESDB -> R.string.covers44_source_tgdb_hint
+            Source.STEAMGRIDDB -> R.string.covers44_source_sgdb_hint
+            Source.IGDB -> R.string.covers44_source_igdb_hint
             Source.METADATA -> R.string.covers43_source_metadata_hint
         }
     )
     val state = when {
         !chain.enabled(source) -> stringResource(R.string.covers43_state_off)
         source == Source.SCREENSCRAPER -> screenScraperState(login, stats)
+        source in CoverApis.OWN -> keyedState(source, keys, stats)
         else -> null
     }
     return if (state == null) about else about + "\n" + state
@@ -321,6 +359,85 @@ internal fun screenScraperState(login: ScreenScraperLogin, stats: CoverSourceSta
         }
     }
 }
+
+/** Whether a 4.4.0 source can answer now, and why not: no key yet, key refused, allowance used up, busy, offline. */
+@Composable
+internal fun keyedState(source: Source, keys: CoverApis.Keys, stats: CoverSourceStats.State): String {
+    val context = LocalContext.current
+    val now = System.currentTimeMillis()
+    if (!keys.configured(source)) return stringResource(if (source == Source.IGDB) R.string.covers44_state_needs_igdb else R.string.covers44_state_needs_key)
+    val pausedUntil = stats.pausedUntil(source)
+    if (now < pausedUntil) {
+        return stringResource(R.string.covers44_state_quota_month, DateUtils.formatDateTime(context, pausedUntil, DateUtils.FORMAT_SHOW_DATE))
+    }
+    return when (stats.problemOf(source)) {
+        CoverSourceStats.Problem.LOGIN -> stringResource(R.string.covers44_state_key_refused)
+        CoverSourceStats.Problem.BUSY -> stringResource(R.string.covers43_state_busy)
+        CoverSourceStats.Problem.RATE_LIMITED -> stringResource(R.string.covers43_state_rate)
+        CoverSourceStats.Problem.OFFLINE -> stringResource(R.string.covers43_state_offline)
+        CoverSourceStats.Problem.QUOTA, null -> {
+            val left = stats.allowance
+            val sameMonth = java.time.YearMonth.from(java.time.Instant.ofEpochMilli(stats.allowanceAt).atZone(java.time.ZoneOffset.UTC)) ==
+                java.time.YearMonth.from(java.time.Instant.ofEpochMilli(now).atZone(java.time.ZoneOffset.UTC))
+            if (source == Source.THEGAMESDB && left != null && sameMonth) stringResource(R.string.covers44_state_ready_month, left)
+            else stringResource(R.string.covers43_state_ready)
+        }
+    }
+}
+
+@Composable
+private fun keyTestText(result: CoverApis.KeyTest, source: Source): String = when (result) {
+    is CoverApis.KeyTest.Ok -> result.remaining?.let { stringResource(R.string.covers44_test_ok_month, it) } ?: stringResource(R.string.covers44_test_ok)
+    CoverApis.KeyTest.Missing -> stringResource(if (source == Source.IGDB) R.string.covers44_test_missing_igdb else R.string.covers44_test_missing)
+    CoverApis.KeyTest.Rejected -> stringResource(R.string.covers44_test_rejected)
+    CoverApis.KeyTest.IdRejected -> stringResource(R.string.covers44_test_id_rejected)
+    CoverApis.KeyTest.SecretRejected -> stringResource(R.string.covers44_test_secret_rejected)
+    CoverApis.KeyTest.RateLimited -> stringResource(R.string.covers44_test_rate)
+    CoverApis.KeyTest.Busy -> stringResource(R.string.covers44_test_busy)
+    CoverApis.KeyTest.Offline -> stringResource(R.string.covers44_test_offline)
+    CoverApis.KeyTest.Unreadable -> stringResource(R.string.covers44_test_unreadable)
+}
+
+/** "Test key" of one source: the pill and, in the hint, the answer of the service. */
+@Composable
+private fun KeyTestRow(source: Source, keys: CoverApis.Keys, testing: Source?, result: CoverApis.KeyTest?, onTest: (Source) -> Unit) {
+    val busy = testing == source
+    SettingRow(
+        icon = R.drawable.ic_network_check,
+        title = stringResource(R.string.covers44_test_title),
+        hint = when {
+            busy -> stringResource(R.string.covers44_testing, sourceName(source))
+            result != null -> keyTestText(result, source)
+            else -> stringResource(R.string.covers44_test_hint, sourceName(source))
+        },
+        hintColor = if (result == null || result is CoverApis.KeyTest.Ok) null else MaterialTheme.colorScheme.error,
+        onClick = { onTest(source) }
+    ) {
+        ActionPill(
+            stringResource(if (busy) R.string.covers43_ss_testing_short else R.string.settings_test),
+            { onTest(source) },
+            icon = R.drawable.ic_sync,
+            tone = if (keys.configured(source) && result == null) ActionTone.Accent else ActionTone.Neutral,
+            enabled = testing == null
+        )
+    }
+}
+
+/** A row that only explains (where to get a key); nothing to press. */
+@Composable
+private fun InfoRow(icon: Int, title: Int, hint: String) {
+    SettingRow(icon = icon, title = stringResource(title), hint = hint, onClick = {}) {}
+}
+
+/** A key row never shows any of its characters: "Set" or "Not set". */
+@Composable
+private fun keyState(value: String): String =
+    if (value.isBlank()) stringResource(R.string.settings_not_set) else stringResource(R.string.covers44_key_set)
+
+private val SECRET_FIELDS = setOf(
+    CoverSourceSettings.Field.DEV_PASSWORD, CoverSourceSettings.Field.PASSWORD,
+    CoverSourceSettings.Field.TGDB_KEY, CoverSourceSettings.Field.SGDB_KEY, CoverSourceSettings.Field.IGDB_CLIENT_SECRET
+)
 
 @Composable
 private fun loginResultText(result: ScreenScraperService.LoginResult): String {

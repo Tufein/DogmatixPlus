@@ -31,8 +31,9 @@ import javax.inject.Singleton
  * Finds the cover of a library game for the 5.0 screens. 4.3.0: a chain of sources the user orders
  * and switches in Settings → Cover sources ([CoverSources]): the RomM server's own cover when the
  * game is on the server, then libretro-thumbnails (box art, other region names, optionally title
- * screens and snaps), ScreenScraper (with the user's credentials) and the image a metadata lookup
- * already cached, in the user's order. Results are kept in Room and in memory, so a game costs at
+ * screens and snaps), ScreenScraper (with the user's credentials), 4.4.0: TheGamesDB, SteamGridDB
+ * and IGDB (each with a key of the user's own) and the image a metadata lookup already cached, in
+ * the user's order. Results are kept in Room and in memory, so a game costs at
  * most one lookup per source and scrolling back is instant; a source that could not answer
  * (offline, rate limited, paused for the day) is never remembered as a miss.
  */
@@ -45,9 +46,16 @@ class CoverRepository @Inject constructor(
     private val rommClient: RommClient,
     private val sourceSettings: CoverSourceSettings,
     private val screenScraper: ScreenScraperService,
+    theGamesDb: TheGamesDbService,
+    steamGridDb: SteamGridDbService,
+    igdb: IgdbService,
     private val stats: CoverSourceStats,
     private val versionSettings: VersionPreferenceSettings
 ) {
+    /** The sources that need a key, by source: asked only while set up and not resting. */
+    private val keyed: Map<Source, CoverLookupSource> =
+        listOf<CoverLookupSource>(screenScraper, theGamesDb, steamGridDb, igdb).associateBy { it.source }
+
     private val memory = LruCache<String, String>(4_000)
     /** At most a few lookups at once: a fast scroll should not open dozens of connections. */
     private val lookups = Semaphore(4)
@@ -59,7 +67,7 @@ class CoverRepository @Inject constructor(
     init {
         // A changed order, switch or login can find covers that were missing: look again.
         CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
-            combine(sourceSettings.chain, sourceSettings.credentials) { chain, login -> chain to login.fingerprint }
+            combine(sourceSettings.chain, sourceSettings.credentials, sourceSettings.apiKeys) { chain, login, keys -> Triple(chain, login.fingerprint, keys.fingerprint) }
                 .distinctUntilChanged()
                 .drop(1)
                 .collect { memory.evictAll(); retryAfter.clear() }
@@ -85,12 +93,12 @@ class CoverRepository @Inject constructor(
         retryAfter[key]?.let { if (now < it) return null else retryAfter.remove(key) }
         val usable = usableSources(now)
         // No switched-on source is waiting (paused, backing off): an answer may stay in memory for the
-        // whole run. ScreenScraper without credentials is not waiting, it is just not set up (a change
-        // of the credentials empties the memory anyway).
-        val ssConfigured = runCatching { screenScraper.configured() }.getOrDefault(false)
-        val complete = Source.SCREENSCRAPER in usable || !chain.enabled(Source.SCREENSCRAPER) || !ssConfigured
+        // whole run. A source without its credentials / key is not waiting, it is just not set up (a
+        // change of them empties the memory anyway).
+        val configured = keyed.filterValues { runCatching { it.configured() }.getOrDefault(false) }.keys
+        val complete = keyed.keys.all { it in usable || !chain.enabled(it) || it !in configured }
         val row = dao.get(key)?.let { CoverSources.Cached(it.url, it.source, it.fetchedAt) }
-        val ask = when (val plan = CoverSources.plan(chain, usable, row, now, unconfigured = if (ssConfigured) emptySet() else setOf(Source.SCREENSCRAPER))) {
+        val ask = when (val plan = CoverSources.plan(chain, usable, row, now, unconfigured = keyed.keys - configured)) {
             is CoverSources.Plan.Use -> { memory.put(key, plan.url); return plan.url }
             CoverSources.Plan.KnownMiss -> { remember(key, null, complete, now); return null }
             is CoverSources.Plan.Ask -> plan
@@ -125,14 +133,15 @@ class CoverRepository @Inject constructor(
     private suspend fun usableSources(now: Long): Set<Source> = buildSet {
         add(Source.LIBRETRO)
         add(Source.METADATA)
-        if (runCatching { screenScraper.usable(now) }.getOrDefault(false)) add(Source.SCREENSCRAPER)
+        keyed.forEach { (source, service) -> if (runCatching { service.usable(now) }.getOrDefault(false)) add(source) }
     }
 
     private suspend fun askOne(source: Source, consoleId: String, fileName: String, name: String, regions: List<String>, nonBoxArt: Boolean): Answer = try {
         when (source) {
             Source.ROMM -> Answer.Miss
             Source.LIBRETRO -> libretroPermits.withPermit { thumbnails.find(consoleId, fileName, regions, nonBoxArt) }
-            Source.SCREENSCRAPER -> screenScraper.find(consoleId, fileName, name, regions, nonBoxArt)
+            Source.SCREENSCRAPER, Source.THEGAMESDB, Source.STEAMGRIDDB, Source.IGDB ->
+                keyed.getValue(source).find(consoleId, fileName, name, regions, nonBoxArt)
             Source.METADATA -> metadataImage(name, consoleId)?.let { Answer.Found(it) } ?: Answer.Miss
         }
     } catch (e: CancellationException) {
@@ -152,7 +161,7 @@ class CoverRepository @Inject constructor(
         memory.evictAll()
         retryAfter.clear()
         thumbnails.clearChainCache()
-        screenScraper.clearPause()
+        keyed.values.forEach { it.clearPause() }
         return dao.clearMisses()
     }
 

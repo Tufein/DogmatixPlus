@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.4.0: Settings → Cover sources: TheGamesDB, SteamGridDB and IGDB (API keys, tests, state lines). -->
+<resources>
+    <string name="covers44_source_tgdb">TheGamesDB</string>
+    <string name="covers44_source_sgdb">SteamGridDB</string>
+    <string name="covers44_source_igdb">IGDB</string>
+    <string name="covers44_source_tgdb_hint">Copertine da TheGamesDB, trovate per titolo sulla console del gioco; solo il fronte della scatola. Richiede una chiave API gratuita (qui sotto).</string>
+    <string name="covers44_source_sgdb_hint">Grafiche da SteamGridDB, trovate per titolo: l’immagine verticale più votata. È grafica della community e non sempre la scatola ufficiale. Richiede una chiave API gratuita (qui sotto).</string>
+    <string name="covers44_source_igdb_hint">Copertine da IGDB (gestito da Twitch), trovate per titolo, con preferenza per la console del gioco. Richiede un client ID e un secret Twitch gratuiti (qui sotto).</string>
+    <string name="covers44_state_needs_key">Saltata finché non è inserita una chiave API.</string>
+    <string name="covers44_state_needs_igdb">Saltata finché client ID e secret non sono inseriti.</string>
+    <string name="covers44_state_key_refused">Chiave rifiutata (o quota esaurita): controllala e premi Prova chiave.</string>
+    <string name="covers44_state_quota_month">Quota mensile esaurita: in pausa fino a %1$s.</string>
+    <string name="covers44_state_ready_month">Pronta: restano %1$d richieste questo mese.</string>
+    <string name="covers44_tgdb_title">Chiave TheGamesDB</string>
+    <string name="covers44_sgdb_title">Chiave SteamGridDB</string>
+    <string name="covers44_igdb_title">Chiavi IGDB (Twitch)</string>
+    <string name="covers44_where_title">Dove ottenere la chiave</string>
+    <string name="covers44_tgdb_where_hint">Crea un account gratuito su thegamesdb.net e chiedi lì una chiave API (la pagina di richiesta è collegata dalla documentazione API). La quota gratuita è limitata al mese e un gioco costa una o due richieste.</string>
+    <string name="covers44_sgdb_where_hint">Crea un account gratuito su steamgriddb.com, accedi e apri le preferenze del profilo: nella scheda API puoi generare una chiave. La grafica di SteamGridDB è della community e non sempre è la scatola ufficiale.</string>
+    <string name="covers44_igdb_where_hint">IGDB usa l’accesso con Twitch. Accedi a dev.twitch.tv con un account Twitch (è obbligatoria la verifica in due passaggi), registra un’applicazione nella console (categoria: altro, un URL di reindirizzamento qualsiasi come http://localhost), copia il Client ID e crea un nuovo secret. Entrambi vanno inseriti qui sotto.</string>
+    <string name="covers44_tgdb_shared_title">La chiave è già nell’app</string>
+    <string name="covers44_tgdb_shared_hint">Questa app ha già una chiave TheGamesDB per i dettagli dei giochi, quindi qui non serve inserire nulla: viene usata la stessa chiave. Una chiave tua qui sotto la sostituisce.</string>
+    <string name="covers44_tgdb_key">Chiave API TheGamesDB</string>
+    <string name="covers44_tgdb_key_hint">La tua chiave API TheGamesDB. Viene inviata solo a api.thegamesdb.net e non finisce mai in un backup o in una segnalazione di problema.</string>
+    <string name="covers44_tgdb_key_app">Non impostata: si usa la chiave propria dell’app</string>
+    <string name="covers44_sgdb_key">Chiave API SteamGridDB</string>
+    <string name="covers44_sgdb_key_hint">La tua chiave API SteamGridDB. Viene inviata solo a steamgriddb.com e non finisce mai in un backup o in una segnalazione di problema.</string>
+    <string name="covers44_igdb_client_id">Client ID Twitch</string>
+    <string name="covers44_igdb_client_secret">Client secret Twitch</string>
+    <string name="covers44_igdb_id_hint">Il Client ID della tua applicazione Twitch. Viene inviato a Twitch e a IGDB. Non è un segreto, quindi può stare in un backup.</string>
+    <string name="covers44_igdb_secret_hint">Il client secret della tua applicazione Twitch. Viene inviato solo a id.twitch.tv e non finisce mai in un backup o in una segnalazione di problema.</string>
+    <string name="covers44_key_set">Impostata</string>
+    <string name="covers44_test_title">Prova chiave</string>
+    <string name="covers44_test_hint">Chiede a %1$s se la chiave qui sopra funziona.</string>
+    <string name="covers44_testing">Richiesta a %1$s in corso…</string>
+    <string name="covers44_test_ok">La chiave funziona.</string>
+    <string name="covers44_test_ok_month">La chiave funziona: restano %1$d richieste questo mese.</string>
+    <string name="covers44_test_missing">Inserisci prima la chiave API.</string>
+    <string name="covers44_test_missing_igdb">Inserisci prima client ID e secret.</string>
+    <string name="covers44_test_rejected">Il servizio ha rifiutato la chiave. Controlla che sia stata copiata per intero.</string>
+    <string name="covers44_test_id_rejected">Twitch non conosce questo client ID.</string>
+    <string name="covers44_test_secret_rejected">Twitch conosce il client ID, ma il secret è sbagliato.</string>
+    <string name="covers44_test_rate">Troppe richieste in questo momento. Riprova tra un minuto.</string>
+    <string name="covers44_test_busy">Il servizio è chiuso o troppo occupato ora. Riprova più tardi.</string>
+    <string name="covers44_test_offline">Nessuna connessione. Sei offline?</string>
+    <string name="covers44_test_unreadable">Il servizio ha risposto, ma non come descrive la sua documentazione.</string>
+    <string name="covers44_search_title">Fonti delle copertine: chiavi API</string>
+    <string name="covers44_search_hint">Chiavi per TheGamesDB, SteamGridDB e IGDB come fonti di copertine, con una prova per ciascuna.</string>
+    <string name="covers44_kw">thegamesdb, tgdb, steamgriddb, sgdb, igdb, twitch, chiave api, client id, secret, copertine, scatola, scraper</string>
+</resources>

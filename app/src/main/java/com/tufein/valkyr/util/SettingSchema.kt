@@ -48,6 +48,7 @@ object SettingSchema {
         putAll(TargetFolderLayouts.SETTING_TYPES)
         putAll(CoverSources.SETTING_TYPES)
         putAll(ScreenScraper.SETTING_TYPES)
+        putAll(CoverApis.SETTING_TYPES)
     }
 
     fun localName(name: String): String =

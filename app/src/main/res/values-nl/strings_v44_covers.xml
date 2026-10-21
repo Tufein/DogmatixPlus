@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.4.0: Settings → Cover sources: TheGamesDB, SteamGridDB and IGDB (API keys, tests, state lines). -->
+<resources>
+    <string name="covers44_source_tgdb">TheGamesDB</string>
+    <string name="covers44_source_sgdb">SteamGridDB</string>
+    <string name="covers44_source_igdb">IGDB</string>
+    <string name="covers44_source_tgdb_hint">Doosafbeeldingen van TheGamesDB, gevonden op titel bij de console van de game; alleen de voorkant van de doos. Heeft een gratis API-sleutel nodig (hieronder).</string>
+    <string name="covers44_source_sgdb_hint">Artwork van SteamGridDB, gevonden op titel: het best beoordeelde staande plaatje. Het is artwork van de community en niet altijd de officiële doos. Heeft een gratis API-sleutel nodig (hieronder).</string>
+    <string name="covers44_source_igdb_hint">Covers van IGDB (van Twitch), gevonden op titel, bij voorkeur voor de console van de game. Heeft een gratis Twitch client-ID en geheim nodig (hieronder).</string>
+    <string name="covers44_state_needs_key">Overgeslagen zolang er geen API-sleutel is ingevuld.</string>
+    <string name="covers44_state_needs_igdb">Overgeslagen zolang client-ID en geheim niet zijn ingevuld.</string>
+    <string name="covers44_state_key_refused">Sleutel geweigerd (of het tegoed is op): controleer hem en druk op Sleutel testen.</string>
+    <string name="covers44_state_quota_month">Maandtegoed op: gepauzeerd tot %1$s.</string>
+    <string name="covers44_state_ready_month">Klaar: nog %1$d verzoeken deze maand.</string>
+    <string name="covers44_tgdb_title">TheGamesDB-sleutel</string>
+    <string name="covers44_sgdb_title">SteamGridDB-sleutel</string>
+    <string name="covers44_igdb_title">IGDB-sleutels (Twitch)</string>
+    <string name="covers44_where_title">Waar haal je de sleutel vandaan</string>
+    <string name="covers44_tgdb_where_hint">Maak een gratis account op thegamesdb.net en vraag daar een API-sleutel aan (de aanvraagpagina staat in hun API-documentatie). Het gratis tegoed is beperkt per maand en een game kost één of twee verzoeken.</string>
+    <string name="covers44_sgdb_where_hint">Maak een gratis account op steamgriddb.com, log in en open de voorkeuren van je profiel: op het tabblad API maak je een sleutel aan. SteamGridDB-artwork komt van de community en is niet altijd de officiële doos.</string>
+    <string name="covers44_igdb_where_hint">IGDB gebruikt inloggen met Twitch. Log in op dev.twitch.tv met een Twitch-account (tweestapsverificatie is verplicht), registreer in de console een applicatie (categorie: overig, een willekeurige omleidings-URL zoals http://localhost), kopieer de Client-ID en maak een nieuw geheim aan. Beide vul je hieronder in.</string>
+    <string name="covers44_tgdb_shared_title">Sleutel zit al in de app</string>
+    <string name="covers44_tgdb_shared_hint">Deze app heeft al een TheGamesDB-sleutel voor de gamedetails, dus hier hoef je niets in te vullen: dezelfde sleutel wordt gebruikt. Een eigen sleutel hieronder vervangt hem.</string>
+    <string name="covers44_tgdb_key">TheGamesDB API-sleutel</string>
+    <string name="covers44_tgdb_key_hint">Je TheGamesDB API-sleutel. Hij wordt alleen naar api.thegamesdb.net gestuurd en komt nooit in een back-up of probleemmelding.</string>
+    <string name="covers44_tgdb_key_app">Niet ingesteld: de eigen sleutel van de app wordt gebruikt</string>
+    <string name="covers44_sgdb_key">SteamGridDB API-sleutel</string>
+    <string name="covers44_sgdb_key_hint">Je SteamGridDB API-sleutel. Hij wordt alleen naar steamgriddb.com gestuurd en komt nooit in een back-up of probleemmelding.</string>
+    <string name="covers44_igdb_client_id">Twitch client-ID</string>
+    <string name="covers44_igdb_client_secret">Twitch client-geheim</string>
+    <string name="covers44_igdb_id_hint">De Client-ID van je Twitch-applicatie. Hij wordt naar Twitch en IGDB gestuurd. Het is geen geheim, dus hij mag in een back-up.</string>
+    <string name="covers44_igdb_secret_hint">Het client-geheim van je Twitch-applicatie. Het wordt alleen naar id.twitch.tv gestuurd en komt nooit in een back-up of probleemmelding.</string>
+    <string name="covers44_key_set">Ingesteld</string>
+    <string name="covers44_test_title">Sleutel testen</string>
+    <string name="covers44_test_hint">Vraagt %1$s of de sleutel hierboven werkt.</string>
+    <string name="covers44_testing">%1$s wordt gevraagd…</string>
+    <string name="covers44_test_ok">De sleutel werkt.</string>
+    <string name="covers44_test_ok_month">De sleutel werkt: nog %1$d verzoeken deze maand.</string>
+    <string name="covers44_test_missing">Vul eerst de API-sleutel in.</string>
+    <string name="covers44_test_missing_igdb">Vul eerst de client-ID en het geheim in.</string>
+    <string name="covers44_test_rejected">De dienst weigerde de sleutel. Controleer of hij helemaal is gekopieerd.</string>
+    <string name="covers44_test_id_rejected">Twitch kent deze client-ID niet.</string>
+    <string name="covers44_test_secret_rejected">Twitch kent de client-ID, maar het geheim klopt niet.</string>
+    <string name="covers44_test_rate">Te veel verzoeken op dit moment. Probeer het over een minuut opnieuw.</string>
+    <string name="covers44_test_busy">De dienst is dicht of nu te druk. Probeer het later opnieuw.</string>
+    <string name="covers44_test_offline">Geen verbinding. Ben je offline?</string>
+    <string name="covers44_test_unreadable">De dienst antwoordde, maar niet zoals de documentatie beschrijft.</string>
+    <string name="covers44_search_title">Bronnen voor covers: API-sleutels</string>
+    <string name="covers44_search_hint">Sleutels voor TheGamesDB, SteamGridDB en IGDB als coverbronnen, met een test per bron.</string>
+    <string name="covers44_kw">thegamesdb, tgdb, steamgriddb, sgdb, igdb, twitch, api-sleutel, client-id, geheim, covers, doosafbeelding, scraper</string>
+</resources>

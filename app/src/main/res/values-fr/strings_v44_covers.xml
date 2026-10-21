@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.4.0: Settings → Cover sources: TheGamesDB, SteamGridDB and IGDB (API keys, tests, state lines). -->
+<resources>
+    <string name="covers44_source_tgdb">TheGamesDB</string>
+    <string name="covers44_source_sgdb">SteamGridDB</string>
+    <string name="covers44_source_igdb">IGDB</string>
+    <string name="covers44_source_tgdb_hint">Jaquettes de TheGamesDB, trouvées par titre sur la console du jeu ; seulement l’avant de la boîte. Nécessite une clé d’API gratuite (ci-dessous).</string>
+    <string name="covers44_source_sgdb_hint">Illustrations de SteamGridDB, trouvées par titre : l’image verticale la mieux notée. C’est de l’art de la communauté, pas toujours la boîte officielle. Nécessite une clé d’API gratuite (ci-dessous).</string>
+    <string name="covers44_source_igdb_hint">Jaquettes d’IGDB (géré par Twitch), trouvées par titre, de préférence pour la console du jeu. Nécessite un identifiant client et un secret Twitch gratuits (ci-dessous).</string>
+    <string name="covers44_state_needs_key">Ignorée tant qu’aucune clé d’API n’est renseignée.</string>
+    <string name="covers44_state_needs_igdb">Ignorée tant que l’identifiant client et le secret ne sont pas renseignés.</string>
+    <string name="covers44_state_key_refused">Clé refusée (ou son quota est épuisé) : vérifiez-la et appuyez sur Tester la clé.</string>
+    <string name="covers44_state_quota_month">Quota mensuel épuisé : en pause jusqu’au %1$s.</string>
+    <string name="covers44_state_ready_month">Prête : il reste %1$d requêtes ce mois-ci.</string>
+    <string name="covers44_tgdb_title">Clé TheGamesDB</string>
+    <string name="covers44_sgdb_title">Clé SteamGridDB</string>
+    <string name="covers44_igdb_title">Clés IGDB (Twitch)</string>
+    <string name="covers44_where_title">Où obtenir la clé</string>
+    <string name="covers44_tgdb_where_hint">Créez un compte gratuit sur thegamesdb.net et demandez-y une clé d’API (la page de demande est liée depuis sa documentation d’API). Le quota gratuit est limité par mois et un jeu coûte une ou deux requêtes.</string>
+    <string name="covers44_sgdb_where_hint">Créez un compte gratuit sur steamgriddb.com, connectez-vous et ouvrez les préférences de votre profil : l’onglet API permet de générer une clé. L’art de SteamGridDB vient de la communauté et n’est pas toujours la boîte officielle.</string>
+    <string name="covers44_igdb_where_hint">IGDB utilise la connexion Twitch. Connectez-vous sur dev.twitch.tv avec un compte Twitch (l’authentification à deux facteurs est obligatoire), enregistrez une application dans la console (catégorie : autre, n’importe quelle URL de redirection comme http://localhost), copiez son identifiant client et créez un nouveau secret. Les deux se saisissent ci-dessous.</string>
+    <string name="covers44_tgdb_shared_title">La clé est déjà dans l’app</string>
+    <string name="covers44_tgdb_shared_hint">Cette app possède déjà une clé TheGamesDB pour les détails des jeux, il n’y a donc rien à saisir ici : la même clé est utilisée. Une clé personnelle ci-dessous la remplace.</string>
+    <string name="covers44_tgdb_key">Clé d’API TheGamesDB</string>
+    <string name="covers44_tgdb_key_hint">Votre clé d’API TheGamesDB. Elle n’est envoyée qu’à api.thegamesdb.net et n’est jamais mise dans une sauvegarde ni un rapport de problème.</string>
+    <string name="covers44_tgdb_key_app">Non défini : la clé propre à l’app est utilisée</string>
+    <string name="covers44_sgdb_key">Clé d’API SteamGridDB</string>
+    <string name="covers44_sgdb_key_hint">Votre clé d’API SteamGridDB. Elle n’est envoyée qu’à steamgriddb.com et n’est jamais mise dans une sauvegarde ni un rapport de problème.</string>
+    <string name="covers44_igdb_client_id">Identifiant client Twitch</string>
+    <string name="covers44_igdb_client_secret">Secret client Twitch</string>
+    <string name="covers44_igdb_id_hint">L’identifiant client de votre application Twitch. Il est envoyé à Twitch et à IGDB. Ce n’est pas un secret, il peut donc figurer dans une sauvegarde.</string>
+    <string name="covers44_igdb_secret_hint">Le secret client de votre application Twitch. Il n’est envoyé qu’à id.twitch.tv et n’est jamais mis dans une sauvegarde ni un rapport de problème.</string>
+    <string name="covers44_key_set">Défini</string>
+    <string name="covers44_test_title">Tester la clé</string>
+    <string name="covers44_test_hint">Demande à %1$s si la clé ci-dessus fonctionne.</string>
+    <string name="covers44_testing">Interrogation de %1$s…</string>
+    <string name="covers44_test_ok">La clé fonctionne.</string>
+    <string name="covers44_test_ok_month">La clé fonctionne : il reste %1$d requêtes ce mois-ci.</string>
+    <string name="covers44_test_missing">Renseignez d’abord la clé d’API.</string>
+    <string name="covers44_test_missing_igdb">Renseignez d’abord l’identifiant client et le secret.</string>
+    <string name="covers44_test_rejected">Le service a refusé la clé. Vérifiez qu’elle a été copiée en entier.</string>
+    <string name="covers44_test_id_rejected">Twitch ne connaît pas cet identifiant client.</string>
+    <string name="covers44_test_secret_rejected">Twitch connaît l’identifiant client, mais le secret est faux.</string>
+    <string name="covers44_test_rate">Trop de requêtes en ce moment. Réessayez dans une minute.</string>
+    <string name="covers44_test_busy">Le service est fermé ou trop sollicité en ce moment. Réessayez plus tard.</string>
+    <string name="covers44_test_offline">Pas de connexion. Êtes-vous hors ligne ?</string>
+    <string name="covers44_test_unreadable">Le service a répondu, mais pas comme le décrit sa documentation.</string>
+    <string name="covers44_search_title">Sources de jaquettes : clés d’API</string>
+    <string name="covers44_search_hint">Clés pour TheGamesDB, SteamGridDB et IGDB comme sources de jaquettes, avec un test pour chacune.</string>
+    <string name="covers44_kw">thegamesdb, tgdb, steamgriddb, sgdb, igdb, twitch, clé d’api, identifiant client, secret, jaquettes, boîte, scraper</string>
+</resources>
