@@ -87,10 +87,10 @@ class CoverRepository @Inject constructor(
         // No switched-on source is waiting (paused, backing off): an answer may stay in memory for the
         // whole run. ScreenScraper without credentials is not waiting, it is just not set up (a change
         // of the credentials empties the memory anyway).
-        val complete = Source.SCREENSCRAPER in usable || !chain.enabled(Source.SCREENSCRAPER) ||
-            !runCatching { screenScraper.configured() }.getOrDefault(false)
+        val ssConfigured = runCatching { screenScraper.configured() }.getOrDefault(false)
+        val complete = Source.SCREENSCRAPER in usable || !chain.enabled(Source.SCREENSCRAPER) || !ssConfigured
         val row = dao.get(key)?.let { CoverSources.Cached(it.url, it.source, it.fetchedAt) }
-        val ask = when (val plan = CoverSources.plan(chain, usable, row, now)) {
+        val ask = when (val plan = CoverSources.plan(chain, usable, row, now, unconfigured = if (ssConfigured) emptySet() else setOf(Source.SCREENSCRAPER))) {
             is CoverSources.Plan.Use -> { memory.put(key, plan.url); return plan.url }
             CoverSources.Plan.KnownMiss -> { remember(key, null, complete, now); return null }
             is CoverSources.Plan.Ask -> plan
@@ -151,6 +151,7 @@ class CoverRepository @Inject constructor(
     suspend fun retryMisses(): Int {
         memory.evictAll()
         retryAfter.clear()
+        thumbnails.clearChainCache()
         screenScraper.clearPause()
         return dao.clearMisses()
     }

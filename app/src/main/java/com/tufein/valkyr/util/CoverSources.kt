@@ -114,15 +114,16 @@ object CoverSources {
     /**
      * What to do for a game that is not on the RomM server: use [cached], or ask which sources.
      * [usable] are the sources that can answer right now (ScreenScraper only with its credentials
-     * and while it is not paused).
+     * and while it is not paused). [unconfigured] are the sources that are not set up at all.
      */
-    fun plan(chain: Chain, usable: Set<Source>, cached: Cached?, now: Long): Plan {
+    fun plan(chain: Chain, usable: Set<Source>, cached: Cached?, now: Long, unconfigured: Set<Source> = emptySet()): Plan {
         val candidates = chain.active.filter { it != Source.ROMM && it in usable }
         if (cached == null) return Plan.Ask(candidates)
         if (cached.url.isNotEmpty()) {
             val from = Source.of(cached.source)
             // A cover from a source the user switched off is replaced; an unknown tag (older rows) is kept.
-            val wanted = from == null || chain.enabled(from)
+            // So is one from a source that is no longer set up (ScreenScraper without developer credentials).
+            val wanted = from == null || (chain.enabled(from) && from !in unconfigured)
             return if (wanted && CoverSourcePolicy.isFresh(cached.url, cached.fetchedAt, now)) Plan.Use(cached.url) else Plan.Ask(candidates)
         }
         if (!CoverSourcePolicy.isFresh("", cached.fetchedAt, now)) return Plan.Ask(candidates)

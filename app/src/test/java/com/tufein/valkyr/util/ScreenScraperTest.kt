@@ -165,4 +165,17 @@ class ScreenScraperTest {
         assertEquals(emptyMap<String, String>(), ScreenScraper.keptSecrets(current, emptyMap(), backupHasScreenScraper = true))
         assertEquals(2, ScreenScraper.keptSecrets(current, emptyMap(), backupHasScreenScraper = false).size)
     }
+
+    @Test fun `credentials only ever go to https`() {
+        assertFalse(ScreenScraper.isApiUrl("http://neoclone.screenscraper.fr/api2/mediaJeu.php?jeuid=3"))
+        assertEquals("http://neoclone.screenscraper.fr/api2/mediaJeu.php?jeuid=3", ScreenScraper.withCredentials("http://neoclone.screenscraper.fr/api2/mediaJeu.php?jeuid=3", creds))
+        assertEquals("https://a.screenscraper.fr/x", ScreenScraper.httpsOnly("http://a.screenscraper.fr/x"))
+        assertEquals("", ScreenScraper.httpsOnly("ftp://a/x"))
+        val json = JsonParser.parseString(
+            """{"response":{"jeu":{"id":"3","noms":[],"medias":[{"type":"box-2D","region":"eu","url":"http://neoclone.screenscraper.fr/api2/mediaJeu.php?devid=a&devpassword=b&jeuid=3&media=box-2D(eu)"}]}}}"""
+        )
+        val cover = ScreenScraper.pickCover(ScreenScraper.parseGame(json)!!, listOf("eu"), nonBoxArt = false)
+        assertEquals("https://neoclone.screenscraper.fr/api2/mediaJeu.php?jeuid=3&media=box-2D(eu)", cover)
+        assertTrue(ScreenScraper.isApiUrl(cover!!))
+    }
 }

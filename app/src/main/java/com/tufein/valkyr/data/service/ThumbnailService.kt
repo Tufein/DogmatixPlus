@@ -42,18 +42,21 @@ class ThumbnailService @Inject constructor() {
         val system = LibretroThumbnails.systemFor(consoleId) ?: return@withContext CoverSources.Answer.Miss
         val key = "${system.repo}|$fileName|$nonBoxArt|${regions.take(3).joinToString(",")}"
         chainCache[key]?.let { return@withContext if (it.isEmpty()) CoverSources.Answer.Miss else CoverSources.Answer.Found(it) }
-        var failed = false
         for ((art, name) in LibretroThumbnails.plan(fileName, regions, nonBoxArt)) {
             when (val probe = probe(system, art, name, hops = 2)) {
                 is Probe.Found -> { chainCache[key] = probe.url; return@withContext CoverSources.Answer.Found(probe.url) }
                 Probe.Absent -> Unit
-                Probe.Failed -> failed = true
+                // A timeout or a refusal (rate limit): stop here, so one game does not hold a lookup for minutes.
+                Probe.Failed -> return@withContext CoverSources.Answer.Unavailable
             }
         }
-        if (failed) CoverSources.Answer.Unavailable else CoverSources.Answer.Miss.also { chainCache[key] = "" }
+        CoverSources.Answer.Miss.also { chainCache[key] = "" }
     }
 
     private val chainCache = ConcurrentHashMap<String, String>()
+
+    /** Forgets this run's chain answers ("find missing covers again"). */
+    fun clearChainCache() = chainCache.clear()
 
     private sealed interface Probe {
         data class Found(val url: String) : Probe

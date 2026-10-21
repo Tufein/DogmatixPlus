@@ -75,7 +75,8 @@ class ScreenScraperService @Inject constructor(
                 val game = ScreenScraper.parseGame(byName.json) ?: return CoverSources.Answer.Miss
                 return answer(ScreenScraper.pickCover(game, regions, nonBoxArt))
             }
-            ScreenScraper.Status.NOT_FOUND -> Unit
+            // 400: ScreenScraper could not take this file name; the title search may still find the game.
+            ScreenScraper.Status.NOT_FOUND, ScreenScraper.Status.BAD_REQUEST -> Unit
             else -> return CoverSources.Answer.Unavailable
         }
         val query = GameTitleCleaner.clean(title.ifBlank { fileName })
@@ -86,7 +87,8 @@ class ScreenScraperService @Inject constructor(
                 val game = ScreenScraper.bestMatch(ScreenScraper.parseSearch(search.json), query) ?: return CoverSources.Answer.Miss
                 answer(ScreenScraper.pickCover(game, regions, nonBoxArt))
             }
-            ScreenScraper.Status.NOT_FOUND -> CoverSources.Answer.Miss
+            // A request ScreenScraper refuses as malformed would be refused again: a miss for this title.
+            ScreenScraper.Status.NOT_FOUND, ScreenScraper.Status.BAD_REQUEST -> CoverSources.Answer.Miss
             else -> CoverSources.Answer.Unavailable
         }
     }

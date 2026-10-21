@@ -60,7 +60,6 @@ import com.tufein.valkyr.ui.screens.settings.SettingsCardHeader
 import com.tufein.valkyr.ui.screens.settings.SettingsCardsGrid
 import com.tufein.valkyr.ui.screens.settings.SettingsSurface
 import com.tufein.valkyr.ui.screens.settings.ThemedSwitch
-import com.tufein.valkyr.ui.screens.settings.components.maskedSecret
 import com.tufein.valkyr.ui.screens.tools.PublishLegend
 import com.tufein.valkyr.util.CardGrid
 import com.tufein.valkyr.util.CoverSources
@@ -133,7 +132,7 @@ fun CoverSourcesScreen(viewModel: CoverSourcesViewModel = hiltViewModel()) {
             }
         },
         { CredentialRow(R.drawable.ic_key, R.string.covers43_ss_dev_id, login.devId.ifBlank { stringResource(R.string.settings_not_set) }) { editing = CoverSourceSettings.Field.DEV_ID } },
-        { CredentialRow(R.drawable.ic_lock, R.string.covers43_ss_dev_password, maskedSecret(login.devPassword)) { editing = CoverSourceSettings.Field.DEV_PASSWORD } },
+        { CredentialRow(R.drawable.ic_lock, R.string.covers43_ss_dev_password, secretState(login.devPassword)) { editing = CoverSourceSettings.Field.DEV_PASSWORD } },
         {
             CredentialRow(
                 R.drawable.ic_label, R.string.covers43_ss_soft_name,
@@ -141,7 +140,7 @@ fun CoverSourcesScreen(viewModel: CoverSourcesViewModel = hiltViewModel()) {
             ) { editing = CoverSourceSettings.Field.SOFT_NAME }
         },
         { CredentialRow(R.drawable.ic_account, R.string.covers43_ss_user, login.user.ifBlank { stringResource(R.string.covers43_ss_user_none) }) { editing = CoverSourceSettings.Field.USER } },
-        { CredentialRow(R.drawable.ic_lock, R.string.covers43_ss_password, maskedSecret(login.password)) { editing = CoverSourceSettings.Field.PASSWORD } },
+        { CredentialRow(R.drawable.ic_lock, R.string.covers43_ss_password, secretState(login.password)) { editing = CoverSourceSettings.Field.PASSWORD } },
         {
             val result = testResult
             SettingRow(
@@ -393,6 +392,11 @@ private fun MoveButton(icon: Int, description: String, enabled: Boolean, onClick
         )
     }
 }
+
+/** A password row never shows any of its characters: fixed bullets when set, else "Not set". */
+@Composable
+private fun secretState(value: String): String =
+    if (value.isEmpty()) stringResource(R.string.settings_not_set) else "••••••••"
 
 @Composable
 private fun CredentialRow(icon: Int, title: Int, value: String, onEdit: () -> Unit) {

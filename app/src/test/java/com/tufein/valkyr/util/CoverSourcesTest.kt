@@ -126,4 +126,15 @@ class CoverSourcesTest {
         assertEquals("b", SettingSchema.expectedType(CoverSources.NON_BOX_KEY))
         assertEquals("s", SettingSchema.expectedType(ScreenScraper.DEV_ID_KEY))
     }
+
+    @Test fun `a screenscraper cover is not kept once screenscraper is no longer set up`() {
+        val row = Cached("https://ss/x", "screenscraper", now - day)
+        assertEquals(Plan.Use("https://ss/x"), CoverSources.plan(Chain(), all, row, now))
+        assertEquals(
+            Plan.Ask(listOf(Source.LIBRETRO, Source.METADATA)),
+            CoverSources.plan(Chain(), all - Source.SCREENSCRAPER, row, now, unconfigured = setOf(Source.SCREENSCRAPER))
+        )
+        // A libretro cover is unaffected.
+        assertEquals(Plan.Use("u"), CoverSources.plan(Chain(), all, Cached("u", "libretro", now), now, unconfigured = setOf(Source.SCREENSCRAPER)))
+    }
 }

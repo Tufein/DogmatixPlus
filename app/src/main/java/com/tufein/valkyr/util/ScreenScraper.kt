@@ -219,9 +219,16 @@ object ScreenScraper {
         val names = o.arr("noms")?.mapNotNull { (it as? JsonObject)?.text("text")?.takeIf { t -> t.isNotEmpty() } }.orEmpty() +
             listOfNotNull(o.text("nom").takeIf { it.isNotEmpty() })
         val medias = o.arr("medias")?.mapNotNull { m ->
-            (m as? JsonObject)?.let { Media(it.text("type"), it.text("region"), it.text("url"), it.text("format")) }?.takeIf { it.url.startsWith("https://") || it.url.startsWith("http://") }
+            (m as? JsonObject)?.let { Media(it.text("type"), it.text("region"), httpsOnly(it.text("url")), it.text("format")) }?.takeIf { it.url.startsWith("https://") }
         }.orEmpty()
         return Game(id, names.distinct(), medias)
+    }
+
+    /** A media address as https (ScreenScraper serves both; the credentials only ever travel encrypted); "" for anything else. */
+    fun httpsOnly(url: String): String = when {
+        url.startsWith("https://", ignoreCase = true) -> url
+        url.startsWith("http://", ignoreCase = true) -> "https://" + url.substring("http://".length)
+        else -> ""
     }
 
     /** `response.jeu` of `jeuInfos.php`, or null. */
@@ -266,8 +273,8 @@ object ScreenScraper {
     fun isApiUrl(url: String): Boolean = runCatching {
         val uri = URI(url)
         val host = uri.host?.lowercase() ?: return false
-        val web = uri.scheme.equals("https", ignoreCase = true) || uri.scheme.equals("http", ignoreCase = true)
-        web && (host == "screenscraper.fr" || host.endsWith(".screenscraper.fr")) && (uri.rawPath ?: "").startsWith("/api2/")
+        // Only https: credentials are never added to a plain-text address.
+        uri.scheme.equals("https", ignoreCase = true) && (host == "screenscraper.fr" || host.endsWith(".screenscraper.fr")) && (uri.rawPath ?: "").startsWith("/api2/")
     }.getOrDefault(false)
 
     private fun splitQuery(url: String): Pair<String, List<String>> {
