@@ -1317,7 +1317,7 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Valkyr a maintenant son propre identifiant d’application et s’installe à côté de Dogmatix+. Utilisez Sauvegarder dans l’ancienne appli et Restaurer une sauvegarde dans Valkyr pour reprendre vos réglages, sources et liste de souhaits ; ensuite Valkyr se met à jour sur place.</item>
+        <item>Le projet se trouve maintenant sur github.com/Tufein/Valkyr et les fichiers de version s’appellent Valkyr-release.apk. Les liens, les rapports de problème et la recherche de mises à jour suivent.</item>
     </string-array>
 
     <!-- 4.0 -->
