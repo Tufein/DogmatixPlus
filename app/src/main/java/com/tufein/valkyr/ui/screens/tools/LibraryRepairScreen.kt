@@ -51,6 +51,8 @@ import com.tufein.valkyr.ui.components.rememberInitialFocus
 import com.tufein.valkyr.ui.navigation.NavRoutes
 import com.tufein.valkyr.util.ConsoleFormatter
 import com.tufein.valkyr.util.LibraryRepair
+import com.tufein.valkyr.util.SettingKeys
+import com.tufein.valkyr.ui.screens.settings.SettingsJump
 import com.tufein.valkyr.util.RepairFinding
 import com.tufein.valkyr.util.RepairFix
 import com.tufein.valkyr.util.RepairFixKind
@@ -176,7 +178,10 @@ fun LibraryRepairScreen(onNavigate: (String) -> Unit, viewModel: LibraryRepairVi
                         message = stringResource(R.string.repair30_no_folder),
                         icon = R.drawable.ic_folder,
                         actionLabel = stringResource(R.string.nav_settings),
-                        onAction = { onNavigate(NavRoutes.Settings.route) },
+                        onAction = {
+                            SettingsJump.request(SettingKeys.DOWNLOAD_DIR)
+                            onNavigate(NavRoutes.Settings.route)
+                        },
                         actionFocus = mainFocus,
                         modifier = Modifier.fillMaxWidth()
                     )

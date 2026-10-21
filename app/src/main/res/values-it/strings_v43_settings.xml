@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.3: the tidied Settings screen (cards, row titles and hints). -->
+<resources>
+    <string name="settings43_group_look">Aspetto e lingua</string>
+    <string name="settings43_group_controls">Comandi e schermi</string>
+    <string name="settings43_group_storage">Cartella e spazio</string>
+    <string name="settings43_group_frontends">Frontend ed emulatori</string>
+    <string name="settings43_group_cloud">Cloud e salvataggi</string>
+    <string name="settings43_accent">Colore d’accento</string>
+    <string name="settings43_accent_hint">Il colore del bordo di focus, della scheda attiva e dell’avanzamento dei download</string>
+    <string name="settings43_glow_hint">Un bagliore leggero del colore d’accento dietro le schermate; le Impostazioni restano semplici</string>
+    <string name="settings43_download_folder">Cartella di download</string>
+    <string name="settings43_download_folder_unset">Non ancora impostata: scegli la cartella in cui salvare i giochi</string>
+    <string name="settings43_separate">Una sottocartella per console</string>
+    <string name="settings43_separate_hint">Ogni console ha la sua cartella, come si aspettano ES-DE e Daijishō. Attivo per impostazione predefinita</string>
+    <string name="settings43_concurrent_hint">Quanti download vengono eseguiti insieme. Predefinito: %1$d</string>
+    <string name="settings43_limit_hint">Per tutti i download insieme, a passi di 250 KB/s. Predefinito: illimitato</string>
+    <string name="settings43_limit_day_only_hint">Il limite non vale tra le %1$s e le %2$s, le ore notturne di Quando scaricare</string>
+    <string name="settings43_per_server">Download per server</string>
+    <string name="settings43_low_battery">Pausa con batteria scarica</string>
+    <string name="settings43_meta_auto">Dettagli del gioco per i frontend</string>
+    <string name="settings43_meta_auto_hint">Scrive descrizione, genere e anno di un gioco per ES-DE e Pegasus subito dopo il download, come impostato in Descrizioni per il tuo launcher. Disattivato per impostazione predefinita</string>
+    <string name="settings43_esde_needs_folder">Non viene ancora scritto nulla: imposta prima la cartella di ES-DE con Configura ES-DE in Frontend ed emulatori</string>
+    <string name="settings43_autoscan_wifi">Scansiona solo con Wi-Fi</string>
+    <string name="settings43_autoscan_charging">Scansiona solo durante la ricarica</string>
+    <string name="settings43_autoscan_night_hint">Tra le %1$s e le %2$s, le ore notturne di Quando scaricare</string>
+    <string name="settings43_favorite_languages">Lingue preferite</string>
+    <string name="settings43_action_check">Controlla</string>
+    <string name="settings43_action_share">Condividi</string>
+</resources>

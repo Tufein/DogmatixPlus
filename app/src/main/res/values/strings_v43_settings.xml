@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.3: the tidied Settings screen (cards, row titles and hints). -->
+<resources>
+    <string name="settings43_group_look">Look and language</string>
+    <string name="settings43_group_controls">Controls and screens</string>
+    <string name="settings43_group_storage">Folder and storage</string>
+    <string name="settings43_group_frontends">Frontends and emulators</string>
+    <string name="settings43_group_cloud">Cloud and saves</string>
+    <string name="settings43_accent">Accent colour</string>
+    <string name="settings43_accent_hint">The colour of the focus ring, the active tab and download progress</string>
+    <string name="settings43_glow_hint">A soft glow of the accent colour behind the screens; Settings itself stays plain</string>
+    <string name="settings43_download_folder">Download folder</string>
+    <string name="settings43_download_folder_unset">Not set yet: pick the folder your games are saved in</string>
+    <string name="settings43_separate">A subfolder per console</string>
+    <string name="settings43_separate_hint">Every console gets its own folder, the way ES-DE and Daijishō expect it. On by default</string>
+    <string name="settings43_concurrent_hint">How many downloads run at the same time. Default: %1$d</string>
+    <string name="settings43_limit_hint">For all downloads together, in steps of 250 KB/s. Default: unlimited</string>
+    <string name="settings43_limit_day_only_hint">The speed limit is lifted between %1$s and %2$s, the night hours under When to download</string>
+    <string name="settings43_per_server">Downloads per server</string>
+    <string name="settings43_low_battery">Pause on low battery</string>
+    <string name="settings43_meta_auto">Game details for frontends</string>
+    <string name="settings43_meta_auto_hint">Writes the description, genre and year of a game for ES-DE and Pegasus right after its download, as set in Descriptions for your launcher. Off by default</string>
+    <string name="settings43_esde_needs_folder">Nothing is written yet: set the ES-DE folder first with Configure ES-DE under Frontends and emulators</string>
+    <string name="settings43_autoscan_wifi">Scan only on Wi-Fi</string>
+    <string name="settings43_autoscan_charging">Scan only while charging</string>
+    <string name="settings43_autoscan_night_hint">Between %1$s and %2$s, the night hours under When to download</string>
+    <string name="settings43_favorite_languages">Favourite languages</string>
+    <string name="settings43_action_check">Check</string>
+    <string name="settings43_action_share">Share</string>
+</resources>

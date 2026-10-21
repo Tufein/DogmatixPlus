@@ -35,6 +35,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
+import com.tufein.valkyr.ui.screens.settings.SettingsJump
+import com.tufein.valkyr.util.SettingKeys
 
 @HiltViewModel
 class FrontendCheckViewModel @Inject constructor(settings: SettingsRepository, appSettings: AppSettings) : ViewModel() {
@@ -105,7 +107,11 @@ fun FrontendCheckScreen(navController: NavController, viewModel: FrontendCheckVi
                     FrontendCheck.Status.MANUAL -> R.drawable.ic_info
                 }
                 ToolRow(
-                    name, listOf(text), { navController.navigate(NavRoutes.Settings.route) },
+                    name, listOf(text), {
+                        // Straight to the row that sets this frontend up.
+                        SettingsJump.request(settingFor(f.detail))
+                        navController.navigate(NavRoutes.Settings.route)
+                    },
                     if (index == 0) Modifier.focusRequester(firstFocus) else Modifier,
                     badge = { Badge(badge, warning = f.status == FrontendCheck.Status.TODO, tone = tone, icon = icon) },
                     icon = R.drawable.ic_frontends,
@@ -114,4 +120,15 @@ fun FrontendCheckScreen(navController: NavController, viewModel: FrontendCheckVi
             }
         }
     }
+}
+
+/** The Settings row that fixes or sets up what [detail] reports. */
+private fun settingFor(detail: FrontendCheck.Detail): String = when (detail) {
+    FrontendCheck.Detail.ESDE_READY, FrontendCheck.Detail.ESDE_NO_FOLDER -> SettingKeys.ESDE
+    FrontendCheck.Detail.ESDE_NO_COVERS -> SettingKeys.ESDE_ARTWORK
+    FrontendCheck.Detail.IISU_READY, FrontendCheck.Detail.IISU_NO_FOLDER -> SettingKeys.IISU
+    FrontendCheck.Detail.DAIJISHO_MANUAL -> SettingKeys.DAIJISHO
+    FrontendCheck.Detail.PEGASUS_READY, FrontendCheck.Detail.PEGASUS_OFF -> SettingKeys.PEGASUS_ARTWORK
+    FrontendCheck.Detail.RETROARCH_READY, FrontendCheck.Detail.RETROARCH_NO_FOLDER -> SettingKeys.RETROARCH_ARTWORK
+    FrontendCheck.Detail.NEEDS_DOWNLOAD_FOLDER -> SettingKeys.DOWNLOAD_DIR
 }

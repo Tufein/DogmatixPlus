@@ -86,6 +86,29 @@ object SettingKeys {
     const val PRERELEASES = "prereleases"
     const val UPDATE_CHECK = "update_check"
     const val DIAGNOSTICS = "diagnostics"
+
+    // 4.3: every other row has a key too, so its card and place come from [SettingsLayout].
+    const val TOOLS = "tools"
+    const val SEARCH_ALL = "search_all"
+    const val STORAGE = "storage"
+    const val SPEED_DAY_ONLY = "speed_day_only"
+    const val BATTERY_LEVEL = "battery_level"
+    const val NIGHT_START = "night_start"
+    const val NIGHT_END = "night_end"
+    const val DEBRID_KEY = "debrid_key"
+    const val AUTOSCAN_EVERY = "autoscan_every"
+    const val AUTOSCAN_WIFI = "autoscan_wifi"
+    const val AUTOSCAN_CHARGING = "autoscan_charging"
+    const val AUTOSCAN_NIGHT = "autoscan_night"
+    const val PROFILES = "profiles"
+    const val RECENT_MENU = "recent_menu"
+    const val CLOUD = "cloud"
+    const val ROMM = "romm"
+    const val SAVE_SYNC = "save_sync"
+    const val CLOUD_BACKUP = "cloud_backup"
+    const val AUTO_BACKUP_FOLDER = "auto_backup_folder"
+    const val REPORT = "report"
+    const val ABOUT = "about"
 }
 
 /**
@@ -95,26 +118,21 @@ object SettingKeys {
  */
 object SearchIndex {
 
+    /**
+     * A Settings row. Its card comes from [SettingsLayout], so search always names the card the
+     * row is in; a row that only shows under a master switch jumps to that master ([target]).
+     */
     private fun setting(
-        key: String, @StringRes section: Int, @StringRes title: Int, @StringRes hint: Int?, @DrawableRes icon: Int,
-        @StringRes keywords: Int? = null, target: String = key, id: String = key
-    ) = SearchEntry(id, SearchGroup.SETTINGS, title, hint, icon, SearchTarget(NavRoutes.Settings.route, target), keywords, section)
+        key: String, @StringRes title: Int, @StringRes hint: Int?, @DrawableRes icon: Int,
+        @StringRes keywords: Int? = null, target: String = SettingsLayout.jumpTarget(key), id: String = key
+    ) = SearchEntry(
+        id, SearchGroup.SETTINGS, title, hint, icon, SearchTarget(NavRoutes.Settings.route, target), keywords,
+        SettingsLayout.groupOf(key)?.title
+    )
 
     private fun screen(
         group: SearchGroup, route: NavRoutes, @StringRes title: Int, @StringRes hint: Int?, @StringRes keywords: Int? = null
     ) = SearchEntry(route.route, group, title, hint, route.icon, SearchTarget(route.route), keywords)
-
-    private val LOOK = R.string.settings_section_look
-    private val DOWNLOADS = R.string.settings_section_downloads
-    private val SCHEDULE = R.string.settings_section_schedule
-    private val AFTER = R.string.settings_section_after
-    private val TORRENTS = R.string.settings_section_torrents
-    private val LIBRARY = R.string.settings_section_library
-    private val FRONTENDS = R.string.settings_section_frontends
-    private val CLOUD = R.string.settings_section_romm
-    private val PROFILES = R.string.settings_section_profiles
-    private val BACKUP = R.string.settings_section_backup
-    private val APP = R.string.settings_section_app
 
     val entries: List<SearchEntry> by lazy {
         listOf(
@@ -129,80 +147,86 @@ object SearchIndex {
         SearchEntry("retroarch_playlists", SearchGroup.TOOLS, R.string.playlists35_title, R.string.playlists35_hint, R.drawable.ic_playlist_add, SearchTarget(NavRoutes.RetroArchPlaylists.route), keywords = R.string.playlists35_kw),
         SearchEntry("report_problem", SearchGroup.TOOLS, R.string.report30_title, R.string.report30_hint, R.drawable.ic_bug, SearchTarget(NavRoutes.ReportProblem.route), keywords = R.string.find8_kw_diagnostics),
         SearchEntry("action_history", SearchGroup.TOOLS, R.string.hist24_title, R.string.hist24_hint, R.drawable.ic_manage_history, SearchTarget(NavRoutes.ActionHistory.route), keywords = R.string.hist24_kw),
-            // Settings, card by card.
-            setting(SettingKeys.THEME, LOOK, R.string.settings_theme, R.string.settings_theme_hint, R.drawable.ic_dark_mode, R.string.find8_kw_theme),
-            setting(SettingKeys.LANGUAGE, LOOK, R.string.settings_language, R.string.settings_language_hint, R.drawable.ic_language, R.string.find8_kw_language),
-            setting(SettingKeys.TEXT_SIZE, LOOK, R.string.settings_text_size, R.string.settings_text_size_hint, R.drawable.ic_text_size, R.string.find8_kw_text_size),
-            setting(SettingKeys.ACCENT, LOOK, R.string.settings_accent, R.string.settings_accent_hint, R.drawable.ic_colorize, R.string.find8_kw_accent),
-            setting(SettingKeys.GAMEPAD_LAYOUT, LOOK, R.string.settings_gamepad_layout, R.string.settings_gamepad_layout_hint, R.drawable.ic_gamepad, R.string.find8_kw_gamepad),
-            setting(SettingKeys.SWAP_BUTTONS, LOOK, R.string.settings_swap_face_buttons, R.string.settings_swap_face_buttons_hint, R.drawable.ic_swap_horiz, R.string.find8_kw_gamepad),
-            setting(SettingKeys.SECOND_SCREEN, LOOK, R.string.settings_second_screen, R.string.settings_second_screen_hint, R.drawable.ic_tv, R.string.find8_kw_second_screen),
-            setting(SettingKeys.BOLD_FOCUS, LOOK, R.string.settings_bold_focus, R.string.settings_bold_focus_hint, R.drawable.ic_center_focus_strong, R.string.find8_kw_accessibility),
-            setting(SettingKeys.ANIMATIONS, LOOK, R.string.settings_v5_animations, R.string.settings_v5_animations_hint, R.drawable.ic_animation, R.string.find8_kw_animations),
-            setting(SettingKeys.GLOW, LOOK, R.string.settings_v5_glow, R.string.settings_v5_glow_hint, R.drawable.ic_blur_on),
-            setting(SettingKeys.TV_MODE, LOOK, R.string.tv8_setting_title, null, R.drawable.ic_tv),
-            setting(SettingKeys.LIST_COVERS, LOOK, R.string.settings_v5_list_covers, R.string.settings_v5_list_covers_hint, R.drawable.ic_image, R.string.find8_kw_covers),
-            setting(SettingKeys.COMPACT, LOOK, R.string.disc6_compact_title, R.string.disc6_compact_hint, R.drawable.ic_list),
-            setting(SettingKeys.COVERS_RETRY, LOOK, R.string.settings_v5_covers_retry, null, R.drawable.ic_image_search, R.string.find8_kw_covers),
+            // Settings, in the order of SettingsLayout (their card comes from there too).
+            setting(SettingKeys.THEME, R.string.settings_theme, R.string.settings_theme_hint, R.drawable.ic_dark_mode, R.string.find8_kw_theme),
+            setting(SettingKeys.ACCENT, R.string.settings43_accent, R.string.settings43_accent_hint, R.drawable.ic_colorize, R.string.find8_kw_accent),
+            setting(SettingKeys.LANGUAGE, R.string.settings_language, R.string.settings_language_hint, R.drawable.ic_language, R.string.find8_kw_language),
+            setting(SettingKeys.TEXT_SIZE, R.string.settings_text_size, R.string.settings_text_size_hint, R.drawable.ic_text_size, R.string.find8_kw_text_size),
+            setting(SettingKeys.COMPACT, R.string.disc6_compact_title, R.string.disc6_compact_hint, R.drawable.ic_list),
+            setting(SettingKeys.LIST_COVERS, R.string.settings_v5_list_covers, R.string.settings_v5_list_covers_hint, R.drawable.ic_image, R.string.find8_kw_covers),
+            setting(SettingKeys.ANIMATIONS, R.string.settings_v5_animations, R.string.settings_v5_animations_hint, R.drawable.ic_animation, R.string.find8_kw_animations),
+            setting(SettingKeys.GLOW, R.string.settings_v5_glow, R.string.settings43_glow_hint, R.drawable.ic_blur_on),
 
-            setting(SettingKeys.DOWNLOAD_DIR, DOWNLOADS, R.string.settings_download_directory, null, R.drawable.ic_folder_open, R.string.find8_kw_folder),
-            setting(SettingKeys.SEPARATE_CONSOLE, DOWNLOADS, R.string.settings_separate_by_console, R.string.settings_separate_hint, R.drawable.ic_account_tree, R.string.find8_kw_folder),
-            setting(SettingKeys.DOWNLOAD_PRESETS, DOWNLOADS, R.string.presets26_title, R.string.presets26_settings_hint, R.drawable.ic_schedule, R.string.find8_kw_speed),
-            setting(SettingKeys.CONCURRENT, DOWNLOADS, R.string.settings_concurrent_label, null, R.drawable.ic_downloading, R.string.find8_kw_concurrent),
-            setting(SettingKeys.PER_SERVER, DOWNLOADS, R.string.settings_per_server, R.string.settings_per_server_hint, R.drawable.ic_hub, R.string.find8_kw_concurrent),
-            setting(SettingKeys.SPEED_LIMIT, DOWNLOADS, R.string.settings_limit_label, R.string.settings_limit_hint, R.drawable.ic_speed, R.string.find8_kw_speed),
-            setting(SettingKeys.SPEED_LIMIT, DOWNLOADS, R.string.settings_limit_day_only, null, R.drawable.ic_light_mode, R.string.find8_kw_speed, id = "speed_day_only"),
-            setting(SettingKeys.MIN_FREE, DOWNLOADS, R.string.settings_min_free, R.string.settings_min_free_hint, R.drawable.ic_storage, R.string.find8_kw_space),
-            setting(SettingKeys.RESUME, DOWNLOADS, R.string.settings_resume, R.string.settings_resume_hint, R.drawable.ic_play_arrow, R.string.find8_kw_resume),
-            setting(SettingKeys.REQUEUE, DOWNLOADS, R.string.settings_requeue, R.string.settings_requeue_hint, R.drawable.ic_restart_alt, R.string.find8_kw_resume),
-            setting(SettingKeys.AUTO_RETRY, DOWNLOADS, R.string.settings_auto_retry, R.string.settings_auto_retry_hint, R.drawable.ic_retry, R.string.find8_kw_retry),
-            setting(SettingKeys.PICK_BEST, DOWNLOADS, R.string.src75_pick_best_title, R.string.src75_pick_best_hint, R.drawable.ic_swap_horiz, R.string.find8_kw_mirror),
-            setting(SettingKeys.QUEUE_SUMMARY, DOWNLOADS, R.string.settings_queue_summary, R.string.settings_queue_summary_hint, R.drawable.ic_notifications, R.string.find8_kw_notifications),
+            setting(SettingKeys.GAMEPAD_LAYOUT, R.string.settings_gamepad_layout, R.string.settings_gamepad_layout_hint, R.drawable.ic_gamepad, R.string.find8_kw_gamepad),
+            setting(SettingKeys.SWAP_BUTTONS, R.string.settings_swap_face_buttons, R.string.settings_swap_face_buttons_hint, R.drawable.ic_swap_horiz, R.string.find8_kw_gamepad),
+            setting(SettingKeys.BOLD_FOCUS, R.string.settings_bold_focus, R.string.settings_bold_focus_hint, R.drawable.ic_center_focus_strong, R.string.find8_kw_accessibility),
+            setting(SettingKeys.TV_MODE, R.string.tv8_setting_title, null, R.drawable.ic_tv),
+            setting(SettingKeys.SECOND_SCREEN, R.string.settings_second_screen, R.string.settings_second_screen_hint, R.drawable.ic_tv, R.string.find8_kw_second_screen),
 
-            setting(SettingKeys.WIFI, SCHEDULE, R.string.settings_dl_wifi, R.string.settings_dl_wifi_hint, R.drawable.ic_wifi, R.string.find8_kw_wifi),
-            setting(SettingKeys.CHARGING, SCHEDULE, R.string.settings_dl_charging, R.string.settings_dl_charging_hint, R.drawable.ic_charging, R.string.find8_kw_charging),
-            setting(SettingKeys.LOW_BATTERY, SCHEDULE, R.string.power75_battery_title, null, R.drawable.ic_battery, R.string.find8_kw_battery),
-            setting(SettingKeys.LOW_BATTERY, SCHEDULE, R.string.power75_battery_level_title, R.string.power75_battery_level_hint, R.drawable.ic_battery, R.string.find8_kw_battery, id = "battery_level"),
-            setting(SettingKeys.HEAT, SCHEDULE, R.string.power75_heat_title, R.string.power75_heat_hint, R.drawable.ic_thermostat, R.string.find8_kw_heat),
-            setting(SettingKeys.NIGHT, SCHEDULE, R.string.settings_dl_night, null, R.drawable.ic_night, R.string.find8_kw_night),
-            setting(SettingKeys.NIGHT, SCHEDULE, R.string.settings_dl_night_start, null, R.drawable.ic_bedtime, R.string.find8_kw_night, id = "night_start"),
-            setting(SettingKeys.NIGHT, SCHEDULE, R.string.settings_dl_night_end, null, R.drawable.ic_wb_twilight, R.string.find8_kw_night, id = "night_end"),
+            setting(SettingKeys.DOWNLOAD_DIR, R.string.settings43_download_folder, null, R.drawable.ic_folder_open, R.string.find8_kw_folder),
+            setting(SettingKeys.SEPARATE_CONSOLE, R.string.settings43_separate, R.string.settings43_separate_hint, R.drawable.ic_account_tree, R.string.find8_kw_folder),
+            setting(SettingKeys.MIN_FREE, R.string.settings_min_free, R.string.settings_min_free_hint, R.drawable.ic_storage, R.string.find8_kw_space),
 
-            setting(SettingKeys.AUTO_UNZIP, AFTER, R.string.settings_auto_unzip, R.string.settings_auto_unzip_hint, R.drawable.ic_extract, R.string.find8_kw_unzip),
-            setting(SettingKeys.AUTO_M3U, AFTER, R.string.settings_auto_m3u, R.string.settings_auto_m3u_hint, R.drawable.ic_playlist_add, R.string.find8_kw_m3u),
-            setting(SettingKeys.ESDE_ARTWORK, AFTER, R.string.settings_esde_artwork, R.string.settings_esde_artwork_hint, R.drawable.ic_photos, R.string.find8_kw_artwork),
-            setting(SettingKeys.PEGASUS_ARTWORK, AFTER, R.string.settings_pegasus_artwork, R.string.settings_pegasus_artwork_hint, R.drawable.ic_photo_album, R.string.find8_kw_artwork),
-            setting(SettingKeys.RETROARCH_ARTWORK, AFTER, R.string.settings_retroarch_artwork, null, R.drawable.ic_wallpaper, R.string.find8_kw_artwork),
+            setting(SettingKeys.CONCURRENT, R.string.settings_concurrent_label, null, R.drawable.ic_downloading, R.string.find8_kw_concurrent),
+            setting(SettingKeys.SPEED_LIMIT, R.string.settings_limit_label, R.string.settings43_limit_hint, R.drawable.ic_speed, R.string.find8_kw_speed),
+            setting(SettingKeys.SPEED_DAY_ONLY, R.string.settings_limit_day_only, null, R.drawable.ic_light_mode, R.string.find8_kw_speed),
+            setting(SettingKeys.PER_SERVER, R.string.settings43_per_server, R.string.settings_per_server_hint, R.drawable.ic_hub, R.string.find8_kw_concurrent),
+            setting(SettingKeys.PICK_BEST, R.string.src75_pick_best_title, R.string.src75_pick_best_hint, R.drawable.ic_swap_horiz, R.string.find8_kw_mirror),
+            setting(SettingKeys.AUTO_RETRY, R.string.settings_auto_retry, R.string.settings_auto_retry_hint, R.drawable.ic_retry, R.string.find8_kw_retry),
+            setting(SettingKeys.RESUME, R.string.settings_resume, R.string.settings_resume_hint, R.drawable.ic_play_arrow, R.string.find8_kw_resume),
+            setting(SettingKeys.REQUEUE, R.string.settings_requeue, R.string.settings_requeue_hint, R.drawable.ic_restart_alt, R.string.find8_kw_resume),
+            setting(SettingKeys.QUEUE_SUMMARY, R.string.settings_queue_summary, R.string.settings_queue_summary_hint, R.drawable.ic_notifications, R.string.find8_kw_notifications),
 
-            setting(SettingKeys.DEBRID, TORRENTS, R.string.settings_debrid, R.string.settings_debrid_hint, R.drawable.ic_bolt, R.string.find8_kw_debrid),
-            setting(SettingKeys.METADATA_TIMEOUT, TORRENTS, R.string.settings_metadata_timeout, R.string.settings_metadata_timeout_hint, R.drawable.ic_hourglass, R.string.find8_kw_torrent),
+            setting(SettingKeys.WIFI, R.string.settings_dl_wifi, R.string.settings_dl_wifi_hint, R.drawable.ic_wifi, R.string.find8_kw_wifi),
+            setting(SettingKeys.CHARGING, R.string.settings_dl_charging, R.string.settings_dl_charging_hint, R.drawable.ic_charging, R.string.find8_kw_charging),
+            setting(SettingKeys.LOW_BATTERY, R.string.settings43_low_battery, null, R.drawable.ic_battery, R.string.find8_kw_battery),
+            setting(SettingKeys.BATTERY_LEVEL, R.string.power75_battery_level_title, R.string.power75_battery_level_hint, R.drawable.ic_battery, R.string.find8_kw_battery),
+            setting(SettingKeys.HEAT, R.string.power75_heat_title, R.string.power75_heat_hint, R.drawable.ic_thermostat, R.string.find8_kw_heat),
+            setting(SettingKeys.NIGHT, R.string.settings_dl_night, null, R.drawable.ic_night, R.string.find8_kw_night),
+            setting(SettingKeys.NIGHT_START, R.string.settings_dl_night_start, null, R.drawable.ic_bedtime, R.string.find8_kw_night),
+            setting(SettingKeys.NIGHT_END, R.string.settings_dl_night_end, null, R.drawable.ic_wb_twilight, R.string.find8_kw_night),
+            setting(SettingKeys.DOWNLOAD_PRESETS, R.string.presets26_title, R.string.presets26_settings_hint, R.drawable.ic_schedule, R.string.find8_kw_speed),
 
-            setting(SettingKeys.AUTOSCAN, LIBRARY, R.string.settings_autoscan, null, R.drawable.ic_sync, R.string.find8_kw_scan),
-            setting(SettingKeys.AUTOSCAN, LIBRARY, R.string.settings_autoscan_every, null, R.drawable.ic_timer, R.string.find8_kw_scan, id = "autoscan_every"),
-            setting(SettingKeys.MAX_RESULTS, LIBRARY, R.string.settings_max_results, R.string.settings_max_results_hint, R.drawable.ic_format_list_numbered),
-            setting(SettingKeys.FAVORITE_LANGUAGES, LIBRARY, R.string.settings_favorite_languages, null, R.drawable.ic_translate, R.string.find8_kw_regions),
-            setting(SettingKeys.VERSION_PREF, LIBRARY, R.string.compare24_title, R.string.compare24_row_hint, R.drawable.ic_compare, R.string.find8_kw_regions),
-            setting(SettingKeys.WISHLIST_AUTO, LIBRARY, R.string.settings_wishlist_auto, R.string.settings_wishlist_auto_hint, R.drawable.ic_wishlist, R.string.find8_kw_wishlist),
-            setting(SettingKeys.DIGEST, LIBRARY, R.string.upg7_digest_setting, R.string.upg7_digest_setting_hint, R.drawable.ic_notifications, R.string.find8_kw_notifications),
+            setting(SettingKeys.AUTO_UNZIP, R.string.settings_auto_unzip, R.string.settings_auto_unzip_hint, R.drawable.ic_extract, R.string.find8_kw_unzip),
+            setting(SettingKeys.AUTO_M3U, R.string.settings_auto_m3u, R.string.settings_auto_m3u_hint, R.drawable.ic_playlist_add, R.string.find8_kw_m3u),
+            setting(SettingKeys.META_AUTO, R.string.settings43_meta_auto, R.string.settings43_meta_auto_hint, R.drawable.ic_description, R.string.find8_kw_metadata),
+            setting(SettingKeys.ESDE_ARTWORK, R.string.settings_esde_artwork, R.string.settings_esde_artwork_hint, R.drawable.ic_photos, R.string.find8_kw_artwork),
+            setting(SettingKeys.PEGASUS_ARTWORK, R.string.settings_pegasus_artwork, R.string.settings_pegasus_artwork_hint, R.drawable.ic_photo_album, R.string.find8_kw_artwork),
+            setting(SettingKeys.RETROARCH_ARTWORK, R.string.settings_retroarch_artwork, null, R.drawable.ic_wallpaper, R.string.find8_kw_artwork),
 
-            setting(SettingKeys.META_AUTO, FRONTENDS, R.string.meta7_auto_title, R.string.meta7_auto_hint, R.drawable.ic_description, R.string.find8_kw_metadata),
-            setting(SettingKeys.FRONTEND_SHORTCUTS, FRONTENDS, R.string.settings_frontend_shortcuts, R.string.settings_frontend_shortcuts_hint, R.drawable.ic_shortcut, R.string.find8_kw_frontends),
-            setting(SettingKeys.ESDE, FRONTENDS, R.string.settings_esde, R.string.settings_esde_hint, R.drawable.ic_frontends, R.string.find8_kw_frontends),
-            setting(SettingKeys.IISU, FRONTENDS, R.string.settings_iisu, R.string.settings_iisu_hint, R.drawable.ic_grid, R.string.find8_kw_frontends),
-            setting(SettingKeys.DAIJISHO, FRONTENDS, R.string.settings_daijisho, R.string.settings_daijisho_hint, R.drawable.ic_dashboard, R.string.find8_kw_frontends),
-            setting(SettingKeys.EMULATORS, FRONTENDS, R.string.play24_settings_title, R.string.play24_settings_hint, R.drawable.ic_controller, R.string.find8_kw_frontends),
+            setting(SettingKeys.DEBRID, R.string.settings_debrid, R.string.settings_debrid_hint, R.drawable.ic_bolt, R.string.find8_kw_debrid),
+            setting(SettingKeys.METADATA_TIMEOUT, R.string.settings_metadata_timeout, R.string.settings_metadata_timeout_hint, R.drawable.ic_hourglass, R.string.find8_kw_torrent),
 
-            setting(SettingKeys.SHELF, CLOUD, R.string.csave_shelf_setting_title, R.string.csave_shelf_setting_hint, R.drawable.ic_play_circle),
-            setting(SettingKeys.COCOON, PROFILES, R.string.settings_cocoon, R.string.settings_cocoon_hint, R.drawable.ic_help),
+            setting(SettingKeys.AUTOSCAN, R.string.settings_autoscan, null, R.drawable.ic_sync, R.string.find8_kw_scan),
+            setting(SettingKeys.AUTOSCAN_EVERY, R.string.settings_autoscan_every, null, R.drawable.ic_timer, R.string.find8_kw_scan),
+            setting(SettingKeys.AUTOSCAN_WIFI, R.string.settings43_autoscan_wifi, null, R.drawable.ic_wifi, R.string.find8_kw_scan),
+            setting(SettingKeys.AUTOSCAN_CHARGING, R.string.settings43_autoscan_charging, null, R.drawable.ic_charging, R.string.find8_kw_scan),
+            setting(SettingKeys.AUTOSCAN_NIGHT, R.string.settings_autoscan_night, null, R.drawable.ic_night, R.string.find8_kw_scan),
+            setting(SettingKeys.VERSION_PREF, R.string.compare24_title, R.string.compare24_row_hint, R.drawable.ic_compare, R.string.find8_kw_regions),
+            setting(SettingKeys.FAVORITE_LANGUAGES, R.string.settings43_favorite_languages, null, R.drawable.ic_translate, R.string.find8_kw_regions),
+            setting(SettingKeys.WISHLIST_AUTO, R.string.settings_wishlist_auto, R.string.settings_wishlist_auto_hint, R.drawable.ic_wishlist, R.string.find8_kw_wishlist),
+            setting(SettingKeys.COVERS_RETRY, R.string.settings_v5_covers_retry, null, R.drawable.ic_image_search, R.string.find8_kw_covers),
+            setting(SettingKeys.MAX_RESULTS, R.string.settings_max_results, R.string.settings_max_results_hint, R.drawable.ic_format_list_numbered),
+            setting(SettingKeys.DIGEST, R.string.upg7_digest_setting, R.string.upg7_digest_setting_hint, R.drawable.ic_notifications, R.string.find8_kw_notifications),
 
-            setting(SettingKeys.BACKUP_EXPORT, BACKUP, R.string.settings_backup_export, R.string.settings_backup_export_hint, R.drawable.ic_file_export, R.string.find8_kw_backup),
-            setting(SettingKeys.AUTO_BACKUP, BACKUP, R.string.settings_auto_backup, null, R.drawable.ic_update, R.string.find8_kw_backup),
-            setting(SettingKeys.AUTO_BACKUP, BACKUP, R.string.settings_auto_backup_folder, null, R.drawable.ic_folder, R.string.find8_kw_backup, id = "auto_backup_folder"),
-            setting(SettingKeys.BACKUP_IMPORT, BACKUP, R.string.settings_backup_import, R.string.settings_backup_import_hint, R.drawable.ic_restore, R.string.find8_kw_restore),
+            setting(SettingKeys.ESDE, R.string.settings_esde, R.string.settings_esde_hint, R.drawable.ic_frontends, R.string.find8_kw_frontends),
+            setting(SettingKeys.IISU, R.string.settings_iisu, R.string.settings_iisu_hint, R.drawable.ic_grid, R.string.find8_kw_frontends),
+            setting(SettingKeys.DAIJISHO, R.string.settings_daijisho, R.string.settings_daijisho_hint, R.drawable.ic_dashboard, R.string.find8_kw_frontends),
+            setting(SettingKeys.COCOON, R.string.settings_cocoon, R.string.settings_cocoon_hint, R.drawable.ic_help, R.string.find8_kw_frontends),
+            setting(SettingKeys.EMULATORS, R.string.play24_settings_title, R.string.play24_settings_hint, R.drawable.ic_controller, R.string.find8_kw_frontends),
+            setting(SettingKeys.FRONTEND_SHORTCUTS, R.string.settings_frontend_shortcuts, R.string.settings_frontend_shortcuts_hint, R.drawable.ic_shortcut, R.string.find8_kw_frontends),
+            setting(SettingKeys.RECENT_MENU, R.string.pin35_setting_title, R.string.pin35_setting_hint, R.drawable.ic_play_circle),
 
-            setting(SettingKeys.PRERELEASES, APP, R.string.settings_prereleases, R.string.settings_prereleases_hint, R.drawable.ic_science, R.string.find8_kw_update),
-            setting(SettingKeys.UPDATE_CHECK, APP, R.string.settings_update_check, R.string.settings_update_check_hint, R.drawable.ic_rocket, R.string.find8_kw_update),
-            setting(SettingKeys.DIAGNOSTICS, APP, R.string.settings_diagnostics, R.string.settings_diagnostics_hint, R.drawable.ic_bug, R.string.find8_kw_diagnostics),
+            setting(SettingKeys.SHELF, R.string.csave_shelf_setting_title, R.string.csave_shelf_setting_hint, R.drawable.ic_play_circle),
+
+            setting(SettingKeys.BACKUP_EXPORT, R.string.settings_backup_export, R.string.settings_backup_export_hint, R.drawable.ic_file_export, R.string.find8_kw_backup),
+            setting(SettingKeys.BACKUP_IMPORT, R.string.settings_backup_import, R.string.settings_backup_import_hint, R.drawable.ic_restore, R.string.find8_kw_restore),
+            setting(SettingKeys.AUTO_BACKUP, R.string.settings_auto_backup, null, R.drawable.ic_update, R.string.find8_kw_backup),
+            setting(SettingKeys.AUTO_BACKUP_FOLDER, R.string.settings_auto_backup_folder, null, R.drawable.ic_folder, R.string.find8_kw_backup),
+
+            setting(SettingKeys.UPDATE_CHECK, R.string.settings_update_check, R.string.settings_update_check_hint, R.drawable.ic_rocket, R.string.find8_kw_update),
+            setting(SettingKeys.PRERELEASES, R.string.settings_prereleases, R.string.settings_prereleases_hint, R.drawable.ic_science, R.string.find8_kw_update),
+            setting(SettingKeys.DIAGNOSTICS, R.string.settings_diagnostics, R.string.settings_diagnostics_hint, R.drawable.ic_bug, R.string.find8_kw_diagnostics),
 
             // Tools and screens.
             screen(SearchGroup.TOOLS, NavRoutes.Home, R.string.nav_library, R.string.find8_hint_library, R.string.find8_kw_library),

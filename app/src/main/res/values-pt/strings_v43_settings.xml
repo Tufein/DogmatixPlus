@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.3: the tidied Settings screen (cards, row titles and hints). -->
+<resources>
+    <string name="settings43_group_look">Aspeto e idioma</string>
+    <string name="settings43_group_controls">Controlos e ecrãs</string>
+    <string name="settings43_group_storage">Pasta e armazenamento</string>
+    <string name="settings43_group_frontends">Frontends e emuladores</string>
+    <string name="settings43_group_cloud">Nuvem e gravações</string>
+    <string name="settings43_accent">Cor de destaque</string>
+    <string name="settings43_accent_hint">A cor do contorno de foco, do separador ativo e do progresso dos downloads</string>
+    <string name="settings43_glow_hint">Um brilho suave da cor de destaque atrás dos ecrãs; as Definições ficam simples</string>
+    <string name="settings43_download_folder">Pasta de downloads</string>
+    <string name="settings43_download_folder_unset">Ainda não definida: escolhe a pasta onde os jogos são guardados</string>
+    <string name="settings43_separate">Uma subpasta por consola</string>
+    <string name="settings43_separate_hint">Cada consola tem a sua pasta, como o ES-DE e o Daijishō esperam. Ligado por predefinição</string>
+    <string name="settings43_concurrent_hint">Quantos downloads correm ao mesmo tempo. Predefinição: %1$d</string>
+    <string name="settings43_limit_hint">Para todos os downloads em conjunto, em passos de 250 KB/s. Predefinição: ilimitado</string>
+    <string name="settings43_limit_day_only_hint">O limite não se aplica entre %1$s e %2$s, as horas noturnas de Quando transferir</string>
+    <string name="settings43_per_server">Downloads por servidor</string>
+    <string name="settings43_low_battery">Pausar com bateria fraca</string>
+    <string name="settings43_meta_auto">Detalhes do jogo para frontends</string>
+    <string name="settings43_meta_auto_hint">Escreve a descrição, o género e o ano de um jogo para o ES-DE e o Pegasus logo após o download, conforme Descrições para o teu launcher. Desligado por predefinição</string>
+    <string name="settings43_esde_needs_folder">Ainda não é escrito nada: define primeiro a pasta do ES-DE com Configurar o ES-DE em Frontends e emuladores</string>
+    <string name="settings43_autoscan_wifi">Analisar só com Wi-Fi</string>
+    <string name="settings43_autoscan_charging">Analisar só durante o carregamento</string>
+    <string name="settings43_autoscan_night_hint">Entre %1$s e %2$s, as horas noturnas de Quando transferir</string>
+    <string name="settings43_favorite_languages">Idiomas favoritos</string>
+    <string name="settings43_action_check">Verificar</string>
+    <string name="settings43_action_share">Partilhar</string>
+</resources>
