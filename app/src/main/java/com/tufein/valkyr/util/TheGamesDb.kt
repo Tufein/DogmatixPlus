@@ -107,9 +107,9 @@ object TheGamesDb {
     private fun imagesOf(data: JsonObject?): Map<String, List<Image>> {
         data ?: return emptyMap()
         return data.entrySet().associate { (id, list) ->
-            id to (list as? JsonArray).orEmpty().mapNotNull { e ->
+            id to (list as? JsonArray)?.mapNotNull { e ->
                 (e as? JsonObject)?.let { Image(it.text("type"), it.text("side"), it.text("filename")) }?.takeIf { it.filename.isNotEmpty() }
-            }
+            }.orEmpty()
         }
     }
 
