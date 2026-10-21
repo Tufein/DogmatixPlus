@@ -10,6 +10,7 @@ import com.tufein.valkyr.util.ArchivePlan
 import com.tufein.valkyr.util.ArchiveSafetyException
 import com.tufein.valkyr.util.VerifiedCopy
 import com.tufein.valkyr.util.Constants
+import com.tufein.valkyr.util.ListingCache
 import com.tufein.valkyr.util.DownloadExtractionException
 import com.tufein.valkyr.util.StorageException
 import com.tufein.valkyr.util.StorageAccessException
@@ -276,20 +277,28 @@ class ArchiveExtractorService @Inject constructor() {
             ?: throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE)
         fun hash(document: DocumentFile): String = VerifiedCopy.hash(
             context.contentResolver.openInputStream(document.uri) ?: throw StorageException("Extracted destination cannot be read"), checkActive)
+        // One listing per folder while the destination is only checked and staged (one provider call
+        // instead of one per file); it is emptied before the publish step, which must see the folders as they are then.
+        val listings = ListingCache<String, DocumentFile>()
+        var cached = true
         fun child(directory: DocumentFile, name: String): DocumentFile? {
-            val matches = directory.listFiles().filter { ArchivePlan.portableKey(it.name.orEmpty()) == ArchivePlan.portableKey(name) }
+            val all = if (cached) listings.list(directory.uri.toString()) { directory.listFiles().toList() } else directory.listFiles().toList()
+            val matches = all.filter { ArchivePlan.portableKey(it.name.orEmpty()) == ArchivePlan.portableKey(name) }
             if (matches.size > 1 || matches.any { it.name != name }) {
                 throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_CONFLICT)
             }
             return matches.singleOrNull()
+        }
+        fun createFolder(inside: DocumentFile, name: String): DocumentFile {
+            listings.invalidate(inside.uri.toString())
+            return inside.createDirectory(name) ?: throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE)
         }
         fun parent(path: String, create: Boolean): DocumentFile? {
             var directory = root
             for (name in path.split('/').dropLast(1)) {
                 val existing = child(directory, name)
                 if (existing != null && !existing.isDirectory) throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_CONFLICT)
-                directory = existing ?: if (!create) return null else directory.createDirectory(name)
-                    ?: throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE)
+                directory = existing ?: if (!create) return null else createFolder(directory, name)
                 if (directory.name != name || !directory.isDirectory) throw ArchiveSafetyException(ArchiveSafetyException.Reason.DESTINATION_UNAVAILABLE)
             }
             return directory
@@ -337,6 +346,8 @@ class ArchiveExtractorService @Inject constructor() {
                 }
             }
             // No destination content has changed before all streams have passed readback.
+            cached = false
+            listings.clear()
             for (stage in stages) {
                 checkActive()
                 val name = stage.source.path.substringAfterLast('/')

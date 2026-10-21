@@ -72,6 +72,7 @@ class AutoScanScheduler @Inject constructor(
             .setPeriodic(AutoScanPolicy.CHECK_EVERY_MS)
             .setRequiredNetworkType(if (plan.wifiOnly) JobInfo.NETWORK_TYPE_UNMETERED else JobInfo.NETWORK_TYPE_ANY)
             .setRequiresCharging(plan.charging)
+            .setRequiresBatteryNotLow(true)
             .setPersisted(true)
             .build()
         val result = scheduler.schedule(job)

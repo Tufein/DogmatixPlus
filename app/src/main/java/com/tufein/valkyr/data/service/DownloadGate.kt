@@ -25,8 +25,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -78,9 +81,14 @@ class DownloadGate @Inject constructor(
         watchNetwork()
         watchPower()
         scope.launch {
-            while (true) {
-                device.update { it.copy(minuteOfDay = minuteOfDay(), freeBytes = freeBytesNow()) }
-                delay(30_000)
+            // The clock and the free space matter only to the night window and the minimum free space;
+            // with neither set the idle app does not wake up every 30 s to read them.
+            conditions.map { it.needsPolling }.distinctUntilChanged().collectLatest { needed ->
+                if (!needed) return@collectLatest
+                while (true) {
+                    device.update { it.copy(minuteOfDay = minuteOfDay(), freeBytes = freeBytesNow()) }
+                    delay(30_000)
+                }
             }
         }
     }
@@ -126,13 +134,20 @@ class DownloadGate @Inject constructor(
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) { update(intent) }
         }
-        val sticky = ContextCompat.registerReceiver(context, receiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED), ContextCompat.RECEIVER_NOT_EXPORTED)
-        sticky?.let(::update)
+        // Only the plug and unplug events: ACTION_BATTERY_CHANGED fires at every battery percent and
+        // would wake the process for nothing. The one-off sticky read gives the state at start-up.
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_POWER_CONNECTED)
+            addAction(Intent.ACTION_POWER_DISCONNECTED)
+        }
+        ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+        val sticky = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        sticky?.let { device.update { d -> d.copy(charging = it.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0) } }
     }
 
     private fun update(intent: Intent) {
-        val plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0
-        device.update { it.copy(charging = plugged) }
+        // The broadcast carries no plug state of its own: the action says it.
+        device.update { it.copy(charging = intent.action == Intent.ACTION_POWER_CONNECTED) }
     }
 
     private fun minuteOfDay(): Int = Calendar.getInstance().let { it.get(Calendar.HOUR_OF_DAY) * 60 + it.get(Calendar.MINUTE) }

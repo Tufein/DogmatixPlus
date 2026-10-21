@@ -60,6 +60,7 @@ class WeeklyDigestScheduler @Inject constructor(
         runCatching {
             val job = JobInfo.Builder(JOB_ID, ComponentName(context, WeeklyDigestJobService::class.java))
                 .setPeriodic(WeeklyDigest.PERIOD_MS, WeeklyDigest.FLEX_MS)
+                .setRequiresBatteryNotLow(true)
                 .setPersisted(true)
                 .build()
             val result = scheduler.schedule(job)

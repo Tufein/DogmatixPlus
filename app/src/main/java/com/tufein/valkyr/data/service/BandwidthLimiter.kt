@@ -6,6 +6,7 @@ import com.tufein.valkyr.data.repository.SettingsRepository
 import com.tufein.valkyr.util.SpeedLimit
 import com.tufein.valkyr.util.TokenBucket
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
@@ -13,7 +14,9 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -27,6 +30,7 @@ import javax.inject.Singleton
  * read again when a setting changes and every minute (for "no limit at night").
  */
 @Singleton
+@OptIn(ExperimentalCoroutinesApi::class)
 class BandwidthLimiter @Inject constructor(
     settingsRepository: SettingsRepository,
     appSettings: AppSettings,
@@ -40,7 +44,10 @@ class BandwidthLimiter @Inject constructor(
         private set
 
     init {
-        val minuteTicks = flow { while (true) { emit(minuteOfDay()); delay(60_000) } }
+        // The clock only matters while the limit is lifted at night; otherwise nothing ticks.
+        val minuteTicks = appSettings.speedLimitDayOnly.distinctUntilChanged().flatMapLatest { dayOnly ->
+            if (dayOnly) flow { while (true) { emit(minuteOfDay()); delay(60_000) } } else flowOf(0)
+        }
         scope.launch {
             combine(
                 settingsRepository.limitSpeed, appSettings.speedLimitDayOnly,
