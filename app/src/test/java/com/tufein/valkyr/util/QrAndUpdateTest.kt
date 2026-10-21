@@ -33,10 +33,10 @@ class QrAndUpdateTest {
 
     @Test fun `the apk checksum is read from SHA256SUMS`() {
         val sums = """
-            c144831cd977813e46f05f3bcd7d60e8d4a8d0f42616acfc742dc1d7846b978a  DogmatixPlus-release.apk
-            0000000000000000000000000000000000000000000000000000000000000000 *DogmatixPlus-debug.apk
+            c144831cd977813e46f05f3bcd7d60e8d4a8d0f42616acfc742dc1d7846b978a  Valkyr-release.apk
+            0000000000000000000000000000000000000000000000000000000000000000 *Valkyr-debug.apk
         """.trimIndent()
-        assertEquals("c144831cd977813e46f05f3bcd7d60e8d4a8d0f42616acfc742dc1d7846b978a", UpdateAssets.checksumFor(sums, "DogmatixPlus-release.apk"))
+        assertEquals("c144831cd977813e46f05f3bcd7d60e8d4a8d0f42616acfc742dc1d7846b978a", UpdateAssets.checksumFor(sums, "Valkyr-release.apk"))
         assertEquals("0".repeat(64), UpdateAssets.checksumFor(sums, UpdateAssets.apkName(debugBuild = true)))
         assertNull(UpdateAssets.checksumFor(sums, "other.apk"))
     }

@@ -2,8 +2,8 @@ package com.tufein.valkyr.util
 
 /** Picking and checking the files of a GitHub release for the in-app update. */
 object UpdateAssets {
-    const val RELEASE_APK = "DogmatixPlus-release.apk"
-    const val DEBUG_APK = "DogmatixPlus-debug.apk"
+    const val RELEASE_APK = "Valkyr-release.apk"
+    const val DEBUG_APK = "Valkyr-debug.apk"
     const val CHECKSUMS = "SHA256SUMS.txt"
 
     /** The APK that matches the installed build (a debug build updates to the debug APK). */

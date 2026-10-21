@@ -34,7 +34,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val TAG = "UpdateInstaller"
-private const val RELEASES_API = "https://api.github.com/repos/Tufein/DogmatixPlus/releases/tags/"
+private const val RELEASES_API = "https://api.github.com/repos/Tufein/Valkyr/releases/tags/"
 
 /**
  * Installs a newer release from inside the app: downloads the APK of the GitHub release that

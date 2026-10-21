@@ -23,16 +23,16 @@ The app includes no games. **Sources → More romsets** offers optional free con
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [4.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.1.0)** (Android build 53).
+**Latest release: [4.1.0](https://github.com/Tufein/Valkyr/releases/tag/v4.1.0)** (Android build 53).
 
 Until 3.9.0 the app was called Dogmatix+. Valkyr 4.1.0 has its own app id, so it installs next to the old app: use *Settings → Back up* in the old app and *Restore backup* in Valkyr, then remove the old app.
 
 ## Install
 
-1. Open the **[Releases page](https://github.com/Tufein/DogmatixPlus/releases)** on your phone or handheld, or download there and copy the file over.
+1. Open the **[Releases page](https://github.com/Tufein/Valkyr/releases)** on your phone or handheld, or download there and copy the file over.
 2. Download one of the two files:
-   - **`DogmatixPlus-release.apk`** — *the normal choice.* Signed releases update the app in place and keep your app data. The file names still carry the app's earlier name.
-   - **`DogmatixPlus-debug.apk`** — a separate test app with its own data, for trying things out next to your normal app.
+   - **`Valkyr-release.apk`** — *the normal choice.* Signed releases update the app in place and keep your app data.
+   - **`Valkyr-debug.apk`** — a separate test app with its own data, for trying things out next to your normal app.
 3. Open the file and allow **"install unknown apps"** if Android asks.
 
 You need **Android 10 or newer**. The app is not on Google Play.
@@ -139,7 +139,7 @@ Everything also works by touch. The hints only show while a controller is connec
 - **[TECHNICAL.md](TECHNICAL.md)**: how the app is built, how the duplicate finder decides, the folder layout, deep links and the tech stack (in English).
 - **[FRONTENDS.md](FRONTENDS.md)**: setting up ES-DE, iiSU, Daijishō and Pegasus.
 - **[Roadmap](docs/ROADMAP.md)**: ideas for future versions.
-- **[Releases](https://github.com/Tufein/DogmatixPlus/releases)**: downloads and checksums.
+- **[Releases](https://github.com/Tufein/Valkyr/releases)**: downloads and checksums.
 
 ## Credits
 

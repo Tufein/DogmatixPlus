@@ -23,16 +23,16 @@ Valkyr mantiene una gran lista, con buscador, de los juegos de las fuentes que *
 
 *Las capturas de pantalla usan títulos de juegos inventados y archivos vacíos de relleno. Las capturas muestran la app en inglés.*
 
-**Última versión: [4.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.1.0)** (build de Android 53).
+**Última versión: [4.1.0](https://github.com/Tufein/Valkyr/releases/tag/v4.1.0)** (build de Android 53).
 
 Hasta la 3.9.0 la app se llamaba Dogmatix+. Valkyr 4.1.0 tiene su propio ID de aplicación y se instala junto a la app antigua: usa *Ajustes → Copia de seguridad* en la app antigua y *Restaurar copia* en Valkyr, y luego elimina la app antigua.
 
 ## Instalar
 
-1. Abre la **[página de Releases](https://github.com/Tufein/DogmatixPlus/releases)** en tu móvil o en tu consola portátil, o descarga el archivo allí y cópialo al dispositivo.
+1. Abre la **[página de Releases](https://github.com/Tufein/Valkyr/releases)** en tu móvil o en tu consola portátil, o descarga el archivo allí y cópialo al dispositivo.
 2. Descarga uno de los dos archivos:
-   - **`DogmatixPlus-release.apk`** — *la opción normal.* Las versiones firmadas actualizan la app y conservan sus datos. Los nombres de archivo todavía llevan el nombre anterior de la app.
-   - **`DogmatixPlus-debug.apk`** — una app de prueba separada con sus propios datos, para probar cosas junto a tu app normal.
+   - **`Valkyr-release.apk`** — *la opción normal.* Las versiones firmadas actualizan la app y conservan sus datos.
+   - **`Valkyr-debug.apk`** — una app de prueba separada con sus propios datos, para probar cosas junto a tu app normal.
 3. Abre el archivo y permite **«Instalar aplicaciones desconocidas»** si Android te lo pide.
 
 Necesitas **Android 10 o más reciente**. La app no está en Google Play.
@@ -139,7 +139,7 @@ Todo funciona también con la pantalla táctil. Las ayudas solo se muestran mien
 - **[TECHNICAL.md](TECHNICAL.md)**: cómo está hecha la app, cómo decide el buscador de duplicados, estructura de carpetas, deep links y tecnologías (en inglés).
 - **[FRONTENDS.md](FRONTENDS.md)**: configurar ES-DE, iiSU, Daijishō y Pegasus.
 - **[Hoja de ruta](docs/ROADMAP.md)**: ideas para futuras versiones.
-- **[Versiones](https://github.com/Tufein/DogmatixPlus/releases)**: descargas y sumas de comprobación.
+- **[Versiones](https://github.com/Tufein/Valkyr/releases)**: descargas y sumas de comprobación.
 
 ## Créditos
 

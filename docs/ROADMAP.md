@@ -1,6 +1,6 @@
 # Roadmap
 
-Ideas for future versions, in no particular order. Requests are welcome as [issues](https://github.com/Tufein/DogmatixPlus/issues).
+Ideas for future versions, in no particular order. Requests are welcome as [issues](https://github.com/Tufein/Valkyr/issues).
 
 - **More providers in the content catalogue**, based on requests, each with clear attribution and console mapping. MAME's free-to-download games are a candidate once there is an arcade console in the app and their download terms (non-commercial use) can be shown to the user.
 - **More save sync for standalone emulators**, such as Dolphin's GCI folders and Wii saves, and other emulators whose saves live in card or NAND images.

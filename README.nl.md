@@ -23,16 +23,16 @@ Valkyr houdt één grote, doorzoekbare lijst bij van de games uit de bronnen die
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [4.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.1.0)** (Android build 53).
+**Laatste release: [4.1.0](https://github.com/Tufein/Valkyr/releases/tag/v4.1.0)** (Android build 53).
 
 Tot en met 3.9.0 heette de app Dogmatix+. Valkyr 4.1.0 heeft een eigen app-id en installeert dus naast de oude app: gebruik *Instellingen → Back-up maken* in de oude app en *Back-up terugzetten* in Valkyr, en verwijder daarna de oude app.
 
 ## Installeren
 
-1. Open de **[Releases-pagina](https://github.com/Tufein/DogmatixPlus/releases)** op je telefoon of handheld, of download het bestand daar en kopieer het naar je toestel.
+1. Open de **[Releases-pagina](https://github.com/Tufein/Valkyr/releases)** op je telefoon of handheld, of download het bestand daar en kopieer het naar je toestel.
 2. Download een van de twee bestanden:
-   - **`DogmatixPlus-release.apk`** — *de gewone keuze.* Ondertekende releases werken de app bij en behouden je gegevens. De bestandsnamen dragen nog de vroegere naam van de app.
-   - **`DogmatixPlus-debug.apk`** — een aparte testapp met eigen gegevens, om dingen uit te proberen naast je gewone app.
+   - **`Valkyr-release.apk`** — *de gewone keuze.* Ondertekende releases werken de app bij en behouden je gegevens.
+   - **`Valkyr-debug.apk`** — een aparte testapp met eigen gegevens, om dingen uit te proberen naast je gewone app.
 3. Open het bestand en sta **"Onbekende apps installeren"** toe als Android erom vraagt.
 
 Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
@@ -139,7 +139,7 @@ Alles werkt ook met het touchscreen. De hints verschijnen alleen als er een cont
 - **[TECHNICAL.md](TECHNICAL.md)**: hoe de app is gebouwd, hoe de functie Dubbele games beslist, de mappenstructuur, deep links en de gebruikte technologie (in het Engels).
 - **[FRONTENDS.md](FRONTENDS.md)**: ES-DE, iiSU, Daijishō en Pegasus instellen.
 - **[Roadmap](docs/ROADMAP.md)**: ideeën voor toekomstige versies.
-- **[Releases](https://github.com/Tufein/DogmatixPlus/releases)**: downloads en controlesommen.
+- **[Releases](https://github.com/Tufein/Valkyr/releases)**: downloads en controlesommen.
 
 ## Credits
 

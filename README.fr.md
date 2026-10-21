@@ -23,16 +23,16 @@ Valkyr rassemble les jeux des sources que *vous* ajoutez dans une seule grande l
 
 *Les captures d’écran utilisent des titres de jeux inventés et des fichiers vides de substitution, et montrent l’application en anglais.*
 
-**Dernière version : [4.1.0](https://github.com/Tufein/DogmatixPlus/releases/tag/v4.1.0)** (build Android 53).
+**Dernière version : [4.1.0](https://github.com/Tufein/Valkyr/releases/tag/v4.1.0)** (build Android 53).
 
 Jusqu’à la 3.9.0, l’application s’appelait Dogmatix+. Valkyr 4.1.0 a son propre identifiant d’application et s’installe donc à côté de l’ancienne : utilisez *Réglages → Sauvegarder* dans l’ancienne appli et *Restaurer une sauvegarde* dans Valkyr, puis supprimez l’ancienne.
 
 ## Installation
 
-1. Ouvrez la **[page Releases](https://github.com/Tufein/DogmatixPlus/releases)** sur votre téléphone ou votre console portable, ou téléchargez-y le fichier et copiez-le sur l’appareil.
+1. Ouvrez la **[page Releases](https://github.com/Tufein/Valkyr/releases)** sur votre téléphone ou votre console portable, ou téléchargez-y le fichier et copiez-le sur l’appareil.
 2. Téléchargez l’un des deux fichiers :
-   - **`DogmatixPlus-release.apk`** — *le choix normal.* Les versions signées mettent l’application à jour en conservant les données. Les noms de fichiers portent encore l’ancien nom de l’application.
-   - **`DogmatixPlus-debug.apk`** — une application de test séparée avec ses propres données, pour essayer des choses à côté de votre application habituelle.
+   - **`Valkyr-release.apk`** — *le choix normal.* Les versions signées mettent l’application à jour en conservant les données.
+   - **`Valkyr-debug.apk`** — une application de test séparée avec ses propres données, pour essayer des choses à côté de votre application habituelle.
 3. Ouvrez le fichier et autorisez **« Installer des applications inconnues »** si Android vous le demande.
 
 Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Google Play.
@@ -139,7 +139,7 @@ Tout fonctionne aussi au toucher. Les indications ne s’affichent que lorsqu’
 - **[TECHNICAL.md](TECHNICAL.md)** : construction de l’application, décisions de la recherche de doublons, organisation des dossiers, liens profonds et technologies (en anglais).
 - **[FRONTENDS.md](FRONTENDS.md)** : configurer ES-DE, iiSU, Daijishō et Pegasus.
 - **[Feuille de route](docs/ROADMAP.md)** : idées pour les prochaines versions.
-- **[Versions](https://github.com/Tufein/DogmatixPlus/releases)** : téléchargements et sommes de contrôle.
+- **[Versions](https://github.com/Tufein/Valkyr/releases)** : téléchargements et sommes de contrôle.
 
 ## Crédits
 

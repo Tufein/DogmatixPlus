@@ -139,9 +139,9 @@ jobs:
       - name: Collect APKs and notes
         run: |
           mkdir dist
-          cp app/build/outputs/apk/debug/app-debug.apk dist/DogmatixPlus-debug.apk
-          cp app/build/outputs/apk/release/app-release.apk dist/DogmatixPlus-release.apk
-          (cd dist && sha256sum DogmatixPlus-release.apk DogmatixPlus-debug.apk > SHA256SUMS.txt)
+          cp app/build/outputs/apk/debug/app-debug.apk dist/Valkyr-debug.apk
+          cp app/build/outputs/apk/release/app-release.apk dist/Valkyr-release.apk
+          (cd dist && sha256sum Valkyr-release.apk Valkyr-debug.apk > SHA256SUMS.txt)
           notes="docs/release-notes/$TAG.md"
           if [ -f "$notes" ]; then cp "$notes" dist/notes.md; else echo "Valkyr $TAG." > dist/notes.md; fi
           {
@@ -167,6 +167,6 @@ jobs:
           prerelease: false
           make_latest: "true"
           files: |
-            dist/DogmatixPlus-debug.apk
-            dist/DogmatixPlus-release.apk
+            dist/Valkyr-debug.apk
+            dist/Valkyr-release.apk
             dist/SHA256SUMS.txt

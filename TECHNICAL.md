@@ -167,8 +167,8 @@ A file called **Burnout Paradise (En,Es,Fr) (NTSC).zip** in a torrent becomes
 Requirements: JDK 17 or newer (the releases were built with JDK 21), Android SDK platform 36, build-tools 36.0.0.
 
 ```bash
-git clone https://github.com/Tufein/DogmatixPlus.git
-cd DogmatixPlus
+git clone https://github.com/Tufein/Valkyr.git
+cd Valkyr
 
 ./gradlew assembleDebug      # debug APK (applicationId com.tufein.valkyr.debug)
 ./gradlew assembleRelease    # release APK (minified, signed with the debug keystore)
@@ -256,7 +256,7 @@ Everything is also reachable by touch; the legend only appears while a controlle
 
 ## Roadmap
 
-Ideas for future versions are in [docs/ROADMAP.md](docs/ROADMAP.md). Ideas and requests are welcome as [issues](https://github.com/Tufein/DogmatixPlus/issues).
+Ideas for future versions are in [docs/ROADMAP.md](docs/ROADMAP.md). Ideas and requests are welcome as [issues](https://github.com/Tufein/Valkyr/issues).
 
 ## Disclaimer
 

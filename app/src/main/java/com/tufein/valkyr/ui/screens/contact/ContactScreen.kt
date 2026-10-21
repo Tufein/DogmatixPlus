@@ -50,7 +50,7 @@ import com.tufein.valkyr.ui.components.rememberFocusSource
 private data class CreditLink(val iconRes: Int, val label: String, val url: String, val display: String)
 
 /** The project on GitHub. The repository keeps its old address until it is renamed there. */
-private const val PROJECT_URL = "https://github.com/Tufein/DogmatixPlus"
+private const val PROJECT_URL = "https://github.com/Tufein/Valkyr"
 
 /** The open-source libraries and fonts the app is built with (see gradle/libs.versions.toml and res/font). */
 private val libraryLinks = listOf(
