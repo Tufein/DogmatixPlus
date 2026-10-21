@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.3: the tidied Settings screen (cards, row titles and hints). -->
+<resources>
+    <string name="settings43_group_look">Uiterlijk en taal</string>
+    <string name="settings43_group_controls">Bediening en schermen</string>
+    <string name="settings43_group_storage">Map en opslag</string>
+    <string name="settings43_group_frontends">Frontends en emulators</string>
+    <string name="settings43_group_cloud">Cloud en saves</string>
+    <string name="settings43_accent">Accentkleur</string>
+    <string name="settings43_accent_hint">De kleur van de focusrand, het actieve tabblad en de downloadvoortgang</string>
+    <string name="settings43_glow_hint">Een zachte gloed in de accentkleur achter de schermen; Instellingen zelf blijft effen</string>
+    <string name="settings43_download_folder">Downloadmap</string>
+    <string name="settings43_download_folder_unset">Nog niet ingesteld: kies de map waarin je games komen</string>
+    <string name="settings43_separate">Een submap per console</string>
+    <string name="settings43_separate_hint">Elke console krijgt een eigen map, zoals ES-DE en Daijishō het verwachten. Standaard aan</string>
+    <string name="settings43_concurrent_hint">Hoeveel downloads er tegelijk lopen. Standaard: %1$d</string>
+    <string name="settings43_limit_hint">Voor alle downloads samen, in stappen van 250 KB/s. Standaard: onbeperkt</string>
+    <string name="settings43_limit_day_only_hint">De snelheidslimiet vervalt tussen %1$s en %2$s, de nachturen onder Wanneer downloaden</string>
+    <string name="settings43_per_server">Downloads per server</string>
+    <string name="settings43_low_battery">Pauzeren bij bijna lege batterij</string>
+    <string name="settings43_meta_auto">Gamegegevens voor frontends</string>
+    <string name="settings43_meta_auto_hint">Schrijft de beschrijving, het genre en het jaar van een game voor ES-DE en Pegasus meteen na de download, zoals ingesteld in Beschrijvingen voor je launcher. Standaard uit</string>
+    <string name="settings43_esde_needs_folder">Er wordt nog niets geschreven: stel eerst de ES-DE-map in met ES-DE instellen onder Frontends en emulators</string>
+    <string name="settings43_autoscan_wifi">Alleen scannen op wifi</string>
+    <string name="settings43_autoscan_charging">Alleen scannen tijdens het opladen</string>
+    <string name="settings43_autoscan_night_hint">Tussen %1$s en %2$s, de nachturen onder Wanneer downloaden</string>
+    <string name="settings43_favorite_languages">Favoriete talen</string>
+    <string name="settings43_action_check">Controleren</string>
+    <string name="settings43_action_share">Delen</string>
+</resources>

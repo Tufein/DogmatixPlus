@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.3: the tidied Settings screen (cards, row titles and hints). -->
+<resources>
+    <string name="settings43_group_look">Aussehen und Sprache</string>
+    <string name="settings43_group_controls">Bedienung und Bildschirme</string>
+    <string name="settings43_group_storage">Ordner und Speicher</string>
+    <string name="settings43_group_frontends">Frontends und Emulatoren</string>
+    <string name="settings43_group_cloud">Cloud und Spielstände</string>
+    <string name="settings43_accent">Akzentfarbe</string>
+    <string name="settings43_accent_hint">Die Farbe des Fokusrahmens, des aktiven Tabs und des Download-Fortschritts</string>
+    <string name="settings43_glow_hint">Ein sanftes Leuchten in der Akzentfarbe hinter den Bildschirmen; die Einstellungen selbst bleiben schlicht</string>
+    <string name="settings43_download_folder">Download-Ordner</string>
+    <string name="settings43_download_folder_unset">Noch nicht festgelegt: wähle den Ordner für deine Spiele</string>
+    <string name="settings43_separate">Ein Unterordner pro Konsole</string>
+    <string name="settings43_separate_hint">Jede Konsole bekommt einen eigenen Ordner, wie ES-DE und Daijishō es erwarten. Standardmäßig an</string>
+    <string name="settings43_concurrent_hint">Wie viele Downloads gleichzeitig laufen. Standard: %1$d</string>
+    <string name="settings43_limit_hint">Für alle Downloads zusammen, in Schritten von 250 KB/s. Standard: unbegrenzt</string>
+    <string name="settings43_limit_day_only_hint">Das Limit gilt nicht zwischen %1$s und %2$s, den Nachtstunden unter Wann herunterladen</string>
+    <string name="settings43_per_server">Downloads pro Server</string>
+    <string name="settings43_low_battery">Bei niedrigem Akku pausieren</string>
+    <string name="settings43_meta_auto">Spieldetails für Frontends</string>
+    <string name="settings43_meta_auto_hint">Schreibt Beschreibung, Genre und Jahr eines Spiels für ES-DE und Pegasus direkt nach dem Download, wie in Beschreibungen für deinen Launcher eingestellt. Standardmäßig aus</string>
+    <string name="settings43_esde_needs_folder">Noch wird nichts geschrieben: lege zuerst den ES-DE-Ordner mit ES-DE einrichten unter Frontends und Emulatoren fest</string>
+    <string name="settings43_autoscan_wifi">Nur im WLAN scannen</string>
+    <string name="settings43_autoscan_charging">Nur beim Laden scannen</string>
+    <string name="settings43_autoscan_night_hint">Zwischen %1$s und %2$s, den Nachtstunden unter Wann herunterladen</string>
+    <string name="settings43_favorite_languages">Bevorzugte Sprachen</string>
+    <string name="settings43_action_check">Prüfen</string>
+    <string name="settings43_action_share">Teilen</string>
+</resources>

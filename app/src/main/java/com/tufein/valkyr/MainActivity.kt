@@ -744,7 +744,10 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                         )
                     }
                     composable(NavRoutes.FrontendMetadata.route) {
-                        FrontendMetadataScreen(onOpenSettings = { navController.navigate(NavRoutes.Settings.route) })
+                        FrontendMetadataScreen(onOpenSettings = {
+                            com.tufein.valkyr.ui.screens.settings.SettingsJump.request(com.tufein.valkyr.util.SettingKeys.ESDE)
+                            navController.navigate(NavRoutes.Settings.route)
+                        })
                     }
                     composable(NavRoutes.BetterVersions.route) { BetterVersionsScreen(onRecovery = { navController.navigate(NavRoutes.Recovery.route) }) }
                     composable(NavRoutes.SearchAll.route) { SearchAllScreen(navController) }
