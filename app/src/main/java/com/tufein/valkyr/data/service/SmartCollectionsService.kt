@@ -61,7 +61,7 @@ class SmartCollectionsService @Inject constructor(
             val matches = ArrayList<CollectionItemEntity>()
             for (console in files.indexedSources().map { it.consoleId }.distinct().filter { rule.consoles.isEmpty() || it in rule.consoles }) {
                 currentCoroutineContext().ensureActive()
-                val rows = files.filesOf(console)
+                val rows = files.fileRefsOf(console)
                 val tags = rows.chunked(400).flatMap { files.tagsOfFiles(it.map { f -> f.id }) }.groupBy { it.fileId }
                 for (row in rows) {
                     val rowTags = tags[row.id].orEmpty().map { it.tag }

@@ -1,12 +1,12 @@
 package com.tufein.valkyr.data.service
 
+import com.tufein.valkyr.util.BoundedMap
 import com.tufein.valkyr.util.CoverSources
 import com.tufein.valkyr.util.LibretroThumbnails
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,7 +16,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class ThumbnailService @Inject constructor() {
-    private val cache = ConcurrentHashMap<String, String>()
+    private val cache = BoundedMap<String, String>()
 
     /** A direct image URL for [fileName] on [consoleId], or null when libretro has none. */
     suspend fun boxart(consoleId: String, fileName: String): String? = withContext(Dispatchers.IO) {
@@ -53,7 +53,7 @@ class ThumbnailService @Inject constructor() {
         CoverSources.Answer.Miss.also { chainCache[key] = "" }
     }
 
-    private val chainCache = ConcurrentHashMap<String, String>()
+    private val chainCache = BoundedMap<String, String>()
 
     /** Forgets this run's chain answers ("find missing covers again"). */
     fun clearChainCache() = chainCache.clear()

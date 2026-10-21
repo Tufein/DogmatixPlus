@@ -352,7 +352,7 @@ class NewHandheldViewModel @Inject constructor(
         viewModelScope.launch {
             val owned = library.ownedKeys.value
             val file = withContext(Dispatchers.IO) {
-                val rows = files.filesOf(consoleId)
+                val rows = files.fileRefsOf(consoleId)
                 rows.firstOrNull { LibraryKeys.isOwned(it.consoleId, it.fileName, owned) } ?: rows.firstOrNull()
             }
             onRoute(file?.let { ReadinessRoute.of(consoleId, it.fileName) })

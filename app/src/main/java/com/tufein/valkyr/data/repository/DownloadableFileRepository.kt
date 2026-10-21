@@ -2,6 +2,7 @@ package com.tufein.valkyr.data.repository
 
 import com.tufein.valkyr.data.local.dao.ConsoleWithFileCount
 import com.tufein.valkyr.data.local.dao.DownloadableFileDao
+import com.tufein.valkyr.data.local.dao.DownloadableFileRef
 import com.tufein.valkyr.data.local.entity.DownloadableFileEntity
 import com.tufein.valkyr.data.model.CategorizedTags
 import com.tufein.valkyr.data.model.DownloadableFileWithTags
@@ -145,6 +146,12 @@ class DownloadableFileRepository @Inject constructor(
 
     /** Every row of one console (Switch updates / DLC). */
     suspend fun filesOf(consoleId: String): List<DownloadableFileEntity> = PerfLog.timed("db.console_rows") { dao.filesOf(consoleId) }
+
+    /** Id and names of every row of one console: for callers that do not need the URLs and torrent fields. */
+    suspend fun fileRefsOf(consoleId: String): List<DownloadableFileRef> = PerfLog.timed("db.console_refs") { dao.fileRefsOf(consoleId) }
+
+    suspend fun filesByIds(ids: List<Long>): List<DownloadableFileEntity> =
+        ids.chunked(400).flatMap { dao.filesByIds(it) }
 
     suspend fun backfillSearchKeys() = dao.backfillSearchKeys()
 

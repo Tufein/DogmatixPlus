@@ -6,6 +6,7 @@ import com.tufein.valkyr.data.local.VersionPreferenceSettings
 import com.tufein.valkyr.data.local.dao.CoverDao
 import com.tufein.valkyr.data.local.dao.GameMetadataDao
 import com.tufein.valkyr.data.local.entity.CoverEntity
+import com.tufein.valkyr.util.BoundedMap
 import com.tufein.valkyr.util.CoverPlanner
 import com.tufein.valkyr.util.CoverSources
 import com.tufein.valkyr.util.CoverSources.Answer
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -62,7 +62,7 @@ class CoverRepository @Inject constructor(
     /** libretro-thumbnails on its own limit (ScreenScraper keeps the account's thread limit itself). */
     private val libretroPermits = Semaphore(3)
     /** Games whose lookup met a source that could not answer: not asked again before this moment. */
-    private val retryAfter = ConcurrentHashMap<String, Long>()
+    private val retryAfter = BoundedMap<String, Long>()
 
     init {
         // A changed order, switch or login can find covers that were missing: look again.

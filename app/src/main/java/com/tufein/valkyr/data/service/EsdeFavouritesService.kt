@@ -49,7 +49,7 @@ class EsdeFavouritesService @Inject constructor(
             found += favourites.size
             val matched = HashSet<String>()
             consoles.filter { ConsoleFolderAliases.matches(it, system.name) }.forEach { consoleId ->
-                val hits = EsdeFavourites.matchEach(favourites, fileDao.filesOf(consoleId).map { it.fileName })
+                val hits = EsdeFavourites.matchEach(favourites, fileDao.fileRefsOf(consoleId).map { it.fileName })
                 hits.forEach { (favourite, fileName) -> add += consoleId to fileName; matched += favourite }
             }
             unmatched += (favourites.size - matched.size).coerceAtLeast(0)

@@ -118,10 +118,13 @@ class GameDetailsLoader @Inject constructor(
             }
             // Same console and a shared genre: cheap thanks to the cached index (no network).
             if (genres.isNotEmpty()) {
-                repository.filesOf(file.consoleId).asSequence()
+                val sameGenre = repository.fileRefsOf(file.consoleId).asSequence()
                     .filter { f -> index.metaFor(f.consoleId, f.name)?.genres?.any { it in genres } == true }
                     .take(400)
-                    .forEach { pool.putIfAbsent(it.id, DownloadableFileWithTags(it, emptyList())) }
+                    .map { it.id }
+                    .filter { it !in pool }
+                    .toList()
+                repository.filesByIds(sameGenre).forEach { pool.putIfAbsent(it.id, DownloadableFileWithTags(it, emptyList())) }
             }
             val candidates = pool.values.map {
                 val meta = index.metaFor(it.file.consoleId, it.file.name)

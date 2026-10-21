@@ -64,13 +64,13 @@ class DownloadActionRecorder @Inject constructor(
                 if (!active) {
                     delay(QUIET_MS)
                     write(synchronized(tally) { tally.endRun(System.currentTimeMillis(), actionLog::newId) })
+                } else {
+                    // The periodic summary only runs while something is queued or running.
+                    while (true) {
+                        delay(TICK_MS)
+                        write(synchronized(tally) { tally.tick(System.currentTimeMillis(), actionLog::newId) })
+                    }
                 }
-            }
-        }
-        scope.launch {
-            while (true) {
-                delay(TICK_MS)
-                write(synchronized(tally) { tally.tick(System.currentTimeMillis(), actionLog::newId) })
             }
         }
     }

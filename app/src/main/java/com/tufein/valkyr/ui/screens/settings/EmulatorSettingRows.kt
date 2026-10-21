@@ -86,7 +86,7 @@ class EmulatorSettingsViewModel @Inject constructor(
 
     fun wizard(consoleId: String, onReady: (String) -> Unit) {
         viewModelScope.launch {
-            val rows = files.filesOf(consoleId)
+            val rows = files.fileRefsOf(consoleId)
             val file = rows.firstOrNull { com.tufein.valkyr.util.LibraryKeys.isOwned(it.consoleId, it.fileName, library.ownedKeys.value) } ?: rows.firstOrNull()
             if (file != null) onReady(com.tufein.valkyr.ui.screens.tools.ReadinessRoute.of(consoleId, file.fileName))
         }

@@ -269,6 +269,14 @@ interface DownloadableFileDao {
     @Query("SELECT * FROM downloadable_files WHERE consoleId = :consoleId")
     suspend fun filesOf(consoleId: String): List<DownloadableFileEntity>
 
+    /** The few columns callers that only match or list names need, without the URLs and torrent fields of [filesOf]. */
+    @Query("SELECT id, consoleId, name, fileName FROM downloadable_files WHERE consoleId = :consoleId")
+    suspend fun fileRefsOf(consoleId: String): List<DownloadableFileRef>
+
+    /** Full rows of the given ids (at most a few hundred per call). */
+    @Query("SELECT * FROM downloadable_files WHERE id IN (:ids)")
+    suspend fun filesByIds(ids: List<Long>): List<DownloadableFileEntity>
+
     /**
      * Replaces the rows of one source (and, the first time after the update to 2.0, the console's
      * rows from before sources were remembered) with [files] in one transaction. A file the source
@@ -310,6 +318,14 @@ interface DownloadableFileDao {
         deleteFilesByConsoleIdInternal(consoleId)
     }
 }
+
+/** Light projection of a row: identity and names only (see [DownloadableFileDao.fileRefsOf]). */
+data class DownloadableFileRef(
+    val id: Long,
+    val consoleId: String,
+    val name: String,
+    val fileName: String
+)
 
 data class DownloadableFileWithTagsResult(
     val id: Long,
