@@ -203,7 +203,7 @@
     <string name="seconds_short">%1$d s</string>
     <string name="settings_auto_unzip_hint">ZIP e 7z al termine del download</string>
     <string name="settings_separate_hint">Funziona con ES-DE e Daijishō</string>
-    <string name="settings_favorite_languages">Lingue preferite</string>
+    <string name="settings_favorite_languages">Lingue di gioco preferite</string>
     <string name="settings_favorite_languages_hint">Mostrate per prime nel filtro lingua</string>
     <string name="settings_favorite_languages_empty">Nessuna lingua ancora indicizzata</string>
     <string name="settings_reset_default">Ripristina</string>
@@ -217,7 +217,7 @@
     <string name="gamepad_layout_playstation">PlayStation</string>
     <string name="settings_swap_face_buttons">Scambia A/B e X/Y</string>
     <string name="settings_swap_face_buttons_hint">Per i pad che segnalano i pulsanti frontali al contrario; la legenda resta com\'è</string>
-    <string name="settings_language">Lingua</string>
+    <string name="settings_language">Lingua dell’app</string>
     <string name="settings_language_hint">Segue la lingua del dispositivo per impostazione predefinita</string>
     <string name="language_system">Sistema</string>
     <string name="language_en">English</string>
@@ -716,7 +716,7 @@
     <string name="diagnostics_failed">Impossibile creare il rapporto</string>
     <string name="language_it">Italiano</string>
     <string name="language_pt">Português</string>
-    <string name="accent_dialog_title">Colore principale</string>
+    <string name="accent_dialog_title">Colore d’accento</string>
     <string name="accent_dynamic_hint">Il primo è Material You: i colori seguono il tuo sfondo.</string>
     <string name="scan_fail_rate_limited">il server chiede di rallentare (429)</string>
     <string name="scan_fail_server">errore del server (%1$d)</string>

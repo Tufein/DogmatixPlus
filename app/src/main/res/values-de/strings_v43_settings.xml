@@ -24,7 +24,7 @@
     <string name="settings43_autoscan_wifi">Nur im WLAN scannen</string>
     <string name="settings43_autoscan_charging">Nur beim Laden scannen</string>
     <string name="settings43_autoscan_night_hint">Zwischen %1$s und %2$s, den Nachtstunden unter Wann herunterladen</string>
-    <string name="settings43_favorite_languages">Bevorzugte Sprachen</string>
+    <string name="settings43_favorite_languages">Bevorzugte Spielsprachen</string>
     <string name="settings43_action_check">Prüfen</string>
     <string name="settings43_action_share">Teilen</string>
 </resources>

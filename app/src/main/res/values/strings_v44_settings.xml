@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.4: Settings consolidated: card names and one-line descriptions, reasons for dimmed rows. -->
+<resources>
+    <string name="settings44_group_library">Library and covers</string>
+    <string name="settings44_group_sources">Sources and new games</string>
+    <string name="settings44_group_backup">Backup and recovery</string>
+    <string name="settings44_desc_look">Theme, colours, text and motion, and the language of the app</string>
+    <string name="settings44_desc_controls">Gamepad buttons, TV mode and the second screen</string>
+    <string name="settings44_desc_library">How your games are listed, searched and shown</string>
+    <string name="settings44_desc_sources">Look for new games in your sources and decide what happens when they turn up</string>
+    <string name="settings44_desc_storage">Where games are saved and how much space stays free</string>
+    <string name="settings44_desc_downloads">How the queue runs: speed, parallel downloads and retries</string>
+    <string name="settings44_desc_schedule">When downloads may run: network, power and time of day</string>
+    <string name="settings44_desc_after">What happens with the files and your frontends once a download is done</string>
+    <string name="settings44_desc_torrents">Fetch torrents through a debrid service</string>
+    <string name="settings44_desc_frontends">Connect Valkyr to your launchers and choose the emulator for each console</string>
+    <string name="settings44_desc_cloud">RomM, save sync and your other devices</string>
+    <string name="settings44_desc_backup">Keep your settings safe, move to a new handheld and bring removed games back</string>
+    <string name="settings44_desc_app">Updates, diagnostics and information about Valkyr</string>
+    <string name="settings44_limit_needed">Needs a speed limit: set one in the row above</string>
+    <string name="settings44_night_unused">Not in use yet: it counts as soon as Download only at night, No limit at night or Scan only at night is on</string>
+    <string name="settings44_cocoon">Set up Cocoon</string>
+</resources>

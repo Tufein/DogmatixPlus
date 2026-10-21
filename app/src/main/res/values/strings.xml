@@ -125,15 +125,15 @@
     <string name="settings_frontend_shortcuts_action">Create</string>
     <string name="frontend_shortcuts_done">%1$d shortcuts created</string>
     <string name="frontend_shortcuts_partial">%1$d shortcuts created, %2$d failed</string>
-    <string name="frontend_shortcuts_none">No download directory set</string>
+    <string name="frontend_shortcuts_none">No download folder set</string>
     <string name="dgmtx_invalid">Not a Valkyr shortcut file</string>
-    <string name="settings_esde">Configure ES-DE</string>
+    <string name="settings_esde">Set up ES-DE</string>
     <string name="settings_esde_hint">Pick your ES-DE folder and Valkyr adds itself to every platform (close ES-DE first)</string>
     <string name="settings_esde_action">Set up</string>
     <string name="esde_configured">ES-DE: %1$d systems ready, %2$d shortcuts — restart ES-DE</string>
     <string name="esde_folders_skipped">%1$d folders have no matching ES-DE system</string>
     <string name="esde_not_installed">ES-DE is not installed on this device</string>
-    <string name="settings_iisu">Configure iiSU</string>
+    <string name="settings_iisu">Set up iiSU</string>
     <string name="settings_iisu_hint">Pick iiSU\'s iiSULauncher folder and Valkyr adds itself as an emulator (restart iiSU after)</string>
     <string name="settings_iisu_action">Set up</string>
     <string name="iisu_configured">iiSU: %1$d consoles ready, %2$d shortcuts — restart iiSU</string>
@@ -218,7 +218,7 @@
     <string name="seconds_short">%1$d s</string>
     <string name="settings_auto_unzip_hint">ZIP and 7z once the download finishes</string>
     <string name="settings_separate_hint">Works with ES-DE and Daijishō</string>
-    <string name="settings_favorite_languages">Favorite languages</string>
+    <string name="settings_favorite_languages">Favourite game languages</string>
     <string name="settings_favorite_languages_hint">Shown first in the language filter</string>
     <string name="settings_favorite_languages_empty">No languages indexed yet</string>
     <string name="settings_reset_default">Reset</string>
@@ -232,7 +232,7 @@
     <string name="gamepad_layout_playstation">PlayStation</string>
     <string name="settings_swap_face_buttons">Swap A/B and X/Y</string>
     <string name="settings_swap_face_buttons_hint">For pads that report the face buttons the other way round; the legend stays as it is</string>
-    <string name="settings_language">Language</string>
+    <string name="settings_language">App language</string>
     <string name="settings_language_hint">Follows the device language by default</string>
     <string name="language_system">System</string>
     <string name="language_en">English</string>
@@ -296,7 +296,7 @@
     <!-- Messages -->
     <string name="msg_db_rebuild_started">Database rebuild started!</string>
     <string name="msg_db_rebuild_complete">Database rebuild complete!</string>
-    <string name="msg_configure_directory">Please configure download directory in settings</string>
+    <string name="msg_configure_directory">Please set the download folder in Settings</string>
     <string name="msg_operation_failed">Operation failed</string>
     <string name="msg_unknown_error">Unknown error</string>
     <string name="msg_http_error">HTTP Error: %1$d</string>
@@ -316,7 +316,7 @@
     <!-- Error Messages -->
     <string name="error_operation_failed">Operation failed: %1$s</string>
     <string name="error_unknown">Unknown error</string>
-    <string name="error_configure_directory">Please configure download directory in settings</string>
+    <string name="error_configure_directory">Please set the download folder in Settings</string>
     
     <!-- Sources: merge duplicate console folders -->
     <string name="merge_folders_notice">%1$d folders match this console: %2$s</string>
@@ -398,8 +398,8 @@
     <string name="dialog_new_manufacturer">Or a new manufacturer</string>
 
     <!-- Library errors -->
-    <string name="error_download_dir_missing">Download directory not configured. Please set a download folder in settings.</string>
-    <string name="error_download_dir_inaccessible">Download directory is not accessible. Please check your folder permissions in settings.</string>
+    <string name="error_download_dir_missing">Download folder not set. Please pick a download folder in Settings.</string>
+    <string name="error_download_dir_inaccessible">Download folder is not accessible. Please check your folder permissions in Settings.</string>
 
     <!-- MIME Types -->
     <string name="mime_octet_stream">application/octet-stream</string>
@@ -458,7 +458,7 @@
     <string name="backup_import_restart">Restart Valkyr to see the restored downloads list</string>
     <string name="backup_import_failed">Restore failed: %1$s</string>
     <string name="tools_scanning">Reading your download folders…</string>
-    <string name="tools_no_folder">Pick a download directory in Settings first</string>
+    <string name="tools_no_folder">Pick a download folder in Settings first</string>
     <string name="tools_refresh">Refresh</string>
     <string name="tools_root_folder">Download folder (no console)</string>
     <string name="tools_unknown_folder">Folder %1$s</string>

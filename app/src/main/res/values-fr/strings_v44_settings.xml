@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.4: Settings consolidated: card names and one-line descriptions, reasons for dimmed rows. -->
+<resources>
+    <string name="settings44_group_library">Bibliothèque et jaquettes</string>
+    <string name="settings44_group_sources">Sources et nouveaux jeux</string>
+    <string name="settings44_group_backup">Sauvegarde et récupération</string>
+    <string name="settings44_desc_look">Thème, couleurs, texte et animations, et la langue de l’appli</string>
+    <string name="settings44_desc_controls">Boutons de la manette, mode TV et second écran</string>
+    <string name="settings44_desc_library">Comment vos jeux sont listés, recherchés et affichés</string>
+    <string name="settings44_desc_sources">Cherchez de nouveaux jeux dans vos sources et choisissez ce qui se passe quand ils arrivent</string>
+    <string name="settings44_desc_storage">Où les jeux sont enregistrés et combien d’espace reste libre</string>
+    <string name="settings44_desc_downloads">Comment la file avance : vitesse, téléchargements simultanés et nouvelles tentatives</string>
+    <string name="settings44_desc_schedule">Quand les téléchargements peuvent tourner : réseau, alimentation et heure</string>
+    <string name="settings44_desc_after">Ce qui arrive aux fichiers et à vos frontends une fois un téléchargement terminé</string>
+    <string name="settings44_desc_torrents">Récupérer les torrents via un service debrid</string>
+    <string name="settings44_desc_frontends">Relier Valkyr à vos lanceurs et choisir l’émulateur de chaque console</string>
+    <string name="settings44_desc_cloud">RomM, synchro des sauvegardes et vos autres appareils</string>
+    <string name="settings44_desc_backup">Protéger vos paramètres, passer à une nouvelle console et récupérer des jeux supprimés</string>
+    <string name="settings44_desc_app">Mises à jour, diagnostic et informations sur Valkyr</string>
+    <string name="settings44_limit_needed">Demande une limite de vitesse : réglez-en une dans la ligne du dessus</string>
+    <string name="settings44_night_unused">Pas encore utilisé : compte dès que Télécharger seulement la nuit, Pas de limite la nuit ou Analyser seulement la nuit est activé</string>
+    <string name="settings44_cocoon">Configurer Cocoon</string>
+</resources>

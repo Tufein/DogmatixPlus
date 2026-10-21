@@ -49,6 +49,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithCache
@@ -150,6 +151,9 @@ enum class AppLanguage(val tag: String, val label: Int) {
         }
     }
 }
+
+/** How faded a visible row is while its master leaves it without effect (see [SettingsLayout.inactiveReason]). */
+private const val INACTIVE_ROW_ALPHA = 0.6f
 
 private const val SPEED_STEP = 250
 private const val SPEED_MAX = 5000
@@ -588,10 +592,13 @@ fun SettingsScreen(
             }
         },
         SettingsRow(key = SettingKeys.SPEED_DAY_ONLY) {
+            val reason = SettingsLayout.inactiveReason(SettingKeys.SPEED_DAY_ONLY, masters)
             SettingRow(
                 icon = R.drawable.ic_light_mode,
                 title = stringResource(R.string.settings_limit_day_only),
-                hint = stringResource(R.string.settings43_limit_day_only_hint, DownloadPolicy.formatMinutes(schedule.nightStart), DownloadPolicy.formatMinutes(schedule.nightEnd)),
+                hint = reason?.let { stringResource(it) }
+                    ?: stringResource(R.string.settings43_limit_day_only_hint, DownloadPolicy.formatMinutes(schedule.nightStart), DownloadPolicy.formatMinutes(schedule.nightEnd)),
+                modifier = if (reason != null) Modifier.alpha(INACTIVE_ROW_ALPHA) else Modifier,
                 onClick = { extra.setSpeedLimitDayOnly(context, !schedule.speedLimitDayOnly) },
                 onAdjust = { extra.setSpeedLimitDayOnly(context, it > 0) }
             ) { ThemedSwitch(schedule.speedLimitDayOnly) { extra.setSpeedLimitDayOnly(context, it) } }
@@ -724,16 +731,22 @@ fun SettingsScreen(
             ) { ThemedSwitch(schedule.nightOnly) { extra.setNightOnly(context, it) } }
         },
         SettingsRow(key = SettingKeys.NIGHT_START) {
+            val reason = SettingsLayout.inactiveReason(SettingKeys.NIGHT_START, masters)
             SettingRow(
                 icon = R.drawable.ic_bedtime,
-                title = stringResource(R.string.settings_dl_night_start), hint = null,
+                title = stringResource(R.string.settings_dl_night_start),
+                hint = reason?.let { stringResource(it) },
+                modifier = if (reason != null) Modifier.alpha(INACTIVE_ROW_ALPHA) else Modifier,
                 onClick = { shiftNightStart(1) }, onAdjust = ::shiftNightStart
             ) { SettingsStepper(DownloadPolicy.formatMinutes(schedule.nightStart), onDecrement = { shiftNightStart(-1) }, onIncrement = { shiftNightStart(1) }) }
         },
         SettingsRow(key = SettingKeys.NIGHT_END) {
+            val reason = SettingsLayout.inactiveReason(SettingKeys.NIGHT_END, masters)
             SettingRow(
                 icon = R.drawable.ic_wb_twilight,
-                title = stringResource(R.string.settings_dl_night_end), hint = null,
+                title = stringResource(R.string.settings_dl_night_end),
+                hint = reason?.let { stringResource(it) },
+                modifier = if (reason != null) Modifier.alpha(INACTIVE_ROW_ALPHA) else Modifier,
                 onClick = { shiftNightEnd(1) }, onAdjust = ::shiftNightEnd
             ) { SettingsStepper(DownloadPolicy.formatMinutes(schedule.nightEnd), onDecrement = { shiftNightEnd(-1) }, onIncrement = { shiftNightEnd(1) }) }
         },
@@ -913,6 +926,14 @@ fun SettingsScreen(
                 onAdjust = { setDigest(it > 0) }
             ) { ThemedSwitch(digestOn) { setDigest(it) } }
         },
+        SettingsRow(key = SettingKeys.FRONTEND_COVERS_TOOL) {
+            SettingRow(
+                icon = R.drawable.ic_image,
+                title = stringResource(R.string.covers32_title),
+                hint = stringResource(R.string.covers32_hint),
+                onClick = { navController.navigate(NavRoutes.FrontendCovers.route) },
+            ) { NavChevron() }
+        },
         SettingsRow(key = SettingKeys.META_AUTO) {
             SettingRow(
                 icon = R.drawable.ic_description,
@@ -921,6 +942,46 @@ fun SettingsScreen(
                 onClick = { extra.setMetaAuto(context, !metaAuto) },
                 onAdjust = { extra.setMetaAuto(context, it > 0) }
             ) { ThemedSwitch(metaAuto) { extra.setMetaAuto(context, it) } }
+        },
+        SettingsRow(key = SettingKeys.META_TOOL) {
+            SettingRow(
+                icon = R.drawable.ic_description,
+                title = stringResource(R.string.meta7_title),
+                hint = stringResource(R.string.meta7_hint),
+                onClick = { navController.navigate(NavRoutes.FrontendMetadata.route) },
+            ) { NavChevron() }
+        },
+        SettingsRow(key = SettingKeys.FRONTEND_CHECK) {
+            SettingRow(
+                icon = R.drawable.ic_frontends,
+                title = stringResource(R.string.nav_frontends),
+                hint = stringResource(R.string.tools_frontends_hint),
+                onClick = { navController.navigate(NavRoutes.Frontends.route) },
+            ) { NavChevron() }
+        },
+        SettingsRow(key = SettingKeys.RETROACHIEVEMENTS) {
+            SettingRow(
+                icon = R.drawable.ic_trophy,
+                title = stringResource(R.string.nav_ra),
+                hint = stringResource(R.string.tools_ra_hint),
+                onClick = { navController.navigate(NavRoutes.RetroAchievements.route) },
+            ) { NavChevron() }
+        },
+        SettingsRow(key = SettingKeys.NEW_HANDHELD) {
+            SettingRow(
+                icon = R.drawable.ic_devices,
+                title = stringResource(R.string.wizard35_title),
+                hint = stringResource(R.string.wizard35_hint),
+                onClick = { navController.navigate(NavRoutes.NewHandheld.route) },
+            ) { NavChevron() }
+        },
+        SettingsRow(key = SettingKeys.RECOVERY) {
+            SettingRow(
+                icon = R.drawable.ic_history,
+                title = stringResource(R.string.recovery_title),
+                hint = stringResource(R.string.recovery_hint),
+                onClick = { navController.navigate(NavRoutes.Recovery.route) },
+            ) { NavChevron() }
         },
         SettingsRow(key = SettingKeys.TOOLS) {
             SettingRow(
@@ -1028,7 +1089,7 @@ fun SettingsScreen(
         SettingsRow(key = SettingKeys.COCOON) {
             SettingRow(
                 icon = R.drawable.ic_help,
-                title = stringResource(R.string.settings_cocoon),
+                title = stringResource(R.string.settings44_cocoon),
                 hint = stringResource(R.string.settings_cocoon_hint),
                 onClick = { showCocoonHelp = true },
             ) {
@@ -1245,7 +1306,7 @@ fun SettingsScreen(
         val section = SettingsGroup.entries[cell.section]
         if (cell.kind == CardGrid.Kind.HEADER) {
             Column {
-                SettingsCardHeader(stringResource(section.title ?: R.string.settings_tools), section.icon) {
+                SettingsCardHeader(stringResource(section.title ?: R.string.settings_tools), section.icon, description = section.description?.let { stringResource(it) }) {
                     SectionPills(section, pills)
                 }
                 if (section == SettingsSection.LOOK) {

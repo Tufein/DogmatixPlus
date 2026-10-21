@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.4: Settings consolidated: card names and one-line descriptions, reasons for dimmed rows. -->
+<resources>
+    <string name="settings44_group_library">Bibliotheek en covers</string>
+    <string name="settings44_group_sources">Bronnen en nieuwe games</string>
+    <string name="settings44_group_backup">Back-up en herstel</string>
+    <string name="settings44_desc_look">Thema, kleuren, tekst en beweging, en de taal van de app</string>
+    <string name="settings44_desc_controls">Gamepadknoppen, tv-modus en het tweede scherm</string>
+    <string name="settings44_desc_library">Hoe je games in de lijst staan, worden doorzocht en getoond</string>
+    <string name="settings44_desc_sources">Zoek in je bronnen naar nieuwe games en bepaal wat er gebeurt als ze opduiken</string>
+    <string name="settings44_desc_storage">Waar games worden opgeslagen en hoeveel ruimte vrij blijft</string>
+    <string name="settings44_desc_downloads">Hoe de wachtrij loopt: snelheid, gelijktijdige downloads en nieuwe pogingen</string>
+    <string name="settings44_desc_schedule">Wanneer downloads mogen lopen: netwerk, stroom en tijd van de dag</string>
+    <string name="settings44_desc_after">Wat er met de bestanden en je frontends gebeurt zodra een download klaar is</string>
+    <string name="settings44_desc_torrents">Haal torrents op via een debrid-dienst</string>
+    <string name="settings44_desc_frontends">Koppel Valkyr aan je launchers en kies de emulator per console</string>
+    <string name="settings44_desc_cloud">RomM, saves synchroniseren en je andere apparaten</string>
+    <string name="settings44_desc_backup">Bewaar je instellingen veilig, verhuis naar een nieuwe handheld en haal verwijderde games terug</string>
+    <string name="settings44_desc_app">Updates, diagnose en informatie over Valkyr</string>
+    <string name="settings44_limit_needed">Vraagt om een snelheidslimiet: stel er een in bij de rij hierboven</string>
+    <string name="settings44_night_unused">Nog niet in gebruik: telt mee zodra Alleen \'s nachts downloaden, \'s Nachts geen limiet of Alleen \'s nachts scannen aan staat</string>
+    <string name="settings44_cocoon">Cocoon instellen</string>
+</resources>

@@ -203,7 +203,7 @@
     <string name="seconds_short">%1$d s</string>
     <string name="settings_auto_unzip_hint">ZIP e 7z quando o download termina</string>
     <string name="settings_separate_hint">Funciona com o ES-DE e o Daijishō</string>
-    <string name="settings_favorite_languages">Idiomas favoritos</string>
+    <string name="settings_favorite_languages">Idiomas de jogo favoritos</string>
     <string name="settings_favorite_languages_hint">Mostrados primeiro no filtro de idioma</string>
     <string name="settings_favorite_languages_empty">Ainda não há idiomas indexados</string>
     <string name="settings_reset_default">Repor</string>
@@ -217,7 +217,7 @@
     <string name="gamepad_layout_playstation">PlayStation</string>
     <string name="settings_swap_face_buttons">Trocar A/B e X/Y</string>
     <string name="settings_swap_face_buttons_hint">Para comandos que indicam os botões frontais ao contrário; a legenda fica como está</string>
-    <string name="settings_language">Idioma</string>
+    <string name="settings_language">Idioma da app</string>
     <string name="settings_language_hint">Segue o idioma do dispositivo por predefinição</string>
     <string name="language_system">Sistema</string>
     <string name="language_en">English</string>

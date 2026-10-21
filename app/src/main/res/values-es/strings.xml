@@ -213,7 +213,7 @@
     <string name="seconds_short">%1$d s</string>
     <string name="settings_auto_unzip_hint">ZIP y 7z al terminar la descarga</string>
     <string name="settings_separate_hint">Compatible con ES-DE y Daijishō</string>
-    <string name="settings_favorite_languages">Idiomas favoritos</string>
+    <string name="settings_favorite_languages">Idiomas favoritos de los juegos</string>
     <string name="settings_favorite_languages_hint">Se muestran primero en el filtro de idioma</string>
     <string name="settings_favorite_languages_empty">Aún no hay idiomas indexados</string>
     <string name="settings_reset_default">Restablecer</string>
@@ -227,7 +227,7 @@
     <string name="gamepad_layout_playstation">PlayStation</string>
     <string name="settings_swap_face_buttons">Intercambiar A/B y X/Y</string>
     <string name="settings_swap_face_buttons_hint">Para mandos que reportan los botones al revés; la leyenda no cambia</string>
-    <string name="settings_language">Idioma</string>
+    <string name="settings_language">Idioma de la app</string>
     <string name="settings_language_hint">Sigue al idioma del dispositivo por defecto</string>
     <string name="language_system">Sistema</string>
     <string name="language_en">English</string>
@@ -1047,10 +1047,10 @@
     </plurals>
     <string name="settings_esde_artwork">Portadas para ES-DE</string>
     <string name="settings_esde_artwork_hint">Tras una descarga: portada y descripción en la carpeta de ES-DE (el enlace ES-DE de Cocoon también las ve)</string>
-    <string name="settings_pegasus_artwork">Carátulas para Pegasus</string>
-    <string name="settings_pegasus_artwork_hint">Tras una descarga: la carátula en media/&lt;juego&gt;/boxFront junto al juego, donde mira Pegasus</string>
-    <string name="settings_retroarch_artwork">Carátulas para RetroArch</string>
-    <string name="settings_retroarch_artwork_hint">Sin definir · elige la carpeta thumbnails de RetroArch; tras una descarga la carátula va allí para sus listas</string>
+    <string name="settings_pegasus_artwork">Portadas para Pegasus</string>
+    <string name="settings_pegasus_artwork_hint">Tras una descarga: la portada en media/&lt;juego&gt;/boxFront junto al juego, donde mira Pegasus</string>
+    <string name="settings_retroarch_artwork">Portadas para RetroArch</string>
+    <string name="settings_retroarch_artwork_hint">Sin definir · elige la carpeta thumbnails de RetroArch; tras una descarga la portada va allí para sus listas</string>
     <string name="settings_retroarch_artwork_off">Desactivar</string>
     <string name="settings_profiles">Perfiles</string>
     <string name="settings_profiles_hint">Oculta consolas o etiquetas, para un niño o un perfil de sofá</string>

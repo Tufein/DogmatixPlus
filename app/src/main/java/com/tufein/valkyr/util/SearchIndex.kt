@@ -109,6 +109,14 @@ object SettingKeys {
     const val AUTO_BACKUP_FOLDER = "auto_backup_folder"
     const val REPORT = "report"
     const val ABOUT = "about"
+
+    // 4.4: link rows to tools that belong with a setting (found by search as the tool itself).
+    const val FRONTEND_COVERS_TOOL = "frontend_covers_tool"
+    const val META_TOOL = "meta_tool"
+    const val FRONTEND_CHECK = "frontend_check"
+    const val RETROACHIEVEMENTS = "retroachievements"
+    const val NEW_HANDHELD = "new_handheld"
+    const val RECOVERY = "recovery"
 }
 
 /**
@@ -206,14 +214,14 @@ object SearchIndex {
             setting(SettingKeys.VERSION_PREF, R.string.compare24_title, R.string.compare24_row_hint, R.drawable.ic_compare, R.string.find8_kw_regions),
             setting(SettingKeys.FAVORITE_LANGUAGES, R.string.settings43_favorite_languages, null, R.drawable.ic_translate, R.string.find8_kw_regions),
             setting(SettingKeys.WISHLIST_AUTO, R.string.settings_wishlist_auto, R.string.settings_wishlist_auto_hint, R.drawable.ic_wishlist, R.string.find8_kw_wishlist),
-            setting(SettingKeys.COVERS_RETRY, R.string.settings_v5_covers_retry, null, R.drawable.ic_image_search, R.string.find8_kw_covers),
+            setting(SettingKeys.COVERS_RETRY, R.string.covers43_title, R.string.covers43_row_hint, R.drawable.ic_image_search, R.string.find8_kw_covers),
             setting(SettingKeys.MAX_RESULTS, R.string.settings_max_results, R.string.settings_max_results_hint, R.drawable.ic_format_list_numbered),
             setting(SettingKeys.DIGEST, R.string.upg7_digest_setting, R.string.upg7_digest_setting_hint, R.drawable.ic_notifications, R.string.find8_kw_notifications),
 
             setting(SettingKeys.ESDE, R.string.settings_esde, R.string.settings_esde_hint, R.drawable.ic_frontends, R.string.find8_kw_frontends),
             setting(SettingKeys.IISU, R.string.settings_iisu, R.string.settings_iisu_hint, R.drawable.ic_grid, R.string.find8_kw_frontends),
             setting(SettingKeys.DAIJISHO, R.string.settings_daijisho, R.string.settings_daijisho_hint, R.drawable.ic_dashboard, R.string.find8_kw_frontends),
-            setting(SettingKeys.COCOON, R.string.settings_cocoon, R.string.settings_cocoon_hint, R.drawable.ic_help, R.string.find8_kw_frontends),
+            setting(SettingKeys.COCOON, R.string.settings44_cocoon, R.string.settings_cocoon_hint, R.drawable.ic_help, R.string.find8_kw_frontends),
             setting(SettingKeys.EMULATORS, R.string.play24_settings_title, R.string.play24_settings_hint, R.drawable.ic_controller, R.string.find8_kw_frontends),
             setting(SettingKeys.FRONTEND_SHORTCUTS, R.string.settings_frontend_shortcuts, R.string.settings_frontend_shortcuts_hint, R.drawable.ic_shortcut, R.string.find8_kw_frontends),
             setting(SettingKeys.RECENT_MENU, R.string.pin35_setting_title, R.string.pin35_setting_hint, R.drawable.ic_play_circle),

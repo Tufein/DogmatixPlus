@@ -218,7 +218,7 @@
     <string name="seconds_short">%1$d s</string>
     <string name="settings_auto_unzip_hint">ZIP en 7z zodra de download klaar is</string>
     <string name="settings_separate_hint">Werkt met ES-DE en Daijishō</string>
-    <string name="settings_favorite_languages">Favoriete talen</string>
+    <string name="settings_favorite_languages">Favoriete gametalen</string>
     <string name="settings_favorite_languages_hint">Bovenaan in het taalfilter</string>
     <string name="settings_favorite_languages_empty">Nog geen talen geïndexeerd</string>
     <string name="settings_reset_default">Herstellen</string>
@@ -232,7 +232,7 @@
     <string name="gamepad_layout_playstation">PlayStation</string>
     <string name="settings_swap_face_buttons">A/B en X/Y omwisselen</string>
     <string name="settings_swap_face_buttons_hint">Voor pads die de knoppen andersom doorgeven; de legenda blijft zoals hij is</string>
-    <string name="settings_language">Taal</string>
+    <string name="settings_language">Taal van de app</string>
     <string name="settings_language_hint">Volgt standaard de taal van het toestel</string>
     <string name="language_system">Systeem</string>
     <string name="language_en">English</string>
@@ -1018,7 +1018,7 @@
     <string name="settings_min_free_hint">Downloads wachten, en lopende stoppen, onder zoveel vrije ruimte</string>
     <string name="settings_off">Uit</string>
     <string name="settings_auto_backup">Automatische back-up</string>
-    <string name="settings_auto_backup_hint">Wekelijks, tijdens het laden; de nieuwste vijf blijven bewaard</string>
+    <string name="settings_auto_backup_hint">Wekelijks, tijdens het opladen; de nieuwste vijf blijven bewaard</string>
     <string name="settings_auto_backup_pick">Kies een map voor de back-ups</string>
     <string name="settings_auto_backup_last">Laatste back-up: %1$s</string>
     <string name="settings_auto_backup_folder">Back-upmap</string>

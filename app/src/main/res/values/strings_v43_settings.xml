@@ -20,11 +20,11 @@
     <string name="settings43_low_battery">Pause on low battery</string>
     <string name="settings43_meta_auto">Game details for frontends</string>
     <string name="settings43_meta_auto_hint">Writes the description, genre and year of a game for ES-DE and Pegasus right after its download, as set in Descriptions for your launcher. Off by default</string>
-    <string name="settings43_esde_needs_folder">Nothing is written yet: set the ES-DE folder first with Configure ES-DE under Frontends and emulators</string>
+    <string name="settings43_esde_needs_folder">Nothing is written yet: set the ES-DE folder first with Set up ES-DE under Frontends and emulators</string>
     <string name="settings43_autoscan_wifi">Scan only on Wi-Fi</string>
     <string name="settings43_autoscan_charging">Scan only while charging</string>
     <string name="settings43_autoscan_night_hint">Between %1$s and %2$s, the night hours under When to download</string>
-    <string name="settings43_favorite_languages">Favourite languages</string>
+    <string name="settings43_favorite_languages">Favourite game languages</string>
     <string name="settings43_action_check">Check</string>
     <string name="settings43_action_share">Share</string>
 </resources>

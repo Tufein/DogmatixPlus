@@ -219,7 +219,7 @@
     <string name="seconds_short">%1$d s</string>
     <string name="settings_auto_unzip_hint">ZIP et 7z dès la fin du téléchargement</string>
     <string name="settings_separate_hint">Fonctionne avec ES-DE et Daijishō</string>
-    <string name="settings_favorite_languages">Langues favorites</string>
+    <string name="settings_favorite_languages">Langues de jeu favorites</string>
     <string name="settings_favorite_languages_hint">Affichées en premier dans le filtre de langue</string>
     <string name="settings_favorite_languages_empty">Aucune langue indexée pour l’instant</string>
     <string name="settings_reset_default">Réinitialiser</string>
@@ -233,7 +233,7 @@
     <string name="gamepad_layout_playstation">PlayStation</string>
     <string name="settings_swap_face_buttons">Inverser A/B et X/Y</string>
     <string name="settings_swap_face_buttons_hint">Pour les manettes qui signalent les boutons à l’envers ; la légende reste inchangée</string>
-    <string name="settings_language">Langue</string>
+    <string name="settings_language">Langue de l’appli</string>
     <string name="settings_language_hint">Suit la langue de l’appareil par défaut</string>
     <string name="language_system">Système</string>
     <string name="language_en">English</string>

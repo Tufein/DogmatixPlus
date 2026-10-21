@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.4: Settings consolidated: card names and one-line descriptions, reasons for dimmed rows. -->
+<resources>
+    <string name="settings44_group_library">Libreria e copertine</string>
+    <string name="settings44_group_sources">Fonti e nuovi giochi</string>
+    <string name="settings44_group_backup">Backup e recupero</string>
+    <string name="settings44_desc_look">Tema, colori, testo e movimento, e la lingua dell’app</string>
+    <string name="settings44_desc_controls">Pulsanti del gamepad, modalità TV e secondo schermo</string>
+    <string name="settings44_desc_library">Come i giochi vengono elencati, cercati e mostrati</string>
+    <string name="settings44_desc_sources">Cerca giochi nuovi nelle fonti e decidi cosa succede quando compaiono</string>
+    <string name="settings44_desc_storage">Dove vengono salvati i giochi e quanto spazio resta libero</string>
+    <string name="settings44_desc_downloads">Come procede la coda: velocità, download simultanei e nuovi tentativi</string>
+    <string name="settings44_desc_schedule">Quando i download possono partire: rete, alimentazione e ora del giorno</string>
+    <string name="settings44_desc_after">Cosa succede ai file e ai tuoi frontend quando un download è finito</string>
+    <string name="settings44_desc_torrents">Scarica i torrent tramite un servizio debrid</string>
+    <string name="settings44_desc_frontends">Collega Valkyr ai tuoi launcher e scegli l’emulatore per ogni console</string>
+    <string name="settings44_desc_cloud">RomM, sincronizzazione dei salvataggi e gli altri tuoi dispositivi</string>
+    <string name="settings44_desc_backup">Metti al sicuro le impostazioni, passa a un nuovo handheld e recupera i giochi rimossi</string>
+    <string name="settings44_desc_app">Aggiornamenti, diagnostica e informazioni su Valkyr</string>
+    <string name="settings44_limit_needed">Serve un limite di velocità: impostane uno nella riga sopra</string>
+    <string name="settings44_night_unused">Non ancora in uso: conta appena è attivo Scarica solo di notte, Nessun limite di notte o Scansiona solo di notte</string>
+    <string name="settings44_cocoon">Configura Cocoon</string>
+</resources>

@@ -24,7 +24,7 @@
     <string name="settings43_autoscan_wifi">Scansiona solo con Wi-Fi</string>
     <string name="settings43_autoscan_charging">Scansiona solo durante la ricarica</string>
     <string name="settings43_autoscan_night_hint">Tra le %1$s e le %2$s, le ore notturne di Quando scaricare</string>
-    <string name="settings43_favorite_languages">Lingue preferite</string>
+    <string name="settings43_favorite_languages">Lingue di gioco preferite</string>
     <string name="settings43_action_check">Controlla</string>
     <string name="settings43_action_share">Condividi</string>
 </resources>

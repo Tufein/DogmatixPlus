@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 4.4: Settings consolidated: card names and one-line descriptions, reasons for dimmed rows. -->
+<resources>
+    <string name="settings44_group_library">Bibliothek und Cover</string>
+    <string name="settings44_group_sources">Quellen und neue Spiele</string>
+    <string name="settings44_group_backup">Sicherung und Wiederherstellung</string>
+    <string name="settings44_desc_look">Design, Farben, Text und Bewegung sowie die Sprache der App</string>
+    <string name="settings44_desc_controls">Gamepad-Tasten, TV-Modus und der zweite Bildschirm</string>
+    <string name="settings44_desc_library">Wie deine Spiele aufgelistet, durchsucht und angezeigt werden</string>
+    <string name="settings44_desc_sources">Suche in deinen Quellen nach neuen Spielen und lege fest, was bei Neuem passiert</string>
+    <string name="settings44_desc_storage">Wo Spiele gespeichert werden und wie viel Platz frei bleibt</string>
+    <string name="settings44_desc_downloads">Wie die Warteschlange läuft: Tempo, parallele Downloads und Wiederholungen</string>
+    <string name="settings44_desc_schedule">Wann Downloads laufen dürfen: Netzwerk, Strom und Tageszeit</string>
+    <string name="settings44_desc_after">Was mit den Dateien und deinen Frontends passiert, wenn ein Download fertig ist</string>
+    <string name="settings44_desc_torrents">Torrents über einen Debrid-Dienst holen</string>
+    <string name="settings44_desc_frontends">Valkyr mit deinen Launchern verbinden und den Emulator pro Konsole wählen</string>
+    <string name="settings44_desc_cloud">RomM, Spielstand-Sync und deine anderen Geräte</string>
+    <string name="settings44_desc_backup">Einstellungen sichern, auf einen neuen Handheld umziehen und entfernte Spiele zurückholen</string>
+    <string name="settings44_desc_app">Updates, Diagnose und Informationen zu Valkyr</string>
+    <string name="settings44_limit_needed">Braucht ein Geschwindigkeitslimit: lege oben eins fest</string>
+    <string name="settings44_night_unused">Noch ohne Wirkung: gilt, sobald Nur nachts herunterladen, Nachts ohne Limit oder Nur nachts scannen an ist</string>
+    <string name="settings44_cocoon">Cocoon einrichten</string>
+</resources>

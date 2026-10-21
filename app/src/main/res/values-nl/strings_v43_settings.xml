@@ -24,7 +24,7 @@
     <string name="settings43_autoscan_wifi">Alleen scannen op wifi</string>
     <string name="settings43_autoscan_charging">Alleen scannen tijdens het opladen</string>
     <string name="settings43_autoscan_night_hint">Tussen %1$s en %2$s, de nachturen onder Wanneer downloaden</string>
-    <string name="settings43_favorite_languages">Favoriete talen</string>
+    <string name="settings43_favorite_languages">Favoriete gametalen</string>
     <string name="settings43_action_check">Controleren</string>
     <string name="settings43_action_share">Delen</string>
 </resources>

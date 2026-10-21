@@ -24,7 +24,7 @@
     <string name="settings43_autoscan_wifi">Analyser seulement en Wi-Fi</string>
     <string name="settings43_autoscan_charging">Analyser seulement en charge</string>
     <string name="settings43_autoscan_night_hint">Entre %1$s et %2$s, les heures de nuit de Quand télécharger</string>
-    <string name="settings43_favorite_languages">Langues favorites</string>
+    <string name="settings43_favorite_languages">Langues de jeu favorites</string>
     <string name="settings43_action_check">Vérifier</string>
     <string name="settings43_action_share">Partager</string>
 </resources>

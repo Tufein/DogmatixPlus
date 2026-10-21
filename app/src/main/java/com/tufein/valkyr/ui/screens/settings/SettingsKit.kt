@@ -80,7 +80,7 @@ import androidx.compose.ui.unit.dp
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.components.ActionPill
 import com.tufein.valkyr.ui.components.IconTile
-import com.tufein.valkyr.ui.components.SectionTitle
+import com.tufein.valkyr.ui.theme.accentInk
 import com.tufein.valkyr.ui.components.focusRing
 import com.tufein.valkyr.ui.components.rememberFocusSource
 import com.tufein.valkyr.ui.theme.LocalDogmatixTokens
@@ -392,12 +392,17 @@ internal fun ThemedSwitch(checked: Boolean, onChange: (Boolean) -> Unit) {
     )
 }
 
-/** The top of a settings card: the group's icon on an accent tile, its name, and room for status pills. */
+/**
+ * The top of a settings card: the group's icon on an accent tile, its name with a one-line
+ * [description] of what the card is for under it, and room for status pills. Neither text is
+ * ever cut off.
+ */
 @Composable
 internal fun SettingsCardHeader(
     title: String,
     icon: Int,
     modifier: Modifier = Modifier,
+    description: String? = null,
     trailing: (@Composable RowScope.() -> Unit)? = null
 ) {
     val inset = settingsInset()
@@ -410,7 +415,21 @@ internal fun SettingsCardHeader(
         horizontalArrangement = Arrangement.spacedBy(SettingsTileGap)
     ) {
         SettingsIconTile(icon)
-        SectionTitle(title, modifier = Modifier.weight(1f))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                title.uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                color = accentInk()
+            )
+            if (description != null) {
+                Text(
+                    description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+        }
         if (trailing != null) {
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) { trailing() }
         }
