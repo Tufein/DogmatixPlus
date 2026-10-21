@@ -8,6 +8,7 @@ import com.tufein.valkyr.util.GameTitleCleaner
 import com.tufein.valkyr.util.Igdb
 import com.tufein.valkyr.util.LibretroThumbnails
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
@@ -54,13 +55,16 @@ class IgdbService @Inject constructor(
         val fp = keys.fingerprint(source)
         token?.takeIf { !fresh && tokenFor == fp && it.validAt(System.currentTimeMillis()) }?.let { return Bearer.Ok(it.accessToken) }
         token = null
-        val reply = gate.request(
-            "POST", Igdb.TOKEN_URL, fp,
-            body = Igdb.tokenBody(keys.igdbClientId, keys.igdbClientSecret), contentType = JsonHttp.FORM_URLENCODED,
-            // Twitch refuses a bad client id with 400 and a bad secret with 403: both are a refused key here.
-            classify = { code -> if (code in setOf(400, 401, 403)) CoverApis.Status.KEY_REJECTED else CoverApis.status(code) },
-            reacts = { reacts }
-        )
+        // The lock is never held longer than a request may take, even while the permit queue is long.
+        val reply = withTimeoutOrNull(CoverApis.DEADLINE_MS + 5_000) {
+            gate.request(
+                "POST", Igdb.TOKEN_URL, fp,
+                body = Igdb.tokenBody(keys.igdbClientId, keys.igdbClientSecret), contentType = JsonHttp.FORM_URLENCODED,
+                // Twitch refuses a bad client id with 400 and a bad secret with 403: both are a refused key here.
+                classify = { code -> if (code in setOf(400, 401, 403)) CoverApis.Status.KEY_REJECTED else CoverApis.status(code) },
+                reacts = { reacts }
+            )
+        } ?: CoverApiGate.Reply(null, 0, null)
         val failure: CoverApis.KeyTest = when (reply.status) {
             null -> CoverApis.KeyTest.Offline
             CoverApis.Status.OK -> {
@@ -100,7 +104,7 @@ class IgdbService @Inject constructor(
             )
             when (reply.status) {
                 CoverApis.Status.OK -> {
-                    val game = Igdb.pick(query, Igdb.parseGames(reply.json), Igdb.PLATFORM_IDS[system.repo]) ?: return Answer.Miss
+                    val game = Igdb.pick(query, Igdb.parseGames(reply.json) ?: return Answer.Unavailable, Igdb.PLATFORM_IDS[system.repo]) ?: return Answer.Miss
                     return Answer.Found(Igdb.coverUrl(game.imageId ?: return Answer.Miss))
                 }
                 CoverApis.Status.KEY_REJECTED -> { if (attempt == 0) { fresh = true } else { return Answer.Unavailable } }

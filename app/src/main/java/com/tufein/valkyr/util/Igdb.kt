@@ -124,7 +124,8 @@ object Igdb {
     /** An IGDB image id is letters, digits, `_` and `-` (it ends up in an address). */
     private val IMAGE_ID = Regex("^[A-Za-z0-9_-]{1,64}$")
 
-    fun parseGames(json: JsonElement?): List<Game> = (json as? JsonArray)?.mapNotNull { e ->
+    /** The games of a `/games` answer; null when the answer is not a JSON array (an error object): that is no "no cover". */
+    fun parseGames(json: JsonElement?): List<Game>? = (json as? JsonArray)?.mapNotNull { e ->
         val g = e as? JsonObject ?: return@mapNotNull null
         val id = g.get("id")?.takeIf { it.isJsonPrimitive }?.asString?.toLongOrNull() ?: return@mapNotNull null
         val name = g.get("name")?.takeIf { it.isJsonPrimitive }?.asString?.trim().orEmpty()
@@ -132,7 +133,7 @@ object Igdb {
         val image = (g.get("cover") as? JsonObject)?.get("image_id")?.takeIf { it.isJsonPrimitive }?.asString?.trim()?.takeIf { IMAGE_ID.matches(it) }
         val platforms = (g.get("platforms") as? JsonArray)?.mapNotNull { p -> p.takeIf { it.isJsonPrimitive }?.asString?.toIntOrNull() }.orEmpty()
         Game(id, name, image, platforms)
-    }.orEmpty()
+    }
 
     fun coverUrl(imageId: String): String = "https://images.igdb.com/igdb/image/upload/t_cover_big/$imageId.jpg"
 

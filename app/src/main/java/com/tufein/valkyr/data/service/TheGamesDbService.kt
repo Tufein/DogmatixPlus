@@ -26,7 +26,7 @@ class TheGamesDbService @Inject constructor(
     private val stats: CoverSourceStats
 ) : CoverLookupSource {
     override val source = CoverSources.Source.THEGAMESDB
-    private val gate = CoverApiGate(source, concurrency = 2, stats = stats)
+    private val gate = CoverApiGate(source, concurrency = 2, stats = stats, keyPauseMs = CoverApis.SOFT_KEY_PAUSE_MS)
 
     override suspend fun configured(): Boolean = settings.apiKeys.first().configured(source)
 

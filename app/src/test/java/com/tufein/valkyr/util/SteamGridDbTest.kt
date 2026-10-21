@@ -47,6 +47,14 @@ class SteamGridDbTest {
         // The first hit is the sequel: it is not taken.
         assertEquals(5300L, SteamGridDb.pickGame("Super Mario World", games)?.id)
         assertNull(SteamGridDb.pickGame("Super Mario Kart", games))
+        // No platform to check: one extra plain word is not enough either, only the identical title.
+        val doom = listOf(SteamGridDb.Game(1, "Doom Eternal", false), SteamGridDb.Game(2, "Doom Eternal Deluxe Pack", false))
+        assertNull(SteamGridDb.pickGame("Doom Eternal Deluxe", doom))
+        assertEquals(1L, SteamGridDb.pickGame("Doom Eternal", doom)?.id)
+        // Of several identical titles a verified one wins, else the first.
+        val twin = listOf(SteamGridDb.Game(1, "Doom", false), SteamGridDb.Game(2, "Doom", true), SteamGridDb.Game(3, "Doom", true))
+        assertEquals(2L, SteamGridDb.pickGame("Doom", twin)?.id)
+        assertEquals(1L, SteamGridDb.pickGame("Doom", twin.map { it.copy(verified = false) })?.id)
         assertNull(SteamGridDb.pickGame("Mario", games))
     }
 

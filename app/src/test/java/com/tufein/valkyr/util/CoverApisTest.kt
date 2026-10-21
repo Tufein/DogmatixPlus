@@ -38,6 +38,19 @@ class CoverApisTest {
         assertFalse(CoverApis.Keys().tgdbShared)
     }
 
+    @Test fun `only the users own key counts for the default switch`() {
+        assertTrue(CoverApis.Keys(tgdb = "k").ownConfigured(Source.THEGAMESDB))
+        assertFalse(CoverApis.Keys(tgdbBuiltIn = "builtin").ownConfigured(Source.THEGAMESDB))
+        assertTrue(CoverApis.Keys(sgdb = "k").ownConfigured(Source.STEAMGRIDDB))
+    }
+
+    @Test fun `redirects are not followed and a slow request has a deadline`() {
+        // Any 3xx is "try later", never a miss; the HTTP layer is told not to follow it (JsonHttp followRedirects = false).
+        listOf(301, 302, 307, 308).forEach { assertEquals(CoverApis.Status.BUSY, CoverApis.status(it)) }
+        assertTrue(CoverApis.DEADLINE_MS in 10_000..30_000)
+        assertTrue(CoverApis.SOFT_KEY_PAUSE_MS < CoverApis.KEY_PAUSE_MS)
+    }
+
     @Test fun `a key with spaces or line breaks is not used`() {
         assertNull(CoverApis.plausible("abc def"))
         assertNull(CoverApis.plausible("abc\ndef"))

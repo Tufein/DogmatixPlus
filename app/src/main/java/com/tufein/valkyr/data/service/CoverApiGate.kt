@@ -6,6 +6,10 @@ import com.tufein.valkyr.util.CoverApis
 import com.tufein.valkyr.util.CoverSources
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
@@ -37,7 +41,9 @@ interface CoverLookupSource {
 class CoverApiGate(
     private val source: CoverSources.Source,
     concurrency: Int,
-    private val stats: CoverSourceStats
+    private val stats: CoverSourceStats,
+    /** How long a refused key rests. TheGamesDB answers 403 for a used-up allowance too, so it rests only briefly. */
+    private val keyPauseMs: Long = CoverApis.KEY_PAUSE_MS
 ) {
     private val permits = Semaphore(concurrency)
     @Volatile private var backoffUntil = 0L
@@ -80,12 +86,36 @@ class CoverApiGate(
     ): Reply {
         require(CoverApis.sendsKeyTo(source, url)) { "Not an address of ${source.key}" }
         return permits.withPermit {
+            val connection = java.util.concurrent.atomic.AtomicReference<java.net.HttpURLConnection?>()
+            coroutineScope {
+                // Cancelling the caller closes the connection, so a hung read does not outlive it.
+                val watcher = launch { try { awaitCancellation() } finally { connection.get()?.disconnect() } }
+                try {
+                    requestOnce(method, url, fingerprint, headers, body, contentType, classify, reacts, connection)
+                } finally {
+                    watcher.cancel()
+                }
+            }
+        }
+    }
+
+    private suspend fun requestOnce(
+        method: String, url: String, fingerprint: Int, headers: Map<String, String>, body: ByteArray?, contentType: String?,
+        classify: (Int) -> CoverApis.Status, reacts: (CoverApis.Status) -> Boolean,
+        connection: java.util.concurrent.atomic.AtomicReference<java.net.HttpURLConnection?>
+    ): Reply {
+        return run {
             withContext(Dispatchers.IO) {
                 val response = try {
-                    JsonHttp.request(method, url, headers, body, contentType, connectTimeoutMs = 15_000, readTimeoutMs = 30_000)
+                    // No redirects (a 30x would carry the key to another host) and a total deadline of its own.
+                    JsonHttp.request(
+                        method, url, headers, body, contentType, connectTimeoutMs = 15_000, readTimeoutMs = 30_000,
+                        followRedirects = false, deadlineMs = CoverApis.DEADLINE_MS, onConnection = { connection.set(it) }
+                    )
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: IOException) {
+                    ensureActive()
                     Log.w(TAG, "${source.key} unreachable: ${e.javaClass.simpleName}")
                     if (reacts(CoverApis.Status.BUSY)) stats.sourceProblem(source, CoverSourceStats.Problem.OFFLINE)
                     return@withContext Reply(null, 0, null)
@@ -105,7 +135,7 @@ class CoverApiGate(
                 if (stats.state.value.problemOf(source) != CoverSourceStats.Problem.QUOTA) stats.sourceProblem(source, null)
             }
             CoverApis.Status.RATE_LIMITED -> { backoff(fingerprint, now + CoverApis.RATE_LIMIT_PAUSE_MS); stats.sourceProblem(source, CoverSourceStats.Problem.RATE_LIMITED) }
-            CoverApis.Status.KEY_REJECTED -> { backoff(fingerprint, now + CoverApis.KEY_PAUSE_MS); stats.sourceProblem(source, CoverSourceStats.Problem.LOGIN) }
+            CoverApis.Status.KEY_REJECTED -> { backoff(fingerprint, now + keyPauseMs); stats.sourceProblem(source, CoverSourceStats.Problem.LOGIN) }
             CoverApis.Status.BUSY -> { backoff(fingerprint, now + CoverApis.BUSY_PAUSE_MS); stats.sourceProblem(source, CoverSourceStats.Problem.BUSY) }
         }
     }
@@ -119,7 +149,7 @@ class CoverApiGate(
     /** A test that found the key refused: shown on the status line too. */
     fun refused(fingerprint: Int) {
         stats.sourceProblem(source, CoverSourceStats.Problem.LOGIN)
-        backoff(fingerprint, System.currentTimeMillis() + CoverApis.KEY_PAUSE_MS)
+        backoff(fingerprint, System.currentTimeMillis() + keyPauseMs)
     }
 
     private companion object { const val TAG = "CoverSources" }

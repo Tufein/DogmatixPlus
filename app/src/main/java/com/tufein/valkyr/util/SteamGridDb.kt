@@ -55,9 +55,14 @@ object SteamGridDb {
         }
     }.orEmpty()
 
-    /** The game whose name is [title]; null when no hit qualifies (the autocomplete is fuzzy). */
+    /**
+     * The game whose name is exactly [title] (normalised: tags, "the", accents and punctuation
+     * ignored); null when no hit qualifies (the autocomplete is fuzzy). SteamGridDB has no platform
+     * to check, so no extra word is allowed either: a SNES "Doom" must not take a PC game's grid.
+     * Of several identical hits a verified one wins, else the first listed.
+     */
     fun pickGame(title: String, games: List<Game>): Game? =
-        CoverTitles.pick(title, games, names = { listOf(it.name) }, rank = { if (it.verified) 1 else 0 })
+        CoverTitles.pick(title, games, names = { listOf(it.name) }, rank = { if (it.verified) 1 else 0 }, minLevel = 2)
 
     /**
      * The grid that stands in for the box: a portrait (taller than wide) one that is not marked

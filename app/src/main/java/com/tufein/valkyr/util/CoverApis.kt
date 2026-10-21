@@ -45,6 +45,12 @@ object CoverApis {
         val igdbClientId: String get() = plausible(igdbId).orEmpty()
         val igdbClientSecret: String get() = plausible(igdbSecret).orEmpty()
 
+        /** Set up with a key of the user's own (the app's built-in TheGamesDB key does not count). */
+        fun ownConfigured(source: Source): Boolean = when (source) {
+            Source.THEGAMESDB -> plausible(tgdb) != null
+            else -> configured(source)
+        }
+
         fun configured(source: Source): Boolean = when (source) {
             Source.THEGAMESDB -> tgdbKey.isNotEmpty()
             Source.STEAMGRIDDB -> sgdbKey.isNotEmpty()
@@ -131,6 +137,10 @@ object CoverApis {
     const val RATE_LIMIT_PAUSE_MS = 60_000L
     const val BUSY_PAUSE_MS = 15 * 60_000L
     const val KEY_PAUSE_MS = 60 * 60_000L
+    /** A refused key that may also be a used-up allowance (TheGamesDB's 403) rests only this long. */
+    const val SOFT_KEY_PAUSE_MS = 5 * 60_000L
+    /** One request may take this long in total, however slowly the service trickles its answer. */
+    const val DEADLINE_MS = 20_000L
 
     /** How long a source rests after [status] (0 = not at all). */
     fun pauseFor(status: Status): Long = when (status) {
@@ -216,13 +226,13 @@ object CoverTitles {
         return if (extra.size == 1 && !numberLike(extra.first())) 1 else 0
     }
 
-    /** The best hit of [items] for [title] by any of its [names], or null when none qualifies. */
-    fun <T> pick(title: String, items: List<T>, names: (T) -> List<String>, rank: (T) -> Int = { 0 }): T? {
+    /** The best hit of [items] for [title] by any of its [names], or null when none qualifies ([minLevel] 2: only identical titles). */
+    fun <T> pick(title: String, items: List<T>, names: (T) -> List<String>, rank: (T) -> Int = { 0 }, minLevel: Int = 1): T? {
         var best: T? = null
         var bestScore = -1L
         items.forEachIndexed { index, item ->
             val level = names(item).maxOfOrNull { closeness(title, it) } ?: 0
-            if (level == 0) return@forEachIndexed
+            if (level < minLevel) return@forEachIndexed
             val score = level * 1_000_000L + rank(item).coerceIn(0, 999) * 1_000L - index.coerceAtMost(999)
             if (score > bestScore) { best = item; bestScore = score }
         }

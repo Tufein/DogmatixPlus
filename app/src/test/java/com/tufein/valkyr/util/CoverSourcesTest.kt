@@ -59,6 +59,8 @@ class CoverSourcesTest {
 
     @Test fun `the new sources start switched off until a switch was ever saved`() {
         assertEquals(setOf(Source.THEGAMESDB, Source.STEAMGRIDDB, Source.IGDB), CoverSources.disabledOf(null))
+        // ... unless the user's own key exists (a restore without switches keeps such a source on).
+        assertEquals(setOf(Source.STEAMGRIDDB, Source.IGDB), CoverSources.disabledOf(null, withKey = setOf(Source.THEGAMESDB)))
         // A saved (even empty) set is the user's own: nothing is added to it.
         assertEquals(emptySet<Source>(), CoverSources.disabledOf(emptySet()))
         assertEquals(setOf(Source.LIBRETRO), CoverSources.disabledOf(setOf("libretro")))

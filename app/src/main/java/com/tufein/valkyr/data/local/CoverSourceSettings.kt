@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.tufein.valkyr.BuildConfig
+import com.tufein.valkyr.data.service.CoverSourceStats
 import com.tufein.valkyr.util.CoverApis
 import com.tufein.valkyr.util.CoverSources
 import com.tufein.valkyr.util.ScreenScraper
@@ -25,7 +26,10 @@ import javax.inject.Singleton
  * IGDB ([CoverApis]) live here too, with the same rules (only the Twitch client id may be backed up).
  */
 @Singleton
-class CoverSourceSettings @Inject constructor(@param:ApplicationContext private val context: Context) {
+class CoverSourceSettings @Inject constructor(
+    @param:ApplicationContext private val context: Context,
+    private val stats: CoverSourceStats
+) {
 
     private val orderKey = stringPreferencesKey(CoverSources.ORDER_KEY)
     private val disabledKey = stringSetPreferencesKey(CoverSources.DISABLED_KEY)
@@ -43,7 +47,7 @@ class CoverSourceSettings @Inject constructor(@param:ApplicationContext private 
     val chain: Flow<CoverSources.Chain> = context.dataStore.data.map {
         CoverSources.Chain(
             order = CoverSources.orderOf(it[orderKey]),
-            disabled = CoverSources.disabledOf(it[disabledKey]),
+            disabled = CoverSources.disabledOf(it[disabledKey], withKey(it)),
             nonBoxArt = it[nonBoxKey] ?: false
         )
     }.distinctUntilChanged()
@@ -64,6 +68,8 @@ class CoverSourceSettings @Inject constructor(@param:ApplicationContext private 
         password = p[passwordKey].orEmpty()
     )
 
+    private fun withKey(p: Preferences): Set<CoverSources.Source> = keysOf(p).let { k -> CoverApis.OWN.filter { s -> k.ownConfigured(s) }.toSet() }
+
     private fun keysOf(p: Preferences) = CoverApis.Keys(
         tgdb = p[tgdbKey].orEmpty(),
         sgdb = p[sgdbKey].orEmpty(),
@@ -77,7 +83,7 @@ class CoverSourceSettings @Inject constructor(@param:ApplicationContext private 
     }
 
     suspend fun setEnabled(source: CoverSources.Source, on: Boolean) = context.dataStore.edit {
-        val now = CoverSources.disabledOf(it[disabledKey])
+        val now = CoverSources.disabledOf(it[disabledKey], withKey(it))
         it[disabledKey] = (if (on) now - source else now + source).map { s -> s.key }.toSet()
     }
 
@@ -102,6 +108,14 @@ class CoverSourceSettings @Inject constructor(@param:ApplicationContext private 
         it[key] = if (field == Field.DEV_PASSWORD || field == Field.PASSWORD) value else value.trim()
         // The first key of a 4.4.0 source switches that source on (they start off).
         val setUp = keysOf(it).newlyConfigured(keysBefore)
-        if (setUp.isNotEmpty()) it[disabledKey] = (CoverSources.disabledOf(it[disabledKey]) - setUp).map { s -> s.key }.toSet()
+        if (setUp.isNotEmpty()) it[disabledKey] = (CoverSources.disabledOf(it[disabledKey], withKey(it)) - setUp).map { s -> s.key }.toSet()
+    }.also {
+        // A new key starts clean: the rest and the problem of the old one are forgotten.
+        when (field) {
+            Field.TGDB_KEY -> CoverSources.Source.THEGAMESDB
+            Field.SGDB_KEY -> CoverSources.Source.STEAMGRIDDB
+            Field.IGDB_CLIENT_ID, Field.IGDB_CLIENT_SECRET -> CoverSources.Source.IGDB
+            else -> null
+        }?.let { s -> stats.pauseSource(s, 0); stats.sourceProblem(s, null) }
     }
 }

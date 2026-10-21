@@ -8,6 +8,7 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import java.util.concurrent.TimeUnit
 
 /**
  * Minimal JSON-over-HTTP helper on `HttpURLConnection` (the app has no OkHttp), shared by the
@@ -31,10 +32,18 @@ object JsonHttp {
         body: ByteArray? = null,
         contentType: String? = null,
         connectTimeoutMs: Int = 15_000,
-        readTimeoutMs: Int = 30_000
+        readTimeoutMs: Int = 30_000,
+        followRedirects: Boolean = true,
+        deadlineMs: Long = 0,
+        onConnection: ((HttpURLConnection) -> Unit)? = null
     ): Response {
         val connection = URL(url).openConnection() as HttpURLConnection
         TlsTrust.apply(connection)
+        // A request that carries a key never follows a redirect to another host ([followRedirects] off).
+        connection.instanceFollowRedirects = followRedirects
+        onConnection?.invoke(connection)
+        // Total deadline: the timeouts above are per read, so a slow trickle could hold the request for ever.
+        val watchdog = if (deadlineMs > 0) WATCHDOG.schedule({ connection.disconnect() }, deadlineMs, TimeUnit.MILLISECONDS) else null
         try {
             connection.requestMethod = method
             connection.connectTimeout = connectTimeoutMs
@@ -54,9 +63,13 @@ object JsonHttp {
             val json = runCatching { JsonParser.parseString(text) }.getOrNull()?.takeUnless { it.isJsonNull }
             return Response(code, json, text)
         } finally {
+            watchdog?.cancel(false)
             connection.disconnect()
         }
     }
+
+    private val WATCHDOG = java.util.concurrent.ScheduledThreadPoolExecutor(1) { r -> Thread(r, "http-deadline").apply { isDaemon = true } }
+        .apply { removeOnCancelPolicy = true }
 
     /**
      * A binary GET (save files, states): the whole body, or [HttpException] on a non-2xx status.

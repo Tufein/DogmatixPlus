@@ -80,7 +80,7 @@ class IgdbTest {
     }
 
     @Test fun `games are read with their cover id and platforms`() {
-        val list = Igdb.parseGames(JsonParser.parseString(games))
+        val list = Igdb.parseGames(JsonParser.parseString(games))!!
         assertEquals(4, list.size)
         assertEquals(Igdb.Game(1019, "Advance Wars", "co1bbb", listOf(24)), list[1])
         assertNull(list[2].imageId)
@@ -89,7 +89,7 @@ class IgdbTest {
     }
 
     @Test fun `the game on the right console with a cover and the same title wins`() {
-        val list = Igdb.parseGames(JsonParser.parseString(games))
+        val list = Igdb.parseGames(JsonParser.parseString(games))!!
         // Game Boy Advance: not the sequel, not the one without a cover.
         assertEquals(1019L, Igdb.pick("Advance Wars", list, 24)?.id)
         // Nintendo DS: the DS entry.
@@ -114,11 +114,12 @@ class IgdbTest {
 
     @Test fun `an image id that could change the address is refused`() {
         val odd = """[{"id":1,"name":"Game","cover":{"image_id":"../x?y"},"platforms":[1]},{"id":2,"name":"Game","cover":{"image_id":"co_ok-1"}}]"""
-        val list = Igdb.parseGames(JsonParser.parseString(odd))
+        val list = Igdb.parseGames(JsonParser.parseString(odd))!!
         assertNull(list[0].imageId)
         assertEquals("co_ok-1", list[1].imageId)
-        assertEquals(emptyList<Igdb.Game>(), Igdb.parseGames(JsonParser.parseString("""{"message":"Authorization Failure","status":401}""")))
-        assertEquals(emptyList<Igdb.Game>(), Igdb.parseGames(null))
+        // A 200 that is not an array is unreadable, not "no game": it must never become a cached miss.
+        assertNull(Igdb.parseGames(JsonParser.parseString("""{"message":"Authorization Failure","status":401}""")))
+        assertNull(Igdb.parseGames(null))
         assertEquals(emptyList<Igdb.Game>(), Igdb.parseGames(JsonParser.parseString("[]")))
     }
 }

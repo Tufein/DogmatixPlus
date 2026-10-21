@@ -67,9 +67,13 @@ object CoverSources {
 
     fun encodeOrder(order: List<Source>): String = order.filter { it != Source.ROMM }.distinct().joinToString(",") { it.key }
 
-    /** The switched-off sources; before the user ever touched a switch ([keys] null) the 4.4.0 sources are off. */
-    fun disabledOf(keys: Set<String>?): Set<Source> =
-        if (keys == null) OFF_UNTIL_SET_UP else keys.mapNotNull { Source.of(it) }.toSet()
+    /**
+     * The switched-off sources. Before the user ever touched a switch ([keys] null) the 4.4.0 sources
+     * are off unless they are set up with a key of the user's own ([withKey]): read at use time, so a
+     * restore without switches leaves a source with a kept key on.
+     */
+    fun disabledOf(keys: Set<String>?, withKey: Set<Source> = emptySet()): Set<Source> =
+        if (keys == null) OFF_UNTIL_SET_UP - withKey else keys.mapNotNull { Source.of(it) }.toSet()
 
     /** [order] with [source] moved [delta] places (works on the value, so a double press never moves the wrong entry). */
     fun move(order: List<Source>, source: Source, delta: Int): List<Source> {

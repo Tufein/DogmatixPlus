@@ -101,14 +101,19 @@ class CoverSourcesViewModel @Inject constructor(
         if (_testingKey.value != null) return
         _testingKey.value = source
         viewModelScope.launch {
-            val result = runCatching {
+            val result = try {
                 when (source) {
                     CoverSources.Source.THEGAMESDB -> theGamesDb.testKey()
                     CoverSources.Source.STEAMGRIDDB -> steamGridDb.testKey()
                     CoverSources.Source.IGDB -> igdb.testKey()
                     else -> CoverApis.KeyTest.Missing
                 }
-            }.getOrDefault(CoverApis.KeyTest.Offline)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                _testingKey.value = null
+                throw e
+            } catch (e: Exception) {
+                CoverApis.KeyTest.Offline
+            }
             _keyTests.value = _keyTests.value + (source to result)
             _testingKey.value = null
         }
