@@ -157,7 +157,7 @@ class SettingsLayoutTest {
     }
 
     @Test fun `search finds every setting that is not a link to its own screen`() {
-        val found = SearchIndex.entries.filter { it.group == SearchGroup.SETTINGS }.map { it.target.rowKey!! }.toSet()
+        val found = SearchIndex.entries.filter { it.group == SearchGroup.SETTINGS }.map { it.id }.toSet()
         // These rows only open a tool, hub or screen: search lists that screen under its own name.
         val links = setOf(
             SettingKeys.TOOLS, SettingKeys.SEARCH_ALL, SettingKeys.STORAGE, SettingKeys.PROFILES, SettingKeys.CLOUD,
