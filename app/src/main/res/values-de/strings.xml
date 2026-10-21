@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Bessere Cover: Valkyr fragt jetzt mehrere Quellen in einer Reihenfolge, die du wählst (RomM, libretro-thumbnails, ScreenScraper mit deinem eigenen Login, Spieledatenbanken) und meldet klar, wenn ein Login scheitert oder ein Tageslimit erreicht ist. Die Einstellungen sind außerdem aufgeräumt: Zusammengehöriges steht beisammen, abhängige Optionen erscheinen direkt unter ihrem Schalter.</item>
+        <item>Drei weitere Cover-Quellen: TheGamesDB, SteamGridDB und IGDB (jeweils mit deinem eigenen kostenlosen Schlüssel, unter Einstellungen → Cover-Quellen). Die Einstellungen sind in 13 klaren Karten zusammengefasst, jede Option hat genau einen Platz und jede Karte eine kurze Beschreibung.</item>
     </string-array>
 
     <!-- 4.0 -->

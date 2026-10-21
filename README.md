@@ -23,9 +23,9 @@ The app includes no games. **Sources → More romsets** offers optional free con
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [4.3.0](https://github.com/Tufein/Valkyr/releases/tag/v4.3.0)** (Android build 55).
+**Latest release: [4.4.0](https://github.com/Tufein/Valkyr/releases/tag/v4.4.0)** (Android build 56).
 
-Until 3.9.0 the app was called Dogmatix+. Valkyr 4.3.0 has its own app id, so it installs next to the old app: use *Settings → Back up* in the old app and *Restore backup* in Valkyr, then remove the old app.
+Until 3.9.0 the app was called Dogmatix+. Valkyr 4.4.0 has its own app id, so it installs next to the old app: use *Settings → Back up* in the old app and *Restore backup* in Valkyr, then remove the old app.
 
 ## Install
 
@@ -52,7 +52,7 @@ You need **Android 10 or newer**. The app is not on Google Play.
 - **Filter** by console, region, language, type, genre, decade and *New*; **sort** by name, size or newest. A green **✓** marks what you already have.
 - **A page for every game**: art, Download or Play, the best version, favourite, collections, share, notes, screenshots and manuals, and a *Versions* tab that explains how each version scores.
 - **Covers first**: Home opens on shelves of big covers (continue playing, new for you, one shelf per console), navigation sits in a bottom bar, or a slim side bar on a handheld, with Games, Downloads, Sources and More. The game page starts with a large cover and one big Play or Download button.
-- **Covers from several sources**: RomM, libretro-thumbnails, [ScreenScraper](https://www.screenscraper.fr) (with your own login) and the game databases, in an order you choose. The app says plainly when a login fails or a daily limit is reached, and a source that was only unavailable is asked again later (*Settings → Cover sources*).
+- **Covers from several sources**: RomM, libretro-thumbnails, [ScreenScraper](https://www.screenscraper.fr) (with your own login), TheGamesDB, SteamGridDB and IGDB (each with your own free key) and the cached game images, in an order you choose. The app says plainly when a login fails or a daily limit is reached, and a source that was only unavailable is asked again later (*Settings → Cover sources*).
 - **Up next and For you**: a personal play list per profile, and suggestions from your own library that always say why they were picked.
 - **Collections and goals**: favourites, your own lists, rule-based collections (console, language, genre, year, played), collection goals, play history, a yearly recap and the best games per console from RetroAchievements.
 - **Wishlist**: note games you want, get told when one appears, download them automatically and share the list.
@@ -152,7 +152,7 @@ Valkyr is made by [Tufein](https://github.com/Tufein). It is built with these op
 | [Gson](https://github.com/google/gson), [Coil](https://github.com/coil-kt/coil), [jsoup](https://jsoup.org), [ZXing](https://github.com/zxing/zxing) | JSON, images, reading web directories, QR codes |
 | [7-Zip-JBinding](https://github.com/borisbrodski/sevenzipjbinding), [libtorrent4j](https://github.com/aldenml/libtorrent4j) | Unpacking archives, torrents |
 | [Space Mono](https://fonts.google.com/specimen/Space+Mono), [Manrope](https://fonts.google.com/specimen/Manrope) | Fonts (SIL Open Font License) |
-| [RetroAchievements](https://retroachievements.org), [RAWG](https://rawg.io), [TheGamesDB](https://thegamesdb.net), [ScreenScraper](https://www.screenscraper.fr), [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Achievements, game information and covers |
+| [RetroAchievements](https://retroachievements.org), [RAWG](https://rawg.io), [TheGamesDB](https://thegamesdb.net), [SteamGridDB](https://www.steamgriddb.com), [IGDB](https://www.igdb.com), [ScreenScraper](https://www.screenscraper.fr), [libretro-thumbnails](https://github.com/libretro-thumbnails/libretro-thumbnails) | Achievements, game information and covers |
 | [No-Intro](https://no-intro.org), [Redump](http://redump.org), [TOSEC](https://www.tosecdev.org) | DAT checks |
 | [RomM](https://github.com/rommapp/romm), [ES-DE](https://es-de.org), [Libretro](https://www.libretro.com), [ScummVM](https://www.scummvm.org), [Homebrew Hub](https://hh.gbdev.io) | Server, launcher and free content the app works with |
 

@@ -1286,7 +1286,7 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Mejores carátulas: Valkyr ahora consulta varias fuentes en el orden que elijas (RomM, libretro-thumbnails, ScreenScraper con tu propio acceso, bases de datos de juegos) y avisa con claridad si falla el acceso o se alcanza un límite diario. Los ajustes también están ordenados: las opciones relacionadas van juntas y las dependientes aparecen justo debajo de su interruptor.</item>
+        <item>Tres fuentes de carátulas más: TheGamesDB, SteamGridDB e IGDB (cada una con tu propia clave gratuita, en Ajustes → Fuentes de portadas). Los ajustes se han reunido en 13 tarjetas claras, con un solo lugar por opción y una breve descripción en cada una.</item>
     </string-array>
 
     <!-- 4.0 -->

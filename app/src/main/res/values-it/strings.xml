@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Copertine migliori: Valkyr ora interroga più fonti nell’ordine che scegli (RomM, libretro-thumbnails, ScreenScraper con il tuo accesso, database di giochi) e segnala chiaramente un accesso fallito o un limite giornaliero raggiunto. Anche le impostazioni sono riordinate: le opzioni correlate stanno insieme e quelle dipendenti compaiono subito sotto il loro interruttore.</item>
+        <item>Tre fonti di copertine in più: TheGamesDB, SteamGridDB e IGDB (ognuna con la tua chiave gratuita, in Impostazioni → Fonti delle copertine). Le impostazioni sono riunite in 13 schede chiare, con un solo posto per opzione e una breve descrizione per scheda.</item>
     </string-array>
 
     <!-- 4.0 -->
