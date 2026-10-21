@@ -12,6 +12,9 @@ data class DownloadRules(
     val minFreeBytes: Long = 0L
 ) {
     val any: Boolean get() = wifiOnly || chargingOnly || nightOnly || minFreeBytes > 0
+
+    /** The clock and the free space are only looked at (every 30 s) while a rule depends on them. */
+    val needsPolling: Boolean get() = nightOnly || minFreeBytes > 0
 }
 
 data class DeviceConditions(

@@ -21,7 +21,8 @@ object Constants {
 
     const val CONNECTION_TIMEOUT_MS = 30000L
     const val READ_TIMEOUT_MS = 60000L
-    const val BUFFER_SIZE = 8192
+    /** Chunk of a web download: 128 KB means 16x fewer read/write calls than 8 KB (each write is a call into the SAF provider). */
+    const val BUFFER_SIZE = 128 * 1024
 
     const val SETTINGS_DATASTORE_NAME = "user_settings"
 

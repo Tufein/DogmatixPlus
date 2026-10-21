@@ -30,10 +30,6 @@ android {
 
         buildConfigField("String", "RAWG_API_KEY", "\"${secret("RAWG_API_KEY")}\"")
         buildConfigField("String", "THEGAMESDB_API_KEY", "\"${secret("THEGAMESDB_API_KEY")}\"")
-
-        ndk {
-            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
-        }
     }
 
     signingConfigs {
@@ -67,8 +63,16 @@ android {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
             signingConfig = signingConfigs.findByName("testDebug") ?: signingConfigs.getByName("debug")
+            // x86_64 stays in debug only: CI runs the instrumented tests on an x86_64 emulator.
+            ndk {
+                abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+            }
         }
         release {
+            // Handhelds are arm64 (armeabi-v7a for old 32-bit devices); no emulator runs the release APK.
+            ndk {
+                abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
