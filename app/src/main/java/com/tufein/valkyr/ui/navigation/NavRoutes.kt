@@ -68,6 +68,8 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     object UpNext : NavRoutes("up_next", R.string.next30_title, R.drawable.ic_playlist_play)
     object LibraryRepair : NavRoutes(com.tufein.valkyr.ui.screens.tools.LIBRARY_REPAIR_ROUTE, R.string.repair30_title, R.drawable.ic_build)
     object ReportProblem : NavRoutes("report_problem", R.string.report30_title, R.drawable.ic_bug)
+    /** 4.7.0: the on-device performance self-test (database, covers, storage, frame times) with a shareable report. */
+    object PerfCheck : NavRoutes("perf_check", R.string.measure47_title, R.drawable.ic_speed)
     /** 3.1.0: whole games to a folder, RomM or the NAS, with a preview and a check of every file. */
     object GameTransfer : NavRoutes(com.tufein.valkyr.ui.screens.tools.GAME_TRANSFER_ROUTE, R.string.transfer31_title, R.drawable.ic_file_export)
     /** 3.1.0: cover images for iiSU and Daijishō in a media folder the user picks. */
@@ -84,7 +86,7 @@ sealed class NavRoutes(val route: String, val labelRes: Int, val icon: Int) {
     companion object {
         /** The four sections shown as tabs (3.8.0); every other screen is reached from More. */
         val tabs by lazy { listOf(Home, Downloads, Sources, More) }
-        val allRoutes by lazy { tabs + Settings + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions + FreeSpace + SearchAll + Recovery + PackageTransfer + ActionHistory + VersionPreference + UpNext + LibraryRepair + ReportProblem + GameTransfer + FrontendCovers + RetroArchPlaylists + NewHandheld + CoverSources }
+        val allRoutes by lazy { tabs + Settings + Contact + Romm + SaveSync + Overview + Duplicates + Tools + Sets + Storage + Wishlist + Files + Collections + Switch + Dat + ImportList + Bios + Stats + Profiles + RetroAchievements + Frontends + Cloud + CloudBackup + CollectionGoals + History + Health + Recap + BestGames + FrontendMetadata + BetterVersions + FreeSpace + SearchAll + Recovery + PackageTransfer + ActionHistory + VersionPreference + UpNext + LibraryRepair + ReportProblem + PerfCheck + GameTransfer + FrontendCovers + RetroArchPlaylists + NewHandheld + CoverSources }
     }
 }
 
