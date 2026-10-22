@@ -1286,7 +1286,7 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Más rápida y ligera: arranque más rápido, menos redibujados, menos consultas repetidas, menos despertares en segundo plano, bloques de descarga mayores y un APK más pequeño. Diagnóstico muestra ahora los tiempos de inicio y las operaciones más lentas.</item>
+        <item>Búsqueda y filtros mucho más rápidos en bibliotecas grandes (nuevos índices de base de datos y búsqueda de texto completo). Tras la actualización el índice se rellena en segundo plano; la búsqueda funciona en todo momento.</item>
     </string-array>
 
     <!-- 4.0 -->
