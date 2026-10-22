@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.data.local.dao.DownloadableFileDao
+import com.tufein.valkyr.data.local.dao.toSupportQuery
+import com.tufein.valkyr.data.local.queries.LibraryQueryBuilder
 import com.tufein.valkyr.data.model.SortOption
 import com.tufein.valkyr.data.repository.DownloadableFileRepository
 import com.tufein.valkyr.data.service.ActionLogService
@@ -38,7 +40,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import com.tufein.valkyr.util.SearchNormalizer
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
@@ -88,7 +89,7 @@ class ShelvesViewModel @Inject constructor(
         val at = rescans.lastRescanTime.value
         nameCache?.takeIf { it.rescanAt == at }?.let { return@withLock it }
         // Unfiltered: the profile's hidden consoles are applied by the callers, so a profile switch reuses this.
-        val consoles = fileDao.getConsolesWithFiles(SearchNormalizer.likePattern("*").ifEmpty { "*" }, null).map { it.id to it.fileCount }
+        val consoles = fileDao.rawConsolesWithFiles(LibraryQueryBuilder.consoles(LibraryQueryBuilder.Text.None, null).toSupportQuery()).map { it.id to it.fileCount }
         val names = consoles.associate { (id, _) -> id to fileDao.fileNamesFor(id) }
         NameCache(at, consoles, names).also { nameCache = it }
     }

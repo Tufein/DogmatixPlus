@@ -202,12 +202,30 @@ class DiagnosticsService @Inject constructor(
         text.ifBlank { "(empty)" }
     }.getOrElse { "(not available: ${it.message})" }
 
+    /**
+     * 4.7.0: the same share path for another text the app builds itself (the Performance check's
+     * numbers): written to the cache `exports` folder after the same redaction, then the share sheet.
+     * [fileName] is a fixed name chosen in code.
+     */
+    suspend fun shareText(fileName: String, text: String, chooserTitle: String) {
+        val secrets = secrets()
+        val file = withContext(Dispatchers.IO) {
+            val dir = File(context.cacheDir, "exports").apply { mkdirs() }
+            File(dir, fileName).apply { writeText(DiagnosticsRedactor.redact(text, secrets)) }
+        }
+        send(file, chooserTitle)
+    }
+
     /** Writes the report and opens the share sheet. */
     suspend fun share(chooserTitle: String) {
         val file = withContext(Dispatchers.IO) {
             val dir = File(context.cacheDir, "exports").apply { mkdirs() }
             File(dir, "valkyr-diagnostics.txt").apply { writeText(buildReport()) }
         }
+        send(file, chooserTitle)
+    }
+
+    private fun send(file: File, chooserTitle: String) {
         val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
         val send = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"

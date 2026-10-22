@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saves48_wiiware">Ook WiiWare- en Virtual Console-saves synchroniseren</string>
+    <string name="saves48_wiiware_hint">Kanalen die je via de Wii Shop installeert (WiiWare-games en Virtual Console-titels) bewaren hun saves in Wii/title/00010001. Aan: deze saves gaan mee als nog een bundel, bewaard bij dezelfde game. Alleen de savegegevens gaan mee, nooit de geïnstalleerde game zelf.</string>
+    <string name="saves48_extras_section">Extra ES-DE-afbeeldingen</string>
+    <string name="saves48_extras_hint">Standaard uit. Worden naast de covers in dezelfde mediamap geschreven, uit de libretro-thumbnails (die bron moet aanstaan bij Bronnen voor covers). Afbeeldingen die er al staan worden alleen vervangen als vervangen hieronder aanstaat.</string>
+    <string name="saves48_extra_titlescreens">Titelschermen</string>
+    <string name="saves48_extra_titlescreens_hint">Het titelscherm van elke game, in de map %1$s van elke console. Alleen games waarvoor libretro er een heeft, krijgen er een.</string>
+    <string name="saves48_extra_screenshots">Screenshots</string>
+    <string name="saves48_extra_screenshots_hint">Een screenshot van elke game, in de map %1$s van elke console. Alleen games waarvoor libretro er een heeft, krijgen er een.</string>
+    <plurals name="saves48_preview_extras">
+        <item quantity="one">%1$s hiervan is een titelscherm of screenshot, geen cover.</item>
+        <item quantity="other">%1$s hiervan zijn titelschermen of screenshots, geen covers.</item>
+    </plurals>
+    <string name="saves48_wiiware_kw">wiiware, virtual console, wii shop, wii-saves, dolphin, 00010001</string>
+    <string name="saves48_extras_kw">es-de, esde, titelschermen, screenshots, schermafbeeldingen, downloaded_media, media, artwork</string>
+</resources>

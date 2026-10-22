@@ -4,7 +4,11 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Transaction
+import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteQuery
+import com.tufein.valkyr.data.local.queries.LibraryQueryBuilder
 import com.tufein.valkyr.data.local.entity.DownloadableFileEntity
 import com.tufein.valkyr.data.local.entity.FileTagEntity
 import com.tufein.valkyr.util.SearchNormalizer
@@ -22,96 +26,13 @@ interface DownloadableFileDao {
     suspend fun insertTags(tags: List<FileTagEntity>)
 
     /**
-     * Tag filters: each category (regions, languages, …) is OR-ed within itself and AND-ed
-     * with the others, e.g. (GBC ∨ GBA) ∧ (ES) ∧ (RETROACHIEVEMENTS). [source] narrows by origin:
-     * RomM rows are recognised by their `/api/roms/{id}/content/` download URL (see RommSource).
+     * The library list: [LibraryQueryBuilder.files]. Tag filters: each category (regions, languages, …) is
+     * OR-ed within itself and AND-ed with the others, e.g. (GBC ∨ GBA) ∧ (ES) ∧ (RETROACHIEVEMENTS).
+     * RomM rows are recognised by their `/api/roms/{id}/content/` download URL (the `isRomm` column, see RommSource).
+     * Built as text because only the conditions in use belong in the statement (see [LibraryQueryBuilder]).
      */
-    @Query("""
-        SELECT df.id, df.name, df.fileName, df.consoleId, df.downloadUrl, df.fileSize,
-               df.fileExtension, df.torrentFileIndex, df.torrentMagnet, df.expectedHash, df.firstSeenAt,
-               GROUP_CONCAT(t.tag, '|') as tags
-        FROM downloadable_files df
-        LEFT JOIN downloadable_file_tags t ON df.id = t.fileId
-        JOIN consoles c ON df.consoleId = c.id
-        JOIN manufacturers m ON c.manufacturerId = m.id
-        WHERE (:query = '*' OR df.searchKey LIKE '%' || :query || '%')
-          AND (:manufacturer IS NULL OR m.name = :manufacturer)
-          AND (:consoleIdsCount = 0 OR df.consoleId IN (:consoleIds))
-          AND (:regionsCount = 0 OR EXISTS (
-                SELECT 1 FROM downloadable_file_tags t_regions WHERE t_regions.fileId = df.id AND t_regions.tag IN (:regions)
-          ))
-          AND (:languagesCount = 0 OR EXISTS (
-                SELECT 1 FROM downloadable_file_tags t_languages WHERE t_languages.fileId = df.id AND t_languages.tag IN (:languages)
-          ))
-          AND (:videoStandardsCount = 0 OR EXISTS (
-                SELECT 1 FROM downloadable_file_tags t_videoStandards WHERE t_videoStandards.fileId = df.id AND t_videoStandards.tag IN (:videoStandards)
-          ))
-          AND (:contentTypesCount = 0 OR EXISTS (
-                SELECT 1 FROM downloadable_file_tags t_contentTypes WHERE t_contentTypes.fileId = df.id AND t_contentTypes.tag IN (:contentTypes)
-          ))
-          AND (:fileTypesCount = 0 OR EXISTS (
-                SELECT 1 FROM downloadable_file_tags t_fileTypes WHERE t_fileTypes.fileId = df.id AND t_fileTypes.tag IN (:fileTypes)
-          ))
-          AND (:favouritesOnly = 0 OR EXISTS (
-                SELECT 1 FROM favourites f WHERE f.consoleId = df.consoleId AND f.fileName = df.fileName
-                AND f.profileId = COALESCE((SELECT activeId FROM personal_profile WHERE id = 0), '')
-          ))
-          AND (:newSince = 0 OR df.firstSeenAt >= :newSince)
-          AND (:hiddenConsolesCount = 0 OR df.consoleId NOT IN (:hiddenConsoles))
-          AND (:hiddenTagsCount = 0 OR NOT EXISTS (
-                SELECT 1 FROM downloadable_file_tags t_hidden WHERE t_hidden.fileId = df.id AND t_hidden.tag IN (:hiddenTags)
-          ))
-          AND (:collectionId = 0 OR EXISTS (
-                SELECT 1 FROM collection_items ci WHERE ci.collectionId = :collectionId AND ci.consoleId = df.consoleId AND ci.fileName = df.fileName
-          ))
-          AND (:source = 0
-               OR (:source = 1 AND df.torrentFileIndex IS NOT NULL)
-               OR (:source = 2 AND df.downloadUrl LIKE '%/api/roms/%/content/%')
-               OR (:source = 3 AND df.torrentFileIndex IS NULL AND df.downloadUrl NOT LIKE '%/api/roms/%/content/%'))
-        GROUP BY df.id, df.name, df.fileName, df.consoleId, df.downloadUrl, df.fileSize,
-                 df.fileExtension, df.torrentFileIndex, df.torrentMagnet, df.expectedHash, df.firstSeenAt
-        ORDER BY
-            CASE WHEN :sort = 4 THEN df.firstSeenAt END DESC,
-            CASE WHEN :sort = 0 THEN df.name END ASC,
-            CASE WHEN :sort = 1 THEN df.name END DESC,
-            CASE WHEN :sort = 2 THEN df.fileSize END DESC,
-            CASE WHEN :sort = 3 THEN df.fileSize END ASC,
-            df.name ASC
-        LIMIT :limit OFFSET :offset
-    """)
-    suspend fun queryFilesWithTags(
-        query: String,
-        manufacturer: String?,
-        consoleIds: List<String>,
-        consoleIdsCount: Int,
-        regions: List<String>,
-        regionsCount: Int,
-        languages: List<String>,
-        languagesCount: Int,
-        videoStandards: List<String>,
-        videoStandardsCount: Int,
-        contentTypes: List<String>,
-        contentTypesCount: Int,
-        fileTypes: List<String>,
-        fileTypesCount: Int,
-        favouritesOnly: Boolean,
-        /** Only files a rescan found at or after this time; 0 = no limit. */
-        newSince: Long,
-        /** Only games in this collection; 0 = any. */
-        collectionId: Long,
-        /** Consoles the active profile hides. */
-        hiddenConsoles: List<String> = emptyList(),
-        hiddenConsolesCount: Int = 0,
-        /** Tags the active profile hides (a game with any of them is left out). */
-        hiddenTags: List<String> = emptyList(),
-        hiddenTagsCount: Int = 0,
-        /** [com.tufein.valkyr.data.model.SourceFilter] ordinal: 0 all, 1 torrent, 2 RomM, 3 direct HTTP. */
-        source: Int,
-        /** [com.tufein.valkyr.data.model.SortOption] ordinal: 0 A→Z, 1 Z→A, 2 biggest first, 3 smallest first, 4 newest first. */
-        sort: Int,
-        limit: Int = 100,
-        offset: Int = 0
-    ): List<DownloadableFileWithTagsResult>
+    @RawQuery
+    suspend fun queryFilesWithTags(query: SupportSQLiteQuery): List<DownloadableFileWithTagsResult>
 
     @Query("SELECT COUNT(*) FROM downloadable_files")
     suspend fun getFilesCount(): Int
@@ -160,39 +81,13 @@ interface DownloadableFileDao {
     @Query("SELECT tag FROM downloadable_file_tags WHERE fileId = :fileId ORDER BY tag ASC")
     suspend fun getTagsForFile(fileId: Long): List<String>
 
-    @Query("""
-        SELECT DISTINCT t.tag
-        FROM downloadable_file_tags t
-        JOIN downloadable_files df ON t.fileId = df.id
-        JOIN consoles c ON df.consoleId = c.id
-        JOIN manufacturers m ON c.manufacturerId = m.id
-        WHERE (:query = '*' OR df.searchKey LIKE '%' || :query || '%')
-          AND (:manufacturer IS NULL OR m.name = :manufacturer)
-          AND (:consoleIdsCount = 0 OR df.consoleId IN (:consoleIds))
-        ORDER BY t.tag ASC
-    """)
-    suspend fun getAvailableTags(
-        query: String,
-        manufacturer: String?,
-        consoleIds: List<String>,
-        consoleIdsCount: Int
-    ): List<String>
+    /** The tag chips ([LibraryQueryBuilder.tags]). */
+    @RawQuery
+    suspend fun rawTags(query: SupportSQLiteQuery): List<String>
 
-    @Query("""
-        SELECT DISTINCT c.id, c.name, c.manufacturerId, c.urls, COUNT(df.id) as fileCount
-        FROM consoles c
-        JOIN downloadable_files df ON c.id = df.consoleId
-        JOIN manufacturers m ON c.manufacturerId = m.id
-        WHERE (:query = '*' OR df.searchKey LIKE '%' || :query || '%')
-          AND (:manufacturer IS NULL OR m.name = :manufacturer)
-        GROUP BY c.id, c.name, c.manufacturerId, c.urls
-        HAVING fileCount > 0
-        ORDER BY c.name ASC
-    """)
-    suspend fun getConsolesWithFiles(
-        query: String,
-        manufacturer: String?
-    ): List<ConsoleWithFileCount>
+    /** Consoles with matching files and their counts ([LibraryQueryBuilder.consoles]). */
+    @RawQuery
+    suspend fun rawConsolesWithFiles(query: SupportSQLiteQuery): List<ConsoleWithFileCount>
 
     @Transaction
     suspend fun insertFilesWithTags(files: List<DownloadableFileEntity>, tags: List<FileTagEntity>) {
@@ -253,16 +148,20 @@ interface DownloadableFileDao {
     @Query("SELECT * FROM downloadable_files WHERE firstSeenAt >= :since AND firstSeenAt > 0 ORDER BY firstSeenAt DESC LIMIT :limit")
     suspend fun newestSince(since: Long, limit: Int): List<DownloadableFileEntity>
 
-    /** Rows served by a RomM server (their URL carries the rom id). */
-    @Query("SELECT * FROM downloadable_files WHERE downloadUrl LIKE '%/api/roms/%/content/%'")
+    /** Rows served by a RomM server (their URL carries the rom id); served by the `isRomm` index, no LIKE scan. */
+    @Query("SELECT * FROM downloadable_files WHERE isRomm = 1")
     suspend fun rommRows(): List<DownloadableFileEntity>
 
     /** When rescans found files, since [since] (statistics). */
     @Query("SELECT firstSeenAt FROM downloadable_files WHERE firstSeenAt >= :since AND firstSeenAt > 0")
     suspend fun firstSeenSince(since: Long): List<Long>
 
-    /** Consoles with Switch container files (nsp, nsz, xci, xcz). */
-    @Query("SELECT DISTINCT consoleId FROM downloadable_files WHERE lower(fileName) LIKE '%.nsp' OR lower(fileName) LIKE '%.nsz' OR lower(fileName) LIKE '%.xci' OR lower(fileName) LIKE '%.xcz'")
+    /**
+     * Consoles with Switch container files (nsp, nsz, xci, xcz). Asks each console in turn and stops at its
+     * first hit (the console index finds the rows), instead of scanning the whole table for DISTINCT.
+     * LIKE is already ASCII case-insensitive.
+     */
+    @Query("SELECT c.id FROM consoles c WHERE EXISTS (SELECT 1 FROM downloadable_files df WHERE df.consoleId = c.id AND (df.fileName LIKE '%.nsp' OR df.fileName LIKE '%.nsz' OR df.fileName LIKE '%.xci' OR df.fileName LIKE '%.xcz'))")
     suspend fun switchConsoles(): List<String>
 
     /** All rows of one console (Switch updates / DLC). */
@@ -305,6 +204,33 @@ interface DownloadableFileDao {
     suspend fun backfillSearchKeys() {
         getFilesMissingSearchKey().forEach { updateSearchKey(it.id, SearchNormalizer.key(it.name)) }
     }
+
+    /** Rows from before 4.6 whose [DownloadableFileEntity.searchWords] is still empty, one page after [afterId] (a rowid range scan). */
+    @Query("SELECT id, name FROM downloadable_files WHERE id > :afterId AND searchWords = '' AND searchKey <> '' ORDER BY id LIMIT :limit")
+    suspend fun filesMissingSearchWords(afterId: Long, limit: Int): List<FileIdName>
+
+    @Query("UPDATE downloadable_files SET searchWords = :words WHERE id = :id")
+    suspend fun updateSearchWords(id: Long, words: String)
+
+    /** True when no row is waiting for its [DownloadableFileEntity.searchWords], i.e. the FTS index is complete. */
+    @Query("SELECT NOT EXISTS (SELECT 1 FROM downloadable_files WHERE searchWords = '' AND searchKey <> '')")
+    suspend fun searchWordsComplete(): Boolean
+
+    /**
+     * Fills the words of one page of old rows; each update refreshes the FTS index through Room's sync triggers.
+     * One transaction per page keeps every commit short and lets a scan or search run in between.
+     * Returns the last id handled, or null when no row was left.
+     */
+    @Transaction
+    suspend fun backfillSearchWordsPage(afterId: Long, limit: Int): Long? {
+        val page = filesMissingSearchWords(afterId, limit)
+        page.forEach { updateSearchWords(it.id, SearchNormalizer.words(it.name)) }
+        return page.lastOrNull()?.id
+    }
+
+    /** Rebuilds the FTS index from the table (repair after a failure; the content table is the truth). */
+    @Query("INSERT INTO downloadable_files_fts(downloadable_files_fts) VALUES('rebuild')")
+    suspend fun rebuildFts()
 
     @Query("DELETE FROM downloadable_file_tags WHERE fileId IN (SELECT id FROM downloadable_files WHERE consoleId = :consoleId)")
     suspend fun deleteTagsByConsoleId(consoleId: String)
@@ -365,3 +291,6 @@ data class ConsoleFileCount(val consoleId: String, val count: Int)
 
 /** The light columns read by [DownloadableFileDao.lightPage]. */
 data class LightFileRow(val id: Long, val consoleId: String, val fileName: String, val name: String)
+
+/** The statement as Room's `@RawQuery` wants it (bind arguments are Int/Long/String only). */
+fun LibraryQueryBuilder.Built.toSupportQuery(): SupportSQLiteQuery = SimpleSQLiteQuery(sql, args.toTypedArray())

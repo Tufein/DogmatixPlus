@@ -12,6 +12,17 @@ import com.tufein.valkyr.data.model.SourceFilter
 import com.tufein.valkyr.data.model.TagKind
 import com.tufein.valkyr.data.service.ProfileService
 import com.tufein.valkyr.util.SearchNormalizer
+import android.util.Log
+import com.tufein.valkyr.data.local.dao.toSupportQuery
+import com.tufein.valkyr.data.local.queries.LibraryQueryBuilder
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 import com.tufein.valkyr.util.PerfLog
 import javax.inject.Singleton
@@ -40,33 +51,29 @@ class DownloadableFileRepository @Inject constructor(
         val byKind = TagCategorizer.groupByKind(tags)
         val hidden = profiles.current()
         fun kind(k: TagKind) = byKind[k].orEmpty().toList()
-        val results = PerfLog.timed("db.search") { dao.queryFilesWithTags(
-            query = searchPattern(query),
-            manufacturer = manufacturer,
-            consoleIds = consoleIds.toList(),
-            consoleIdsCount = consoleIds.size,
-            regions = kind(TagKind.REGION),
-            regionsCount = kind(TagKind.REGION).size,
-            languages = kind(TagKind.LANGUAGE),
-            languagesCount = kind(TagKind.LANGUAGE).size,
-            videoStandards = kind(TagKind.VIDEO_STANDARD),
-            videoStandardsCount = kind(TagKind.VIDEO_STANDARD).size,
-            contentTypes = kind(TagKind.CONTENT_TYPE),
-            contentTypesCount = kind(TagKind.CONTENT_TYPE).size,
-            fileTypes = kind(TagKind.FILE_TYPE),
-            fileTypesCount = kind(TagKind.FILE_TYPE).size,
-            favouritesOnly = favouritesOnly,
-            newSince = newSince,
-            collectionId = collectionId,
-            hiddenConsoles = hidden.hiddenConsoles.toList(),
-            hiddenConsolesCount = hidden.hiddenConsoles.size,
-            hiddenTags = hidden.hiddenTags.toList(),
-            hiddenTagsCount = hidden.hiddenTags.size,
-            source = source.ordinal,
-            sort = sort.ordinal,
-            limit = limit,
-            offset = offset
-        ) }
+        val results = PerfLog.timed("db.search") {
+            withText(query, firstPage = offset == 0, isEmpty = { it.isEmpty() }) { text ->
+                dao.queryFilesWithTags(LibraryQueryBuilder.files(LibraryQueryBuilder.FileFilter(
+                    text = text,
+                    manufacturer = manufacturer,
+                    consoleIds = consoleIds.toList(),
+                    regions = kind(TagKind.REGION),
+                    languages = kind(TagKind.LANGUAGE),
+                    videoStandards = kind(TagKind.VIDEO_STANDARD),
+                    contentTypes = kind(TagKind.CONTENT_TYPE),
+                    fileTypes = kind(TagKind.FILE_TYPE),
+                    favouritesOnly = favouritesOnly,
+                    newSince = newSince,
+                    collectionId = collectionId,
+                    hiddenConsoles = hidden.hiddenConsoles.toList(),
+                    hiddenTags = hidden.hiddenTags.toList(),
+                    source = source.ordinal,
+                    sort = sort.ordinal,
+                    limit = limit,
+                    offset = offset
+                )).toSupportQuery())
+            }
+        }
         return results.map { result ->
             DownloadableFileWithTags(
                 file = DownloadableFileEntity(
@@ -153,35 +160,110 @@ class DownloadableFileRepository @Inject constructor(
     suspend fun filesByIds(ids: List<Long>): List<DownloadableFileEntity> =
         ids.chunked(400).flatMap { dao.filesByIds(it) }
 
-    suspend fun backfillSearchKeys() = dao.backfillSearchKeys()
+    /**
+     * Start-up repair of old rows: the search key (2.x rows) and, since 4.6, the words behind the FTS index.
+     * Searches answer from the LIKE scan until the last row has its words; a failure here only leaves
+     * that scan in place (the next start tries again).
+     */
+    suspend fun backfillSearchKeys() {
+        dao.backfillSearchKeys()
+        var after = 0L
+        while (true) {
+            after = dao.backfillSearchWordsPage(after, WORDS_PAGE) ?: break
+            yield()
+        }
+        ftsState.set(if (dao.searchWordsComplete()) FTS_READY else FTS_PENDING)
+    }
 
-    /** '*' means "no text filter" in the DAO queries; anything else is a lenient LIKE pattern. */
-    private fun searchPattern(query: String): String =
-        SearchNormalizer.likePattern(query).ifEmpty { "*" }
+    // --- 4.6 full-text search -------------------------------------------------------------------------
+
+    private val ftsState = AtomicInteger(FTS_UNKNOWN)
+    private val ftsRepairStarted = AtomicBoolean(false)
+    private val repairScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    private suspend fun ftsReady(): Boolean {
+        if (ftsState.get() == FTS_UNKNOWN) {
+            // First search of the process: complete when no row still waits for its words (the start-up backfill sets it too).
+            val complete = try { dao.searchWordsComplete() } catch (e: Exception) { if (e is CancellationException) throw e; false }
+            ftsState.compareAndSet(FTS_UNKNOWN, if (complete) FTS_READY else FTS_PENDING)
+        }
+        return ftsState.get() == FTS_READY
+    }
+
+    /**
+     * Runs [block] with the text filter for [query]: FTS when the index is complete, the LIKE scan otherwise.
+     * FTS only matches word and title starts, LIKE matched anywhere ("mariokart", "gioh"), so an empty FTS
+     * answer is asked again once with the LIKE form ([LibraryQueryBuilder.retryWithLike]); results are never
+     * worse than before 4.6. Lists, tag chips and console counts all go through here, so for one query they take
+     * the same path. [firstPage] is false for later pages of a list (an empty page there is just the end).
+     * If FTS itself breaks (see [LibraryQueryBuilder.isFtsFailure]), the call is answered by LIKE, FTS stays off for
+     * this process and the index is rebuilt in the background; any other error only falls back for this call.
+     */
+    private suspend fun <T> withText(query: String, firstPage: Boolean = true, isEmpty: (T) -> Boolean, block: suspend (LibraryQueryBuilder.Text) -> T): T {
+        val text = LibraryQueryBuilder.text(query, ftsReady())
+        if (text !is LibraryQueryBuilder.Text.Fts) return block(text)
+        val result = try {
+            block(text)
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Log.w(TAG, "Full-text search failed, using the plain scan: ${e.javaClass.simpleName}")
+            if (LibraryQueryBuilder.isFtsFailure(e)) {
+                ftsState.set(FTS_PENDING)
+                repairFts()
+            }
+            return block(LibraryQueryBuilder.text(query, false))
+        }
+        return if (LibraryQueryBuilder.retryWithLike(text, isEmpty(result), firstPage)) block(LibraryQueryBuilder.text(query, false)) else result
+    }
+
+    /** Rebuilds the index in one statement (SQLite offers no chunked rebuild), so only genuine corruption comes here. */
+    private fun repairFts() {
+        if (!ftsRepairStarted.compareAndSet(false, true)) return
+        repairScope.launch {
+            try {
+                dao.rebuildFts()
+                ftsState.set(FTS_READY)
+            } catch (e: Exception) {
+                ftsRepairStarted.set(false) // a later failing search may try again
+                if (e is CancellationException) throw e
+                Log.w(TAG, "Full-text index rebuild failed: ${e.javaClass.simpleName}")
+            }
+        }
+    }
 
     suspend fun getAvailableTags(
         query: String,
         manufacturer: String? = null,
         consoleIds: Set<String> = emptySet()
     ): List<String> =
-        PerfLog.timed("db.tags") { dao.getAvailableTags(searchPattern(query), manufacturer, consoleIds.toList(), consoleIds.size) }
+        PerfLog.timed("db.tags") { tagsFor(query, manufacturer, consoleIds) }
+
+    private suspend fun tagsFor(query: String, manufacturer: String?, consoleIds: Set<String>): List<String> =
+        withText(query, isEmpty = { it.isEmpty() }) { text -> dao.rawTags(LibraryQueryBuilder.tags(text, manufacturer, consoleIds.toList()).toSupportQuery()) }
 
     suspend fun getCategorizedTags(
         query: String,
         manufacturer: String? = null,
         consoleIds: Set<String> = emptySet()
     ): CategorizedTags =
-        TagCategorizer.categorizeTags(
-            PerfLog.timed("db.tags") { dao.getAvailableTags(searchPattern(query), manufacturer, consoleIds.toList(), consoleIds.size) }
-        )
+        TagCategorizer.categorizeTags(PerfLog.timed("db.tags") { tagsFor(query, manufacturer, consoleIds) })
 
     suspend fun getConsolesWithFiles(query: String, manufacturer: String? = null): List<ConsoleWithFileCount> {
         val hidden = profiles.current().hiddenConsoles
-        return PerfLog.timed("db.consoles") { dao.getConsolesWithFiles(searchPattern(query), manufacturer) }.filterNot { it.id in hidden }
+        return PerfLog.timed("db.consoles") {
+            withText(query, isEmpty = { it.isEmpty() }) { text -> dao.rawConsolesWithFiles(LibraryQueryBuilder.consoles(text, manufacturer).toSupportQuery()) }
+        }.filterNot { it.id in hidden }
     }
 
     private companion object {
         /** Names per IN (...) query, well below SQLite's 999 variables. */
         const val LOOKUP_CHUNK = 400
+        /** Rows per transaction while filling the words of old rows (each also updates the FTS index). */
+        const val WORDS_PAGE = 1000
+        const val TAG = "DownloadableFileRepo"
+        const val FTS_UNKNOWN = 0
+        const val FTS_READY = 1
+        /** Rows still wait for their words, or the index failed: searches use the LIKE scan. */
+        const val FTS_PENDING = 2
     }
 }

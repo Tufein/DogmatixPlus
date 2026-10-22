@@ -1,12 +1,13 @@
 package com.tufein.valkyr.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 
 /**
  * A game the user starred. Keyed by console + file name (not by `downloadable_files.id`)
  * so favourites survive the wholesale re-index that every rescan performs.
  */
-@Entity(tableName = "favourites", primaryKeys = ["consoleId", "fileName", "profileId"])
+@Entity(tableName = "favourites", primaryKeys = ["consoleId", "fileName", "profileId"], indices = [Index("profileId")])
 data class FavouriteEntity(
     val consoleId: String,
     val fileName: String,

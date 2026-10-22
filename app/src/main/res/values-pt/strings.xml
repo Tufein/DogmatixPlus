@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Mais rápida e leve: arranque mais rápido, menos redesenhos, menos consultas repetidas, menos despertares em segundo plano, blocos de download maiores e um APK mais pequeno. O diagnóstico mostra agora os tempos de arranque e as operações mais lentas.</item>
+        <item>Mais gravações e imagens para launchers: as gravações de WiiWare / Consola Virtual podem sincronizar e a pasta de capas do ES-DE pode receber ecrãs de título e capturas (ambos desligados por defeito).</item>
     </string-array>
 
     <!-- 4.0 -->

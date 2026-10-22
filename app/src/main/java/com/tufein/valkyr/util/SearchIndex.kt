@@ -152,10 +152,12 @@ object SearchIndex {
         SearchEntry("up_next", SearchGroup.TOOLS, R.string.next30_title, R.string.next30_hint, R.drawable.ic_playlist_play, SearchTarget(NavRoutes.UpNext.route)),
         SearchEntry("library_repair", SearchGroup.TOOLS, R.string.repair30_title, R.string.repair30_hint, R.drawable.ic_build, SearchTarget(NavRoutes.LibraryRepair.route)),
         SearchEntry("frontend_covers", SearchGroup.TOOLS, R.string.covers32_title, R.string.covers32_hint, R.drawable.ic_image, SearchTarget(NavRoutes.FrontendCovers.route), keywords = R.string.covers32_kw),
+        SearchEntry("frontend_covers_extras", SearchGroup.TOOLS, R.string.saves48_extras_section, R.string.saves48_extras_hint, R.drawable.ic_image, SearchTarget(NavRoutes.FrontendCovers.route), keywords = R.string.saves48_extras_kw),
         SearchEntry("cover_sources", SearchGroup.TOOLS, R.string.covers43_title, R.string.covers43_row_hint, R.drawable.ic_image_search, SearchTarget(NavRoutes.CoverSources.route), keywords = R.string.covers43_kw),
         SearchEntry("cover_sources_keys", SearchGroup.TOOLS, R.string.covers44_search_title, R.string.covers44_search_hint, R.drawable.ic_key, SearchTarget(NavRoutes.CoverSources.route), keywords = R.string.covers44_kw),
         SearchEntry("retroarch_playlists", SearchGroup.TOOLS, R.string.playlists35_title, R.string.playlists35_hint, R.drawable.ic_playlist_add, SearchTarget(NavRoutes.RetroArchPlaylists.route), keywords = R.string.playlists35_kw),
         SearchEntry("report_problem", SearchGroup.TOOLS, R.string.report30_title, R.string.report30_hint, R.drawable.ic_bug, SearchTarget(NavRoutes.ReportProblem.route), keywords = R.string.find8_kw_diagnostics),
+        SearchEntry("perf_check", SearchGroup.TOOLS, R.string.measure47_title, R.string.measure47_hint, R.drawable.ic_speed, SearchTarget(NavRoutes.PerfCheck.route), keywords = R.string.measure47_kw),
         SearchEntry("action_history", SearchGroup.TOOLS, R.string.hist24_title, R.string.hist24_hint, R.drawable.ic_manage_history, SearchTarget(NavRoutes.ActionHistory.route), keywords = R.string.hist24_kw),
             // Settings, in the order of SettingsLayout (their card comes from there too).
             setting(SettingKeys.THEME, R.string.settings_theme, R.string.settings_theme_hint, R.drawable.ic_dark_mode, R.string.find8_kw_theme),
@@ -272,6 +274,7 @@ object SearchIndex {
             screen(SearchGroup.CLOUD, NavRoutes.Cloud, R.string.nav_cloud, R.string.settings_v5_cloud_hint),
             screen(SearchGroup.CLOUD, NavRoutes.Romm, R.string.nav_romm, R.string.settings_romm_hint, R.string.find8_kw_romm),
             screen(SearchGroup.CLOUD, NavRoutes.SaveSync, R.string.nav_save_sync, R.string.settings_save_sync_hint, R.string.find8_kw_saves),
+            SearchEntry("save_sync_wiiware", SearchGroup.CLOUD, R.string.saves48_wiiware, R.string.saves48_wiiware_hint, NavRoutes.SaveSync.icon, SearchTarget(NavRoutes.SaveSync.route), keywords = R.string.saves48_wiiware_kw),
             screen(SearchGroup.CLOUD, NavRoutes.CloudBackup, R.string.dav_title, R.string.find8_hint_webdav, R.string.find8_kw_webdav),
             screen(SearchGroup.CLOUD, NavRoutes.RetroAchievements, R.string.nav_ra, R.string.tools_ra_hint, R.string.find8_kw_ra)
         )

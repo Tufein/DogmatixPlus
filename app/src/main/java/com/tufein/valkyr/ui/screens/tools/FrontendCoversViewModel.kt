@@ -96,6 +96,8 @@ class FrontendCoversViewModel @Inject constructor(
     fun selectTarget(t: FrontendCovers.Target) { if (!service.state.value.running) target.value = t }
     fun setFolder(uri: String) { viewModelScope.launch { settings.setFolder(target.value, uri) } }
     fun setLayout(layout: FrontendCovers.Layout) { viewModelScope.launch { settings.setLayout(target.value, layout) } }
+    /** 4.8.0: turns an extra image type (title screens, screenshots) on or off for the layout of ES-DE's media folder. */
+    fun setExtra(extra: FrontendCovers.Extra, on: Boolean) { viewModelScope.launch { settings.setExtra(target.value, extra, on) } }
     fun setOverwrite(on: Boolean) { viewModelScope.launch { settings.setOverwrite(target.value, on) } }
     /** Saves the user's own cover path and chooses it as the layout (a pattern that cannot be used is refused). */
     fun setPattern(pattern: String) { viewModelScope.launch { settings.setPattern(target.value, pattern) } }
