@@ -61,7 +61,21 @@ object Migration15To16 : Migration(15, 16) {
 
     override fun migrate(db: SupportSQLiteDatabase) {
         val old = try { readOldFts(db) } catch (e: Exception) { Log.w(TAG, "Old FTS definition not readable: ${e.javaClass.simpleName}"); null }
-        plan(old).forEach { db.execSQL(it) }
+        // A database that already has the columns (an interrupted earlier run, or a test that rebuilds old tables) must not fail on ADD COLUMN.
+        val columns = try { columnsOf(db) } catch (e: Exception) { emptySet() }
+        plan(old).forEach { sql ->
+            val skip = (sql == ADD_SEARCH_WORDS && "searchWords" in columns) || (sql == ADD_IS_ROMM && "isRomm" in columns)
+            if (!skip) db.execSQL(sql)
+        }
+    }
+
+    private fun columnsOf(db: SupportSQLiteDatabase): Set<String> {
+        val names = HashSet<String>()
+        db.query("PRAGMA table_info(`downloadable_files`)").use { c ->
+            val i = c.getColumnIndex("name")
+            while (c.moveToNext()) names += c.getString(i)
+        }
+        return names
     }
 
     /** The statements in order. Pure, so the shape of the migration is unit tested without a database. */
