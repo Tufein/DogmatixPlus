@@ -337,12 +337,18 @@ internal fun ResultList(
         verticalArrangement = Arrangement.spacedBy(if (dense) DenseRowGap else RowGap)
     ) {
         itemsIndexed(results, key = { _, it -> it.file.id }, contentType = { _, _ -> "rom-row" }) { index, item ->
+            // Per-row lambdas are remembered (keyed on the row and the caller's lambda) so a recomposition
+            // of the list does not hand every visible row new lambda instances and recompose it.
+            val fileName = item.file.fileName
+            val rowClick = remember(item, onFileClick) { { onFileClick(item) } }
+            val rowLongClick = remember(item, onRowLongClick) { { onRowLongClick(item) } }
+            val rowProgress = remember(fileName, downloadProgress) { { downloadProgress(fileName) } }
             RomRow(
                 item = item,
                 consoleName = getConsoleName(item.file.consoleId),
                 compact = compact,
-                onClick = { onFileClick(item) },
-                onLongClick = { onRowLongClick(item) },
+                onClick = rowClick,
+                onLongClick = rowLongClick,
                 owned = isOwned(item),
                 onRomm = isOnRomm(item),
                 favourite = isFavourite(item),
@@ -353,7 +359,7 @@ internal fun ResultList(
                 achievementCount = achievementCount(item),
                 showCover = showCover,
                 dense = dense,
-                downloadProgress = { downloadProgress(item.file.fileName) },
+                downloadProgress = rowProgress,
                 // RB from the filters lands on the first row currently on screen.
                 modifier = when {
                     index == pendingFocusIndex -> Modifier.focusRequester(newPageFocus)
