@@ -1317,7 +1317,7 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Plus de sauvegardes et d’images pour lanceurs : les sauvegardes WiiWare / Console virtuelle peuvent se synchroniser, et le dossier de jaquettes d’ES-DE peut recevoir écrans-titres et captures (désactivés par défaut).</item>
+        <item>En coulisses : les liens partagés utilisent maintenant valkyr:// (les anciens fonctionnent toujours), les écrans cessent de se mettre à jour en arrière-plan et le code des réglages est rangé.</item>
     </string-array>
 
     <!-- 4.0 -->

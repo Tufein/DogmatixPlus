@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Mais gravações e imagens para launchers: as gravações de WiiWare / Consola Virtual podem sincronizar e a pasta de capas do ES-DE pode receber ecrãs de título e capturas (ambos desligados por defeito).</item>
+        <item>Nos bastidores: as ligações partilhadas usam agora valkyr:// (as antigas continuam a funcionar), os ecrãs deixam de atualizar em segundo plano e o código das definições foi arrumado.</item>
     </string-array>
 
     <!-- 4.0 -->

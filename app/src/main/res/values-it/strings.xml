@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Più salvataggi e immagini per launcher: si possono sincronizzare quelli di WiiWare / Virtual Console e la cartella delle copertine di ES-DE può ricevere schermate del titolo e screenshot (entrambi disattivati di default).</item>
+        <item>Dietro le quinte: i link condivisi usano ora valkyr:// (i vecchi funzionano ancora), le schermate non si aggiornano in background e il codice delle impostazioni è riordinato.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Mehr Spielstände und Launcher-Bilder: WiiWare-/Virtual-Console-Spielstände können synchronisiert werden, und der ES-DE-Cover-Ordner kann auch Titelbildschirme und Screenshots erhalten (beides standardmäßig aus).</item>
+        <item>Hinter den Kulissen: geteilte Links nutzen jetzt valkyr:// (alte Links funktionieren weiter), Bildschirme aktualisieren sich im Hintergrund nicht mehr und der Einstellungscode ist aufgeräumt.</item>
     </string-array>
 
     <!-- 4.0 -->
