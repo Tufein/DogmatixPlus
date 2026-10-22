@@ -1317,7 +1317,7 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Nouveau test de performance (Outils) : mesure démarrage, recherche, jaquettes, stockage et défilement sur votre appareil, avec un rapport de simples chiffres à partager.</item>
+        <item>Plus de sauvegardes et d’images pour lanceurs : les sauvegardes WiiWare / Console virtuelle peuvent se synchroniser, et le dossier de jaquettes d’ES-DE peut recevoir écrans-titres et captures (désactivés par défaut).</item>
     </string-array>
 
     <!-- 4.0 -->

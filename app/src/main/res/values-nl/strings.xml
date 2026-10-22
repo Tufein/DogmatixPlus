@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Nieuwe Prestatiecheck (Tools): meet starten, zoeken, covers, opslag en scrollen op je eigen toestel, met een rapport met alleen cijfers dat je kunt delen.</item>
+        <item>Meer saves en launcherafbeeldingen: WiiWare- en Virtual Console-saves kunnen synchroniseren, en de ES-DE-coversmap kan ook titelschermen en screenshots krijgen (beide standaard uit).</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -23,9 +23,9 @@ Valkyr houdt één grote, doorzoekbare lijst bij van de games uit de bronnen die
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [4.7.0](https://github.com/Tufein/Valkyr/releases/tag/v4.7.0)** (Android build 59).
+**Laatste release: [4.8.0](https://github.com/Tufein/Valkyr/releases/tag/v4.8.0)** (Android build 60).
 
-Tot en met 3.9.0 heette de app Dogmatix+. Valkyr 4.7.0 heeft een eigen app-id en installeert dus naast de oude app: gebruik *Instellingen → Back-up maken* in de oude app en *Back-up terugzetten* in Valkyr, en verwijder daarna de oude app.
+Tot en met 3.9.0 heette de app Dogmatix+. Valkyr 4.8.0 heeft een eigen app-id en installeert dus naast de oude app: gebruik *Instellingen → Back-up maken* in de oude app en *Back-up terugzetten* in Valkyr, en verwijder daarna de oude app.
 
 ## Installeren
 
@@ -53,6 +53,7 @@ Je hebt **Android 10 of nieuwer** nodig. De app staat niet in Google Play.
 - **Een pagina voor elke game**: afbeelding, Downloaden of Spelen, de beste versie, favoriet, collecties, delen, notities, schermafbeeldingen en handleidingen, en een tabblad *Versies* dat uitlegt hoe elke versie scoort.
 - **Covers eerst**: Home opent met planken vol grote covers (verder spelen, nieuw voor jou, een plank per console); de navigatie zit in een balk onderaan, of een smalle zijbalk op een handheld, met Games, Downloads, Bronnen en Meer. De spelpagina begint met een grote cover en één grote knop Spelen of Download.
 - **Covers uit meerdere bronnen**: RomM, libretro-thumbnails, [ScreenScraper](https://www.screenscraper.fr) (met je eigen inlog), TheGamesDB, SteamGridDB en IGDB (elk met je eigen gratis sleutel) en de opgeslagen spelafbeeldingen, in een volgorde die jij kiest. De app meldt duidelijk als een login mislukt of een daglimiet is bereikt, en een bron die alleen even niet beschikbaar was, wordt later opnieuw gevraagd (*Instellingen → Coverbronnen*).
+- **Extra launcherafbeeldingen**: titelschermen en screenshots voor de ES-DE-coversmap (*Tools → Covers voor launchers*), standaard uit en nooit ter vervanging van bestanden die je al hebt.
 - **Prestatiecheck** (*Tools → Prestatiecheck*): meet starten, zoeksnelheid, het decoderen van covers, opslagsnelheid en scrollen op je eigen toestel, met een Snel/Prima/Traag-oordeel en een rapport met alleen cijfers dat je kunt delen.
 - **Hierna spelen en Voor jou**: een persoonlijke speellijst per profiel, en suggesties uit je eigen bibliotheek die altijd zeggen waarom ze zijn gekozen.
 - **Collecties en doelen**: favorieten, eigen lijsten, collecties op basis van regels (console, taal, genre, jaar, gespeeld), collectiedoelen, speelgeschiedenis, een jaaroverzicht en de beste games per console van RetroAchievements.

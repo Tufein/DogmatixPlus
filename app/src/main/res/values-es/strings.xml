@@ -1286,7 +1286,7 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Nueva prueba de rendimiento (Herramientas): mide arranque, búsqueda, carátulas, almacenamiento y desplazamiento en tu dispositivo, con un informe solo con números para compartir.</item>
+        <item>Más partidas guardadas e imágenes para lanzadores: se pueden sincronizar las de WiiWare / Consola Virtual y la carpeta de carátulas de ES-DE puede recibir pantallas de título y capturas (ambas desactivadas por defecto).</item>
     </string-array>
 
     <!-- 4.0 -->
