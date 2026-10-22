@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saves48_wiiware">Sincronizza anche i salvataggi di WiiWare e Virtual Console</string>
+    <string name="saves48_wiiware_hint">I canali installati dal Wii Shop (giochi WiiWare e titoli Virtual Console) tengono i salvataggi in Wii/title/00010001. Attivo: questi salvataggi viaggiano come un altro pacchetto, associato allo stesso gioco. Partono solo i dati di salvataggio, mai il gioco installato.</string>
+    <string name="saves48_extras_section">Immagini ES-DE extra</string>
+    <string name="saves48_extras_hint">Disattivato per impostazione predefinita. Scritte accanto alle copertine, nella stessa cartella dei media, dalle miniature di libretro (quella fonte deve essere attiva in Fonti delle copertine). Le immagini già presenti vengono sostituite solo se la sostituzione qui sotto è attiva.</string>
+    <string name="saves48_extra_titlescreens">Schermate del titolo</string>
+    <string name="saves48_extra_titlescreens_hint">La schermata del titolo di ogni gioco, nella cartella %1$s di ogni console. La ricevono solo i giochi per cui libretro ne ha una.</string>
+    <string name="saves48_extra_screenshots">Screenshot</string>
+    <string name="saves48_extra_screenshots_hint">Uno screenshot di ogni gioco, nella cartella %1$s di ogni console. Lo ricevono solo i giochi per cui libretro ne ha uno.</string>
+    <plurals name="saves48_preview_extras">
+        <item quantity="one">%1$s di queste è una schermata del titolo o uno screenshot, non una copertina.</item>
+        <item quantity="many">%1$s di queste sono schermate del titolo o screenshot, non copertine.</item>
+        <item quantity="other">%1$s di queste sono schermate del titolo o screenshot, non copertine.</item>
+    </plurals>
+    <string name="saves48_wiiware_kw">wiiware, virtual console, wii shop, salvataggi wii, dolphin, 00010001</string>
+    <string name="saves48_extras_kw">es-de, esde, schermate del titolo, screenshot, downloaded_media, media, copertine</string>
+</resources>

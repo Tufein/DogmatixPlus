@@ -30,11 +30,34 @@ class DolphinSaveBundlesTest {
         assertEquals(DolphinSaveBundles.gci("JAP", 'B'), DolphinSaveBundles.parse("gci-jap-b.GCIFOLDER.zip"))
         listOf(
             "MemoryCardA.USA.raw", "ULUS10041DATA00.savedata.zip", "GCI-KOR-A.gcifolder.zip", "GCI-USA-C.gcifolder.zip",
-            "Wii-00010001.wiisaves.zip", "Wii-00010002.wiisaves.zip", "01-GALE-Name.gci", "GCI-USA-A.zip"
+            "Wii-00010002.wiisaves.zip", "Wii-00010005.wiisaves.zip", "01-GALE-Name.gci", "GCI-USA-A.zip"
         ).forEach { assertNull(it, DolphinSaveBundles.parse(it)) }
         assertEquals(6, DolphinSaveBundles.all(gci = true, wii = false, wiiChannels = true).size)
         assertEquals(1, DolphinSaveBundles.all(gci = false, wii = true, wiiChannels = false).size)
         assertEquals(0, DolphinSaveBundles.all(gci = false, wii = false, wiiChannels = true).size)
+        // 4.8.0: WiiWare and Virtual Console (00010001) are a third, opt-in part; they need Wii saves on.
+        assertEquals("Wii-00010001.wiisaves.zip", DolphinSaveBundles.wii(DolphinSaveBundles.WII_INSTALLED).fileName)
+        assertEquals("Wii/title/00010001", DolphinSaveBundles.wii(DolphinSaveBundles.WII_INSTALLED).devicePath)
+        assertEquals(DolphinSaveBundles.wii(DolphinSaveBundles.WII_INSTALLED), DolphinSaveBundles.parse("wii-00010001.WIISAVES.zip"))
+        assertEquals(
+            listOf(DolphinSaveBundles.WII_GAMES, DolphinSaveBundles.WII_DISC_CHANNELS, DolphinSaveBundles.WII_INSTALLED),
+            DolphinSaveBundles.all(gci = false, wii = true, wiiChannels = true, wiiWare = true).map { it.titleType }
+        )
+        assertEquals(
+            listOf(DolphinSaveBundles.WII_GAMES, DolphinSaveBundles.WII_INSTALLED),
+            DolphinSaveBundles.all(gci = false, wii = true, wiiChannels = false, wiiWare = true).map { it.titleType }
+        )
+        assertEquals(0, DolphinSaveBundles.all(gci = false, wii = false, wiiChannels = false, wiiWare = true).size)
+        assertTrue(EmulatorSaveLayouts.holdsSeveralSaves("$dolphin/Wii-00010001.wiisaves.zip"))
+    }
+
+    @Test fun aWiiWareBundleHoldsOnlyTheSavesOfInstalledTitles() {
+        val installed = DolphinSaveBundles.wii(DolphinSaveBundles.WII_INSTALLED)
+        // A title's data/ goes; its content/ (the installed game itself) never does.
+        DolphinSaveBundles.checkEntries(installed, listOf("48414241/data/save.bin", "4e414145/data/sub/more.dat"))
+        listOf("48414241/content/00000001.app", "48414241/title.tmd", "../48414241/data/x").forEach {
+            try { DolphinSaveBundles.checkEntries(installed, listOf(it)); fail(it) } catch (_: DolphinSaveBundles.BundleException) { }
+        }
     }
 
     @Test fun bundlesHoldSeveralSavesAndAreNoSharedCards() {
@@ -131,6 +154,15 @@ class DolphinSaveBundlesTest {
         val back = EmulatorSaveFolders.fromJson(EmulatorSaveFolders.toJson(listOf(folder))).single()
         assertEquals(folder, back)
         assertEquals(8, back.dolphinBundles.size)
+        // 4.8.0: WiiWare is off unless asked for, is remembered, and needs Wii saves on.
+        assertFalse(back.wiiWare)
+        val ware = EmulatorSaveFolders.fromJson(EmulatorSaveFolders.toJson(listOf(folder.copy(wiiWare = true)))).single()
+        assertTrue(ware.wiiWare)
+        assertEquals(9, ware.dolphinBundles.size)
+        assertEquals(10, ware.romIdOf(DolphinSaveBundles.wii(DolphinSaveBundles.WII_INSTALLED)))
+        assertNull(back.romIdOf(DolphinSaveBundles.wii(DolphinSaveBundles.WII_INSTALLED)))
+        val wareOff = EmulatorSaveFolders.fromJson(EmulatorSaveFolders.toJson(listOf(folder.copy(wiiRomId = null, wiiWare = true)))).single()
+        assertFalse(wareOff.wiiWare)
         assertEquals(9, back.romIdOf(DolphinSaveBundles.gci("USA", 'A')))
         assertEquals(10, back.romIdOf(DolphinSaveBundles.wii(DolphinSaveBundles.WII_DISC_CHANNELS)))
         // Off: nothing of it is kept, and channels need Wii saves on.

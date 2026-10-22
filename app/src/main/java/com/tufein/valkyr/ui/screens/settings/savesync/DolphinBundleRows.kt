@@ -40,13 +40,14 @@ import com.tufein.valkyr.util.SaveFolderLayout
 
 /**
  * The rows of a Dolphin folder for its opt-in bundles (Settings → Save sync): GCI folders, Wii saves
- * and, once Wii saves are on, the channels discs install. Same pattern as the shared memory cards:
+ * and, once Wii saves are on, the channels discs install and WiiWare / Virtual Console titles. Same pattern as the shared memory cards:
  * off until the user picks a RomM game to keep them with; texts in full.
  */
 internal fun dolphinBundleRows(
     folder: EmulatorSaveFolder,
     onChoose: (DolphinBundleKind) -> Unit,
-    onChannels: (Boolean) -> Unit
+    onChannels: (Boolean) -> Unit,
+    onWiiWare: (Boolean) -> Unit
 ): List<@Composable () -> Unit> {
     if (folder.layout != SaveFolderLayout.GC_MEMCARDS) return emptyList()
     return buildList {
@@ -88,6 +89,15 @@ internal fun dolphinBundleRows(
                 onClick = { onChannels(!folder.wiiChannels) },
                 onAdjust = { onChannels(it > 0) },
             ) { ThemedSwitch(folder.wiiChannels) { onChannels(it) } }
+        }
+        if (folder.wiiRomId != null) add {
+            SettingRow(
+                icon = R.drawable.ic_save,
+                title = stringResource(R.string.saves48_wiiware),
+                hint = stringResource(R.string.saves48_wiiware_hint),
+                onClick = { onWiiWare(!folder.wiiWare) },
+                onAdjust = { onWiiWare(it > 0) },
+            ) { ThemedSwitch(folder.wiiWare) { onWiiWare(it) } }
         }
     }
 }

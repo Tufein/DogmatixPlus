@@ -228,7 +228,8 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
             dolphinBundleRows(
                 folder,
                 onChoose = { kind -> bundleFor = folder.label to kind },
-                onChannels = { on -> viewModel.setWiiChannels(context, folder.label, on) }
+                onChannels = { on -> viewModel.setWiiChannels(context, folder.label, on) },
+                onWiiWare = { on -> viewModel.setWiiWare(context, folder.label, on) }
             ).forEach { add(it) }
         }
         add {

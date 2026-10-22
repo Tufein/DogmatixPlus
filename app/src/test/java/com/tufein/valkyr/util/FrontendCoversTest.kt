@@ -357,4 +357,54 @@ class FrontendCoversTest {
             assertEquals("s", FrontendCovers.SETTING_TYPES[FrontendCovers.patternKey(it)])
         }
     }
+
+    // ---- Extra ES-DE image types (4.8.0) ---------------------------------------------------------
+
+    @Test fun `extra image types sit next to the covers of ES-DE's media folder`() {
+        val gba = game("gba", "Game (Europe).gba")
+        assertEquals(FrontendCovers.Place("gba/titlescreens", "Game (Europe).png"), FrontendCovers.extraPlace(gba, FrontendCovers.Extra.TITLESCREENS))
+        assertEquals(FrontendCovers.Place("gba/screenshots", "Game (Europe).png"), FrontendCovers.extraPlace(gba, FrontendCovers.Extra.SCREENSHOTS))
+        // The same game name as the cover in ES-DE's layout.
+        assertEquals(FrontendCovers.place(gba, FrontendCovers.Layout.COVERS_FOLDER)?.name, FrontendCovers.extraPlace(gba, FrontendCovers.Extra.SCREENSHOTS)?.name)
+        // An unusable console folder or name gives no place.
+        assertNull(FrontendCovers.extraPlace(game("gba", "Game.gba").copy(system = "a/b"), FrontendCovers.Extra.TITLESCREENS))
+        // libretro's own pictures are the source of both.
+        assertEquals(LibretroThumbnails.Art.TITLE, FrontendCovers.Extra.TITLESCREENS.art)
+        assertEquals(LibretroThumbnails.Art.SNAP, FrontendCovers.Extra.SCREENSHOTS.art)
+    }
+
+    @Test fun `only ES-DE's layout offers the extras, and they are off until chosen`() {
+        FrontendCovers.Layout.entries.forEach { assertEquals(it.name, it == FrontendCovers.Layout.COVERS_FOLDER, FrontendCovers.extrasFor(it)) }
+        assertEquals(emptySet<FrontendCovers.Extra>(), FrontendCovers.extrasOf(null))
+        assertEquals(emptySet<FrontendCovers.Extra>(), FrontendCovers.extrasOf(""))
+        val both = FrontendCovers.Extra.entries.toSet()
+        assertEquals(both, FrontendCovers.extrasOf(FrontendCovers.storeExtras(both)))
+        assertEquals("titlescreens", FrontendCovers.storeExtras(setOf(FrontendCovers.Extra.TITLESCREENS)))
+        // A key from a newer version is dropped, not fatal.
+        assertEquals(setOf(FrontendCovers.Extra.SCREENSHOTS), FrontendCovers.extrasOf("miximages, screenshots ,"))
+        FrontendCovers.Target.entries.forEach {
+            assertEquals("covers48_${it.key}_extras", FrontendCovers.extrasKey(it))
+            assertEquals("s", SettingSchema.expectedType(FrontendCovers.extrasKey(it)))
+        }
+    }
+
+    @Test fun `extras are planned like covers, each in its own folder`() {
+        val games = listOf(game("gba", "Alpha.gba"), game("gba", "Beta.gba"), game("nes", "Gamma.nes"))
+        val existing = mapOf("gba/titlescreens" to setOf("alpha.jpg"), "GBA/screenshots" to setOf("beta.png"))
+        val titles = FrontendCovers.planExtra(games, FrontendCovers.Extra.TITLESCREENS, existing, overwrite = false)
+        // Alpha has an image (another extension counts); the other two are planned.
+        assertEquals(listOf("gba/titlescreens/Beta.png", "nes/titlescreens/Gamma.png"), titles.items.map { it.path })
+        assertEquals(1, titles.kept)
+        assertTrue(titles.items.all { it.extra == FrontendCovers.Extra.TITLESCREENS && !it.replaces })
+        val shots = FrontendCovers.planExtra(games, FrontendCovers.Extra.SCREENSHOTS, existing, overwrite = true)
+        assertEquals(listOf("gba/screenshots/Alpha.png", "gba/screenshots/Beta.png", "nes/screenshots/Gamma.png"), shots.items.map { it.path })
+        assertEquals(listOf(false, true, false), shots.items.map { it.replaces })
+        // Covers carry no extra; combined plans add up.
+        val covers = FrontendCovers.plan(games, FrontendCovers.Layout.COVERS_FOLDER, emptyMap(), overwrite = false)
+        assertTrue(covers.items.all { it.extra == null })
+        val all = FrontendCovers.combine(listOf(covers, titles, shots))
+        assertEquals(3 + 2 + 3, all.items.size)
+        assertEquals(1, all.kept)
+        assertEquals(3, all.items.count { it.extra == null })
+    }
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saves48_wiiware">Auch WiiWare- und Virtual-Console-Spielstände synchronisieren</string>
+    <string name="saves48_wiiware_hint">Kanäle, die du aus dem Wii Shop installierst (WiiWare-Spiele und Virtual-Console-Titel), speichern in Wii/title/00010001. An: Diese Spielstände werden als weiteres Paket übertragen, beim selben Spiel aufbewahrt. Nur die Spielstände gehen mit, nie das installierte Spiel selbst.</string>
+    <string name="saves48_extras_section">Zusätzliche ES-DE-Bilder</string>
+    <string name="saves48_extras_hint">Standardmäßig aus. Werden neben den Covern im selben Medienordner abgelegt, aus den libretro-Thumbnails (diese Quelle muss unter „Cover-Quellen“ aktiv sein). Vorhandene Bilder werden nur ersetzt, wenn unten „Ersetzen“ an ist.</string>
+    <string name="saves48_extra_titlescreens">Titelbildschirme</string>
+    <string name="saves48_extra_titlescreens_hint">Der Titelbildschirm jedes Spiels, im Ordner %1$s jeder Konsole. Nur Spiele, für die libretro einen hat, bekommen einen.</string>
+    <string name="saves48_extra_screenshots">Screenshots</string>
+    <string name="saves48_extra_screenshots_hint">Ein Screenshot jedes Spiels, im Ordner %1$s jeder Konsole. Nur Spiele, für die libretro einen hat, bekommen einen.</string>
+    <plurals name="saves48_preview_extras">
+        <item quantity="one">%1$s davon ist ein Titelbildschirm oder Screenshot, kein Cover.</item>
+        <item quantity="other">%1$s davon sind Titelbildschirme oder Screenshots, keine Cover.</item>
+    </plurals>
+    <string name="saves48_wiiware_kw">wiiware, virtual console, wii shop, wii-spielstände, dolphin, 00010001</string>
+    <string name="saves48_extras_kw">es-de, esde, titelbildschirme, screenshots, bildschirmfotos, downloaded_media, medien, artwork</string>
+</resources>

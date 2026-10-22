@@ -21,7 +21,7 @@ data class DolphinBundle(
     val region: String = "",
     /** GCI only: `A` or `B`. */
     val slot: Char = 'A',
-    /** Wii only: the title type folder ([DolphinSaveBundles.WII_GAMES] or [DolphinSaveBundles.WII_DISC_CHANNELS]). */
+    /** Wii only: the title type folder ([DolphinSaveBundles.WII_GAMES], [DolphinSaveBundles.WII_DISC_CHANNELS] or [DolphinSaveBundles.WII_INSTALLED]). */
     val titleType: String = ""
 ) {
     /** The bundle's name on the server: `GCI-USA-A.gcifolder.zip`, `Wii-00010000.wiisaves.zip`. */
@@ -46,7 +46,11 @@ data class DolphinBundle(
  * title's saves as plain, unencrypted files in `title/<8 hex digits>/<8 hex digits>/data/`, the
  * second part being the 4 ASCII characters of the game id in lower-case hex (`RSBE` → `52534245`).
  * Disc games are title type `00010000`; `00010004` holds channels some discs install (Wii Fit's,
- * Mario Kart's). How the Android builds (and forks such as Dolphin MMJR) lay this out on a handheld,
+ * Mario Kart's); `00010001` holds the channels installed from the Wii Shop: WiiWare games and
+ * Virtual Console titles (4.8.0, the same `data/` layout as the other types, from WiiBrew's title
+ * type list). A title's `content/` is never part of a bundle, which matters most here: WiiWare and
+ * Virtual Console keep their whole game in it. DLC (`00010005`) is not included: its data is
+ * content for the game, not a save. How the Android builds (and forks such as Dolphin MMJR) lay this out on a handheld,
  * and whether they cope with files written while they are closed, is unverified on a device.
  */
 object DolphinSaveBundles {
@@ -56,6 +60,8 @@ object DolphinSaveBundles {
     /** Title type of Wii disc games, and of channels discs install (optional). */
     const val WII_GAMES = "00010000"
     const val WII_DISC_CHANNELS = "00010004"
+    /** Title type of the channels installed from the Wii Shop (WiiWare, Virtual Console) (optional). */
+    const val WII_INSTALLED = "00010001"
 
     /** Files in one bundle: a GameCube card holds up to 127 saves; a Wii NAND with every game played stays far below. */
     const val MAX_ENTRIES = 4096
@@ -70,17 +76,21 @@ object DolphinSaveBundles {
     val slots = listOf('A', 'B')
 
     private val gciBundleName = Regex("""^GCI-(USA|EUR|JAP)-([AB])\.gcifolder\.zip$""", RegexOption.IGNORE_CASE)
-    private val wiiBundleName = Regex("""^Wii-(00010000|00010004)\.wiisaves\.zip$""", RegexOption.IGNORE_CASE)
+    private val wiiBundleName = Regex("""^Wii-(00010000|00010001|00010004)\.wiisaves\.zip$""", RegexOption.IGNORE_CASE)
     private val wiiTitle = Regex("""^[0-9a-fA-F]{8}$""")
     private val gciName = Regex("""^([0-9A-Za-z]{2})-([0-9A-Za-z]{4})-(.*)\.gci$""", RegexOption.IGNORE_CASE)
 
     fun gci(region: String, slot: Char) = DolphinBundle(DolphinBundleKind.GCI, region = region, slot = slot)
     fun wii(titleType: String) = DolphinBundle(DolphinBundleKind.WII, titleType = titleType)
 
-    /** Every bundle a folder can have with these choices: six GCI folders, one or two Wii parts. */
-    fun all(gci: Boolean, wii: Boolean, wiiChannels: Boolean): List<DolphinBundle> = buildList {
+    /** Every bundle a folder can have with these choices: six GCI folders, one to three Wii parts. */
+    fun all(gci: Boolean, wii: Boolean, wiiChannels: Boolean, wiiWare: Boolean = false): List<DolphinBundle> = buildList {
         if (gci) regions.forEach { r -> slots.forEach { s -> add(gci(r, s)) } }
-        if (wii) { add(wii(WII_GAMES)); if (wiiChannels) add(wii(WII_DISC_CHANNELS)) }
+        if (wii) {
+            add(wii(WII_GAMES))
+            if (wiiChannels) add(wii(WII_DISC_CHANNELS))
+            if (wiiWare) add(wii(WII_INSTALLED))
+        }
     }
 
     /** The bundle a (server or sync) file name stands for, or null when it is none. */

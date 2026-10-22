@@ -5,12 +5,14 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.documentfile.provider.DocumentFile
+import com.tufein.valkyr.data.local.CoverSourceSettings
 import com.tufein.valkyr.data.local.FrontendCoversSettings
 import com.tufein.valkyr.data.local.dao.DownloadableFileDao
 import com.tufein.valkyr.util.DiskDir
 import com.tufein.valkyr.util.DiskEntry
 import com.tufein.valkyr.util.DiskScanner
 import com.tufein.valkyr.util.FileParsingUtils
+import com.tufein.valkyr.util.CoverSources
 import com.tufein.valkyr.util.FrontendCovers
 import com.tufein.valkyr.util.LibraryRestrictions
 import com.tufein.valkyr.util.StorageHelper
@@ -59,7 +61,9 @@ data class CoversPreview(
     /** The active profile hides some consoles or tags; their games are not counted. */
     val profileLimited: Boolean,
     /** A game of the library to show what each layout's names look like; null without games. */
-    val sample: FrontendCovers.Game? = null
+    val sample: FrontendCovers.Game? = null,
+    /** 4.8.0: the extra image types the plan also holds (only with the layout that has them); none by default. */
+    val extras: Set<FrontendCovers.Extra> = emptySet()
 )
 
 /** A run's progress and, when it is over, its outcome. */
@@ -99,6 +103,8 @@ class FrontendCoversService @Inject constructor(
     private val settings: FrontendCoversSettings,
     private val libraryScanService: LibraryScanService,
     private val covers: CoverRepository,
+    private val thumbnails: ThumbnailService,
+    private val sourceSettings: CoverSourceSettings,
     private val rommClient: RommClient,
     private val fileDao: DownloadableFileDao,
     private val profiles: ProfileService
@@ -136,6 +142,7 @@ class FrontendCoversService @Inject constructor(
         currentCoroutineContext().ensureActive()
         val games = withoutHiddenTags(found.games, restrictions)
         val media = root?.let { DiskScanner.rootOf(s.folder) }?.let { MediaFolder(it) }
+        val extras = if (FrontendCovers.extrasFor(s.layout)) s.extras else emptySet()
         val patternProblem = if (s.layout == FrontendCovers.Layout.CUSTOM) FrontendCovers.Pattern.check(s.pattern) else null
         val plan = media?.takeIf { patternProblem == null }?.let { m ->
             // One listing per cover folder: the console folders, or the game folders of the Pegasus layout.
@@ -145,12 +152,22 @@ class FrontendCoversService @Inject constructor(
                 m.children(dir).values.filterNot { it.isDirectory }.map { it.name.lowercase() }.toSet()
             }
             val planned = FrontendCovers.plan(games, s.layout, existing, s.overwrite, s.pattern)
+            // 4.8.0: the extra image types, each in its own folder next to `covers`; none unless the user switched it on.
+            val more = extras.map { extra ->
+                val dirs = games.mapNotNull { FrontendCovers.extraPlace(it, extra)?.dir }.distinctBy { it.lowercase() }
+                val present = dirs.associateWith { dir ->
+                    currentCoroutineContext().ensureActive()
+                    m.children(dir).values.filterNot { it.isDirectory }.map { it.name.lowercase() }.toSet()
+                }
+                FrontendCovers.planExtra(games, extra, present, s.overwrite)
+            }
+            val all = if (more.isEmpty()) planned else FrontendCovers.combine(listOf(planned) + more)
             // A folder that is already there is written to as it is spelled ("GBA" for "gba").
-            planned.copy(items = planned.items.map { it.copy(place = it.place.copy(dir = m.spelled(it.place.dir))) })
+            all.copy(items = all.items.map { it.copy(place = it.place.copy(dir = m.spelled(it.place.dir))) })
         }
         val sample = FrontendCovers.sampleOf(games, s.pattern)?.let { g -> media?.let { g.copy(system = it.spelled(g.system)) } ?: g }
         return Prepared(
-            CoversPreview(target, s.folder.isNotBlank(), root != null, display, s.layout, s.overwrite, s.pattern, patternProblem, plan, games.size, found.outside, restrictions.active, sample),
+            CoversPreview(target, s.folder.isNotBlank(), root != null, display, s.layout, s.overwrite, s.pattern, patternProblem, plan, games.size, found.outside, restrictions.active, sample, extras),
             root,
             media
         )
@@ -302,9 +319,12 @@ class FrontendCoversService @Inject constructor(
     private suspend fun write(folders: RunFolders, item: FrontendCovers.Item, overwrite: Boolean, rommBase: String, rommHeaders: Map<String, String>): Outcome {
         val game = item.game
         val url = try {
-            covers.coverUrl(game.consoleId, game.fileName, game.title)
+            if (item.extra != null) extraUrl(game, item.extra) ?: return Outcome.NO_COVER
+            else covers.coverUrl(game.consoleId, game.fileName, game.title)
         } catch (e: CancellationException) {
             throw e
+        } catch (e: ExtraUnavailable) {
+            return Outcome.FAILED
         } catch (e: Exception) {
             null
         } ?: return Outcome.NO_COVER
@@ -332,6 +352,23 @@ class FrontendCoversService @Inject constructor(
                 Log.w(TAG, "Cover ${item.path} failed: ${e.message}")
                 Outcome.FAILED
             }
+        }
+    }
+
+    private class ExtraUnavailable : Exception()
+
+    /**
+     * The picture of an extra image type: libretro-thumbnails' title screen or snap of the game, the
+     * same source the cover chain uses for them ([CoverSources.Source.LIBRETRO]); null when libretro has none
+     * (or the user switched that source off in Settings → Cover sources, which then covers these too).
+     * Throws [ExtraUnavailable] when libretro could not answer (offline, rate limit): not a miss.
+     */
+    private suspend fun extraUrl(game: FrontendCovers.Game, extra: FrontendCovers.Extra): String? {
+        if (!sourceSettings.chain.first().enabled(CoverSources.Source.LIBRETRO)) return null
+        return when (val answer = thumbnails.findArt(game.consoleId, game.fileName, extra.art)) {
+            is CoverSources.Answer.Found -> answer.url
+            CoverSources.Answer.Miss -> null
+            CoverSources.Answer.Unavailable -> throw ExtraUnavailable()
         }
     }
 

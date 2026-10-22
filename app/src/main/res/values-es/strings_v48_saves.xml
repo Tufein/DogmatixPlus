@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saves48_wiiware">Sincronizar también las partidas de WiiWare y Consola Virtual</string>
+    <string name="saves48_wiiware_hint">Los canales que instalas desde la Tienda Wii (juegos de WiiWare y títulos de Consola Virtual) guardan sus partidas en Wii/title/00010001. Activado: estas partidas viajan como otro paquete, guardado con el mismo juego. Solo van los datos de partida, nunca el juego instalado.</string>
+    <string name="saves48_extras_section">Imágenes extra de ES-DE</string>
+    <string name="saves48_extras_hint">Desactivado por defecto. Se escriben junto a las portadas, en la misma carpeta de medios, a partir de las miniaturas de libretro (esa fuente debe estar activada en Fuentes de portadas). Las imágenes que ya existen solo se sustituyen si abajo está activada la sustitución.</string>
+    <string name="saves48_extra_titlescreens">Pantallas de título</string>
+    <string name="saves48_extra_titlescreens_hint">La pantalla de título de cada juego, en la carpeta %1$s de cada consola. Solo los juegos para los que libretro tiene una la reciben.</string>
+    <string name="saves48_extra_screenshots">Capturas de pantalla</string>
+    <string name="saves48_extra_screenshots_hint">Una captura de pantalla de cada juego, en la carpeta %1$s de cada consola. Solo los juegos para los que libretro tiene una la reciben.</string>
+    <plurals name="saves48_preview_extras">
+        <item quantity="one">%1$s de estas es una pantalla de título o una captura, no una portada.</item>
+        <item quantity="many">%1$s de estas son pantallas de título o capturas, no portadas.</item>
+        <item quantity="other">%1$s de estas son pantallas de título o capturas, no portadas.</item>
+    </plurals>
+    <string name="saves48_wiiware_kw">wiiware, consola virtual, tienda wii, partidas wii, dolphin, 00010001</string>
+    <string name="saves48_extras_kw">es-de, esde, pantallas de título, capturas, capturas de pantalla, downloaded_media, medios, portadas</string>
+</resources>

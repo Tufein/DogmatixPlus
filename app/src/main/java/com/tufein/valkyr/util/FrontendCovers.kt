@@ -20,6 +20,9 @@ package com.tufein.valkyr.util
  *  - [Layout.COVERS_FOLDER]: `<system>/covers/<name>.png`, as in ES-DE's downloaded media
  *  - [Layout.BOX2D]: `<system>/media/box2d/<name>.png`, as scrapers write gamelist media
  *  - [Layout.CUSTOM]: the user's own [Pattern], for a launcher none of the above fits
+ * 4.8.0: with [Layout.COVERS_FOLDER] (ES-DE's `downloaded_media`) the user may also pick [Extra] image
+ * types, written next to `covers` (`<system>/titlescreens/<name>.png`, `<system>/screenshots/<name>.png`);
+ * off by default.
  * Covers are always written as PNG. An image that is already there is never replaced unless the
  * user asked for it; any image with the same base name in the cover's folder (another image
  * extension too) counts as one.
@@ -55,6 +58,32 @@ object FrontendCovers {
     }
 
     /**
+     * 4.8.0: further image types of ES-DE's `downloaded_media/<system>/<folder>/<name>.<ext>` that
+     * can be written next to the covers. ES-DE's folder names are from its public user guide
+     * (covers, 3dboxes, backcovers, fanart, marquees, miximages, physicalmedia, screenshots,
+     * titlescreens, videos); only the two with a source in the app are offered, the ones libretro
+     * thumbnails keeps per game ([LibretroThumbnails.Art]): `Named_Titles` and `Named_Snaps`. The
+     * others (3D boxes, back covers, fan art, marquees, mix images, cartridge / disc art) are
+     * made by scrapers from sources the app does not use, and a mix image is composed by ES-DE's
+     * own scraper, so none is offered. [key] is what the settings store (never change one).
+     */
+    enum class Extra(val key: String, val folder: String, val art: LibretroThumbnails.Art) {
+        TITLESCREENS("titlescreens", "titlescreens", LibretroThumbnails.Art.TITLE),
+        SCREENSHOTS("screenshots", "screenshots", LibretroThumbnails.Art.SNAP);
+
+        companion object { fun of(key: String): Extra? = entries.firstOrNull { it.key == key } }
+    }
+
+    /** Whether extra image types can be written with [layout]: only the arrangement of ES-DE's `downloaded_media`. */
+    fun extrasFor(layout: Layout): Boolean = layout == Layout.COVERS_FOLDER
+
+    /** The extras of a stored value (comma-separated keys); unknown keys (from a newer version) are dropped. */
+    fun extrasOf(stored: String?): Set<Extra> =
+        stored.orEmpty().split(',').mapNotNull { Extra.of(it.trim()) }.toSet()
+
+    fun storeExtras(extras: Set<Extra>): String = Extra.entries.filter { it in extras }.joinToString(",") { it.key }
+
+    /**
      * The layouts offered for [target], its default first. iiSU and Daijishō get the plain ones;
      * the layouts named after another frontend's media folder only make sense for "another launcher".
      */
@@ -86,10 +115,11 @@ object FrontendCovers {
     fun layoutKey(target: Target) = "covers31_${target.key}_layout"
     fun overwriteKey(target: Target) = "covers31_${target.key}_overwrite"
     fun patternKey(target: Target) = "covers31_${target.key}_pattern"
+    fun extrasKey(target: Target) = "covers48_${target.key}_extras"
 
     /** Their backup types, for [SettingSchema]. */
     val SETTING_TYPES: Map<String, String> by lazy {
-        Target.entries.flatMap { listOf(folderKey(it) to "s", layoutKey(it) to "s", overwriteKey(it) to "b", patternKey(it) to "s") }.toMap()
+        Target.entries.flatMap { listOf(folderKey(it) to "s", layoutKey(it) to "s", overwriteKey(it) to "b", patternKey(it) to "s", extrasKey(it) to "s") }.toMap()
     }
 
     const val EXTENSION = "png"
@@ -117,8 +147,8 @@ object FrontendCovers {
         val path: String get() = if (dir.isEmpty()) name else "$dir/$name"
     }
 
-    /** One cover to write at [place]. [replaces] an image of that exact name. */
-    data class Item(val game: Game, val place: Place, val replaces: Boolean) {
+    /** One cover to write at [place] ([extra]: an extra image type instead of the cover). [replaces] an image of that exact name. */
+    data class Item(val game: Game, val place: Place, val replaces: Boolean, val extra: Extra? = null) {
         val path: String get() = place.path
     }
 
@@ -173,6 +203,13 @@ object FrontendCovers {
         return place.takeIf { segments.all { it.toByteArray(Charsets.UTF_8).size <= MAX_NAME_BYTES } }
     }
 
+    /** Where [game]'s image of the [extra] type goes: `<system>/<folder>/<name>.png`, named like its cover in [Layout.COVERS_FOLDER]. */
+    fun extraPlace(game: Game, extra: Extra): Place? {
+        val covers = place(game, Layout.COVERS_FOLDER) ?: return null
+        val place = Place("${game.system}/${extra.folder}", covers.name)
+        return place.takeIf { p -> (p.dir.split('/') + p.name).all { it.toByteArray(Charsets.UTF_8).size <= MAX_NAME_BYTES } }
+    }
+
     /** The cover's path below the media folder, or null when the console folder or the name cannot be used. */
     fun coverPath(game: Game, layout: Layout, pattern: String = ""): String? = place(game, layout, pattern)?.path
 
@@ -198,10 +235,20 @@ object FrontendCovers {
      * `Tetris.png` for Game Boy and NES) every one of them is skipped, as any cover would be the
      * wrong one for the others.
      */
-    fun plan(games: List<Game>, layout: Layout, existing: Map<String, Set<String>>, overwrite: Boolean, pattern: String = ""): Plan {
+    fun plan(games: List<Game>, layout: Layout, existing: Map<String, Set<String>>, overwrite: Boolean, pattern: String = ""): Plan =
+        planWith(games, existing, overwrite, null) { place(it, layout, pattern) }
+
+    /** The images of the [extra] type to write for [games], planned like the covers ([plan]). */
+    fun planExtra(games: List<Game>, extra: Extra, existing: Map<String, Set<String>>, overwrite: Boolean): Plan =
+        planWith(games, existing, overwrite, extra) { extraPlace(it, extra) }
+
+    /** All of [plans] as one (the covers and the extra image types a run writes). */
+    fun combine(plans: List<Plan>): Plan = Plan(plans.flatMap { it.items }, plans.sumOf { it.kept }, plans.sumOf { it.skipped }, plans.sumOf { it.shared })
+
+    private fun planWith(games: List<Game>, existing: Map<String, Set<String>>, overwrite: Boolean, extra: Extra?, placeOf: (Game) -> Place?): Plan {
         val present = existing.entries.groupBy({ it.key.lowercase() }, { it.value }).mapValues { (_, v) -> v.flatten().toSet() }
         val sorted = games.sortedWith(compareBy({ it.system.lowercase() }, { it.fileName.lowercase() }))
-        val placed = sorted.map { it to place(it, layout, pattern) }
+        val placed = sorted.map { it to placeOf(it) }
         val consolesOf = placed.mapNotNull { (g, p) -> p?.let { it.path.lowercase() to g.consoleId.lowercase() } }
             .groupBy({ it.first }, { it.second }).mapValues { it.value.toSet().size }
         val seen = HashSet<String>()
@@ -217,8 +264,8 @@ object FrontendCovers {
             val names = present[place.dir.lowercase()].orEmpty()
             val exact = place.name.lowercase() in names
             when {
-                !hasCover(names, place.name) -> items += Item(game, place, replaces = false)
-                overwrite -> items += Item(game, place, replaces = exact)
+                !hasCover(names, place.name) -> items += Item(game, place, replaces = false, extra = extra)
+                overwrite -> items += Item(game, place, replaces = exact, extra = extra)
                 else -> kept++
             }
         }
