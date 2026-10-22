@@ -2,38 +2,21 @@ package com.tufein.valkyr.ui.screens.settings
 
 import android.content.Intent
 import android.content.res.Configuration
-import android.text.format.DateUtils
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,95 +25,45 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.tufein.valkyr.BuildConfig
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.model.DebridProvider
 import com.tufein.valkyr.ui.common.Gamepad
 import com.tufein.valkyr.ui.common.GamepadButton
-import com.tufein.valkyr.ui.common.GamepadLayout
 import com.tufein.valkyr.ui.common.Legend
-import com.tufein.valkyr.ui.components.ActionPill
-import com.tufein.valkyr.ui.components.ActionTone
 import com.tufein.valkyr.ui.components.DialogButton
 import com.tufein.valkyr.ui.components.LegendEntry
-import com.tufein.valkyr.ui.components.LocalBoldFocus
-import com.tufein.valkyr.ui.components.MeterBar
-import com.tufein.valkyr.ui.components.NavChevron
-import com.tufein.valkyr.ui.components.Pill
-import com.tufein.valkyr.ui.components.PillTone
 import com.tufein.valkyr.ui.components.closeOnGamepadB
-import com.tufein.valkyr.ui.components.coverPlaceholder
-import com.tufein.valkyr.ui.components.focusRing
-import com.tufein.valkyr.ui.components.focusScale
-import com.tufein.valkyr.ui.components.formatBytes
 import com.tufein.valkyr.ui.components.legendFor
-import com.tufein.valkyr.ui.components.pillColors
-import com.tufein.valkyr.ui.components.rememberFocusSource
 import com.tufein.valkyr.ui.components.rememberInitialFocus
 import com.tufein.valkyr.ui.navigation.NavRoutes
-import com.tufein.valkyr.ui.screens.cloud.saves.ContinuePlayingViewModel
 import com.tufein.valkyr.ui.screens.settings.components.ApiKeyDialog
 import com.tufein.valkyr.ui.screens.settings.components.DaijishoSetupDialog
 import com.tufein.valkyr.ui.screens.settings.components.FavoriteLanguagesDialog
-import com.tufein.valkyr.ui.screens.settings.components.maskedSecret
 import com.tufein.valkyr.ui.screens.sources.SourcesViewModel
 import com.tufein.valkyr.ui.screens.sources.components.ConfirmDialog
-import com.tufein.valkyr.ui.theme.AccentPresets
 import com.tufein.valkyr.ui.theme.LocalDogmatixTokens
 import com.tufein.valkyr.ui.theme.LocalReduceMotion
 import com.tufein.valkyr.ui.theme.Motion
 import com.tufein.valkyr.ui.theme.ThemeMode
-import com.tufein.valkyr.ui.theme.consoleColor
-import com.tufein.valkyr.ui.theme.tabular
 import com.tufein.valkyr.util.CardGrid
-import com.tufein.valkyr.util.ConsoleFormatter
-import com.tufein.valkyr.util.Constants
-import com.tufein.valkyr.util.DownloadPolicy
-import com.tufein.valkyr.util.FileParsingUtils
-import com.tufein.valkyr.util.ToastUtil
-import com.tufein.valkyr.util.SettingKeys
 import com.tufein.valkyr.util.SettingsGroup
 import com.tufein.valkyr.util.SettingsLayout
-import com.tufein.valkyr.util.SettingsMasters
-import com.tufein.valkyr.util.TorrentConstants
-import com.tufein.valkyr.ui.screens.search.SEARCH_ALL_ROUTE
 import kotlinx.coroutines.delay
 import java.text.DateFormat
-import java.time.LocalDate
 import java.util.Date
 
 /** Languages offered in Settings; [tag] is empty for "follow the device". */
@@ -164,29 +97,28 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     extra: ExtraSettingsViewModel = hiltViewModel()
 ) {
-    val ui by viewModel.uiState.collectAsStateWithLifecycle()
-    val schedule by extra.schedule.collectAsStateWithLifecycle()
-    val queue by extra.queue.collectAsStateWithLifecycle()
-    val autoScan by extra.autoScan.collectAsStateWithLifecycle()
-    val afterDownload by extra.afterDownload.collectAsStateWithLifecycle()
-    val digestOn by extra.digestOn.collectAsStateWithLifecycle()
-    val metaAuto by extra.metaAuto.collectAsStateWithLifecycle()
-    val power = extra.power.collectAsStateWithLifecycle().value ?: com.tufein.valkyr.util.PowerSettings()
-    val pickBest by extra.pickBest.collectAsStateWithLifecycle()
-    val appPrefs by extra.appPrefs.collectAsStateWithLifecycle()
-    val activeProfileName by extra.activeProfileName.collectAsStateWithLifecycle()
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle()
+    val ui by uiState
+    val schedule = extra.schedule.collectAsStateWithLifecycle()
+    val queue = extra.queue.collectAsStateWithLifecycle()
+    val autoScan = extra.autoScan.collectAsStateWithLifecycle()
+    val afterDownload = extra.afterDownload.collectAsStateWithLifecycle()
+    val digestOn = extra.digestOn.collectAsStateWithLifecycle()
+    val metaAuto = extra.metaAuto.collectAsStateWithLifecycle()
+    val power = extra.power.collectAsStateWithLifecycle()
+    val pickBest = extra.pickBest.collectAsStateWithLifecycle()
+    val appPrefs = extra.appPrefs.collectAsStateWithLifecycle()
+    val activeProfileName = extra.activeProfileName.collectAsStateWithLifecycle()
     val updateOffer by extra.updateOffer.collectAsStateWithLifecycle()
-    val updateProgress by extra.updateProgress.collectAsStateWithLifecycle()
-    val look by extra.look.collectAsStateWithLifecycle()
+    val updateProgress = extra.updateProgress.collectAsStateWithLifecycle()
+    val look = extra.look.collectAsStateWithLifecycle()
+    val states = SettingsStates(
+        ui = uiState, schedule = schedule, queue = queue, autoScan = autoScan, afterDownload = afterDownload,
+        digestOn = digestOn, metaAuto = metaAuto, power = power, pickBest = pickBest, appPrefs = appPrefs,
+        activeProfileName = activeProfileName, updateProgress = updateProgress, look = look
+    )
     val context = LocalContext.current
-    // Android 13+ asks before the weekly digest may be shown.
     val digestPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
-    val setDigest: (Boolean) -> Unit = { on ->
-        extra.setDigest(context, on)
-        if (on && android.os.Build.VERSION.SDK_INT >= 33 &&
-            androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED
-        ) digestPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-    }
     val backupDirLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let {
             context.contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
@@ -226,10 +158,6 @@ fun SettingsScreen(
             viewModel.onEsdeDirPicked(context, it.toString())
         }
     }
-    // First run asks for the ES-DE folder; later runs reuse it and reconfigure directly.
-    fun runEsdeSetup() {
-        if (ui.esdeDirectory.isBlank()) esdeLauncher.launch(null) else viewModel.onConfigureEsde(context)
-    }
     val iisuLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let {
             context.contentResolver.takePersistableUriPermission(
@@ -237,9 +165,6 @@ fun SettingsScreen(
             )
             viewModel.onIisuDirPicked(context, it.toString())
         }
-    }
-    fun runIisuSetup() {
-        if (ui.iisuDirectory.isBlank()) iisuLauncher.launch(null) else viewModel.onConfigureIisu(context)
     }
 
     // Backup: export into a document the user creates, restore from one they pick (after a confirmation).
@@ -251,16 +176,7 @@ fun SettingsScreen(
     }
     // The shell's instance, so the rescan after a restore survives leaving Settings.
     val sourcesViewModel: SourcesViewModel = hiltViewModel(LocalActivity.current as ComponentActivity)
-    fun exportBackup() = backupExportLauncher.launch("valkyr-backup-${LocalDate.now()}.json")
     val backupBusyMessage = stringResource(R.string.backup_import_busy)
-    fun importBackup() {
-        // A restore replaces every source: not while they are being scanned (the ViewModel checks again).
-        if (sourcesViewModel.isRescanning.value) {
-            ToastUtil.showInfo(context, backupBusyMessage)
-            return
-        }
-        backupImportLauncher.launch(arrayOf("application/json", "application/octet-stream", "text/plain", "*/*"))
-    }
     val pendingRestore by viewModel.pendingRestore.collectAsStateWithLifecycle()
     pendingRestore?.let { pending ->
         val date = if (pending.createdAt > 0) DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(pending.createdAt)) else "?"
@@ -273,930 +189,78 @@ fun SettingsScreen(
         )
     }
 
-    fun cycleTheme(delta: Int) {
-        val modes = ThemeMode.entries
-        viewModel.onThemeModeChanged(context, modes[((ui.themeMode.ordinal + delta) % modes.size + modes.size) % modes.size])
-    }
-    fun cycleAccent(delta: Int) {
-        val presets = AccentPresets.choices
-        val current = presets.indexOf(ui.accent).coerceAtLeast(0)
-        viewModel.onAccentChanged(context, presets[((current + delta) % presets.size + presets.size) % presets.size])
-    }
-    fun cycleGamepadLayout(delta: Int) {
-        val layouts = GamepadLayout.entries
-        viewModel.onGamepadLayoutChanged(context, layouts[((ui.gamepadLayout.ordinal + delta) % layouts.size + layouts.size) % layouts.size])
-    }
-    fun adjustConcurrent(delta: Int) =
-        viewModel.onConcurrentDownloadsChanged(context, (ui.concurrentDownloads + delta).coerceIn(1, 10))
-    // Fixed choices instead of free steps: the useful jumps are coarse (50 → 100 → … → no limit).
-    fun adjustMaxSearchResults(delta: Int) {
-        val choices = Constants.MAX_SEARCH_RESULTS_CHOICES
-        val current = choices.indexOf(ui.maxSearchResults).takeIf { it >= 0 }
-            ?: choices.indexOf(Constants.DEFAULT_MAX_SEARCH_RESULTS)
-        viewModel.onMaxSearchResultsChanged(context, choices[(current + delta).coerceIn(0, choices.lastIndex)])
-    }
-    fun adjustMetadataTimeout(delta: Int) = viewModel.onMetadataTimeoutChanged(
-        context, (ui.metadataTimeoutSeconds + delta * 10).coerceIn(TorrentConstants.MIN_METADATA_TIMEOUT_S, TorrentConstants.MAX_METADATA_TIMEOUT_S)
-    )
-    fun shiftNightStart(delta: Int) = extra.setNightWindow(context, DownloadPolicy.shift(schedule.nightStart, delta), schedule.nightEnd)
-    fun shiftNightEnd(delta: Int) = extra.setNightWindow(context, schedule.nightStart, DownloadPolicy.shift(schedule.nightEnd, delta))
-    val limitKb = if (ui.limitSpeed == Float.POSITIVE_INFINITY) 0 else ui.limitSpeed.toInt()
-    fun adjustLimit(delta: Int) {
-        val next = (limitKb + delta * SPEED_STEP).coerceIn(0, SPEED_MAX)
-        viewModel.onLimitSpeedChanged(context, if (next == 0) Float.POSITIVE_INFINITY else next.toFloat())
-    }
-
     val themeLabel = stringResource(ui.themeMode.labelRes) + if (ui.themeMode == ThemeMode.SYSTEM) {
         " · " + stringResource(if (LocalDogmatixTokens.current.isDark) R.string.theme_suffix_dark else R.string.theme_suffix_light)
     } else ""
+    val dialogs = remember { SettingsLocalState() }
+    val debrid = ui.debridProvider
+    val debridKeyTitle = stringResource(R.string.settings_debrid_key, debrid.label)
+    val env = SettingsEnv(
+        context = context,
+        navController = navController,
+        viewModel = viewModel,
+        extra = extra,
+        states = states,
+        launchers = SettingsLaunchers(
+            downloadDir = launcher, esdeDir = esdeLauncher, iisuDir = iisuLauncher, backupDir = backupDirLauncher,
+            retroArchThumbs = retroArchThumbsLauncher, backupExport = backupExportLauncher,
+            backupImport = backupImportLauncher, digestPermission = digestPermission
+        ),
+        dialogs = dialogs,
+        sourcesViewModel = sourcesViewModel,
+        isLandscape = isLandscape,
+        themeLabel = themeLabel,
+        debridKeyTitle = debridKeyTitle,
+        backupBusyMessage = backupBusyMessage
+    )
 
-    // App language: persisted by AppCompat (autoStoreLocales) and applied by recreating the activity.
-    var appLanguage by remember { mutableStateOf(AppLanguage.current()) }
-    fun cycleLanguage(delta: Int) {
-        val entries = AppLanguage.entries
-        appLanguage = entries[(appLanguage.ordinal + delta + entries.size) % entries.size]
-        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(appLanguage.tag))
+    if (dialogs.showAccentDialog) {
+        AccentDialog(selected = ui.accent, onPick = { viewModel.onAccentChanged(context, it); dialogs.showAccentDialog = false }, onDismiss = { dialogs.showAccentDialog = false })
     }
 
-    var showAccentDialog by remember { mutableStateOf(false) }
-    if (showAccentDialog) {
-        AccentDialog(selected = ui.accent, onPick = { viewModel.onAccentChanged(context, it); showAccentDialog = false }, onDismiss = { showAccentDialog = false })
-    }
+    if (dialogs.showDownloadPresets) DownloadPresetsDialog(onDismiss = { dialogs.showDownloadPresets = false })
 
-    var showDownloadPresets by remember { mutableStateOf(false) }
-    if (showDownloadPresets) DownloadPresetsDialog(onDismiss = { showDownloadPresets = false })
-
-    var showLanguagesDialog by remember { mutableStateOf(false) }
-    if (showLanguagesDialog) {
+    if (dialogs.showLanguagesDialog) {
         val available by viewModel.availableLanguages.collectAsStateWithLifecycle()
         LaunchedEffect(Unit) { viewModel.loadAvailableLanguages() }
         FavoriteLanguagesDialog(
             available = available,
             favorites = ui.favoriteLanguages,
             onChange = { viewModel.onFavoriteLanguagesChanged(context, it) },
-            onDismiss = { showLanguagesDialog = false }
+            onDismiss = { dialogs.showLanguagesDialog = false }
         )
     }
 
-    val debrid = ui.debridProvider
-    fun cycleDebrid(delta: Int) {
-        val providers = DebridProvider.entries
-        viewModel.onDebridProviderChanged(context, providers[((debrid.ordinal + delta) % providers.size + providers.size) % providers.size])
-    }
-    val debridKey = when (debrid) {
-        DebridProvider.TORBOX -> ui.torboxApiKey
-        DebridProvider.REAL_DEBRID -> ui.realDebridApiKey
-        DebridProvider.NONE -> ""
-    }
-    val debridKeyTitle = stringResource(R.string.settings_debrid_key, debrid.label)
     val daijishoSetup by viewModel.daijishoSetup.collectAsStateWithLifecycle()
     daijishoSetup?.let { setup ->
         DaijishoSetupDialog(setup = setup, onDismiss = viewModel::onDaijishoSetupDismissed)
     }
 
-    var showCocoonHelp by remember { mutableStateOf(false) }
-    if (showCocoonHelp) {
+    if (dialogs.showCocoonHelp) {
         AlertDialog(
-            modifier = Modifier.closeOnGamepadB { showCocoonHelp = false },
-            onDismissRequest = { showCocoonHelp = false },
+            modifier = Modifier.closeOnGamepadB { dialogs.showCocoonHelp = false },
+            onDismissRequest = { dialogs.showCocoonHelp = false },
             title = { Text(stringResource(R.string.cocoon_dialog_title)) },
             text = { Text(stringResource(R.string.cocoon_dialog_body)) },
-            confirmButton = { DialogButton(stringResource(R.string.dialog_ok), onClick = { showCocoonHelp = false }, initialFocus = rememberInitialFocus()) }
+            confirmButton = { DialogButton(stringResource(R.string.dialog_ok), onClick = { dialogs.showCocoonHelp = false }, initialFocus = rememberInitialFocus()) }
         )
     }
-    var showDebridKeyDialog by remember { mutableStateOf(false) }
-    if (showDebridKeyDialog && debrid != DebridProvider.NONE) {
+    if (dialogs.showDebridKeyDialog && debrid != DebridProvider.NONE) {
         ApiKeyDialog(
             title = debridKeyTitle,
             hint = stringResource(if (debrid == DebridProvider.TORBOX) R.string.settings_torbox_key_dialog_hint else R.string.settings_realdebrid_key_dialog_hint),
-            value = debridKey,
+            value = env.debridKey,
             onTest = { viewModel.testDebridApiKey(context, debrid, it) },
             onSave = { viewModel.onDebridApiKeyChanged(context, debrid, it) },
-            onDismiss = { showDebridKeyDialog = false }
+            onDismiss = { dialogs.showDebridKeyDialog = false }
         )
     }
 
-    // The switches that show or hide other rows (one rule for all of them, see SettingsLayout).
-    val masters = SettingsMasters(
-        speedLimitOn = limitKb > 0,
-        speedLimitDayOnly = schedule.speedLimitDayOnly,
-        lowBatteryOn = power.lowBatteryOn,
-        nightOnly = schedule.nightOnly,
-        autoScanOn = autoScan.on,
-        autoScanNightOnly = autoScan.nightOnly,
-        debridOn = debrid != DebridProvider.NONE,
-        autoBackupOn = appPrefs.autoBackup
-    )
+    val masters = env.masters
     // Every row, in any order: [SettingsLayout] gives each its card and its place in that card.
-    val ordered: List<SettingsRow> = listOf(
-        SettingsRow(key = SettingKeys.THEME) {
-            SettingRow(
-                icon = R.drawable.ic_dark_mode,
-                title = stringResource(R.string.settings_theme),
-                hint = stringResource(R.string.settings_theme_hint),
-                onClick = { cycleTheme(1) },
-                onAdjust = ::cycleTheme
-            ) {
-                SettingsStepper(themeLabel, onDecrement = { cycleTheme(-1) }, onIncrement = { cycleTheme(1) })
-            }
-        },
-        SettingsRow(key = SettingKeys.LANGUAGE) {
-            SettingRow(
-                icon = R.drawable.ic_language,
-                title = stringResource(R.string.settings_language),
-                hint = stringResource(R.string.settings_language_hint),
-                onClick = { cycleLanguage(1) },
-                onAdjust = ::cycleLanguage
-            ) {
-                SettingsStepper(stringResource(appLanguage.label), onDecrement = { cycleLanguage(-1) }, onIncrement = { cycleLanguage(1) })
-            }
-        },
-        SettingsRow(key = SettingKeys.TEXT_SIZE) {
-            SettingRow(
-                icon = R.drawable.ic_text_size,
-                title = stringResource(R.string.settings_text_size),
-                hint = stringResource(R.string.settings_text_size_hint),
-                onClick = { extra.shiftTextSize(context, 1) },
-                onAdjust = { extra.shiftTextSize(context, it) }
-            ) {
-                SettingsStepper("${appPrefs.textSize} %", onDecrement = { extra.shiftTextSize(context, -1) }, onIncrement = { extra.shiftTextSize(context, 1) })
-            }
-        },
-        SettingsRow(key = SettingKeys.ACCENT) {
-            SettingRow(
-                icon = R.drawable.ic_colorize,
-                title = stringResource(R.string.settings43_accent),
-                hint = stringResource(R.string.settings43_accent_hint),
-                onClick = { cycleAccent(1) },
-                onAdjust = ::cycleAccent
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                    AccentSwatch(ui.accent, if (isLandscape) 24.dp else 32.dp, onClick = { showAccentDialog = true })
-                    ActionPill(stringResource(R.string.settings_change), { showAccentDialog = true }, icon = R.drawable.ic_edit)
-                }
-            }
-        },
-        SettingsRow(key = SettingKeys.GAMEPAD_LAYOUT) {
-            SettingRow(
-                icon = R.drawable.ic_gamepad,
-                title = stringResource(R.string.settings_gamepad_layout),
-                hint = stringResource(R.string.settings_gamepad_layout_hint),
-                onClick = { cycleGamepadLayout(1) },
-                onAdjust = ::cycleGamepadLayout
-            ) {
-                SettingsStepper(
-                    stringResource(ui.gamepadLayout.labelRes),
-                    onDecrement = { cycleGamepadLayout(-1) },
-                    onIncrement = { cycleGamepadLayout(1) }
-                )
-            }
-        },
-        SettingsRow(key = SettingKeys.SWAP_BUTTONS) {
-            SettingRow(
-                icon = R.drawable.ic_swap_horiz,
-                title = stringResource(R.string.settings_swap_face_buttons),
-                hint = stringResource(R.string.settings_swap_face_buttons_hint),
-                onClick = { viewModel.onSwapFaceButtonsChanged(context, !ui.swapFaceButtons) },
-                onAdjust = { viewModel.onSwapFaceButtonsChanged(context, it > 0) }
-            ) {
-                ThemedSwitch(ui.swapFaceButtons) { viewModel.onSwapFaceButtonsChanged(context, it) }
-            }
-        },
-        SettingsRow(key = SettingKeys.SECOND_SCREEN) {
-            SettingRow(
-                icon = R.drawable.ic_tv,
-                title = stringResource(R.string.settings_second_screen),
-                hint = stringResource(R.string.settings_second_screen_hint),
-                onClick = { extra.setSecondScreen(context, !appPrefs.secondScreen) },
-                onAdjust = { extra.setSecondScreen(context, it > 0) }
-            ) { ThemedSwitch(appPrefs.secondScreen) { extra.setSecondScreen(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.BOLD_FOCUS) {
-            SettingRow(
-                icon = R.drawable.ic_center_focus_strong,
-                title = stringResource(R.string.settings_bold_focus),
-                hint = stringResource(R.string.settings_bold_focus_hint),
-                onClick = { extra.setBoldFocus(context, !appPrefs.boldFocus) },
-                onAdjust = { extra.setBoldFocus(context, it > 0) }
-            ) { ThemedSwitch(appPrefs.boldFocus) { extra.setBoldFocus(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.ANIMATIONS) {
-            SettingRow(
-                icon = R.drawable.ic_animation,
-                title = stringResource(R.string.settings_v5_animations),
-                hint = stringResource(R.string.settings_v5_animations_hint),
-                onClick = { extra.setAnimations(context, !look.animations) },
-                onAdjust = { extra.setAnimations(context, it > 0) }
-            ) { ThemedSwitch(look.animations) { extra.setAnimations(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.GLOW) {
-            SettingRow(
-                icon = R.drawable.ic_blur_on,
-                title = stringResource(R.string.settings_v5_glow),
-                hint = stringResource(R.string.settings43_glow_hint),
-                onClick = { extra.setGlow(context, !look.glow) },
-                onAdjust = { extra.setGlow(context, it > 0) }
-            ) { ThemedSwitch(look.glow) { extra.setGlow(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.TV_MODE) { TvModeSettingRow() },
-        SettingsRow(key = SettingKeys.LIST_COVERS) {
-            SettingRow(
-                icon = R.drawable.ic_image,
-                title = stringResource(R.string.settings_v5_list_covers),
-                hint = stringResource(R.string.settings_v5_list_covers_hint),
-                onClick = { extra.setListCovers(context, !look.listCovers) },
-                onAdjust = { extra.setListCovers(context, it > 0) }
-            ) { ThemedSwitch(look.listCovers) { extra.setListCovers(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.COMPACT) {
-            SettingRow(
-                icon = R.drawable.ic_list,
-                title = stringResource(R.string.disc6_compact_title),
-                hint = stringResource(R.string.disc6_compact_hint),
-                onClick = { extra.setCompactLists(context, !look.compactLists) },
-                onAdjust = { extra.setCompactLists(context, it > 0) }
-            ) { ThemedSwitch(look.compactLists) { extra.setCompactLists(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.COVERS_RETRY) {
-            com.tufein.valkyr.ui.screens.settings.covers.CoverSourcesRow(onOpen = { navController.navigate(NavRoutes.CoverSources.route) })
-        },
-        SettingsRow(key = SettingKeys.DOWNLOAD_DIR) {
-            SettingRow(
-                icon = R.drawable.ic_folder_open,
-                title = stringResource(R.string.settings43_download_folder),
-                hint = readableFolder(ui.downloadDirectory) ?: stringResource(R.string.settings43_download_folder_unset),
-                onClick = { launcher.launch(null) }
-            ) {
-                ActionPill(stringResource(R.string.settings_change), { launcher.launch(null) }, icon = R.drawable.ic_folder_open)
-            }
-        },
-        SettingsRow(key = SettingKeys.DOWNLOAD_PRESETS) {
-            SettingRow(
-                icon = R.drawable.ic_schedule,
-                title = stringResource(R.string.presets26_title),
-                hint = stringResource(R.string.presets26_settings_hint),
-                onClick = { showDownloadPresets = true }
-            ) {
-                ActionPill(stringResource(R.string.settings_change), { showDownloadPresets = true }, icon = R.drawable.ic_edit)
-            }
-        },
-        SettingsRow(key = SettingKeys.SEPARATE_CONSOLE) {
-            SettingRow(
-                icon = R.drawable.ic_account_tree,
-                title = stringResource(R.string.settings43_separate),
-                hint = stringResource(R.string.settings43_separate_hint),
-                onClick = { viewModel.onSeparateByConsoleChanged(context, !ui.separateByConsole) },
-                onAdjust = { viewModel.onSeparateByConsoleChanged(context, it > 0) }
-            ) {
-                ThemedSwitch(ui.separateByConsole) { viewModel.onSeparateByConsoleChanged(context, it) }
-            }
-        },
-        SettingsRow(key = SettingKeys.CONCURRENT) {
-            SettingRow(
-                icon = R.drawable.ic_downloading,
-                title = stringResource(R.string.settings_concurrent_label),
-                hint = stringResource(R.string.settings43_concurrent_hint, Constants.DEFAULT_CONCURRENT_DOWNLOADS),
-                onClick = { adjustConcurrent(1) },
-                onAdjust = ::adjustConcurrent
-            ) {
-                SettingsStepper(ui.concurrentDownloads.toString(), onDecrement = { adjustConcurrent(-1) }, onIncrement = { adjustConcurrent(1) })
-            }
-        },
-        SettingsRow(key = SettingKeys.PER_SERVER) {
-            SettingRow(
-                icon = R.drawable.ic_hub,
-                title = stringResource(R.string.settings43_per_server),
-                hint = stringResource(R.string.settings_per_server_hint),
-                onClick = { extra.shiftPerServer(context, 1) },
-                onAdjust = { extra.shiftPerServer(context, it) }
-            ) {
-                SettingsStepper(
-                    if (queue.perServer == 0) stringResource(R.string.settings_off) else "${queue.perServer}",
-                    onDecrement = { extra.shiftPerServer(context, -1) }, onIncrement = { extra.shiftPerServer(context, 1) }
-                )
-            }
-        },
-        SettingsRow(key = SettingKeys.SPEED_LIMIT) {
-            SettingRow(
-                icon = R.drawable.ic_speed,
-                title = stringResource(R.string.settings_limit_label),
-                hint = stringResource(R.string.settings43_limit_hint),
-                onClick = { adjustLimit(1) },
-                onAdjust = ::adjustLimit
-            ) {
-                SettingsStepper(
-                    if (limitKb == 0) stringResource(R.string.settings_unlimited) else "$limitKb KB/s",
-                    onDecrement = { adjustLimit(-1) },
-                    onIncrement = { adjustLimit(1) }
-                )
-            }
-        },
-        SettingsRow(key = SettingKeys.SPEED_DAY_ONLY) {
-            val reason = SettingsLayout.inactiveReason(SettingKeys.SPEED_DAY_ONLY, masters)
-            SettingRow(
-                icon = R.drawable.ic_light_mode,
-                title = stringResource(R.string.settings_limit_day_only),
-                hint = reason?.let { stringResource(it) }
-                    ?: stringResource(R.string.settings43_limit_day_only_hint, DownloadPolicy.formatMinutes(schedule.nightStart), DownloadPolicy.formatMinutes(schedule.nightEnd)),
-                modifier = if (reason != null) Modifier.alpha(INACTIVE_ROW_ALPHA) else Modifier,
-                onClick = { extra.setSpeedLimitDayOnly(context, !schedule.speedLimitDayOnly) },
-                onAdjust = { extra.setSpeedLimitDayOnly(context, it > 0) }
-            ) { ThemedSwitch(schedule.speedLimitDayOnly) { extra.setSpeedLimitDayOnly(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.MIN_FREE) {
-            SettingRow(
-                icon = R.drawable.ic_storage,
-                title = stringResource(R.string.settings_min_free),
-                hint = stringResource(R.string.settings_min_free_hint),
-                onClick = { extra.shiftMinFree(context, 1) },
-                onAdjust = { extra.shiftMinFree(context, it) }
-            ) {
-                SettingsStepper(
-                    if (queue.minFreeGb == 0) stringResource(R.string.settings_off) else "${queue.minFreeGb} GB",
-                    onDecrement = { extra.shiftMinFree(context, -1) }, onIncrement = { extra.shiftMinFree(context, 1) }
-                )
-            }
-        },
-        SettingsRow(key = SettingKeys.STORAGE) {
-            SettingRow(
-                icon = R.drawable.ic_storage,
-                title = stringResource(R.string.nav_storage),
-                hint = stringResource(R.string.tools_storage_hint),
-                onClick = { navController.navigate(NavRoutes.Storage.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.RESUME) {
-            SettingRow(
-                icon = R.drawable.ic_play_arrow,
-                title = stringResource(R.string.settings_resume),
-                hint = stringResource(R.string.settings_resume_hint),
-                onClick = { extra.setResume(context, !queue.resume) },
-                onAdjust = { extra.setResume(context, it > 0) }
-            ) { ThemedSwitch(queue.resume) { extra.setResume(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.REQUEUE) {
-            SettingRow(
-                icon = R.drawable.ic_restart_alt,
-                title = stringResource(R.string.settings_requeue),
-                hint = stringResource(R.string.settings_requeue_hint),
-                onClick = { extra.setRequeue(context, !queue.requeue) },
-                onAdjust = { extra.setRequeue(context, it > 0) }
-            ) { ThemedSwitch(queue.requeue) { extra.setRequeue(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.AUTO_RETRY) {
-            SettingRow(
-                icon = R.drawable.ic_retry,
-                title = stringResource(R.string.settings_auto_retry),
-                hint = stringResource(R.string.settings_auto_retry_hint),
-                onClick = { extra.setAutoRetry(context, !queue.autoRetry) },
-                onAdjust = { extra.setAutoRetry(context, it > 0) }
-            ) { ThemedSwitch(queue.autoRetry) { extra.setAutoRetry(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.PICK_BEST) {
-            SettingRow(
-                icon = R.drawable.ic_swap_horiz,
-                title = stringResource(R.string.src75_pick_best_title),
-                hint = stringResource(R.string.src75_pick_best_hint),
-                onClick = { extra.setPickBest(context, !pickBest) },
-                onAdjust = { extra.setPickBest(context, it > 0) }
-            ) { ThemedSwitch(pickBest) { extra.setPickBest(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.QUEUE_SUMMARY) {
-            SettingRow(
-                icon = R.drawable.ic_notifications,
-                title = stringResource(R.string.settings_queue_summary),
-                hint = stringResource(R.string.settings_queue_summary_hint),
-                onClick = { extra.setQueueSummary(context, !queue.queueSummary) },
-                onAdjust = { extra.setQueueSummary(context, it > 0) }
-            ) { ThemedSwitch(queue.queueSummary) { extra.setQueueSummary(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.WIFI) {
-            SettingRow(
-                icon = R.drawable.ic_wifi,
-                title = stringResource(R.string.settings_dl_wifi),
-                hint = stringResource(R.string.settings_dl_wifi_hint),
-                onClick = { extra.setWifiOnly(context, !schedule.wifiOnly) },
-                onAdjust = { extra.setWifiOnly(context, it > 0) }
-            ) { ThemedSwitch(schedule.wifiOnly) { extra.setWifiOnly(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.CHARGING) {
-            SettingRow(
-                icon = R.drawable.ic_charging,
-                title = stringResource(R.string.settings_dl_charging),
-                hint = stringResource(R.string.settings_dl_charging_hint),
-                onClick = { extra.setChargingOnly(context, !schedule.chargingOnly) },
-                onAdjust = { extra.setChargingOnly(context, it > 0) }
-            ) { ThemedSwitch(schedule.chargingOnly) { extra.setChargingOnly(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.LOW_BATTERY) {
-            SettingRow(
-                icon = R.drawable.ic_battery,
-                title = stringResource(R.string.settings43_low_battery),
-                hint = stringResource(R.string.power75_battery_hint, power.batteryPercent, power.batteryPercent + 5),
-                onClick = { extra.setLowBattery(context, !power.lowBatteryOn) },
-                onAdjust = { extra.setLowBattery(context, it > 0) }
-            ) { ThemedSwitch(power.lowBatteryOn) { extra.setLowBattery(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.BATTERY_LEVEL) {
-            SettingRow(
-                icon = R.drawable.ic_battery,
-                title = stringResource(R.string.power75_battery_level_title),
-                hint = stringResource(R.string.power75_battery_level_hint),
-                onClick = { extra.shiftBatteryPercent(context, 1) },
-                onAdjust = { extra.shiftBatteryPercent(context, it) }
-            ) {
-                SettingsStepper(
-                    stringResource(R.string.power75_percent, power.batteryPercent),
-                    onDecrement = { extra.shiftBatteryPercent(context, -1) },
-                    onIncrement = { extra.shiftBatteryPercent(context, 1) }
-                )
-            }
-        },
-        SettingsRow(key = SettingKeys.HEAT) {
-            SettingRow(
-                icon = R.drawable.ic_thermostat,
-                title = stringResource(R.string.power75_heat_title),
-                hint = stringResource(R.string.power75_heat_hint),
-                onClick = { extra.setHeat(context, !power.heatOn) },
-                onAdjust = { extra.setHeat(context, it > 0) }
-            ) { ThemedSwitch(power.heatOn) { extra.setHeat(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.NIGHT) {
-            SettingRow(
-                icon = R.drawable.ic_night,
-                title = stringResource(R.string.settings_dl_night),
-                hint = stringResource(R.string.settings_dl_night_hint, DownloadPolicy.formatMinutes(schedule.nightStart), DownloadPolicy.formatMinutes(schedule.nightEnd)),
-                onClick = { extra.setNightOnly(context, !schedule.nightOnly) },
-                onAdjust = { extra.setNightOnly(context, it > 0) }
-            ) { ThemedSwitch(schedule.nightOnly) { extra.setNightOnly(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.NIGHT_START) {
-            val reason = SettingsLayout.inactiveReason(SettingKeys.NIGHT_START, masters)
-            SettingRow(
-                icon = R.drawable.ic_bedtime,
-                title = stringResource(R.string.settings_dl_night_start),
-                hint = reason?.let { stringResource(it) },
-                modifier = if (reason != null) Modifier.alpha(INACTIVE_ROW_ALPHA) else Modifier,
-                onClick = { shiftNightStart(1) }, onAdjust = ::shiftNightStart
-            ) { SettingsStepper(DownloadPolicy.formatMinutes(schedule.nightStart), onDecrement = { shiftNightStart(-1) }, onIncrement = { shiftNightStart(1) }) }
-        },
-        SettingsRow(key = SettingKeys.NIGHT_END) {
-            val reason = SettingsLayout.inactiveReason(SettingKeys.NIGHT_END, masters)
-            SettingRow(
-                icon = R.drawable.ic_wb_twilight,
-                title = stringResource(R.string.settings_dl_night_end),
-                hint = reason?.let { stringResource(it) },
-                modifier = if (reason != null) Modifier.alpha(INACTIVE_ROW_ALPHA) else Modifier,
-                onClick = { shiftNightEnd(1) }, onAdjust = ::shiftNightEnd
-            ) { SettingsStepper(DownloadPolicy.formatMinutes(schedule.nightEnd), onDecrement = { shiftNightEnd(-1) }, onIncrement = { shiftNightEnd(1) }) }
-        },
-        SettingsRow(key = SettingKeys.AUTO_UNZIP) {
-            SettingRow(
-                icon = R.drawable.ic_extract,
-                title = stringResource(R.string.settings_auto_unzip),
-                hint = stringResource(R.string.settings_auto_unzip_hint),
-                onClick = { viewModel.onAutoUnzipChanged(context, !ui.autoUnzip) },
-                onAdjust = { viewModel.onAutoUnzipChanged(context, it > 0) }
-            ) {
-                ThemedSwitch(ui.autoUnzip) { viewModel.onAutoUnzipChanged(context, it) }
-            }
-        },
-        SettingsRow(key = SettingKeys.AUTO_M3U) {
-            SettingRow(
-                icon = R.drawable.ic_playlist_add,
-                title = stringResource(R.string.settings_auto_m3u),
-                hint = stringResource(R.string.settings_auto_m3u_hint),
-                onClick = { extra.setAutoM3u(context, !afterDownload.autoM3u) },
-                onAdjust = { extra.setAutoM3u(context, it > 0) }
-            ) { ThemedSwitch(afterDownload.autoM3u) { extra.setAutoM3u(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.ESDE_ARTWORK) {
-            // On without an ES-DE folder writes nothing (PostDownloadService skips it): say why.
-            val esdeMissing = afterDownload.esdeArtwork && ui.esdeDirectory.isBlank()
-            SettingRow(
-                icon = R.drawable.ic_photos,
-                title = stringResource(R.string.settings_esde_artwork),
-                hint = stringResource(if (esdeMissing) R.string.settings43_esde_needs_folder else R.string.settings_esde_artwork_hint),
-                hintColor = if (esdeMissing) pillColors(PillTone.Warning).second else null,
-                onClick = { extra.setEsdeArtwork(context, !afterDownload.esdeArtwork) },
-                onAdjust = { extra.setEsdeArtwork(context, it > 0) }
-            ) { ThemedSwitch(afterDownload.esdeArtwork) { extra.setEsdeArtwork(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.PEGASUS_ARTWORK) {
-            SettingRow(
-                icon = R.drawable.ic_photo_album,
-                title = stringResource(R.string.settings_pegasus_artwork),
-                hint = stringResource(R.string.settings_pegasus_artwork_hint),
-                onClick = { extra.setPegasusArtwork(context, !afterDownload.pegasusArtwork) },
-                onAdjust = { extra.setPegasusArtwork(context, it > 0) }
-            ) { ThemedSwitch(afterDownload.pegasusArtwork) { extra.setPegasusArtwork(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.RETROARCH_ARTWORK) {
-            SettingRow(
-                icon = R.drawable.ic_wallpaper,
-                title = stringResource(R.string.settings_retroarch_artwork),
-                hint = readableFolder(afterDownload.retroArchThumbnailsDir) ?: stringResource(R.string.settings_retroarch_artwork_hint),
-                onClick = { retroArchThumbsLauncher.launch(null) }
-            ) {
-                if (afterDownload.retroArchThumbnailsDir.isNotBlank()) PillButton(stringResource(R.string.settings_retroarch_artwork_off)) { extra.setRetroArchThumbnailsDir(context, "") }
-                ActionPill(stringResource(R.string.settings_change), { retroArchThumbsLauncher.launch(null) }, icon = R.drawable.ic_folder_open)
-            }
-        },
-        SettingsRow(key = SettingKeys.DEBRID) {
-            SettingRow(
-                icon = R.drawable.ic_bolt,
-                title = stringResource(R.string.settings_debrid),
-                hint = stringResource(R.string.settings_debrid_hint),
-                onClick = { cycleDebrid(1) },
-                onAdjust = ::cycleDebrid
-            ) {
-                SettingsStepper(debrid.label, onDecrement = { cycleDebrid(-1) }, onIncrement = { cycleDebrid(1) })
-            }
-        },
-        SettingsRow(key = SettingKeys.DEBRID_KEY) {
-            SettingRow(
-                icon = R.drawable.ic_key,
-                title = debridKeyTitle,
-                hint = maskedSecret(debridKey),
-                onClick = { showDebridKeyDialog = true }
-            ) {
-                ActionPill(stringResource(R.string.settings_change), { showDebridKeyDialog = true }, icon = R.drawable.ic_key)
-            }
-        },
-        SettingsRow(key = SettingKeys.METADATA_TIMEOUT) {
-            SettingRow(
-                icon = R.drawable.ic_hourglass,
-                title = stringResource(R.string.settings_metadata_timeout),
-                hint = stringResource(R.string.settings_metadata_timeout_hint),
-                onClick = { adjustMetadataTimeout(1) },
-                onAdjust = ::adjustMetadataTimeout
-            ) {
-                SettingsStepper(stringResource(R.string.seconds_short, ui.metadataTimeoutSeconds), onDecrement = { adjustMetadataTimeout(-1) }, onIncrement = { adjustMetadataTimeout(1) })
-            }
-        },
-        SettingsRow(key = SettingKeys.AUTOSCAN) {
-            SettingRow(
-                icon = R.drawable.ic_sync,
-                title = stringResource(R.string.settings_autoscan),
-                hint = if (autoScan.last > 0) stringResource(R.string.settings_autoscan_last, DateUtils.getRelativeTimeSpanString(autoScan.last).toString())
-                       else stringResource(R.string.settings_autoscan_hint),
-                onClick = { extra.setAutoScan(context, !autoScan.on) },
-                onAdjust = { extra.setAutoScan(context, it > 0) }
-            ) { ThemedSwitch(autoScan.on) { extra.setAutoScan(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.AUTOSCAN_EVERY) {
-            SettingRow(
-                icon = R.drawable.ic_timer,
-                title = stringResource(R.string.settings_autoscan_every), hint = null,
-                onClick = { extra.shiftAutoScanHours(context, 1) }, onAdjust = { extra.shiftAutoScanHours(context, it) }
-            ) {
-                SettingsStepper(
-                    if (autoScan.hours % 24 == 0) pluralStringResource(R.plurals.settings_days, autoScan.hours / 24, autoScan.hours / 24)
-                    else stringResource(R.string.hours_short, autoScan.hours),
-                    onDecrement = { extra.shiftAutoScanHours(context, -1) }, onIncrement = { extra.shiftAutoScanHours(context, 1) }
-                )
-            }
-        },
-        SettingsRow(key = SettingKeys.AUTOSCAN_WIFI) {
-            SettingRow(
-                icon = R.drawable.ic_wifi,
-                title = stringResource(R.string.settings43_autoscan_wifi), hint = null,
-                onClick = { extra.setAutoScanWifi(context, !autoScan.wifiOnly) }, onAdjust = { extra.setAutoScanWifi(context, it > 0) }
-            ) { ThemedSwitch(autoScan.wifiOnly) { extra.setAutoScanWifi(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.AUTOSCAN_CHARGING) {
-            SettingRow(
-                icon = R.drawable.ic_charging,
-                title = stringResource(R.string.settings43_autoscan_charging), hint = null,
-                onClick = { extra.setAutoScanCharging(context, !autoScan.charging) }, onAdjust = { extra.setAutoScanCharging(context, it > 0) }
-            ) { ThemedSwitch(autoScan.charging) { extra.setAutoScanCharging(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.AUTOSCAN_NIGHT) {
-            SettingRow(
-                icon = R.drawable.ic_night,
-                title = stringResource(R.string.settings_autoscan_night),
-                hint = stringResource(R.string.settings43_autoscan_night_hint, DownloadPolicy.formatMinutes(schedule.nightStart), DownloadPolicy.formatMinutes(schedule.nightEnd)),
-                onClick = { extra.setAutoScanNight(context, !autoScan.nightOnly) }, onAdjust = { extra.setAutoScanNight(context, it > 0) }
-            ) { ThemedSwitch(autoScan.nightOnly) { extra.setAutoScanNight(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.MAX_RESULTS) {
-            SettingRow(
-                icon = R.drawable.ic_format_list_numbered,
-                title = stringResource(R.string.settings_max_results),
-                hint = stringResource(R.string.settings_max_results_hint),
-                onClick = { adjustMaxSearchResults(1) },
-                onAdjust = ::adjustMaxSearchResults
-            ) {
-                SettingsStepper(
-                    if (ui.maxSearchResults <= 0) stringResource(R.string.settings_unlimited) else ui.maxSearchResults.toString(),
-                    onDecrement = { adjustMaxSearchResults(-1) },
-                    onIncrement = { adjustMaxSearchResults(1) }
-                )
-            }
-        },
-        SettingsRow(key = SettingKeys.FAVORITE_LANGUAGES) {
-            SettingRow(
-                icon = R.drawable.ic_translate,
-                title = stringResource(R.string.settings43_favorite_languages),
-                hint = ui.favoriteLanguages.sorted().joinToString(" · ")
-                    .ifBlank { stringResource(R.string.settings_favorite_languages_hint) },
-                onClick = { showLanguagesDialog = true }
-            ) {
-                ActionPill(stringResource(R.string.settings_change), { showLanguagesDialog = true }, icon = R.drawable.ic_edit)
-            }
-        },
-        SettingsRow(key = SettingKeys.VERSION_PREF) {
-            VersionPreferenceRow(onOpen = { navController.navigate(NavRoutes.VersionPreference.route) })
-        },
-        SettingsRow(key = SettingKeys.WISHLIST_AUTO) {
-            SettingRow(
-                icon = R.drawable.ic_wishlist,
-                title = stringResource(R.string.settings_wishlist_auto),
-                hint = stringResource(R.string.settings_wishlist_auto_hint),
-                onClick = { extra.setWishlistAuto(context, !afterDownload.wishlistAuto) },
-                onAdjust = { extra.setWishlistAuto(context, it > 0) }
-            ) { ThemedSwitch(afterDownload.wishlistAuto) { extra.setWishlistAuto(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.DIGEST) {
-            SettingRow(
-                icon = R.drawable.ic_notifications,
-                title = stringResource(R.string.upg7_digest_setting),
-                hint = stringResource(R.string.upg7_digest_setting_hint),
-                onClick = { setDigest(!digestOn) },
-                onAdjust = { setDigest(it > 0) }
-            ) { ThemedSwitch(digestOn) { setDigest(it) } }
-        },
-        SettingsRow(key = SettingKeys.FRONTEND_COVERS_TOOL) {
-            SettingRow(
-                icon = R.drawable.ic_image,
-                title = stringResource(R.string.covers32_title),
-                hint = stringResource(R.string.covers32_hint),
-                onClick = { navController.navigate(NavRoutes.FrontendCovers.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.META_AUTO) {
-            SettingRow(
-                icon = R.drawable.ic_description,
-                title = stringResource(R.string.settings43_meta_auto),
-                hint = stringResource(R.string.settings43_meta_auto_hint),
-                onClick = { extra.setMetaAuto(context, !metaAuto) },
-                onAdjust = { extra.setMetaAuto(context, it > 0) }
-            ) { ThemedSwitch(metaAuto) { extra.setMetaAuto(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.META_TOOL) {
-            SettingRow(
-                icon = R.drawable.ic_description,
-                title = stringResource(R.string.meta7_title),
-                hint = stringResource(R.string.meta7_hint),
-                onClick = { navController.navigate(NavRoutes.FrontendMetadata.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.FRONTEND_CHECK) {
-            SettingRow(
-                icon = R.drawable.ic_frontends,
-                title = stringResource(R.string.nav_frontends),
-                hint = stringResource(R.string.tools_frontends_hint),
-                onClick = { navController.navigate(NavRoutes.Frontends.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.RETROACHIEVEMENTS) {
-            SettingRow(
-                icon = R.drawable.ic_trophy,
-                title = stringResource(R.string.nav_ra),
-                hint = stringResource(R.string.tools_ra_hint),
-                onClick = { navController.navigate(NavRoutes.RetroAchievements.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.NEW_HANDHELD) {
-            SettingRow(
-                icon = R.drawable.ic_devices,
-                title = stringResource(R.string.wizard35_title),
-                hint = stringResource(R.string.wizard35_hint),
-                onClick = { navController.navigate(NavRoutes.NewHandheld.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.RECOVERY) {
-            SettingRow(
-                icon = R.drawable.ic_history,
-                title = stringResource(R.string.recovery_title),
-                hint = stringResource(R.string.recovery_hint),
-                onClick = { navController.navigate(NavRoutes.Recovery.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.TOOLS) {
-            SettingRow(
-                icon = R.drawable.ic_build,
-                title = stringResource(R.string.settings_tools),
-                hint = stringResource(R.string.settings_tools_hint),
-                onClick = { navController.navigate(NavRoutes.Tools.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.SEARCH_ALL) {
-            SettingRow(
-                icon = R.drawable.ic_search,
-                title = stringResource(R.string.find8_settings_row),
-                hint = stringResource(R.string.find8_hint),
-                onClick = { navController.navigate(SEARCH_ALL_ROUTE) { launchSingleTop = true } },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.FRONTEND_SHORTCUTS) {
-            SettingRow(
-                icon = R.drawable.ic_shortcut,
-                title = stringResource(R.string.settings_frontend_shortcuts),
-                hint = stringResource(R.string.settings_frontend_shortcuts_hint),
-                onClick = { viewModel.onDeployFrontendShortcuts(context) },
-            ) {
-                PillButton(stringResource(R.string.settings_frontend_shortcuts_action)) {
-                    viewModel.onDeployFrontendShortcuts(context)
-                }
-            }
-        },
-        SettingsRow(key = SettingKeys.RECENT_MENU) { RecentGamesMenuSettingRow() },
-        SettingsRow(key = SettingKeys.ESDE) {
-            SettingRow(
-                icon = R.drawable.ic_frontends,
-                title = stringResource(R.string.settings_esde),
-                hint = readableFolder(ui.esdeDirectory) ?: stringResource(R.string.settings_esde_hint),
-                onClick = ::runEsdeSetup,
-            ) {
-                PillButton(stringResource(R.string.settings_esde_action), ::runEsdeSetup)
-            }
-        },
-        SettingsRow(key = SettingKeys.IISU) {
-            SettingRow(
-                icon = R.drawable.ic_grid,
-                title = stringResource(R.string.settings_iisu),
-                hint = readableFolder(ui.iisuDirectory) ?: stringResource(R.string.settings_iisu_hint),
-                onClick = ::runIisuSetup,
-            ) {
-                PillButton(stringResource(R.string.settings_iisu_action), ::runIisuSetup)
-            }
-        },
-        SettingsRow(key = SettingKeys.DAIJISHO) {
-            SettingRow(
-                icon = R.drawable.ic_dashboard,
-                title = stringResource(R.string.settings_daijisho),
-                hint = stringResource(R.string.settings_daijisho_hint),
-                onClick = { viewModel.onPrepareDaijisho(context) },
-            ) {
-                PillButton(stringResource(R.string.settings_daijisho_action)) { viewModel.onPrepareDaijisho(context) }
-            }
-        },
-        SettingsRow(key = SettingKeys.EMULATORS) { EmulatorChoiceSettingsRow(onWizard = { navController.navigate(it) }) },
-        SettingsRow(key = SettingKeys.CLOUD) {
-            SettingRow(
-                icon = R.drawable.ic_cloud,
-                title = stringResource(R.string.nav_cloud),
-                hint = stringResource(R.string.settings_v5_cloud_hint),
-                onClick = { navController.navigate(NavRoutes.Cloud.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.SHELF) {
-            val shelf: ContinuePlayingViewModel = hiltViewModel()
-            val shelfOn by shelf.enabled.collectAsStateWithLifecycle()
-            SettingRow(
-                icon = R.drawable.ic_play_circle,
-                title = stringResource(R.string.csave_shelf_setting_title),
-                hint = stringResource(R.string.csave_shelf_setting_hint),
-                onClick = { shelf.setEnabled(!shelfOn) },
-                onAdjust = { shelf.setEnabled(it > 0) },
-            ) { ThemedSwitch(shelfOn) { shelf.setEnabled(it) } }
-        },
-        SettingsRow(key = SettingKeys.ROMM) {
-            SettingRow(
-                icon = R.drawable.ic_server,
-                title = stringResource(R.string.settings_romm),
-                hint = ui.rommUrl.ifBlank { stringResource(R.string.settings_romm_hint) },
-                onClick = { navController.navigate(NavRoutes.Romm.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.SAVE_SYNC) {
-            SettingRow(
-                icon = R.drawable.ic_cloud_sync,
-                title = stringResource(R.string.settings_save_sync),
-                hint = stringResource(R.string.settings_save_sync_hint),
-                onClick = { navController.navigate(NavRoutes.SaveSync.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.PROFILES) {
-            SettingRow(
-                icon = R.drawable.ic_account,
-                title = stringResource(R.string.settings_profiles),
-                hint = activeProfileName?.let { stringResource(R.string.settings_profiles_active, it) } ?: stringResource(R.string.settings_profiles_hint),
-                onClick = { navController.navigate(NavRoutes.Profiles.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.COCOON) {
-            SettingRow(
-                icon = R.drawable.ic_help,
-                title = stringResource(R.string.settings44_cocoon),
-                hint = stringResource(R.string.settings_cocoon_hint),
-                onClick = { showCocoonHelp = true },
-            ) {
-                PillButton(stringResource(R.string.settings_daijisho_action)) { showCocoonHelp = true }
-            }
-        },
-        SettingsRow(key = SettingKeys.BACKUP_EXPORT) {
-            SettingRow(
-                icon = R.drawable.ic_file_export,
-                title = stringResource(R.string.settings_backup_export),
-                hint = stringResource(R.string.settings_backup_export_hint),
-                onClick = ::exportBackup,
-            ) {
-                ActionPill(stringResource(R.string.settings_backup_export_action), ::exportBackup, icon = R.drawable.ic_file_export)
-            }
-        },
-        SettingsRow(key = SettingKeys.AUTO_BACKUP) {
-            SettingRow(
-                icon = R.drawable.ic_update,
-                title = stringResource(R.string.settings_auto_backup),
-                hint = when {
-                    appPrefs.autoBackup && appPrefs.autoBackupDir.isBlank() -> stringResource(R.string.settings_auto_backup_pick)
-                    appPrefs.autoBackupLast > 0 -> stringResource(R.string.settings_auto_backup_last, DateUtils.formatDateTime(context, appPrefs.autoBackupLast, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_ABBREV_MONTH))
-                    else -> stringResource(R.string.settings_auto_backup_hint)
-                },
-                onClick = { extra.setAutoBackup(context, !appPrefs.autoBackup) },
-                onAdjust = { extra.setAutoBackup(context, it > 0) },
-            ) { ThemedSwitch(appPrefs.autoBackup) { extra.setAutoBackup(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.AUTO_BACKUP_FOLDER) {
-            SettingRow(
-                icon = R.drawable.ic_folder,
-                title = stringResource(R.string.settings_auto_backup_folder),
-                hint = readableFolder(appPrefs.autoBackupDir) ?: stringResource(R.string.settings_not_set),
-                onClick = { backupDirLauncher.launch(null) },
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    ActionPill(stringResource(R.string.settings_change), { backupDirLauncher.launch(null) }, icon = R.drawable.ic_folder_open)
-                    if (appPrefs.autoBackupDir.isNotBlank()) {
-                        ActionPill(stringResource(R.string.auto_backup_now), { extra.backupNow(context) }, icon = R.drawable.ic_backup, tone = ActionTone.Accent)
-                    }
-                }
-            }
-        },
-        SettingsRow(key = SettingKeys.BACKUP_IMPORT) {
-            SettingRow(
-                icon = R.drawable.ic_restore,
-                title = stringResource(R.string.settings_backup_import),
-                hint = stringResource(R.string.settings_backup_import_hint),
-                onClick = ::importBackup,
-            ) {
-                ActionPill(stringResource(R.string.settings_backup_import_action), ::importBackup, icon = R.drawable.ic_restore)
-            }
-        },
-        SettingsRow(key = SettingKeys.CLOUD_BACKUP) {
-            SettingRow(
-                icon = R.drawable.ic_cloud_upload,
-                title = stringResource(R.string.dav_title),
-                hint = stringResource(R.string.find8_hint_webdav),
-                onClick = { navController.navigate(NavRoutes.CloudBackup.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.PRERELEASES) {
-            SettingRow(
-                icon = R.drawable.ic_science,
-                title = stringResource(R.string.settings_prereleases),
-                hint = stringResource(R.string.settings_prereleases_hint),
-                onClick = { extra.setPreReleases(context, !appPrefs.preReleases) },
-                onAdjust = { extra.setPreReleases(context, it > 0) },
-            ) { ThemedSwitch(appPrefs.preReleases) { extra.setPreReleases(context, it) } }
-        },
-        SettingsRow(key = SettingKeys.UPDATE_CHECK) {
-            SettingRow(
-                icon = R.drawable.ic_rocket,
-                title = stringResource(R.string.settings_update_check),
-                hint = updateProgress?.let { stringResource(R.string.update_downloading, (it * 100).toInt()) } ?: stringResource(R.string.settings_update_check_hint),
-                onClick = { extra.checkForUpdates(context) },
-                below = if (updateProgress != null) {
-                    { MeterBar(updateProgress ?: 0f, modifier = Modifier.padding(top = 6.dp), height = 6.dp) }
-                } else null
-            ) { ActionPill(stringResource(R.string.settings43_action_check), { extra.checkForUpdates(context) }, icon = R.drawable.ic_sync) }
-        },
-        SettingsRow(key = SettingKeys.DIAGNOSTICS) {
-            SettingRow(
-                icon = R.drawable.ic_bug,
-                title = stringResource(R.string.settings_diagnostics),
-                hint = stringResource(R.string.settings_diagnostics_hint),
-                onClick = { extra.shareDiagnostics(context) },
-            ) { ActionPill(stringResource(R.string.settings43_action_share), { extra.shareDiagnostics(context) }, icon = R.drawable.ic_share) }
-        },
-        SettingsRow(key = SettingKeys.REPORT) {
-            SettingRow(
-                icon = R.drawable.ic_bug,
-                title = stringResource(R.string.report30_title),
-                hint = stringResource(R.string.report30_hint),
-                onClick = { navController.navigate(NavRoutes.ReportProblem.route) },
-            ) { NavChevron() }
-        },
-        SettingsRow(key = SettingKeys.ABOUT) {
-            SettingRow(
-                icon = R.drawable.ic_info,
-                title = stringResource(R.string.brand40_about_title),
-                hint = stringResource(R.string.brand40_settings_hint),
-                onClick = { navController.navigate(NavRoutes.Contact.route) },
-            ) { NavChevron() }
-        }
-    ).sortedWith(compareBy({ it.section.ordinal }, { SettingsLayout.placeOf(it.key) }))
+    // The rows of each card are in SettingsCards*.kt.
+    val ordered: List<SettingsRow> = env.allRows()
+        .sortedWith(compareBy({ it.section.ordinal }, { SettingsLayout.placeOf(it.key) }))
     // Rows that do not apply right now are left out (sliding in and out as they change). Every
     // group is a card: its header over the full width, then its rows, in two columns in landscape.
     val columns = settingsColumns()
@@ -1282,14 +346,14 @@ fun SettingsScreen(
     }
 
     val pills = SectionPillState(
-        limitKb = limitKb,
-        schedule = schedule,
-        rommConfigured = ui.rommUrl.isNotBlank(),
-        profile = activeProfileName,
-        autoBackup = appPrefs.autoBackup,
-        autoBackupDirSet = appPrefs.autoBackupDir.isNotBlank(),
-        autoBackupLast = appPrefs.autoBackupLast,
-        updateProgress = updateProgress
+        limitKb = env.limitKb,
+        schedule = env.schedule,
+        rommConfigured = env.ui.rommUrl.isNotBlank(),
+        profile = env.activeProfileName,
+        autoBackup = env.appPrefs.autoBackup,
+        autoBackupDirSet = env.appPrefs.autoBackupDir.isNotBlank(),
+        autoBackupLast = env.appPrefs.autoBackupLast,
+        updateProgress = env.updateProgress
     )
     val flashTint = MaterialTheme.colorScheme.primary
     SettingsSurface {
@@ -1311,7 +375,7 @@ fun SettingsScreen(
                 }
                 if (section == SettingsSection.LOOK) {
                     LookPreview(
-                        listCovers = look.listCovers,
+                        listCovers = env.look.listCovers,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(start = settingsInset(), end = settingsInset(), bottom = 4.dp)
