@@ -23,9 +23,9 @@ Valkyr führt eine große, durchsuchbare Liste mit den Spielen aus den Quellen, 
 
 *Die Screenshots verwenden erfundene Spieltitel und leere Platzhalterdateien und zeigen die App auf Englisch.*
 
-**Neueste Version: [4.6.0](https://github.com/Tufein/Valkyr/releases/tag/v4.6.0)** (Android-Build 58).
+**Neueste Version: [4.7.0](https://github.com/Tufein/Valkyr/releases/tag/v4.7.0)** (Android-Build 59).
 
-Bis 3.9.0 hieß die App Dogmatix+. Valkyr 4.6.0 hat eine eigene App-ID und wird daher neben der alten App installiert: Nutze *Einstellungen → Sichern* in der alten App und *Sicherung wiederherstellen* in Valkyr und entferne danach die alte App.
+Bis 3.9.0 hieß die App Dogmatix+. Valkyr 4.7.0 hat eine eigene App-ID und wird daher neben der alten App installiert: Nutze *Einstellungen → Sichern* in der alten App und *Sicherung wiederherstellen* in Valkyr und entferne danach die alte App.
 
 ## Installation
 
@@ -53,6 +53,7 @@ Du brauchst **Android 10 oder neuer**. Die App ist nicht bei Google Play erhält
 - **Eine Seite für jedes Spiel**: Bild, Herunterladen oder Spielen, die beste Version, Favorit, Sammlungen, Teilen, Notizen, Screenshots und Handbücher sowie ein Tab *Versionen*, der erklärt, wie jede Version bewertet wird.
 - **Cover zuerst**: Home startet mit Regalen voller großer Cover (weiterspielen, neu für dich, ein Regal pro Konsole); die Navigation liegt in einer Leiste unten oder, auf einem Handheld, in einer schmalen Seitenleiste mit Spiele, Downloads, Quellen und Mehr. Die Spielseite beginnt mit einem großen Cover und einer großen Schaltfläche Spielen oder Download.
 - **Cover aus mehreren Quellen**: RomM, libretro-thumbnails, [ScreenScraper](https://www.screenscraper.fr) (mit deinem eigenen Login), TheGamesDB, SteamGridDB und IGDB (jeweils mit deinem eigenen kostenlosen Schlüssel) und die zwischengespeicherten Spielbilder, in einer Reihenfolge, die du wählst. Die App meldet klar, wenn ein Login scheitert oder ein Tageslimit erreicht ist; eine nur kurz nicht erreichbare Quelle wird später erneut gefragt (*Einstellungen → Cover-Quellen*).
+- **Leistungsprüfung** (*Tools → Leistungsprüfung*): misst Start, Suchgeschwindigkeit, Cover-Dekodierung, Speichertempo und Scrollen auf deinem eigenen Gerät, mit Urteil Schnell/Okay/Langsam und einem Bericht nur mit Zahlen zum Teilen.
 - **Als Nächstes und Für dich**: eine persönliche Spielliste pro Profil und Vorschläge aus deiner eigenen Bibliothek, die immer sagen, warum sie gewählt wurden.
 - **Sammlungen und Ziele**: Favoriten, eigene Listen, regelbasierte Sammlungen (Konsole, Sprache, Genre, Jahr, gespielt), Sammlungsziele, Spielverlauf, ein Jahresrückblick und die besten Spiele je Konsole von RetroAchievements.
 - **Wunschliste**: Spiele vormerken, Bescheid bekommen, wenn eines auftaucht, automatisch herunterladen und die Liste teilen.

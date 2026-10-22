@@ -23,9 +23,9 @@ Valkyr rassemble les jeux des sources que *vous* ajoutez dans une seule grande l
 
 *Les captures d’écran utilisent des titres de jeux inventés et des fichiers vides de substitution, et montrent l’application en anglais.*
 
-**Dernière version : [4.6.0](https://github.com/Tufein/Valkyr/releases/tag/v4.6.0)** (build Android 58).
+**Dernière version : [4.7.0](https://github.com/Tufein/Valkyr/releases/tag/v4.7.0)** (build Android 59).
 
-Jusqu’à la 3.9.0, l’application s’appelait Dogmatix+. Valkyr 4.6.0 a son propre identifiant d’application et s’installe donc à côté de l’ancienne : utilisez *Réglages → Sauvegarder* dans l’ancienne appli et *Restaurer une sauvegarde* dans Valkyr, puis supprimez l’ancienne.
+Jusqu’à la 3.9.0, l’application s’appelait Dogmatix+. Valkyr 4.7.0 a son propre identifiant d’application et s’installe donc à côté de l’ancienne : utilisez *Réglages → Sauvegarder* dans l’ancienne appli et *Restaurer une sauvegarde* dans Valkyr, puis supprimez l’ancienne.
 
 ## Installation
 
@@ -53,6 +53,7 @@ Il vous faut **Android 10 ou plus récent**. L’application n’est pas sur Goo
 - **Une page par jeu** : visuel, Télécharger ou Jouer, la meilleure version, favori, collections, partage, notes, captures et manuels, et un onglet *Versions* qui explique comment chaque version est notée.
 - **Les jaquettes d’abord** : l’accueil s’ouvre sur des étagères de grandes jaquettes (continuer à jouer, nouveau pour vous, une étagère par console) ; la navigation est dans une barre en bas, ou une barre latérale fine sur une console portable, avec Jeux, Téléchargements, Sources et Plus. La page d’un jeu commence par une grande jaquette et un grand bouton Jouer ou Télécharger.
 - **Jaquettes de plusieurs sources** : RomM, libretro-thumbnails, [ScreenScraper](https://www.screenscraper.fr) (avec votre propre compte), TheGamesDB, SteamGridDB et IGDB (chacune avec votre propre clé gratuite) et les images de jeux en cache, dans l’ordre de votre choix. L’appli dit clairement quand une connexion échoue ou qu’une limite quotidienne est atteinte, et une source simplement indisponible est réinterrogée plus tard (*Réglages → Sources de jaquettes*).
+- **Test de performance** (*Outils → Test de performance*) : mesure le démarrage, la vitesse de recherche, le décodage des jaquettes, le stockage et le défilement sur votre propre appareil, avec un verdict Rapide/Correct/Lent et un rapport de simples chiffres à partager.
 - **À suivre et Pour vous** : une liste de jeux personnelle par profil, et des suggestions tirées de votre propre bibliothèque qui disent toujours pourquoi elles ont été choisies.
 - **Collections et objectifs** : favoris, listes personnelles, collections par règles (console, langue, genre, année, joué), objectifs de collection, historique de jeu, bilan annuel et meilleurs jeux par console selon RetroAchievements.
 - **Liste de souhaits** : notez les jeux voulus, soyez prévenu quand l’un apparaît, téléchargez-les automatiquement et partagez la liste.

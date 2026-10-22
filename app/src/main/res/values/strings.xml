@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Much faster searching and filtering on large libraries (new database indexes and full-text search). After the update the search index fills in the background; searching works the whole time.</item>
+        <item>New Performance check (Tools): measures start-up, search, covers, storage and scrolling on your own device, with a numbers-only report you can share.</item>
     </string-array>
 
     <!-- 4.0 -->

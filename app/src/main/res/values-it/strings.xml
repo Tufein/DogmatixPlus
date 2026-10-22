@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Ricerca e filtri molto più veloci nelle librerie grandi (nuovi indici del database e ricerca full-text). Dopo l’aggiornamento l’indice si riempie in background; la ricerca funziona sempre.</item>
+        <item>Nuovo test delle prestazioni (Strumenti): misura avvio, ricerca, copertine, archiviazione e scorrimento sul tuo dispositivo, con un rapporto di soli numeri da condividere.</item>
     </string-array>
 
     <!-- 4.0 -->
