@@ -154,7 +154,7 @@ class PerfCheckTest {
         assertTrue(text.contains("search for a common word: 80 ms (fast); first run 210 ms; 3 runs"))
         assertTrue(text.contains("write 16 MB to the download folder: 12 MB/s (slow)"))
         assertTrue(text.contains("decode a cached cover: skipped: no cover in the cache yet"))
-        assertTrue(text.contains("1 over the 8.3 ms budget"))
+        assertTrue(text.contains("2 over the 8.3 ms budget"))
         assertTrue(text.contains("Performance\n  startup: no marks yet"))
         assertTrue(text.contains("Overall: slow"))
         assertFalse(text.contains("content://"))
