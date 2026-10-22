@@ -92,13 +92,14 @@ fun PerfCheckScreen(viewModel: PerfCheckViewModel = hiltViewModel()) {
     val shareTitle = stringResource(R.string.measure47_share_title)
     val refreshRate = view.display?.refreshRate ?: 60f
     val latestRefresh by rememberUpdatedState(refreshRate)
+    val shareFailed = stringResource(R.string.measure47_skip_failed)
     val canShare = !ui.running && ui.outcomes.isNotEmpty()
 
     fun share() {
         val text = viewModel.report() ?: return
         scope.launch {
             try { viewModel.share(text, shareTitle) } catch (e: CancellationException) { throw e } catch (_: Exception) {
-                ToastUtil.showError(context, context.getString(R.string.measure47_skip_failed))
+                ToastUtil.showError(context, shareFailed)
             }
         }
     }
