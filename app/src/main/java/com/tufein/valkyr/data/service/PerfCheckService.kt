@@ -92,7 +92,7 @@ class PerfCheckService @Inject constructor(
             timeRuns(Metric.DB_COUNT) { fileDao.getFilesCount() },
             timeRuns(Metric.DB_SHELVES) {
                 // What ShelvesViewModel reads for Home: every console with files, then the names of each.
-                fileDao.getConsolesWithFiles("*", null).forEach { fileDao.fileNamesFor(it.id) }
+                repository.getConsolesWithFiles("").forEach { fileDao.fileNamesFor(it.id) }
             }
         )
     }
