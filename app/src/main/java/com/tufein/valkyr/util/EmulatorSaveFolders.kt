@@ -39,12 +39,14 @@ data class EmulatorSaveFolder(
     val wiiRomId: Int? = null,
     val wiiRomName: String = "",
     /** Dolphin folders only: also the saves of channels discs install (`Wii/title/00010004`), as a second bundle. */
-    val wiiChannels: Boolean = false
+    val wiiChannels: Boolean = false,
+    /** Dolphin folders only: also the saves of WiiWare and Virtual Console titles (`Wii/title/00010001`), as a third bundle. */
+    val wiiWare: Boolean = false
 ) {
     /** The Dolphin bundles this folder syncs, from the user's choices. */
     val dolphinBundles: List<DolphinBundle>
         get() = if (layout != SaveFolderLayout.GC_MEMCARDS) emptyList()
-        else DolphinSaveBundles.all(gciRomId != null, wiiRomId != null, wiiChannels)
+        else DolphinSaveBundles.all(gciRomId != null, wiiRomId != null, wiiChannels, wiiWare)
 
     /** The RomM game [bundle] is kept with, or null when it is not synced. */
     fun romIdOf(bundle: DolphinBundle): Int? = when {
@@ -145,6 +147,7 @@ object EmulatorSaveFolders {
                     f.gciRomId?.let { addProperty("gciRomId", it); addProperty("gciRomName", f.gciRomName) }
                     f.wiiRomId?.let { addProperty("wiiRomId", it); addProperty("wiiRomName", f.wiiRomName) }
                     if (f.wiiChannels) addProperty("wiiChannels", true)
+                    if (f.wiiWare) addProperty("wiiWare", true)
                 }
             })
         }
@@ -164,11 +167,12 @@ object EmulatorSaveFolders {
             val dolphin = layout == SaveFolderLayout.GC_MEMCARDS
             val gci = romId("gciRomId", dolphin)
             val wii = romId("wiiRomId", dolphin)
+            fun flag(name: String) = wii != null && o.get(name)?.takeUnless { it.isJsonNull }?.let { runCatching { it.asBoolean }.getOrNull() } == true
             EmulatorSaveFolder(
                 label, o.getAsJsonArray("platforms")?.map { ConsoleFolderAliases.normalize(it.asString) }?.toSet().orEmpty(), uri, layout,
                 shared, romName("sharedCardsRomName", shared),
                 gci, romName("gciRomName", gci), wii, romName("wiiRomName", wii),
-                wii != null && o.get("wiiChannels")?.takeUnless { it.isJsonNull }?.let { runCatching { it.asBoolean }.getOrNull() } == true
+                flag("wiiChannels"), flag("wiiWare")
             )
         }.distinctBy { it.label.lowercase() }
     }.getOrDefault(emptyList())

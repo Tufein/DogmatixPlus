@@ -189,6 +189,29 @@ fun FrontendCoversScreen(viewModel: FrontendCoversViewModel = hiltViewModel()) {
                     )
                 }
             }
+            // 4.8.0: extra ES-DE image types, only for the layout that is ES-DE's media folder; off by default.
+            if (settings != null && FrontendCovers.extrasFor(settings.layout)) {
+                item(key = "h-extras") {
+                    SectionHeader(
+                        stringResource(R.string.saves48_extras_section),
+                        subtitle = stringResource(R.string.saves48_extras_hint),
+                        icon = R.drawable.ic_image
+                    )
+                }
+                FrontendCovers.Extra.entries.forEach { extra ->
+                    item(key = "x-" + extra.key) {
+                        val on = extra in settings.extras
+                        ToolRow(
+                            title = stringResource(extraTitle(extra)),
+                            lines = listOf(stringResource(extraHint(extra), extra.folder)),
+                            onClick = { if (!run.running) viewModel.setExtra(extra, !on) },
+                            modifier = track,
+                            icon = R.drawable.ic_image,
+                            trailing = { ThemedSwitch(on) { if (!run.running) viewModel.setExtra(extra, it) } }
+                        )
+                    }
+                }
+            }
             item(key = "overwrite") {
                 val on = settings?.overwrite == true
                 ToolRow(
@@ -229,6 +252,17 @@ fun FrontendCoversScreen(viewModel: FrontendCoversViewModel = hiltViewModel()) {
             onDismiss = { editingPattern = false }
         )
     }
+}
+
+private fun extraTitle(extra: FrontendCovers.Extra): Int = when (extra) {
+    FrontendCovers.Extra.TITLESCREENS -> R.string.saves48_extra_titlescreens
+    FrontendCovers.Extra.SCREENSHOTS -> R.string.saves48_extra_screenshots
+}
+
+/** The extra's one-line explanation; it takes ES-DE's folder name as its argument. */
+private fun extraHint(extra: FrontendCovers.Extra): Int = when (extra) {
+    FrontendCovers.Extra.TITLESCREENS -> R.string.saves48_extra_titlescreens_hint
+    FrontendCovers.Extra.SCREENSHOTS -> R.string.saves48_extra_screenshots_hint
 }
 
 private fun folderHint(target: FrontendCovers.Target): Int = when (target) {
@@ -319,6 +353,8 @@ private fun PreviewCard(ui: FrontendCoversUi) {
                     if (FrontendCovers.hasConsoleFolders(preview.layout, preview.pattern)) stringResource(R.string.covers31_preview_example, count(plan.systems), example)
                     else stringResource(R.string.covers32_preview_example_flat, example)
                 )
+                val extraCount = items.count { it.extra != null }
+                if (extraCount > 0) add(pluralStringResource(R.plurals.saves48_preview_extras, extraCount, count(extraCount)))
                 val replacing = items.count { it.replaces }
                 if (replacing > 0) add(stringResource(R.string.covers31_preview_replace, count(replacing)))
                 add(stringResource(R.string.covers31_preview_sources))

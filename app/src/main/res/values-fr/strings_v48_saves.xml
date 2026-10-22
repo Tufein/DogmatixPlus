@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saves48_wiiware">Synchroniser aussi les sauvegardes WiiWare et Console virtuelle</string>
+    <string name="saves48_wiiware_hint">Les chaînes installées depuis la boutique Wii (jeux WiiWare et titres de la Console virtuelle) gardent leurs sauvegardes dans Wii/title/00010001. Activé : ces sauvegardes voyagent comme un autre paquet, rattaché au même jeu. Seules les données de sauvegarde partent, jamais le jeu installé lui-même.</string>
+    <string name="saves48_extras_section">Images ES-DE supplémentaires</string>
+    <string name="saves48_extras_hint">Désactivé par défaut. Écrites à côté des jaquettes, dans le même dossier de médias, à partir des vignettes libretro (cette source doit être activée dans Sources de jaquettes). Les images déjà présentes ne sont remplacées que si le remplacement est activé ci-dessous.</string>
+    <string name="saves48_extra_titlescreens">Écrans-titres</string>
+    <string name="saves48_extra_titlescreens_hint">L’écran-titre de chaque jeu, dans le dossier %1$s de chaque console. Seuls les jeux pour lesquels libretro en a un en reçoivent un.</string>
+    <string name="saves48_extra_screenshots">Captures d’écran</string>
+    <string name="saves48_extra_screenshots_hint">Une capture d’écran de chaque jeu, dans le dossier %1$s de chaque console. Seuls les jeux pour lesquels libretro en a une en reçoivent une.</string>
+    <plurals name="saves48_preview_extras">
+        <item quantity="one">%1$s d’entre elles est un écran-titre ou une capture d’écran, pas une jaquette.</item>
+        <item quantity="many">%1$s d’entre elles sont des écrans-titres ou des captures d’écran, pas des jaquettes.</item>
+        <item quantity="other">%1$s d’entre elles sont des écrans-titres ou des captures d’écran, pas des jaquettes.</item>
+    </plurals>
+    <string name="saves48_wiiware_kw">wiiware, console virtuelle, boutique wii, sauvegardes wii, dolphin, 00010001</string>
+    <string name="saves48_extras_kw">es-de, esde, écrans-titres, captures d’écran, downloaded_media, médias, jaquettes</string>
+</resources>

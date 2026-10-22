@@ -54,9 +54,29 @@ class ThumbnailService @Inject constructor() {
     }
 
     private val chainCache = BoundedMap<String, String>()
+    private val artCache = BoundedMap<String, String>()
+
+    /**
+     * 4.8.0: one kind of picture of libretro-thumbnails ([art]: title screen or snap) for the extra
+     * image types of the launcher covers, under the file's own names ([LibretroThumbnails.MAX_OTHER_NAMES]).
+     * Answers like [find]: a miss is only a miss when every request was answered.
+     */
+    suspend fun findArt(consoleId: String, fileName: String, art: LibretroThumbnails.Art): CoverSources.Answer = withContext(Dispatchers.IO) {
+        val system = LibretroThumbnails.systemFor(consoleId) ?: return@withContext CoverSources.Answer.Miss
+        val key = "${system.repo}|$fileName|${art.folder}"
+        artCache[key]?.let { return@withContext if (it.isEmpty()) CoverSources.Answer.Miss else CoverSources.Answer.Found(it) }
+        for (name in LibretroThumbnails.candidates(fileName).take(LibretroThumbnails.MAX_OTHER_NAMES)) {
+            when (val probe = probe(system, art, name, hops = 2)) {
+                is Probe.Found -> { artCache[key] = probe.url; return@withContext CoverSources.Answer.Found(probe.url) }
+                Probe.Absent -> Unit
+                Probe.Failed -> return@withContext CoverSources.Answer.Unavailable
+            }
+        }
+        CoverSources.Answer.Miss.also { artCache[key] = "" }
+    }
 
     /** Forgets this run's chain answers ("find missing covers again"). */
-    fun clearChainCache() = chainCache.clear()
+    fun clearChainCache() { chainCache.clear(); artCache.clear() }
 
     private sealed interface Probe {
         data class Found(val url: String) : Probe

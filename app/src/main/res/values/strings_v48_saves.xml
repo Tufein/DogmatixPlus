@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saves48_wiiware">Also sync WiiWare and Virtual Console saves</string>
+    <string name="saves48_wiiware_hint">Channels installed from the Wii Shop (WiiWare games and Virtual Console titles) keep their saves in Wii/title/00010001. On: these saves travel as another bundle, kept with the same game. Only the save data goes, never the installed game itself.</string>
+    <string name="saves48_extras_section">Extra ES-DE images</string>
+    <string name="saves48_extras_hint">Off by default. Written next to the covers in the same media folder, from libretro thumbnails (needs that source switched on in Cover sources). Images that are already there are only replaced when replacing is on below.</string>
+    <string name="saves48_extra_titlescreens">Title screens</string>
+    <string name="saves48_extra_titlescreens_hint">The title screen of each game, in the %1$s folder of each console. Only games libretro has one for get one.</string>
+    <string name="saves48_extra_screenshots">Screenshots</string>
+    <string name="saves48_extra_screenshots_hint">A screenshot of each game, in the %1$s folder of each console. Only games libretro has one for get one.</string>
+    <plurals name="saves48_preview_extras">
+        <item quantity="one">%1$s of these is a title screen or screenshot, not a cover.</item>
+        <item quantity="other">%1$s of these are title screens or screenshots, not covers.</item>
+    </plurals>
+    <string name="saves48_wiiware_kw">wiiware, virtual console, wii shop, wii saves, dolphin, 00010001</string>
+    <string name="saves48_extras_kw">es-de, esde, title screens, titlescreens, screenshots, snaps, downloaded_media, media, artwork</string>
+</resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="saves48_wiiware">Sincronizar também os saves de WiiWare e Consola Virtual</string>
+    <string name="saves48_wiiware_hint">Os canais instalados a partir da Wii Shop (jogos WiiWare e títulos da Consola Virtual) guardam os saves em Wii/title/00010001. Ligado: estes saves viajam como outro pacote, guardado com o mesmo jogo. Só vão os dados dos saves, nunca o jogo instalado.</string>
+    <string name="saves48_extras_section">Imagens extra do ES-DE</string>
+    <string name="saves48_extras_hint">Desligado por predefinição. Escritas junto às capas, na mesma pasta de multimédia, a partir das miniaturas do libretro (essa fonte tem de estar ligada em Fontes de capas). As imagens que já existem só são substituídas se a substituição abaixo estiver ligada.</string>
+    <string name="saves48_extra_titlescreens">Ecrãs de título</string>
+    <string name="saves48_extra_titlescreens_hint">O ecrã de título de cada jogo, na pasta %1$s de cada consola. Só os jogos para os quais o libretro tem um recebem um.</string>
+    <string name="saves48_extra_screenshots">Capturas de ecrã</string>
+    <string name="saves48_extra_screenshots_hint">Uma captura de ecrã de cada jogo, na pasta %1$s de cada consola. Só os jogos para os quais o libretro tem uma recebem uma.</string>
+    <plurals name="saves48_preview_extras">
+        <item quantity="one">%1$s destas é um ecrã de título ou uma captura de ecrã, não uma capa.</item>
+        <item quantity="many">%1$s destas são ecrãs de título ou capturas de ecrã, não capas.</item>
+        <item quantity="other">%1$s destas são ecrãs de título ou capturas de ecrã, não capas.</item>
+    </plurals>
+    <string name="saves48_wiiware_kw">wiiware, consola virtual, wii shop, saves wii, dolphin, 00010001</string>
+    <string name="saves48_extras_kw">es-de, esde, ecrãs de título, capturas de ecrã, downloaded_media, multimédia, capas</string>
+</resources>

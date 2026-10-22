@@ -88,7 +88,7 @@ class SaveSyncViewModel @Inject constructor(
             when {
                 folder.label != label || folder.layout != com.tufein.valkyr.util.SaveFolderLayout.GC_MEMCARDS -> folder
                 kind == com.tufein.valkyr.util.DolphinBundleKind.GCI -> folder.copy(gciRomId = id, gciRomName = name)
-                else -> folder.copy(wiiRomId = id, wiiRomName = name, wiiChannels = folder.wiiChannels && id != null)
+                else -> folder.copy(wiiRomId = id, wiiRomName = name, wiiChannels = folder.wiiChannels && id != null, wiiWare = folder.wiiWare && id != null)
             }
         })
     }
@@ -97,6 +97,13 @@ class SaveSyncViewModel @Inject constructor(
     fun setWiiChannels(context: Context, label: String, on: Boolean) = executeWithToast(context, TAG) {
         appSettings.setSaveSyncEmulatorFolders(appSettings.saveSyncEmulatorFolders.first().map { folder ->
             if (folder.label != label || folder.wiiRomId == null) folder else folder.copy(wiiChannels = on)
+        })
+    }
+
+    /** Whether [label]'s Wii bundle also takes the saves of WiiWare and Virtual Console titles (`Wii/title/00010001`). */
+    fun setWiiWare(context: Context, label: String, on: Boolean) = executeWithToast(context, TAG) {
+        appSettings.setSaveSyncEmulatorFolders(appSettings.saveSyncEmulatorFolders.first().map { folder ->
+            if (folder.label != label || folder.wiiRomId == null) folder else folder.copy(wiiWare = on)
         })
     }
 
