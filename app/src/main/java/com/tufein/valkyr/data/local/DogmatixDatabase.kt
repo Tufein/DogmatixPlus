@@ -32,7 +32,7 @@ import com.tufein.valkyr.data.local.queries.DownloadableFileFts
 
 @Database(
     entities = [ManufacturerEntity::class, ConsoleEntity::class, DownloadableFileEntity::class, FileTagEntity::class, DownloadableFileFts::class, DownloadHistoryEntity::class, GameMetadataEntity::class, FavouriteEntity::class, WishlistEntity::class, CollectionEntity::class, CollectionItemEntity::class, DatSetEntity::class, DatRomEntity::class, CoverEntity::class, PersonalProfileEntity::class],
-    version = 15,
+    version = 16,
     exportSchema = false
 )
 abstract class DogmatixDatabase : RoomDatabase() {
@@ -48,6 +48,9 @@ abstract class DogmatixDatabase : RoomDatabase() {
     abstract fun coverDao(): CoverDao
 
     companion object {
+        /** 4.6: indexes, `searchWords` / `isRomm` columns and the FTS table over the words (see [Migration15To16]). */
+        val MIGRATION_15_16: Migration = Migration15To16
+
         /** 2.6: safe download failure reasons survive process death. Existing rows remain readable. */
         val MIGRATION_14_15 = object : Migration(14, 15) {
             override fun migrate(db: SupportSQLiteDatabase) {
