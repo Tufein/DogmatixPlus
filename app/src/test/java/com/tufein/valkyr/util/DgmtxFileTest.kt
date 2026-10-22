@@ -56,4 +56,11 @@ class DgmtxFileTest {
         val request = DeepLinkParser.parse(DgmtxFile.extractLink(content))
         assertEquals(setOf("nintendo_snes"), request!!.consoles)
     }
+
+    @Test
+    fun `both schemes are extracted and new links use the preferred one`() {
+        assertEquals("valkyr://library?console=snes", DgmtxFile.extractLink("# c\nvalkyr://library?console=snes"))
+        assertEquals("dogmatix://library?console=snes", DgmtxFile.extractLink("dogmatix://library?console=snes"))
+        assertEquals(true, DgmtxFile.libraryLink("snes").startsWith("valkyr://"))
+    }
 }

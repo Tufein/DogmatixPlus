@@ -519,7 +519,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         rememberSearches()
-        // Deep links (dogmatix://library?…): apply whatever is waiting, now and on every new link.
+        // Deep links (valkyr://library?…): apply whatever is waiting, now and on every new link.
         viewModelScope.launch {
             pendingFilters.request.collect { if (it != null) pendingFilters.consume()?.let { request -> applyRequest(request) } }
         }

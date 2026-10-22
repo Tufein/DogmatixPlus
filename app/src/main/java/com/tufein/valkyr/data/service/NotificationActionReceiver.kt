@@ -103,7 +103,7 @@ object NotificationButtons {
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
 
-    /** Opens the library on a `dogmatix://library?…` link (MainActivity hands it to the library like any deep link). */
+    /** Opens the library on a `valkyr://library?…` link (MainActivity hands it to the library like any deep link). */
     fun openLibrary(context: Context, link: String, code: Int): PendingIntent = PendingIntent.getActivity(
         context, code,
         Intent(Intent.ACTION_VIEW, Uri.parse(link), context, MainActivity::class.java)

@@ -27,7 +27,7 @@ object NotificationActions {
     /** One file of a run that just ended: its console, its name in the library and whether it completed. */
     data class RunFile(val consoleId: String, val name: String, val completed: Boolean)
 
-    /** A game whose download finished: what the notice says and the `dogmatix://library?…` link it opens. */
+    /** A game whose download finished: what the notice says and the `valkyr://library?…` link it opens. */
     data class FinishedGame(val consoleId: String, val title: String, val files: Int, val link: String?) {
         /** Stable per game, so a second download of the same game replaces its notice. */
         val key: String get() = "$consoleId|${title.lowercase()}"

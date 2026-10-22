@@ -160,7 +160,7 @@ class WidgetUpdater @Inject constructor(
 
             setOnClickPendingIntent(R.id.widget_root, open(null, 10))
             setOnClickPendingIntent(R.id.widget_downloads_block, open(null, 11, route = "downloads"))
-            setOnClickPendingIntent(R.id.widget_new_block, open("dogmatix://library?new=1", 12))
+            setOnClickPendingIntent(R.id.widget_new_block, open("valkyr://library?new=1", 12))
         }
 
     /**

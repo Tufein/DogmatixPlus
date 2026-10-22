@@ -328,8 +328,8 @@ class MainActivity : AppCompatActivity() {
             SharedLinks.parse(intent.dataString)?.let(pendingFilters::share)
             return
         }
-        if (DeepLinkParser.SCHEME.equals(data.scheme, ignoreCase = true)) {
-            // dogmatix://handoff?…: a game handed over from another handheld.
+        if (DeepLinkParser.isAppScheme(data.scheme)) {
+            // valkyr://handoff?…: a game handed over from another handheld.
             com.tufein.valkyr.util.HandoffLink.parse(intent.dataString)?.let {
                 com.tufein.valkyr.ui.screens.game.PendingHandoff.submit(it)
                 return

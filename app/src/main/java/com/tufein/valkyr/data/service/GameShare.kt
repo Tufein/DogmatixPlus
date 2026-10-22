@@ -44,7 +44,7 @@ interface GameShareEntryPoint {
 }
 
 /**
- * Sharing (6.0): a game as a picture card plus a short text with a `dogmatix://library` link, and
+ * Sharing (6.0): a game as a picture card plus a short text with a `valkyr://library` link, and
  * the wishlist as text plus its export file. The card is drawn with android.graphics (no view
  * needed), saved under cache `exports/` (a FileProvider path) and handed to the share sheet.
  *

@@ -9,7 +9,7 @@ class SavedViewsTest {
         val view = LibraryView("v1", "PS1 Europe", "final", setOf("sony_playstation"), setOf("Europe", "Nl"), newOnly = true, collectionId = 3)
         assertEquals(listOf(view), LibraryViews.fromJson(LibraryViews.toJson(listOf(view))))
         val link = view.deepLink()
-        assertTrue(link.startsWith("dogmatix://library?console=sony_playstation"))
+        assertTrue(link.startsWith("valkyr://library?console=sony_playstation"))
         val request = DeepLinkParser.parse(link)!!
         assertEquals(setOf("Europe", "Nl"), request.tags)
         assertEquals("final", request.query)

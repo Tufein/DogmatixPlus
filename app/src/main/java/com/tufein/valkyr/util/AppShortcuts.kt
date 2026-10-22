@@ -10,7 +10,7 @@ import java.net.URLEncoder
 data class AppShortcut(
     val id: String,
     val label: String,
-    /** `dogmatix://library?…` to open, or null for a section ([route]). */
+    /** `valkyr://library?…` to open, or null for a section ([route]). */
     val deepLink: String? = null,
     val route: String? = null,
     /** The console it belongs to, so a frontend can file it under that platform. */
@@ -38,7 +38,7 @@ object AppShortcuts {
 
     fun console(consoleId: String, name: String) = AppShortcut(
         id = "console:$consoleId", label = name,
-        deepLink = "dogmatix://library?console=" + URLEncoder.encode(consoleId, "UTF-8").replace("+", "%20"),
+        deepLink = "${DeepLinkParser.SCHEME}://${DeepLinkParser.HOST_LIBRARY}?console=" + URLEncoder.encode(consoleId, "UTF-8").replace("+", "%20"),
         consoleId = consoleId
     )
 

@@ -89,9 +89,10 @@ class HandoffGuideTest {
     @Test fun linksRoundTripAndRefuseAnythingOdd() {
         val request = HandoffLink.Request("sony_playstation", "Crash Bandicoot (USA) & Friends+.chd", "K7PQ-2M4X")
         val link = HandoffLink.build(request)
-        assertTrue(link.startsWith("dogmatix://handoff?"))
+        assertTrue(link.startsWith("valkyr://handoff?"))
         assertEquals(request, HandoffLink.parse(link))
         assertEquals(HandoffLink.Request("psx", "Game.chd", null), HandoffLink.parse("dogmatix://handoff?console=psx&file=Game.chd"))
+        assertEquals(HandoffLink.Request("psx", "Game.chd", null), HandoffLink.parse("valkyr://handoff?console=psx&file=Game.chd"))
         assertNull(HandoffLink.parse("dogmatix://library?console=psx&file=Game.chd"))
         assertNull(HandoffLink.parse("https://handoff?console=psx&file=Game.chd"))
         assertNull(HandoffLink.parse("dogmatix://handoff?console=psx&file=..%2F..%2Fsecret"))

@@ -97,7 +97,7 @@ object GameHandoffRoute {
             (code?.let { "&code=" + Uri.encode(it) } ?: "")
 }
 
-/** A hand-off link opened from outside (`dogmatix://handoff?…`), waiting for the app to show it. */
+/** A hand-off link opened from outside (`valkyr://handoff?…`), waiting for the app to show it. */
 object PendingHandoff {
     private val _request = MutableStateFlow<HandoffLink.Request?>(null)
     val request: StateFlow<HandoffLink.Request?> = _request.asStateFlow()

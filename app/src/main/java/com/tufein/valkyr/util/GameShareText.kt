@@ -19,7 +19,7 @@ object GameShareText {
     const val MAX_WISHES = 60
 
     /**
-     * `dogmatix://library?console=…&q=…`: the library filtered to this game (the link the app
+     * `valkyr://library?console=…&q=…`: the library filtered to this game (the link the app
      * resolves, see `DeepLinkParser`). Null when there is no title to search for.
      */
     fun deepLink(consoleId: String, title: String): String? {

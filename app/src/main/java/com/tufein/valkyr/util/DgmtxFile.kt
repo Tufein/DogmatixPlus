@@ -5,7 +5,7 @@ import java.net.URLEncoder
 /**
  * `.dgmtx` shortcut files: a tiny text file dropped into a platform folder so frontends
  * (ES-DE, Daijishō…) can list Dogmatix as an "emulator" entry. The file holds a
- * `dogmatix://library?…` deep link; lines starting with `#` are comments.
+ * `valkyr://library?…` deep link (the legacy `dogmatix://` is read too); lines starting with `#` are comments.
  *
  * Pure JVM (no Android types) so it can be unit-tested.
  */
@@ -34,13 +34,13 @@ object DgmtxFile {
     /** The `package/activity` component string frontends launch. */
     fun launchComponent(packageName: String): String = "$packageName/$LAUNCH_ACTIVITY"
 
-    /** First `dogmatix://` link in [text], or null. Comments (`#`), blanks and a BOM are skipped. */
+    /** First `valkyr://` (or legacy `dogmatix://`) link in [text], or null. Comments (`#`), blanks and a BOM are skipped. */
     fun extractLink(text: String): String? =
         text.removePrefix("\uFEFF")
             .lineSequence()
             .map { it.trim() }
             .filter { it.isNotEmpty() && !it.startsWith("#") }
-            .firstOrNull { it.startsWith("${DeepLinkParser.SCHEME}://", ignoreCase = true) }
+            .firstOrNull { DeepLinkParser.hasAppScheme(it) }
 
     /** Deep link that opens the library filtered to [consoleId]. */
     fun libraryLink(consoleId: String): String =

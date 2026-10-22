@@ -44,7 +44,7 @@ class NotificationActionsTest {
         game!!
         assertEquals("Chrono Trigger", game.title)
         assertEquals(1, game.files)
-        assertEquals("dogmatix://library?console=nintendo_snes&q=Chrono%20Trigger", game.link)
+        assertEquals("valkyr://library?console=nintendo_snes&q=Chrono%20Trigger", game.link)
         assertEquals(listOf(NotifAction.OPEN_IN_LIBRARY, NotifAction.OPEN_DOWNLOADS), NotificationActions.finishedGame(game))
         // The link is what the library reads back.
         val request = DeepLinkParser.parse(game.link)!!

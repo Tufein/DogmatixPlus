@@ -48,4 +48,33 @@ class DeepLinkParserTest {
         assertEquals(emptySet<String>(), r.consoles)
         assertEquals(emptySet<String>(), r.tags)
     }
+
+    @Test
+    fun `preferred and legacy scheme parse to the same request`() {
+        val tail = "library?console=snes&q=mario&fav=1&new=1&collection=3"
+        val preferred = DeepLinkParser.parse("valkyr://$tail")!!
+        assertEquals(preferred, DeepLinkParser.parse("dogmatix://$tail"))
+        assertEquals(preferred, DeepLinkParser.parse("VALKYR://$tail"))
+        assertEquals(setOf("snes"), preferred.consoles)
+        assertEquals(3L, preferred.collectionId)
+    }
+
+    @Test
+    fun `unknown schemes and hosts are still refused for both schemes`() {
+        assertNull(DeepLinkParser.parse("valkyr://settings"))
+        assertNull(DeepLinkParser.parse("valkyrx://library"))
+        assertNull(DeepLinkParser.parse("other://library?q=x"))
+    }
+
+    @Test
+    fun `scheme helpers accept exactly the two app schemes`() {
+        assertEquals("valkyr", DeepLinkParser.SCHEME)
+        assertEquals(true, DeepLinkParser.isAppScheme("valkyr"))
+        assertEquals(true, DeepLinkParser.isAppScheme("Dogmatix"))
+        assertEquals(false, DeepLinkParser.isAppScheme("https"))
+        assertEquals(false, DeepLinkParser.isAppScheme(null))
+        assertEquals(true, DeepLinkParser.hasAppScheme("valkyr://library"))
+        assertEquals(true, DeepLinkParser.hasAppScheme("DOGMATIX://library"))
+        assertEquals(false, DeepLinkParser.hasAppScheme("valkyr:/library"))
+    }
 }

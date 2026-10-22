@@ -24,9 +24,9 @@ data class LibraryView(
     val genres: Set<String> = emptySet(),
     val decades: Set<Int> = emptySet()
 ) {
-    /** `dogmatix://library?…` that opens this view (what a `.dgmtx` shortcut contains). */
+    /** `valkyr://library?…` that opens this view (what a `.dgmtx` shortcut contains). */
     fun deepLink(): String = buildString {
-        append("dogmatix://library?")
+        append("${DeepLinkParser.SCHEME}://${DeepLinkParser.HOST_LIBRARY}?")
         val params = buildList {
             if (consoles.isNotEmpty()) add("console=" + enc(consoles.sorted().joinToString(",")))
             if (tags.isNotEmpty()) add("tag=" + enc(tags.sorted().joinToString(",")))

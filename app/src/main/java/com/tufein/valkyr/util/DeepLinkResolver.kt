@@ -2,7 +2,7 @@ package com.tufein.valkyr.util
 
 /**
  * Turns the loose values of a deep link into what the library filters actually store, so
- * `dogmatix://library?console=snes&region=japan` works as well as the exact
+ * `valkyr://library?console=snes&region=japan` works as well as the exact
  * `console=super_nintendo_entertainment_system&region=Japan`.
  */
 object DeepLinkResolver {

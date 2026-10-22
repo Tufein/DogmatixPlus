@@ -129,11 +129,14 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="magnet" />
             </intent-filter>
-            <!-- Deep links: dogmatix://library?console=…&region=…&q=…&fav=1 (see util/DeepLinkParser). -->
+            <!-- Deep links: valkyr://library?console=…&region=…&q=…&fav=1 (see util/DeepLinkParser). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="valkyr" android:host="library" />
+                <data android:scheme="valkyr" android:host="handoff" />
+                <!-- Legacy scheme, still accepted. -->
                 <data android:scheme="dogmatix" android:host="library" />
                 <data android:scheme="dogmatix" android:host="handoff" />
             </intent-filter>

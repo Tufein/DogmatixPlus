@@ -5,7 +5,7 @@ import java.net.URI
 import java.net.URLDecoder
 
 /**
- * `dogmatix://library?console=nintendo_snes&region=USA,Europe&lang=En&type=GAME&q=mario&fav=1`
+ * `valkyr://library?console=nintendo_snes&region=USA,Europe&lang=En&type=GAME&q=mario&fav=1`
  *
  * - `console`: console ids (as in Sources), short names (`snes`) or folder aliases, comma-separated.
  * - `region`, `lang`, `type`, `filetype`, `tag`: library tags, comma-separated, any case. They all
@@ -15,11 +15,26 @@ import java.net.URLDecoder
  * - `q`: search text. `fav`: `1`/`true` shows favourites only, `0`/`false` all games.
  * - `new`: `1` shows only what recent rescans found. `collection`: the id of an own collection.
  *
+ * `valkyr://` is the scheme the app generates; the legacy `dogmatix://` is still accepted everywhere
+ * (old shared links, `.dgmtx` shortcut files, frontends configured with it).
+ *
  * Pure JVM (no `android.net.Uri`) so it can be unit-tested.
  */
 object DeepLinkParser {
 
-    const val SCHEME = "dogmatix"
+    /** Preferred scheme: what links the app generates start with. */
+    const val SCHEME = "valkyr"
+
+    /** Legacy scheme, still accepted (manifest filters, parser, `.dgmtx` files). */
+    const val LEGACY_SCHEME = "dogmatix"
+
+    /** True for the preferred or the legacy scheme, any case. */
+    fun isAppScheme(scheme: String?): Boolean =
+        scheme.equals(SCHEME, ignoreCase = true) || scheme.equals(LEGACY_SCHEME, ignoreCase = true)
+
+    /** True when [text] starts with `valkyr://` or `dogmatix://`, any case. */
+    fun hasAppScheme(text: String): Boolean =
+        text.startsWith("$SCHEME://", ignoreCase = true) || text.startsWith("$LEGACY_SCHEME://", ignoreCase = true)
     const val HOST_LIBRARY = "library"
 
     private val TAG_PARAMS = setOf("region", "lang", "language", "type", "filetype", "tag")
@@ -27,7 +42,7 @@ object DeepLinkParser {
     fun parse(uri: String?): LibraryFilterRequest? {
         if (uri.isNullOrBlank()) return null
         val parsed = runCatching { URI(uri) }.getOrNull() ?: return null
-        if (!parsed.scheme.equals(SCHEME, ignoreCase = true)) return null
+        if (!isAppScheme(parsed.scheme)) return null
         if (!parsed.host.equals(HOST_LIBRARY, ignoreCase = true)) return null
         val params = queryParams(parsed.rawQuery)
 

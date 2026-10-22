@@ -13,7 +13,7 @@ class AppShortcutsTest {
         assertEquals("downloads", plan[0].route)
         assertNull(plan[0].deepLink)
         assertEquals("nintendo_gameboy_advance", plan[1].consoleId)
-        assertEquals("dogmatix://library?console=sony_psx", plan[3].deepLink)
+        assertEquals("valkyr://library?console=sony_psx", plan[3].deepLink)
         assertEquals(DeepLinkParser.parse(plan[3].deepLink)?.consoles, setOf("sony_psx"))
     }
 }

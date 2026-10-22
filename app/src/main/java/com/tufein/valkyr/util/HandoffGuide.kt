@@ -140,7 +140,7 @@ object HandoffGuide {
 }
 
 /**
- * `dogmatix://handoff?console=<console id>&file=<file name>&code=<K7PQ-2M4X>`: opened on the
+ * `valkyr://handoff?console=<console id>&file=<file name>&code=<K7PQ-2M4X>`: opened on the
  * other handheld (as a link, or from the QR code), it shows that game's "Continue here" with the
  * code to compare.
  */
@@ -159,7 +159,7 @@ object HandoffLink {
     fun parse(uri: String?): Request? {
         if (uri.isNullOrBlank() || uri.length > 4096) return null
         val parsed = runCatching { URI(uri.trim()) }.getOrNull() ?: return null
-        if (!parsed.scheme.equals(DeepLinkParser.SCHEME, ignoreCase = true) || !parsed.host.equals(HOST, ignoreCase = true)) return null
+        if (!DeepLinkParser.isAppScheme(parsed.scheme) || !parsed.host.equals(HOST, ignoreCase = true)) return null
         val params = parsed.rawQuery.orEmpty().split('&').filter { it.isNotEmpty() }.associate { pair ->
             val eq = pair.indexOf('=')
             decode(if (eq < 0) pair else pair.substring(0, eq)).lowercase() to decode(if (eq < 0) "" else pair.substring(eq + 1))
