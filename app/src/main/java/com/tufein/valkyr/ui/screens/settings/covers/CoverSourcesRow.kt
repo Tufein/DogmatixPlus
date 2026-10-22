@@ -1,10 +1,10 @@
 package com.tufein.valkyr.ui.screens.settings.covers
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.components.NavChevron
 import com.tufein.valkyr.ui.screens.settings.SettingRow
@@ -17,9 +17,9 @@ import com.tufein.valkyr.util.CoverSources
  */
 @Composable
 fun CoverSourcesRow(onOpen: () -> Unit, viewModel: CoverSourcesViewModel = hiltViewModel()) {
-    val chain = viewModel.chain.collectAsState().value
-    val login by viewModel.login.collectAsState()
-    val stats by viewModel.stats.collectAsState()
+    val chain = viewModel.chain.collectAsStateWithLifecycle().value
+    val login by viewModel.login.collectAsStateWithLifecycle()
+    val stats by viewModel.stats.collectAsStateWithLifecycle()
     val base = stringResource(R.string.covers43_row_hint)
     val order = chain?.active?.map { sourceName(it) }?.joinToString(" → ")
     val lines = buildList {

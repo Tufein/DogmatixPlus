@@ -1,12 +1,12 @@
 package com.tufein.valkyr.ui.screens.settings
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.VersionPreferenceSettings
@@ -37,7 +37,7 @@ class VersionPreferenceRowViewModel @Inject constructor(settings: VersionPrefere
  */
 @Composable
 fun VersionPreferenceRow(onOpen: () -> Unit, viewModel: VersionPreferenceRowViewModel = hiltViewModel()) {
-    val summary by viewModel.summary.collectAsState()
+    val summary by viewModel.summary.collectAsStateWithLifecycle()
     val locale = LocalConfiguration.current.locales[0]
     val base = stringResource(R.string.compare24_row_hint)
     val now = summary?.let {

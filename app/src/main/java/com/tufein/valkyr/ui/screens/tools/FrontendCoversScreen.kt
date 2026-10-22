@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.tools
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,7 +24,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -77,7 +77,7 @@ internal fun frontendName(target: FrontendCovers.Target): String = when (target)
  */
 @Composable
 fun FrontendCoversScreen(viewModel: FrontendCoversViewModel = hiltViewModel()) {
-    val ui by viewModel.ui.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val run = ui.run
     val settings = ui.settings

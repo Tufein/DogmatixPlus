@@ -37,7 +37,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.service.SaveSyncState
 import com.tufein.valkyr.ui.components.ActionPill
@@ -113,8 +113,8 @@ import com.tufein.valkyr.util.SaveSyncResult
  */
 @Composable
 fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
-    val ui by viewModel.uiState.collectAsState()
-    val sync by viewModel.syncState.collectAsState()
+    val ui by viewModel.uiState.collectAsStateWithLifecycle()
+    val sync by viewModel.syncState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     fun persist(uri: Uri) = context.contentResolver.takePersistableUriPermission(
@@ -137,7 +137,7 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
     }
     fun adjustInterval(delta: Int) = viewModel.setInterval(context, BackgroundSyncPolicy.cycle(ui.intervalHours, delta))
 
-    val emulatorFolders by viewModel.emulatorFolders.collectAsState()
+    val emulatorFolders by viewModel.emulatorFolders.collectAsStateWithLifecycle()
     // An emulator's folder is picked first, then which emulator it is.
     var pickedEmulatorFolder by remember { mutableStateOf<String?>(null) }
     val emulatorPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
@@ -676,8 +676,8 @@ private fun EmulatorPresetDialog(onPick: (EmulatorSaveFolders.Preset) -> Unit, o
 @Composable
 private fun SharedCardsDialog(folder: EmulatorSaveFolder, viewModel: SaveSyncViewModel, onDone: () -> Unit) {
     val context = LocalContext.current
-    val results by viewModel.gameResults.collectAsState()
-    val searching by viewModel.searching.collectAsState()
+    val results by viewModel.gameResults.collectAsStateWithLifecycle()
+    val searching by viewModel.searching.collectAsStateWithLifecycle()
     var term by remember { mutableStateOf("") }
     val fieldFocus = rememberInitialFocus()
     AlertDialog(

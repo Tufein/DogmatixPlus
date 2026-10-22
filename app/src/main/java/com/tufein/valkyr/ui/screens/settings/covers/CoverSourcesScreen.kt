@@ -20,7 +20,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +40,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.CoverSourceSettings
 import com.tufein.valkyr.data.service.CoverSourceStats
@@ -78,15 +78,15 @@ private const val SCREENSCRAPER_SITE = "https://www.screenscraper.fr/"
  */
 @Composable
 fun CoverSourcesScreen(viewModel: CoverSourcesViewModel = hiltViewModel()) {
-    val chain = viewModel.chain.collectAsState().value ?: CoverSources.Chain()
-    val login by viewModel.login.collectAsState()
-    val stats by viewModel.stats.collectAsState()
-    val testing by viewModel.testing.collectAsState()
-    val testResult by viewModel.testResult.collectAsState()
-    val retried by viewModel.retried.collectAsState()
-    val keys by viewModel.keys.collectAsState()
-    val testingKey by viewModel.testingKey.collectAsState()
-    val keyTests by viewModel.keyTests.collectAsState()
+    val chain = viewModel.chain.collectAsStateWithLifecycle().value ?: CoverSources.Chain()
+    val login by viewModel.login.collectAsStateWithLifecycle()
+    val stats by viewModel.stats.collectAsStateWithLifecycle()
+    val testing by viewModel.testing.collectAsStateWithLifecycle()
+    val testResult by viewModel.testResult.collectAsStateWithLifecycle()
+    val retried by viewModel.retried.collectAsStateWithLifecycle()
+    val keys by viewModel.keys.collectAsStateWithLifecycle()
+    val testingKey by viewModel.testingKey.collectAsStateWithLifecycle()
+    val keyTests by viewModel.keyTests.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val uri = LocalUriHandler.current
     val today = ScreenScraper.dayOf(System.currentTimeMillis())

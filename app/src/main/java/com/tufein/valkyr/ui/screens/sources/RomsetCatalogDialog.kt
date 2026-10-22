@@ -12,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.components.*
 import com.tufein.valkyr.ui.screens.sources.components.ChoiceChip
@@ -20,9 +21,9 @@ import com.tufein.valkyr.util.RomsetCatalog
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RomsetCatalogDialog(onDismiss: () -> Unit, vm: RomsetCatalogViewModel = hiltViewModel()) {
-    val state by vm.state.collectAsState()
-    val known by vm.known.collectAsState()
-    val consoles by vm.consoles.collectAsState()
+    val state by vm.state.collectAsStateWithLifecycle()
+    val known by vm.known.collectAsStateWithLifecycle()
+    val consoles by vm.consoles.collectAsStateWithLifecycle()
     var query by rememberSaveable { mutableStateOf("") }
     var provider by rememberSaveable { mutableStateOf<String?>(null) }
     var selected by remember { mutableStateOf(emptySet<String>()) }

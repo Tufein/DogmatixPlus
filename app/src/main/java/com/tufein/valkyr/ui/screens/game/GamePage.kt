@@ -32,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.Checkbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,6 +59,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.model.DownloadableFileWithTags
 import com.tufein.valkyr.data.service.GameShare
@@ -135,10 +135,10 @@ fun GamePage(
     /** Opens "Continue on another handheld" for the game; left out when null. */
     onHandoff: ((String, String) -> Unit)? = null
 ) {
-    val activeProfile by viewModel.activeProfile.collectAsState()
+    val activeProfile by viewModel.activeProfile.collectAsStateWithLifecycle()
     LaunchedEffect(consoleId, fileName, activeProfile) { viewModel.load(consoleId, fileName) }
-    val phase by viewModel.phase.collectAsState()
-    val state by viewModel.details.collectAsState()
+    val phase by viewModel.phase.collectAsStateWithLifecycle()
+    val state by viewModel.details.collectAsStateWithLifecycle()
     val current = state
     when {
         phase == GamePagePhase.MISSING -> {
@@ -178,13 +178,13 @@ private fun GamePageContent(
     val rom = item.file
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    val ownedKeys by viewModel.ownedKeys.collectAsState()
-    val active by viewModel.activeDownloads.collectAsState()
-    val favouriteKeys by viewModel.favouriteKeys.collectAsState()
-    val rommKeys by viewModel.rommKeys.collectAsState()
-    val progressAvailable by viewModel.progressAvailable.collectAsState()
-    val collections by viewModel.collections.collectAsState()
-    val ranking by viewModel.versionRanking.collectAsState()
+    val ownedKeys by viewModel.ownedKeys.collectAsStateWithLifecycle()
+    val active by viewModel.activeDownloads.collectAsStateWithLifecycle()
+    val favouriteKeys by viewModel.favouriteKeys.collectAsStateWithLifecycle()
+    val rommKeys by viewModel.rommKeys.collectAsStateWithLifecycle()
+    val progressAvailable by viewModel.progressAvailable.collectAsStateWithLifecycle()
+    val collections by viewModel.collections.collectAsStateWithLifecycle()
+    val ranking by viewModel.versionRanking.collectAsStateWithLifecycle()
     val owned = viewModel.isOwned(rom, ownedKeys)
     val downloading = rom.fileName in active
     val favourite = viewModel.isFavourite(rom, favouriteKeys)
@@ -228,7 +228,7 @@ private fun GamePageContent(
     var removalPlan by remember { mutableStateOf<List<com.tufein.valkyr.data.service.RemovalFile>?>(null) }
     var launchChoices by remember { mutableStateOf<List<com.tufein.valkyr.data.service.GameLaunch>?>(null) }
     var emulatorChoices by remember { mutableStateOf<List<com.tufein.valkyr.data.service.GameLaunch>?>(null) }
-    val emulatorChoice by viewModel.emulatorChoice.collectAsState()
+    val emulatorChoice by viewModel.emulatorChoice.collectAsStateWithLifecycle()
     var rememberEmulator by rememberSaveable { mutableStateOf(true) }
     var rememberForGame by rememberSaveable { mutableStateOf(false) }
     var staleChoice by remember { mutableStateOf(false) }
@@ -282,7 +282,7 @@ private fun GamePageContent(
     }
     // 3.5: a home-screen shortcut that could not start the game by itself opened this page: Play
     // runs once the game shows as on the device (the chooser, or why it cannot start).
-    val shortcutPlay by com.tufein.valkyr.ui.shortcut.PendingGameShortcut.play.collectAsState()
+    val shortcutPlay by com.tufein.valkyr.ui.shortcut.PendingGameShortcut.play.collectAsStateWithLifecycle()
     LaunchedEffect(shortcutPlay, owned, downloading, ownedKeys.isEmpty()) {
         if (shortcutPlay == null) return@LaunchedEffect
         if (owned && !downloading) {
@@ -660,10 +660,10 @@ private fun Versions(
     viewModel: GamePageViewModel,
     onOpenVersionPreference: (() -> Unit)?
 ) {
-    val preferred by viewModel.preferred.collectAsState()
-    val datReports by viewModel.datReports.collectAsState()
-    val ranking by viewModel.versionRanking.collectAsState()
-    val prefs by viewModel.versionPrefs.collectAsState()
+    val preferred by viewModel.preferred.collectAsStateWithLifecycle()
+    val datReports by viewModel.datReports.collectAsStateWithLifecycle()
+    val ranking by viewModel.versionRanking.collectAsStateWithLifecycle()
+    val prefs by viewModel.versionPrefs.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val preferDoneTemplate = stringResource(R.string.compare24_prefer_done)
     val scope = rememberCoroutineScope()

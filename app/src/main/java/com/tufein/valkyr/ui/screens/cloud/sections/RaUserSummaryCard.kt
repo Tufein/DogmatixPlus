@@ -19,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
@@ -29,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.service.RetroAchievementsService
 import com.tufein.valkyr.ui.components.ActionPill
@@ -78,9 +78,9 @@ fun RaUserSummaryCard(
     onGameClick: ((RaRecentGame) -> Unit)? = null
 ) {
     val service = rememberRaService()
-    val ready by service.accountReady.collectAsState()
-    val summary by service.summary.collectAsState()
-    val status by service.summaryStatus.collectAsState()
+    val ready by service.accountReady.collectAsStateWithLifecycle()
+    val summary by service.summary.collectAsStateWithLifecycle()
+    val status by service.summaryStatus.collectAsStateWithLifecycle()
     // Also re-asks after another account was saved (the summary is cleared then). The service
     // answers from memory while the summary is fresh or a failure is recent, so this never hammers RA.
     val missing = summary == null

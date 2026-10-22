@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
@@ -28,6 +27,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.service.RemovalPlan
 import com.tufein.valkyr.data.service.StaleGame
@@ -108,10 +108,10 @@ class OfflineCollectionsUi internal constructor(
 @Composable
 fun rememberOfflineCollections(onNavigate: (String) -> Unit = {}): OfflineCollectionsUi {
     val vm: OfflineCollectionsViewModel = hiltViewModel()
-    val data by vm.data.collectAsState()
-    val removal by vm.removal.collectAsState()
-    val fetch by vm.fetchPreview.collectAsState()
-    val ready by vm.readiness.collectAsState()
+    val data by vm.data.collectAsStateWithLifecycle()
+    val removal by vm.removal.collectAsStateWithLifecycle()
+    val fetch by vm.fetchPreview.collectAsStateWithLifecycle()
+    val ready by vm.readiness.collectAsStateWithLifecycle()
     ready?.let { state -> OfflineReadinessDialog(state, vm::dismissReadiness,
         onRetry = { vm.checkOffline(state.collectionId) }, onNavigate = { route -> vm.dismissReadiness(); onNavigate(route) }) }
     fetch?.let { picks ->

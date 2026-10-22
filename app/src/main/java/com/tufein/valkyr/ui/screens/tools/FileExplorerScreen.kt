@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.tools
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import android.content.Context
 import android.net.Uri
@@ -31,7 +32,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -420,7 +420,7 @@ class FileExplorerViewModel @Inject constructor(
 
 @Composable
 fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel(), onNavigate: (String) -> Unit = {}) {
-    val ui by viewModel.state.collectAsState()
+    val ui by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var selected by remember { mutableStateOf<DiskEntry?>(null) }
     var recovering by remember { mutableStateOf<StorageHelper.Recovery?>(null) }

@@ -2,10 +2,10 @@ package com.tufein.valkyr.ui.screens.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.TvModeSettings
@@ -36,7 +36,7 @@ class TvModeSettingViewModel @Inject constructor(private val settings: TvModeSet
  */
 @Composable
 fun TvModeSettingRow(viewModel: TvModeSettingViewModel = hiltViewModel()) {
-    val mode by viewModel.mode.collectAsState()
+    val mode by viewModel.mode.collectAsStateWithLifecycle()
     val active = LocalTvMode.current
     SettingRow(
         icon = R.drawable.ic_tv,

@@ -16,7 +16,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +31,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.common.Gamepad
 import com.tufein.valkyr.ui.common.GamepadLayout
@@ -78,7 +78,7 @@ private fun paletteFor(layout: GamepadLayout): Map<String, Color> = when (layout
 fun GamepadLegend(entries: List<LegendEntry>, modifier: Modifier = Modifier, trailing: @Composable (() -> Unit)? = null) {
     val scheme = MaterialTheme.colorScheme
     // Entries name the buttons the Xbox way; the chosen layout only decides how they are drawn.
-    val layout by Gamepad.layout.collectAsState()
+    val layout by Gamepad.layout.collectAsStateWithLifecycle()
     HorizontalDivider(color = scheme.outlineVariant, thickness = 1.dp)
     Row(
         modifier = modifier

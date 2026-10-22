@@ -23,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusRequester
@@ -34,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.model.DebridProvider
@@ -71,12 +71,12 @@ import com.tufein.valkyr.util.ProgressText
 @Composable
 fun CloudScreen(navController: NavController, viewModel: CloudViewModel = hiltViewModel()) {
     LaunchedEffect(Unit) { viewModel.onOpen() }
-    val romm by viewModel.rommInfo.collectAsState()
-    val saves by viewModel.saveSyncState.collectAsState()
-    val saveCard by viewModel.saveSyncCard.collectAsState()
-    val debrid by viewModel.debrid.collectAsState()
-    val overall by viewModel.overall.collectAsState()
-    val dav by viewModel.dav.collectAsState()
+    val romm by viewModel.rommInfo.collectAsStateWithLifecycle()
+    val saves by viewModel.saveSyncState.collectAsStateWithLifecycle()
+    val saveCard by viewModel.saveSyncCard.collectAsStateWithLifecycle()
+    val debrid by viewModel.debrid.collectAsStateWithLifecycle()
+    val overall by viewModel.overall.collectAsStateWithLifecycle()
+    val dav by viewModel.dav.collectAsStateWithLifecycle()
     val landscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val firstFocus = rememberInitialFocus()
     val open: (NavRoutes) -> Unit = { route -> navController.navigate(route.route) { launchSingleTop = true } }

@@ -43,7 +43,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -66,6 +65,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.common.Gamepad
 import com.tufein.valkyr.ui.components.ActionPill
@@ -94,9 +94,9 @@ fun OnboardingScreen(
     viewModel: OnboardingViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val downloadDirectory by viewModel.downloadDirectory.collectAsState()
-    val gamepadConnected by Gamepad.connected.collectAsState()
-    val esdeBusy by viewModel.esdeBusy.collectAsState()
+    val downloadDirectory by viewModel.downloadDirectory.collectAsStateWithLifecycle()
+    val gamepadConnected by Gamepad.connected.collectAsStateWithLifecycle()
+    val esdeBusy by viewModel.esdeBusy.collectAsStateWithLifecycle()
     val totalSteps = if (viewModel.esdeInstalled) 4 else 3
     var step by rememberSaveable { mutableIntStateOf(0) }
     var importStarted by rememberSaveable { mutableStateOf(false) }

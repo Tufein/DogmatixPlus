@@ -20,7 +20,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +38,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.service.CloudMessages
 import com.tufein.valkyr.ui.components.ActionPill
@@ -74,15 +74,15 @@ private enum class DavEditor { SERVER, USER, PASSWORD, FOLDER, PASSPHRASE, DEVIC
  */
 @Composable
 fun CloudBackupScreen(viewModel: CloudBackupViewModel = hiltViewModel()) {
-    val ui by viewModel.ui.collectAsState()
-    val testing by viewModel.testing.collectAsState()
-    val backingUp by viewModel.backingUp.collectAsState()
-    val syncing by viewModel.syncing.collectAsState()
-    val sharedSyncing by viewModel.sharedSyncing.collectAsState()
-    val list by viewModel.list.collectAsState()
-    val reading by viewModel.reading.collectAsState()
-    val pendingRestore by viewModel.pendingRestore.collectAsState()
-    val certPrompt by viewModel.certPrompt.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
+    val testing by viewModel.testing.collectAsStateWithLifecycle()
+    val backingUp by viewModel.backingUp.collectAsStateWithLifecycle()
+    val syncing by viewModel.syncing.collectAsStateWithLifecycle()
+    val sharedSyncing by viewModel.sharedSyncing.collectAsStateWithLifecycle()
+    val list by viewModel.list.collectAsStateWithLifecycle()
+    val reading by viewModel.reading.collectAsStateWithLifecycle()
+    val pendingRestore by viewModel.pendingRestore.collectAsStateWithLifecycle()
+    val certPrompt by viewModel.certPrompt.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var editor by remember { mutableStateOf<DavEditor?>(null) }
     var shown by remember { mutableIntStateOf(PAGE) }

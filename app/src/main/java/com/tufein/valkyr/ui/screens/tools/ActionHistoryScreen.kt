@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +40,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.model.DownloadFailure
 import com.tufein.valkyr.data.model.DownloadFailureCategory
@@ -101,7 +101,7 @@ fun ActionHistoryScreen(
     onNavigate: (String) -> Unit,
     viewModel: ActionHistoryViewModel = hiltViewModel()
 ) {
-    val ui by viewModel.ui.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val clearFailureMessage = stringResource(R.string.hist24_clear_failed)
     val locale = Locale.getDefault()

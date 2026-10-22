@@ -20,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.service.CoverRunState
 import com.tufein.valkyr.ui.common.Gamepad
@@ -80,9 +80,9 @@ import java.util.Date
  */
 @Composable
 fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
-    val ui by viewModel.uiState.collectAsState()
-    val platforms by viewModel.platforms.collectAsState()
-    val loading by viewModel.loading.collectAsState()
+    val ui by viewModel.uiState.collectAsStateWithLifecycle()
+    val platforms by viewModel.platforms.collectAsStateWithLifecycle()
+    val loading by viewModel.loading.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -113,9 +113,9 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
         )
     }
 
-    val libraryState by viewModel.libraryState.collectAsState()
-    val coverState by viewModel.coverState.collectAsState()
-    val trustPrompt by viewModel.trustPrompt.collectAsState()
+    val libraryState by viewModel.libraryState.collectAsStateWithLifecycle()
+    val coverState by viewModel.coverState.collectAsStateWithLifecycle()
+    val trustPrompt by viewModel.trustPrompt.collectAsStateWithLifecycle()
     trustPrompt?.let { prompt ->
         TrustCertificateDialog(prompt, onTrust = { viewModel.confirmTrust(context) }, onDismiss = viewModel::dismissTrustPrompt)
     }
@@ -220,8 +220,8 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
         }
         add {
             val fav: RommFavouritesViewModel = hiltViewModel()
-            val favOn by fav.enabled.collectAsState()
-            val favState by fav.state.collectAsState()
+            val favOn by fav.enabled.collectAsStateWithLifecycle()
+            val favState by fav.state.collectAsStateWithLifecycle()
             SettingRow(
                 icon = R.drawable.ic_star,
                 title = stringResource(R.string.romm5_fav_two_way),

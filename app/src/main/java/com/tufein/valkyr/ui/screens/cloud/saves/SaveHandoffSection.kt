@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.components.ActionPill
 import com.tufein.valkyr.ui.components.DialogButton
@@ -36,10 +36,10 @@ import com.tufein.valkyr.util.SaveHandoffPreview
 
 @Composable
 fun SaveHandoffSection(consoleId: String, fileName: String, viewModel: SaveHandoffViewModel = hiltViewModel()) {
-    val profile by viewModel.activeProfile.collectAsState()
+    val profile by viewModel.activeProfile.collectAsStateWithLifecycle()
     val key = remember(profile, consoleId, fileName) { JournalKey(profile, consoleId, fileName) }
     LaunchedEffect(key) { viewModel.show(key) }
-    val ui by viewModel.ui.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
     val shown = ui.takeIf { it.key == key } ?: SaveHandoffUi(key)
     val preview = shown.preview
     var confirm by remember(key) { mutableStateOf<SaveHandoffPreview?>(null) }

@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.tools
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,7 +18,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,13 +61,13 @@ import com.tufein.valkyr.util.ConsoleFormatter
  */
 @Composable
 fun BetterVersionsScreen(viewModel: BetterVersionsViewModel = hiltViewModel(), onRecovery: () -> Unit = {}) {
-    val ui by viewModel.ui.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     // The files named in the confirmation are the ones this screen will ask to be removed.
     var confirmIds by remember { mutableStateOf<List<String>?>(null) }
     var replace by remember { mutableStateOf(true) }
-    val preview by viewModel.preview.collectAsState()
+    val preview by viewModel.preview.collectAsStateWithLifecycle()
     fun ask(ids: List<String>, removeOld: Boolean) { replace = removeOld; confirmIds = ids; viewModel.preview(ids, removeOld) }
     confirmIds?.let { ids ->
         val rows = ui.rows.filter { it.id in ids && it.canDownload }

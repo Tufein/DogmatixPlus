@@ -23,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +42,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.AppSettings
@@ -231,9 +231,9 @@ fun GameHandoffScreen(
     onSearchLibrary: (consoleId: String, fileName: String) -> Unit,
     viewModel: GameHandoffViewModel = hiltViewModel()
 ) {
-    val profile by viewModel.activeProfile.collectAsState()
+    val profile by viewModel.activeProfile.collectAsStateWithLifecycle()
     LaunchedEffect(consoleId, fileName, profile) { viewModel.load(consoleId, fileName) }
-    val ui by viewModel.ui.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
     var receiving by remember(consoleId, fileName) { mutableStateOf(receive) }
     var confirm by remember(consoleId, fileName) { mutableStateOf<SaveHandoffPreview?>(null) }
     val owner = LocalLifecycleOwner.current

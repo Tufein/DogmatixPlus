@@ -19,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.entity.ConsoleEntity
@@ -109,7 +109,7 @@ class ShareTargetViewModel @Inject constructor(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ShareTargetDialog(link: SharedLink, onDismiss: () -> Unit, viewModel: ShareTargetViewModel = hiltViewModel()) {
-    val loaded by viewModel.consoles.collectAsState()
+    val loaded by viewModel.consoles.collectAsStateWithLifecycle()
     val consoles = loaded.orEmpty()
     val context = LocalContext.current
     var consoleId by remember { mutableStateOf<String?>(null) }

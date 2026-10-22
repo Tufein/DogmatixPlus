@@ -15,7 +15,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.repository.ConsoleRepository
@@ -121,7 +121,7 @@ fun EmulatorChoiceSettingsRow(viewModel: EmulatorSettingsViewModel = hiltViewMod
 
 @Composable
 private fun EmulatorsDialog(viewModel: EmulatorSettingsViewModel, onWizard: (String) -> Unit, onDismiss: () -> Unit) {
-    val rows by viewModel.rows.collectAsState()
+    val rows by viewModel.rows.collectAsStateWithLifecycle()
     var editing by remember { mutableStateOf<String?>(null) }
     val list = rows
     val edit = editing?.let { id -> list?.firstOrNull { it.consoleId == id } }

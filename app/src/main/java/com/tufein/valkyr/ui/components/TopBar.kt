@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.components
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.theme.accentInk
 import com.tufein.valkyr.R
 
@@ -10,7 +11,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,10 +30,10 @@ fun RescanIndicator(modifier: Modifier = Modifier) {
         RescanStateEntryPoint::class.java
     ).rescanStateHolder()
 
-    val isRescanning by rescanStateHolder.isRescanning.collectAsState()
-    val progressMessage by rescanStateHolder.progressMessage.collectAsState()
-    val torrentFetchProgress by rescanStateHolder.torrentFetchProgress.collectAsState()
-    val progress by rescanStateHolder.progress.collectAsState()
+    val isRescanning by rescanStateHolder.isRescanning.collectAsStateWithLifecycle()
+    val progressMessage by rescanStateHolder.progressMessage.collectAsStateWithLifecycle()
+    val torrentFetchProgress by rescanStateHolder.torrentFetchProgress.collectAsStateWithLifecycle()
+    val progress by rescanStateHolder.progress.collectAsStateWithLifecycle()
 
     if (!isRescanning) return
 

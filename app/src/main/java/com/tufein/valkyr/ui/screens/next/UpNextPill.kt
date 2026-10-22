@@ -1,7 +1,6 @@
 package com.tufein.valkyr.ui.screens.next
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -9,6 +8,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.service.UpNextService
@@ -47,7 +47,7 @@ class UpNextPillViewModel @Inject constructor(private val service: UpNextService
  */
 @Composable
 fun UpNextPill(consoleId: String, fileName: String, modifier: Modifier = Modifier, viewModel: UpNextPillViewModel = hiltViewModel()) {
-    val keys by viewModel.keys.collectAsState()
+    val keys by viewModel.keys.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val on = UpNext.key(consoleId, fileName) in keys
     val title = remember(fileName) { GameTitleCleaner.clean(VersionPicker.readable(fileName)).ifBlank { fileName } }

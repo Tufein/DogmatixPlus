@@ -20,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +33,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.entity.ConsoleEntity
@@ -100,15 +100,15 @@ class ProfilesViewModel @Inject constructor(
  */
 @Composable
 fun ProfilesScreen(viewModel: ProfilesViewModel = hiltViewModel()) {
-    val profiles by viewModel.profiles.collectAsState()
-    val activeId by viewModel.activeId.collectAsState()
-    val pinSet by viewModel.pinSet.collectAsState()
-    val consoles by viewModel.consoles.collectAsState()
+    val profiles by viewModel.profiles.collectAsStateWithLifecycle()
+    val activeId by viewModel.activeId.collectAsStateWithLifecycle()
+    val pinSet by viewModel.pinSet.collectAsStateWithLifecycle()
+    val consoles by viewModel.consoles.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var editing by remember { mutableStateOf<Profile?>(null) }
     var askPinFor by remember { mutableStateOf<String?>(null) }
     var settingPin by remember { mutableStateOf(false) }
-    val locked by viewModel.restricted.collectAsState()
+    val locked by viewModel.restricted.collectAsStateWithLifecycle()
 
     fun switch(id: String) {
         if (locked && pinSet && id != activeId) askPinFor = id else viewModel.switchTo(context, id)

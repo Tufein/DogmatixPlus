@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.tools
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import android.content.Context
 import android.content.Intent
@@ -20,7 +21,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -143,11 +143,11 @@ private enum class StorageFocus { REFRESH, MOVE, SMART, CONSOLE, GAME, INFO }
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun StorageScreen(viewModel: StorageViewModel = hiltViewModel()) {
-    val ui by viewModel.ui.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val scheme = MaterialTheme.colorScheme
     var pendingDelete by remember { mutableStateOf<GameEntry?>(null) }
-    val move by viewModel.move.collectAsState()
+    val move by viewModel.move.collectAsStateWithLifecycle()
     val smart = rememberSmartStorage()
     var pendingMove by remember { mutableStateOf<String?>(null) }
     val moveLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->

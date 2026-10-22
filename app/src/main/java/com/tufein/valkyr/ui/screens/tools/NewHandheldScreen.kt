@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.components.ActionPill
@@ -200,7 +200,7 @@ private fun countText(c: NewHandheldPlan.Count): String = when (c.kind) {
 @Composable
 fun NewHandheldScreen(navController: NavController, viewModel: NewHandheldViewModel = hiltViewModel()) {
     val context = LocalContext.current
-    val ui by viewModel.ui.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
     var confirmStartOver by remember { mutableStateOf(false) }
     val requesters = remember { Step.entries.associateWith { FocusRequester() } }
     var focused by remember { mutableStateOf(false) }

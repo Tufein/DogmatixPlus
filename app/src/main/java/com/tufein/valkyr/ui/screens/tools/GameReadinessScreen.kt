@@ -14,6 +14,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.dao.DownloadableFileDao
@@ -154,11 +155,11 @@ object ReadinessRoute {
 
 @Composable
 fun GameReadinessScreen(console: String, name: String, onNavigate: (String) -> Unit, vm: GameReadinessViewModel = hiltViewModel()) {
-    val state by vm.ui.collectAsState()
+    val state by vm.ui.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val first = rememberInitialFocus()
-    val active by vm.activeProfile.collectAsState()
-    val visibility by vm.visibility.collectAsState()
+    val active by vm.activeProfile.collectAsStateWithLifecycle()
+    val visibility by vm.visibility.collectAsStateWithLifecycle()
     val ui = state.takeIf { it.key == null || it.key == JournalKey(active, console, name) } ?: ReadyUi()
     var rememberForGame by remember(console, name, active) { mutableStateOf(false) }
     LaunchedEffect(console, name, active, visibility) { vm.check(console, name) }

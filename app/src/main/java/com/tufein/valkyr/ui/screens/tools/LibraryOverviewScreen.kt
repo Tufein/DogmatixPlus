@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.tools
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import android.text.format.DateUtils
 import androidx.activity.ComponentActivity
@@ -22,7 +23,6 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -56,10 +56,10 @@ import com.tufein.valkyr.ui.screens.sources.components.ConfirmDialog
  */
 @Composable
 fun LibraryOverviewScreen(viewModel: LibraryOverviewViewModel = hiltViewModel()) {
-    val ui by viewModel.uiState.collectAsState()
-    val isRescanning by viewModel.isRescanning.collectAsState()
-    val progressMessage by viewModel.progressMessage.collectAsState()
-    val progress by viewModel.progress.collectAsState()
+    val ui by viewModel.uiState.collectAsStateWithLifecycle()
+    val isRescanning by viewModel.isRescanning.collectAsStateWithLifecycle()
+    val progressMessage by viewModel.progressMessage.collectAsStateWithLifecycle()
+    val progress by viewModel.progress.collectAsStateWithLifecycle()
     // The shell's instance: a scan started here keeps running after leaving the screen.
     val activity = LocalActivity.current as ComponentActivity
     val sourcesViewModel: SourcesViewModel = hiltViewModel(activity)

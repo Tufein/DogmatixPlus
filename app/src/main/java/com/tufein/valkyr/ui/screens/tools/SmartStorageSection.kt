@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.SmartStorageSettings
@@ -133,10 +133,10 @@ class SmartStorageUi internal constructor(
 @Composable
 fun rememberSmartStorage(): SmartStorageUi {
     val vm: SmartStorageViewModel = hiltViewModel()
-    val prefs by vm.prefs.collectAsState()
-    val run by vm.run.collectAsState()
-    val preview by vm.preview.collectAsState()
-    val previewing by vm.previewing.collectAsState()
+    val prefs by vm.prefs.collectAsStateWithLifecycle()
+    val run by vm.run.collectAsStateWithLifecycle()
+    val preview by vm.preview.collectAsStateWithLifecycle()
+    val previewing by vm.previewing.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var confirm by remember { mutableStateOf(false) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->

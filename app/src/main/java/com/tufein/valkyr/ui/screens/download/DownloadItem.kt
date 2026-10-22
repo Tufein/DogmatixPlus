@@ -29,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.model.PendingAutoRetry
 import com.tufein.valkyr.data.model.DownloadItemModel
@@ -160,9 +160,9 @@ fun DownloadItem(
         )
     }
     // Only rows handed to a debrid service show its name.
-    val debridLabel = if (item.status == DownloadStatus.QUEUED) viewModel.debridLabel.collectAsState().value else ""
+    val debridLabel = if (item.status == DownloadStatus.QUEUED) viewModel.debridLabel.collectAsStateWithLifecycle().value else ""
     // 7.5: the source a failed download moved to by itself.
-    val switchedTo = viewModel.switchedSources.collectAsState().value[fileName]
+    val switchedTo = viewModel.switchedSources.collectAsStateWithLifecycle().value[fileName]
     DownloadRow(
         item, details, compact, actions, debridLabel, modifier, upload, waitingReason, queuePosition, verify,
         selectionMode, selected, focusUp, sweep, onToggleSelection, onRowFocused, condition, canSchedule, switchedTo, pendingRetry, canChangeSource

@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.tools
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -19,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
@@ -78,8 +78,8 @@ class BiosViewModel @Inject constructor(
 /** BIOS check: is every BIOS file the consoles in Sources need in the emulator's system folder, and the right dump? */
 @Composable
 fun BiosScreen(viewModel: BiosViewModel = hiltViewModel()) {
-    val ui by viewModel.ui.collectAsState()
-    val folder by viewModel.folder.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
+    val folder by viewModel.folder.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         uri?.let {

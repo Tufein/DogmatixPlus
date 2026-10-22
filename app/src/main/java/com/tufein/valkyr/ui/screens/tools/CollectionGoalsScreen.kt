@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.tools
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
@@ -19,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
@@ -67,8 +67,8 @@ fun CollectionGoalsScreen(
     onOpenImportList: () -> Unit,
     viewModel: CollectionGoalsViewModel = hiltViewModel()
 ) {
-    val ui by viewModel.ui.collectAsState()
-    val missing by viewModel.missing.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
+    val missing by viewModel.missing.collectAsStateWithLifecycle()
     val open = missing
     BackHandler(enabled = open != null) { viewModel.close() }
     if (open == null) {
@@ -228,7 +228,7 @@ private fun GoalStar(goal: Boolean, name: String, onClick: () -> Unit) {
 private fun MissingList(open: MissingUi, row: ConsoleProgress?, viewModel: CollectionGoalsViewModel, onOpenImportList: () -> Unit) {
     val context = LocalContext.current
     val scheme = MaterialTheme.colorScheme
-    val wished by viewModel.wished.collectAsState()
+    val wished by viewModel.wished.collectAsStateWithLifecycle()
     val name = row?.name ?: ConsoleFormatter.getConsoleDisplayName(open.consoleId)
     val titles = open.titles
     val firstFocus = remember { FocusRequester() }

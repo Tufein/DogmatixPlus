@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.tools
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +21,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -144,12 +144,12 @@ class CollectionsViewModel @Inject constructor(
 /** Own collections: open one in the library, rename or delete it, or start a new one. */
 @Composable
 fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewModel = hiltViewModel()) {
-    val collections by viewModel.collections.collectAsState()
-    val views by viewModel.views.collectAsState()
-    val rommReady by viewModel.rommReady.collectAsState()
-    val rules by viewModel.rules.collectAsState()
-    val ruleFailed by viewModel.ruleFailed.collectAsState()
-    val consoles by viewModel.consoles.collectAsState()
+    val collections by viewModel.collections.collectAsStateWithLifecycle()
+    val views by viewModel.views.collectAsStateWithLifecycle()
+    val rommReady by viewModel.rommReady.collectAsStateWithLifecycle()
+    val rules by viewModel.rules.collectAsStateWithLifecycle()
+    val ruleFailed by viewModel.ruleFailed.collectAsStateWithLifecycle()
+    val consoles by viewModel.consoles.collectAsStateWithLifecycle()
     var smartCreating by remember { mutableStateOf(false) }
     var editingRule by remember { mutableStateOf<CollectionWithCount?>(null) }
     val offline = rememberOfflineCollections { navController.navigate(it) }

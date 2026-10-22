@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,6 +43,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.service.HealthService
@@ -305,7 +305,7 @@ private fun startSettings(context: Context, fix: HealthFix): Boolean {
 @Composable
 fun HealthScreen(onFix: (HealthFix) -> Unit, viewModel: HealthViewModel = hiltViewModel(), onRecovery: () -> Unit = {}) {
     val context = LocalContext.current
-    val results by viewModel.results.collectAsState()
+    val results by viewModel.results.collectAsStateWithLifecycle()
     val summary = remember(results) { HealthRollup.summarize(results.values) }
     val requesters = remember { HealthCheck.entries.associateWith { FocusRequester() } }
     var initialFocusDone by remember { mutableStateOf(false) }

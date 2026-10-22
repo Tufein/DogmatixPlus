@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.tools
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
@@ -56,7 +56,7 @@ class FrontendCheckViewModel @Inject constructor(settings: SettingsRepository, a
 /** How Dogmatix is hooked up to ES-DE, iiSU, Daijishō, Pegasus and RetroArch, with a way to Settings to fix it. */
 @Composable
 fun FrontendCheckScreen(navController: NavController, viewModel: FrontendCheckViewModel = hiltViewModel()) {
-    val findings by viewModel.findings.collectAsState()
+    val findings by viewModel.findings.collectAsStateWithLifecycle()
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {

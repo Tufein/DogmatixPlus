@@ -22,7 +22,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.state.SourceScanResults
 import com.tufein.valkyr.ui.screens.sources.components.QrShowDialog
@@ -68,12 +68,12 @@ import java.io.File
 fun SourcesScreen(
     viewModel: SourcesViewModel = hiltViewModel()
 ) {
-    val manufacturers by viewModel.manufacturers.collectAsState(initial = emptyList())
-    val isRescanning by viewModel.isRescanning.collectAsState()
-    val sourceResults by viewModel.sourceResults.collectAsState()
-    val sourceTrack by viewModel.sourceTrack.collectAsState()
-    val consoleDownloadPaths by viewModel.consoleDownloadPaths.collectAsState()
-    val downloadDirectory by viewModel.downloadDirectory.collectAsState()
+    val manufacturers by viewModel.manufacturers.collectAsStateWithLifecycle(initialValue = emptyList())
+    val isRescanning by viewModel.isRescanning.collectAsStateWithLifecycle()
+    val sourceResults by viewModel.sourceResults.collectAsStateWithLifecycle()
+    val sourceTrack by viewModel.sourceTrack.collectAsStateWithLifecycle()
+    val consoleDownloadPaths by viewModel.consoleDownloadPaths.collectAsStateWithLifecycle()
+    val downloadDirectory by viewModel.downloadDirectory.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     val directoryPicker = rememberLauncherForActivityResult(
@@ -110,8 +110,8 @@ fun SourcesScreen(
     var showShare by remember { mutableStateOf(false) }
     var showRomsets by remember { mutableStateOf(false) }
     if (showRomsets) RomsetCatalogDialog(onDismiss = { showRomsets = false })
-    val qrParts by viewModel.qrParts.collectAsState()
-    val qrImport by viewModel.qrImport.collectAsState()
+    val qrParts by viewModel.qrParts.collectAsStateWithLifecycle()
+    val qrImport by viewModel.qrImport.collectAsStateWithLifecycle()
     val qrPictures = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris -> viewModel.readQr(uris) }
     var photoUri by remember { mutableStateOf<Uri?>(null) }
     val qrCamera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> photoUri?.takeIf { ok }?.let { viewModel.readQr(listOf(it)) } }
@@ -226,7 +226,7 @@ fun SourcesScreen(
         }
     }
 
-    val dialog by viewModel.dialog.collectAsState()
+    val dialog by viewModel.dialog.collectAsStateWithLifecycle()
     if (showShare) {
         ShareSourcesDialog(
             onFile = { showShare = false; viewModel.exportSources(::shareExport) },
@@ -237,12 +237,12 @@ fun SourcesScreen(
         )
     }
 
-    val rommPlatforms by viewModel.rommPlatforms.collectAsState()
-    val importMessage by viewModel.importMessage.collectAsState()
+    val rommPlatforms by viewModel.rommPlatforms.collectAsStateWithLifecycle()
+    val importMessage by viewModel.importMessage.collectAsStateWithLifecycle()
 
-    val mergeConsoleId by viewModel.mergeConsoleId.collectAsState()
-    val mergeInProgress by viewModel.mergeInProgress.collectAsState()
-    val mergeResult by viewModel.mergeResult.collectAsState()
+    val mergeConsoleId by viewModel.mergeConsoleId.collectAsStateWithLifecycle()
+    val mergeInProgress by viewModel.mergeInProgress.collectAsStateWithLifecycle()
+    val mergeResult by viewModel.mergeResult.collectAsStateWithLifecycle()
     mergeConsoleId?.let { consoleId ->
         val path = consoleDownloadPaths[consoleId]
         val consoleName = manufacturers.flatMap { it.consoles }.firstOrNull { it.id == consoleId }?.name ?: consoleId

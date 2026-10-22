@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.tools
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import android.content.Context
 import android.net.Uri
@@ -27,7 +28,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -158,11 +158,11 @@ class DatViewModel @Inject constructor(
  */
 @Composable
 fun DatScreen(navController: NavController, viewModel: DatViewModel = hiltViewModel()) {
-    val consoles by viewModel.consoles.collectAsState()
-    val sets by viewModel.sets.collectAsState()
-    val reports by viewModel.reports.collectAsState()
-    val progress by viewModel.progress.collectAsState()
-    val fetching by viewModel.fetching.collectAsState()
+    val consoles by viewModel.consoles.collectAsStateWithLifecycle()
+    val sets by viewModel.sets.collectAsStateWithLifecycle()
+    val reports by viewModel.reports.collectAsStateWithLifecycle()
+    val progress by viewModel.progress.collectAsStateWithLifecycle()
+    val fetching by viewModel.fetching.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var selected by rememberSaveable { mutableStateOf<String?>(null) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->

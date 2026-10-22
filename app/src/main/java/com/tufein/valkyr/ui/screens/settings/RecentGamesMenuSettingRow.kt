@@ -1,11 +1,11 @@
 package com.tufein.valkyr.ui.screens.settings
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.GameShortcutSettings
@@ -31,7 +31,7 @@ class RecentGamesMenuViewModel @Inject constructor(private val settings: GameSho
  */
 @Composable
 fun RecentGamesMenuSettingRow(viewModel: RecentGamesMenuViewModel = hiltViewModel()) {
-    val on by viewModel.enabled.collectAsState()
+    val on by viewModel.enabled.collectAsStateWithLifecycle()
     SettingRow(
         icon = R.drawable.ic_play_circle,
         title = stringResource(R.string.pin35_setting_title),

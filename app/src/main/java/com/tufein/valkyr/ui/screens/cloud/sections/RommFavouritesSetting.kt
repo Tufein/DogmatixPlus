@@ -4,6 +4,7 @@ import android.text.format.DateUtils
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.RommSettings
@@ -19,7 +20,7 @@ import javax.inject.Inject
 /*
  * Stage B: in RommScreen (Settings → RomM), next to "Mark games in RomM":
  *   val fav: RommFavouritesViewModel = hiltViewModel()
- *   val favOn by fav.enabled.collectAsState(); val favState by fav.state.collectAsState()
+ *   val favOn by fav.enabled.collectAsStateWithLifecycle(); val favState by fav.state.collectAsStateWithLifecycle()
  *   SettingRow(title = stringResource(R.string.romm5_fav_two_way), hint = rommFavouritesHint(favOn, favState),
  *       onClick = { fav.setEnabled(!favOn) }, onAdjust = { fav.setEnabled(it > 0) }) { ThemedSwitch(favOn) { fav.setEnabled(it) } }
  */

@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.service.*
@@ -188,15 +189,15 @@ class RecoveryViewModel @Inject constructor(
 
 @Composable
 fun RecoveryScreen(viewModel: RecoveryViewModel = hiltViewModel(), onNavigate: (String) -> Unit = {}) {
-    val snapshot by viewModel.snapshot.collectAsState()
+    val snapshot by viewModel.snapshot.collectAsStateWithLifecycle()
     val entries = snapshot.operations
-    val copies by viewModel.saveCopies.collectAsState()
-    val resumable by viewModel.resumable.collectAsState()
-    val loaded by viewModel.loaded.collectAsState()
-    val refreshing by viewModel.refreshing.collectAsState()
-    val confirmation by viewModel.confirmation.collectAsState()
-    val busy by viewModel.busy.collectAsState()
-    val failed by viewModel.failed.collectAsState()
+    val copies by viewModel.saveCopies.collectAsStateWithLifecycle()
+    val resumable by viewModel.resumable.collectAsStateWithLifecycle()
+    val loaded by viewModel.loaded.collectAsStateWithLifecycle()
+    val refreshing by viewModel.refreshing.collectAsStateWithLifecycle()
+    val confirmation by viewModel.confirmation.collectAsStateWithLifecycle()
+    val busy by viewModel.busy.collectAsStateWithLifecycle()
+    val failed by viewModel.failed.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val firstFocus = rememberInitialFocus()
     val shareTitle = stringResource(R.string.recovery_share)

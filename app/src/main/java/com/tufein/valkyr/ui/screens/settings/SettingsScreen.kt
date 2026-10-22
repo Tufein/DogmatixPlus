@@ -41,7 +41,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,6 +74,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.tufein.valkyr.BuildConfig
 import com.tufein.valkyr.R
@@ -164,20 +164,20 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     extra: ExtraSettingsViewModel = hiltViewModel()
 ) {
-    val ui by viewModel.uiState.collectAsState()
-    val schedule by extra.schedule.collectAsState()
-    val queue by extra.queue.collectAsState()
-    val autoScan by extra.autoScan.collectAsState()
-    val afterDownload by extra.afterDownload.collectAsState()
-    val digestOn by extra.digestOn.collectAsState()
-    val metaAuto by extra.metaAuto.collectAsState()
-    val power = extra.power.collectAsState().value ?: com.tufein.valkyr.util.PowerSettings()
-    val pickBest by extra.pickBest.collectAsState()
-    val appPrefs by extra.appPrefs.collectAsState()
-    val activeProfileName by extra.activeProfileName.collectAsState()
-    val updateOffer by extra.updateOffer.collectAsState()
-    val updateProgress by extra.updateProgress.collectAsState()
-    val look by extra.look.collectAsState()
+    val ui by viewModel.uiState.collectAsStateWithLifecycle()
+    val schedule by extra.schedule.collectAsStateWithLifecycle()
+    val queue by extra.queue.collectAsStateWithLifecycle()
+    val autoScan by extra.autoScan.collectAsStateWithLifecycle()
+    val afterDownload by extra.afterDownload.collectAsStateWithLifecycle()
+    val digestOn by extra.digestOn.collectAsStateWithLifecycle()
+    val metaAuto by extra.metaAuto.collectAsStateWithLifecycle()
+    val power = extra.power.collectAsStateWithLifecycle().value ?: com.tufein.valkyr.util.PowerSettings()
+    val pickBest by extra.pickBest.collectAsStateWithLifecycle()
+    val appPrefs by extra.appPrefs.collectAsStateWithLifecycle()
+    val activeProfileName by extra.activeProfileName.collectAsStateWithLifecycle()
+    val updateOffer by extra.updateOffer.collectAsStateWithLifecycle()
+    val updateProgress by extra.updateProgress.collectAsStateWithLifecycle()
+    val look by extra.look.collectAsStateWithLifecycle()
     val context = LocalContext.current
     // Android 13+ asks before the weekly digest may be shown.
     val digestPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
@@ -261,7 +261,7 @@ fun SettingsScreen(
         }
         backupImportLauncher.launch(arrayOf("application/json", "application/octet-stream", "text/plain", "*/*"))
     }
-    val pendingRestore by viewModel.pendingRestore.collectAsState()
+    val pendingRestore by viewModel.pendingRestore.collectAsStateWithLifecycle()
     pendingRestore?.let { pending ->
         val date = if (pending.createdAt > 0) DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(pending.createdAt)) else "?"
         ConfirmDialog(
@@ -328,7 +328,7 @@ fun SettingsScreen(
 
     var showLanguagesDialog by remember { mutableStateOf(false) }
     if (showLanguagesDialog) {
-        val available by viewModel.availableLanguages.collectAsState()
+        val available by viewModel.availableLanguages.collectAsStateWithLifecycle()
         LaunchedEffect(Unit) { viewModel.loadAvailableLanguages() }
         FavoriteLanguagesDialog(
             available = available,
@@ -349,7 +349,7 @@ fun SettingsScreen(
         DebridProvider.NONE -> ""
     }
     val debridKeyTitle = stringResource(R.string.settings_debrid_key, debrid.label)
-    val daijishoSetup by viewModel.daijishoSetup.collectAsState()
+    val daijishoSetup by viewModel.daijishoSetup.collectAsStateWithLifecycle()
     daijishoSetup?.let { setup ->
         DaijishoSetupDialog(setup = setup, onDismiss = viewModel::onDaijishoSetupDismissed)
     }
@@ -1053,7 +1053,7 @@ fun SettingsScreen(
         },
         SettingsRow(key = SettingKeys.SHELF) {
             val shelf: ContinuePlayingViewModel = hiltViewModel()
-            val shelfOn by shelf.enabled.collectAsState()
+            val shelfOn by shelf.enabled.collectAsStateWithLifecycle()
             SettingRow(
                 icon = R.drawable.ic_play_circle,
                 title = stringResource(R.string.csave_shelf_setting_title),
@@ -1245,7 +1245,7 @@ fun SettingsScreen(
     // light it up for a moment (a steady tint without animations).
     var flashRow by remember { mutableIntStateOf(-1) }
     val flash = remember { Animatable(0f) }
-    val jumpKey by SettingsJump.pending.collectAsState()
+    val jumpKey by SettingsJump.pending.collectAsStateWithLifecycle()
     LaunchedEffect(jumpKey) {
         if (jumpKey == null) return@LaunchedEffect
         val key = SettingsJump.consume() ?: return@LaunchedEffect

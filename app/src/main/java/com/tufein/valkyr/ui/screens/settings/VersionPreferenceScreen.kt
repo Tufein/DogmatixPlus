@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.settings
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -80,7 +80,7 @@ import com.tufein.valkyr.util.VersionPreferences
  */
 @Composable
 fun VersionPreferenceScreen(viewModel: VersionPreferenceViewModel = hiltViewModel()) {
-    val ui by viewModel.ui.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(ui.loaded) {
         if (ui.loaded) { firstFocus.requestFocusWhenReady() }

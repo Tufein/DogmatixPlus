@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.next
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,10 +78,10 @@ import com.tufein.valkyr.util.UpNextState
  */
 @Composable
 fun UpNextScreen(onOpenGame: (String, String) -> Unit, viewModel: UpNextViewModel = hiltViewModel()) {
-    val tab by viewModel.tab.collectAsState()
-    val rows by viewModel.rows.collectAsState()
-    val forYou by viewModel.forYou.collectAsState()
-    val upNextKeys by viewModel.upNextKeys.collectAsState()
+    val tab by viewModel.tab.collectAsStateWithLifecycle()
+    val rows by viewModel.rows.collectAsStateWithLifecycle()
+    val forYou by viewModel.forYou.collectAsStateWithLifecycle()
+    val upNextKeys by viewModel.upNextKeys.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var focusedKey by remember { mutableStateOf<String?>(null) }
     var options by remember { mutableStateOf<String?>(null) }

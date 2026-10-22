@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.tools
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import android.Manifest
 import android.content.Context
@@ -24,7 +25,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -154,9 +154,9 @@ class WishlistViewModel @Inject constructor(
 /** Games the user wants: add a title (optionally for one console), see which ones have turned up. */
 @Composable
 fun WishlistScreen(navController: NavController, viewModel: WishlistViewModel = hiltViewModel()) {
-    val ui by viewModel.ui.collectAsState()
-    val authors by viewModel.authors.collectAsState()
-    val doneBy by viewModel.doneBy.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
+    val authors by viewModel.authors.collectAsStateWithLifecycle()
+    val doneBy by viewModel.doneBy.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val shareScope = androidx.compose.runtime.rememberCoroutineScope()
     var showAdd by remember { mutableStateOf(false) }

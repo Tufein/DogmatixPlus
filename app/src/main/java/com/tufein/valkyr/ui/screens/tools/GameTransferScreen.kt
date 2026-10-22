@@ -20,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +32,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.service.TransferPlace
 import com.tufein.valkyr.data.service.TransferPreview
@@ -64,8 +64,8 @@ import com.tufein.valkyr.util.TargetFolderLayouts
  */
 @Composable
 fun GameTransferScreen(viewModel: GameTransferViewModel = hiltViewModel()) {
-    val ui by viewModel.ui.collectAsState()
-    val run by viewModel.run.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
+    val run by viewModel.run.collectAsStateWithLifecycle()
     val mainFocus = remember { FocusRequester() }
     var filesOf by remember { mutableStateOf<GamePackages.Manifest?>(null) }
     var resultsOf by remember { mutableStateOf<String?>(null) }

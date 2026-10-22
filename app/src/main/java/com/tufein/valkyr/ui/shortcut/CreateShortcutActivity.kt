@@ -33,7 +33,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.AppSettings
@@ -100,12 +100,12 @@ class CreateShortcutActivity : AppCompatActivity() {
             Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
         }.getOrDefault(false)
         setContent {
-            val themeName by settings.themeMode.collectAsState(initial = null)
-            val accentHex by settings.accentColor.collectAsState(initial = null)
-            val glow by look.glow.collectAsState(initial = true)
-            val animations by look.animations.collectAsState(initial = true)
-            val boldFocus by appSettings.boldFocus.collectAsState(initial = false)
-            val swapFaceButtons by settings.swapFaceButtons.collectAsState(initial = false)
+            val themeName by settings.themeMode.collectAsStateWithLifecycle(initialValue = null)
+            val accentHex by settings.accentColor.collectAsStateWithLifecycle(initialValue = null)
+            val glow by look.glow.collectAsStateWithLifecycle(initialValue = true)
+            val animations by look.animations.collectAsStateWithLifecycle(initialValue = true)
+            val boldFocus by appSettings.boldFocus.collectAsStateWithLifecycle(initialValue = false)
+            val swapFaceButtons by settings.swapFaceButtons.collectAsStateWithLifecycle(initialValue = false)
             // This activity can start before the main one: the pad setting is process-wide state.
             LaunchedEffect(swapFaceButtons) { Gamepad.swapFaceButtons.value = swapFaceButtons }
             val name = themeName

@@ -19,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.components.PillTone
 import com.tufein.valkyr.ui.components.focusRing
@@ -56,7 +56,7 @@ import com.tufein.valkyr.util.CloudActivity
 @Composable
 fun CloudStatusIndicator(onClick: () -> Unit, modifier: Modifier = Modifier) {
     val service = rememberCloudStatusService()
-    val status by service.status.collectAsState()
+    val status by service.status.collectAsStateWithLifecycle()
     if (!status.visible) return
 
     val scheme = MaterialTheme.colorScheme

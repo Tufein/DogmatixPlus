@@ -15,7 +15,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +27,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.screens.cloud.sections.RaUserSummaryCard
@@ -102,12 +102,12 @@ class RetroAchievementsViewModel @Inject constructor(
  */
 @Composable
 fun RetroAchievementsScreen(viewModel: RetroAchievementsViewModel = hiltViewModel()) {
-    val consoles by viewModel.consoles.collectAsState()
-    val user by viewModel.user.collectAsState()
-    val hasKey by viewModel.hasKey.collectAsState()
-    val results by viewModel.results.collectAsState()
-    val marked by viewModel.marked.collectAsState()
-    val busy by viewModel.busy.collectAsState()
+    val consoles by viewModel.consoles.collectAsStateWithLifecycle()
+    val user by viewModel.user.collectAsStateWithLifecycle()
+    val hasKey by viewModel.hasKey.collectAsStateWithLifecycle()
+    val results by viewModel.results.collectAsStateWithLifecycle()
+    val marked by viewModel.marked.collectAsStateWithLifecycle()
+    val busy by viewModel.busy.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var editing by remember { mutableStateOf(false) }
     if (editing) CredentialsDialog(user, onSave = { u, k -> viewModel.saveCredentials(u, k); editing = false }, onDismiss = { editing = false })

@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.common.Gamepad
 import com.tufein.valkyr.ui.common.QuickMenuEvent
@@ -108,7 +108,7 @@ fun QuickMenuOverlay(
         Gamepad.quickMenuHosted = true
         onDispose { Gamepad.quickMenuHosted = false; Gamepad.closeQuickMenu() }
     }
-    val open by Gamepad.quickMenuOpen.collectAsState()
+    val open by Gamepad.quickMenuOpen.collectAsStateWithLifecycle()
     if (!open) return
 
     val items = remember(queueHeld) { QuickMenu.items(queueHeld) }
@@ -174,7 +174,7 @@ fun QuickMenuOverlay(
     val wedgeFill = scheme.primary.copy(alpha = 0.22f)
     val wedgeEdge = scheme.primary
     val hasSelection = selected != null
-    val padConnected by Gamepad.connected.collectAsState()
+    val padConnected by Gamepad.connected.collectAsStateWithLifecycle()
 
     Box(
         modifier = Modifier

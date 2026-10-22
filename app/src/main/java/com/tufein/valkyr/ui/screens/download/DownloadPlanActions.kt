@@ -18,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -26,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.model.DownloadItemModel
 import com.tufein.valkyr.data.service.DownloadPlanPreview
@@ -49,7 +49,7 @@ fun DownloadPlanActions(
     modifier: Modifier = Modifier,
     viewModel: DownloadPlanViewModel = hiltViewModel()
 ) {
-    val ui by viewModel.ui.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val errorMessage = ui.error?.let { stringResource(it) }
     val importedMessage = ui.imported?.let { stringResource(R.string.plan26_imported, it) }

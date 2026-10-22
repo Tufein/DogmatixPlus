@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.components.closeOnGamepadB
@@ -103,13 +104,13 @@ class PackageTransferViewModel @Inject constructor(
 
 @Composable
 fun PackageTransferScreen(viewModel: PackageTransferViewModel = hiltViewModel(), onNavigate: (String) -> Unit = {}) {
-    val snapshot by viewModel.snapshot.collectAsState()
-    val imported by viewModel.imported.collectAsState()
-    val preview by viewModel.preview.collectAsState()
-    val busy by viewModel.busy.collectAsState()
-    val failed by viewModel.failed.collectAsState()
-    val exported by viewModel.exported.collectAsState()
-    val restored by viewModel.restored.collectAsState()
+    val snapshot by viewModel.snapshot.collectAsStateWithLifecycle()
+    val imported by viewModel.imported.collectAsStateWithLifecycle()
+    val preview by viewModel.preview.collectAsStateWithLifecycle()
+    val busy by viewModel.busy.collectAsStateWithLifecycle()
+    val failed by viewModel.failed.collectAsStateWithLifecycle()
+    val exported by viewModel.exported.collectAsStateWithLifecycle()
+    val restored by viewModel.restored.collectAsStateWithLifecycle()
     var pendingExport by remember { mutableStateOf<PackageTransferSnapshot?>(null) }
     var pendingProfile by remember { mutableStateOf<String?>(null) }
     var confirm by remember { mutableStateOf<PackageTransferPreview?>(null) }

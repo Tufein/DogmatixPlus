@@ -15,7 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -28,6 +27,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.repository.SettingsRepository
@@ -103,8 +103,8 @@ fun RommFirmwareCard(
     modifier: Modifier = Modifier
 ) {
     val viewModel: RommFirmwareViewModel = hiltViewModel()
-    val configured by viewModel.configured.collectAsState()
-    val state by viewModel.state.collectAsState()
+    val configured by viewModel.configured.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val latestOnFetched by rememberUpdatedState(onFetched)
     LaunchedEffect(viewModel) { viewModel.fetched.collect { latestOnFetched() } }
     if (configured != true) return

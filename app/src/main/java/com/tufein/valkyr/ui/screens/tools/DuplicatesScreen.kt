@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.tools
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +50,7 @@ import com.tufein.valkyr.util.GameEntry
  */
 @Composable
 fun DuplicatesScreen(viewModel: DuplicatesViewModel = hiltViewModel()) {
-    val ui by viewModel.uiState.collectAsState()
+    val ui by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     var pendingDelete by remember { mutableStateOf<GameEntry?>(null) }

@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.tools
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.ui.components.requestFocusWhenReady
 import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
@@ -117,8 +117,8 @@ fun ToolsHubScreen(navController: NavController, viewModel: ToolsHubViewModel = 
     val htmlLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/html")) { uri ->
         uri?.let { viewModel.export(context, it.toString(), html = true) }
     }
-    val wishCount by viewModel.wishCount.collectAsState()
-    val collectionCount by viewModel.collectionCount.collectAsState()
+    val wishCount by viewModel.wishCount.collectAsStateWithLifecycle()
+    val collectionCount by viewModel.collectionCount.collectAsStateWithLifecycle()
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { firstFocus.requestFocusWhenReady() }
     val go: (NavRoutes) -> Unit = { route -> navController.navigate(route.route) }

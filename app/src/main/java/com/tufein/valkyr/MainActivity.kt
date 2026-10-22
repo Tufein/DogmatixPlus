@@ -36,7 +36,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.withFrameNanos
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -48,6 +47,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -238,18 +238,18 @@ class MainActivity : AppCompatActivity() {
         })
         setContent {
             val settingsViewModel: SettingsViewModel = hiltViewModel()
-            val settings by settingsViewModel.uiState.collectAsState()
-            val onboardingDone by settingsViewModel.onboardingDone.collectAsState()
+            val settings by settingsViewModel.uiState.collectAsStateWithLifecycle()
+            val onboardingDone by settingsViewModel.onboardingDone.collectAsStateWithLifecycle()
             // Key handling runs outside the composition, so the pad settings are mirrored there.
             LaunchedEffect(settings.gamepadLayout, settings.swapFaceButtons) {
                 Gamepad.layout.value = settings.gamepadLayout
                 Gamepad.swapFaceButtons.value = settings.swapFaceButtons
             }
-            val boldFocus by appSettings.boldFocus.collectAsState(initial = false)
-            val textSize by appSettings.textSizePercent.collectAsState(initial = TextSize.DEFAULT)
-            val animations by lookSettings.animations.collectAsState(initial = true)
-            val glow by lookSettings.glow.collectAsState(initial = true)
-            val tvSetting by tvModeSettings.mode.collectAsState(initial = TvModeSetting.AUTO)
+            val boldFocus by appSettings.boldFocus.collectAsStateWithLifecycle(initialValue = false)
+            val textSize by appSettings.textSizePercent.collectAsStateWithLifecycle(initialValue = TextSize.DEFAULT)
+            val animations by lookSettings.animations.collectAsStateWithLifecycle(initialValue = true)
+            val glow by lookSettings.glow.collectAsStateWithLifecycle(initialValue = true)
+            val tvSetting by tvModeSettings.mode.collectAsStateWithLifecycle(initialValue = TvModeSetting.AUTO)
             val systemAnimationsOff = remember {
                 runCatching { Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f }.getOrDefault(false)
             }
@@ -279,7 +279,7 @@ class MainActivity : AppCompatActivity() {
     /** The highlights of this version, once after an update; a fresh install only records the version. */
     @Composable
     private fun WhatsNewAfterUpdate(onboardingDone: Boolean?) {
-        val lastSeen by appSettings.lastSeenVersion.collectAsState(initial = -1)
+        val lastSeen by appSettings.lastSeenVersion.collectAsStateWithLifecycle(initialValue = -1)
         if (onboardingDone == null || lastSeen < 0) return
         val current = BuildConfig.VERSION_CODE
         if (onboardingDone == false) {
@@ -406,7 +406,7 @@ private fun contentInsets(): WindowInsets = WindowInsets.systemBars.union(Window
 @Composable
 private fun OnboardingHost() {
     val sourcesViewModel: SourcesViewModel = hiltViewModel()
-    val isRescanning by sourcesViewModel.isRescanning.collectAsState()
+    val isRescanning by sourcesViewModel.isRescanning.collectAsStateWithLifecycle()
     val scheme = MaterialTheme.colorScheme
     val tokens = LocalDogmatixTokens.current
     val view = LocalView.current
@@ -438,13 +438,13 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
     val context = LocalContext.current
     val sourcesViewModel: SourcesViewModel = hiltViewModel()
     val downloadViewModel: DownloadViewModel = hiltViewModel()
-    val rescanErrorMessage by sourcesViewModel.rescanErrorMessage.collectAsState()
+    val rescanErrorMessage by sourcesViewModel.rescanErrorMessage.collectAsStateWithLifecycle()
     // Only the count: the whole list changes with every progress tick and would redraw the app shell each time.
-    val activeDownloadCount by downloadViewModel.activeCount.collectAsState()
-    val gamepadConnected by Gamepad.connected.collectAsState()
-    val legendOverride by Gamepad.legendOverride.collectAsState()
+    val activeDownloadCount by downloadViewModel.activeCount.collectAsStateWithLifecycle()
+    val gamepadConnected by Gamepad.connected.collectAsStateWithLifecycle()
+    val legendOverride by Gamepad.legendOverride.collectAsStateWithLifecycle()
     val storageViewModel: StorageStatusViewModel = hiltViewModel()
-    val freeBytes by storageViewModel.freeBytes.collectAsState()
+    val freeBytes by storageViewModel.freeBytes.collectAsStateWithLifecycle()
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     LaunchedEffect(Unit) {
@@ -452,10 +452,10 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
     }
 
     // A link shared to the app: download it or add it as a source.
-    val shared by pendingFilters.shared.collectAsState()
+    val shared by pendingFilters.shared.collectAsStateWithLifecycle()
     shared?.let { link -> ShareTargetDialog(link, onDismiss = pendingFilters::dismissShare) }
 
-    val scanReport by sourcesViewModel.scanReport.collectAsState()
+    val scanReport by sourcesViewModel.scanReport.collectAsStateWithLifecycle()
     scanReport?.let { failed ->
         ScanReportDialog(
             failures = failed,
@@ -485,26 +485,26 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
     val tvActive = LocalTvMode.current
     SideEffect { Gamepad.tvModeActive = tvActive }
     // A deep link lands on the Library tab; HomeViewModel picks the filters up from the holder.
-    val pendingVersion by pendingFilters.version.collectAsState()
+    val pendingVersion by pendingFilters.version.collectAsStateWithLifecycle()
     LaunchedEffect(pendingVersion) {
         if (pendingVersion > 0 && navController.currentBackStackEntry?.destination?.route != NavRoutes.Home.route) {
             navController.switchTo(NavRoutes.Home)
         }
     }
     // The widget's download line: open that section.
-    val openRoute by pendingFilters.openRoute.collectAsState()
+    val openRoute by pendingFilters.openRoute.collectAsStateWithLifecycle()
     LaunchedEffect(openRoute) {
         val route = pendingFilters.consumeSection() ?: return@LaunchedEffect
         NavRoutes.allRoutes.firstOrNull { it.route == route }?.let { navController.switchTo(it) }
     }
     // A hand-off link from another handheld: that game's "Continue here".
-    val handoff by com.tufein.valkyr.ui.screens.game.PendingHandoff.request.collectAsState()
+    val handoff by com.tufein.valkyr.ui.screens.game.PendingHandoff.request.collectAsStateWithLifecycle()
     LaunchedEffect(handoff) {
         val request = com.tufein.valkyr.ui.screens.game.PendingHandoff.consume() ?: return@LaunchedEffect
         navController.navigate(com.tufein.valkyr.ui.screens.game.GameHandoffRoute.of(request.consoleId, request.fileName, receive = true, code = request.code))
     }
     // 3.5: a game shortcut that could not start its game by itself: that game's page (unless it is already open).
-    val gameShortcut by com.tufein.valkyr.ui.shortcut.PendingGameShortcut.request.collectAsState()
+    val gameShortcut by com.tufein.valkyr.ui.shortcut.PendingGameShortcut.request.collectAsStateWithLifecycle()
     LaunchedEffect(gameShortcut) {
         val request = com.tufein.valkyr.ui.shortcut.PendingGameShortcut.consumeOpen() ?: return@LaunchedEffect
         val top = navController.currentBackStackEntry
@@ -786,7 +786,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
             }
         }
         // 8.0: hold SELECT for the quick menu, over every screen.
-        val queueHeld by downloadViewModel.held.collectAsState()
+        val queueHeld by downloadViewModel.held.collectAsStateWithLifecycle()
         QuickMenuOverlay(
             queueHeld = queueHeld,
             onSearch = { pendingFilters.submitQuick(QuickAction.SEARCH) },

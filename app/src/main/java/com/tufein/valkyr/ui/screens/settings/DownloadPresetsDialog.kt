@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.components.DialogButton
 import com.tufein.valkyr.ui.components.Stepper
@@ -40,9 +40,9 @@ import java.util.UUID
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DownloadPresetsDialog(onDismiss: () -> Unit, viewModel: DownloadPresetsViewModel = hiltViewModel()) {
-    val snapshot by viewModel.snapshot.collectAsState()
-    val busy by viewModel.busy.collectAsState()
-    val message by viewModel.message.collectAsState()
+    val snapshot by viewModel.snapshot.collectAsStateWithLifecycle()
+    val busy by viewModel.busy.collectAsStateWithLifecycle()
+    val message by viewModel.message.collectAsStateWithLifecycle()
     var editing by remember { mutableStateOf<DownloadPreset?>(null) }
     if (editing != null) {
         DownloadPresetEditor(editing!!, saving = busy, errorMessage = message?.takeIf { it == R.string.presets26_failed },

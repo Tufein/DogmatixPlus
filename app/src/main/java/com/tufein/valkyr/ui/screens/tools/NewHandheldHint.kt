@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.NewHandheldSettings
@@ -69,7 +69,7 @@ fun NewHandheldHint(
     modifier: Modifier = Modifier,
     viewModel: NewHandheldHintViewModel = hiltViewModel()
 ) {
-    val show by viewModel.show.collectAsState()
+    val show by viewModel.show.collectAsStateWithLifecycle()
     if (!show) return
     val scheme = MaterialTheme.colorScheme
     Panel(

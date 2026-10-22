@@ -16,7 +16,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.components.ActionPill
 import com.tufein.valkyr.ui.components.DialogButton
@@ -42,10 +42,10 @@ import com.tufein.valkyr.util.JournalKey
 /** Only the Android document picker supplies attachments; restored metadata requires choosing again. */
 @Composable
 fun GameJournalSection(consoleId: String, fileName: String, viewModel: GameJournalViewModel = hiltViewModel()) {
-    val profile by viewModel.activeProfile.collectAsState()
+    val profile by viewModel.activeProfile.collectAsStateWithLifecycle()
     val key = remember(profile, consoleId, fileName) { JournalKey(profile, consoleId, fileName) }
     LaunchedEffect(key) { viewModel.show(key) }
-    val ui by viewModel.ui.collectAsState()
+    val ui by viewModel.ui.collectAsStateWithLifecycle()
     val entry = ui.entry?.takeIf { it.key == key }
     val context = LocalContext.current
     var pick by remember { mutableStateOf<JournalPick?>(null) }
