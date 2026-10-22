@@ -52,7 +52,7 @@ class DownloadableFileRepository @Inject constructor(
         val hidden = profiles.current()
         fun kind(k: TagKind) = byKind[k].orEmpty().toList()
         val results = PerfLog.timed("db.search") {
-            withText(query) { text ->
+            withText(query, firstPage = offset == 0, isEmpty = { it.isEmpty() }) { text ->
                 dao.queryFilesWithTags(LibraryQueryBuilder.files(LibraryQueryBuilder.FileFilter(
                     text = text,
                     manufacturer = manufacturer,
@@ -192,23 +192,31 @@ class DownloadableFileRepository @Inject constructor(
 
     /**
      * Runs [block] with the text filter for [query]: FTS when the index is complete, the LIKE scan otherwise.
-     * If an FTS query throws (a damaged index), the same query is answered by the LIKE scan, FTS stays off
-     * for this process, and the index is rebuilt once in the background.
+     * FTS only matches word and title starts, LIKE matched anywhere ("mariokart", "gioh"), so an empty FTS
+     * answer is asked again once with the LIKE form ([LibraryQueryBuilder.retryWithLike]); results are never
+     * worse than before 4.6. Lists, tag chips and console counts all go through here, so for one query they take
+     * the same path. [firstPage] is false for later pages of a list (an empty page there is just the end).
+     * If FTS itself breaks (see [LibraryQueryBuilder.isFtsFailure]), the call is answered by LIKE, FTS stays off for
+     * this process and the index is rebuilt in the background; any other error only falls back for this call.
      */
-    private suspend fun <T> withText(query: String, block: suspend (LibraryQueryBuilder.Text) -> T): T {
+    private suspend fun <T> withText(query: String, firstPage: Boolean = true, isEmpty: (T) -> Boolean, block: suspend (LibraryQueryBuilder.Text) -> T): T {
         val text = LibraryQueryBuilder.text(query, ftsReady())
         if (text !is LibraryQueryBuilder.Text.Fts) return block(text)
-        return try {
+        val result = try {
             block(text)
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.w(TAG, "Full-text search failed, using the plain scan: ${e.javaClass.simpleName}")
-            ftsState.set(FTS_PENDING)
-            repairFts()
-            block(LibraryQueryBuilder.text(query, false))
+            if (LibraryQueryBuilder.isFtsFailure(e)) {
+                ftsState.set(FTS_PENDING)
+                repairFts()
+            }
+            return block(LibraryQueryBuilder.text(query, false))
         }
+        return if (LibraryQueryBuilder.retryWithLike(text, isEmpty(result), firstPage)) block(LibraryQueryBuilder.text(query, false)) else result
     }
 
+    /** Rebuilds the index in one statement (SQLite offers no chunked rebuild), so only genuine corruption comes here. */
     private fun repairFts() {
         if (!ftsRepairStarted.compareAndSet(false, true)) return
         repairScope.launch {
@@ -216,6 +224,7 @@ class DownloadableFileRepository @Inject constructor(
                 dao.rebuildFts()
                 ftsState.set(FTS_READY)
             } catch (e: Exception) {
+                ftsRepairStarted.set(false) // a later failing search may try again
                 if (e is CancellationException) throw e
                 Log.w(TAG, "Full-text index rebuild failed: ${e.javaClass.simpleName}")
             }
@@ -230,7 +239,7 @@ class DownloadableFileRepository @Inject constructor(
         PerfLog.timed("db.tags") { tagsFor(query, manufacturer, consoleIds) }
 
     private suspend fun tagsFor(query: String, manufacturer: String?, consoleIds: Set<String>): List<String> =
-        withText(query) { text -> dao.rawTags(LibraryQueryBuilder.tags(text, manufacturer, consoleIds.toList()).toSupportQuery()) }
+        withText(query, isEmpty = { it.isEmpty() }) { text -> dao.rawTags(LibraryQueryBuilder.tags(text, manufacturer, consoleIds.toList()).toSupportQuery()) }
 
     suspend fun getCategorizedTags(
         query: String,
@@ -242,7 +251,7 @@ class DownloadableFileRepository @Inject constructor(
     suspend fun getConsolesWithFiles(query: String, manufacturer: String? = null): List<ConsoleWithFileCount> {
         val hidden = profiles.current().hiddenConsoles
         return PerfLog.timed("db.consoles") {
-            withText(query) { text -> dao.rawConsolesWithFiles(LibraryQueryBuilder.consoles(text, manufacturer).toSupportQuery()) }
+            withText(query, isEmpty = { it.isEmpty() }) { text -> dao.rawConsolesWithFiles(LibraryQueryBuilder.consoles(text, manufacturer).toSupportQuery()) }
         }.filterNot { it.id in hidden }
     }
 

@@ -47,6 +47,16 @@ object LibraryQueryBuilder {
         return Text.Like(words.joinToString("%"))
     }
 
+    /** True when an FTS answer should be asked again as LIKE: nothing found on the first page (LIKE also matches inside words). */
+    fun retryWithLike(text: Text, resultEmpty: Boolean, firstPage: Boolean): Boolean = text is Text.Fts && resultEmpty && firstPage
+
+    /** True when [e] says the FTS table or index itself is broken (worth switching it off and rebuilding), not a one-off error. */
+    fun isFtsFailure(e: Throwable): Boolean {
+        if (e.javaClass.simpleName != "SQLiteException" && !e.javaClass.name.startsWith("android.database.sqlite.SQLite")) return false
+        val m = e.message?.lowercase() ?: return false
+        return "fts" in m || "malformed" in m || "no such table" in m || "corrupt" in m
+    }
+
     /** The old DAO convention: a [SearchNormalizer.likePattern] where '*' (or empty) means no text filter. */
     fun likeText(pattern: String): Text = if (pattern.isEmpty() || pattern == "*") Text.None else Text.Like(pattern)
 

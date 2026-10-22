@@ -28,6 +28,27 @@ class LibraryQueryBuilderTest {
     }
 
     @Test
+    fun emptyFtsAnswersAreAskedAgainAsLikeOnTheFirstPageOnly() {
+        val fts = Text.Fts("mari*")
+        assertTrue(LibraryQueryBuilder.retryWithLike(fts, resultEmpty = true, firstPage = true))
+        assertFalse(LibraryQueryBuilder.retryWithLike(fts, resultEmpty = true, firstPage = false))
+        assertFalse(LibraryQueryBuilder.retryWithLike(fts, resultEmpty = false, firstPage = true))
+        assertFalse(LibraryQueryBuilder.retryWithLike(Text.Like("mari"), resultEmpty = true, firstPage = true))
+        assertFalse(LibraryQueryBuilder.retryWithLike(Text.None, resultEmpty = true, firstPage = true))
+    }
+
+    @Test
+    fun onlyFtsDamageCountsAsAFtsFailure() {
+        class SQLiteException(m: String?) : RuntimeException(m)
+        assertTrue(LibraryQueryBuilder.isFtsFailure(SQLiteException("database disk image is malformed")))
+        assertTrue(LibraryQueryBuilder.isFtsFailure(SQLiteException("no such table: downloadable_files_fts")))
+        assertTrue(LibraryQueryBuilder.isFtsFailure(SQLiteException("SQL logic error in FTS4 query")))
+        assertFalse(LibraryQueryBuilder.isFtsFailure(SQLiteException("database is locked")))
+        assertFalse(LibraryQueryBuilder.isFtsFailure(SQLiteException(null)))
+        assertFalse(LibraryQueryBuilder.isFtsFailure(IllegalStateException("fts malformed")))
+    }
+
+    @Test
     fun likeTextKeepsTheOldStarConvention() {
         assertEquals(Text.None, LibraryQueryBuilder.likeText("*"))
         assertEquals(Text.None, LibraryQueryBuilder.likeText(""))
