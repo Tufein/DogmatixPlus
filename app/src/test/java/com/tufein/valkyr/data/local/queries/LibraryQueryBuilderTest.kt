@@ -13,13 +13,14 @@ class LibraryQueryBuilderTest {
 
     @Test
     fun textUsesFtsOnlyWhenReadyAndEveryWordIsLongEnough() {
-        assertEquals(Text.Fts("virtua* tenis*"), LibraryQueryBuilder.text("Virtual Tenis", ftsReady = true))
+        assertEquals(Text.Fts("virtua* teni*"), LibraryQueryBuilder.text("Virtual Tenis", ftsReady = true))
         assertEquals(Text.Fts("yugio*"), LibraryQueryBuilder.text("yu-gi-oh", ftsReady = true))
-        assertEquals(Text.Fts("mega* man* 64*"), LibraryQueryBuilder.text("mega man 64", ftsReady = true))
+        assertEquals(Text.Fts("mega* man*"), LibraryQueryBuilder.text("mega man", ftsReady = true))
         // not complete yet: the LIKE scan answers, with the pre-4.6 pattern
         assertEquals(Text.Like("virtua%teni"), LibraryQueryBuilder.text("virtual tenis", ftsReady = false))
-        // one-letter words cannot use the prefix index
+        // one and two letter words match most of the library: the plain scan is faster than merging that many hits
         assertEquals(Text.Like("mega%man%x"), LibraryQueryBuilder.text("mega man x", ftsReady = true))
+        assertEquals(Text.Like("mari%64"), LibraryQueryBuilder.text("mario 64", ftsReady = true))
         assertEquals(Text.Like("m"), LibraryQueryBuilder.text("m", ftsReady = true))
         // nothing to search for
         assertEquals(Text.None, LibraryQueryBuilder.text("", ftsReady = true))
@@ -86,14 +87,14 @@ class LibraryQueryBuilderTest {
             listOf<Any>("mari*", "Nintendo", "gba", "gbc", "USA", "Europe", "English", "NTSC", "Demo", "Beta", 1_000L, "x", "y", "z", "Adult", 20, 40),
             q.args
         )
-        assertTrue(q.sql, q.sql.contains("df.torrentFileIndex IS NULL AND df.isRomm = 0"))
+        assertTrue(q.sql, q.sql.contains("df.torrentFileIndex IS NULL AND +df.isRomm = 0"))
         assertTrue(q.sql, q.sql.contains("ORDER BY df.firstSeenAt DESC, df.name ASC, df.id ASC LIMIT ? OFFSET ?"))
     }
 
     @Test
     fun sourceFiltersUseTheColumnNotALikeScan() {
         assertTrue(LibraryQueryBuilder.files(FileFilter(source = 1)).sql.contains("df.torrentFileIndex IS NOT NULL"))
-        assertTrue(LibraryQueryBuilder.files(FileFilter(source = 2)).sql.contains("df.isRomm = 1"))
+        assertTrue(LibraryQueryBuilder.files(FileFilter(source = 2)).sql.contains("+df.isRomm = 1"))
         assertFalse(LibraryQueryBuilder.files(FileFilter(source = 2)).sql.contains("api/roms"))
         assertFalse(LibraryQueryBuilder.files(FileFilter(source = 0)).sql.contains("isRomm"))
     }
@@ -120,6 +121,21 @@ class LibraryQueryBuilderTest {
         val both = LibraryQueryBuilder.files(FileFilter(favouritesOnly = true, collectionId = 7))
         assertTrue(both.sql, both.sql.contains("EXISTS (SELECT 1 FROM collection_items ci WHERE ci.collectionId = ?"))
         assertEquals(both.args.size, placeholders(both.sql))
+    }
+
+    @Test
+    fun conditionsNextToADrivingJoinOnlyFilter() {
+        // measured on 200k rows: without the unary plus SQLite looped the FTS id list once per favourite (16 s)
+        val fav = LibraryQueryBuilder.files(FileFilter(favouritesOnly = true, text = Text.Fts("mari*"), consoleIds = listOf("gba"), manufacturer = "Nintendo", newSince = 5))
+        assertTrue(fav.sql, fav.sql.contains("AND +df.id IN (SELECT docid FROM downloadable_files_fts"))
+        assertTrue(fav.sql, fav.sql.contains("AND +df.consoleId IN (?)"))
+        assertTrue(fav.sql, fav.sql.contains("AND +df.consoleId IN (SELECT c.id"))
+        assertTrue(fav.sql, fav.sql.contains("AND +df.firstSeenAt >= ?"))
+        // without a driving join the same conditions are free to use their indexes
+        val plain = LibraryQueryBuilder.files(FileFilter(text = Text.Fts("mari*"), consoleIds = listOf("gba"), newSince = 5))
+        assertTrue(plain.sql, plain.sql.contains("WHERE df.id IN (SELECT docid"))
+        assertTrue(plain.sql, plain.sql.contains("AND df.consoleId IN (?)"))
+        assertTrue(plain.sql, plain.sql.contains("AND df.firstSeenAt >= ?"))
     }
 
     @Test

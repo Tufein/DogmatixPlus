@@ -94,7 +94,8 @@ class Migration15To16Test {
         assertEquals(listOf("CREATE VIRTUAL TABLE IF NOT EXISTS `downloadable_files_fts` USING FTS4(`searchWords` TEXT NOT NULL, content=`downloadable_files`)"), create)
         val triggers = sql.filter { it.startsWith("CREATE TRIGGER") }
         assertEquals(4, triggers.size)
-        assertTrue(triggers.all { it.contains("`searchWords`") && !it.contains("`name`") })
+        assertTrue(triggers.none { it.contains("`name`") })
+        assertEquals(2, triggers.count { it.contains("`searchWords`") })
         // the old trigger names are dropped by name too
         oldTriggers.forEach { assertTrue(it.name, sql.contains("DROP TRIGGER IF EXISTS `${it.name}`")) }
     }

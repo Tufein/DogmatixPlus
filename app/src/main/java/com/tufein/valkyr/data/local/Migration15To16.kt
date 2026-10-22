@@ -88,7 +88,8 @@ object Migration15To16 : Migration(15, 16) {
         val table = old.tableSql
         if (!table.contains(OLD_COLUMN) || !table.contains("content=", ignoreCase = true) || !table.contains("FTS4", ignoreCase = true)) return null
         val triggers = old.triggers.map { it.sql.replace(OLD_COLUMN, NEW_COLUMN) }
-        if (triggers.size != FTS_TRIGGER_NAMES.size || triggers.any { !it.contains(NEW_COLUMN) }) return null
+        // the two BEFORE triggers only name the docid; the two AFTER triggers copy the column, so those must carry the new name
+        if (triggers.size != FTS_TRIGGER_NAMES.size || triggers.any { it.contains(OLD_COLUMN) } || triggers.count { it.contains(NEW_COLUMN) } != 2) return null
         return table.replace(OLD_COLUMN, NEW_COLUMN) to triggers
     }
 

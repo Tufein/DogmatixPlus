@@ -10,7 +10,7 @@ import com.tufein.valkyr.util.SearchNormalizer
  *
  * Shapes that matter on a library of 100k+ rows:
  *  - text search goes through the FTS table (`docid IN (… MATCH …)`) when the index is complete and every
- *    word has 2+ characters, otherwise through the old `searchKey LIKE` scan;
+ *    word has 3+ characters, otherwise through the old `searchKey LIKE` scan;
  *  - the page is filtered, sorted and cut with LIMIT first, and only then are the tags of those rows read;
  *  - favourites and collection members drive the join (CROSS JOIN fixes the order) instead of being probed per library row;
  *  - the manufacturer is a subquery on the console table, not a join per file.
@@ -30,8 +30,11 @@ object LibraryQueryBuilder {
     /** SQL text and its bind arguments, in order (only Int/Long/String are used). */
     class Built(val sql: String, val args: List<Any>)
 
-    /** Words shorter than this cannot use the prefix index well and fall back to LIKE. */
-    const val MIN_FTS_WORD = 2
+    /**
+     * Words shorter than this fall back to LIKE: a one or two letter prefix matches most of the library, and
+     * merging that many hits is slower in FTS than the plain scan (measured on 200k rows: 183 ms against 26 ms).
+     */
+    const val MIN_FTS_WORD = 3
 
     /**
      * Picks FTS or LIKE for a user query. [ftsReady] is false while the index is still being filled for rows
@@ -89,6 +92,11 @@ object LibraryQueryBuilder {
         val args = ArrayList<Any>()
         val where = ArrayList<String>()
         val from: String
+        // Favourites / collection members drive the join; the other conditions must then only filter. A leading
+        // unary plus keeps SQLite from using an index (the FTS id list, a console list, firstSeenAt) as the driver,
+        // which for 100k+ rows made it loop the whole id list once per favourite (measured: 16 s instead of ~20 ms).
+        val driven = f.favouritesOnly || f.collectionId != 0L
+        val p = if (driven) "+" else ""
         when {
             f.favouritesOnly -> {
                 from = "favourites fav CROSS JOIN downloadable_files df ON fav.consoleId = df.consoleId AND fav.fileName = df.fileName"
@@ -104,24 +112,25 @@ object LibraryQueryBuilder {
             where += "EXISTS (SELECT 1 FROM collection_items ci WHERE ci.collectionId = ? AND ci.consoleId = df.consoleId AND ci.fileName = df.fileName)"
             args += f.collectionId
         }
-        textClause(f.text, args)?.let { where += it }
-        manufacturerClause(f.manufacturer, args)?.let { where += it }
-        if (f.consoleIds.isNotEmpty()) { where += "df.consoleId IN (${marks(f.consoleIds.size)})"; args += f.consoleIds }
+        textClause(f.text, args, p)?.let { where += it }
+        manufacturerClause(f.manufacturer, args, p)?.let { where += it }
+        if (f.consoleIds.isNotEmpty()) { where += "${p}df.consoleId IN (${marks(f.consoleIds.size)})"; args.addAll(f.consoleIds) }
         tagClause(f.regions, args)?.let { where += it }
         tagClause(f.languages, args)?.let { where += it }
         tagClause(f.videoStandards, args)?.let { where += it }
         tagClause(f.contentTypes, args)?.let { where += it }
         tagClause(f.fileTypes, args)?.let { where += it }
-        if (f.newSince != 0L) { where += "df.firstSeenAt >= ?"; args += f.newSince }
-        if (f.hiddenConsoles.isNotEmpty()) { where += "df.consoleId NOT IN (${marks(f.hiddenConsoles.size)})"; args += f.hiddenConsoles }
+        if (f.newSince != 0L) { where += "${p}df.firstSeenAt >= ?"; args += f.newSince }
+        if (f.hiddenConsoles.isNotEmpty()) { where += "df.consoleId NOT IN (${marks(f.hiddenConsoles.size)})"; args.addAll(f.hiddenConsoles) }
         if (f.hiddenTags.isNotEmpty()) {
             where += "NOT EXISTS (SELECT 1 FROM downloadable_file_tags th WHERE th.fileId = df.id AND th.tag IN (${marks(f.hiddenTags.size)}))"
-            args += f.hiddenTags
+            args.addAll(f.hiddenTags)
         }
         when (f.source) {
             1 -> where += "df.torrentFileIndex IS NOT NULL"
-            2 -> where += "df.isRomm = 1"
-            3 -> where += "df.torrentFileIndex IS NULL AND df.isRomm = 0"
+            // plus: the isRomm index has two values and no statistics, SQLite must never pick it as a driver here
+            2 -> where += "+df.isRomm = 1"
+            3 -> where += "df.torrentFileIndex IS NULL AND +df.isRomm = 0"
         }
         val inner = COLUMNS.split(", ").joinToString(", ") { "df.$it" }
         val outer = COLUMNS.split(", ").joinToString(", ") { "sub.$it AS $it" }
@@ -144,7 +153,7 @@ object LibraryQueryBuilder {
         val where = ArrayList<String>()
         textClause(text, args)?.let { where += it }
         manufacturerClause(manufacturer, args)?.let { where += it }
-        if (consoleIds.isNotEmpty()) { where += "df.consoleId IN (${marks(consoleIds.size)})"; args += consoleIds }
+        if (consoleIds.isNotEmpty()) { where += "df.consoleId IN (${marks(consoleIds.size)})"; args.addAll(consoleIds) }
         // Without a file filter the tag table alone answers (its rows cannot outlive their file: foreign key cascade).
         val sql = if (where.isEmpty()) "SELECT DISTINCT t.tag AS tag FROM downloadable_file_tags t ORDER BY t.tag ASC"
         else "SELECT DISTINCT t.tag AS tag FROM downloadable_file_tags t JOIN downloadable_files df ON t.fileId = df.id WHERE ${where.joinToString(" AND ")} ORDER BY t.tag ASC"
@@ -167,22 +176,22 @@ object LibraryQueryBuilder {
         return Built(sql, args)
     }
 
-    private fun textClause(text: Text, args: MutableList<Any>): String? = when (text) {
+    private fun textClause(text: Text, args: MutableList<Any>, plus: String = ""): String? = when (text) {
         Text.None -> null
-        is Text.Fts -> { args += text.match; "df.id IN (SELECT docid FROM downloadable_files_fts WHERE downloadable_files_fts MATCH ?)" }
+        is Text.Fts -> { args += text.match; "${plus}df.id IN (SELECT docid FROM downloadable_files_fts WHERE downloadable_files_fts MATCH ?)" }
         is Text.Like -> { args += text.pattern; "df.searchKey LIKE '%' || ? || '%'" }
     }
 
-    private fun manufacturerClause(manufacturer: String?, args: MutableList<Any>): String? {
+    private fun manufacturerClause(manufacturer: String?, args: MutableList<Any>, plus: String = ""): String? {
         if (manufacturer == null) return null
         args += manufacturer
-        return "df.consoleId IN (SELECT c.id FROM consoles c JOIN manufacturers m ON c.manufacturerId = m.id WHERE m.name = ?)"
+        return "${plus}df.consoleId IN (SELECT c.id FROM consoles c JOIN manufacturers m ON c.manufacturerId = m.id WHERE m.name = ?)"
     }
 
     /** One tag category: the file has any of [tags] (categories are AND-ed by the caller). */
     private fun tagClause(tags: List<String>, args: MutableList<Any>): String? {
         if (tags.isEmpty()) return null
-        args += tags
+        args.addAll(tags)
         return "EXISTS (SELECT 1 FROM downloadable_file_tags tf WHERE tf.fileId = df.id AND tf.tag IN (${marks(tags.size)}))"
     }
 
