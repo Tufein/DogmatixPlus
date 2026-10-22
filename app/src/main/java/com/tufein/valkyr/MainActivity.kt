@@ -720,6 +720,7 @@ private fun DogmatixApp(pendingFilters: PendingLibraryFilters) {
                     }
                     composable(NavRoutes.LibraryRepair.route) { com.tufein.valkyr.ui.screens.tools.LibraryRepairScreen(onNavigate = { navController.navigate(it) }) }
                     composable(NavRoutes.ReportProblem.route) { com.tufein.valkyr.ui.screens.tools.ReportProblemScreen() }
+                    composable(NavRoutes.PerfCheck.route) { com.tufein.valkyr.ui.screens.tools.PerfCheckScreen() }
                     composable(NavRoutes.FrontendCovers.route) { com.tufein.valkyr.ui.screens.tools.FrontendCoversScreen() }
                     composable(NavRoutes.RetroArchPlaylists.route) { com.tufein.valkyr.ui.screens.tools.RetroArchPlaylistsScreen() }
                     composable(NavRoutes.NewHandheld.route) { com.tufein.valkyr.ui.screens.tools.NewHandheldScreen(navController) }

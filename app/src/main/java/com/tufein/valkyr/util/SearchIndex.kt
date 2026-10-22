@@ -156,6 +156,7 @@ object SearchIndex {
         SearchEntry("cover_sources_keys", SearchGroup.TOOLS, R.string.covers44_search_title, R.string.covers44_search_hint, R.drawable.ic_key, SearchTarget(NavRoutes.CoverSources.route), keywords = R.string.covers44_kw),
         SearchEntry("retroarch_playlists", SearchGroup.TOOLS, R.string.playlists35_title, R.string.playlists35_hint, R.drawable.ic_playlist_add, SearchTarget(NavRoutes.RetroArchPlaylists.route), keywords = R.string.playlists35_kw),
         SearchEntry("report_problem", SearchGroup.TOOLS, R.string.report30_title, R.string.report30_hint, R.drawable.ic_bug, SearchTarget(NavRoutes.ReportProblem.route), keywords = R.string.find8_kw_diagnostics),
+        SearchEntry("perf_check", SearchGroup.TOOLS, R.string.measure47_title, R.string.measure47_hint, R.drawable.ic_speed, SearchTarget(NavRoutes.PerfCheck.route), keywords = R.string.measure47_kw),
         SearchEntry("action_history", SearchGroup.TOOLS, R.string.hist24_title, R.string.hist24_hint, R.drawable.ic_manage_history, SearchTarget(NavRoutes.ActionHistory.route), keywords = R.string.hist24_kw),
             // Settings, in the order of SettingsLayout (their card comes from there too).
             setting(SettingKeys.THEME, R.string.settings_theme, R.string.settings_theme_hint, R.drawable.ic_dark_mode, R.string.find8_kw_theme),
