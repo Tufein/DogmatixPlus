@@ -85,12 +85,6 @@ enum class AppLanguage(val tag: String, val label: Int) {
     }
 }
 
-/** How faded a visible row is while its master leaves it without effect (see [SettingsLayout.inactiveReason]). */
-private const val INACTIVE_ROW_ALPHA = 0.6f
-
-private const val SPEED_STEP = 250
-private const val SPEED_MAX = 5000
-
 @Composable
 fun SettingsScreen(
     navController: NavController,
