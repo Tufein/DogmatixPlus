@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Grotere, rustigere knoppen: alle knoppen en chips minstens 48 dp, rode vernietigende acties en het zoekveld bereikbaar met het D-pad.</item>
+        <item>RomM kun je nu uitzetten (Instellingen → RomM of Bronnen) zonder je login kwijt te raken, en de bibliotheekfilters staan netjes uitgelijnd.</item>
     </string-array>
 
     <!-- 4.0 -->

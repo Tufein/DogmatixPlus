@@ -1317,7 +1317,7 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Commandes plus grandes et plus stables : tous les boutons et puces d’au moins 48 dp, actions destructrices en rouge, champ de recherche accessible à la croix directionnelle.</item>
+        <item>RomM peut maintenant être désactivé (Réglages → RomM ou Sources) sans perdre votre connexion, et les filtres de la bibliothèque sont bien alignés.</item>
     </string-array>
 
     <!-- 4.0 -->

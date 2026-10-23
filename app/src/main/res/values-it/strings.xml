@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Controlli più grandi e stabili: tutti i pulsanti e i chip di almeno 48 dp, azioni distruttive in rosso e campo di ricerca raggiungibile con la croce direzionale.</item>
+        <item>Ora puoi disattivare RomM (Impostazioni → RomM o Fonti) senza perdere l’accesso, e i filtri della libreria sono ben allineati.</item>
     </string-array>
 
     <!-- 4.0 -->

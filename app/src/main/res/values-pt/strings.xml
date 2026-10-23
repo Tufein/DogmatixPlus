@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Controlos maiores e mais estáveis: todos os botões e chips com pelo menos 48 dp, ações destrutivas a vermelho e caixa de pesquisa acessível com o direcional.</item>
+        <item>Já pode desligar o RomM (Definições → RomM ou Fontes) sem perder o início de sessão, e os filtros da biblioteca estão bem alinhados.</item>
     </string-array>
 
     <!-- 4.0 -->

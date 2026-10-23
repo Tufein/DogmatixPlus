@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Bigger, steadier controls: all buttons and chips at least 48 dp, red destructive actions, the search box reachable with the D-pad.</item>
+        <item>RomM can now be switched off (Settings → RomM or Sources) without losing your login, and the library filters are neatly aligned.</item>
     </string-array>
 
     <!-- 4.0 -->

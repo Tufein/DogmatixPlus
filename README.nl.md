@@ -23,9 +23,9 @@ Valkyr houdt één grote, doorzoekbare lijst bij van de games uit de bronnen die
 
 *De screenshots gebruiken verzonnen gametitels en lege dummybestanden en tonen de app in het Engels.*
 
-**Laatste release: [5.2.0](https://github.com/Tufein/Valkyr/releases/tag/v5.2.0)** (Android build 64).
+**Laatste release: [5.3.0](https://github.com/Tufein/Valkyr/releases/tag/v5.3.0)** (Android build 65).
 
-Tot en met 3.9.0 heette de app Dogmatix+. Valkyr 5.2.0 heeft een eigen app-id en installeert dus naast de oude app: gebruik *Instellingen → Back-up maken* in de oude app en *Back-up terugzetten* in Valkyr, en verwijder daarna de oude app.
+Tot en met 3.9.0 heette de app Dogmatix+. Valkyr 5.3.0 heeft een eigen app-id en installeert dus naast de oude app: gebruik *Instellingen → Back-up maken* in de oude app en *Back-up terugzetten* in Valkyr, en verwijder daarna de oude app.
 
 ## Installeren
 

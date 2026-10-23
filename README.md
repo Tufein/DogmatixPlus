@@ -23,9 +23,9 @@ The app includes no games. **Sources → More romsets** offers optional free con
 
 *The screenshots use made-up game titles and empty placeholder files.*
 
-**Latest release: [5.2.0](https://github.com/Tufein/Valkyr/releases/tag/v5.2.0)** (Android build 64).
+**Latest release: [5.3.0](https://github.com/Tufein/Valkyr/releases/tag/v5.3.0)** (Android build 65).
 
-Until 3.9.0 the app was called Dogmatix+. Valkyr 5.2.0 has its own app id, so it installs next to the old app: use *Settings → Back up* in the old app and *Restore backup* in Valkyr, then remove the old app.
+Until 3.9.0 the app was called Dogmatix+. Valkyr 5.3.0 has its own app id, so it installs next to the old app: use *Settings → Back up* in the old app and *Restore backup* in Valkyr, then remove the old app.
 
 ## Install
 
