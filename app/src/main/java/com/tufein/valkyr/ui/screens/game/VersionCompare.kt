@@ -284,7 +284,7 @@ private fun preferenceText(p: VersionPreference): String {
 private fun CheckRow(text: String, checked: Boolean, onToggle: () -> Unit) {
     val source = rememberFocusSource()
     Row(
-        modifier = Modifier.fillMaxWidth().focusRing(source, 10.dp).clickable(interactionSource = source, indication = null, onClick = onToggle),
+        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp).focusRing(source, 10.dp).clickable(interactionSource = source, indication = null, onClick = onToggle),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(checked = checked, onCheckedChange = null, modifier = Modifier.size(40.dp))

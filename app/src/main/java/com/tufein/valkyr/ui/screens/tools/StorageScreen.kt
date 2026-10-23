@@ -174,7 +174,8 @@ fun StorageScreen(viewModel: StorageViewModel = hiltViewModel()) {
             ) + "\n\n" + entry.files.take(8).joinToString("\n") { "• " + it.name } + if (entry.files.size > 8) "\n• … (+${entry.files.size - 8})" else "",
             confirmText = stringResource(R.string.duplicates_delete),
             onConfirm = { viewModel.delete(context, entry) },
-            onDismiss = { pendingDelete = null }
+            onDismiss = { pendingDelete = null },
+            destructive = true
         )
     }
     val firstFocus = remember { FocusRequester() }

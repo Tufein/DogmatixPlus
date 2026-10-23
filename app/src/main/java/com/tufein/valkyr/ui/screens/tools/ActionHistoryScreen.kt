@@ -542,7 +542,7 @@ private fun ClearDialog(lines: Int, onConfirm: () -> Unit, onDismiss: () -> Unit
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.hist24_clear_title)) },
         text = { Text(pluralStringResource(R.plurals.hist24_clear_message, lines, lines)) },
-        confirmButton = { DialogButton(text = stringResource(R.string.hist24_clear_confirm), onClick = onConfirm) },
+        confirmButton = { DialogButton(text = stringResource(R.string.hist24_clear_confirm), onClick = onConfirm, destructive = true) },
         dismissButton = { DialogButton(text = stringResource(R.string.dialog_cancel), onClick = onDismiss, initialFocus = cancelFocus) }
     )
 }

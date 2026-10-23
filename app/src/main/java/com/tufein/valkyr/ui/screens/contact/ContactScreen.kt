@@ -226,7 +226,7 @@ private fun LinkRow(link: CreditLink) {
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 44.dp)
+            .defaultMinSize(minHeight = 48.dp)
             .focusRing(source, cornerRadius = 10.dp)
             .clip(RoundedCornerShape(10.dp))
             .clickable(interactionSource = source, indication = null) { uriHandler.openUri(link.url) }

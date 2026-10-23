@@ -116,7 +116,7 @@ fun GameJournalSection(consoleId: String, fileName: String, viewModel: GameJourn
     removing?.let { attachment -> AlertDialog(
         modifier = Modifier.closeOnGamepadB { removing = null }, onDismissRequest = { removing = null },
         title = { Text(stringResource(R.string.journal_remove)) }, text = { Text(stringResource(R.string.journal_remove_hint, attachment.name)) },
-        confirmButton = { DialogButton(stringResource(R.string.journal_remove), { removing = null; viewModel.remove(attachment.id) }) },
+        confirmButton = { DialogButton(stringResource(R.string.journal_remove), { removing = null; viewModel.remove(attachment.id) }, destructive = true) },
         dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), { removing = null }, initialFocus = rememberInitialFocus()) }
     ) }
 }

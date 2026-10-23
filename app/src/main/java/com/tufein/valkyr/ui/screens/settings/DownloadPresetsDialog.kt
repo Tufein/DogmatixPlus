@@ -70,11 +70,11 @@ fun DownloadPresetsDialog(onDismiss: () -> Unit, viewModel: DownloadPresetsViewM
                             RoundedCornerShape(12.dp)).padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(presetName(preset), style = MaterialTheme.typography.titleSmall)
                             PresetSummary(preset.options)
-                            FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 DialogButton(stringResource(R.string.pad_apply), { viewModel.apply(preset.id) }, enabled = !busy)
                                 DialogButton(stringResource(R.string.presets26_edit), { editing = preset }, enabled = !busy)
                                 if (!preset.builtIn) DialogButton(stringResource(R.string.presets26_delete),
-                                    { viewModel.delete(preset.id) }, enabled = !busy)
+                                    { viewModel.delete(preset.id) }, enabled = !busy, destructive = true)
                             }
                         }
                     }

@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.home.components
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -42,6 +43,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -81,6 +83,7 @@ fun SearchField(
 ) {
     val scheme = MaterialTheme.colorScheme
     val source = remember { MutableInteractionSource() }
+    val stopSource = remember { MutableInteractionSource() }
     val focused by source.collectIsFocusedAsState()
     val keyboard = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -126,6 +129,18 @@ fun SearchField(
                 )
             }
             .focusRing(source, cornerRadius, startShift = contentShift)
+            .focusRing(stopSource, cornerRadius, startShift = contentShift)
+            // 5.3: while the box is closed it is its own D-pad stop (first in the Library tab, in
+            // reading order); A / Enter opens it like Y or a tap. Disabled while open, so the text
+            // field below takes the focus alone.
+            .onKeyEvent { event ->
+                if (active || event.type != KeyEventType.KeyDown) return@onKeyEvent false
+                when (event.key) {
+                    Key.DirectionCenter, Key.Enter, Key.NumPadEnter, Key.ButtonA -> { onActivate(); true }
+                    else -> false
+                }
+            }
+            .focusable(enabled = !active, interactionSource = stopSource)
             // pointerInput (not clickable): no focusable node, so the D-pad never lands on the box
             // and no focusProperties are needed here. A `canFocus = false` on this Row would leak
             // into the text field whenever the Row has no focus target of its own.

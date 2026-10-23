@@ -206,8 +206,8 @@ private fun StatusChip(label: String, icon: Int, selected: Boolean, onClick: () 
     val shape = RoundedCornerShape(50)
     Row(
         modifier = Modifier
-            .defaultMinSize(minHeight = 36.dp)
-            .focusRing(source, cornerRadius = 18.dp, onAccent = selected, fill = false)
+            .defaultMinSize(minHeight = 48.dp)
+            .focusRing(source, cornerRadius = 24.dp, onAccent = selected, fill = false)
             .clip(shape)
             .drawBehind { drawRect(fill) }
             .clickable(interactionSource = source, indication = null, onClick = onClick)
@@ -285,12 +285,12 @@ private fun StepArrow(icon: Int, onClick: () -> Unit) {
         contentDescription = null,
         tint = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier
-            .size(32.dp)
+            .size(48.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             .focusProperties { canFocus = false }
             .clickable(onClick = onClick)
-            .padding(5.dp)
+            .padding(13.dp)
     )
 }
 

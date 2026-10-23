@@ -1,5 +1,7 @@
 package com.tufein.valkyr.ui.components
 
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +23,7 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.unit.dp
 import com.tufein.valkyr.ui.common.Gamepad
 
@@ -80,17 +83,22 @@ fun rememberInitialFocus(): FocusRequester {
     return requester
 }
 
-/** Dialog text button with the accent focus ring; [initialFocus] takes focus when the dialog opens. */
+/**
+ * Dialog text button with the accent focus ring, at least 48 dp high; [initialFocus] takes focus
+ * when the dialog opens. A [destructive] button (delete, clear, remove) is drawn in the error colour.
+ */
 @Composable
 fun DialogButton(
     text: String,
     onClick: () -> Unit,
     enabled: Boolean = true,
-    initialFocus: FocusRequester? = null
+    initialFocus: FocusRequester? = null,
+    destructive: Boolean = false
 ) {
     val source = rememberFocusSource()
-    val modifier = (initialFocus?.let { Modifier.focusRequester(it) } ?: Modifier).focusRing(source, 20.dp)
-    TextButton(onClick = onClick, enabled = enabled, interactionSource = source, modifier = modifier) {
+    val modifier = (initialFocus?.let { Modifier.focusRequester(it) } ?: Modifier).focusRing(source, 20.dp).heightIn(min = 48.dp)
+    val colors = if (destructive) ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error) else ButtonDefaults.textButtonColors()
+    TextButton(onClick = onClick, enabled = enabled, interactionSource = source, modifier = modifier, colors = colors) {
         Text(text)
     }
 }

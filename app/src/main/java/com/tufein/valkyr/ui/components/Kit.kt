@@ -304,7 +304,7 @@ fun StatTile(
     }
 }
 
-/** The main action of a screen or dialog: accent fill, 44 dp, optional leading icon. */
+/** The main action of a screen or dialog: accent fill, 48 dp, optional leading icon. */
 @Composable
 fun PrimaryButton(
     text: String,
@@ -318,7 +318,7 @@ fun PrimaryButton(
     val shape = RoundedCornerShape(12.dp)
     Row(
         modifier = modifier
-            .defaultMinSize(minHeight = 44.dp)
+            .defaultMinSize(minHeight = 48.dp)
             .focusRing(source, cornerRadius = 12.dp, onAccent = true, fill = false)
             .clip(shape)
             .background(if (enabled) scheme.primary else scheme.surfaceContainerHigh)
@@ -337,7 +337,7 @@ fun PrimaryButton(
 enum class ActionTone { Neutral, Accent, Danger }
 
 /**
- * A compact secondary action (36 dp, min height grows with the text size): the pill buttons of
+ * A secondary action (48 dp touch target, min height grows with the text size): the pill buttons of
  * Settings, Tools and Downloads, now with an optional icon and tone.
  */
 @Composable
@@ -358,12 +358,12 @@ fun ActionPill(
     }
     Row(
         modifier = modifier
-            .defaultMinSize(minHeight = 36.dp)
+            .defaultMinSize(minHeight = 48.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(bg)
             .focusRing(source, cornerRadius = 10.dp)
             .clickable(interactionSource = source, indication = null, enabled = enabled, onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = 14.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {

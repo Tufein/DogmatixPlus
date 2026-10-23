@@ -338,7 +338,7 @@ private fun ArrowButton(icon: Int, onClick: () -> Unit) {
     val source = rememberFocusSource()
     Box(
         modifier = Modifier
-            .size(26.dp)
+            .size(48.dp)
             .clip(RoundedCornerShape(6.dp))
             .focusProperties { canFocus = false }
             .focusRing(source, 6.dp)

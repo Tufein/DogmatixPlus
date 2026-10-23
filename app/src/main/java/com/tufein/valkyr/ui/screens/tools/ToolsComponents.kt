@@ -228,7 +228,7 @@ internal fun ToolRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 3.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
             .defaultMinSize(minHeight = 56.dp)
             .background(scheme.surfaceContainer, CardShape)
             .border(1.dp, tokens.hairline, CardShape)

@@ -232,8 +232,8 @@ private fun CloseButton(onClick: () -> Unit) {
     val source = rememberFocusSource()
     Box(
         modifier = Modifier
-            .size(44.dp)
-            .focusRing(source, cornerRadius = 22.dp)
+            .size(48.dp)
+            .focusRing(source, cornerRadius = 24.dp)
             .clip(CircleShape)
             .clickable(interactionSource = source, indication = null, onClick = onClick),
         contentAlignment = Alignment.Center

@@ -49,7 +49,7 @@ fun ConfirmDialog(
         },
         text = { Text(message) },
         confirmButton = {
-            DialogButton(text = confirmText, onClick = { onConfirm(); onDismiss() })
+            DialogButton(text = confirmText, onClick = { onConfirm(); onDismiss() }, destructive = destructive)
         },
         dismissButton = {
             DialogButton(text = stringResource(R.string.dialog_cancel), onClick = onDismiss, initialFocus = cancelFocus)

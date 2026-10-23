@@ -208,7 +208,7 @@ private fun GoalStar(goal: Boolean, name: String, onClick: () -> Unit) {
     val description = stringResource(if (goal) R.string.coll6_goal_unset else R.string.coll6_goal_set, name)
     Row(
         modifier = Modifier
-            .size(40.dp)
+            .size(48.dp)
             .focusRing(source, cornerRadius = 10.dp)
             .clickable(interactionSource = source, indication = null, onClick = onClick)
             .semantics { contentDescription = description },

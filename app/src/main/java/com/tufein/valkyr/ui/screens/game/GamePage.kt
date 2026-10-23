@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.game
 
+import androidx.compose.foundation.layout.defaultMinSize
 import android.content.res.Configuration
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
@@ -339,14 +340,8 @@ private fun GamePageContent(
             title = { Text(stringResource(R.string.play_choose)) },
             text = { Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (staleChoice) Text(stringResource(R.string.play24_remembered_missing), style = MaterialTheme.typography.bodySmall)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(rememberEmulator, { rememberEmulator = it })
-                    Text(stringResource(R.string.play26_remember_choice), style = MaterialTheme.typography.bodySmall)
-                }
-                if (rememberEmulator) Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(rememberForGame, { rememberForGame = it })
-                    Text(stringResource(R.string.play26_remember_game), style = MaterialTheme.typography.bodySmall)
-                }
+                RememberCheckRow(stringResource(R.string.play26_remember_choice), rememberEmulator) { rememberEmulator = it }
+                if (rememberEmulator) RememberCheckRow(stringResource(R.string.play26_remember_game), rememberForGame) { rememberForGame = it }
                 if (rememberEmulator && !rememberForGame) Text(stringResource(R.string.play_remember), style = MaterialTheme.typography.bodySmall)
                 // Automatic: the best app offered (a known emulator first), now and, when remembered, every time.
                 val best = choices.firstOrNull { it.handlers.isNotEmpty() }
@@ -842,3 +837,17 @@ private fun Modifier.dpadScroll(scroll: ScrollState): Modifier {
 }
 
 private const val SCROLL_STEP = 160f
+
+/** A whole-row checkbox for the launch dialog: 48 dp high with the accent focus ring, so A / a tap anywhere on it toggles. */
+@Composable
+private fun RememberCheckRow(text: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+    val source = rememberFocusSource()
+    Row(
+        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp).focusRing(source, 10.dp)
+            .clickable(interactionSource = source, indication = null) { onChange(!checked) },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(checked, null)
+        Text(text, style = MaterialTheme.typography.bodySmall)
+    }
+}

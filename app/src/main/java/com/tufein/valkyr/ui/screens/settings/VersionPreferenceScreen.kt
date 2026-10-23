@@ -306,14 +306,14 @@ private fun OrderRow(
     }
 }
 
-/** A 40 dp icon button with the focus ring; stays out of the way (not focusable) while it can do nothing. */
+/** A 48 dp icon button with the focus ring; stays out of the way (not focusable) while it can do nothing. */
 @Composable
 private fun SquareButton(icon: Int, description: String, enabled: Boolean, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .size(48.dp)
             .focusRing(source, 10.dp)
             .background(if (enabled) scheme.surfaceContainerHigh else scheme.surfaceContainer, RoundedCornerShape(10.dp))
             .clickable(interactionSource = source, indication = null, enabled = enabled, role = Role.Button, onClick = onClick),

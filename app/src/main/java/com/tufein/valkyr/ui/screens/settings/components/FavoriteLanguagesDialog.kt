@@ -99,7 +99,7 @@ private fun LanguageRow(label: String, checked: Boolean, focus: FocusRequester?,
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 44.dp)
+            .defaultMinSize(minHeight = 48.dp)
             .then(if (focus != null) Modifier.focusRequester(focus) else Modifier)
             // Background first, then the ring: its tonal fill and halo stay visible (no clip).
             .background(if (checked) scheme.primaryContainer else scheme.surfaceContainer, RoundedCornerShape(10.dp))

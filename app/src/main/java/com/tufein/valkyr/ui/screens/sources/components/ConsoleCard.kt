@@ -330,7 +330,7 @@ private fun ExpandButton(expanded: Boolean, onClick: () -> Unit) {
     val angle = animateFloatAsState(if (expanded) 180f else 0f, motionSpec<Float>(Motion.MEDIUM), label = "chevron")
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .size(48.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             .focusRing(source, cornerRadius = 10.dp)

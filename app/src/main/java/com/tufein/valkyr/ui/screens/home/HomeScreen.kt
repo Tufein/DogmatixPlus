@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.home
 
+import androidx.compose.foundation.layout.heightIn
 import com.tufein.valkyr.ui.theme.accentInk
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
@@ -599,7 +600,7 @@ fun HomeScreen(
                 }, initialFocus = rememberInitialFocus())
             },
             dismissButton = {
-                DialogButton(stringResource(R.string.owned_delete), enabled = !removal.isNullOrEmpty(), onClick = {
+                DialogButton(stringResource(R.string.owned_delete), enabled = !removal.isNullOrEmpty(), destructive = true, onClick = {
                     val plan = removal ?: return@DialogButton
                     ownedDialogItem = null
                     scope.launch {
@@ -1153,7 +1154,7 @@ fun HomeScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 8.dp)
-                                    .height(46.dp),
+                                    .heightIn(min = 48.dp),
                                 icon = R.drawable.ic_check
                             )
                         }

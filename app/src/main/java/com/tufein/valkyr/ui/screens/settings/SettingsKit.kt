@@ -431,7 +431,7 @@ internal fun SettingsCardHeader(
             }
         }
         if (trailing != null) {
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) { trailing() }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) { trailing() }
         }
     }
 }

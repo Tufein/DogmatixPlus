@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.sources.components
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -123,7 +124,7 @@ private fun FolderRow(label: String, selected: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(44.dp)
+            .heightIn(min = 48.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(if (selected) scheme.primaryContainer else scheme.surfaceContainerHigh)
             .focusRing(source, 10.dp)

@@ -471,7 +471,7 @@ fun FileExplorerScreen(viewModel: FileExplorerViewModel = hiltViewModel(), onNav
                 }
             } },
             confirmButton = { DialogButton(stringResource(if (permanently) R.string.dialog_delete else R.string.files25_trash),
-                { viewModel.delete(context, entry, permanently); confirmDelete = null }) },
+                { viewModel.delete(context, entry, permanently); confirmDelete = null }, destructive = permanently) },
             dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), { confirmDelete = null }, initialFocus = cancel) })
     }
 
@@ -701,7 +701,7 @@ private fun FileDetailsDialog(
         },
         confirmButton = { DialogButton(text = stringResource(R.string.download_open), onClick = onOpen, initialFocus = openFocus) },
         dismissButton = {
-            DialogButton(text = stringResource(R.string.duplicates_delete), onClick = onDelete)
+            DialogButton(text = stringResource(R.string.duplicates_delete), onClick = onDelete, destructive = true)
             DialogButton(text = stringResource(R.string.dialog_close), onClick = onDismiss)
         }
     )

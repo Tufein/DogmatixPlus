@@ -179,7 +179,8 @@ fun CollectionsScreen(navController: NavController, viewModel: CollectionsViewMo
             message = stringResource(R.string.collections_delete_message),
             confirmText = stringResource(R.string.dialog_delete),
             onConfirm = { viewModel.delete(c.id); deleting = null },
-            onDismiss = { deleting = null }
+            onDismiss = { deleting = null },
+            destructive = true
         )
     }
 

@@ -67,7 +67,8 @@ fun DuplicatesScreen(viewModel: DuplicatesViewModel = hiltViewModel()) {
             ) + deletedFileList(entry),
             confirmText = stringResource(R.string.duplicates_delete),
             onConfirm = { viewModel.delete(context, entry) },
-            onDismiss = { pendingDelete = null }
+            onDismiss = { pendingDelete = null },
+            destructive = true
         )
     }
 
@@ -81,7 +82,8 @@ fun DuplicatesScreen(viewModel: DuplicatesViewModel = hiltViewModel()) {
                 "\n\n" + shown + if (removing.size > 12) "\n• … (+${removing.size - 12})" else "",
             confirmText = stringResource(R.string.duplicates_delete),
             onConfirm = { viewModel.removeSuggested(context) },
-            onDismiss = { confirmSuggested = false }
+            onDismiss = { confirmSuggested = false },
+            destructive = true
         )
     }
 

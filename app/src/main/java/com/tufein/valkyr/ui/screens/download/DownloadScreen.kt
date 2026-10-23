@@ -456,7 +456,7 @@ fun DownloadScreen(
             },
             confirmButton = {
                 val delete = if (fileNames.size > 1) R.string.delete_files else R.string.delete_file
-                DialogButton(stringResource(delete), onClick = { viewModel.confirmDeleteRemoveFile(fileNames) })
+                DialogButton(stringResource(delete), onClick = { viewModel.confirmDeleteRemoveFile(fileNames) }, destructive = true)
             },
             dismissButton = {
                 val keep = if (fileNames.size > 1) R.string.keep_files else R.string.keep_file

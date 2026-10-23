@@ -512,7 +512,7 @@ internal fun LoadMoreButton(count: Int, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 44.dp)
+            .defaultMinSize(minHeight = 48.dp)
             .background(scheme.primaryContainer, shape)
             .border(1.dp, scheme.primary.copy(alpha = 0.30f), shape)
             .focusRing(source, 12.dp)

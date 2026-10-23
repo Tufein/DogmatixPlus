@@ -40,7 +40,7 @@ fun Stepper(
     onIncrement: () -> Unit,
     modifier: Modifier = Modifier,
     valueWidth: Dp = 48.dp,
-    buttonSize: Dp = 36.dp
+    buttonSize: Dp = 48.dp
 ) {
     val reduce = LocalReduceMotion.current
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {

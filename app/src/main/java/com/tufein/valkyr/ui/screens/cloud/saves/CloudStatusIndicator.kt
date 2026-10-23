@@ -1,5 +1,6 @@
 package com.tufein.valkyr.ui.screens.cloud.saves
 
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -95,7 +96,7 @@ fun CloudStatusIndicator(onClick: () -> Unit, modifier: Modifier = Modifier) {
 
     Row(
         modifier = modifier
-            .heightIn(min = 36.dp)
+            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
             .focusRing(source, cornerRadius = 18.dp)
             .clip(RoundedCornerShape(18.dp))
             .clickable(interactionSource = source, indication = null, onClick = onClick)

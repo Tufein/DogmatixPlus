@@ -267,7 +267,7 @@ private fun RemovalDialog(plan: RemovalPlan, onConfirm: () -> Unit, onDismiss: (
             }
         },
         confirmButton = {
-            DialogButton(stringResource(if (files.isEmpty()) R.string.offline7_confirm_drop else R.string.offline7_confirm_delete), onClick = onConfirm)
+            DialogButton(stringResource(if (files.isEmpty()) R.string.offline7_confirm_drop else R.string.offline7_confirm_delete), onClick = onConfirm, destructive = true)
         },
         dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), onClick = onDismiss, initialFocus = cancelFocus) }
     )
