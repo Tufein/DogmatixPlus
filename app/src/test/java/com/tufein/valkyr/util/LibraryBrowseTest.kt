@@ -93,11 +93,4 @@ class LibraryBrowseTest {
         assertEquals(SortOption.NAME_ASC, seen.last())
         assertEquals(SortOption.entries.size, seen.dropLast(1).toSet().size)
     }
-
-    @Test
-    fun `the clear chip counts consoles, ownership, favourites and a non-default sort`() {
-        assertEquals(0, LibraryBrowse.quickCount(0, Ownership.ALL, false, SortOption.NAME_ASC))
-        assertEquals(1, LibraryBrowse.quickCount(0, Ownership.DOWNLOADED, false, SortOption.NAME_ASC))
-        assertEquals(5, LibraryBrowse.quickCount(2, Ownership.NOT_DOWNLOADED, true, SortOption.NEWEST))
-    }
 }

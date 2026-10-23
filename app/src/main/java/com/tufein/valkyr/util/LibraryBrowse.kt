@@ -77,11 +77,4 @@ object LibraryBrowse {
         val at = SORT_CYCLE.indexOf(current)
         return SORT_CYCLE[(at + 1) % SORT_CYCLE.size]
     }
-
-    /**
-     * How many quick filters are on, for the clear chip: consoles, the ownership chips, favourites and a
-     * non-default sort. (Tags, source, collection and the like are counted by the filter panel.)
-     */
-    fun quickCount(consoles: Int, ownership: Ownership, favouritesOnly: Boolean, sort: SortOption): Int =
-        consoles + (if (ownership.isActive) 1 else 0) + (if (favouritesOnly) 1 else 0) + (if (sort != SortOption.NAME_ASC) 1 else 0)
 }
