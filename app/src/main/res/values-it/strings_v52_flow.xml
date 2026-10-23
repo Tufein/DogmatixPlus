@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="flow52_resume">Riprendi il download</string>
+    <string name="flow52_retry">Riprova il download</string>
+    <string name="flow52_pause_all">Metti tutto in pausa (%1$d)</string>
+    <string name="flow52_resume_all">Riprendi tutto (%1$d)</string>
+    <string name="flow52_clear_done">Rimuovi completati (%1$d)</string>
+    <string name="flow52_group_active">Attivi</string>
+    <string name="flow52_group_waiting">In attesa o in pausa</string>
+    <string name="flow52_group_failed">Falliti o interrotti</string>
+    <string name="flow52_group_done">Completati</string>
+</resources>

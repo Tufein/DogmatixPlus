@@ -180,6 +180,7 @@ private fun GamePageContent(
 
     val ownedKeys by viewModel.ownedKeys.collectAsStateWithLifecycle()
     val active by viewModel.activeDownloads.collectAsStateWithLifecycle()
+    val downloadStates by viewModel.downloadStates.collectAsStateWithLifecycle()
     val favouriteKeys by viewModel.favouriteKeys.collectAsStateWithLifecycle()
     val rommKeys by viewModel.rommKeys.collectAsStateWithLifecycle()
     val progressAvailable by viewModel.progressAvailable.collectAsStateWithLifecycle()
@@ -388,7 +389,8 @@ private fun GamePageContent(
     )
 
     // The main button takes the focus when the page opens (the back pill while it is disabled).
-    val primary = GamePageModel.primary(owned, downloading)
+    val queue = GamePageModel.queueOf(downloadStates[rom.fileName])
+    val primary = GamePageModel.primary(owned, queue)
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(rom.consoleId, rom.fileName) {
         repeat(5) {
@@ -411,33 +413,41 @@ private fun GamePageContent(
             onBack = onBack
         )
     }
-    // The big main button and the round quick actions, straight under the header for the thumb.
-    val mainActions: @Composable () -> Unit = {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            val busy = primary == GamePageModel.Primary.DOWNLOADING
-            GamePrimaryAction(
-                primary = primary,
-                onClick = { if (!busy && !preparing) { if (owned) play() else download(item, null) } },
-                modifier = Modifier.fillMaxWidth().focusRequester(firstFocus)
-            )
-            GameQuickActions(
-                quick = GameHeaderModel.quick(owned, downloading),
-                favourite = favourite,
-                onFavourite = toggleFavourite,
-                onHomeScreen = pinToHomeScreen,
-                onShare = { scope.launch { GameShare.share(context, rom.consoleId, rom.fileName, rom.name) } },
-                onMore = { runCatching { moreFocus.requestFocus() } }
-            )
+    // 5.2: the main button and the favourite / more buttons live in the sticky bar below the page.
+    val onPrimary: () -> Unit = {
+        if (!preparing) when (primary) {
+            GamePageModel.Primary.DOWNLOADING -> Unit
+            GamePageModel.Primary.PLAY -> play()
+            GamePageModel.Primary.RESUME, GamePageModel.Primary.RETRY -> {
+                viewModel.resumeOrRetry(rom.fileName)
+                showMessage(startedMessage.format(rom.name))
+            }
+            GamePageModel.Primary.DOWNLOAD, GamePageModel.Primary.DOWNLOAD_AGAIN -> download(item, null)
         }
+    }
+    val actionBar: @Composable () -> Unit = {
+        GameActionBar(
+            primary = primary,
+            favourite = favourite,
+            onPrimary = onPrimary,
+            onFavourite = toggleFavourite,
+            onMore = { runCatching { moreFocus.requestFocus() } },
+            primaryModifier = Modifier.focusRequester(firstFocus)
+        )
     }
     val moreActions: @Composable () -> Unit = {
         val switch = state.switch
         // The live ranking (the same as the Versions tab), so a pin or a preference change shows at once.
         val best = ranking?.pick ?: state.best
         GameMoreActions(modifier = Modifier.padding(horizontal = 16.dp)) {
+            // The round buttons of 3.8 that the bar no longer carries.
+            val quick = GameHeaderModel.quick(owned, downloading)
+            if (GameHeaderModel.Quick.HOME_SCREEN in quick) {
+                ActionPill(stringResource(R.string.gamepage38_home_screen), pinToHomeScreen, modifier = PageTarget, icon = R.drawable.ic_shortcut)
+            }
+            if (GameHeaderModel.Quick.SHARE in quick) {
+                ActionPill(stringResource(R.string.lead6_share), { scope.launch { GameShare.share(context, rom.consoleId, rom.fileName, rom.name) } }, modifier = PageTarget, icon = R.drawable.ic_share)
+            }
             GameHeaderModel.more(
                 owned = owned,
                 downloading = downloading,
@@ -515,18 +525,21 @@ private fun GamePageContent(
             // A new tab starts at its top.
             LaunchedEffect(tab) { panelScroll.scrollTo(0) }
             Row(modifier = Modifier.fillMaxSize()) {
-                Column(
-                    modifier = Modifier
-                        .weight(0.42f)
-                        .fillMaxHeight()
-                        .dpadScroll(heroScroll)
-                        .verticalScroll(heroScroll)
-                        .padding(bottom = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(GamePageGap)
-                ) {
-                    header()
-                    mainActions()
-                    moreActions()
+                // The hero scrolls above the sticky action bar, which stays under the left column.
+                Column(modifier = Modifier.weight(0.42f).fillMaxHeight()) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .dpadScroll(heroScroll)
+                            .verticalScroll(heroScroll)
+                            .padding(bottom = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(GamePageGap)
+                    ) {
+                        header()
+                        moreActions()
+                    }
+                    actionBar()
                 }
                 Column(
                     modifier = Modifier
@@ -548,22 +561,26 @@ private fun GamePageContent(
             }
         } else {
             val scroll = rememberScrollState()
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .dpadScroll(scroll)
-                    .verticalScroll(scroll)
-                    .padding(bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(GamePageGap)
-            ) {
-                header()
-                mainActions()
-                moreActions()
-                Box(modifier = Modifier.padding(horizontal = 16.dp)) { tabStrip() }
-                Box(modifier = Modifier.padding(horizontal = 16.dp)) { content() }
+            Column(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .dpadScroll(scroll)
+                        .verticalScroll(scroll)
+                        .padding(bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(GamePageGap)
+                ) {
+                    header()
+                    moreActions()
+                    Box(modifier = Modifier.padding(horizontal = 16.dp)) { tabStrip() }
+                    Box(modifier = Modifier.padding(horizontal = 16.dp)) { content() }
+                }
+                actionBar()
             }
         }
-        SnackbarHost(snackbar, modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp))
+        // Above the sticky bar (a 56 dp button, its padding and the divider).
+        SnackbarHost(snackbar, modifier = Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp))
     }
 }
 

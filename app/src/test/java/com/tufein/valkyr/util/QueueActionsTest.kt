@@ -44,4 +44,16 @@ class QueueActionsTest {
         assertFalse(QueueActions.canPause(DownloadStatus.COPYING, isTorrent = false))
         assertFalse(QueueActions.canPause(DownloadStatus.PAUSED, isTorrent = false))
     }
+
+    @Test fun pauseAllAndResumeAllActOnTheRightRows() {
+        assertEquals(listOf("a.zip", "b.zip"), QueueActions.pausable(list))
+        assertEquals(listOf("g.zip"), QueueActions.resumable(list))
+        val c = QueueActions.counts(list)
+        assertEquals(2, c.pausable)
+        assertEquals(1, c.resumable)
+    }
+
+    @Test fun aParkedQueueStillShowsItsButtons() {
+        assertTrue(QueueActions.counts(listOf(item("g", DownloadStatus.PAUSED))).any)
+    }
 }

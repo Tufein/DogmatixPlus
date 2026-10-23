@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="flow52_resume">Download hervatten</string>
+    <string name="flow52_retry">Download opnieuw proberen</string>
+    <string name="flow52_pause_all">Alles pauzeren (%1$d)</string>
+    <string name="flow52_resume_all">Alles hervatten (%1$d)</string>
+    <string name="flow52_clear_done">Klaar opruimen (%1$d)</string>
+    <string name="flow52_group_active">Bezig</string>
+    <string name="flow52_group_waiting">Wachtend of gepauzeerd</string>
+    <string name="flow52_group_failed">Mislukt of gestopt</string>
+    <string name="flow52_group_done">Klaar</string>
+</resources>

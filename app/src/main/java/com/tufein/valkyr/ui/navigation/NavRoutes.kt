@@ -123,11 +123,12 @@ fun neighbourTab(route: String?, delta: Int): NavRoutes {
 }
 
 /**
- * Switches to a section tab. A tab already in the back stack is popped back to: navigate() with
+ * Switches to a section tab. Tapping the tab that is open posts [TabReselect] (its list scrolls to
+ * the top); tapping a tab from one of its deeper screens pops back to the tab's root. A tab already in the back stack is popped back to: navigate() with
  * restoreState would restore the very stack it has just saved and leave the user where they were.
  */
 fun NavController.switchToTab(route: String) {
-    if (currentDestination?.route == route) return
+    if (currentDestination?.route == route) { TabReselect.post(route); return }
     if (runCatching { getBackStackEntry(route) }.isSuccess) {
         popBackStack(route, inclusive = false)
         return
