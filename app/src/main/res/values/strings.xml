@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Simpler settings: ten cards that show only the everyday options, with an Advanced row for the rest. Search still finds everything.</item>
+        <item>Handier interface: remembered Overview/List/Covers switch, one-press filter chips, A or tap downloads or plays right away, a fixed action bar on the game page and a grouped Downloads tab.</item>
     </string-array>
 
     <!-- 4.0 -->

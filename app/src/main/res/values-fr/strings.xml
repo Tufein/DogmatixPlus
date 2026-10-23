@@ -1317,7 +1317,7 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Réglages plus simples : dix cartes avec seulement les options courantes et une ligne « Avancé » pour le reste. La recherche trouve toujours tout.</item>
+        <item>Interface plus pratique : sélecteur Aperçu/Liste/Jaquettes mémorisé, puces de filtre en un appui, A ou toucher télécharge ou lance aussitôt, barre d’actions fixe sur la page du jeu et téléchargements groupés.</item>
     </string-array>
 
     <!-- 4.0 -->

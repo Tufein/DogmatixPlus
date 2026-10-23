@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Einfachere Einstellungen: zehn Karten mit nur den alltäglichen Optionen und einer Zeile „Erweitert“ für den Rest. Die Suche findet weiterhin alles.</item>
+        <item>Handlichere Oberfläche: gemerkter Umschalter Übersicht/Liste/Cover, Filter-Chips mit einem Klick, A oder Tippen lädt oder startet sofort, feste Aktionsleiste auf der Spielseite und gruppierte Downloads.</item>
     </string-array>
 
     <!-- 4.0 -->

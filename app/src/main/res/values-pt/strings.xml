@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Definições mais simples: dez cartões só com as opções do dia a dia e uma linha «Avançadas» para o resto. A pesquisa continua a encontrar tudo.</item>
+        <item>Interface mais prática: seletor Visão geral/Lista/Capas memorizado, chips de filtro com um toque, A ou toque descarrega ou joga logo, barra de ações fixa na página do jogo e transferências agrupadas.</item>
     </string-array>
 
     <!-- 4.0 -->

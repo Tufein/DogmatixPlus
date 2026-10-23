@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Impostazioni più semplici: dieci schede con solo le opzioni di tutti i giorni e una riga «Avanzate» per il resto. La ricerca trova sempre tutto.</item>
+        <item>Interfaccia più pratica: selettore Panoramica/Elenco/Copertine memorizzato, chip di filtro con un tocco, A o tocco scarica o avvia subito, barra azioni fissa nella pagina del gioco e download raggruppati.</item>
     </string-array>
 
     <!-- 4.0 -->
