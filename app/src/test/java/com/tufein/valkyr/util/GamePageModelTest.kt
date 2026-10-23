@@ -75,7 +75,7 @@ class GamePageModelTest {
     }
 
     @Test fun `queueOf maps every status`() {
-        val q = GamePageModel.Queue
+        val q = GamePageModel.Queue.entries.associateBy { it.name }.let { m -> object { val NONE = m.getValue("NONE"); val ACTIVE = m.getValue("ACTIVE"); val PAUSED = m.getValue("PAUSED"); val FAILED = m.getValue("FAILED") } }
         assertEquals(q.NONE, GamePageModel.queueOf(null))
         assertEquals(q.ACTIVE, GamePageModel.queueOf(com.tufein.valkyr.data.model.DownloadStatus.QUEUED))
         assertEquals(q.ACTIVE, GamePageModel.queueOf(com.tufein.valkyr.data.model.DownloadStatus.DOWNLOADING))
