@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tufein.valkyr.data.local.AppSettings
 import com.tufein.valkyr.BuildConfig
+import com.tufein.valkyr.data.local.LibrarySettings
 import com.tufein.valkyr.data.local.LookSettings
+import com.tufein.valkyr.util.LibraryBrowse
 import com.tufein.valkyr.data.local.dao.GameMetadataDao
 import com.tufein.valkyr.util.GameTitleCleaner
 import com.tufein.valkyr.util.LibraryDiscovery
@@ -105,6 +107,7 @@ class HomeViewModel @Inject constructor(
     private val libraryTools: LibraryToolsService,
     private val metadataDao: GameMetadataDao,
     lookSettings: LookSettings,
+    private val librarySettings: LibrarySettings,
     private val sourceTrack: com.tufein.valkyr.data.service.SourceTrackService,
     private val detailsLoader: GameDetailsLoader
 ) : ViewModel() {
@@ -116,6 +119,21 @@ class HomeViewModel @Inject constructor(
     /** 6.0: tighter rows (Settings → Look → compact lists). */
     val compactLists: StateFlow<Boolean> = lookSettings.compactLists
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    // ---- 5.1: the Library tab's view and quick filters -------------------------------------------
+
+    /** The view the tab was left in (overview until the user picks one); see [LibraryBrowse]. */
+    val viewMode: StateFlow<LibraryBrowse.ViewMode> = librarySettings.view
+        .stateIn(viewModelScope, SharingStarted.Eagerly, LibraryBrowse.ViewMode.OVERVIEW)
+
+    fun setViewMode(mode: LibraryBrowse.ViewMode) {
+        viewModelScope.launch { librarySettings.setView(mode) }
+    }
+
+    private val _ownership = MutableStateFlow(LibraryBrowse.Ownership.ALL)
+    /** Downloaded / not downloaded chips: matched against what is on the device, not the database. */
+    val ownership: StateFlow<LibraryBrowse.Ownership> = _ownership.asStateFlow()
+    fun setOwnership(value: LibraryBrowse.Ownership) { _ownership.value = value }
 
     // ---- 6.0: search by feel (genre / decade from the cached game details) ----------------------
 
@@ -533,7 +551,10 @@ class HomeViewModel @Inject constructor(
                 combine(_sort, _favouritesOnly, _source, rescanStateHolder.lastRescanTime, combine(_newOnly, _collectionId) { n, c -> n to c }) { s, f, src, _, nc -> FilterExtra(s, f, src, nc.first, nc.second) },
                 // Re-query when a star changes while "Favourites only" is on, else the row would linger.
                 // …and when the active profile changes what is hidden.
-                combine(_favouritesOnly, favourites.keys, profiles.restrictions) { only, keys, r -> (if (only) keys else emptySet()) to r }.distinctUntilChanged(),
+                // 5.1: …and when the files on the device change while a downloaded / not downloaded chip is on.
+                combine(_favouritesOnly, favourites.keys, profiles.restrictions, _ownership, libraryIndex.ownedKeys) { only, keys, r, own, owned ->
+                    Triple(if (only) keys else emptySet(), r, if (own.isActive) owned else emptySet())
+                }.distinctUntilChanged(),
                 pageSize,
                 // 6.0: genre / decade; the index only matters (and re-runs the search) while one is active.
                 combine(_genres, _decades, discoverIndex) { g, d, idx -> Triple(g, d, if (g.isNotEmpty() || d.isNotEmpty()) idx else null) }
@@ -541,7 +562,7 @@ class HomeViewModel @Inject constructor(
                 FilterParams(
                     query = query, consoles = consoles, tags = tags, sort = extra.sort, favouritesOnly = extra.favouritesOnly, source = extra.source, limit = limit,
                     newSince = if (extra.newOnly) NewGames.since(System.currentTimeMillis()) else 0L, collectionId = extra.collectionId,
-                    genres = genres, decades = decades
+                    genres = genres, decades = decades, ownership = _ownership.value
                 )
             }.collect { params ->
                 currentOffset = 0
@@ -654,12 +675,13 @@ class HomeViewModel @Inject constructor(
         _collectionId.value = 0L
         _genres.value = emptySet()
         _decades.value = emptySet()
+        _ownership.value = LibraryBrowse.Ownership.ALL
     }
 
     private fun currentParams() = FilterParams(
         query = _searchQuery.value, consoles = _selectedConsoles.value, tags = _activeTags.value, sort = _sort.value,
         favouritesOnly = _favouritesOnly.value, source = _source.value, limit = pageSize.value, newSince = newSince(),
-        collectionId = _collectionId.value, genres = _genres.value, decades = _decades.value
+        collectionId = _collectionId.value, genres = _genres.value, decades = _decades.value, ownership = _ownership.value
     )
 
     /** A page of results: where the next one starts (in database rows) and whether nothing is left. */
@@ -679,7 +701,9 @@ class HomeViewModel @Inject constructor(
             newSince = params.newSince, collectionId = params.collectionId, source = params.source, sort = params.sort,
             limit = limit, offset = from
         )
-        if (!filter.isActive) {
+        val ownedNow = if (params.ownership.isActive) libraryIndex.ownedKeys.value else emptySet()
+        val ownershipOnly: (DownloadableFileWithTags) -> Boolean = { params.ownership.matches(libraryIndex.isOwned(it.file, ownedNow)) }
+        if (!filter.isActive && !params.ownership.isActive) {
             val rows = query(want, offset)
             return Page(rows, offset + rows.size, rows.size < want)
         }
@@ -691,8 +715,23 @@ class HomeViewModel @Inject constructor(
         while (out.size < want && scanned < SCAN_CAP) {
             val batch = query(SCAN_BATCH, next)
             if (batch.isEmpty()) { exhausted = true; break }
+            val room = want - out.size
+            // Genre / decade first (it knows how far it read); then what is on the device.
             val matched = withContext(Dispatchers.Default) {
-                LibraryDiscovery.match(batch, index, filter, want - out.size) { LibraryDiscovery.lookupKey(it.file.consoleId, it.file.name) }
+                if (filter.isActive) {
+                    val m = LibraryDiscovery.match(batch, index, filter, room) { LibraryDiscovery.lookupKey(it.file.consoleId, it.file.name) }
+                    LibraryDiscovery.Matched(m.rows.filter(ownershipOnly), m.consumed)
+                } else {
+                    // Stop reading at the row that fills the page, so the next page continues right after it.
+                    val rows = ArrayList<DownloadableFileWithTags>()
+                    var consumed = 0
+                    for (row in batch) {
+                        if (rows.size >= room) break
+                        consumed++
+                        if (ownershipOnly(row)) rows.add(row)
+                    }
+                    LibraryDiscovery.Matched(rows, consumed)
+                }
             }
             out.addAll(matched.rows)
             next += matched.consumed
@@ -771,7 +810,8 @@ data class FilterParams(
     val newSince: Long = 0L,
     val collectionId: Long = 0L,
     val genres: Set<String> = emptySet(),
-    val decades: Set<Int> = emptySet()
+    val decades: Set<Int> = emptySet(),
+    val ownership: LibraryBrowse.Ownership = LibraryBrowse.Ownership.ALL
 )
 
 private const val SCAN_BATCH = 1500

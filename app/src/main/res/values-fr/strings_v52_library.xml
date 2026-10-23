@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lib52_view_overview">Aperçu</string>
+    <string name="lib52_view_list">Liste</string>
+    <string name="lib52_view_covers">Jaquettes</string>
+    <string name="lib52_chip_clear">Tout effacer</string>
+    <string name="lib52_chip_downloaded">Téléchargés</string>
+    <string name="lib52_chip_not_downloaded">Non téléchargés</string>
+    <string name="lib52_chip_favourites">Favoris</string>
+    <string name="lib52_chip_sort">Tri : %1$s</string>
+    <string name="lib52_filter_ownership">Sur cet appareil</string>
+    <string name="lib52_action_play">Jouer</string>
+    <string name="lib52_action_download">Télécharger</string>
+    <string name="lib52_action_downloading">En cours</string>
+    <string name="lib52_action_play_cd">Jouer à %1$s</string>
+    <string name="lib52_action_download_cd">Télécharger %1$s</string>
+    <string name="lib52_action_downloading_cd">%1$s est en cours de téléchargement</string>
+    <string name="lib52_pad_primary">Télécharger / jouer</string>
+</resources>

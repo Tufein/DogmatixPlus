@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lib52_view_overview">Overview</string>
+    <string name="lib52_view_list">List</string>
+    <string name="lib52_view_covers">Covers</string>
+    <string name="lib52_chip_clear">Clear all</string>
+    <string name="lib52_chip_downloaded">Downloaded</string>
+    <string name="lib52_chip_not_downloaded">Not downloaded</string>
+    <string name="lib52_chip_favourites">Favourites</string>
+    <string name="lib52_chip_sort">Sort: %1$s</string>
+    <string name="lib52_filter_ownership">On this device</string>
+    <string name="lib52_action_play">Play</string>
+    <string name="lib52_action_download">Download</string>
+    <string name="lib52_action_downloading">Downloading</string>
+    <string name="lib52_action_play_cd">Play %1$s</string>
+    <string name="lib52_action_download_cd">Download %1$s</string>
+    <string name="lib52_action_downloading_cd">%1$s is downloading</string>
+    <string name="lib52_pad_primary">Download / play</string>
+</resources>

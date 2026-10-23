@@ -30,6 +30,7 @@ import com.tufein.valkyr.ui.screens.home.components.CoverGap
 import com.tufein.valkyr.ui.screens.home.components.DenseRowGap
 import com.tufein.valkyr.ui.screens.home.components.DiscoverBlock
 import com.tufein.valkyr.ui.screens.home.components.RowGap
+import com.tufein.valkyr.util.LibraryBrowse
 import com.tufein.valkyr.util.LibraryDiscovery
 import com.tufein.valkyr.ui.screens.home.components.TableCoverWidth
 import com.tufein.valkyr.ui.theme.LocalDogmatixTokens
@@ -203,6 +204,9 @@ fun HomeScreen(
     // 5.0: covers in the rows, the live download ring, placeholder rows and the empty-library state.
     val listCovers by viewModel.listCovers.collectAsStateWithLifecycle()
     val loadMoreSize by viewModel.loadMoreSize.collectAsStateWithLifecycle()
+    // 5.1: the remembered view (overview / list / covers) and the downloaded / not downloaded chips.
+    val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
+    val ownership by viewModel.ownership.collectAsStateWithLifecycle()
     val compactLists by viewModel.compactLists.collectAsStateWithLifecycle()
     // 6.0 search by feel: genre / decade from the cached details, and the opt-in fetch.
     val genres by viewModel.genres.collectAsStateWithLifecycle()
@@ -246,9 +250,11 @@ fun HomeScreen(
     var focusedItem by remember { mutableStateOf<DownloadableFileWithTags?>(null) }
     val focusManager = LocalFocusManager.current
     // 3.8.0 "covers first": while nothing narrows the library, Home shows shelves of big covers
-    // (HomeShelves) instead of the list. The list stays one press away: the List pill in the search
-    // box, a console shelf's "See all", or any search or filter. [listMode] is the List pill.
-    var listMode by rememberSaveable { mutableStateOf(false) }
+    // (HomeShelves) instead of the list. 5.1: the view switch under the search box picks Overview (the
+    // shelves), List or Covers and the pick is remembered; a console shelf's "See all" or any search or
+    // filter shows the games themselves. [forceList] is only the one-off "show the whole list" from the
+    // shelves' empty state; it never changes the remembered view.
+    var forceList by rememberSaveable { mutableStateOf(false) }
     // The hero takes the focus once per visit of Home (not again after a search is cleared).
     var shelvesFocusPending by rememberSaveable { mutableStateOf(true) }
     val shelvesFocus = remember { FocusRequester() }
@@ -272,7 +278,7 @@ fun HomeScreen(
     val expandFilters = {
         filtersCollapsed = false
         // The filter panel belongs to the list: opening it from the shelves shows the list.
-        if (shelvesNow.value) listMode = true
+        if (shelvesNow.value) forceList = true
         if (railHasFocus) scope.launch { withFrameNanos { }; withFrameNanos { }; runCatching { filterFocus.requestFocus() } }
     }
 
@@ -330,6 +336,17 @@ fun HomeScreen(
             onSelectionChange = { viewModel.setFavouritesOnly(FAV_ONLY in it) }
         ),
         FilterRowSpec(
+            label = stringResource(R.string.lib52_filter_ownership),
+            options = listOf(
+                FilterOption(LibraryBrowse.Ownership.ALL.name, stringResource(R.string.filter_all)),
+                FilterOption(LibraryBrowse.Ownership.DOWNLOADED.name, stringResource(R.string.lib52_chip_downloaded)),
+                FilterOption(LibraryBrowse.Ownership.NOT_DOWNLOADED.name, stringResource(R.string.lib52_chip_not_downloaded))
+            ),
+            selected = setOf(ownership.name),
+            single = true,
+            onSelectionChange = { sel -> viewModel.setOwnership(sel.firstOrNull()?.let { LibraryBrowse.Ownership.valueOf(it) } ?: LibraryBrowse.Ownership.ALL) }
+        ),
+        FilterRowSpec(
             label = stringResource(R.string.filter_new),
             options = listOf(
                 FilterOption(FAV_ALL, stringResource(R.string.filter_all)),
@@ -380,7 +397,7 @@ fun HomeScreen(
         )
     )
     val activeFilterCount = selectedConsoles.size + activeTags.size + (if (favouritesOnly) 1 else 0) + (if (sourceFilter != SourceFilter.ALL) 1 else 0) +
-        (if (newOnly) 1 else 0) + (if (collectionId != 0L) 1 else 0) +
+        (if (newOnly) 1 else 0) + (if (collectionId != 0L) 1 else 0) + (if (ownership.isActive) 1 else 0) +
         LibraryDiscovery.Filter(genres, decades).activeCount
     // 5.0 empty states: the library has nothing yet → Sources (as a tab switch, like the top tabs do);
     // nothing matches → clear what narrows the list.
@@ -459,7 +476,7 @@ fun HomeScreen(
 
     // 3.8.0: shelves in the start state (see ShelvesModel.isStartState); an empty library keeps its own empty state.
     val startState = ShelvesModel.isStartState(query, activeFilterCount, sort == SortOption.NAME_ASC)
-    val showShelves = onOpenGame != null && startState && !listMode && !libraryEmptyState.value
+    val showShelves = LibraryBrowse.showShelves(viewMode, onOpenGame != null, startState, forceList, libraryEmptyState.value)
     SideEffect { shelvesNow.value = showShelves }
     // After a shelf leads to the list (a console's "See all", a chip in landscape) the cursor goes to
     // its first row once the new results are in (gamepad only).
@@ -483,21 +500,51 @@ fun HomeScreen(
         onOpenGame?.invoke(consoleId, fileName)
         com.tufein.valkyr.ui.shortcut.PendingGameShortcut.submit(consoleId, fileName, play = true)
     }
-    val goToShelves: () -> Unit = {
-        listMode = false
-        if (!startState) viewModel.clearAllFilters()
+    // 5.1: the Overview / List / Covers switch. The pick is stored; Overview is the shelves again, which
+    // are the library with nothing narrowing it, so search and filters are cleared.
+    val onPickView: (LibraryBrowse.ViewMode) -> Unit = { mode ->
+        viewModel.setViewMode(mode)
+        forceList = false
+        if (mode == LibraryBrowse.ViewMode.OVERVIEW && !startState) viewModel.clearAllFilters()
     }
-    // The pill at the end of the search box: List from the shelves, Overview back from the list.
-    val viewSwitch: (@Composable () -> Unit)? = if (onOpenGame == null) null else {
-        { ViewSwitchPill(shelves = showShelves, onClick = { if (showShelves) listMode = true else goToShelves() }) }
+    val browseViews = LibraryBrowse.availableViews(onOpenGame != null)
+    val quickRow: @Composable (Modifier, Int) -> Unit = { modifier, inset ->
+        QuickFilterRow(
+            modes = browseViews,
+            mode = if (viewMode in browseViews) viewMode else LibraryBrowse.ViewMode.LIST,
+            onMode = onPickView,
+            ownership = ownership,
+            onOwnership = viewModel::setOwnership,
+            favouritesOnly = favouritesOnly,
+            onFavourites = viewModel::setFavouritesOnly,
+            sort = sort,
+            onSort = viewModel::setSort,
+            onClear = clearFilters,
+            modifier = modifier,
+            horizontalPadding = inset
+        )
     }
+    // 5.1: in the List and Covers views A / a tap / the row's button does the main thing right there:
+    // Play for a game on the device, Download otherwise (a download already running just says so).
+    val primaryActionOf: (DownloadableFileWithTags) -> LibraryBrowse.PrimaryAction = { item ->
+        LibraryBrowse.primaryAction(viewModel.isOwned(item.file, ownedKeys), viewModel.isDownloading(item.file, activeDownloads))
+    }
+    val onPrimary: (DownloadableFileWithTags) -> Unit = { item ->
+        when (primaryActionOf(item)) {
+            LibraryBrowse.PrimaryAction.DOWNLOADING -> showMessage(alreadyDownloadingMessage.format(item.file.name))
+            LibraryBrowse.PrimaryAction.PLAY ->
+                if (onOpenGame != null) playFromShelf(item.file.consoleId, item.file.fileName) else onFileClick(item)
+            LibraryBrowse.PrimaryAction.DOWNLOAD -> download(item)
+        }
+    }
+    val onItemClick: (DownloadableFileWithTags) -> Unit = if (viewMode.isBrowse) onPrimary else onRowClick
     val shelvesPanel: @Composable (Modifier, (@Composable () -> Unit)?) -> Unit = { modifier, header ->
         HomeShelves(
             onOpenGame = { c, f -> returnGame = c to f; onOpenGame?.invoke(c, f) },
             onPlay = playFromShelf,
             onOpenConsole = openConsoleList,
             onOpenForYou = { navController.navigate(NavRoutes.UpNext.route) },
-            onShowList = { listMode = true },
+            onShowList = { forceList = true },
             modifier = modifier,
             initialFocus = shelvesFocus,
             focusOnShow = shelvesFocusPending && !searchActive,
@@ -648,7 +695,7 @@ fun HomeScreen(
     val filtersKey = if (isLandscape) listOf(LegendEntry("R3", stringResource(R.string.pad_filters))) else emptyList()
     val section = LegendEntry("ZL · ZR", stringResource(R.string.pad_section))
     val legendList = listOf(
-        LegendEntry("A", stringResource(if (onOpenGame != null) R.string.pad_open else R.string.pad_download)), LegendEntry("X", stringResource(R.string.pad_details)),
+        LegendEntry("A", stringResource(if (viewMode.isBrowse) R.string.lib52_pad_primary else if (onOpenGame != null) R.string.pad_open else R.string.pad_download)), LegendEntry("X", stringResource(R.string.pad_details)),
         LegendEntry("Y", stringResource(R.string.pad_search)), selectLegendEntry(R.string.pad_favourite),
         LegendEntry("◀ ▶", stringResource(R.string.pad_letters))
     ) + filtersKey + section + LegendEntry("START", stringResource(R.string.disc6_pad_surprise))
@@ -692,7 +739,7 @@ fun HomeScreen(
             showCollectionPicker -> showCollectionPicker = false
             activeFilterCount > 0 || sort != SortOption.NAME_ASC -> viewModel.clearAllFilters()
             // 3.8.0: from the whole list back to the shelves.
-            listMode && onOpenGame != null -> listMode = false
+            forceList && onOpenGame != null -> forceList = false
             else -> runCatching { Gamepad.sectionFocus.requestFocus() }
         }
     }
@@ -714,7 +761,7 @@ fun HomeScreen(
                 GamepadButton.START -> if (viewModel.details.value == null && !searchActive) results.randomOrNull()?.let(openGame)
                 GamepadButton.PREV_PANEL -> if (isLandscape) {
                     filtersCollapsed = false
-                    if (shelvesNow.value) listMode = true
+                    if (shelvesNow.value) forceList = true
                     scope.launch { withFrameNanos { }; withFrameNanos { }; runCatching { filterFocus.requestFocus() } }
                 } else showFilterSheet = true
                 GamepadButton.TOGGLE_FILTERS -> if (isLandscape) {
@@ -848,7 +895,6 @@ fun HomeScreen(
                                 onDismiss = { searchActive = false; runCatching { (if (shelvesNow.value) shelvesFocus else listFocus).requestFocus() } },
                                 focusRequester = searchFocus,
                                 contentShift = contentShift,
-                                trailing = viewSwitch,
                                 height = SearchHeight,
                                 cornerRadius = 16.dp,
                                 modifier = Modifier.weight(1f)
@@ -860,6 +906,7 @@ fun HomeScreen(
                             recentSearches, onPick = viewModel::setSearch, onClear = viewModel::clearRecentSearches,
                             modifier = Modifier.padding(start = 6.dp, top = 8.dp)
                         )
+                        quickRow(Modifier.padding(top = 8.dp), 2)
                         if (showShelves) shelvesPanel(Modifier.weight(1f).padding(top = 8.dp)) {
                             ConsoleChips(
                                 options = consoleOptions,
@@ -868,16 +915,22 @@ fun HomeScreen(
                                 modifier = Modifier.padding(top = 2.dp)
                             )
                         } else {
-                        if (query.isEmpty() && activeFilterCount == 0) ContinuePlayingShelf(
+                        if (query.isEmpty() && activeFilterCount == 0 && !viewMode.isBrowse) ContinuePlayingShelf(
                             onOpenGame = openGame,
                             modifier = Modifier.padding(top = 8.dp)
                         )
-                        if (query.isEmpty() && activeFilterCount == 0 && onOpenGame != null) com.tufein.valkyr.ui.screens.next.UpNextShelf(
+                        if (query.isEmpty() && activeFilterCount == 0 && onOpenGame != null && !viewMode.isBrowse) com.tufein.valkyr.ui.screens.next.UpNextShelf(
                             onOpenGame = onOpenGame,
                             onOpenAll = { navController.navigate(NavRoutes.UpNext.route) },
                             modifier = Modifier.padding(top = 8.dp)
                         )
-                        if (tableRows) TableHeader(contentShift, showCover = listCovers) else Text(
+                        if (!showShelves) ConsoleChips(
+                            options = consoleOptions,
+                            selected = selectedConsoles,
+                            onSelect = viewModel::setConsoleSelection,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                        if (tableRows && !viewMode.isBrowse) TableHeader(contentShift, showCover = listCovers) else Text(
                             resultsLabel(results.size, hasMoreResults),
                             style = MaterialTheme.typography.labelMedium.tabular(),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -890,7 +943,7 @@ fun HomeScreen(
                             isLoadingMore = isLoadingMore,
                             onLoadMore = { scope.launch { viewModel.loadMore() } },
                             getConsoleName = { ConsoleFormatter.getConsoleShortName(it) },
-                            onFileClick = onRowClick,
+                            onFileClick = onItemClick,
                             isOwned = { viewModel.isOwned(it.file, ownedKeys) },
                             isOnRomm = { viewModel.isOnRomm(it.file, rommKeys, rommBase) },
                             isFavourite = { viewModel.isFavourite(it.file, favouriteKeys) },
@@ -920,7 +973,9 @@ fun HomeScreen(
                             onClearFilters = clearFilters,
                             loadMoreSize = loadMoreSize,
                             illustrated = false,
-                            emptyLibraryExtra = newHandheldHint
+                            emptyLibraryExtra = newHandheldHint,
+                            viewMode = viewMode,
+                            primaryAction = primaryActionOf
                         )
                         }
                     }
@@ -956,7 +1011,6 @@ fun HomeScreen(
                         onActivate = { searchActive = true },
                         onDismiss = { searchActive = false; runCatching { (if (shelvesNow.value) shelvesFocus else listFocus).requestFocus() } },
                         focusRequester = searchFocus,
-                        trailing = viewSwitch,
                         height = SearchHeight,
                         cornerRadius = 16.dp,
                         modifier = Modifier.weight(1f)
@@ -968,20 +1022,21 @@ fun HomeScreen(
                     modifier = Modifier.padding(start = 20.dp, end = 16.dp, top = 6.dp)
                 )
                 // The shelves have their own Continue playing and New for you.
-                if (!showShelves && query.isEmpty() && activeFilterCount == 0) ContinuePlayingShelf(
+                if (!showShelves && query.isEmpty() && activeFilterCount == 0 && !viewMode.isBrowse) ContinuePlayingShelf(
                     onOpenGame = openGame,
                     modifier = Modifier.padding(start = 14.dp, end = 10.dp, top = 6.dp)
                 )
-                if (!showShelves && query.isEmpty() && activeFilterCount == 0 && onOpenGame != null) com.tufein.valkyr.ui.screens.next.UpNextShelf(
+                if (!showShelves && query.isEmpty() && activeFilterCount == 0 && onOpenGame != null && !viewMode.isBrowse) com.tufein.valkyr.ui.screens.next.UpNextShelf(
                     onOpenGame = onOpenGame,
                     onOpenAll = { navController.navigate(NavRoutes.UpNext.route) },
                     modifier = Modifier.padding(start = 14.dp, end = 10.dp, top = 6.dp)
                 )
+                quickRow(Modifier.padding(top = 8.dp), 16)
                 ConsoleChips(
                     options = consoleOptions,
                     selected = selectedConsoles,
                     onSelect = viewModel::setConsoleSelection,
-                    modifier = Modifier.padding(vertical = 10.dp)
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
                 if (showShelves) shelvesPanel(Modifier.weight(1f), null) else {
                 Row(
@@ -1011,7 +1066,7 @@ fun HomeScreen(
                     isLoadingMore = isLoadingMore,
                     onLoadMore = { scope.launch { viewModel.loadMore() } },
                     getConsoleName = { ConsoleFormatter.getConsoleShortName(it) },
-                    onFileClick = onRowClick,
+                    onFileClick = onItemClick,
                     isOwned = { viewModel.isOwned(it.file, ownedKeys) },
                     isOnRomm = { viewModel.isOnRomm(it.file, rommKeys, rommBase) },
                     isFavourite = { viewModel.isFavourite(it.file, favouriteKeys) },
@@ -1040,7 +1095,9 @@ fun HomeScreen(
                     onClearFilters = clearFilters,
                     loadMoreSize = loadMoreSize,
                     illustrated = true,
-                    emptyLibraryExtra = newHandheldHint
+                    emptyLibraryExtra = newHandheldHint,
+                    viewMode = viewMode,
+                    primaryAction = primaryActionOf
                 )
                 }
             }

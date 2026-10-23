@@ -2,7 +2,10 @@ package com.tufein.valkyr.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,6 +48,7 @@ private val CardRadius = 16.dp
  * tag. The whole card is one focus target with the usual ring; A or a tap runs [onClick].
  * [lookup] off draws the placeholder only (previews and screenshots, which have no repository).
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CoverCard(
     consoleId: String,
@@ -56,7 +60,11 @@ fun CoverCard(
     owned: Boolean = false,
     width: Dp = CoverCardWidth,
     coverHeight: Dp = CoverCardCoverHeight,
-    lookup: Boolean = true
+    lookup: Boolean = true,
+    /** 5.1: a long press (X on a gamepad is wired by the screen); null keeps the plain click. */
+    onLongClick: (() -> Unit)? = null,
+    /** 5.1: what A / a tap does ("Download", "Play"), shown next to the console tag; null shows nothing. */
+    actionLabel: String? = null
 ) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
@@ -67,7 +75,10 @@ fun CoverCard(
             .focusScale(source, 1.04f)
             .focusRing(source, cornerRadius = CardRadius, fill = true)
             .clip(shape)
-            .clickable(interactionSource = source, indication = null, onClick = onClick)
+            .then(
+                if (onLongClick != null) Modifier.combinedClickable(interactionSource = source, indication = null, onClick = onClick, onLongClick = onLongClick)
+                else Modifier.clickable(interactionSource = source, indication = null, onClick = onClick)
+            )
             .padding(bottom = 6.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
@@ -87,7 +98,20 @@ fun CoverCard(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.padding(horizontal = 6.dp)
         )
-        ConsoleTag(consoleId, Modifier.padding(horizontal = 6.dp))
+        if (actionLabel == null) ConsoleTag(consoleId, Modifier.padding(horizontal = 6.dp))
+        else Row(
+            modifier = Modifier.padding(horizontal = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            ConsoleTag(consoleId)
+            Text(
+                actionLabel,
+                style = MaterialTheme.typography.labelMedium,
+                color = scheme.onPrimary,
+                modifier = Modifier.background(scheme.primary, RoundedCornerShape(50)).padding(horizontal = 8.dp, vertical = 2.dp)
+            )
+        }
     }
 }
 

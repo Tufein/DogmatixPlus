@@ -229,7 +229,7 @@ fun RomRow(
  * left, so the name ellipsises progressively while the filter panel slides. The cell keeps
  * reporting its full size, hence only this node re-measures per frame, not the row or the list.
  */
-private fun Modifier.slidingCell(shift: () -> Int): Modifier = clipToBounds().layout { measurable, constraints ->
+internal fun Modifier.slidingCell(shift: () -> Int): Modifier = clipToBounds().layout { measurable, constraints ->
     val dx = shift().coerceAtLeast(0)
     val available = (constraints.maxWidth - dx).coerceAtLeast(0)
     // Only cells whose text would actually be cut get narrower constraints; the others keep the

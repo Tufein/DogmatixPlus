@@ -49,6 +49,7 @@ object SettingSchema {
         putAll(CoverSources.SETTING_TYPES)
         putAll(ScreenScraper.SETTING_TYPES)
         putAll(CoverApis.SETTING_TYPES)
+        putAll(LibraryBrowse.SETTING_TYPES)
     }
 
     fun localName(name: String): String =

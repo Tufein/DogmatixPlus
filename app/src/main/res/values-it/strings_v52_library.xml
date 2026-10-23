@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lib52_view_overview">Panoramica</string>
+    <string name="lib52_view_list">Elenco</string>
+    <string name="lib52_view_covers">Copertine</string>
+    <string name="lib52_chip_clear">Cancella tutto</string>
+    <string name="lib52_chip_downloaded">Scaricati</string>
+    <string name="lib52_chip_not_downloaded">Non scaricati</string>
+    <string name="lib52_chip_favourites">Preferiti</string>
+    <string name="lib52_chip_sort">Ordine: %1$s</string>
+    <string name="lib52_filter_ownership">Su questo dispositivo</string>
+    <string name="lib52_action_play">Gioca</string>
+    <string name="lib52_action_download">Scarica</string>
+    <string name="lib52_action_downloading">In corso</string>
+    <string name="lib52_action_play_cd">Gioca a %1$s</string>
+    <string name="lib52_action_download_cd">Scarica %1$s</string>
+    <string name="lib52_action_downloading_cd">%1$s è in download</string>
+    <string name="lib52_pad_primary">Scarica / gioca</string>
+</resources>

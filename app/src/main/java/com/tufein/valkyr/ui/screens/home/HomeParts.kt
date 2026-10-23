@@ -36,6 +36,7 @@ import com.tufein.valkyr.ui.theme.LocalDogmatixTokens
 import com.tufein.valkyr.ui.theme.consoleColor
 import com.tufein.valkyr.ui.theme.tabular
 import com.tufein.valkyr.util.Constants
+import com.tufein.valkyr.util.LibraryBrowse
 import java.text.NumberFormat
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.horizontalScroll
@@ -243,7 +244,11 @@ internal fun ResultList(
     /** 6.0: compact lists (tighter rows). */
     dense: Boolean = false,
     /** 3.5.0: shown under the empty-library state (the "Set up a new handheld" hint). */
-    emptyLibraryExtra: (@Composable () -> Unit)? = null
+    emptyLibraryExtra: (@Composable () -> Unit)? = null,
+    /** 5.1: the Library tab's view; the overview's rows (and the list at hand) stay as they were. */
+    viewMode: LibraryBrowse.ViewMode = LibraryBrowse.ViewMode.OVERVIEW,
+    /** 5.1: what a game's button says (Download / Play / Downloading) in the List and Covers views. */
+    primaryAction: (DownloadableFileWithTags) -> LibraryBrowse.PrimaryAction = { LibraryBrowse.PrimaryAction.DOWNLOAD }
 ) {
     if (results.isEmpty()) {
         // The flags are read only here: while the list has rows, a new search or a library change
@@ -285,6 +290,25 @@ internal fun ResultList(
         }
         return
     }
+    if (LibraryBrowse.showGrid(viewMode)) {
+        ResultGrid(
+            results = results,
+            hasMore = hasMore,
+            isLoadingMore = isLoadingMore,
+            onLoadMore = onLoadMore,
+            loadMoreSize = loadMoreSize,
+            primaryAction = primaryAction,
+            onPrimary = onFileClick,
+            onDetails = onRowLongClick,
+            onRowFocused = onRowFocused,
+            modifier = modifier,
+            firstRowFocus = firstRowFocus,
+            returnGame = returnGame,
+            returnFocus = returnFocus
+        )
+        return
+    }
+    val actionRows = LibraryBrowse.showActionRows(viewMode)
     val listState = rememberLazyListState()
     val focusIndex = listState.firstVisibleItemIndex
     // ◀ ▶ jump through a long list by first letter: scroll there, then focus that row.
@@ -343,7 +367,28 @@ internal fun ResultList(
             val rowClick = remember(item, onFileClick) { { onFileClick(item) } }
             val rowLongClick = remember(item, onRowLongClick) { { onRowLongClick(item) } }
             val rowProgress = remember(fileName, downloadProgress) { { downloadProgress(fileName) } }
-            RomRow(
+            // RB from the filters lands on the first row currently on screen.
+            val rowModifier = when {
+                    index == pendingFocusIndex -> Modifier.focusRequester(newPageFocus)
+                    index == jumpTarget -> Modifier.focusRequester(jumpFocus)
+                    index == focusIndex && firstRowFocus != null -> Modifier.focusRequester(firstRowFocus)
+                    else -> Modifier
+                }.then(
+                    if (returnFocus != null && returnGame != null && returnGame.first == item.file.consoleId && returnGame.second == item.file.fileName)
+                        Modifier.focusRequester(returnFocus) else Modifier
+                ).onFocusChanged { if (it.isFocused) { currentIndex = index; onRowFocused(item) } }
+            if (actionRows) LibraryListRow(
+                item = item,
+                action = primaryAction(item),
+                favourite = isFavourite(item),
+                isNew = isNew(item),
+                onPrimary = rowClick,
+                onDetails = rowLongClick,
+                progress = rowProgress,
+                showCover = showCover,
+                modifier = rowModifier,
+                contentShift = contentShift
+            ) else RomRow(
                 item = item,
                 consoleName = getConsoleName(item.file.consoleId),
                 compact = compact,
@@ -360,16 +405,7 @@ internal fun ResultList(
                 showCover = showCover,
                 dense = dense,
                 downloadProgress = rowProgress,
-                // RB from the filters lands on the first row currently on screen.
-                modifier = when {
-                    index == pendingFocusIndex -> Modifier.focusRequester(newPageFocus)
-                    index == jumpTarget -> Modifier.focusRequester(jumpFocus)
-                    index == focusIndex && firstRowFocus != null -> Modifier.focusRequester(firstRowFocus)
-                    else -> Modifier
-                }.then(
-                    if (returnFocus != null && returnGame != null && returnGame.first == item.file.consoleId && returnGame.second == item.file.fileName)
-                        Modifier.focusRequester(returnFocus) else Modifier
-                ).onFocusChanged { if (it.isFocused) { currentIndex = index; onRowFocused(item) } }
+                modifier = rowModifier
             )
         }
         if (hasMore) {
@@ -658,7 +694,7 @@ internal fun ConsoleChip(label: String, selected: Boolean, color: Color?, count:
     val shape = RoundedCornerShape(20.dp)
     Row(
         modifier = Modifier
-            .height(40.dp)
+            .height(48.dp)
             .background(if (selected) scheme.primary else scheme.surfaceContainer, shape)
             .border(1.dp, if (selected) Color.Transparent else LocalDogmatixTokens.current.hairline, shape)
             .focusRing(source, 20.dp, onAccent = selected)
@@ -684,40 +720,5 @@ internal fun ConsoleChip(label: String, selected: Boolean, color: Color?, count:
                 maxLines = 1
             )
         }
-    }
-}
-
-/**
- * 3.8.0: the pill at the end of the search box that switches between the shelves and the list.
- * On the shelves it shows the whole library as the list; on the list it goes back to the shelves
- * (clearing search and filters, which is what the shelves are: the library with nothing narrowing it).
- */
-@Composable
-internal fun ViewSwitchPill(shelves: Boolean, onClick: () -> Unit) {
-    val scheme = MaterialTheme.colorScheme
-    val source = rememberFocusSource()
-    val shape = RoundedCornerShape(12.dp)
-    val description = stringResource(if (shelves) R.string.shelves38_list_cd else R.string.shelves38_overview_cd)
-    Row(
-        modifier = Modifier
-            .defaultMinSize(minHeight = 40.dp)
-            .background(scheme.surfaceContainerHigh, shape)
-            .focusRing(source, 12.dp)
-            .clickable(interactionSource = source, indication = null, onClickLabel = description, onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Icon(
-            painterResource(if (shelves) R.drawable.ic_list else R.drawable.ic_grid),
-            contentDescription = null,
-            tint = accentInk(),
-            modifier = Modifier.size(18.dp)
-        )
-        Text(
-            stringResource(if (shelves) R.string.shelves38_list else R.string.shelves38_overview),
-            style = MaterialTheme.typography.labelLarge,
-            color = scheme.onSurface
-        )
     }
 }
