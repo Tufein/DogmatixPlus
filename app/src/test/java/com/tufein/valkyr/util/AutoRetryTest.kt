@@ -22,6 +22,13 @@ class AutoRetryTest {
         listOf(400, 401, 403, 404, 410).forEach { assertFalse("$it", AutoRetry.temporaryStatus(it)) }
     }
 
+    @Test fun `RomM switched off is never retried or blamed on the source`() {
+        val off = com.tufein.valkyr.data.service.RommSwitchedOffException()
+        assertFalse(AutoRetry.isTemporary(off))
+        assertFalse(SourceFailures.isSourceSide(off))
+        assertTrue(AutoRetry.isTemporary(com.tufein.valkyr.data.service.RommException("RomM server URL not set")))
+    }
+
     @Test fun `dropped connections are temporary`() {
         assertTrue(AutoRetry.isTemporary(SocketTimeoutException("timeout")))
         assertTrue(AutoRetry.isTemporary(IOException("Connection reset")))

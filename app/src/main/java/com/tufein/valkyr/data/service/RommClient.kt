@@ -23,7 +23,13 @@ import java.net.URLEncoder
 import javax.inject.Inject
 import javax.inject.Singleton
 
-class RommException(message: String) : IOException(message)
+open class RommException(message: String) : IOException(message)
+
+/**
+ * "Use RomM" is off. Not a failure of the server: it is never retried by itself, never counted against
+ * a source and never makes the queue switch to another source (see AutoRetry and SourceFailures).
+ */
+class RommSwitchedOffException : RommException("RomM is switched off (Settings → RomM → Use RomM)")
 
 /** A save transfer never switches endpoint or credentials while a settings edit is in flight. */
 class RommSaveEndpoint internal constructor(internal val base: String, internal val auth: Map<String, String>) {
@@ -55,7 +61,7 @@ class RommClient @Inject constructor(
 ) {
     /** Throws while "Use RomM" is off, so not even a manual action (a connection test) reaches the server. */
     private suspend fun requireEnabled() {
-        if (!settingsRepository.rommEnabled.first()) throw RommException("RomM is switched off (Settings → RomM → Use RomM)")
+        if (!settingsRepository.rommEnabled.first()) throw RommSwitchedOffException()
     }
 
     private suspend fun baseUrl(): String {

@@ -4,6 +4,7 @@ import com.tufein.valkyr.data.model.DownloadItemModel
 import com.tufein.valkyr.data.model.DownloadStatus
 import com.tufein.valkyr.data.model.DownloadFailureCategory
 import com.tufein.valkyr.data.service.HttpStatusException
+import com.tufein.valkyr.data.service.RommSwitchedOffException
 import java.io.FileNotFoundException
 import java.io.IOException
 
@@ -66,6 +67,8 @@ object SourceFailures {
             null -> true
             is StorageException -> false
             is SecurityException -> false
+            // "Use RomM" is off: a setting, not the source (no health mark, no switch to another source).
+            is RommSwitchedOffException -> false
             is HttpStatusException -> true
             is FileNotFoundException -> true
             is IOException -> !looksLikeDisk(error.message)

@@ -19,9 +19,14 @@ class FilterLayoutTest {
 
     @Test fun viewSwitchStacksOnlyAtBigText() {
         assertFalse(FilterLayout.stackViewSwitch(1.0f))
-        assertFalse(FilterLayout.stackViewSwitch(1.3f))
+        assertFalse(FilterLayout.stackViewSwitch(1.15f))
+        assertTrue(FilterLayout.stackViewSwitch(1.3f))
         assertTrue(FilterLayout.stackViewSwitch(1.5f))
         assertTrue(FilterLayout.stackViewSwitch(2.0f))
+    }
+
+    @Test fun panelIsWideEnough() {
+        assertEquals(280, FilterLayout.PANEL_WIDTH)
     }
 
     @Test fun labelStartMatchesTheResultCount() {

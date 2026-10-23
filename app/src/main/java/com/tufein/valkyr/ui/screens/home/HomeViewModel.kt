@@ -367,11 +367,11 @@ class HomeViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.Eagerly, "")
 
     /**
-     * "Use RomM". Read once up front (a tiny DataStore file) so the first list already knows whether
-     * RomM-only rows are listed; a change re-runs the search (see the filter collector).
+     * "Use RomM". Starts as on (the default) without blocking the main thread; the stored value arrives
+     * within the first frames and re-runs the search (see the filter collector).
      */
     val rommEnabled: StateFlow<Boolean> = settingsRepository.rommEnabled
-        .stateIn(viewModelScope, SharingStarted.Eagerly, runCatching { runBlocking { settingsRepository.rommEnabled.first() } }.getOrDefault(true))
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     fun isOnRomm(file: DownloadableFileEntity, keys: Set<String>, base: String): Boolean =
         (keys.isNotEmpty() || base.isNotEmpty()) && RommMarks.isOnServer(keys, file.consoleId, file.fileName, file.downloadUrl, base)

@@ -18,13 +18,13 @@ object FilterLayout {
     const val EDGE_LANDSCAPE = 0
 
     /** Width of the landscape filter panel (the label column needs room for a wrapped label and ‹ value ›). */
-    const val PANEL_WIDTH = 264
+    const val PANEL_WIDTH = 280
 
     /** A filter row is label left, control right: this share of its width is the label's, in every row. */
     const val LABEL_SHARE = 0.4f
 
     /** From this text scale up the view switch fills the line (no icons, labels may wrap) instead of overflowing it. */
-    const val BIG_TEXT_SCALE = 1.3f
+    const val BIG_TEXT_SCALE = 1.15f
 
     fun stackViewSwitch(fontScale: Float): Boolean = fontScale > BIG_TEXT_SCALE
 

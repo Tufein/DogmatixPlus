@@ -1,6 +1,7 @@
 package com.tufein.valkyr.util
 
 import com.tufein.valkyr.data.service.HttpStatusException
+import com.tufein.valkyr.data.service.RommSwitchedOffException
 import java.io.IOException
 
 /**
@@ -20,6 +21,8 @@ object AutoRetry {
     /** A dropped or refused connection or a server that may recover; anything else is left to the user. */
     fun isTemporary(error: Throwable): Boolean = when (error) {
         is HttpStatusException -> temporaryStatus(error.code)
+        // The user switched RomM off: nothing will change by waiting.
+        is RommSwitchedOffException -> false
         is DownloadVerificationException, is StorageException -> false
         is IOException -> true
         else -> false
