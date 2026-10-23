@@ -264,6 +264,16 @@ class DownloadViewModel @Inject constructor(
         }
     }
 
+    /** Parks every download that is transferring or waiting for a slot (the service skips what cannot pause); Resume all continues them. */
+    fun pauseAll() {
+        viewModelScope.launch(Dispatchers.Default) { QueueActions.pausable(downloads.value).forEach { downloadService.pauseDownload(it) } }
+    }
+
+    /** Continues every parked download as one batch, from what is already on disk. */
+    fun resumeAll() {
+        viewModelScope.launch(Dispatchers.Default) { downloadService.retryDownloads(QueueActions.resumable(downloads.value)) }
+    }
+
     /** Failed and stopped downloads go back in the queue as one batch (they continue from their partial file when they can). */
     fun retryFailed() {
         viewModelScope.launch(Dispatchers.Default) { downloadService.retryDownloads(QueueActions.retryable(downloads.value)) }

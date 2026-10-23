@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +38,9 @@ import com.tufein.valkyr.util.QueueProgress
 import com.tufein.valkyr.util.StorageInsights
 import com.tufein.valkyr.util.WaitReason
 
+/** A 48 dp touch target for the pills of this screen (the shared pill is 36 dp). */
+internal val DownloadTarget: Modifier = Modifier.heightIn(min = 48.dp)
+
 /**
  * The top of the Downloads list: the queue as a whole. A ring with completed downloads out of
  * the total, the current speed and the time left, the free space against what the queue needs, pills
@@ -57,7 +61,9 @@ fun QueueHeader(
     onStopAll: () -> Unit,
     onRetryFailed: () -> Unit,
     onClearFinished: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onPauseAll: () -> Unit = {},
+    onResumeAll: () -> Unit = {}
 ) {
     val scheme = MaterialTheme.colorScheme
     val busy = summary.busy
@@ -67,6 +73,26 @@ fun QueueHeader(
         contentPadding = PaddingValues(14.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // 5.2: the whole-queue buttons come first, one tap each, at least 48 dp high; the state of the
+        // queue (ring, space, pills) follows under them.
+        if (held || counts.any) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (counts.resumable > 0) ActionPill(stringResource(R.string.flow52_resume_all, counts.resumable), onResumeAll, modifier = DownloadTarget, icon = R.drawable.ic_play_arrow, tone = ActionTone.Accent)
+                if (counts.pausable > 0) ActionPill(stringResource(R.string.flow52_pause_all, counts.pausable), onPauseAll, modifier = DownloadTarget, icon = R.drawable.ic_pause)
+                if (held || counts.stoppable > 0) {
+                    ActionPill(
+                        stringResource(if (held) R.string.downloads_release else R.string.downloads_hold),
+                        onHold,
+                        modifier = DownloadTarget,
+                        icon = if (held) R.drawable.ic_play_arrow else R.drawable.ic_pause,
+                        tone = if (held) ActionTone.Accent else ActionTone.Neutral
+                    )
+                }
+                if (counts.stoppable > 0) ActionPill(stringResource(R.string.downloads_stop_all, counts.stoppable), onStopAll, modifier = DownloadTarget, icon = R.drawable.ic_stop)
+                if (counts.retryable > 0) ActionPill(stringResource(R.string.downloads_retry_failed, counts.retryable), onRetryFailed, modifier = DownloadTarget, icon = R.drawable.ic_retry, tone = ActionTone.Accent)
+                if (counts.clearable > 0) ActionPill(stringResource(R.string.flow52_clear_done, counts.clearable), onClearFinished, modifier = DownloadTarget, icon = R.drawable.ic_clear_all)
+            }
+        }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             ProgressRing(
                 fraction = summary.fraction,
@@ -173,22 +199,6 @@ fun QueueHeader(
                     }
                     Pill(stringResource(label), tone = PillTone.Warning, icon = icon)
                 }
-            }
-        }
-
-        if (held || counts.any) {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (held || counts.stoppable > 0) {
-                    ActionPill(
-                        stringResource(if (held) R.string.downloads_release else R.string.downloads_hold),
-                        onHold,
-                        icon = if (held) R.drawable.ic_play_arrow else R.drawable.ic_pause,
-                        tone = if (held) ActionTone.Accent else ActionTone.Neutral
-                    )
-                }
-                if (counts.stoppable > 0) ActionPill(stringResource(R.string.downloads_stop_all, counts.stoppable), onStopAll, icon = R.drawable.ic_stop)
-                if (counts.retryable > 0) ActionPill(stringResource(R.string.downloads_retry_failed, counts.retryable), onRetryFailed, icon = R.drawable.ic_retry)
-                if (counts.clearable > 0) ActionPill(stringResource(R.string.downloads_clear_finished, counts.clearable), onClearFinished, icon = R.drawable.ic_clear_all)
             }
         }
     }

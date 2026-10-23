@@ -211,6 +211,8 @@ fun GamePrimaryAction(
                 GamePageModel.Primary.DOWNLOAD_AGAIN -> R.string.owned_download_again
                 GamePageModel.Primary.DOWNLOADING -> R.string.page8_downloading
                 GamePageModel.Primary.PLAY -> R.string.play_game
+                GamePageModel.Primary.RESUME -> R.string.flow52_resume
+                GamePageModel.Primary.RETRY -> R.string.flow52_retry
             }
         ),
         onClick = onClick,
@@ -218,6 +220,8 @@ fun GamePrimaryAction(
         icon = when (primary) {
             GamePageModel.Primary.DOWNLOADING -> R.drawable.ic_downloading
             GamePageModel.Primary.PLAY -> R.drawable.ic_controller
+            GamePageModel.Primary.RESUME -> R.drawable.ic_play_arrow
+            GamePageModel.Primary.RETRY -> R.drawable.ic_retry
             else -> R.drawable.ic_download
         }
     )

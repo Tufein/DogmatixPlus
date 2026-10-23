@@ -7,6 +7,7 @@ import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.dao.CollectionWithCount
 import com.tufein.valkyr.data.local.entity.DownloadableFileEntity
 import com.tufein.valkyr.data.local.VersionPreferenceSettings
+import com.tufein.valkyr.data.model.DownloadStatus
 import com.tufein.valkyr.data.model.DownloadableFileWithTags
 import com.tufein.valkyr.data.repository.CollectionsRepository
 import com.tufein.valkyr.data.repository.DownloadableFileRepository
@@ -126,6 +127,16 @@ class GamePageViewModel @Inject constructor(
         .map { list -> list.filter { !it.isFinished }.map { it.fileName }.toSet() }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
+    /** Status of every download that is not finished or that failed or is parked, by file name: the action bar's Resume / Retry. */
+    val downloadStates: StateFlow<Map<String, DownloadStatus>> = downloadService.downloads
+        .map { list -> list.filter { it.status != DownloadStatus.COMPLETED && it.status != DownloadStatus.STOPPED }.associate { it.fileName to it.status } }
+        .distinctUntilChanged()
+        .flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+    /** Continues a parked download or starts a failed one again (the same call as the Downloads tab's Resume / Retry). */
+    fun resumeOrRetry(fileName: String) = downloadService.retryDownload(fileName)
 
     val favouriteKeys: StateFlow<Set<String>> = favourites.keys
     fun isFavourite(file: DownloadableFileEntity, keys: Set<String>): Boolean = favourites.isFavourite(file, keys)

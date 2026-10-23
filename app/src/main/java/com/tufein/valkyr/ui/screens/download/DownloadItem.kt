@@ -292,8 +292,8 @@ fun DownloadRow(
         (switchedTo?.let { "  ·  " + stringResource(R.string.src75_switched_to, it) } ?: "")
     val busy = status == DownloadStatus.COPYING || status == DownloadStatus.UNZIPPING ||
         (status == DownloadStatus.QUEUED && item.progress <= 0f) || waiting || inQueue
-    // 40 dp targets, a little smaller on a wide, short screen: the cover and the buttons share the row.
-    val actionSize: Dp = if (compact) 34.dp else 40.dp
+    // 5.2: 48 dp targets everywhere (they were 34 / 40 dp), with a 24 dp icon.
+    val actionSize: Dp = 48.dp
 
     // A (or a tap) on the row runs the primary action; the side buttons stay for touch and
     // are skipped by D-pad focus search (they sit inside the focused row's bounds).
@@ -662,6 +662,6 @@ internal fun ActionButton(
             .clickable(interactionSource = source, indication = null, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Icon(painterResource(icon), contentDescription = description, tint = tint, modifier = Modifier.size(18.dp))
+        Icon(painterResource(icon), contentDescription = description, tint = tint, modifier = Modifier.size(24.dp))
     }
 }

@@ -1,5 +1,6 @@
 package com.tufein.valkyr.util
 
+import com.tufein.valkyr.data.model.DownloadStatus
 import java.net.URLEncoder
 
 /**
@@ -52,12 +53,36 @@ object GamePageModel {
 
     // ---- Actions ---------------------------------------------------------------------------------
 
-    /** What the big button in the header does. */
-    enum class Primary { DOWNLOAD, DOWNLOADING, DOWNLOAD_AGAIN, PLAY }
+    /** What the big button in the sticky action bar does. */
+    enum class Primary { DOWNLOAD, DOWNLOADING, DOWNLOAD_AGAIN, PLAY, RESUME, RETRY }
 
-    fun primary(owned: Boolean, downloading: Boolean): Primary = when {
-        downloading -> Primary.DOWNLOADING
+    /** Where the game's download stands in the queue, as far as the primary action cares. */
+    enum class Queue { NONE, ACTIVE, PAUSED, FAILED }
+
+    /**
+     * Queued, downloading, copying and unpacking are [Queue.ACTIVE]; a parked one is [Queue.PAUSED];
+     * only a real failure is [Queue.FAILED] (a download the user stopped is simply downloadable again).
+     */
+    fun queueOf(status: DownloadStatus?): Queue = when (status) {
+        DownloadStatus.QUEUED, DownloadStatus.DOWNLOADING, DownloadStatus.COPYING, DownloadStatus.UNZIPPING -> Queue.ACTIVE
+        DownloadStatus.PAUSED -> Queue.PAUSED
+        DownloadStatus.FAILED -> Queue.FAILED
+        DownloadStatus.COMPLETED, DownloadStatus.STOPPED, null -> Queue.NONE
+    }
+
+    fun primary(owned: Boolean, downloading: Boolean): Primary =
+        primary(owned, if (downloading) Queue.ACTIVE else Queue.NONE)
+
+    /**
+     * The one big action: a running download shows as busy; a game on the device is Play (a paused
+     * or failed re-download never hides it); otherwise a parked download Resumes, a failed one
+     * Retries and anything else Downloads.
+     */
+    fun primary(owned: Boolean, queue: Queue): Primary = when {
+        queue == Queue.ACTIVE -> Primary.DOWNLOADING
         owned -> Primary.PLAY
+        queue == Queue.PAUSED -> Primary.RESUME
+        queue == Queue.FAILED -> Primary.RETRY
         else -> Primary.DOWNLOAD
     }
 

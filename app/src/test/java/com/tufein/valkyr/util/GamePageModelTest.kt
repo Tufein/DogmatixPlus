@@ -61,6 +61,31 @@ class GamePageModelTest {
         assertEquals(Primary.DOWNLOADING, GamePageModel.primary(owned = false, downloading = true))
     }
 
+    @Test fun `primary resumes a parked download and retries a failed one`() {
+        assertEquals(Primary.RESUME, GamePageModel.primary(owned = false, queue = GamePageModel.Queue.PAUSED))
+        assertEquals(Primary.RETRY, GamePageModel.primary(owned = false, queue = GamePageModel.Queue.FAILED))
+        assertEquals(Primary.DOWNLOAD, GamePageModel.primary(owned = false, queue = GamePageModel.Queue.NONE))
+        assertEquals(Primary.DOWNLOADING, GamePageModel.primary(owned = false, queue = GamePageModel.Queue.ACTIVE))
+    }
+
+    @Test fun `a game on the device stays playable while a re-download is parked or failed`() {
+        assertEquals(Primary.PLAY, GamePageModel.primary(owned = true, queue = GamePageModel.Queue.PAUSED))
+        assertEquals(Primary.PLAY, GamePageModel.primary(owned = true, queue = GamePageModel.Queue.FAILED))
+        assertEquals(Primary.DOWNLOADING, GamePageModel.primary(owned = true, queue = GamePageModel.Queue.ACTIVE))
+    }
+
+    @Test fun `queueOf maps every status`() {
+        assertEquals(GamePageModel.Queue.NONE, GamePageModel.queueOf(null))
+        assertEquals(GamePageModel.Queue.ACTIVE, GamePageModel.queueOf(com.tufein.valkyr.data.model.DownloadStatus.QUEUED))
+        assertEquals(GamePageModel.Queue.ACTIVE, GamePageModel.queueOf(com.tufein.valkyr.data.model.DownloadStatus.DOWNLOADING))
+        assertEquals(GamePageModel.Queue.ACTIVE, GamePageModel.queueOf(com.tufein.valkyr.data.model.DownloadStatus.COPYING))
+        assertEquals(GamePageModel.Queue.ACTIVE, GamePageModel.queueOf(com.tufein.valkyr.data.model.DownloadStatus.UNZIPPING))
+        assertEquals(GamePageModel.Queue.PAUSED, GamePageModel.queueOf(com.tufein.valkyr.data.model.DownloadStatus.PAUSED))
+        assertEquals(GamePageModel.Queue.FAILED, GamePageModel.queueOf(com.tufein.valkyr.data.model.DownloadStatus.FAILED))
+        assertEquals(GamePageModel.Queue.NONE, GamePageModel.queueOf(com.tufein.valkyr.data.model.DownloadStatus.STOPPED))
+        assertEquals(GamePageModel.Queue.NONE, GamePageModel.queueOf(com.tufein.valkyr.data.model.DownloadStatus.COMPLETED))
+    }
+
     @Test fun `a new game offers download when but no remove`() {
         val actions = GamePageModel.actions(owned = false, downloading = false, betterVersion = false, updateAvailable = false, missingDlc = 0)
         assertEquals(listOf(Action.DOWNLOAD_WHEN, Action.FAVOURITE, Action.COLLECTIONS, Action.SHARE), actions)

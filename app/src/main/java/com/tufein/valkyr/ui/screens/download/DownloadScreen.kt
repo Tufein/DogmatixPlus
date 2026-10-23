@@ -2,6 +2,9 @@ package com.tufein.valkyr.ui.screens.download
 
 import com.tufein.valkyr.util.DownloadSourcePolicy
 import com.tufein.valkyr.util.QueueActions
+import com.tufein.valkyr.util.DownloadGroups
+import com.tufein.valkyr.ui.navigation.OnTabReselect
+import androidx.compose.foundation.lazy.rememberLazyListState
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -235,6 +238,9 @@ fun DownloadScreen(
     } else {
         remember { mutableStateOf(0.5f) }
     }
+    val listState = rememberLazyListState()
+    // 5.2: a tap on the open Downloads tab brings the list back to its top.
+    OnTabReselect(NavRoutes.Downloads.route) { listState.animateScrollToItem(0) }
     val goToLibrary: () -> Unit = {
         navController.navigate(NavRoutes.Home.route) {
             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
@@ -287,26 +293,20 @@ fun DownloadScreen(
                 )
             }
         } else {
+            // 5.2: Active, Waiting, Failed, Done, each with a header; with a filter on, the chosen state is all that shows.
+            val flatRows = remember(queueView.rows, queuedSet, waitingFiles, itemWaits) {
+                val waiting = HashSet<String>(queuedSet.size + waitingFiles.size + itemWaits.size).apply {
+                    addAll(queuedSet); addAll(waitingFiles); addAll(itemWaits.keys)
+                }
+                flattenSections(DownloadGroups.sections(queueView.rows, waiting))
+            }
             val itemPlacement = if (reduceMotion) null else tween<IntOffset>(Motion.MEDIUM, easing = FastOutSlowInEasing)
             LazyColumn(
+                state = listState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                item(key = "queue-plan") {
-                    DownloadPlanActions(downloads, selection, Modifier.fillMaxWidth())
-                }
-                item(key = "queue-filters") {
-                    QueueFilters(
-                        view = queueView,
-                        criteria = filterCriteria,
-                        allShownSelected = queueView.visibleNames.isNotEmpty() && selection.containsAll(queueView.visibleNames),
-                        onSearch = viewModel::setQueueSearch,
-                        onFilter = viewModel::setQueueFilter,
-                        onClear = viewModel::clearQueueFilters,
-                        onSelectShown = viewModel::toggleSelectAll
-                    )
-                }
                 if (!selectionMode) {
                     item(key = "queue-header") {
                         if (queueView.filtered) {
@@ -329,9 +329,25 @@ fun DownloadScreen(
                             onHold = { viewModel.setHeld(!held) },
                             onStopAll = viewModel::stopAll,
                             onRetryFailed = viewModel::retryFailed,
-                            onClearFinished = viewModel::clearFinished
+                            onClearFinished = viewModel::clearFinished,
+                            onPauseAll = viewModel::pauseAll,
+                            onResumeAll = viewModel::resumeAll
                         )
                     }
+                }
+                item(key = "queue-plan") {
+                    DownloadPlanActions(downloads, selection, Modifier.fillMaxWidth())
+                }
+                item(key = "queue-filters") {
+                    QueueFilters(
+                        view = queueView,
+                        criteria = filterCriteria,
+                        allShownSelected = queueView.visibleNames.isNotEmpty() && selection.containsAll(queueView.visibleNames),
+                        onSearch = viewModel::setQueueSearch,
+                        onFilter = viewModel::setQueueFilter,
+                        onClear = viewModel::clearQueueFilters,
+                        onSelectShown = viewModel::toggleSelectAll
+                    )
                 }
                 if (waitingFiles.isNotEmpty() && waitingText.isNotEmpty()) {
                     item(key = "notice-waiting") {
@@ -354,7 +370,14 @@ fun DownloadScreen(
                 if (queueView.rows.isEmpty()) {
                     item(key = "queue-no-matches") { QueueNoMatches(viewModel::clearQueueFilters) }
                 }
-                itemsIndexed(queueView.rows, key = { _, it -> it.fileName }, contentType = { _, _ -> "download-row" }) { index, item ->
+                itemsIndexed(flatRows, key = { _, it -> it.key }, contentType = { _, it -> if (it.header != null) "download-header" else "download-row" }) { _, entry ->
+                    val header = entry.header
+                    if (header != null) {
+                        GroupHeader(header.group, header.rows.size)
+                        return@itemsIndexed
+                    }
+                    val item = entry.row!!
+                    val index = entry.rowIndex
                     DownloadItem(
                         item = item,
                         details = details[item.fileName],
@@ -498,7 +521,7 @@ private fun SelectionBar(
     onClear: () -> Unit
 ) {
     val scheme = MaterialTheme.colorScheme
-    val size = if (compact) 36.dp else 44.dp
+    val size = 48.dp
     // Only the actions some ticked row accepts, so nothing focusable is ever a no-op.
     val actions = buildList {
         if (selected.any { it.status.canRetry }) {
@@ -569,3 +592,39 @@ private fun SelectionBar(
 }
 
 private class BulkAction(val icon: Int, val description: String, val tint: Color, val onClick: () -> Unit)
+
+
+/** One entry of the grouped list: a section header or a download row ([rowIndex] counts rows only). */
+private class QueueEntry(val key: String, val header: DownloadGroups.Section?, val row: DownloadItemModel?, val rowIndex: Int) {
+}
+
+private fun flattenSections(sections: List<DownloadGroups.Section>): List<QueueEntry> {
+    val out = ArrayList<QueueEntry>(sections.sumOf { it.rows.size + 1 })
+    var rowIndex = 0
+    for (section in sections) {
+        out += QueueEntry("group-${section.group.name}", section, null, -1)
+        for (row in section.rows) out += QueueEntry(row.fileName, null, row, rowIndex++)
+    }
+    return out
+}
+
+/** The title of a section (Active, Waiting, Failed, Done) with how many rows it holds. */
+@Composable
+private fun GroupHeader(group: DownloadGroups.Group, count: Int) {
+    val scheme = MaterialTheme.colorScheme
+    val (label, icon, tint) = when (group) {
+        DownloadGroups.Group.ACTIVE -> Triple(R.string.flow52_group_active, R.drawable.ic_arrow_down, scheme.primary)
+        DownloadGroups.Group.WAITING -> Triple(R.string.flow52_group_waiting, R.drawable.ic_hourglass, scheme.onSurfaceVariant)
+        DownloadGroups.Group.FAILED -> Triple(R.string.flow52_group_failed, R.drawable.ic_error, scheme.error)
+        DownloadGroups.Group.DONE -> Triple(R.string.flow52_group_done, R.drawable.ic_check_circle, scheme.tertiary)
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(painterResource(icon), contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
+        Text(stringResource(label), style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
+        Text(count.toString(), style = MaterialTheme.typography.titleSmall, color = scheme.onSurfaceVariant)
+    }
+}
