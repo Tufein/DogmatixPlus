@@ -139,11 +139,55 @@ class SettingsLayoutTest {
     }
 
     @Test fun `cards stay within the bounds of a handheld screen`() {
-        val headed = SettingsGroup.entries.filter { it.title != null }
-        assertTrue(headed.size.toString(), headed.size in 9..13)
-        SettingsLayout.groups.forEach { (group, rows) ->
-            assertTrue("${group.name} has ${rows.size} rows", rows.size <= 10)
+        assertTrue(SettingsGroup.entries.size.toString(), SettingsGroup.entries.size in 8..11)
+        SettingsLayout.everyday.forEach { (group, rows) ->
+            assertTrue("${group.name} has ${rows.size} everyday rows", rows.size <= 7)
         }
+        SettingsLayout.groups.forEach { (group, rows) ->
+            assertTrue("${group.name} has ${rows.size} rows", rows.size <= 16)
+        }
+    }
+
+    @Test fun `every row has a level, everyday first then advanced`() {
+        allKeys.forEach { key ->
+            val inEveryday = SettingsLayout.everyday.values.any { key in it }
+            val inAdvanced = SettingsLayout.advanced.values.any { key in it }
+            assertTrue(key, inEveryday != inAdvanced)
+            assertEquals(key, if (inAdvanced) SettingLevel.ADVANCED else SettingLevel.EVERYDAY, SettingsLayout.levelOf(key))
+        }
+        assertEquals(SettingLevel.EVERYDAY, SettingsLayout.levelOf("not_a_row"))
+        assertEquals(SettingLevel.EVERYDAY, SettingsLayout.levelOf(null))
+        SettingsLayout.groups.forEach { (group, rows) ->
+            val levels = rows.map { SettingsLayout.levelOf(it) }
+            assertEquals(group.name, levels.sortedBy { it.ordinal }, levels)
+            // Every card shows something at once.
+            assertTrue(group.name, SettingsLayout.everyday[group].orEmpty().isNotEmpty())
+        }
+        // The advanced map names only cards that exist and rows of that very card.
+        SettingsLayout.advanced.forEach { (group, rows) -> rows.forEach { assertEquals(it, group, SettingsLayout.groupOf(it)) } }
+    }
+
+    @Test fun `a master and its dependents are on the same level`() {
+        SettingsLayout.parents.forEach { (child, master) ->
+            assertEquals(child, SettingsLayout.levelOf(master), SettingsLayout.levelOf(child))
+        }
+    }
+
+    @Test fun `search finds advanced rows, names their card and says they are advanced`() {
+        val settings = SearchIndex.entries.filter { it.group == SearchGroup.SETTINGS }
+        val advancedEntries = settings.filter { it.advanced }
+        assertTrue(advancedEntries.size > 20)
+        settings.forEach { entry ->
+            assertEquals(entry.id, SettingsLayout.isAdvanced(entry.id), entry.advanced)
+            assertNotNull(entry.id, entry.section)
+        }
+        // A hidden dependent sends the jump to its master, which sits on the same level (so the card opens).
+        settings.forEach { entry ->
+            assertEquals(entry.id, SettingsLayout.levelOf(entry.id), SettingsLayout.levelOf(entry.target.rowKey))
+        }
+        // Rows people tuck away stay searchable.
+        listOf(SettingKeys.PER_SERVER, SettingKeys.HEAT, SettingKeys.NIGHT, SettingKeys.GLOW, SettingKeys.DIAGNOSTICS)
+            .forEach { key -> assertTrue(key, settings.any { it.id == key && it.advanced }) }
     }
 
     @Test fun `every card says what it is for, the tools entry needs no words`() {

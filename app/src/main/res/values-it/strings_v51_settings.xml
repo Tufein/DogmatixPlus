@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: Settings simplified: merged cards, shorter descriptions, the collapsed Advanced row. -->
+<resources>
+    <string name="settings51_group_look">Aspetto e comandi</string>
+    <string name="settings51_group_downloads">Download e archiviazione</string>
+    <string name="settings51_group_frontends">Frontend e dopo il download</string>
+    <string name="settings51_desc_look">Tema, colori, dimensione del testo e gamepad</string>
+    <string name="settings51_desc_library">Come vengono mostrati i tuoi giochi</string>
+    <string name="settings51_desc_sources">Cerca automaticamente nuovi giochi</string>
+    <string name="settings51_desc_downloads">Dove vanno i giochi e come procede la coda</string>
+    <string name="settings51_desc_schedule">Quando i download possono partire</string>
+    <string name="settings51_desc_frontends">Collega i tuoi launcher e riordina i download finiti</string>
+    <string name="settings51_desc_cloud">RomM, sincronizzazione dei salvataggi e obiettivi</string>
+    <string name="settings51_desc_backup">Tieni al sicuro le tue impostazioni</string>
+    <string name="settings51_desc_app">Aggiornamenti e informazioni</string>
+    <string name="settings51_advanced">Avanzate (%1$d)</string>
+    <string name="settings51_advanced_hint">Regolazioni fini e opzioni usate di rado</string>
+    <string name="settings51_advanced_hint_open">Nascondi di nuovo queste opzioni</string>
+    <string name="settings51_in_section_advanced">Impostazioni · %1$s · Avanzate</string>
+</resources>

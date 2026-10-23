@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: Settings simplified: merged cards, shorter descriptions, the collapsed Advanced row. -->
+<resources>
+    <string name="settings51_group_look">Uiterlijk en bediening</string>
+    <string name="settings51_group_downloads">Downloads en opslag</string>
+    <string name="settings51_group_frontends">Frontends en na een download</string>
+    <string name="settings51_desc_look">Thema, kleuren, tekstgrootte en gamepad</string>
+    <string name="settings51_desc_library">Hoe je games worden getoond</string>
+    <string name="settings51_desc_sources">Automatisch naar nieuwe games zoeken</string>
+    <string name="settings51_desc_downloads">Waar games komen en hoe de wachtrij loopt</string>
+    <string name="settings51_desc_schedule">Wanneer downloads mogen lopen</string>
+    <string name="settings51_desc_frontends">Koppel je launchers en ruim afgeronde downloads op</string>
+    <string name="settings51_desc_cloud">RomM, savesync en prestaties</string>
+    <string name="settings51_desc_backup">Houd je instellingen veilig</string>
+    <string name="settings51_desc_app">Updates en informatie</string>
+    <string name="settings51_advanced">Geavanceerd (%1$d)</string>
+    <string name="settings51_advanced_hint">Fijnafstelling en zelden gebruikte opties</string>
+    <string name="settings51_advanced_hint_open">Deze opties weer verbergen</string>
+    <string name="settings51_in_section_advanced">Instellingen · %1$s · Geavanceerd</string>
+</resources>

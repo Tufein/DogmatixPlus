@@ -287,7 +287,9 @@ private fun LazyListScope.entryGroup(
         val mod = first()
         item(key = "entry-${entry.id}") {
             val hint = entry.hint?.let { stringResource(it) }
-            val where = entry.section?.let { stringResource(R.string.find8_in_section, stringResource(it)) }
+            val where = entry.section?.let {
+                stringResource(if (entry.advanced) R.string.settings51_in_section_advanced else R.string.find8_in_section, stringResource(it))
+            }
             ToolRow(stringResource(entry.title), listOfNotNull(hint, where), { open(entry) }, mod, icon = entry.icon, chevron = true)
         }
     }

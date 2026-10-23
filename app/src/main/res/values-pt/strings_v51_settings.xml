@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.0: Settings simplified: merged cards, shorter descriptions, the collapsed Advanced row. -->
+<resources>
+    <string name="settings51_group_look">Aparência e controlos</string>
+    <string name="settings51_group_downloads">Transferências e armazenamento</string>
+    <string name="settings51_group_frontends">Frontends e após a transferência</string>
+    <string name="settings51_desc_look">Tema, cores, tamanho do texto e comando</string>
+    <string name="settings51_desc_library">Como os teus jogos são mostrados</string>
+    <string name="settings51_desc_sources">Procurar jogos novos automaticamente</string>
+    <string name="settings51_desc_downloads">Onde ficam os jogos e como avança a fila</string>
+    <string name="settings51_desc_schedule">Quando as transferências podem correr</string>
+    <string name="settings51_desc_frontends">Liga os teus lançadores e arruma as transferências concluídas</string>
+    <string name="settings51_desc_cloud">RomM, sincronização de jogos e conquistas</string>
+    <string name="settings51_desc_backup">Mantém as tuas definições seguras</string>
+    <string name="settings51_desc_app">Atualizações e informações</string>
+    <string name="settings51_advanced">Avançadas (%1$d)</string>
+    <string name="settings51_advanced_hint">Ajustes finos e opções pouco usadas</string>
+    <string name="settings51_advanced_hint_open">Voltar a ocultar estas opções</string>
+    <string name="settings51_in_section_advanced">Definições · %1$s · Avançadas</string>
+</resources>

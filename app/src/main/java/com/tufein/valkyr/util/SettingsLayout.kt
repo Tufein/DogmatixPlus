@@ -6,31 +6,47 @@ import com.tufein.valkyr.R
 import com.tufein.valkyr.util.SettingKeys as K
 
 /*
- * 4.4 decision: one home per setting, one purpose per card, from "what you touch every day"
- * down to "rarely". Every card has a one-line description under its title (strings_v44_settings).
+ * 5.0 decision ("the settings were still too extensive"): 10 cards, and in every card only what people
+ * actually change shows; the rest sits behind one collapsed "Advanced (N)" row at the end of the card
+ * (never lost: search finds it, jumps to it and opens the card). Every key has a [SettingLevel].
+ * Switches whose default is right for nearly everyone, steppers with tuning values, per-server limits,
+ * battery / night / retry settings, maintenance dialogs and diagnostics are ADVANCED; a master and its
+ * dependents are always on the same level (a dependent never sits behind a different door than its switch).
+ * Merged since 4.9: Controls into Look, Storage and Torrents into Downloads, After a download into Frontends.
  *
- *  TOOLS      (no heading) Library tools, Search settings and tools
- *  LOOK       Look and language: Theme, Accent colour, App language, Text size, Bold focus ring,
- *             Compact lists, Animations, Background glow (+ the live preview)
- *  CONTROLS   Controls and screens: Gamepad layout, Swap A/B X/Y, TV mode, Second screen
- *  LIBRARY    Library and covers: Profiles, Version preference, Favourite game languages, Maximum
- *             search results, Covers in the library list, Cover sources, Recently played in the icon menu
- *  SOURCES    Sources and new games: Scan sources automatically (+ every / Wi-Fi / charging / night),
- *             Download wishlist games automatically, Weekly digest
- *  STORAGE    Folder and storage: Download folder, A subfolder per console, Keep free space, Storage (link)
- *  DOWNLOADS  Downloads: Download presets (they set limit and conditions together, so first), Concurrent
- *             downloads, Downloads per server, Speed limit (+ No limit at night), Pick the best source,
- *             Retry by itself, Continue interrupted, Continue the queue after a restart
- *  SCHEDULE   When to download: Wi-Fi, Charging, Low battery (+ limit), Hot, Night (+ start / end)
- *  AFTER      After a download: Auto-unzip, m3u playlists, Covers for ES-DE / Pegasus / RetroArch,
- *             Covers for launchers (link), Game details for frontends, Descriptions (link), Queue-done notice
- *  TORRENTS   Torrents and debrid: Debrid service (+ API key), Metadata timeout
- *  FRONTENDS  Frontends and emulators: Set up ES-DE / iiSU / Daijishō / Cocoon, Frontend shortcuts,
- *             Emulator per console, Frontend check (link)
- *  CLOUD      Cloud and saves: Cloud (hub), RomM server, Save sync, Continue playing on Home, RetroAchievements (link)
- *  BACKUP     Backup and recovery: Back up, Automatic backup (+ folder), Restore backup, Cloud backup,
- *             Set up a new handheld (link), Trash and recovery (link)
- *  APP        App and updates: Check for updates, Include pre-releases, Share diagnostics, Report a problem, About
+ *  TOOLS      (no heading) everyday: Library tools, Search settings and tools
+ *  LOOK       Look and controls
+ *               everyday: Theme, Accent colour, App language, Text size, Gamepad layout, Swap A/B X/Y
+ *               advanced: TV mode, Second screen, Bold focus ring, Compact lists, Animations, Background glow
+ *  LIBRARY    Library and covers
+ *               everyday: Profiles, Favourite game languages, Version preference, Covers in the library list, Cover sources
+ *               advanced: Maximum search results, Recently played in the icon menu
+ *  SOURCES    Sources and new games
+ *               everyday: Scan sources automatically (+ every / Wi-Fi / charging / night), Download wishlist
+ *               games automatically, Weekly digest
+ *               advanced: nothing (so no Advanced row)
+ *  DOWNLOADS  Downloads and storage
+ *               everyday: Download presets (they set limit and conditions together, so first), Download folder,
+ *               Debrid service (+ API key)
+ *               advanced: A subfolder per console, Keep free space, Storage (link), Concurrent downloads,
+ *               Downloads per server, Speed limit (+ No limit at night), Pick the best source, Retry by itself,
+ *               Continue interrupted, Continue the queue after a restart, Metadata timeout
+ *  SCHEDULE   When to download
+ *               everyday: Wi-Fi, Charging
+ *               advanced: Low battery (+ limit), Hot, Night (+ start / end)
+ *  FRONTENDS  Frontends and after a download
+ *               everyday: Set up ES-DE / iiSU / Daijishō, Emulator per console, Auto-unzip, m3u playlists
+ *               advanced: Cocoon, Frontend shortcuts, Frontend check (link), Covers for ES-DE / Pegasus / RetroArch,
+ *               Covers for launchers (link), Game details for frontends, Descriptions (link), Queue-done notice
+ *  CLOUD      Cloud and saves
+ *               everyday: Cloud (hub), RomM server, Save sync, RetroAchievements (link)
+ *               advanced: Continue playing on Home
+ *  BACKUP     Backup and recovery
+ *               everyday: Back up, Automatic backup (+ folder), Restore backup
+ *               advanced: Cloud backup, Set up a new handheld (link), Trash and recovery (link)
+ *  APP        App and updates
+ *               everyday: Check for updates, Report a problem, About
+ *               advanced: Include pre-releases, Share diagnostics
  *
  * Rules: a dependent row sits directly under its master. It is hidden while the master is off only
  * when the master explains it by itself; when the explanation lives elsewhere (the night hours
@@ -39,6 +55,9 @@ import com.tufein.valkyr.util.SettingKeys as K
  * Rows that open a tool or hub are single link rows, never copies of the tool itself.
  */
 
+/** How prominent a row is: shown at once, or behind the card's collapsed "Advanced" row. */
+enum class SettingLevel { EVERYDAY, ADVANCED }
+
 /**
  * The cards of the Settings screen, in the order they are shown, with their heading, a one-line
  * description of their purpose and their icon. [title] null is the way into Tools: first,
@@ -46,19 +65,15 @@ import com.tufein.valkyr.util.SettingKeys as K
  */
 enum class SettingsGroup(@StringRes val title: Int?, @StringRes val description: Int?, @DrawableRes val icon: Int) {
     TOOLS(null, null, R.drawable.ic_build),
-    LOOK(R.string.settings43_group_look, R.string.settings44_desc_look, R.drawable.ic_palette),
-    CONTROLS(R.string.settings43_group_controls, R.string.settings44_desc_controls, R.drawable.ic_gamepad),
-    LIBRARY(R.string.settings44_group_library, R.string.settings44_desc_library, R.drawable.ic_library),
-    SOURCES(R.string.settings44_group_sources, R.string.settings44_desc_sources, R.drawable.ic_sync),
-    STORAGE(R.string.settings43_group_storage, R.string.settings44_desc_storage, R.drawable.ic_folder_open),
-    DOWNLOADS(R.string.settings_section_downloads, R.string.settings44_desc_downloads, R.drawable.ic_download),
-    SCHEDULE(R.string.settings_section_schedule, R.string.settings44_desc_schedule, R.drawable.ic_schedule),
-    AFTER(R.string.settings_section_after, R.string.settings44_desc_after, R.drawable.ic_archive),
-    TORRENTS(R.string.settings_section_torrents, R.string.settings44_desc_torrents, R.drawable.ic_p2p),
-    FRONTENDS(R.string.settings43_group_frontends, R.string.settings44_desc_frontends, R.drawable.ic_frontends),
-    CLOUD(R.string.settings43_group_cloud, R.string.settings44_desc_cloud, R.drawable.ic_cloud),
-    BACKUP(R.string.settings44_group_backup, R.string.settings44_desc_backup, R.drawable.ic_backup),
-    APP(R.string.settings_section_app, R.string.settings44_desc_app, R.drawable.ic_info)
+    LOOK(R.string.settings51_group_look, R.string.settings51_desc_look, R.drawable.ic_palette),
+    LIBRARY(R.string.settings44_group_library, R.string.settings51_desc_library, R.drawable.ic_library),
+    SOURCES(R.string.settings44_group_sources, R.string.settings51_desc_sources, R.drawable.ic_sync),
+    DOWNLOADS(R.string.settings51_group_downloads, R.string.settings51_desc_downloads, R.drawable.ic_download),
+    SCHEDULE(R.string.settings_section_schedule, R.string.settings51_desc_schedule, R.drawable.ic_schedule),
+    FRONTENDS(R.string.settings51_group_frontends, R.string.settings51_desc_frontends, R.drawable.ic_frontends),
+    CLOUD(R.string.settings43_group_cloud, R.string.settings51_desc_cloud, R.drawable.ic_cloud),
+    BACKUP(R.string.settings44_group_backup, R.string.settings51_desc_backup, R.drawable.ic_backup),
+    APP(R.string.settings_section_app, R.string.settings51_desc_app, R.drawable.ic_info)
 }
 
 /**
@@ -84,42 +99,52 @@ data class SettingsMasters(
  */
 object SettingsLayout {
 
-    /** The rows of each card, in order. */
-    val groups: Map<SettingsGroup, List<String>> = linkedMapOf(
+    /** The everyday rows of each card, in order (a master is directly followed by its own rows). */
+    val everyday: Map<SettingsGroup, List<String>> = linkedMapOf(
         SettingsGroup.TOOLS to listOf(K.TOOLS, K.SEARCH_ALL),
-        SettingsGroup.LOOK to listOf(
-            K.THEME, K.ACCENT, K.LANGUAGE, K.TEXT_SIZE, K.BOLD_FOCUS, K.COMPACT, K.ANIMATIONS, K.GLOW
-        ),
-        SettingsGroup.CONTROLS to listOf(K.GAMEPAD_LAYOUT, K.SWAP_BUTTONS, K.TV_MODE, K.SECOND_SCREEN),
-        SettingsGroup.LIBRARY to listOf(
-            K.PROFILES, K.VERSION_PREF, K.FAVORITE_LANGUAGES, K.MAX_RESULTS, K.LIST_COVERS, K.COVERS_RETRY, K.RECENT_MENU
-        ),
+        SettingsGroup.LOOK to listOf(K.THEME, K.ACCENT, K.LANGUAGE, K.TEXT_SIZE, K.GAMEPAD_LAYOUT, K.SWAP_BUTTONS),
+        SettingsGroup.LIBRARY to listOf(K.PROFILES, K.FAVORITE_LANGUAGES, K.VERSION_PREF, K.LIST_COVERS, K.COVERS_RETRY),
         SettingsGroup.SOURCES to listOf(
-            K.AUTOSCAN, K.AUTOSCAN_EVERY, K.AUTOSCAN_WIFI, K.AUTOSCAN_CHARGING, K.AUTOSCAN_NIGHT,
-            K.WISHLIST_AUTO, K.DIGEST
+            K.AUTOSCAN, K.AUTOSCAN_EVERY, K.AUTOSCAN_WIFI, K.AUTOSCAN_CHARGING, K.AUTOSCAN_NIGHT, K.WISHLIST_AUTO, K.DIGEST
         ),
-        SettingsGroup.STORAGE to listOf(K.DOWNLOAD_DIR, K.SEPARATE_CONSOLE, K.MIN_FREE, K.STORAGE),
-        SettingsGroup.DOWNLOADS to listOf(
-            K.DOWNLOAD_PRESETS, K.CONCURRENT, K.PER_SERVER, K.SPEED_LIMIT, K.SPEED_DAY_ONLY, K.PICK_BEST,
-            K.AUTO_RETRY, K.RESUME, K.REQUEUE
-        ),
-        SettingsGroup.SCHEDULE to listOf(
-            K.WIFI, K.CHARGING, K.LOW_BATTERY, K.BATTERY_LEVEL, K.HEAT, K.NIGHT, K.NIGHT_START, K.NIGHT_END
-        ),
-        SettingsGroup.AFTER to listOf(
-            K.AUTO_UNZIP, K.AUTO_M3U, K.ESDE_ARTWORK, K.PEGASUS_ARTWORK, K.RETROARCH_ARTWORK, K.FRONTEND_COVERS_TOOL,
-            K.META_AUTO, K.META_TOOL, K.QUEUE_SUMMARY
-        ),
-        SettingsGroup.TORRENTS to listOf(K.DEBRID, K.DEBRID_KEY, K.METADATA_TIMEOUT),
-        SettingsGroup.FRONTENDS to listOf(
-            K.ESDE, K.IISU, K.DAIJISHO, K.COCOON, K.FRONTEND_SHORTCUTS, K.EMULATORS, K.FRONTEND_CHECK
-        ),
-        SettingsGroup.CLOUD to listOf(K.CLOUD, K.ROMM, K.SAVE_SYNC, K.SHELF, K.RETROACHIEVEMENTS),
-        SettingsGroup.BACKUP to listOf(
-            K.BACKUP_EXPORT, K.AUTO_BACKUP, K.AUTO_BACKUP_FOLDER, K.BACKUP_IMPORT, K.CLOUD_BACKUP, K.NEW_HANDHELD, K.RECOVERY
-        ),
-        SettingsGroup.APP to listOf(K.UPDATE_CHECK, K.PRERELEASES, K.DIAGNOSTICS, K.REPORT, K.ABOUT)
+        SettingsGroup.DOWNLOADS to listOf(K.DOWNLOAD_PRESETS, K.DOWNLOAD_DIR, K.DEBRID, K.DEBRID_KEY),
+        SettingsGroup.SCHEDULE to listOf(K.WIFI, K.CHARGING),
+        SettingsGroup.FRONTENDS to listOf(K.ESDE, K.IISU, K.DAIJISHO, K.EMULATORS, K.AUTO_UNZIP, K.AUTO_M3U),
+        SettingsGroup.CLOUD to listOf(K.CLOUD, K.ROMM, K.SAVE_SYNC, K.RETROACHIEVEMENTS),
+        SettingsGroup.BACKUP to listOf(K.BACKUP_EXPORT, K.AUTO_BACKUP, K.AUTO_BACKUP_FOLDER, K.BACKUP_IMPORT),
+        SettingsGroup.APP to listOf(K.UPDATE_CHECK, K.REPORT, K.ABOUT)
     )
+
+    /** The rows behind each card's "Advanced" row, in order; a card without any has no such row. */
+    val advanced: Map<SettingsGroup, List<String>> = linkedMapOf(
+        SettingsGroup.LOOK to listOf(K.TV_MODE, K.SECOND_SCREEN, K.BOLD_FOCUS, K.COMPACT, K.ANIMATIONS, K.GLOW),
+        SettingsGroup.LIBRARY to listOf(K.MAX_RESULTS, K.RECENT_MENU),
+        SettingsGroup.DOWNLOADS to listOf(
+            K.SEPARATE_CONSOLE, K.MIN_FREE, K.STORAGE, K.CONCURRENT, K.PER_SERVER, K.SPEED_LIMIT, K.SPEED_DAY_ONLY,
+            K.PICK_BEST, K.AUTO_RETRY, K.RESUME, K.REQUEUE, K.METADATA_TIMEOUT
+        ),
+        SettingsGroup.SCHEDULE to listOf(K.LOW_BATTERY, K.BATTERY_LEVEL, K.HEAT, K.NIGHT, K.NIGHT_START, K.NIGHT_END),
+        SettingsGroup.FRONTENDS to listOf(
+            K.COCOON, K.FRONTEND_SHORTCUTS, K.FRONTEND_CHECK, K.ESDE_ARTWORK, K.PEGASUS_ARTWORK, K.RETROARCH_ARTWORK,
+            K.FRONTEND_COVERS_TOOL, K.META_AUTO, K.META_TOOL, K.QUEUE_SUMMARY
+        ),
+        SettingsGroup.CLOUD to listOf(K.SHELF),
+        SettingsGroup.BACKUP to listOf(K.CLOUD_BACKUP, K.NEW_HANDHELD, K.RECOVERY),
+        SettingsGroup.APP to listOf(K.PRERELEASES, K.DIAGNOSTICS)
+    )
+
+    /** The rows of each card, in order: the everyday ones, then the advanced ones. */
+    val groups: Map<SettingsGroup, List<String>> = SettingsGroup.entries.associateWith {
+        everyday[it].orEmpty() + advanced[it].orEmpty()
+    }
+
+    private val advancedKeys: Set<String> = advanced.values.flatten().toSet()
+
+    /** The level of [key]; a row this layout does not know counts as everyday. */
+    fun levelOf(key: String?): SettingLevel = if (key != null && key in advancedKeys) SettingLevel.ADVANCED else SettingLevel.EVERYDAY
+
+    /** Whether [key] sits behind its card's "Advanced" row. */
+    fun isAdvanced(key: String?): Boolean = levelOf(key) == SettingLevel.ADVANCED
 
     /** A dependent row and the master row it hangs under. */
     val parents: Map<String, String> = mapOf(

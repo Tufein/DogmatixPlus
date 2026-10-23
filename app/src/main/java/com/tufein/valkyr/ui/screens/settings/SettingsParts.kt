@@ -169,6 +169,28 @@ internal class SettingsRow(
     fun shown(masters: SettingsMasters): Boolean = visible && SettingsLayout.isShown(key, masters)
 }
 
+/**
+ * The one full-width row that closes a card's everyday rows: "Advanced (N)" with a chevron. A / Enter
+ * toggles, D-pad right opens and left closes; the rows it holds follow it in the D-pad order.
+ */
+@Composable
+internal fun AdvancedToggleRow(count: Int, expanded: Boolean, onToggle: () -> Unit) {
+    SettingRow(
+        icon = R.drawable.ic_tune,
+        title = stringResource(R.string.settings51_advanced, count),
+        hint = stringResource(if (expanded) R.string.settings51_advanced_hint_open else R.string.settings51_advanced_hint),
+        onClick = onToggle,
+        onAdjust = { if ((it > 0) != expanded) onToggle() }
+    ) {
+        Icon(
+            painterResource(if (expanded) R.drawable.ic_expand_less else R.drawable.ic_expand_more),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
 /** A row that is shown, with its place in the full list (its focus requester and grid key). */
 internal class ShownRow(val index: Int, val row: SettingsRow)
 

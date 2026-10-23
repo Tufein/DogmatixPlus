@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.withFrameNanos
@@ -259,8 +260,21 @@ fun SettingsScreen(
     // group is a card: its header over the full width, then its rows, in two columns in landscape.
     val columns = settingsColumns()
     val twoColumns = columns == 2
+    // 5.0: each card shows its everyday rows, then one "Advanced (N)" row; the advanced rows follow
+    // only while that card is open. Open cards are remembered in memory only (closed on every visit),
+    // except that a jump to a hidden row (search, a tool) opens its card.
+    val expandedCards = remember { mutableStateMapOf<SettingsGroup, Boolean>() }
     val shownBySection: List<List<ShownRow>> = SettingsGroup.entries.map { section ->
-        ordered.withIndex().filter { (_, row) -> row.section == section && row.shown(masters) }.map { (i, row) -> ShownRow(i, row) }
+        val shown = ordered.withIndex().filter { (_, row) -> row.section == section && row.shown(masters) }.map { (i, row) -> ShownRow(i, row) }
+        val (hidden, everyday) = shown.partition { SettingsLayout.isAdvanced(it.row.key) }
+        if (hidden.isEmpty()) everyday else {
+            val open = expandedCards[section] == true
+            // The toggle's focus requester and grid key come after those of the real rows.
+            val toggle = ShownRow(ordered.size + section.ordinal, SettingsRow(section = section) {
+                AdvancedToggleRow(count = hidden.size, expanded = open, onToggle = { expandedCards[section] = !open })
+            })
+            everyday + toggle + if (open) hidden else emptyList()
+        }
     }
     val cells = CardGrid.layout(
         SettingsGroup.entries.mapIndexed { i, section -> CardGrid.Section(header = section.title != null, items = shownBySection[i].size) },
@@ -272,7 +286,7 @@ fun SettingsScreen(
     // LB / RB: in landscape hop between the two columns (same line of the card); in portrait
     // jump to the first row of the previous / next card. Focus requesters belong to the rows
     // (by their place in [ordered]), so a row appearing above does not move them.
-    val rowFocus = remember(ordered.size) { List(ordered.size) { FocusRequester() } }
+    val rowFocus = remember(ordered.size) { List(ordered.size + SettingsGroup.entries.size) { FocusRequester() } }
     val currentFocus by rememberUpdatedState(rowFocus)
     var focusedRow by remember { mutableIntStateOf(-1) }
     val gridState = rememberLazyListState()
@@ -308,6 +322,12 @@ fun SettingsScreen(
         if (jumpKey == null) return@LaunchedEffect
         val key = SettingsJump.consume() ?: return@LaunchedEffect
         val row = ordered.indexOfFirst { it.key == key && it.shown(masters) }.takeIf { it >= 0 } ?: return@LaunchedEffect
+        // A row behind "Advanced": open its card first and let the grid lay the new rows out.
+        if (SettingsLayout.isAdvanced(key) && expandedCards[ordered[row].section] != true) {
+            expandedCards[ordered[row].section] = true
+            withFrameNanos { }
+            withFrameNanos { }
+        }
         val cell = currentCells.indices.firstOrNull { i ->
             val c = currentCells[i]
             c.kind == CardGrid.Kind.ITEM && currentShown.getOrNull(c.section)?.getOrNull(c.item)?.index == row

@@ -23,7 +23,9 @@ class SearchEntry(
     @DrawableRes val icon: Int,
     val target: SearchTarget,
     @StringRes val keywords: Int? = null,
-    @StringRes val section: Int? = null
+    @StringRes val section: Int? = null,
+    /** A Settings row behind its card's collapsed "Advanced" row (the result says so; the jump opens it). */
+    val advanced: Boolean = false
 )
 
 /** Stable keys of the Settings rows a search result can jump to; SettingsScreen tags its rows with them. */
@@ -135,7 +137,7 @@ object SearchIndex {
         @StringRes keywords: Int? = null, target: String = SettingsLayout.jumpTarget(key), id: String = key
     ) = SearchEntry(
         id, SearchGroup.SETTINGS, title, hint, icon, SearchTarget(NavRoutes.Settings.route, target), keywords,
-        SettingsLayout.groupOf(key)?.title
+        SettingsLayout.groupOf(key)?.title, SettingsLayout.isAdvanced(key)
     )
 
     private fun screen(
