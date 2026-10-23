@@ -150,6 +150,7 @@ import com.tufein.valkyr.ui.screens.home.components.CollectionPickerDialog
 import com.tufein.valkyr.ui.screens.home.components.FilterOption
 import com.tufein.valkyr.ui.screens.home.components.FilterPanel
 import com.tufein.valkyr.ui.screens.home.components.FilterRowSpec
+import com.tufein.valkyr.util.FilterLayout
 import com.tufein.valkyr.ui.screens.home.components.GameDetailsDialog
 import com.tufein.valkyr.ui.screens.home.components.RomRow
 import com.tufein.valkyr.ui.screens.home.components.SaveViewDialog
@@ -192,6 +193,7 @@ fun HomeScreen(
     val ownedKeys by viewModel.ownedKeys.collectAsStateWithLifecycle()
     val rommKeys by viewModel.rommKeys.collectAsStateWithLifecycle()
     val rommBase by viewModel.rommBase.collectAsStateWithLifecycle()
+    val rommOn by viewModel.rommEnabled.collectAsStateWithLifecycle()
     val favouriteKeys by viewModel.favouriteKeys.collectAsStateWithLifecycle()
     val favouritesOnly by viewModel.favouritesOnly.collectAsStateWithLifecycle()
     val sourceFilter by viewModel.source.collectAsStateWithLifecycle()
@@ -379,7 +381,7 @@ fun HomeScreen(
             options = listOf(
                 FilterOption(SourceFilter.ALL.name, stringResource(R.string.filter_all)),
                 FilterOption(SourceFilter.TORRENT.name, stringResource(R.string.source_torrent)),
-                FilterOption(SourceFilter.ROMM.name, stringResource(R.string.source_romm)),
+                *(if (rommOn) arrayOf(FilterOption(SourceFilter.ROMM.name, stringResource(R.string.source_romm))) else emptyArray()),
                 FilterOption(SourceFilter.DIRECT.name, stringResource(R.string.source_direct))
             ),
             selected = setOf(sourceFilter.name),
@@ -660,6 +662,7 @@ fun HomeScreen(
             onDownload = { viewModel.closeDetails(); onFileClick(state.item) },
             onDismiss = viewModel::closeDetails,
             onRomm = viewModel.isOnRomm(state.item.file, rommKeys, rommBase),
+            rommOn = rommOn,
             similar = state.similar,
             onOpenSimilar = viewModel::openDetails,
             onOpenPage = onOpenGame?.let { open -> { viewModel.closeDetails(); open(state.item.file.consoleId, state.item.file.fileName) } },
@@ -786,7 +789,7 @@ fun HomeScreen(
             // child is measured once at a fixed size and the animated width is read only while
             // placing. No alpha fade either: an alpha graphicsLayer renders the panel to an
             // offscreen buffer and the GPU wait alone was ~190 ms per frame.
-            val panelWidth = 216.dp
+            val panelWidth = FilterLayout.PANEL_WIDTH.dp
             val railWidth = 48.dp
             val dividerWidth = 1.dp
             // 3.8.0: the shelves use the room; the panel stays folded to its rail while they show.
@@ -865,7 +868,7 @@ fun HomeScreen(
                     )
                     // Result count on the left, collapse control at the bottom-right corner (R3 does the same).
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(start = 22.dp, end = 10.dp, bottom = 8.dp),
+                        modifier = Modifier.fillMaxWidth().padding(start = FilterLayout.labelStart().dp, end = 7.dp, bottom = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
@@ -906,15 +909,16 @@ fun HomeScreen(
                         }
                         if (query.isEmpty() && recentSearches.isNotEmpty()) RecentSearchesRow(
                             recentSearches, onPick = viewModel::setSearch, onClear = viewModel::clearRecentSearches,
-                            modifier = Modifier.padding(start = 6.dp, top = 8.dp)
+                            modifier = Modifier.padding(top = 8.dp)
                         )
-                        quickRow(Modifier.padding(top = 8.dp), 2)
+                        quickRow(Modifier.padding(top = 8.dp), FilterLayout.EDGE_LANDSCAPE)
                         if (showShelves) shelvesPanel(Modifier.weight(1f).padding(top = 8.dp)) {
                             ConsoleChips(
                                 options = consoleOptions,
                                 selected = selectedConsoles,
                                 onSelect = { viewModel.setConsoleSelection(it); focusListAfterChange() },
-                                modifier = Modifier.padding(top = 2.dp)
+                                modifier = Modifier.padding(top = 2.dp),
+                                horizontalPadding = FilterLayout.EDGE_LANDSCAPE
                             )
                         } else {
                         if (query.isEmpty() && activeFilterCount == 0 && !viewMode.isBrowse) ContinuePlayingShelf(
@@ -930,13 +934,14 @@ fun HomeScreen(
                             options = consoleOptions,
                             selected = selectedConsoles,
                             onSelect = viewModel::setConsoleSelection,
-                            modifier = Modifier.padding(top = 8.dp)
+                            modifier = Modifier.padding(top = 8.dp),
+                            horizontalPadding = FilterLayout.EDGE_LANDSCAPE
                         )
                         if (tableRows && !viewMode.isBrowse) TableHeader(contentShift, showCover = listCovers) else Text(
                             resultsLabel(results.size, hasMoreResults),
                             style = MaterialTheme.typography.labelMedium.tabular(),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(start = 14.dp, top = 10.dp, bottom = 6.dp)
+                            modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 6.dp)
                         )
                         ResultList(
                             results = results,
@@ -1021,19 +1026,19 @@ fun HomeScreen(
                 }
                 if (query.isEmpty() && recentSearches.isNotEmpty()) RecentSearchesRow(
                     recentSearches, onPick = viewModel::setSearch, onClear = viewModel::clearRecentSearches,
-                    modifier = Modifier.padding(start = 20.dp, end = 16.dp, top = 6.dp)
+                    modifier = Modifier.padding(start = FilterLayout.EDGE_PORTRAIT.dp, end = FilterLayout.EDGE_PORTRAIT.dp, top = 8.dp)
                 )
                 // The shelves have their own Continue playing and New for you.
                 if (!showShelves && query.isEmpty() && activeFilterCount == 0 && !viewMode.isBrowse) ContinuePlayingShelf(
                     onOpenGame = openGame,
-                    modifier = Modifier.padding(start = 14.dp, end = 10.dp, top = 6.dp)
+                    modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 6.dp)
                 )
                 if (!showShelves && query.isEmpty() && activeFilterCount == 0 && onOpenGame != null && !viewMode.isBrowse) com.tufein.valkyr.ui.screens.next.UpNextShelf(
                     onOpenGame = onOpenGame,
                     onOpenAll = { navController.navigate(NavRoutes.UpNext.route) },
-                    modifier = Modifier.padding(start = 14.dp, end = 10.dp, top = 6.dp)
+                    modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 6.dp)
                 )
-                quickRow(Modifier.padding(top = 8.dp), 16)
+                quickRow(Modifier.padding(top = 8.dp), FilterLayout.EDGE_PORTRAIT)
                 ConsoleChips(
                     options = consoleOptions,
                     selected = selectedConsoles,
@@ -1042,7 +1047,7 @@ fun HomeScreen(
                 )
                 if (showShelves) shelvesPanel(Modifier.weight(1f), null) else {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 28.dp, end = 16.dp, bottom = 6.dp),
+                    modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = FilterLayout.EDGE_PORTRAIT.dp, bottom = 6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(

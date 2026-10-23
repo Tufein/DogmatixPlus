@@ -86,6 +86,17 @@ class SourcesViewModel @Inject constructor(
         }
     }
 
+    /** "Use RomM": the same switch as Settings → RomM (off = RomM platforms are skipped by scans and downloads). */
+    val rommEnabled: StateFlow<Boolean> = settingsRepository.rommEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+    fun setRommEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            runCatching { settingsRepository.setRommEnabled(enabled) }
+            if (!enabled) _rommPlatforms.value = emptyList()
+        }
+    }
+
     val manufacturers: Flow<List<Manufacturer>> = sources.manufacturers
 
     val isRescanning: StateFlow<Boolean> = rescanStateHolder.isRescanning

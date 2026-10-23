@@ -43,8 +43,12 @@ data class RommUiState(
     /** SHA-256 of the server certificate the user chose to trust; "" = none. */
     val trustFingerprint: String = "",
     val markGames: Boolean = true,
-    val esdeDirectory: String = ""
+    val esdeDirectory: String = "",
+    /** "Use RomM" (default on); off = the rest of the screen is hidden and nothing reaches the server. */
+    val enabled: Boolean = true
 )
+
+private data class RommUiExtras(val fp: String, val mark: Boolean, val esde: String, val enabled: Boolean)
 
 /** A certificate the system does not trust, shown to the user to confirm (or not). */
 data class TrustPrompt(val url: String, val certificate: ServerCertificate)
@@ -62,14 +66,14 @@ class RommViewModel @Inject constructor(
 
     val uiState: StateFlow<RommUiState> = combine(
         combine(
-            settingsRepository.rommUrl,
-            settingsRepository.rommToken,
+            settingsRepository.rommUrlSaved,
+            settingsRepository.rommTokenSaved,
             settingsRepository.rommAutoUpload,
             settingsRepository.rommPlatformMap,
             consoleRepository.getAllConsoles().map { list -> list.sortedBy { ConsoleFormatter.getConsoleDisplayName(it.id) } }
         ) { url, token, auto, map, consoles -> RommUiState(url, token, auto, map, consoles) },
-        combine(settingsRepository.rommTrustFingerprint, settingsRepository.rommMarkGames, settingsRepository.esdeDirectory) { fp, mark, esde -> Triple(fp, mark, esde) }
-    ) { base, (fp, mark, esde) -> base.copy(trustFingerprint = fp, markGames = mark, esdeDirectory = esde) }
+        combine(settingsRepository.rommTrustFingerprint, settingsRepository.rommMarkGames, settingsRepository.esdeDirectory, settingsRepository.rommEnabled) { fp, mark, esde, on -> RommUiExtras(fp, mark, esde, on) }
+    ) { base, extras -> base.copy(trustFingerprint = extras.fp, markGames = extras.mark, esdeDirectory = extras.esde, enabled = extras.enabled) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RommUiState())
 
     /** What the server's game list looks like right now (for the "games on RomM" row). */
@@ -121,6 +125,11 @@ class RommViewModel @Inject constructor(
             ?.let { _trustPrompt.value = TrustPrompt(url.trim().trimEnd('/'), it) }
     }
 
+    fun setEnabled(context: Context, enabled: Boolean) = executeWithToast(context, TAG) {
+        settingsRepository.setRommEnabled(enabled)
+        if (!enabled) _platforms.value = emptyList()
+    }
+
     fun setMarkGames(context: Context, enabled: Boolean) = executeWithToast(context, TAG) { settingsRepository.setRommMarkGames(enabled) }
 
     fun refreshMarks() { viewModelScope.launch { libraryService.refresh() } }
@@ -144,7 +153,7 @@ class RommViewModel @Inject constructor(
                 }
                 .onFailure { e ->
                     if (announce && context != null) ToastUtil.showError(context, context.getString(R.string.romm_connection_failed, e.message ?: ""))
-                    if (announce) offerTrustIfTlsProblem(e, settingsRepository.rommUrl.first())
+                    if (announce) offerTrustIfTlsProblem(e, settingsRepository.rommUrlSaved.first())
                 }
             _loading.value = false
         }

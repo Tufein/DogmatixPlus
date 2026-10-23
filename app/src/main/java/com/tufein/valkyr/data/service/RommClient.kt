@@ -53,11 +53,20 @@ data class RommPlatform(val id: Int, val slug: String, val fsSlug: String, val n
 class RommClient @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) {
-    private suspend fun baseUrl(): String =
-        settingsRepository.rommUrl.first().trim().trimEnd('/').ifEmpty { throw RommException("RomM server URL not set") }
+    /** Throws while "Use RomM" is off, so not even a manual action (a connection test) reaches the server. */
+    private suspend fun requireEnabled() {
+        if (!settingsRepository.rommEnabled.first()) throw RommException("RomM is switched off (Settings → RomM → Use RomM)")
+    }
 
-    private suspend fun headers(): Map<String, String> =
-        mapOf("Authorization" to authHeader(settingsRepository.rommToken.first()))
+    private suspend fun baseUrl(): String {
+        requireEnabled()
+        return settingsRepository.rommUrl.first().trim().trimEnd('/').ifEmpty { throw RommException("RomM server URL not set") }
+    }
+
+    private suspend fun headers(): Map<String, String> {
+        requireEnabled()
+        return mapOf("Authorization" to authHeader(settingsRepository.rommToken.first()))
+    }
 
     /** Configured server URL (no trailing slash) or "" when RomM is not set up. */
     suspend fun configuredBaseUrl(): String = settingsRepository.rommUrl.first().trim().trimEnd('/')
@@ -167,6 +176,7 @@ class RommClient @Inject constructor(
 
     /** Returns the number of platforms the server reports, as a connection check. */
     suspend fun testConnection(url: String, token: String): Int = withContext(Dispatchers.IO) {
+        requireEnabled()
         platforms(url.trim().trimEnd('/'), mapOf("Authorization" to authHeader(token))).size
     }
 

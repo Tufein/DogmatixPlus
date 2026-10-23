@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -53,7 +54,6 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tufein.valkyr.R
 import com.tufein.valkyr.ui.components.ActionPill
@@ -64,6 +64,7 @@ import com.tufein.valkyr.ui.theme.LocalDogmatixTokens
 import com.tufein.valkyr.ui.theme.LocalReduceMotion
 import com.tufein.valkyr.ui.theme.Motion
 import com.tufein.valkyr.ui.theme.tabular
+import com.tufein.valkyr.util.FilterLayout
 
 /**
  * [label] is shown in the option list; [shortLabel] (defaults to [label]) in compact places like the
@@ -113,7 +114,8 @@ fun FilterPanel(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 14.dp, end = 4.dp, bottom = 8.dp),
+                // Same start as the rows' accent mark and same end as their chevron, so title and rows share both edges.
+                .padding(start = 8.dp, end = 6.dp, bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -147,7 +149,7 @@ private fun FilterRow(
 ) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
-    val rowHeight = if (compact) 40.dp else 48.dp
+    val rowHeight = FilterLayout.CHIP_HEIGHT.dp
     val rowFocus = remember { FocusRequester() }
     val reduce = LocalReduceMotion.current
 
@@ -201,12 +203,13 @@ private fun FilterRow(
         spec.selected.isNotEmpty() && spec.options.isNotEmpty() && spec.selected.first() != spec.options.first().id
     } else spec.selected.isNotEmpty()
     val activeFill = scheme.primary.copy(alpha = if (LocalDogmatixTokens.current.isDark) 0.10f else 0.08f)
+    val labelShare = FilterLayout.LABEL_SHARE
 
     Column(modifier = modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(rowHeight)
+                .defaultMinSize(minHeight = rowHeight)
                 .focusRequester(rowFocus)
                 .background(if (active) activeFill else Color.Transparent, RoundedCornerShape(8.dp))
                 .focusRing(source)
@@ -219,7 +222,7 @@ private fun FilterRow(
                     }
                 }
                 .clickable(interactionSource = source, indication = null) { onExpandedChange(!expanded) }
-                .padding(start = 8.dp, end = 6.dp),
+                .padding(start = 8.dp, end = 6.dp, top = 4.dp, bottom = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // A thin accent mark at the start of a row that is filtering.
@@ -231,40 +234,42 @@ private fun FilterRow(
                     .background(if (active) scheme.primary else Color.Transparent)
             )
             Spacer(Modifier.width(5.dp))
+            // Label left, control right, in the same two columns in every row; neither is ever cut (they wrap).
             Text(
                 spec.label,
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (active) scheme.onSurface else scheme.onSurfaceVariant,
-                maxLines = 1,
-                softWrap = false
+                modifier = Modifier.weight(labelShare).padding(end = 6.dp)
             )
-            Spacer(Modifier.width(6.dp))
-            ArrowButton(R.drawable.ic_chevron_left) { cycle(-1) }
             Row(
-                modifier = Modifier.weight(1f).padding(horizontal = 2.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
+                modifier = Modifier.weight(1f - labelShare),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                singlePick?.color?.let { ColorDot(it) }
-                Text(
-                    valueText,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = if (active) accentInk() else scheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f, fill = false)
+                ArrowButton(R.drawable.ic_chevron_left) { cycle(-1) }
+                Row(
+                    modifier = Modifier.weight(1f).padding(horizontal = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
+                ) {
+                    singlePick?.color?.let { ColorDot(it) }
+                    Text(
+                        valueText,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (active) accentInk() else scheme.onSurface,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                }
+                ArrowButton(R.drawable.ic_chevron_right) { cycle(1) }
+                Icon(
+                    painterResource(R.drawable.ic_chevron_right),
+                    contentDescription = null,
+                    tint = if (expanded) scheme.primary else scheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .size(18.dp)
+                        .graphicsLayer { rotationZ = 90f + 180f * turn.value }
                 )
             }
-            ArrowButton(R.drawable.ic_chevron_right) { cycle(1) }
-            Icon(
-                painterResource(R.drawable.ic_chevron_right),
-                contentDescription = null,
-                tint = if (expanded) scheme.primary else scheme.onSurfaceVariant,
-                modifier = Modifier
-                    .size(18.dp)
-                    .graphicsLayer { rotationZ = 90f + 180f * turn.value }
-            )
         }
         fun close() {
             runCatching { rowFocus.requestFocus() }
@@ -338,7 +343,7 @@ private fun ArrowButton(icon: Int, onClick: () -> Unit) {
     val source = rememberFocusSource()
     Box(
         modifier = Modifier
-            .size(48.dp)
+            .size(width = 32.dp, height = FilterLayout.CHIP_HEIGHT.dp)
             .clip(RoundedCornerShape(6.dp))
             .focusProperties { canFocus = false }
             .focusRing(source, 6.dp)
@@ -384,14 +389,14 @@ private fun OptionRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(if (compact) 34.dp else 44.dp)
+            .defaultMinSize(minHeight = if (compact) 40.dp else FilterLayout.CHIP_HEIGHT.dp)
             .background(
                 if (checked) scheme.primary.copy(alpha = if (LocalDogmatixTokens.current.isDark) 0.14f else 0.10f) else Color.Transparent,
                 RoundedCornerShape(7.dp)
             )
             .focusRing(source, 7.dp)
             .clickable(interactionSource = source, indication = null, onClick = onClick)
-            .padding(horizontal = 8.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -406,8 +411,6 @@ private fun OptionRow(
             label,
             style = if (checked || accent) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodyMedium,
             color = if (accent) accentInk() else scheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f)
         )
         count?.let {

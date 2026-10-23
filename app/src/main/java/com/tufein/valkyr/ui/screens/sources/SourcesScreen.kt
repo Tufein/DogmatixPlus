@@ -56,6 +56,8 @@ import com.tufein.valkyr.ui.components.ActionTone
 import com.tufein.valkyr.ui.components.EmptyState
 import com.tufein.valkyr.ui.components.IconTile
 import com.tufein.valkyr.ui.components.Panel
+import com.tufein.valkyr.ui.screens.settings.SettingRow
+import com.tufein.valkyr.ui.screens.settings.ThemedSwitch
 import com.tufein.valkyr.ui.components.PanelTone
 import com.tufein.valkyr.ui.components.Pill
 import com.tufein.valkyr.ui.components.PillTone
@@ -170,6 +172,19 @@ fun SourcesScreen(
                 downloadDirectory = downloadDirectory,
                 onChange = { rootDirectoryPicker.launch(null) }
             )
+        }
+
+        item {
+            val rommOn by viewModel.rommEnabled.collectAsStateWithLifecycle()
+            Panel(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(4.dp)) {
+                SettingRow(
+                    icon = R.drawable.ic_server,
+                    title = stringResource(R.string.fix54_romm_use),
+                    hint = stringResource(if (rommOn) R.string.fix54_romm_sources_on_hint else R.string.fix54_romm_sources_off_hint),
+                    onClick = { viewModel.setRommEnabled(!rommOn) },
+                    onAdjust = { viewModel.setRommEnabled(it > 0) },
+                ) { ThemedSwitch(rommOn) { viewModel.setRommEnabled(it) } }
+            }
         }
 
         item {

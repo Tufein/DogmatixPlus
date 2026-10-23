@@ -10,7 +10,7 @@ object SettingSchema {
             download_night_only download_wifi_only esde_artwork look_animations look_compact_lists look_glow look_list_covers
             meta7_auto meta7_esde meta7_pegasus offline_collections_wifi onboarding_done pegasus_artwork pick_best_source
             power_heat power_low_battery queue_held queue_summary requeue_after_restart resume_downloads romm5_favourites_two_way
-            romm_auto_upload romm_mark_games save_sync_auto save_sync_background save_sync_bg_charging save_sync_bg_wifi_only
+            romm_enabled romm_auto_upload romm_mark_games save_sync_auto save_sync_background save_sync_bg_charging save_sync_bg_wifi_only
             save_sync_deletions second_screen separate_by_console smart_storage_enabled smart_storage_weekly speed_limit_day_only
             swap_face_buttons torbox_enabled update_pre_releases upg7_digest_enabled wishlist_auto_download
         """)

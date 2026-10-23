@@ -51,6 +51,8 @@ object SettingsKeys {
     val ESDE_DIRECTORY = stringPreferencesKey("esde_directory")
     /** SAF tree URI of iiSU's `iiSULauncher` data directory ("Configure iiSU" in Settings). */
     val IISU_DIRECTORY = stringPreferencesKey("iisu_directory")
+    /** Master switch "Use RomM" (default on): off = no RomM network call anywhere, the URL and token stay saved. */
+    val ROMM_ENABLED = booleanPreferencesKey("romm_enabled")
     val ROMM_URL = stringPreferencesKey("romm_url")
     val ROMM_TOKEN = stringPreferencesKey("romm_token")
     val ROMM_AUTO_UPLOAD = booleanPreferencesKey("romm_auto_upload")
@@ -136,6 +138,8 @@ class SettingsDataStore @Inject constructor(
     val realDebridApiKey: Flow<String> = context.dataStore.data.map { it[SettingsKeys.REAL_DEBRID_API_KEY] ?: "" }
     val esdeDirectory: Flow<String> = context.dataStore.data.map { it[SettingsKeys.ESDE_DIRECTORY] ?: "" }
     val iisuDirectory: Flow<String> = context.dataStore.data.map { it[SettingsKeys.IISU_DIRECTORY] ?: "" }
+    val rommEnabled: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.ROMM_ENABLED] ?: true }
+    /** The saved address, whatever the switch says (see [com.tufein.valkyr.util.RommSwitch]). */
     val rommUrl: Flow<String> = context.dataStore.data.map { it[SettingsKeys.ROMM_URL] ?: "" }
     val rommToken: Flow<String> = context.dataStore.data.map { it[SettingsKeys.ROMM_TOKEN] ?: "" }
     val rommAutoUpload: Flow<Boolean> = context.dataStore.data.map { it[SettingsKeys.ROMM_AUTO_UPLOAD] ?: false }
@@ -194,6 +198,7 @@ class SettingsDataStore @Inject constructor(
     suspend fun setRealDebridApiKey(key: String) = context.dataStore.edit { it[SettingsKeys.REAL_DEBRID_API_KEY] = key.trim() }
     suspend fun setEsdeDirectory(uri: String) = context.dataStore.edit { it[SettingsKeys.ESDE_DIRECTORY] = uri }
     suspend fun setIisuDirectory(uri: String) = context.dataStore.edit { it[SettingsKeys.IISU_DIRECTORY] = uri }
+    suspend fun setRommEnabled(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.ROMM_ENABLED] = enabled }
     suspend fun setRommUrl(url: String) = context.dataStore.edit { it[SettingsKeys.ROMM_URL] = url.trim().trimEnd('/') }
     suspend fun setRommToken(token: String) = context.dataStore.edit { it[SettingsKeys.ROMM_TOKEN] = token.trim() }
     suspend fun setRommAutoUpload(enabled: Boolean) = context.dataStore.edit { it[SettingsKeys.ROMM_AUTO_UPLOAD] = enabled }

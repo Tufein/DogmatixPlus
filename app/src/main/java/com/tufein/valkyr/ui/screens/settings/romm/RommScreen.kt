@@ -86,7 +86,7 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    LaunchedEffect(ui.url, ui.token) { if (ui.url.isNotBlank() && ui.token.isNotBlank()) viewModel.loadPlatforms(null) }
+    LaunchedEffect(ui.url, ui.token, ui.enabled) { if (ui.enabled && ui.url.isNotBlank() && ui.token.isNotBlank()) viewModel.loadPlatforms(null) }
 
     var showUrlDialog by remember { mutableStateOf(false) }
     var showTokenDialog by remember { mutableStateOf(false) }
@@ -122,7 +122,17 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
 
     val notMapped = stringResource(R.string.romm_not_mapped)
     // The server card: address, token, connection and what Dogmatix does with the server.
-    val serverRows: List<@Composable () -> Unit> = buildList {
+    val masterRow: @Composable () -> Unit = {
+        SettingRow(
+            icon = R.drawable.ic_server,
+            title = stringResource(R.string.fix54_romm_use),
+            hint = stringResource(if (ui.enabled) R.string.fix54_romm_use_on_hint else R.string.fix54_romm_use_off_hint),
+            onClick = { viewModel.setEnabled(context, !ui.enabled) },
+            onAdjust = { viewModel.setEnabled(context, it > 0) },
+        ) { ThemedSwitch(ui.enabled) { viewModel.setEnabled(context, it) } }
+    }
+    val serverRows: List<@Composable () -> Unit> = if (!ui.enabled) listOf(masterRow) else buildList {
+        add(masterRow)
         add {
             SettingRow(
                 icon = R.drawable.ic_link,
@@ -265,7 +275,7 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
         }
     }
     val consoleRows: List<@Composable () -> Unit> = buildList {
-        ui.consoles.forEach { console -> add {
+        if (ui.enabled) ui.consoles.forEach { console -> add {
             val mappedId = ui.platformMap[console.id]
             val mapped = platforms.firstOrNull { it.id == mappedId }
             val suggestion = if (mappedId == null) viewModel.suggestionFor(console.id) else null
@@ -326,7 +336,7 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
     val cells = CardGrid.layout(
         listOf(
             CardGrid.Section(header = false, items = serverRows.size),
-            CardGrid.Section(header = true, items = consoleRows.size, keepIfEmpty = true)
+            CardGrid.Section(header = true, items = consoleRows.size, keepIfEmpty = ui.enabled)
         ),
         columns
     )
@@ -376,7 +386,8 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                     loading = loading,
                     platformCount = platforms.size,
                     games = if (ui.markGames) libraryState.games else 0,
-                    trusted = ui.trustFingerprint.isNotBlank()
+                    trusted = ui.trustFingerprint.isNotBlank(),
+                    enabled = ui.enabled
                 )
             }
         ) { index, cell ->
@@ -393,7 +404,7 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
 /** The screen title with the server's address and its state at a glance. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun RommHeader(url: String, loading: Boolean, platformCount: Int, games: Int, trusted: Boolean, modifier: Modifier = Modifier) {
+private fun RommHeader(url: String, loading: Boolean, platformCount: Int, games: Int, trusted: Boolean, enabled: Boolean, modifier: Modifier = Modifier) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         ScreenTitle(
             text = stringResource(R.string.settings_romm),
@@ -405,6 +416,7 @@ private fun RommHeader(url: String, loading: Boolean, platformCount: Int, games:
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             when {
+                !enabled -> Pill(stringResource(R.string.fix54_romm_off_pill), tone = PillTone.Warning, icon = R.drawable.ic_cloud_off)
                 url.isBlank() -> Pill(stringResource(R.string.settings_v5_pill_not_set_up), tone = PillTone.Neutral, icon = R.drawable.ic_cloud_off)
                 loading -> Pill(stringResource(R.string.romm_testing), tone = PillTone.Info, icon = R.drawable.ic_sync)
                 platformCount > 0 -> {

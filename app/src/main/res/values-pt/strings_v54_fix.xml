@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="fix54_romm_use">Usar o RomM</string>
+    <string name="fix54_romm_use_on_hint">Desative para cortar todo o contacto com o seu servidor RomM. O endereço, o token e a associação de plataformas são mantidos.</string>
+    <string name="fix54_romm_use_off_hint">O RomM está desativado: nada é enviado ao servidor e as marcas, prateleiras e secções do RomM ficam ocultas. Ative para continuar de onde ficou.</string>
+    <string name="fix54_romm_off_pill">RomM desativado</string>
+    <string name="fix54_romm_sources_on_hint">Desativado interrompe todas as chamadas ao RomM (análises, capas, gravações, transferências). Nada é eliminado.</string>
+    <string name="fix54_romm_sources_off_hint">O RomM está desativado: as plataformas RomM são ignoradas nas análises e transferências. Os jogos já transferidos continuam na biblioteca.</string>
+</resources>

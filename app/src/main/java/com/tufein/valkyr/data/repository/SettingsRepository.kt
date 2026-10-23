@@ -24,8 +24,17 @@ interface SettingsRepository {
     val realDebridApiKey: Flow<String>
     val esdeDirectory: Flow<String>
     val iisuDirectory: Flow<String>
+    /** Master switch "Use RomM" (default on). */
+    val rommEnabled: Flow<Boolean>
+    /**
+     * The RomM address and token as the rest of the app sees them: blank while [rommEnabled] is off, so every
+     * "is RomM set up?" check and every RomM call stops in one place (see [com.tufein.valkyr.util.RommSwitch]).
+     */
     val rommUrl: Flow<String>
     val rommToken: Flow<String>
+    /** What is saved, whatever the switch says; only the RomM settings screen needs it. */
+    val rommUrlSaved: Flow<String>
+    val rommTokenSaved: Flow<String>
     val rommAutoUpload: Flow<Boolean>
     val rommPlatformMap: Flow<Map<String, Int>>
     val consoleScannedAt: Flow<Map<String, Long>>
@@ -65,6 +74,7 @@ interface SettingsRepository {
     suspend fun setRealDebridApiKey(key: String): Preferences
     suspend fun setEsdeDirectory(uri: String): Preferences
     suspend fun setIisuDirectory(uri: String): Preferences
+    suspend fun setRommEnabled(enabled: Boolean): Preferences
     suspend fun setRommUrl(url: String): Preferences
     suspend fun setRommToken(token: String): Preferences
     suspend fun setRommAutoUpload(enabled: Boolean): Preferences

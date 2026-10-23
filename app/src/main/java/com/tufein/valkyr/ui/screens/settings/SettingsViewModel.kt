@@ -65,6 +65,8 @@ data class SettingsUiState(
     val torboxApiKey: String = "",
     val realDebridApiKey: String = "",
     val rommUrl: String = "",
+    /** "Use RomM" (Settings → RomM); [rommUrl] is the saved address either way. */
+    val rommEnabled: Boolean = true,
     val esdeDirectory: String = "",
     val iisuDirectory: String = "",
     val isLoading: Boolean = false
@@ -228,13 +230,14 @@ class SettingsViewModel @Inject constructor(
         repository.debridProvider,
         repository.torboxApiKey,
         repository.realDebridApiKey,
-        repository.rommUrl,
+        repository.rommUrlSaved,
         repository.metadataTimeoutSeconds,
         repository.esdeDirectory,
         repository.maxSearchResults,
         repository.iisuDirectory,
         repository.gamepadLayout,
-        repository.swapFaceButtons
+        repository.swapFaceButtons,
+        repository.rommEnabled
     ) { values: Array<Any> ->
         SettingsUiState(
             downloadDirectory = values[0] as String,
@@ -254,7 +257,8 @@ class SettingsViewModel @Inject constructor(
             maxSearchResults = values[14] as Int,
             iisuDirectory = values[15] as String,
             gamepadLayout = GamepadLayout.fromName(values[16] as String),
-            swapFaceButtons = values[17] as Boolean
+            swapFaceButtons = values[17] as Boolean,
+            rommEnabled = values[18] as Boolean
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SettingsUiState())
 

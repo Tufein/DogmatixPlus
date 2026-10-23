@@ -362,7 +362,7 @@ fun SettingsScreen(
     val pills = SectionPillState(
         limitKb = env.limitKb,
         schedule = env.schedule,
-        rommConfigured = env.ui.rommUrl.isNotBlank(),
+        rommConfigured = env.ui.rommEnabled && env.ui.rommUrl.isNotBlank(),
         profile = env.activeProfileName,
         autoBackup = env.appPrefs.autoBackup,
         autoBackupDirSet = env.appPrefs.autoBackupDir.isNotBlank(),

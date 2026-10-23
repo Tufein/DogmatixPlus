@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="fix54_romm_use">Use RomM</string>
+    <string name="fix54_romm_use_on_hint">Switch off to stop all contact with your RomM server. Your address, token and platform mapping are kept.</string>
+    <string name="fix54_romm_use_off_hint">RomM is off: nothing is sent to the server and RomM badges, shelves and sections are hidden. Switch on to continue where you left off.</string>
+    <string name="fix54_romm_off_pill">RomM is off</string>
+    <string name="fix54_romm_sources_on_hint">Off stops every RomM call (scans, covers, saves, downloads). Nothing is deleted.</string>
+    <string name="fix54_romm_sources_off_hint">RomM is off: RomM platforms are skipped by scans and downloads. Games you already downloaded stay in the library.</string>
+</resources>

@@ -417,6 +417,10 @@ internal suspend fun DownloadService.performHttpDownloadAttempt(file: Downloadab
         } else null
         val partial = if (record != null) downloadFileManager.findExistingFile(file, downloadDirUri.toString(), subPath) else null
         val partialBytes = partial?.length() ?: 0L
+        // "Use RomM" off: a file of the RomM library is not fetched at all (no unsigned request to the server either).
+        if (!settingsRepository.rommEnabled.first() &&
+            RommSource.isDownloadFrom(settingsRepository.rommUrlSaved.first(), downloadUrl)
+        ) throw RommException("RomM is switched off (Settings → RomM → Use RomM)")
         // Files served by the RomM library need the account's credentials.
         val auth = if (RommSource.isDownloadFrom(rommClient.configuredBaseUrl(), downloadUrl)) rommClient.downloadHeaders() else emptyMap()
         val headers = if (partialBytes > 0 && record?.validator != null) auth + ("If-Range" to record.validator) else auth

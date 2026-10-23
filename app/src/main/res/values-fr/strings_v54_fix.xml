@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="fix54_romm_use">Utiliser RomM</string>
+    <string name="fix54_romm_use_on_hint">Désactivez pour couper tout contact avec votre serveur RomM. L’adresse, le jeton et l’association des plateformes sont conservés.</string>
+    <string name="fix54_romm_use_off_hint">RomM est désactivé : rien n’est envoyé au serveur et les pastilles, étagères et sections RomM sont masquées. Réactivez pour reprendre là où vous en étiez.</string>
+    <string name="fix54_romm_off_pill">RomM désactivé</string>
+    <string name="fix54_romm_sources_on_hint">Désactivé arrête tout appel à RomM (analyses, jaquettes, sauvegardes, téléchargements). Rien n’est supprimé.</string>
+    <string name="fix54_romm_sources_off_hint">RomM est désactivé : les plateformes RomM sont ignorées lors des analyses et des téléchargements. Les jeux déjà téléchargés restent dans la bibliothèque.</string>
+</resources>

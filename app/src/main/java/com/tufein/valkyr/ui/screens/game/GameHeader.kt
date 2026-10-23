@@ -77,7 +77,9 @@ internal fun GameHeader(
     favourite: Boolean,
     onRomm: Boolean,
     isLandscape: Boolean,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    /** "Use RomM" is on; off hides the RomM source badge. */
+    rommOn: Boolean = true
 ) {
     val rom = state.item.file
     val (frontUrl, backdropUrl) = rememberGameArt(state)
@@ -85,7 +87,7 @@ internal fun GameHeader(
     val region = remember(state.item.tags) { state.item.tags.firstOrNull { TagClassifier.kindOf(it) == TagClassifier.Kind.REGION } }
     // The first region is a badge; the other regions and the languages follow as tags.
     val extraTags = remember(state.item.tags) { GamePageModel.heroTags(state.item.tags).filter { it != region } }
-    val fromRomm = remember(rom.downloadUrl) { RommSource.romIdOf(rom.downloadUrl) != null }
+    val fromRomm = rommOn && remember(rom.downloadUrl) { RommSource.romIdOf(rom.downloadUrl) != null }
     val found = remember(rom.firstSeenAt) {
         if (rom.firstSeenAt > 0L) DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(rom.firstSeenAt)) to
             NewGames.isNew(rom.firstSeenAt, System.currentTimeMillis())

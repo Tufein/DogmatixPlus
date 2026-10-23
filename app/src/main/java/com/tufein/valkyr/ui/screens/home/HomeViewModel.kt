@@ -42,6 +42,7 @@ import com.tufein.valkyr.util.LibraryViews
 import com.tufein.valkyr.util.NewGames
 import com.tufein.valkyr.util.RaGame
 import com.tufein.valkyr.util.RommMarks
+import com.tufein.valkyr.util.RommSwitch
 import com.tufein.valkyr.util.RommSource
 import com.tufein.valkyr.util.SwitchTitles
 import com.tufein.valkyr.data.local.entity.DownloadableFileEntity
@@ -365,6 +366,13 @@ class HomeViewModel @Inject constructor(
     val rommBase: StateFlow<String> = settingsRepository.rommUrl.map { it.trim().trimEnd('/') }
         .stateIn(viewModelScope, SharingStarted.Eagerly, "")
 
+    /**
+     * "Use RomM". Read once up front (a tiny DataStore file) so the first list already knows whether
+     * RomM-only rows are listed; a change re-runs the search (see the filter collector).
+     */
+    val rommEnabled: StateFlow<Boolean> = settingsRepository.rommEnabled
+        .stateIn(viewModelScope, SharingStarted.Eagerly, runCatching { runBlocking { settingsRepository.rommEnabled.first() } }.getOrDefault(true))
+
     fun isOnRomm(file: DownloadableFileEntity, keys: Set<String>, base: String): Boolean =
         (keys.isNotEmpty() || base.isNotEmpty()) && RommMarks.isOnServer(keys, file.consoleId, file.fileName, file.downloadUrl, base)
 
@@ -547,8 +555,8 @@ class HomeViewModel @Inject constructor(
      * The first value after the chip goes on is not delayed.
      */
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-    private val ownedForSearch: Flow<Set<String>> = _ownership.flatMapLatest { own ->
-        if (!own.isActive) flowOf(emptySet())
+    private val ownedForSearch: Flow<Set<String>> = combine(_ownership, rommEnabled) { own, on -> own.isActive || !on }.distinctUntilChanged().flatMapLatest { needed ->
+        if (!needed) flowOf(emptySet())
         else {
             var first = true
             libraryIndex.ownedKeys.debounce { if (first) { first = false; 0L } else 500L }
@@ -557,6 +565,8 @@ class HomeViewModel @Inject constructor(
 
     init {
         rememberSearches()
+        // "Use RomM" off: a RomM source filter would list nothing, so it goes back to All.
+        viewModelScope.launch { rommEnabled.collect { on -> if (!on && _source.value == SourceFilter.ROMM) _source.value = SourceFilter.ALL } }
         // Deep links (valkyr://library?…): apply whatever is waiting, now and on every new link.
         viewModelScope.launch {
             pendingFilters.request.collect { if (it != null) pendingFilters.consume()?.let { request -> applyRequest(request) } }
@@ -572,8 +582,9 @@ class HomeViewModel @Inject constructor(
                 // Re-query when a star changes while "Favourites only" is on, else the row would linger.
                 // …and when the active profile changes what is hidden.
                 // 5.1: …and when the files on the device change while a downloaded / not downloaded chip is on.
-                combine(_favouritesOnly, favourites.keys, profiles.restrictions, ownedForSearch) { only, keys, r, owned ->
-                    Triple(if (only) keys else emptySet(), r, owned)
+                // 6.x: …and when "Use RomM" changes (RomM-only rows that are not on the device drop out while it is off).
+                combine(_favouritesOnly, favourites.keys, profiles.restrictions, ownedForSearch, rommEnabled) { only, keys, r, owned, on ->
+                    Triple(if (only) keys else emptySet(), r, owned to on)
                 }.distinctUntilChanged(),
                 pageSize,
                 // 6.0: genre / decade; the index only matters (and re-runs the search) while one is active.
@@ -721,9 +732,14 @@ class HomeViewModel @Inject constructor(
             newSince = params.newSince, collectionId = params.collectionId, source = params.source, sort = params.sort,
             limit = limit, offset = from
         )
-        val ownedNow = if (params.ownership.isActive) libraryIndex.ownedKeys.value else emptySet()
-        val ownershipOnly: (DownloadableFileWithTags) -> Boolean = { params.ownership.matches(libraryIndex.isOwned(it.file, ownedNow)) }
-        if (!filter.isActive && !params.ownership.isActive) {
+        val rommOff = !rommEnabled.value
+        val ownedNow = if (params.ownership.isActive || rommOff) libraryIndex.ownedKeys.value else emptySet()
+        // "Use RomM" off: a row that only RomM serves is listed while its file is on the device (nothing is purged).
+        val ownershipOnly: (DownloadableFileWithTags) -> Boolean = {
+            val owned = libraryIndex.isOwned(it.file, ownedNow)
+            params.ownership.matches(owned) && RommSwitch.listRow(!rommOff, it.file.isRomm, owned)
+        }
+        if (!filter.isActive && !params.ownership.isActive && !rommOff) {
             val rows = query(want, offset)
             return Page(rows, offset + rows.size, rows.size < want)
         }

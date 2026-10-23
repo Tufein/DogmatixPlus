@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,7 +17,6 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -46,6 +47,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -53,6 +55,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tufein.valkyr.R
@@ -71,12 +74,16 @@ import com.tufein.valkyr.ui.components.tvSized
 import com.tufein.valkyr.ui.screens.home.components.slidingCell
 import com.tufein.valkyr.ui.theme.LocalDogmatixTokens
 import com.tufein.valkyr.ui.theme.tabular
+import com.tufein.valkyr.util.FilterLayout
 import com.tufein.valkyr.util.LibraryBrowse
 import com.tufein.valkyr.util.LibraryBrowse.PrimaryAction
 import com.tufein.valkyr.util.LibraryBrowse.ViewMode
 
-/** Height of every chip and segment of the quick filter row: above the 48 dp touch target. */
-private val ChipHeight = 48.dp
+/** Height of every chip and segment of the filter rows (quick chips, console chips, view switch): the 48 dp touch target. */
+internal val ChipHeight = FilterLayout.CHIP_HEIGHT.dp
+
+/** Gap between chips, sideways and between wrapped rows; the console chip row uses it too. */
+internal val ChipGap = FilterLayout.GAP.dp
 
 @StringRes
 internal fun ViewMode.labelRes(): Int = when (this) {
@@ -106,9 +113,12 @@ internal fun sortChipLabel(sort: SortOption): String = stringResource(
 /**
  * 5.1: the row under the search box. First the view switch (Overview / List / Covers, the last pick is
  * remembered), then one-press chips: Downloaded, Not downloaded, Favourites, the sort order (each press
- * goes to the next one) and, while anything narrows the list, "Clear all". Labels are never cut; the
- * row scrolls sideways when the screen is narrow. D-pad order is left to right.
+ * goes to the next one) and, while anything narrows the list, "Clear all". Labels are never cut.
+ * 5.2.1: the chips wrap into rows that all start at [horizontalPadding] (the search field's edge) with the same
+ * gap sideways and down, instead of scrolling sideways with the last chips out of sight; "Clear all" comes last
+ * so the others do not move when it appears. D-pad order is left to right, then down.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun QuickFilterRow(
     modes: List<ViewMode>,
@@ -122,42 +132,33 @@ internal fun QuickFilterRow(
     onSort: (SortOption) -> Unit,
     onClear: (() -> Unit)?,
     modifier: Modifier = Modifier,
-    horizontalPadding: Int = 16
+    horizontalPadding: Int = FilterLayout.EDGE_PORTRAIT
 ) {
-    LazyRow(
-        modifier = modifier.focusGroup(),
-        contentPadding = PaddingValues(horizontal = horizontalPadding.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+    val bigText = FilterLayout.stackViewSwitch(LocalDensity.current.fontScale)
+    FlowRow(
+        modifier = modifier.focusGroup().padding(horizontal = horizontalPadding.dp),
+        horizontalArrangement = Arrangement.spacedBy(ChipGap),
+        verticalArrangement = Arrangement.spacedBy(ChipGap),
+        itemVerticalAlignment = Alignment.CenterVertically
     ) {
-        item(key = "mode") { ViewModeToggle(modes, mode, onMode) }
-        if (onClear != null) item(key = "clear") {
-            QuickChip(stringResource(R.string.lib52_chip_clear), selected = false, icon = R.drawable.ic_clear_filter, onClick = onClear)
-        }
-        item(key = "downloaded") {
-            QuickChip(
-                stringResource(R.string.lib52_chip_downloaded), ownership == LibraryBrowse.Ownership.DOWNLOADED, icon = R.drawable.ic_check,
-                onClick = { onOwnership(ownership.toggled(LibraryBrowse.Ownership.DOWNLOADED)) }
-            )
-        }
-        item(key = "not_downloaded") {
-            QuickChip(
-                stringResource(R.string.lib52_chip_not_downloaded), ownership == LibraryBrowse.Ownership.NOT_DOWNLOADED, icon = R.drawable.ic_arrow_down,
-                onClick = { onOwnership(ownership.toggled(LibraryBrowse.Ownership.NOT_DOWNLOADED)) }
-            )
-        }
-        item(key = "favourites") {
-            QuickChip(
-                stringResource(R.string.lib52_chip_favourites), favouritesOnly, icon = R.drawable.ic_star,
-                onClick = { onFavourites(!favouritesOnly) }
-            )
-        }
-        item(key = "sort") {
-            QuickChip(
-                stringResource(R.string.lib52_chip_sort, sortChipLabel(sort)), selected = sort != SortOption.NAME_ASC, icon = R.drawable.ic_sort,
-                onClick = { onSort(LibraryBrowse.nextSort(sort)) }
-            )
-        }
+        ViewModeToggle(modes, mode, onMode, modifier = if (bigText) Modifier.fillMaxWidth() else Modifier, fill = bigText)
+        QuickChip(
+            stringResource(R.string.lib52_chip_downloaded), ownership == LibraryBrowse.Ownership.DOWNLOADED, icon = R.drawable.ic_check,
+            onClick = { onOwnership(ownership.toggled(LibraryBrowse.Ownership.DOWNLOADED)) }
+        )
+        QuickChip(
+            stringResource(R.string.lib52_chip_not_downloaded), ownership == LibraryBrowse.Ownership.NOT_DOWNLOADED, icon = R.drawable.ic_arrow_down,
+            onClick = { onOwnership(ownership.toggled(LibraryBrowse.Ownership.NOT_DOWNLOADED)) }
+        )
+        QuickChip(
+            stringResource(R.string.lib52_chip_favourites), favouritesOnly, icon = R.drawable.ic_star,
+            onClick = { onFavourites(!favouritesOnly) }
+        )
+        QuickChip(
+            stringResource(R.string.lib52_chip_sort, sortChipLabel(sort)), selected = sort != SortOption.NAME_ASC, icon = R.drawable.ic_sort,
+            onClick = { onSort(LibraryBrowse.nextSort(sort)) }
+        )
+        if (onClear != null) QuickChip(stringResource(R.string.lib52_chip_clear), selected = false, icon = R.drawable.ic_clear_filter, onClick = onClear)
     }
 }
 
@@ -185,13 +186,16 @@ internal fun QuickChip(label: String, selected: Boolean, icon: Int?, onClick: ()
     }
 }
 
-/** The Overview / List / Covers switch: one rounded track with a segment per view, the current one filled. */
+/**
+ * The Overview / List / Covers switch: one rounded track with a segment per view, the current one filled.
+ * [fill] (largest text sizes): the track takes the whole line, the segments share it equally and their labels wrap.
+ */
 @Composable
-internal fun ViewModeToggle(modes: List<ViewMode>, mode: ViewMode, onMode: (ViewMode) -> Unit) {
+internal fun ViewModeToggle(modes: List<ViewMode>, mode: ViewMode, onMode: (ViewMode) -> Unit, modifier: Modifier = Modifier, fill: Boolean = false) {
     val scheme = MaterialTheme.colorScheme
     val shape = RoundedCornerShape(24.dp)
     Row(
-        modifier = Modifier
+        modifier = modifier
             .background(scheme.surfaceContainerHigh, shape)
             .border(1.dp, LocalDogmatixTokens.current.hairline, shape)
             .padding(2.dp),
@@ -202,7 +206,7 @@ internal fun ViewModeToggle(modes: List<ViewMode>, mode: ViewMode, onMode: (View
             val source = rememberFocusSource()
             val fg = if (selected) scheme.onPrimary else scheme.onSurface
             Row(
-                modifier = Modifier
+                modifier = (if (fill) Modifier.weight(1f) else Modifier)
                     .defaultMinSize(minHeight = ChipHeight - 4.dp)
                     .focusRing(source, 22.dp, onAccent = selected)
                     .background(if (selected) scheme.primary else Color.Transparent, RoundedCornerShape(22.dp))
@@ -210,10 +214,10 @@ internal fun ViewModeToggle(modes: List<ViewMode>, mode: ViewMode, onMode: (View
                     .clickable(interactionSource = source, indication = null, onClick = { onMode(entry) })
                     .padding(horizontal = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp, if (fill) Alignment.CenterHorizontally else Alignment.Start)
             ) {
-                Icon(painterResource(entry.iconRes()), contentDescription = null, tint = fg, modifier = Modifier.size(18.dp))
-                Text(stringResource(entry.labelRes()), style = MaterialTheme.typography.labelLarge, color = fg)
+                if (!fill) Icon(painterResource(entry.iconRes()), contentDescription = null, tint = fg, modifier = Modifier.size(18.dp))
+                Text(stringResource(entry.labelRes()), style = MaterialTheme.typography.labelLarge, color = fg, textAlign = if (fill) TextAlign.Center else null)
             }
         }
     }

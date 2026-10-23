@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="fix54_romm_use">RomM verwenden</string>
+    <string name="fix54_romm_use_on_hint">Ausschalten, um jeden Kontakt zu deinem RomM-Server zu beenden. Adresse, Token und Plattformzuordnung bleiben gespeichert.</string>
+    <string name="fix54_romm_use_off_hint">RomM ist aus: Es wird nichts an den Server gesendet, RomM-Markierungen, Regale und Bereiche sind ausgeblendet. Einschalten, um dort weiterzumachen, wo du aufgehört hast.</string>
+    <string name="fix54_romm_off_pill">RomM ist aus</string>
+    <string name="fix54_romm_sources_on_hint">Aus stoppt jeden RomM-Aufruf (Scans, Cover, Spielstände, Downloads). Es wird nichts gelöscht.</string>
+    <string name="fix54_romm_sources_off_hint">RomM ist aus: RomM-Plattformen werden bei Scans und Downloads übersprungen. Bereits heruntergeladene Spiele bleiben in der Bibliothek.</string>
+</resources>

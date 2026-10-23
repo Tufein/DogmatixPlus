@@ -195,6 +195,7 @@ private fun GamePageContent(
     val downloading = queue == GamePageModel.Queue.ACTIVE
     val favourite = viewModel.isFavourite(rom, favouriteKeys)
     val onRomm = viewModel.isOnRomm(rom, rommKeys)
+    val rommOn by viewModel.rommEnabled.collectAsStateWithLifecycle()
 
     // The game on screen also goes to a second display, when there is one.
     LaunchedEffect(item) { SecondScreenState.focus(item) }
@@ -408,7 +409,8 @@ private fun GamePageContent(
             favourite = favourite,
             onRomm = onRomm,
             isLandscape = isLandscape,
-            onBack = onBack
+            onBack = onBack,
+            rommOn = rommOn
         )
     }
     // 5.2: the main button and the favourite / more buttons live in the sticky bar below the page.

@@ -148,6 +148,7 @@ import com.tufein.valkyr.ui.screens.home.components.BulkDownloadDialog
 import com.tufein.valkyr.ui.screens.home.components.CollectionPickerDialog
 import com.tufein.valkyr.ui.screens.home.components.FilterOption
 import com.tufein.valkyr.ui.screens.home.components.FilterPanel
+import com.tufein.valkyr.util.FilterLayout
 import com.tufein.valkyr.ui.screens.home.components.FilterRowSpec
 import com.tufein.valkyr.ui.screens.home.components.GameDetailsDialog
 import com.tufein.valkyr.ui.screens.home.components.RomRow
@@ -672,13 +673,16 @@ internal fun ConsoleChips(
     options: List<FilterOption>,
     selected: Set<String>,
     onSelect: (Set<String>) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** The row's start / end inset: the search field's edge (see [FilterLayout]). */
+    horizontalPadding: Int = FilterLayout.EDGE_PORTRAIT
 ) {
     val total = remember(options) { options.sumOf { it.count ?: 0 } }
+    // One line that scrolls (there can be dozens of consoles); same start inset, gap and height as the quick chips.
     LazyRow(
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
+        contentPadding = PaddingValues(horizontal = horizontalPadding.dp),
+        horizontalArrangement = Arrangement.spacedBy(ChipGap)
     ) {
         item { ConsoleChip(stringResource(R.string.filter_all), selected.isEmpty(), color = null, count = total.takeIf { it > 0 }) { onSelect(emptySet()) } }
         items(options, key = { it.id }, contentType = { "console-chip" }) { option ->
@@ -693,17 +697,17 @@ internal fun ConsoleChips(
 internal fun ConsoleChip(label: String, selected: Boolean, color: Color?, count: Int?, onClick: () -> Unit) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
-    val shape = RoundedCornerShape(20.dp)
+    val shape = RoundedCornerShape(24.dp)
     Row(
         modifier = Modifier
-            .height(48.dp)
+            .defaultMinSize(minHeight = ChipHeight)
             .background(if (selected) scheme.primary else scheme.surfaceContainer, shape)
             .border(1.dp, if (selected) Color.Transparent else LocalDogmatixTokens.current.hairline, shape)
-            .focusRing(source, 20.dp, onAccent = selected)
+            .focusRing(source, 24.dp, onAccent = selected)
             .clickable(interactionSource = source, indication = null, onClick = onClick)
-            .padding(horizontal = 14.dp),
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(7.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (color != null) {
             Box(

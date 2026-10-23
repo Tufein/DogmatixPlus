@@ -132,6 +132,8 @@ fun GameDetailsDialog(
     onDismiss: () -> Unit,
     /** The RomM server already has this game. */
     onRomm: Boolean = false,
+    /** "Use RomM" is on; off hides the "RomM" source pill. */
+    rommOn: Boolean = true,
     /** Downloads the version the library ranks best for the user (see [DetailsState.best]). */
     onDownloadBest: (() -> Unit)? = null,
     /** Opens the collection picker. */
@@ -223,7 +225,7 @@ fun GameDetailsDialog(
         ) {
             val details = state.details
             val title = details?.title?.takeIf { it.isNotBlank() } ?: stripExtension(rom.name)
-            val pills: @Composable () -> Unit = { GameInfoPills(state, consoleName, onRomm, owned, downloading, favourite) }
+            val pills: @Composable () -> Unit = { GameInfoPills(state, consoleName, onRomm, owned, downloading, favourite, rommOn) }
 
             if (isLandscape) {
                 GameHero(backdropUrl, rom.consoleId, Modifier.fillMaxWidth()) {
@@ -440,11 +442,12 @@ internal fun GameInfoPills(
     onRomm: Boolean,
     owned: Boolean,
     downloading: Boolean,
-    favourite: Boolean
+    favourite: Boolean,
+    rommOn: Boolean = true
 ) {
     val rom = state.item.file
     val region = remember(state.item.tags) { state.item.tags.firstOrNull { TagClassifier.kindOf(it) == TagClassifier.Kind.REGION } }
-    val fromRomm = remember(rom.downloadUrl) { RommSource.romIdOf(rom.downloadUrl) != null }
+    val fromRomm = rommOn && remember(rom.downloadUrl) { RommSource.romIdOf(rom.downloadUrl) != null }
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)

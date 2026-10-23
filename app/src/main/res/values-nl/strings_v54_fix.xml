@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="fix54_romm_use">RomM gebruiken</string>
+    <string name="fix54_romm_use_on_hint">Zet uit om elk contact met je RomM-server te stoppen. Je adres, token en platformkoppelingen blijven bewaard.</string>
+    <string name="fix54_romm_use_off_hint">RomM staat uit: er wordt niets naar de server gestuurd en RomM-labels, planken en onderdelen zijn verborgen. Zet weer aan om verder te gaan waar je was.</string>
+    <string name="fix54_romm_off_pill">RomM staat uit</string>
+    <string name="fix54_romm_sources_on_hint">Uit stopt elke RomM-aanroep (scans, covers, saves, downloads). Er wordt niets verwijderd.</string>
+    <string name="fix54_romm_sources_off_hint">RomM staat uit: RomM-platformen worden overgeslagen bij scans en downloads. Spellen die je al hebt gedownload blijven in de bibliotheek.</string>
+</resources>

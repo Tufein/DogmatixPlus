@@ -3,7 +3,9 @@ package com.tufein.valkyr.data.repository
 import com.tufein.valkyr.data.model.DebridProvider
 import androidx.datastore.preferences.core.Preferences
 import com.tufein.valkyr.data.local.SettingsDataStore
+import com.tufein.valkyr.util.RommSwitch
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,8 +42,12 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun setEsdeDirectory(uri: String): Preferences = settingsDataStore.setEsdeDirectory(uri)
     override val iisuDirectory: Flow<String> = settingsDataStore.iisuDirectory
     override suspend fun setIisuDirectory(uri: String): Preferences = settingsDataStore.setIisuDirectory(uri)
-    override val rommUrl: Flow<String> = settingsDataStore.rommUrl
-    override val rommToken: Flow<String> = settingsDataStore.rommToken
+    override val rommEnabled: Flow<Boolean> = settingsDataStore.rommEnabled
+    override val rommUrl: Flow<String> = combine(settingsDataStore.rommEnabled, settingsDataStore.rommUrl, RommSwitch::effective)
+    override val rommToken: Flow<String> = combine(settingsDataStore.rommEnabled, settingsDataStore.rommToken, RommSwitch::effective)
+    override val rommUrlSaved: Flow<String> = settingsDataStore.rommUrl
+    override val rommTokenSaved: Flow<String> = settingsDataStore.rommToken
+    override suspend fun setRommEnabled(enabled: Boolean): Preferences = settingsDataStore.setRommEnabled(enabled)
     override val rommAutoUpload: Flow<Boolean> = settingsDataStore.rommAutoUpload
     override val rommPlatformMap: Flow<Map<String, Int>> = settingsDataStore.rommPlatformMap
     override suspend fun setRommUrl(url: String): Preferences = settingsDataStore.setRommUrl(url)

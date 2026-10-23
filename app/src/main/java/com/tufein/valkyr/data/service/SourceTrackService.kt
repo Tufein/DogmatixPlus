@@ -6,6 +6,8 @@ import com.tufein.valkyr.data.local.SourcePickSettings
 import com.tufein.valkyr.data.local.dao.ConsoleDao
 import com.tufein.valkyr.data.local.dao.DownloadableFileDao
 import com.tufein.valkyr.data.local.entity.DownloadableFileEntity
+import com.tufein.valkyr.data.repository.SettingsRepository
+import com.tufein.valkyr.util.RommSource
 import com.tufein.valkyr.util.FailureClass
 import com.tufein.valkyr.util.SourceRanking
 import com.tufein.valkyr.util.DownloadSourcePolicy
@@ -40,7 +42,8 @@ class SourceTrackService @Inject constructor(
     private val consoleDao: ConsoleDao,
     private val settings: SourcePickSettings,
     private val history: OperationHistoryService,
-    private val profiles: ProfileService
+    private val profiles: ProfileService,
+    private val settingsRepository: SettingsRepository
 ) {
     private val file = File(context.filesDir, "source_track.json")
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -169,6 +172,10 @@ class SourceTrackService @Inject constructor(
     }
 
     /** The enabled sources of [consoleId] in the order of Sources. */
-    suspend fun sourceOrder(consoleId: String): List<String> =
-        consoleDao.getConsoleById(consoleId)?.urls?.let { SourcesJson.parseUrlEntries(it) }?.filter { it.enabled }?.map { it.url }.orEmpty()
+    suspend fun sourceOrder(consoleId: String): List<String> {
+        val rommOn = settingsRepository.rommEnabled.first()
+        // "Use RomM" off: a RomM platform is never a candidate for the best source.
+        return consoleDao.getConsoleById(consoleId)?.urls?.let { SourcesJson.parseUrlEntries(it) }
+            ?.filter { it.enabled && (rommOn || !RommSource.isSource(it.url)) }?.map { it.url }.orEmpty()
+    }
 }

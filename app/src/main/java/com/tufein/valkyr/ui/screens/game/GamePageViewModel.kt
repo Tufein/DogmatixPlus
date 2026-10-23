@@ -143,6 +143,8 @@ class GamePageViewModel @Inject constructor(
     suspend fun toggleFavourite(item: DownloadableFileWithTags): Boolean = favourites.toggle(item.file)
 
     val rommKeys: StateFlow<Set<String>> = rommLibrary.keys
+    /** "Use RomM": off hides every RomM mark and section on the page. */
+    val rommEnabled: StateFlow<Boolean> = settingsRepository.rommEnabled.stateIn(viewModelScope, SharingStarted.Eagerly, true)
     private val rommBase: StateFlow<String> = settingsRepository.rommUrl.map { it.trim().trimEnd('/') }
         .stateIn(viewModelScope, SharingStarted.Eagerly, "")
 

@@ -119,7 +119,7 @@ internal fun SettingsEnv.cloudCardRows(): List<SettingsRow> = listOf(
         SettingRow(
             icon = R.drawable.ic_server,
             title = stringResource(R.string.settings_romm),
-            hint = ui.rommUrl.ifBlank { stringResource(R.string.settings_romm_hint) },
+            hint = if (!ui.rommEnabled) stringResource(R.string.fix54_romm_off_pill) else ui.rommUrl.ifBlank { stringResource(R.string.settings_romm_hint) },
             onClick = { navController.navigate(NavRoutes.Romm.route) },
         ) { NavChevron() }
     },

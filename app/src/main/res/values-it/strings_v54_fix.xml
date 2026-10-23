@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="fix54_romm_use">Usa RomM</string>
+    <string name="fix54_romm_use_on_hint">Disattiva per interrompere ogni contatto con il tuo server RomM. Indirizzo, token e associazione delle piattaforme vengono conservati.</string>
+    <string name="fix54_romm_use_off_hint">RomM è disattivato: non viene inviato nulla al server e i contrassegni, gli scaffali e le sezioni di RomM sono nascosti. Riattiva per riprendere da dove eri rimasto.</string>
+    <string name="fix54_romm_off_pill">RomM disattivato</string>
+    <string name="fix54_romm_sources_on_hint">Disattivato blocca ogni chiamata a RomM (scansioni, copertine, salvataggi, download). Non viene eliminato nulla.</string>
+    <string name="fix54_romm_sources_off_hint">RomM è disattivato: le piattaforme RomM vengono saltate da scansioni e download. I giochi già scaricati restano nella libreria.</string>
+</resources>

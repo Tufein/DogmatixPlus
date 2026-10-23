@@ -15,7 +15,9 @@ import com.tufein.valkyr.util.ListingCheck
 import com.tufein.valkyr.util.FileParsingUtils
 import com.tufein.valkyr.util.HomebrewHub
 import com.tufein.valkyr.util.HttpHeadersUtils
+import com.tufein.valkyr.data.repository.SettingsRepository
 import com.tufein.valkyr.util.RommSource
+import kotlinx.coroutines.flow.first
 import com.tufein.valkyr.util.ScrapingConstants
 import com.tufein.valkyr.util.FailureKind
 import com.tufein.valkyr.util.HostGate
@@ -61,7 +63,8 @@ class DatabaseScrapingService @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val downloadableFileDao: DownloadableFileDao,
     private val torrentScrapingService: TorrentScrapingService,
-    private val rommScrapingService: RommScrapingService
+    private val rommScrapingService: RommScrapingService,
+    private val settingsRepository: SettingsRepository
 ) {
 
     /** Per server, for the scan that is running (see [resetForScan]). */
@@ -265,9 +268,11 @@ class DatabaseScrapingService @Inject constructor(
         withContext(Dispatchers.IO) {
             val totalFiles = AtomicInteger()
             val totalTags = AtomicInteger()
+            // "Use RomM" off: RomM platforms are left out of the scan; their rows stay in the library untouched.
+            val rommOn = settingsRepository.rommEnabled.first()
             coroutineScope {
                 manufacturer.consoles.forEach { console ->
-                    console.urls.filter { it.enabled }.forEach { urlEntry ->
+                    console.urls.filter { it.enabled && (rommOn || !RommSource.isSource(it.url)).also { keep -> if (!keep) onSourceDone() } }.forEach { urlEntry ->
                         launch {
                             val isTorrent = urlEntry.url.startsWith("magnet:") || urlEntry.url.endsWith(".torrent")
                             val isRomm = RommSource.isSource(urlEntry.url)
