@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Hinter den Kulissen: geteilte Links nutzen jetzt valkyr:// (alte Links funktionieren weiter), Bildschirme aktualisieren sich im Hintergrund nicht mehr und der Einstellungscode ist aufgeräumt.</item>
+        <item>Einfachere Einstellungen: zehn Karten mit nur den alltäglichen Optionen und einer Zeile „Erweitert“ für den Rest. Die Suche findet weiterhin alles.</item>
     </string-array>
 
     <!-- 4.0 -->

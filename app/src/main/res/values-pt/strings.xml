@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Nos bastidores: as ligações partilhadas usam agora valkyr:// (as antigas continuam a funcionar), os ecrãs deixam de atualizar em segundo plano e o código das definições foi arrumado.</item>
+        <item>Definições mais simples: dez cartões só com as opções do dia a dia e uma linha «Avançadas» para o resto. A pesquisa continua a encontrar tudo.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Behind the scenes: shared links now use valkyr:// (old links still work), screens pause updating in the background, and the settings code is tidied.</item>
+        <item>Simpler settings: ten cards that show only the everyday options, with an Advanced row for the rest. Search still finds everything.</item>
     </string-array>
 
     <!-- 4.0 -->

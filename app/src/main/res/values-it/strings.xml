@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Dietro le quinte: i link condivisi usano ora valkyr:// (i vecchi funzionano ancora), le schermate non si aggiornano in background e il codice delle impostazioni è riordinato.</item>
+        <item>Impostazioni più semplici: dieci schede con solo le opzioni di tutti i giorni e una riga «Avanzate» per il resto. La ricerca trova sempre tutto.</item>
     </string-array>
 
     <!-- 4.0 -->

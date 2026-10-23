@@ -1286,7 +1286,7 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Entre bastidores: los enlaces compartidos usan ahora valkyr:// (los antiguos siguen funcionando), las pantallas dejan de actualizarse en segundo plano y el código de ajustes está ordenado.</item>
+        <item>Ajustes más simples: diez tarjetas con solo las opciones del día a día y una fila «Avanzado» para el resto. La búsqueda sigue encontrándolo todo.</item>
     </string-array>
 
     <!-- 4.0 -->
