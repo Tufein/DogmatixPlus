@@ -31,6 +31,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.Checkbox
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -844,7 +846,7 @@ private fun RememberCheckRow(text: String, checked: Boolean, onChange: (Boolean)
     val source = rememberFocusSource()
     Row(
         modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp).focusRing(source, 10.dp)
-            .clickable(interactionSource = source, indication = null) { onChange(!checked) },
+            .toggleable(value = checked, interactionSource = source, indication = null, role = Role.Checkbox, onValueChange = onChange),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(checked, null)

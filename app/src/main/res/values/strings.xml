@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Handier interface: remembered Overview/List/Covers switch, one-press filter chips, A or tap downloads or plays right away, a fixed action bar on the game page and a grouped Downloads tab.</item>
+        <item>Bigger, steadier controls: all buttons and chips at least 48 dp, red destructive actions, the search box reachable with the D-pad.</item>
     </string-array>
 
     <!-- 4.0 -->

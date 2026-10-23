@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Handlichere Oberfläche: gemerkter Umschalter Übersicht/Liste/Cover, Filter-Chips mit einem Klick, A oder Tippen lädt oder startet sofort, feste Aktionsleiste auf der Spielseite und gruppierte Downloads.</item>
+        <item>Größere, ruhigere Bedienelemente: alle Schaltflächen und Chips mindestens 48 dp, rote destruktive Aktionen, Suchfeld per Steuerkreuz erreichbar.</item>
     </string-array>
 
     <!-- 4.0 -->

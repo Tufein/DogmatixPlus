@@ -1317,7 +1317,7 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Interface plus pratique : sélecteur Aperçu/Liste/Jaquettes mémorisé, puces de filtre en un appui, A ou toucher télécharge ou lance aussitôt, barre d’actions fixe sur la page du jeu et téléchargements groupés.</item>
+        <item>Commandes plus grandes et plus stables : tous les boutons et puces d’au moins 48 dp, actions destructrices en rouge, champ de recherche accessible à la croix directionnelle.</item>
     </string-array>
 
     <!-- 4.0 -->

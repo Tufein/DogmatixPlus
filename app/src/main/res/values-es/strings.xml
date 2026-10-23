@@ -1286,7 +1286,7 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Interfaz más práctica: selector Resumen/Lista/Portadas recordado, chips de filtro de una pulsación, A o tocar descarga o juega al instante, barra de acciones fija en la página del juego y descargas agrupadas.</item>
+        <item>Controles más grandes y estables: todos los botones y chips de al menos 48 dp, acciones destructivas en rojo y el cuadro de búsqueda accesible con la cruceta.</item>
     </string-array>
 
     <!-- 4.0 -->
