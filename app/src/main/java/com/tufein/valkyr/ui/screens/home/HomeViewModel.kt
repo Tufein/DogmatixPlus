@@ -78,6 +78,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
@@ -124,7 +128,9 @@ class HomeViewModel @Inject constructor(
 
     /** The view the tab was left in (overview until the user picks one); see [LibraryBrowse]. */
     val viewMode: StateFlow<LibraryBrowse.ViewMode> = librarySettings.view
-        .stateIn(viewModelScope, SharingStarted.Eagerly, LibraryBrowse.ViewMode.OVERVIEW)
+        // The saved view is read once up front (a tiny DataStore file) so the first frame is already the
+        // right one: starting on the overview would flash the shelves and hand the hero the gamepad focus.
+        .stateIn(viewModelScope, SharingStarted.Eagerly, runCatching { runBlocking { librarySettings.view.first() } }.getOrDefault(LibraryBrowse.ViewMode.OVERVIEW))
 
     fun setViewMode(mode: LibraryBrowse.ViewMode) {
         viewModelScope.launch { librarySettings.setView(mode) }
@@ -535,6 +541,20 @@ class HomeViewModel @Inject constructor(
     /** How many rows "Load more" adds (the label used to say 100 whatever the setting). */
     val loadMoreSize: StateFlow<Int> = pageSize
 
+    /**
+     * The device's owned keys as the search sees them: only while a downloaded / not downloaded chip is
+     * on, and settled (a scan reports in chunks; re-running the search on each would jump the list).
+     * The first value after the chip goes on is not delayed.
+     */
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
+    private val ownedForSearch: Flow<Set<String>> = _ownership.flatMapLatest { own ->
+        if (!own.isActive) flowOf(emptySet())
+        else {
+            var first = true
+            libraryIndex.ownedKeys.debounce { if (first) { first = false; 0L } else 500L }
+        }
+    }
+
     init {
         rememberSearches()
         // Deep links (valkyr://library?…): apply whatever is waiting, now and on every new link.
@@ -552,8 +572,8 @@ class HomeViewModel @Inject constructor(
                 // Re-query when a star changes while "Favourites only" is on, else the row would linger.
                 // …and when the active profile changes what is hidden.
                 // 5.1: …and when the files on the device change while a downloaded / not downloaded chip is on.
-                combine(_favouritesOnly, favourites.keys, profiles.restrictions, _ownership, libraryIndex.ownedKeys) { only, keys, r, own, owned ->
-                    Triple(if (only) keys else emptySet(), r, if (own.isActive) owned else emptySet())
+                combine(_favouritesOnly, favourites.keys, profiles.restrictions, ownedForSearch) { only, keys, r, owned ->
+                    Triple(if (only) keys else emptySet(), r, owned)
                 }.distinctUntilChanged(),
                 pageSize,
                 // 6.0: genre / decade; the index only matters (and re-runs the search) while one is active.

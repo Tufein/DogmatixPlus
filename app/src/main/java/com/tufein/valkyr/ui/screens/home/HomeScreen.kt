@@ -205,7 +205,10 @@ fun HomeScreen(
     val listCovers by viewModel.listCovers.collectAsStateWithLifecycle()
     val loadMoreSize by viewModel.loadMoreSize.collectAsStateWithLifecycle()
     // 5.1: the remembered view (overview / list / covers) and the downloaded / not downloaded chips.
-    val viewMode by viewModel.viewMode.collectAsStateWithLifecycle()
+    val storedViewMode by viewModel.viewMode.collectAsStateWithLifecycle()
+    // Without a game page to open there is no overview: the toggle shows List then, so everything else must too.
+    val browseViews = LibraryBrowse.availableViews(onOpenGame != null)
+    val viewMode = if (storedViewMode in browseViews) storedViewMode else LibraryBrowse.ViewMode.LIST
     val ownership by viewModel.ownership.collectAsStateWithLifecycle()
     val compactLists by viewModel.compactLists.collectAsStateWithLifecycle()
     // 6.0 search by feel: genre / decade from the cached details, and the opt-in fetch.
@@ -507,11 +510,10 @@ fun HomeScreen(
         forceList = false
         if (mode == LibraryBrowse.ViewMode.OVERVIEW && !startState) viewModel.clearAllFilters()
     }
-    val browseViews = LibraryBrowse.availableViews(onOpenGame != null)
     val quickRow: @Composable (Modifier, Int) -> Unit = { modifier, inset ->
         QuickFilterRow(
             modes = browseViews,
-            mode = if (viewMode in browseViews) viewMode else LibraryBrowse.ViewMode.LIST,
+            mode = viewMode,
             onMode = onPickView,
             ownership = ownership,
             onOwnership = viewModel::setOwnership,
@@ -696,9 +698,8 @@ fun HomeScreen(
     val section = LegendEntry("ZL · ZR", stringResource(R.string.pad_section))
     val legendList = listOf(
         LegendEntry("A", stringResource(if (viewMode.isBrowse) R.string.lib52_pad_primary else if (onOpenGame != null) R.string.pad_open else R.string.pad_download)), LegendEntry("X", stringResource(R.string.pad_details)),
-        LegendEntry("Y", stringResource(R.string.pad_search)), selectLegendEntry(R.string.pad_favourite),
-        LegendEntry("◀ ▶", stringResource(R.string.pad_letters))
-    ) + filtersKey + section + LegendEntry("START", stringResource(R.string.disc6_pad_surprise))
+        LegendEntry("Y", stringResource(R.string.pad_search)), selectLegendEntry(R.string.pad_favourite)
+    ) + (if (LibraryBrowse.showGrid(viewMode)) emptyList() else listOf(LegendEntry("◀ ▶", stringResource(R.string.pad_letters)))) + filtersKey + section + LegendEntry("START", stringResource(R.string.disc6_pad_surprise))
     val legendFilters = listOf(
         LegendEntry("A", stringResource(R.string.pad_options)), LegendEntry("◀ ▶", stringResource(R.string.pad_change))
     ) + filtersKey + section

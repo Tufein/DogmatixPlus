@@ -250,11 +250,6 @@ class DownloadViewModel @Inject constructor(
     val activeCount: StateFlow<Int> = downloads.map { list -> list.count { it.status == DownloadStatus.DOWNLOADING || it.status == DownloadStatus.QUEUED } }
         .distinctUntilChanged().flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    /** What the whole-queue buttons would act on. */
-    val queueCounts: StateFlow<QueueActions.Counts> = combine(downloads, pendingAutoRetries) { list, pending ->
-        QueueActions.counts(list).copy(stoppable = (QueueActions.stoppable(list).toSet() + pending.keys).size)
-    }
-        .flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), QueueActions.Counts())
 
     // The whole-queue actions touch hundreds of rows: off the UI thread, so a big queue never freezes the screen.
     fun stopAll() {
@@ -266,7 +261,7 @@ class DownloadViewModel @Inject constructor(
 
     /** Parks every download that is transferring or waiting for a slot (the service skips what cannot pause); Resume all continues them. */
     fun pauseAll() {
-        viewModelScope.launch(Dispatchers.Default) { QueueActions.pausable(downloads.value).forEach { downloadService.pauseDownload(it) } }
+        viewModelScope.launch(Dispatchers.Default) { QueueActions.pausable(downloads.value) { d -> downloadDetails.value[d.fileName]?.let { QueueActions.canPause(d.status, it.file.isTorrent) } == true }.forEach { downloadService.pauseDownload(it) } }
     }
 
     /** Continues every parked download as one batch, from what is already on disk. */
@@ -315,6 +310,12 @@ class DownloadViewModel @Inject constructor(
         }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+    /** What the whole-queue buttons would act on. */
+    val queueCounts: StateFlow<QueueActions.Counts> = combine(downloads, pendingAutoRetries, downloadDetails) { list, pending, details ->
+        QueueActions.counts(list) { d -> details[d.fileName]?.let { QueueActions.canPause(d.status, it.file.isTorrent) } == true }.copy(stoppable = (QueueActions.stoppable(list).toSet() + pending.keys).size)
+    }
+        .flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), QueueActions.Counts())
 
     /** File names ticked for a bulk action; empty = no selection mode. */
     private val _selection = MutableStateFlow<Set<String>>(emptySet())

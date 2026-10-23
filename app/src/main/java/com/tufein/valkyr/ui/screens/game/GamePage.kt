@@ -187,7 +187,9 @@ private fun GamePageContent(
     val collections by viewModel.collections.collectAsStateWithLifecycle()
     val ranking by viewModel.versionRanking.collectAsStateWithLifecycle()
     val owned = viewModel.isOwned(rom, ownedKeys)
-    val downloading = rom.fileName in active
+    // One source for the primary action, Share / More and the header, so they never disagree about the queue.
+    val queue = GamePageModel.queueOf(downloadStates[rom.fileName])
+    val downloading = queue == GamePageModel.Queue.ACTIVE
     val favourite = viewModel.isFavourite(rom, favouriteKeys)
     val onRomm = viewModel.isOnRomm(rom, rommKeys)
 
@@ -389,7 +391,6 @@ private fun GamePageContent(
     )
 
     // The main button takes the focus when the page opens (the back pill while it is disabled).
-    val queue = GamePageModel.queueOf(downloadStates[rom.fileName])
     val primary = GamePageModel.primary(owned, queue)
     val firstFocus = remember { FocusRequester() }
     LaunchedEffect(rom.consoleId, rom.fileName) {
@@ -539,6 +540,7 @@ private fun GamePageContent(
                         header()
                         moreActions()
                     }
+                    SnackbarHost(snackbar, modifier = Modifier.padding(horizontal = 16.dp))
                     actionBar()
                 }
                 Column(
@@ -576,11 +578,11 @@ private fun GamePageContent(
                     Box(modifier = Modifier.padding(horizontal = 16.dp)) { tabStrip() }
                     Box(modifier = Modifier.padding(horizontal = 16.dp)) { content() }
                 }
+                // Right above the sticky bar, whatever its height.
+                SnackbarHost(snackbar, modifier = Modifier.padding(horizontal = 16.dp))
                 actionBar()
             }
         }
-        // Above the sticky bar (a 56 dp button, its padding and the divider).
-        SnackbarHost(snackbar, modifier = Modifier.align(Alignment.BottomCenter).padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp))
     }
 }
 

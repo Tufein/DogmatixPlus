@@ -371,6 +371,7 @@ internal fun ResultGrid(
     returnFocus: FocusRequester? = null
 ) {
     val state = rememberLazyGridState()
+    com.tufein.valkyr.ui.navigation.OnTabReselect(com.tufein.valkyr.ui.navigation.NavRoutes.Home.route) { state.scrollToItem(0) }
     val focusIndex = state.firstVisibleItemIndex
     // After "Load more" focus is lost with the button; land on the first new card.
     val newPageFocus = remember { FocusRequester() }

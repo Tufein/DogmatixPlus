@@ -56,4 +56,10 @@ class QueueActionsTest {
     @Test fun aParkedQueueStillShowsItsButtons() {
         assertTrue(QueueActions.counts(listOf(item("g", DownloadStatus.PAUSED))).any)
     }
+
+    @Test fun pauseAllCountSkipsRowsThatCannotPause() {
+        val c = QueueActions.counts(list) { it.fileName != "a.zip" }
+        assertEquals(1, c.pausable)
+        assertEquals(listOf("b.zip"), QueueActions.pausable(list) { it.fileName != "a.zip" })
+    }
 }

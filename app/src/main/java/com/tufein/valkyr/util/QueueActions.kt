@@ -23,10 +23,17 @@ object QueueActions {
         val any: Boolean get() = stoppable + retryable + clearable + pausable + resumable > 0
     }
 
-    fun counts(list: List<DownloadItemModel>): Counts {
+    /**
+     * [pausable] decides per row whether Pause would act on it (see [canPause]; the default treats every row as a web
+     * download), so the pill never shows a count that does nothing.
+     */
+    fun counts(
+        list: List<DownloadItemModel>,
+        pausable: (DownloadItemModel) -> Boolean = { canPause(it.status, false) }
+    ): Counts {
         var stop = 0; var retry = 0; var clear = 0; var pause = 0; var resume = 0
         for (item in list) when (item.status) {
-            DownloadStatus.QUEUED, DownloadStatus.DOWNLOADING -> { stop++; pause++ }
+            DownloadStatus.QUEUED, DownloadStatus.DOWNLOADING -> { stop++; if (pausable(item)) pause++ }
             DownloadStatus.UNZIPPING -> stop++
             DownloadStatus.PAUSED -> resume++
             DownloadStatus.FAILED, DownloadStatus.STOPPED -> retry++
@@ -45,8 +52,8 @@ object QueueActions {
         else status == DownloadStatus.DOWNLOADING || status == DownloadStatus.QUEUED
 
     /** Downloading or waiting; the service skips what cannot be parked (a torrent only pauses while it transfers). */
-    fun pausable(list: List<DownloadItemModel>): List<String> =
-        list.filter { it.status == DownloadStatus.QUEUED || it.status == DownloadStatus.DOWNLOADING }.map { it.fileName }
+    fun pausable(list: List<DownloadItemModel>, canPauseRow: (DownloadItemModel) -> Boolean = { true }): List<String> =
+        list.filter { (it.status == DownloadStatus.QUEUED || it.status == DownloadStatus.DOWNLOADING) && canPauseRow(it) }.map { it.fileName }
 
     fun resumable(list: List<DownloadItemModel>): List<String> =
         list.filter { it.status == DownloadStatus.PAUSED }.map { it.fileName }

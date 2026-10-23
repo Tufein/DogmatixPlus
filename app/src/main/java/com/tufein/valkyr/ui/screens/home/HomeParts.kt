@@ -310,6 +310,8 @@ internal fun ResultList(
     }
     val actionRows = LibraryBrowse.showActionRows(viewMode)
     val listState = rememberLazyListState()
+    // 5.2: tapping the Library tab again brings the list back to the top.
+    com.tufein.valkyr.ui.navigation.OnTabReselect(NavRoutes.Home.route) { listState.scrollToItem(0) }
     val focusIndex = listState.firstVisibleItemIndex
     // ◀ ▶ jump through a long list by first letter: scroll there, then focus that row.
     val jumpScope = rememberCoroutineScope()
