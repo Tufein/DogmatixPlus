@@ -285,6 +285,7 @@ fun GameDetailsDialog(
                     icon = R.drawable.ic_star,
                     tone = if (favourite) ActionTone.Accent else ActionTone.Neutral
                 )
+                com.tufein.valkyr.ui.screens.game.CompletedPill(state.item.file.consoleId, state.item.file.fileName)
                 if (onShare != null) {
                     ActionPill(stringResource(R.string.lead6_share), onShare, icon = R.drawable.ic_share)
                 }

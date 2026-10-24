@@ -301,7 +301,11 @@ internal fun LibraryListRow(
     progress: () -> Float,
     showCover: Boolean,
     modifier: Modifier = Modifier,
-    contentShift: () -> Int = { 0 }
+    contentShift: () -> Int = { 0 },
+    /** 5.5: marked as completed by the player. */
+    completed: Boolean = false,
+    /** 5.5: the user's RetroAchievements status in the game (null = nothing to show). */
+    raStatus: com.tufein.valkyr.util.RaStatus? = null
 ) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
@@ -346,6 +350,15 @@ internal fun LibraryListRow(
                         painterResource(R.drawable.ic_star), contentDescription = stringResource(R.string.favourite),
                         tint = scheme.primary, modifier = Modifier.size(16.dp)
                     )
+                    if (completed) Icon(
+                        painterResource(R.drawable.ic_verified), contentDescription = stringResource(R.string.done55_completed),
+                        tint = scheme.secondary, modifier = Modifier.size(16.dp)
+                    )
+                    when (raStatus) {
+                        com.tufein.valkyr.util.RaStatus.MASTERED -> Pill(stringResource(R.string.done55_ra_mastered), tone = PillTone.Warning, icon = R.drawable.ic_trophy)
+                        com.tufein.valkyr.util.RaStatus.BEATEN -> Pill(stringResource(R.string.done55_ra_beaten), tone = PillTone.Info, icon = R.drawable.ic_trophy)
+                        else -> Unit
+                    }
                     if (isNew) Pill(stringResource(R.string.new_badge), tone = PillTone.Accent)
                 }
             }
@@ -372,7 +385,8 @@ internal fun ResultGrid(
     modifier: Modifier = Modifier,
     firstRowFocus: FocusRequester? = null,
     returnGame: Pair<String, String>? = null,
-    returnFocus: FocusRequester? = null
+    returnFocus: FocusRequester? = null,
+    isCompleted: (DownloadableFileWithTags) -> Boolean = { false }
 ) {
     val state = rememberLazyGridState()
     com.tufein.valkyr.ui.navigation.OnTabReselect(com.tufein.valkyr.ui.navigation.NavRoutes.Home.route) { state.scrollToItem(0) }
@@ -410,6 +424,7 @@ internal fun ResultGrid(
                     onClick = { onPrimary(item) },
                     onLongClick = { onDetails(item) },
                     owned = action == PrimaryAction.PLAY,
+                    completed = isCompleted(item),
                     width = 128.dp,
                     coverHeight = 174.dp,
                     actionLabel = when (action) {

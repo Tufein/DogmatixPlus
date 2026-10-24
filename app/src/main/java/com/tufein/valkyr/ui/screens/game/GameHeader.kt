@@ -132,6 +132,8 @@ internal fun GameHeader(
                         Badge.FAVOURITE -> Pill(stringResource(R.string.favourite), tone = PillTone.Accent, icon = R.drawable.ic_star)
                     }
                 }
+                CompletedBadge(rom.consoleId, rom.fileName)
+                RaStatusBadge(state.achievements)
                 extraTags.forEach { Pill(it, tone = PillTone.Neutral, icon = R.drawable.ic_translate) }
             }
         )

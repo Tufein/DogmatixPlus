@@ -28,6 +28,7 @@ import com.tufein.valkyr.data.repository.SettingsRepository
 import com.tufein.valkyr.data.service.LibraryIndexService
 import com.tufein.valkyr.data.service.LibraryToolsService
 import com.tufein.valkyr.data.service.ProfileService
+import com.tufein.valkyr.data.service.CompletedService
 import com.tufein.valkyr.data.service.RaMarks
 import com.tufein.valkyr.data.service.RetroAchievementsService
 import com.tufein.valkyr.data.service.RommLibraryService
@@ -40,7 +41,12 @@ import com.tufein.valkyr.util.FileParsingUtils
 import com.tufein.valkyr.util.LibraryView
 import com.tufein.valkyr.util.LibraryViews
 import com.tufein.valkyr.util.NewGames
+import com.tufein.valkyr.util.CompletedFilter
+import com.tufein.valkyr.util.CompletedGames
+import com.tufein.valkyr.util.RaAwards
 import com.tufein.valkyr.util.RaGame
+import com.tufein.valkyr.util.RaStatus
+import com.tufein.valkyr.util.RaStatusFilter
 import com.tufein.valkyr.util.RommMarks
 import com.tufein.valkyr.util.RommSwitch
 import com.tufein.valkyr.util.RommSource
@@ -114,7 +120,8 @@ class HomeViewModel @Inject constructor(
     lookSettings: LookSettings,
     private val librarySettings: LibrarySettings,
     private val sourceTrack: com.tufein.valkyr.data.service.SourceTrackService,
-    private val detailsLoader: GameDetailsLoader
+    private val detailsLoader: GameDetailsLoader,
+    private val completed: CompletedService
 ) : ViewModel() {
 
     /** 5.0: small covers in front of the games in the list (Settings → Look). */
@@ -141,6 +148,45 @@ class HomeViewModel @Inject constructor(
     /** Downloaded / not downloaded chips: matched against what is on the device, not the database. */
     val ownership: StateFlow<LibraryBrowse.Ownership> = _ownership.asStateFlow()
     fun setOwnership(value: LibraryBrowse.Ownership) { _ownership.value = value }
+
+    // ---- 5.5: completed flag and RetroAchievements status -------------------------------------------
+
+    private val _completedFilter = MutableStateFlow(CompletedFilter.ALL)
+    /** Completed / not completed (the player's own flag, per profile); set from the filter panel only. */
+    val completedFilter: StateFlow<CompletedFilter> = _completedFilter.asStateFlow()
+    fun setCompletedFilter(value: CompletedFilter) { _completedFilter.value = value }
+
+    private val _raFilter = MutableStateFlow(RaStatusFilter.ALL)
+    /** Beaten / Mastered / In progress from the user's RetroAchievements awards. */
+    val raFilter: StateFlow<RaStatusFilter> = _raFilter.asStateFlow()
+    fun setRaFilter(value: RaStatusFilter) {
+        _raFilter.value = value
+        // A filter needs the list: asked once per RaStatuses.TTL_MS at most, never per row.
+        if (value.isActive) retroAchievements.requestAwards()
+    }
+
+    /** `console|file` of the games the active profile marked as completed. */
+    val completedKeys: StateFlow<Set<String>> = completed.keys
+    /** The user's RA award per game id (empty without an account or before the first fetch). */
+    val raAwards: StateFlow<RaAwards> = retroAchievements.awards
+    /** True when an RA account is set up; null while the settings are being read. */
+    val raAccount: StateFlow<Boolean?> = retroAchievements.accountReady
+
+    /** The RA status of a row: its hash-verified RA game's award. No call is made; null when unknown or untouched. */
+    fun raStatusOf(file: DownloadableFileEntity, marks: RaMarks, awards: RaAwards): RaStatus? =
+        awards.statusOf(marks.gameFor(file.consoleId, file.fileName)?.id)
+
+    /** What the search needs from the two status filters: it re-runs when the flags or the awards change while one is on. */
+    private data class StatusInputs(val completed: CompletedFilter, val ra: RaStatusFilter, val keys: Set<String>, val awards: RaAwards, val marks: RaMarks)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val statusForSearch: Flow<StatusInputs> = combine(_completedFilter, _raFilter) { c, r -> c to r }.flatMapLatest { (c, r) ->
+        combine(
+            if (c.isActive) completed.keys else flowOf(emptySet()),
+            if (r.isActive) retroAchievements.awards else flowOf(RaAwards()),
+            if (r.isActive) retroAchievements.marks else flowOf(RaMarks())
+        ) { keys, awards, marks -> StatusInputs(c, r, keys, awards, marks) }
+    }
 
     // ---- 6.0: search by feel (genre / decade from the cached game details) ----------------------
 
@@ -567,6 +613,8 @@ class HomeViewModel @Inject constructor(
         rememberSearches()
         // "Use RomM" off: a RomM source filter would list nothing, so it goes back to All.
         viewModelScope.launch { rommEnabled.collect { on -> if (!on && _source.value == SourceFilter.ROMM) _source.value = SourceFilter.ALL } }
+        // 5.5: with an RA account the Beaten / Mastered badges need the user's award list: one paged fetch, throttled in the service.
+        viewModelScope.launch { retroAchievements.accountReady.collect { if (it == true) retroAchievements.requestAwards() } }
         // Deep links (valkyr://library?…): apply whatever is waiting, now and on every new link.
         viewModelScope.launch {
             pendingFilters.request.collect { if (it != null) pendingFilters.consume()?.let { request -> applyRequest(request) } }
@@ -588,12 +636,13 @@ class HomeViewModel @Inject constructor(
                 }.distinctUntilChanged(),
                 pageSize,
                 // 6.0: genre / decade; the index only matters (and re-runs the search) while one is active.
-                combine(_genres, _decades, discoverIndex) { g, d, idx -> Triple(g, d, if (g.isNotEmpty() || d.isNotEmpty()) idx else null) }
-            ) { (query, consoles, tags), extra, _, limit, (genres, decades, _) ->
+                combine(_genres, _decades, discoverIndex, statusForSearch) { g, d, idx, st -> Quad(g, d, if (g.isNotEmpty() || d.isNotEmpty()) idx else null, st) }
+            ) { (query, consoles, tags), extra, _, limit, (genres, decades, _, status) ->
                 FilterParams(
                     query = query, consoles = consoles, tags = tags, sort = extra.sort, favouritesOnly = extra.favouritesOnly, source = extra.source, limit = limit,
                     newSince = if (extra.newOnly) NewGames.since(System.currentTimeMillis()) else 0L, collectionId = extra.collectionId,
-                    genres = genres, decades = decades, ownership = _ownership.value
+                    genres = genres, decades = decades, ownership = _ownership.value,
+                    completed = status.completed, raStatus = status.ra
                 )
             }.collect { params ->
                 currentOffset = 0
@@ -707,12 +756,15 @@ class HomeViewModel @Inject constructor(
         _genres.value = emptySet()
         _decades.value = emptySet()
         _ownership.value = LibraryBrowse.Ownership.ALL
+        _completedFilter.value = CompletedFilter.ALL
+        _raFilter.value = RaStatusFilter.ALL
     }
 
     private fun currentParams() = FilterParams(
         query = _searchQuery.value, consoles = _selectedConsoles.value, tags = _activeTags.value, sort = _sort.value,
         favouritesOnly = _favouritesOnly.value, source = _source.value, limit = pageSize.value, newSince = newSince(),
-        collectionId = _collectionId.value, genres = _genres.value, decades = _decades.value, ownership = _ownership.value
+        collectionId = _collectionId.value, genres = _genres.value, decades = _decades.value, ownership = _ownership.value,
+        completed = _completedFilter.value, raStatus = _raFilter.value
     )
 
     /** A page of results: where the next one starts (in database rows) and whether nothing is left. */
@@ -734,12 +786,23 @@ class HomeViewModel @Inject constructor(
         )
         val rommOff = !rommEnabled.value
         val ownedNow = if (params.ownership.isActive || rommOff) libraryIndex.ownedKeys.value else emptySet()
+        // 5.5: the completed flag and the RA status are matched here too (from memory, no call per row).
+        val statusActive = params.completed.isActive || params.raStatus.isActive
+        val completedNow = if (params.completed.isActive) completed.keys.value else emptySet()
+        val awardsNow = if (params.raStatus.isActive) retroAchievements.awards.value else RaAwards()
+        val marksNow = if (params.raStatus.isActive) retroAchievements.marks.value else RaMarks()
+        val statusOk: (DownloadableFileWithTags) -> Boolean = {
+            !statusActive || (
+                params.completed.matches(CompletedGames.key(it.file.consoleId, it.file.fileName) in completedNow) &&
+                    params.raStatus.matches(raStatusOf(it.file, marksNow, awardsNow))
+                )
+        }
         // "Use RomM" off: a row that only RomM serves is listed while its file is on the device (nothing is purged).
         val ownershipOnly: (DownloadableFileWithTags) -> Boolean = {
             val owned = libraryIndex.isOwned(it.file, ownedNow)
-            params.ownership.matches(owned) && RommSwitch.listRow(!rommOff, it.file.isRomm, owned)
+            params.ownership.matches(owned) && RommSwitch.listRow(!rommOff, it.file.isRomm, owned) && statusOk(it)
         }
-        if (!filter.isActive && !params.ownership.isActive && !rommOff) {
+        if (!filter.isActive && !params.ownership.isActive && !rommOff && !statusActive) {
             val rows = query(want, offset)
             return Page(rows, offset + rows.size, rows.size < want)
         }
@@ -847,8 +910,12 @@ data class FilterParams(
     val collectionId: Long = 0L,
     val genres: Set<String> = emptySet(),
     val decades: Set<Int> = emptySet(),
-    val ownership: LibraryBrowse.Ownership = LibraryBrowse.Ownership.ALL
+    val ownership: LibraryBrowse.Ownership = LibraryBrowse.Ownership.ALL,
+    val completed: CompletedFilter = CompletedFilter.ALL,
+    val raStatus: RaStatusFilter = RaStatusFilter.ALL
 )
+
+private data class Quad<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
 
 private const val SCAN_BATCH = 1500
 private const val SCAN_CAP = 60_000

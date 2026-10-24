@@ -119,6 +119,21 @@ data class RaGameProgress(
     val hasAchievements: Boolean get() = total > 0
 }
 
+/**
+ * One game of `API_GetUserCompletionProgress.php`: the user's counts and highest award in it. Only
+ * what the Library needs (the batch list does not carry the achievements themselves).
+ */
+data class RaAwardEntry(
+    val gameId: Int,
+    val award: RaAward,
+    val total: Int,
+    val earned: Int,
+    val earnedHardcore: Int
+)
+
+/** One page of the completion list: [total] games in RA's answer, this page's [entries], and how many rows it held. */
+data class RaCompletionPage(val total: Int, val entries: List<RaAwardEntry>, val rows: Int)
+
 /** Why an RA call failed; the UI turns it into a sentence. */
 enum class RaErrorKind { NO_ACCOUNT, BAD_KEY, NOT_FOUND, RATE_LIMITED, OFFLINE, SERVER, BAD_RESPONSE }
 
@@ -142,6 +157,17 @@ object RaApi {
 
     fun gameProgressUrl(gameId: Int, user: String, key: String): String =
         "${API_BASE}API_GetGameInfoAndUserProgress.php?z=${enc(user)}&y=${enc(key)}&g=$gameId&u=${enc(user)}&a=1"
+
+    /**
+     * The user's whole progress list in pages (one call per [count] games, at most 500), instead of one
+     * call per game. From RA's public API documentation (API_GetUserCompletionProgress), not tested against the live service.
+     */
+    fun completionProgressUrl(user: String, key: String, count: Int = COMPLETION_PAGE, offset: Int = 0): String =
+        "${API_BASE}API_GetUserCompletionProgress.php?z=${enc(user)}&y=${enc(key)}&u=${enc(user)}" +
+            "&c=${count.coerceIn(1, COMPLETION_PAGE)}&o=${offset.coerceAtLeast(0)}"
+
+    /** Largest page RA's completion list serves. */
+    const val COMPLETION_PAGE = 500
 
     /** A media path from the API ("/Images/067895.png") as a full URL; full URLs stay as they are. */
     fun mediaUrl(path: String?): String? {
@@ -229,6 +255,30 @@ object RaApi {
                 award = award(root.str("HighestAwardKind"), total, earned, earnedHardcore),
                 players = players
             )
+        }.getOrNull()
+    }
+
+    /**
+     * A page of the completion list (`{"Count": n, "Total": n, "Results": [ {GameID, MaxPossible,
+     * NumAwarded, NumAwardedHardcore, HighestAwardKind, …} ]}`), or null when the body is none.
+     * Never throws; rows without a game id are skipped.
+     */
+    fun parseCompletionProgress(json: String): RaCompletionPage? {
+        val root = parseObject(json) ?: return null
+        val results = root.el("Results") ?: return null
+        return runCatching {
+            val rows = elements(results)
+            val entries = rows.mapNotNull { el ->
+                if (!el.isJsonObject) return@mapNotNull null
+                val o = el.asJsonObject
+                val id = o.int("GameID", "ID")?.takeIf { it > 0 } ?: return@mapNotNull null
+                val total = (o.int("MaxPossible", "NumPossibleAchievements") ?: 0).coerceAtLeast(0)
+                val hardcore = (o.int("NumAwardedHardcore") ?: 0).coerceAtLeast(0)
+                val earned = maxOf(o.int("NumAwarded") ?: 0, hardcore)
+                val cap = { n: Int -> if (total > 0) n.coerceAtMost(total) else n }
+                RaAwardEntry(id, award(o.str("HighestAwardKind"), total, cap(earned), cap(hardcore)), total, cap(earned), cap(hardcore))
+            }
+            RaCompletionPage(root.int("Total")?.coerceAtLeast(0) ?: entries.size, entries, rows.size)
         }.getOrNull()
     }
 

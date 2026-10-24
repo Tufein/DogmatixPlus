@@ -82,14 +82,20 @@ class GameHeaderModelTest {
         assertEquals(More.UP_NEXT, more(downloading = true).first())
     }
 
+    @Test fun `mark as completed is always offered right after up next`() {
+        assertEquals(More.COMPLETED, more().get(1))
+        assertEquals(More.COMPLETED, more(owned = true, readiness = true, handoff = true).get(1))
+        assertEquals(More.COMPLETED, more(downloading = true).get(1))
+    }
+
     @Test fun `a game not on the device can be planned and collected`() {
-        assertEquals(listOf(More.UP_NEXT, More.DOWNLOAD_WHEN, More.COLLECTIONS), more())
+        assertEquals(listOf(More.UP_NEXT, More.COMPLETED, More.DOWNLOAD_WHEN, More.COLLECTIONS), more())
     }
 
     @Test fun `a game on the device keeps every 8_0 action in its order`() {
         assertEquals(
             listOf(
-                More.UP_NEXT, More.READINESS, More.HANDOFF, More.DOWNLOAD_AGAIN, More.EMULATOR,
+                More.UP_NEXT, More.COMPLETED, More.READINESS, More.HANDOFF, More.DOWNLOAD_AGAIN, More.EMULATOR,
                 More.DOWNLOAD_BEST, More.UPDATE, More.DLC, More.COLLECTIONS, More.REMOVE
             ),
             more(owned = true, readiness = true, handoff = true, betterVersion = true, updateAvailable = true, missingDlc = 2)

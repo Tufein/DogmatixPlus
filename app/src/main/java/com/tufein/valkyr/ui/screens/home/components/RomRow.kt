@@ -60,6 +60,7 @@ import com.tufein.valkyr.ui.components.rememberFocusSource
 import com.tufein.valkyr.ui.components.stripExtension
 import com.tufein.valkyr.ui.theme.LocalReduceMotion
 import com.tufein.valkyr.ui.theme.tabular
+import com.tufein.valkyr.util.RaStatus
 import kotlinx.coroutines.flow.collectLatest
 
 /** Size of the cover thumbnail in the one-line table row (portrait box art, 3:4). */
@@ -115,7 +116,11 @@ fun RomRow(
      */
     downloadProgress: () -> Float = { 0f },
     /** 6.0: compact lists (Settings → Look): tighter height and padding, smaller cover. */
-    dense: Boolean = false
+    dense: Boolean = false,
+    /** 5.5: the player marked this game as completed (a check mark in front of the name). */
+    completed: Boolean = false,
+    /** 5.5: the user's RetroAchievements status in this game; null shows nothing (also with RA off). */
+    raStatus: RaStatus? = null
 ) {
     // 8.0 TV mode: never the compact rows; rows (and the stacked covers) grow. The table's cover and
     // column widths stay, so the header in HomeScreen keeps lining up; the TV text scale does the rest.
@@ -129,7 +134,7 @@ fun RomRow(
         .combinedClickable(interactionSource = source, indication = null, onClick = onClick, onLongClick = onLongClick)
     val nameColor = if (owned) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
     val badges: @Composable () -> Unit = {
-        Badges(owned, onRomm, favourite, downloading, isNew, achievements, achievementCount, downloadProgress)
+        Badges(owned, onRomm, favourite, downloading, isNew, achievements, achievementCount, downloadProgress, completed, raStatus)
     }
 
     if (compact) {
@@ -252,18 +257,26 @@ private fun Badges(
     isNew: Boolean,
     achievements: Boolean,
     achievementCount: Int,
-    downloadProgress: () -> Float
+    downloadProgress: () -> Float,
+    completed: Boolean = false,
+    raStatus: RaStatus? = null
 ) {
     if (favourite) IconBadge(R.drawable.ic_star, PillTone.Accent, stringResource(R.string.favourite))
+    if (completed) IconBadge(R.drawable.ic_verified, PillTone.Success, stringResource(R.string.done55_completed))
     if (downloading) DownloadingBadge(downloadProgress)
     else if (owned) IconBadge(R.drawable.ic_check, PillTone.Success, stringResource(R.string.owned))
     if (onRomm) Pill(stringResource(R.string.romm_badge), tone = PillTone.Info)
     if (isNew) Pill(stringResource(R.string.new_badge), tone = PillTone.Accent)
-    if (achievements) Pill(
-        if (achievementCount > 0) achievementCount.toString() else stringResource(R.string.home_ra_badge),
-        tone = PillTone.Warning,
-        icon = R.drawable.ic_trophy
-    )
+    // 5.5: a beaten / mastered game says so in place of the achievement count; one still in progress keeps the count.
+    when {
+        raStatus == RaStatus.MASTERED -> Pill(stringResource(R.string.done55_ra_mastered), tone = PillTone.Warning, icon = R.drawable.ic_trophy)
+        raStatus == RaStatus.BEATEN -> Pill(stringResource(R.string.done55_ra_beaten), tone = PillTone.Info, icon = R.drawable.ic_trophy)
+        achievements -> Pill(
+            if (achievementCount > 0) achievementCount.toString() else stringResource(R.string.home_ra_badge),
+            tone = PillTone.Warning,
+            icon = R.drawable.ic_trophy
+        )
+    }
 }
 
 /** A round 18 dp mark with an icon in a [PillTone]'s colours (owned, favourite). */

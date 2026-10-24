@@ -59,6 +59,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.YearMonth
 import java.util.Locale
@@ -84,8 +86,14 @@ class StatsViewModel @Inject constructor(
     private val favouriteDao: FavouriteDao,
     private val collectionDao: CollectionDao,
     private val esdePlays: EsdePlayService,
-    private val consoleRepository: ConsoleRepository
+    private val consoleRepository: ConsoleRepository,
+    completedGames: com.tufein.valkyr.data.service.CompletedService
 ) : ViewModel() {
+    /** 5.5: games the active profile marked as completed. */
+    val completedCount: StateFlow<Int> = completedGames.keys
+        .map { it.size }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), 0)
+
     private val _ui = MutableStateFlow(StatsUiState())
     val ui: StateFlow<StatsUiState> = _ui.asStateFlow()
 
@@ -114,6 +122,7 @@ class StatsViewModel @Inject constructor(
 @Composable
 fun StatsScreen(viewModel: StatsViewModel = hiltViewModel()) {
     val ui by viewModel.ui.collectAsStateWithLifecycle()
+    val completedCount by viewModel.completedCount.collectAsStateWithLifecycle()
     val context = LocalContext.current
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 12.dp)) {
         ToolsTitle(stringResource(R.string.nav_stats), icon = NavRoutes.Stats.icon)
@@ -170,7 +179,8 @@ fun StatsScreen(viewModel: StatsViewModel = hiltViewModel()) {
             }
             item(key = "library") {
                 InfoCard(
-                    listOf(stringResource(R.string.stats_library, ui.libraryGames, ui.favourites, ui.collections)),
+                    listOf(stringResource(R.string.stats_library, ui.libraryGames, ui.favourites, ui.collections)) +
+                        (if (completedCount > 0) listOf(stringResource(R.string.done55_stats_completed, completedCount)) else emptyList()),
                     icon = R.drawable.ic_library
                 )
             }

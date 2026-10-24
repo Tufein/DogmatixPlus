@@ -465,6 +465,7 @@ private fun GamePageContent(
                 when (action) {
                     // Always first, so the "more" button always has something to focus.
                     GameHeaderModel.More.UP_NEXT -> com.tufein.valkyr.ui.screens.next.UpNextPill(rom.consoleId, rom.fileName, modifier = PageTarget.focusRequester(moreFocus))
+                    GameHeaderModel.More.COMPLETED -> CompletedPill(rom.consoleId, rom.fileName, modifier = PageTarget)
                     GameHeaderModel.More.READINESS -> onReadiness?.let { open ->
                         ActionPill(stringResource(R.string.ready25_title), { open(rom.consoleId, rom.fileName) }, modifier = PageTarget, icon = R.drawable.ic_controller)
                     }

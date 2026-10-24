@@ -6,6 +6,9 @@ import com.tufein.valkyr.data.local.dao.DatDao
 import com.tufein.valkyr.data.repository.SettingsRepository
 import com.tufein.valkyr.util.GameTitleCleaner
 import com.tufein.valkyr.util.RaApi
+import com.tufein.valkyr.util.RaAwards
+import com.tufein.valkyr.util.RaCompletionPage
+import com.tufein.valkyr.util.RaStatuses
 import com.tufein.valkyr.util.RaErrorKind
 import com.tufein.valkyr.util.RaGame
 import com.tufein.valkyr.util.RaGameProgress
@@ -18,6 +21,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -201,6 +205,16 @@ class RetroAchievementsService @Inject constructor(
     private val _summaryStatus = MutableStateFlow(SummaryStatus())
     val summaryStatus: StateFlow<SummaryStatus> = _summaryStatus.asStateFlow()
 
+    // 5.5: see "Beaten / Mastered / In progress" below. Declared up here: the init block reads them.
+    private val _awards = MutableStateFlow(RaAwards())
+    /** The user's award per RA game id; empty until fetched (or without an account). */
+    val awards: StateFlow<RaAwards> = _awards.asStateFlow()
+
+    private val _awardsLoading = MutableStateFlow(false)
+    val awardsLoading: StateFlow<Boolean> = _awardsLoading.asStateFlow()
+
+    @Volatile private var awardsFailure: Pair<RaErrorKind, Long>? = null
+
     private class Cached<T>(val value: T, val at: Long)
     private class LruMap<K, V>(private val max: Int) : LinkedHashMap<K, V>(16, 0.75f, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?): Boolean = size > max
@@ -226,6 +240,8 @@ class RetroAchievementsService @Inject constructor(
                         credentialsHash = hash
                         // Another account (or none): what was fetched belongs to the old one.
                         if (previous != null && previous != hash) clearOnline()
+                        // 5.5: the batch award list of this account, from its cache file, so the badges are there at once.
+                        _awards.value = if (user.isNotEmpty() && key.isNotEmpty()) readAwards(user) else RaAwards()
                         _accountReady.value = user.isNotEmpty() && key.isNotEmpty()
                     }
             } catch (e: CancellationException) {
@@ -285,6 +301,66 @@ class RetroAchievementsService @Inject constructor(
                 // refreshSummary reports its own failures; this only guards the settings read.
                 _summaryStatus.update { it.copy(loading = false, error = kindOf(e), failedAt = System.currentTimeMillis()) }
             }
+        }
+    }
+
+    // ---- 5.5: Beaten / Mastered / In progress for the whole library, from one paged list ----------
+    // The status badges and filters must not call RA per row. RA's completion list (the user's
+    // progress in every game they touched) comes in pages of 500 and is kept in memory and in
+    // `files/ra/awards_<account>.json`; it is asked again at most every [RaStatuses.TTL_MS] (or on
+    // a forced refresh), after a failure only once the back-off of [backoffMs] has passed, and always
+    // through the same one-call-at-a-time lock as the other RA calls.
+
+    private fun awardsFile(user: String) = File(dir, "awards_" + Integer.toHexString(user.trim().lowercase().hashCode()) + ".json")
+
+    private fun readAwards(user: String): RaAwards = runCatching {
+        awardsFile(user).takeIf { it.exists() }?.let { RaStatuses.fromJson(it.readText()) }
+    }.getOrNull() ?: RaAwards()
+
+    /**
+     * Fetches the completion list unless the one in [awards] is fresh or the last attempt failed
+     * moments ago ([force] skips both). Failures do not throw: the old list stays.
+     */
+    suspend fun refreshAwards(force: Boolean = false): RaAwards = withContext(Dispatchers.IO) {
+        netMutex.withLock {
+            val now = System.currentTimeMillis()
+            val current = _awards.value
+            if (!force && RaStatuses.isFresh(current, now)) return@withLock current
+            awardsFailure?.takeIf { !force && now - it.second < backoffMs(it.first) }?.let { return@withLock current }
+            val user = appSettings.raUser.first().trim()
+            val key = appSettings.raKey.first().trim()
+            if (user.isEmpty() || key.isEmpty()) return@withLock current
+            _awardsLoading.value = true
+            try {
+                val pages = ArrayList<RaCompletionPage>()
+                var offset = 0
+                while (true) {
+                    val body = fetch(RaApi.completionProgressUrl(user, key, RaApi.COMPLETION_PAGE, offset))
+                    val page = RaApi.parseCompletionProgress(body) ?: throw RaApiException(RaApi.unreadableKind(body))
+                    pages.add(page)
+                    offset = RaStatuses.nextOffset(offset, RaApi.COMPLETION_PAGE, page, pages.size) ?: break
+                    delay(PAGE_GAP_MS)
+                }
+                val fresh = RaAwards(RaStatuses.merge(pages), System.currentTimeMillis())
+                _awards.value = fresh
+                awardsFailure = null
+                runCatching { awardsFile(user).writeText(RaStatuses.toJson(fresh)) }
+                fresh
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                awardsFailure = kindOf(e) to System.currentTimeMillis()
+                current
+            } finally {
+                _awardsLoading.value = false
+            }
+        }
+    }
+
+    /** [refreshAwards] in the service's own scope, so leaving a screen does not cut it off. */
+    fun requestAwards(force: Boolean = false) {
+        onlineScope.launch {
+            try { refreshAwards(force) } catch (e: CancellationException) { throw e } catch (_: Exception) { }
         }
     }
 
@@ -364,6 +440,8 @@ class RetroAchievementsService @Inject constructor(
         }
         _summary.value = null
         _summaryStatus.value = SummaryStatus()
+        _awards.value = RaAwards()
+        awardsFailure = null
     }
 
     /** One GET to the RA API. Failures become [RaApiException]s that say nothing about the URL. */
@@ -398,6 +476,7 @@ class RetroAchievementsService @Inject constructor(
         const val MAX_ROM_BYTES = 64L * 1024 * 1024
         const val SUMMARY_TTL_MS = 5 * 60_000L
         const val GAME_TTL_MS = 5 * 60_000L
+        const val PAGE_GAP_MS = 1_000L
         const val RECENT_GAMES = 5
         const val RECENT_UNLOCKS = 5
     }

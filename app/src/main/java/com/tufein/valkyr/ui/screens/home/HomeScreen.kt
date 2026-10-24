@@ -150,6 +150,10 @@ import com.tufein.valkyr.ui.screens.home.components.CollectionPickerDialog
 import com.tufein.valkyr.ui.screens.home.components.FilterOption
 import com.tufein.valkyr.ui.screens.home.components.FilterPanel
 import com.tufein.valkyr.ui.screens.home.components.FilterRowSpec
+import com.tufein.valkyr.util.CompletedFilter
+import com.tufein.valkyr.util.CompletedGames
+import com.tufein.valkyr.util.RaStatus
+import com.tufein.valkyr.util.RaStatusFilter
 import com.tufein.valkyr.util.FilterLayout
 import com.tufein.valkyr.ui.screens.home.components.GameDetailsDialog
 import com.tufein.valkyr.ui.screens.home.components.RomRow
@@ -201,6 +205,15 @@ fun HomeScreen(
     val favoriteLanguages by viewModel.favoriteLanguages.collectAsStateWithLifecycle()
     val detailsState by viewModel.details.collectAsStateWithLifecycle()
     val raMarks by viewModel.raMarks.collectAsStateWithLifecycle()
+    // 5.5: completed flag and RetroAchievements status (nothing of RA without an account).
+    val completedKeys by viewModel.completedKeys.collectAsStateWithLifecycle()
+    val completedFilter by viewModel.completedFilter.collectAsStateWithLifecycle()
+    val raFilter by viewModel.raFilter.collectAsStateWithLifecycle()
+    val raAwards by viewModel.raAwards.collectAsStateWithLifecycle()
+    val raAccount by viewModel.raAccount.collectAsStateWithLifecycle()
+    val raOn = raAccount == true
+    val isCompletedRow: (DownloadableFileWithTags) -> Boolean = { CompletedGames.key(it.file.consoleId, it.file.fileName) in completedKeys }
+    val raStatusRow: (DownloadableFileWithTags) -> RaStatus? = { if (raOn) viewModel.raStatusOf(it.file, raMarks, raAwards) else null }
     val newOnly by viewModel.newOnly.collectAsStateWithLifecycle()
     val collectionId by viewModel.collectionId.collectAsStateWithLifecycle()
     val collections by viewModel.collections.collectAsStateWithLifecycle()
@@ -342,6 +355,17 @@ fun HomeScreen(
             onSelectionChange = { viewModel.setFavouritesOnly(FAV_ONLY in it) }
         ),
         FilterRowSpec(
+            label = stringResource(R.string.done55_filter_completed),
+            options = listOf(
+                FilterOption(CompletedFilter.ALL.name, stringResource(R.string.filter_all)),
+                FilterOption(CompletedFilter.COMPLETED.name, stringResource(R.string.done55_filter_completed_only)),
+                FilterOption(CompletedFilter.NOT_COMPLETED.name, stringResource(R.string.done55_filter_not_completed))
+            ),
+            selected = setOf(completedFilter.name),
+            single = true,
+            onSelectionChange = { sel -> viewModel.setCompletedFilter(sel.firstOrNull()?.let { CompletedFilter.valueOf(it) } ?: CompletedFilter.ALL) }
+        ),
+        FilterRowSpec(
             label = stringResource(R.string.lib52_filter_ownership),
             options = listOf(
                 FilterOption(LibraryBrowse.Ownership.ALL.name, stringResource(R.string.filter_all)),
@@ -352,6 +376,21 @@ fun HomeScreen(
             single = true,
             onSelectionChange = { sel -> viewModel.setOwnership(sel.firstOrNull()?.let { LibraryBrowse.Ownership.valueOf(it) } ?: LibraryBrowse.Ownership.ALL) }
         ),
+    ) + (if (!raOn) emptyList() else listOf(
+        // 5.5: only with an RA account; the statuses come from the user's award list, matched on the games RA recognised.
+        FilterRowSpec(
+            label = stringResource(R.string.done55_filter_ra),
+            options = listOf(
+                FilterOption(RaStatusFilter.ALL.name, stringResource(R.string.filter_all)),
+                FilterOption(RaStatusFilter.BEATEN.name, stringResource(R.string.done55_ra_beaten)),
+                FilterOption(RaStatusFilter.MASTERED.name, stringResource(R.string.done55_ra_mastered)),
+                FilterOption(RaStatusFilter.IN_PROGRESS.name, stringResource(R.string.done55_ra_in_progress))
+            ),
+            selected = setOf(raFilter.name),
+            single = true,
+            onSelectionChange = { sel -> viewModel.setRaFilter(sel.firstOrNull()?.let { RaStatusFilter.valueOf(it) } ?: RaStatusFilter.ALL) }
+        )
+    )) + listOf(
         FilterRowSpec(
             label = stringResource(R.string.filter_new),
             options = listOf(
@@ -404,6 +443,7 @@ fun HomeScreen(
     )
     val activeFilterCount = selectedConsoles.size + activeTags.size + (if (favouritesOnly) 1 else 0) + (if (sourceFilter != SourceFilter.ALL) 1 else 0) +
         (if (newOnly) 1 else 0) + (if (collectionId != 0L) 1 else 0) + (if (ownership.isActive) 1 else 0) +
+        (if (completedFilter.isActive) 1 else 0) + (if (raFilter.isActive && raOn) 1 else 0) +
         LibraryDiscovery.Filter(genres, decades).activeCount
     // 5.0 empty states: the library has nothing yet → Sources (as a tab switch, like the top tabs do);
     // nothing matches → clear what narrows the list.
@@ -957,6 +997,8 @@ fun HomeScreen(
                             isDownloading = { viewModel.isDownloading(it.file, activeDownloads) },
                             isNew = { viewModel.isNew(it.file) },
                             hasAchievements = { raMarks.gameFor(it.file.consoleId, it.file.fileName) != null },
+                            isCompleted = isCompletedRow,
+                            raStatusOf = raStatusRow,
                             achievementCount = { raMarks.gameFor(it.file.consoleId, it.file.fileName)?.achievements ?: 0 },
                             onRowFocused = { focusedItem = it },
                             onRowLongClick = viewModel::openDetails,
@@ -1080,6 +1122,8 @@ fun HomeScreen(
                     isDownloading = { viewModel.isDownloading(it.file, activeDownloads) },
                     isNew = { viewModel.isNew(it.file) },
                     hasAchievements = { raMarks.gameFor(it.file.consoleId, it.file.fileName) != null },
+                    isCompleted = isCompletedRow,
+                    raStatusOf = raStatusRow,
                     achievementCount = { raMarks.gameFor(it.file.consoleId, it.file.fileName)?.achievements ?: 0 },
                     onRowFocused = { focusedItem = it },
                     onRowLongClick = viewModel::openDetails,
