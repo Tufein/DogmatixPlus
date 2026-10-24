@@ -5,8 +5,16 @@ import com.tufein.valkyr.data.local.CoverSourceSettings
 import com.tufein.valkyr.util.CoverSources
 import com.tufein.valkyr.util.GameTitleCleaner
 import com.tufein.valkyr.util.ScreenScraper
+import com.tufein.valkyr.util.ScreenScraperQuota
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -37,6 +45,11 @@ class ScreenScraperService @Inject constructor(
     @Volatile private var backoffUntil = 0L
     /** The credentials the backoff belongs to: new credentials end it at once. */
     @Volatile private var backoffFor = 0
+    /** Keeps request starts a little apart (see [ScreenScraperQuota.gapMs]); the thread limit is the semaphore above. */
+    private val paceLock = Mutex()
+    private var lastStart = 0L
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var refreshJob: Job? = null
 
     sealed interface LoginResult {
         data class LoggedIn(val user: ScreenScraper.User) : LoginResult
@@ -52,6 +65,37 @@ class ScreenScraperService @Inject constructor(
 
     /** Whether the developer credentials are filled in (without them the source is simply skipped). */
     override suspend fun configured(): Boolean = settings.credentials.first().ready
+
+    /**
+     * Called when a scrape went through ScreenScraper: a while after the last one (a batch is over)
+     * the account's numbers are asked once more, so the screen shows where the day stands. With a
+     * user login every answer carries the numbers already; this makes sure the last ones are in.
+     */
+    fun noteActivity() {
+        synchronized(this) {
+            refreshJob?.cancel()
+            refreshJob = scope.launch {
+                delay(BATCH_IDLE_MS)
+                runCatching { refreshQuota() }
+            }
+        }
+    }
+
+    /** Asks for the account's numbers (no cover lookup); a no-op without a login, while paused or backing off. */
+    suspend fun refreshQuota() {
+        val c = settings.credentials.first()
+        if (!c.ready || !c.hasLogin || !usable(System.currentTimeMillis())) return
+        call(c, ScreenScraper.userUrl(c), counted = false)
+    }
+
+    /** Waits until the next request may start: [ScreenScraperQuota.gapMs] after the previous one. */
+    private suspend fun pace() = paceLock.withLock {
+        val user = stats.state.value.user
+        val gap = ScreenScraperQuota.gapMs(user?.remainingToday)
+        val wait = ScreenScraperQuota.waitMs(System.currentTimeMillis(), lastStart, gap)
+        if (wait > 0) delay(wait)
+        lastStart = System.currentTimeMillis()
+    }
 
     /** Whether ScreenScraper can be asked right now: credentials there, not paused, not backing off. */
     override suspend fun usable(now: Long): Boolean {
@@ -150,6 +194,7 @@ class ScreenScraperService @Inject constructor(
      */
     private suspend fun call(c: ScreenScraper.Credentials, url: String, counted: Boolean = true): Reply = permits.withPermit {
         withContext(Dispatchers.IO) {
+            pace()
             val response = try {
                 JsonHttp.request("GET", url, connectTimeoutMs = 15_000, readTimeoutMs = 30_000)
             } catch (e: CancellationException) {
@@ -206,5 +251,7 @@ class ScreenScraperService @Inject constructor(
         const val RATE_LIMIT_PAUSE_MS = 60_000L
         const val BUSY_PAUSE_MS = 15 * 60_000L
         const val LOGIN_PAUSE_MS = 60 * 60_000L
+        /** Quiet time after the last scrape before the numbers are refreshed. */
+        const val BATCH_IDLE_MS = 20_000L
     }
 }

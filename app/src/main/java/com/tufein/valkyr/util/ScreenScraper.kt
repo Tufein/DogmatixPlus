@@ -199,7 +199,17 @@ object ScreenScraper {
 
     data class Media(val type: String, val region: String, val url: String, val format: String)
     data class Game(val id: String, val names: List<String>, val medias: List<Media>)
-    data class User(val name: String, val maxThreads: Int, val requestsToday: Int?, val maxRequestsPerDay: Int?) {
+    data class User(
+        val name: String,
+        val maxThreads: Int,
+        val requestsToday: Int?,
+        val maxRequestsPerDay: Int?,
+        /** `niveau`: the account level as text (5.5.0), "" when not sent. */
+        val level: String = "",
+        /** `requestskotoday` / `maxrequestskoperday` (5.5.0): today's requests for ROMs ScreenScraper did not recognise, and their limit. */
+        val requestsKoToday: Int? = null,
+        val maxRequestsKoPerDay: Int? = null
+    ) {
         /** Requests left today, when ScreenScraper said both numbers. */
         val remainingToday: Int? get() = if (requestsToday != null && maxRequestsPerDay != null) (maxRequestsPerDay - requestsToday).coerceAtLeast(0) else null
         val quotaUsedUp: Boolean get() = remainingToday == 0
@@ -246,7 +256,10 @@ object ScreenScraper {
             name = name,
             maxThreads = (u.int("maxthreads") ?: DEFAULT_THREADS).coerceIn(1, MAX_THREADS),
             requestsToday = u.int("requeststoday"),
-            maxRequestsPerDay = u.int("maxrequestsperday")
+            maxRequestsPerDay = u.int("maxrequestsperday"),
+            level = u.text("niveau"),
+            requestsKoToday = u.int("requestskotoday"),
+            maxRequestsKoPerDay = u.int("maxrequestskoperday")
         )
     }
 
