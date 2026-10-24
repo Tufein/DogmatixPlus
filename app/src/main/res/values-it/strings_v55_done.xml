@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="done55_completed">Completato</string>
+    <string name="done55_mark">Segna come completato</string>
+    <string name="done55_unmark">Rimuovi il segno di completato</string>
+    <string name="done55_marked">%1$s segnato come completato</string>
+    <string name="done55_unmarked">%1$s non è più segnato come completato</string>
+    <string name="done55_save_failed">Impossibile salvare il segno</string>
+    <string name="done55_filter_completed">Completamento</string>
+    <string name="done55_filter_completed_only">Completato</string>
+    <string name="done55_filter_not_completed">Non completato</string>
+    <string name="done55_filter_ra">RetroAchievements</string>
+    <string name="done55_ra_beaten">Battuto</string>
+    <string name="done55_ra_mastered">Padroneggiato</string>
+    <string name="done55_ra_in_progress">In corso</string>
+    <string name="done55_stats_completed">Completati: %1$d</string>
+</resources>

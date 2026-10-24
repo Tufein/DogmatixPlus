@@ -68,12 +68,13 @@ object GameHeaderModel {
 
     // ---- More actions card -----------------------------------------------------------------------
 
-    enum class More { UP_NEXT, READINESS, HANDOFF, DOWNLOAD_AGAIN, EMULATOR, DOWNLOAD_BEST, UPDATE, DLC, DOWNLOAD_WHEN, COLLECTIONS, REMOVE }
+    enum class More { UP_NEXT, COMPLETED, READINESS, HANDOFF, DOWNLOAD_AGAIN, EMULATOR, DOWNLOAD_BEST, UPDATE, DLC, DOWNLOAD_WHEN, COLLECTIONS, REMOVE }
 
     /**
      * Every action of the page that is neither the main button nor a round button, in the order
      * they are drawn (the 8.0 action row's order without favourite and share). Up next comes first
-     * and is always there, so the "more" button always has a target to focus.
+     * and is always there, so the "more" button always has a target to focus; "Mark as completed" (5.5)
+     * follows it and is always there too.
      */
     fun more(
         owned: Boolean,
@@ -85,6 +86,7 @@ object GameHeaderModel {
         missingDlc: Int
     ): List<More> = buildList {
         add(More.UP_NEXT)
+        add(More.COMPLETED)
         if (readiness) add(More.READINESS)
         if (handoff) add(More.HANDOFF)
         if (owned && !downloading) {

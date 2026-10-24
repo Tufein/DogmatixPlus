@@ -215,6 +215,9 @@ internal fun ResultList(
     modifier: Modifier = Modifier,
     isOnRomm: (DownloadableFileWithTags) -> Boolean = { false },
     hasAchievements: (DownloadableFileWithTags) -> Boolean = { false },
+    /** 5.5: the player's completed flag, and the user's RA status (null = none / RA off) of a game. */
+    isCompleted: (DownloadableFileWithTags) -> Boolean = { false },
+    raStatusOf: (DownloadableFileWithTags) -> com.tufein.valkyr.util.RaStatus? = { null },
     /** What the user searched for, offered for the wishlist when nothing is found. */
     query: String = "",
     onAddWish: (() -> Unit)? = null,
@@ -305,7 +308,8 @@ internal fun ResultList(
             modifier = modifier,
             firstRowFocus = firstRowFocus,
             returnGame = returnGame,
-            returnFocus = returnFocus
+            returnFocus = returnFocus,
+            isCompleted = isCompleted
         )
         return
     }
@@ -390,7 +394,9 @@ internal fun ResultList(
                 progress = rowProgress,
                 showCover = showCover,
                 modifier = rowModifier,
-                contentShift = contentShift
+                contentShift = contentShift,
+                completed = isCompleted(item),
+                raStatus = raStatusOf(item)
             ) else RomRow(
                 item = item,
                 consoleName = getConsoleName(item.file.consoleId),
@@ -408,7 +414,9 @@ internal fun ResultList(
                 showCover = showCover,
                 dense = dense,
                 downloadProgress = rowProgress,
-                modifier = rowModifier
+                modifier = rowModifier,
+                completed = isCompleted(item),
+                raStatus = raStatusOf(item)
             )
         }
         if (hasMore) {

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="done55_completed">Uitgespeeld</string>
+    <string name="done55_mark">Markeer als uitgespeeld</string>
+    <string name="done55_unmark">Uitgespeeld-markering weghalen</string>
+    <string name="done55_marked">%1$s gemarkeerd als uitgespeeld</string>
+    <string name="done55_unmarked">%1$s is niet meer als uitgespeeld gemarkeerd</string>
+    <string name="done55_save_failed">Kon de markering niet opslaan</string>
+    <string name="done55_filter_completed">Voltooiing</string>
+    <string name="done55_filter_completed_only">Uitgespeeld</string>
+    <string name="done55_filter_not_completed">Niet uitgespeeld</string>
+    <string name="done55_filter_ra">RetroAchievements</string>
+    <string name="done55_ra_beaten">Verslagen</string>
+    <string name="done55_ra_mastered">Gemeesterd</string>
+    <string name="done55_ra_in_progress">Bezig</string>
+    <string name="done55_stats_completed">Uitgespeeld: %1$d</string>
+</resources>

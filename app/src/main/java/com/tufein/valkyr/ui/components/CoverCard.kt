@@ -64,7 +64,9 @@ fun CoverCard(
     /** 5.1: a long press (X on a gamepad is wired by the screen); null keeps the plain click. */
     onLongClick: (() -> Unit)? = null,
     /** 5.1: what A / a tap does ("Download", "Play"), shown next to the console tag; null shows nothing. */
-    actionLabel: String? = null
+    actionLabel: String? = null,
+    /** 5.5: the player marked the game as completed: a check mark in the corner opposite the on-device one. */
+    completed: Boolean = false
 ) {
     val scheme = MaterialTheme.colorScheme
     val source = rememberFocusSource()
@@ -87,6 +89,7 @@ fun CoverCard(
             if (lookup) GameCover(consoleId, fileName, title, coverModifier, shape)
             else CoverImage(null, consoleId, coverModifier, shape)
             if (owned) OnDeviceMark(Modifier.align(Alignment.TopEnd).padding(8.dp))
+            if (completed) CompletedMark(Modifier.align(Alignment.TopStart).padding(8.dp))
         }
         Text(
             title,
@@ -189,6 +192,23 @@ private fun OnDeviceMark(modifier: Modifier = Modifier) {
             painterResource(R.drawable.ic_check),
             contentDescription = androidx.compose.ui.res.stringResource(R.string.next30_on_device),
             tint = scheme.onPrimary,
+            modifier = Modifier.size(16.dp)
+        )
+    }
+}
+
+/** 5.5: the "completed" mark on a cover: a seal with a check, in the secondary colour so it differs from the on-device check. */
+@Composable
+private fun CompletedMark(modifier: Modifier = Modifier) {
+    val scheme = MaterialTheme.colorScheme
+    Box(
+        modifier = modifier.size(24.dp).clip(CircleShape).background(scheme.secondary),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painterResource(R.drawable.ic_verified),
+            contentDescription = androidx.compose.ui.res.stringResource(R.string.done55_completed),
+            tint = scheme.onSecondary,
             modifier = Modifier.size(16.dp)
         )
     }

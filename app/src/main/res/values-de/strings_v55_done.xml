@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="done55_completed">Durchgespielt</string>
+    <string name="done55_mark">Als durchgespielt markieren</string>
+    <string name="done55_unmark">Markierung „durchgespielt“ entfernen</string>
+    <string name="done55_marked">%1$s als durchgespielt markiert</string>
+    <string name="done55_unmarked">%1$s ist nicht mehr als durchgespielt markiert</string>
+    <string name="done55_save_failed">Markierung konnte nicht gespeichert werden</string>
+    <string name="done55_filter_completed">Status</string>
+    <string name="done55_filter_completed_only">Durchgespielt</string>
+    <string name="done55_filter_not_completed">Nicht durchgespielt</string>
+    <string name="done55_filter_ra">RetroAchievements</string>
+    <string name="done55_ra_beaten">Bezwungen</string>
+    <string name="done55_ra_mastered">Gemeistert</string>
+    <string name="done55_ra_in_progress">Begonnen</string>
+    <string name="done55_stats_completed">Durchgespielt: %1$d</string>
+</resources>
