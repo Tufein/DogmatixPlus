@@ -90,7 +90,8 @@ class ScreenScraperService @Inject constructor(
 
     /** Waits until the next request may start: [ScreenScraperQuota.gapMs] after the previous one. */
     private suspend fun pace() = paceLock.withLock {
-        val user = stats.state.value.user
+        val st = stats.state.value
+        val user = st.user?.takeIf { ScreenScraperQuota.sameDay(st.userAt, System.currentTimeMillis()) }
         val gap = ScreenScraperQuota.gapMs(user?.remainingToday)
         val wait = ScreenScraperQuota.waitMs(System.currentTimeMillis(), lastStart, gap)
         if (wait > 0) delay(wait)

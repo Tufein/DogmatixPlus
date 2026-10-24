@@ -476,7 +476,7 @@ class RetroAchievementsService @Inject constructor(
         const val MAX_ROM_BYTES = 64L * 1024 * 1024
         const val SUMMARY_TTL_MS = 5 * 60_000L
         const val GAME_TTL_MS = 5 * 60_000L
-        const val PAGE_GAP_MS = 1_000L
+        const val PAGE_GAP_MS = 300L
         const val RECENT_GAMES = 5
         const val RECENT_UNLOCKS = 5
     }

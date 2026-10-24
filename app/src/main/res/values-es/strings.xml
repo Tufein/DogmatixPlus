@@ -1286,7 +1286,7 @@
     <string name="downloads_eta_minutes">unos %1$d min</string>
     <string name="whats_new_title">Novedades de Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Ahora puedes desactivar RomM (Ajustes → RomM o Fuentes) sin perder tu inicio de sesión, y los filtros de la biblioteca están bien alineados.</item>
+        <item>Compatibilidad con DukeStation con reanudar desde una ranura de guardado, marca de completado con filtro, filtros de RetroAchievements Superado/Dominado y límites de ScreenScraper visibles.</item>
     </string-array>
 
     <!-- 4.0 -->

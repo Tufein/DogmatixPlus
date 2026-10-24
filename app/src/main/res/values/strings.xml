@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>RomM can now be switched off (Settings → RomM or Sources) without losing your login, and the library filters are neatly aligned.</item>
+        <item>DukeStation support with save-slot resume, a Completed mark and filter, RetroAchievements Beaten/Mastered filters, and ScreenScraper limits shown.</item>
     </string-array>
 
     <!-- 4.0 -->

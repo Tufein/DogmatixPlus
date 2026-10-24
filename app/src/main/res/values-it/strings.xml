@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Ora puoi disattivare RomM (Impostazioni → RomM o Fonti) senza perdere l’accesso, e i filtri della libreria sono ben allineati.</item>
+        <item>Supporto a DukeStation con ripresa da uno slot di salvataggio, segno di completato con filtro, filtri RetroAchievements Battuto/Padroneggiato e limiti di ScreenScraper visibili.</item>
     </string-array>
 
     <!-- 4.0 -->

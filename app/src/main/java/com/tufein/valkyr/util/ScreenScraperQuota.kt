@@ -40,7 +40,7 @@ object ScreenScraperQuota {
         return State.Open(user.requestsToday, user.maxRequestsPerDay, user.requestsKoToday, user.maxRequestsKoPerDay, user.maxThreads, user.level, userAt)
     }
 
-    private fun sameDay(a: Long, b: Long): Boolean {
+    fun sameDay(a: Long, b: Long): Boolean {
         val zone = java.time.ZoneId.of("Europe/Paris")
         return ScreenScraper.dayOf(a, zone) == ScreenScraper.dayOf(b, zone)
     }

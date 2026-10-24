@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>RomM lässt sich jetzt ausschalten (Einstellungen → RomM oder Quellen), ohne die Anmeldung zu verlieren, und die Bibliotheksfilter sind sauber ausgerichtet.</item>
+        <item>DukeStation-Unterstützung mit Fortsetzen ab Speicherplatz, Markierung „Durchgespielt“ mit Filter, RetroAchievements-Filter Besiegt/Gemeistert und ScreenScraper-Limits in der Anzeige.</item>
     </string-array>
 
     <!-- 4.0 -->
