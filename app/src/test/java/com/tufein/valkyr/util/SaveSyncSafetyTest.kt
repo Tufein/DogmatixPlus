@@ -271,6 +271,34 @@ class SaveSyncSafetyTest {
         assertEquals(1, d.store.copies.size)
     }
 
+    @Test fun `never overwrite keeps the old server snapshot so the newer save is applied once replacing is allowed`() {
+        val d = synced(SaveSyncOptions(nonDestructive = true))
+        server.put(SaveKind.SAVE, 1, name, "server v2")
+        d.sync()
+        assertEquals(1, d.store.copies.size)
+        // Seen again: no second identical copy, and the save is still pending.
+        val (again, _) = d.sync()
+        assertEquals(0, again.serverCopies)
+        assertEquals(1, d.store.copies.size)
+        assertEquals("v1", d.text())
+        d.options = SaveSyncOptions()
+        val (r, _) = d.sync()
+        assertEquals(1, r.downloaded)
+        assertEquals("server v2", d.text())
+    }
+
+    @Test fun `resolving to keep the device copy backs up the server save as it is now`() {
+        val d = synced()
+        d.store.put(SaveKind.SAVE, path, "device v2")
+        server.put(SaveKind.SAVE, 1, name, "server v2")
+        val (_, conflicts) = d.sync()
+        later()
+        server.put(SaveKind.SAVE, 1, name, "server v3")
+        runBlocking { d.engine.resolve(conflicts.single(), keepDevice = true, records = d.records) }
+        assertEquals("device v2", server.text(SaveKind.SAVE, name))
+        assertEquals(listOf(path to "server v3"), d.store.copies)
+    }
+
     @Test fun `never overwrite does not send a changed device save over the server's`() {
         val d = synced(SaveSyncOptions(nonDestructive = true))
         d.store.put(SaveKind.SAVE, path, "device v2")

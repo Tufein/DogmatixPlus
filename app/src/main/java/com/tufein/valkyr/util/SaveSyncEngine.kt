@@ -156,7 +156,7 @@ class SaveSyncEngine(
                     }
                     is SaveSyncAction.Download -> when {
                         action.replacing == null || SaveMerge.replacesDevice(opts) -> { download(action.remote, action.path, action.replacing, records); downloaded++ }
-                        else -> { keepBoth(action.replacing, action.remote, records, keepBase = true); serverCopies++ }
+                        else -> { if (keepBoth(action.replacing, action.remote, records, keepBase = true)) serverCopies++ else keptAsIs++ }
                     }
                     is SaveSyncAction.Upload -> {
                         val romId = action.romId ?: findRom(action.local)
@@ -204,7 +204,9 @@ class SaveSyncEngine(
     /** Keeps the device copy (uploads it) or the server copy (downloads it) of [conflict]; the copy that is replaced is backed up first. */
     suspend fun resolve(conflict: SaveConflict, keepDevice: Boolean, records: MutableMap<String, SaveSyncRecord>) {
         val local = freshLocal(conflict)
-        if (keepDevice) upload(local, conflict.remote.romId, records, conflict.remote)
+        // The conflict was found earlier: the server save may have changed since, so the copy kept first is of what it holds now.
+        val current = server.list(conflict.remote.kind).firstOrNull { it.id == conflict.remote.id } ?: conflict.remote
+        if (keepDevice) upload(local, current.romId, records, current)
         else download(conflict.remote, local.path, local, records)
     }
 
@@ -256,15 +258,33 @@ class SaveSyncEngine(
         records[key(written)] = record(written, remote, md5(bytes))
     }
 
-    /** Sets the server version aside as a safety copy and notes both sides as seen; nothing is replaced. */
-    private suspend fun keepBoth(local: LocalSaveFile, remote: RemoteSaveFile, records: MutableMap<String, SaveSyncRecord>, keepBase: Boolean = false) {
-        val bytes = server.download(remote)
-        store.keepCopy(remote.kind, local.path, bytes)
+    /**
+     * Sets the server version aside as a safety copy and notes both sides as seen; nothing is replaced.
+     * With [keepBase] (a never-overwrite download of an unchanged device file) the record keeps the old
+     * server snapshot, so the newer server save stays a pending download for when replacing is allowed again,
+     * and a version already set aside is not written again. Returns whether a copy was written.
+     */
+    private suspend fun keepBoth(local: LocalSaveFile, remote: RemoteSaveFile, records: MutableMap<String, SaveSyncRecord>, keepBase: Boolean = false): Boolean {
+        val old = if (keepBase) records[key(local)] else null
+        val signature = "${key(local)}|${remote.id}|${remote.updatedAt}|${remote.size}|${remote.contentHash}"
+        var copied = false
+        if (old == null || signature !in keptCopies) {
+            val bytes = server.download(remote)
+            store.keepCopy(remote.kind, local.path, bytes)
+            copied = true
+        }
         currentCoroutineContext().ensureActive()
-        val seen = SaveMerge.keepBothRecord(local, remote)
-        // A device file that did not change keeps its base: a later change of either side is still told apart.
-        records[key(local)] = if (keepBase) seen.copy(baseHash = records[key(local)]?.baseHash) else seen
+        if (old != null) {
+            keptCopies += signature
+            records[key(local)] = old.copy(localSize = local.size, localModified = local.modified)
+        } else {
+            records[key(local)] = SaveMerge.keepBothRecord(local, remote)
+        }
+        return copied
     }
+
+    /** Server versions already set aside this session by a never-overwrite sync (so each is copied once). */
+    private val keptCopies = HashSet<String>()
 
     private suspend fun findRom(local: LocalSaveFile): Int? {
         // A shared memory card or a Dolphin bundle goes with the game the user chose for it, or nowhere.
