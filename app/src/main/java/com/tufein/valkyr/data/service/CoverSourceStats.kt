@@ -54,7 +54,10 @@ class CoverSourceStats @Inject constructor(@param:ApplicationContext context: Co
                 name = name,
                 maxThreads = prefs.getInt("ss_user_threads", ScreenScraper.DEFAULT_THREADS),
                 requestsToday = prefs.getInt("ss_user_today", -1).takeIf { it >= 0 },
-                maxRequestsPerDay = prefs.getInt("ss_user_max", -1).takeIf { it >= 0 }
+                maxRequestsPerDay = prefs.getInt("ss_user_max", -1).takeIf { it >= 0 },
+                level = prefs.getString("ss_user_level", null).orEmpty(),
+                requestsKoToday = prefs.getInt("ss_user_ko", -1).takeIf { it >= 0 },
+                maxRequestsKoPerDay = prefs.getInt("ss_user_ko_max", -1).takeIf { it >= 0 }
             )
         }
         val own = CoverApis.OWN
@@ -124,11 +127,15 @@ class CoverSourceStats @Inject constructor(@param:ApplicationContext context: Co
         prefs.edit().apply {
             if (user == null) {
                 remove("ss_user_name"); remove("ss_user_threads"); remove("ss_user_today"); remove("ss_user_max"); remove("ss_user_at")
+                remove("ss_user_level"); remove("ss_user_ko"); remove("ss_user_ko_max")
             } else {
                 putString("ss_user_name", user.name)
                 putInt("ss_user_threads", user.maxThreads)
                 putInt("ss_user_today", user.requestsToday ?: -1)
                 putInt("ss_user_max", user.maxRequestsPerDay ?: -1)
+                putString("ss_user_level", user.level)
+                putInt("ss_user_ko", user.requestsKoToday ?: -1)
+                putInt("ss_user_ko_max", user.maxRequestsKoPerDay ?: -1)
                 putLong("ss_user_at", now)
             }
         }.apply()

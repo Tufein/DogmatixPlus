@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 5.5.0: ScreenScraper account limits (used today, threads, daily limit reached). -->
+<resources>
+    <string name="ss55_quota_title">Limites du compte</string>
+    <string name="ss55_check">Vérifier</string>
+    <string name="ss55_checking">Vérification du compte…</string>
+    <string name="ss55_checking_short">Vérification…</string>
+    <string name="ss55_quota_none">Pas encore de chiffres pour aujourd’hui. Appuie sur Vérifier pour interroger ScreenScraper (ton identifiant screenscraper.fr est nécessaire).</string>
+    <string name="ss55_quota_no_login">Sans identifiant screenscraper.fr, ScreenScraper n’indique aucune limite et Valkyr n’envoie qu’une requête à la fois.</string>
+    <string name="ss55_quota_used">Utilisées aujourd’hui : %1$d requêtes sur %2$d (%3$d restantes)</string>
+    <string name="ss55_quota_used_only">Utilisées aujourd’hui : %1$d requêtes</string>
+    <string name="ss55_quota_ko">ROM non reconnues aujourd’hui : %1$d sur %2$d</string>
+    <string name="ss55_quota_threads">Autorisées en même temps : %1$d requêtes</string>
+    <string name="ss55_quota_level">Niveau du compte : %1$s</string>
+    <string name="ss55_quota_asof">État de %1$s</string>
+    <string name="ss55_quota_exhausted">Limite du jour atteinte, reprise demain (%1$s). Aucune requête n’est envoyée d’ici là.</string>
+</resources>

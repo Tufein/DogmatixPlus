@@ -111,6 +111,7 @@ class CoverRepository @Inject constructor(
             for (source in ask.sources) {
                 val answer = askOne(source, consoleId, fileName, name, regions, chain.nonBoxArt)
                 stats.count(source, answer)
+                if (source == Source.SCREENSCRAPER) screenScraper.noteActivity()
                 out += source to answer
                 if (answer is Answer.Found) break
             }

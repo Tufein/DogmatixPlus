@@ -178,4 +178,14 @@ class ScreenScraperTest {
         assertEquals("https://neoclone.screenscraper.fr/api2/mediaJeu.php?jeuid=3&media=box-2D(eu)", cover)
         assertTrue(ScreenScraper.isApiUrl(cover!!))
     }
+
+    @Test fun `level and unrecognised ROM counters are read`() {
+        val user = ScreenScraper.parseUser(JsonParser.parseString("""{"response":{"ssuser":{"id":"a","niveau":"3","maxthreads":"2","requeststoday":"5","maxrequestsperday":"20000","requestskotoday":"1","maxrequestskoperday":"2000"}}}"""))!!
+        assertEquals("3", user.level)
+        assertEquals(1, user.requestsKoToday)
+        assertEquals(2000, user.maxRequestsKoPerDay)
+        val bare = ScreenScraper.parseUser(JsonParser.parseString("""{"response":{"ssuser":{"id":"a"}}}"""))!!
+        assertEquals("", bare.level)
+        assertNull(bare.requestsKoToday)
+    }
 }

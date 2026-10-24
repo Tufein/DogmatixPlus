@@ -66,6 +66,7 @@ import com.tufein.valkyr.util.CoverApis
 import com.tufein.valkyr.util.CoverSources
 import com.tufein.valkyr.util.CoverSources.Source
 import com.tufein.valkyr.util.ScreenScraper
+import com.tufein.valkyr.util.ScreenScraperQuota
 
 /** Where a developer id is asked for, opened from the explanation row. */
 private const val SCREENSCRAPER_SITE = "https://www.screenscraper.fr/"
@@ -167,6 +168,23 @@ fun CoverSourcesScreen(viewModel: CoverSourcesViewModel = hiltViewModel()) {
                     icon = R.drawable.ic_sync,
                     tone = if (login.ready && result == null) ActionTone.Accent else ActionTone.Neutral,
                     enabled = !testing
+                )
+            }
+        },
+        {
+            // 5.5.0: the account's limits as ScreenScraper last reported them; Check runs the login test again.
+            SettingRow(
+                icon = R.drawable.ic_bar_chart,
+                title = stringResource(R.string.ss55_quota_title),
+                hint = if (testing) stringResource(R.string.ss55_checking) else quotaText(login, stats),
+                hintColor = if (ScreenScraperQuota.state(stats.user, stats.userAt, stats.pausedUntil, System.currentTimeMillis()) is ScreenScraperQuota.State.Exhausted) MaterialTheme.colorScheme.error else null,
+                onClick = viewModel::testLogin
+            ) {
+                ActionPill(
+                    stringResource(if (testing) R.string.ss55_checking_short else R.string.ss55_check),
+                    viewModel::testLogin,
+                    icon = R.drawable.ic_sync,
+                    enabled = !testing && login.ready
                 )
             }
         }
@@ -332,6 +350,28 @@ private fun sourceHint(source: Source, chain: CoverSources.Chain, login: ScreenS
         else -> null
     }
     return if (state == null) about else about + "\n" + state
+}
+
+/** The quota row's text (5.5.0): used today / daily limit, unrecognised ROMs, threads and level; or the "resumes tomorrow" state. Never truncated. */
+@Composable
+internal fun quotaText(login: ScreenScraperLogin, stats: CoverSourceStats.State): String {
+    val context = LocalContext.current
+    val now = System.currentTimeMillis()
+    if (!login.ready) return stringResource(R.string.covers43_state_needs_dev)
+    fun time(at: Long) = DateUtils.formatDateTime(context, at, DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_SHOW_WEEKDAY)
+    return when (val q = ScreenScraperQuota.state(stats.user, stats.userAt, stats.pausedUntil, now)) {
+        is ScreenScraperQuota.State.Exhausted -> stringResource(R.string.ss55_quota_exhausted, time(q.resumeAt))
+        ScreenScraperQuota.State.Unknown ->
+            stringResource(if (login.user.isBlank() || login.password.isBlank()) R.string.ss55_quota_no_login else R.string.ss55_quota_none)
+        is ScreenScraperQuota.State.Open -> buildList {
+            if (q.used != null && q.max != null) add(stringResource(R.string.ss55_quota_used, q.used, q.max, q.remaining ?: 0))
+            else if (q.used != null) add(stringResource(R.string.ss55_quota_used_only, q.used))
+            if (q.koUsed != null && q.koMax != null) add(stringResource(R.string.ss55_quota_ko, q.koUsed, q.koMax))
+            add(stringResource(R.string.ss55_quota_threads, q.threads))
+            if (q.level.isNotBlank()) add(stringResource(R.string.ss55_quota_level, q.level))
+            add(stringResource(R.string.ss55_quota_asof, time(q.asOf)))
+        }.joinToString("\n")
+    }
 }
 
 @Composable
