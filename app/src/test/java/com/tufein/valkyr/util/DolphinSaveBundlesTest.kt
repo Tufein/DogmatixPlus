@@ -248,6 +248,7 @@ class DolphinSaveBundlesTest {
             return requireNotNull(local(path))
         }
         override suspend fun backup(file: LocalSaveFile) { backups += file.path }
+        override suspend fun keepCopy(kind: SaveKind, path: String, bytes: ByteArray) { /* the copy of a replaced server save: not under test here */ }
         override suspend fun delete(file: LocalSaveFile) { throw IOException("never deleted") }
     }
 

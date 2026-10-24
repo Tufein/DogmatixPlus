@@ -50,6 +50,7 @@ object SettingSchema {
         putAll(ScreenScraper.SETTING_TYPES)
         putAll(CoverApis.SETTING_TYPES)
         putAll(LibraryBrowse.SETTING_TYPES)
+        putAll(SaveMerge.SETTING_TYPES)
     }
 
     fun localName(name: String): String =
@@ -80,6 +81,7 @@ object SettingSchema {
         "max_search_results", "min_free_gb", "last_seen_version_code",
         "dav_last_shared_added", "dav_last_shared_removed", "dav_last_sync_added", "dav_last_sync_removed", "dav_sync_held_back" -> (value as Int).coerceAtLeast(0)
         "save_sync_bg_interval_h" -> (value as Int).coerceIn(1, 24)
+        SaveMerge.KEY_BACKUP_KEEP -> SaveBackups.clampKeep(value as Int)
         "download_night_start", "download_night_end" -> (value as Int).coerceIn(0, 1439)
         "auto_scan_hours" -> (value as Int).coerceIn(1, 168)
         "per_server_limit" -> (value as Int).coerceIn(0, 10)

@@ -349,6 +349,58 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
             }
         }
     }
+    val pruned by viewModel.pruned.collectAsStateWithLifecycle()
+    val prune by viewModel.prune.collectAsStateWithLifecycle()
+    val safetyRows: List<@Composable () -> Unit> = buildList {
+        add {
+            SettingRow(
+                icon = R.drawable.ic_history,
+                title = stringResource(R.string.sv55_keep_title),
+                hint = stringResource(R.string.sv55_keep_hint),
+                onClick = { viewModel.adjustBackupKeep(context, 1) },
+                onAdjust = { viewModel.adjustBackupKeep(context, it) },
+            ) {
+                SettingsStepper(ui.backupKeep.toString(), onDecrement = { viewModel.adjustBackupKeep(context, -1) }, onIncrement = { viewModel.adjustBackupKeep(context, 1) })
+            }
+        }
+        add {
+            SettingRow(
+                icon = R.drawable.ic_lock,
+                title = stringResource(R.string.sv55_nondestructive_title),
+                hint = stringResource(R.string.sv55_nondestructive_hint),
+                onClick = { viewModel.setNonDestructive(context, !ui.nonDestructive) },
+                onAdjust = { viewModel.setNonDestructive(context, it > 0) },
+            ) { ThemedSwitch(ui.nonDestructive) { viewModel.setNonDestructive(context, it) } }
+        }
+        add {
+            SettingRow(
+                icon = R.drawable.ic_cloud_download,
+                title = stringResource(R.string.sv55_prefer_title),
+                hint = stringResource(R.string.sv55_prefer_hint),
+                onClick = { viewModel.setPreferServer(context, !ui.preferServer) },
+                onAdjust = { viewModel.setPreferServer(context, it > 0) },
+            ) { ThemedSwitch(ui.preferServer) { viewModel.setPreferServer(context, it) } }
+        }
+        add {
+            SettingRow(
+                icon = R.drawable.ic_trash,
+                title = stringResource(R.string.sv55_prune_title),
+                hint = stringResource(R.string.sv55_prune_hint),
+                onClick = viewModel::openPrune,
+            ) { ActionPill(stringResource(R.string.sv55_prune_action), viewModel::openPrune, icon = R.drawable.ic_trash) }
+        }
+        if (pruned > 0) {
+            add {
+                SettingRow(
+                    icon = R.drawable.ic_restore,
+                    title = stringResource(R.string.sv55_prune_undo_title),
+                    hint = stringResource(R.string.sv55_prune_undo_hint, pruned),
+                    onClick = { viewModel.undoPrune(context) },
+                ) { ActionPill(stringResource(R.string.sv55_prune_undo_action), { viewModel.undoPrune(context) }, icon = R.drawable.ic_restore) }
+            }
+        }
+    }
+    prune?.let { PruneDialog(it, onConfirm = { viewModel.confirmPrune(context) }, onDismiss = viewModel::closePrune) }
     val conflictRows: List<@Composable () -> Unit> = buildList {
         sync.conflicts.forEach { conflict -> add { ConflictRow(conflict, notSet, viewModel) } }
     }
@@ -358,11 +410,12 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
             CardGrid.Section(header = true, items = folderRows.size),
             CardGrid.Section(header = true, items = autoRows.size),
             CardGrid.Section(header = true, items = syncRows.size),
-            CardGrid.Section(header = true, items = conflictRows.size)
+            CardGrid.Section(header = true, items = conflictRows.size),
+            CardGrid.Section(header = true, items = safetyRows.size)
         ),
         columns = 1
     )
-    val rowLists = listOf(folderRows, autoRows, syncRows, conflictRows)
+    val rowLists = listOf(folderRows, autoRows, syncRows, conflictRows, safetyRows)
 
     val rowFocus = remember(cells.size) { List(cells.size) { FocusRequester() } }
     var focusedIndex by remember { mutableIntStateOf(-1) }
@@ -404,13 +457,14 @@ fun SaveSyncScreen(viewModel: SaveSyncViewModel = hiltViewModel()) {
     }
 }
 
-/** The header of each Save sync card (0 folders, 1 automatic, 2 sync, 3 conflicts). */
+/** The header of each Save sync card (0 folders, 1 automatic, 2 sync, 3 conflicts, 4 backups and safety). */
 @Composable
 private fun SyncCardHeader(section: Int, conflicts: Int) {
     when (section) {
         0 -> SettingsCardHeader(stringResource(R.string.save_sync_v5_section_folders), R.drawable.ic_folder)
         1 -> SettingsCardHeader(stringResource(R.string.save_sync_v5_section_auto), R.drawable.ic_schedule)
         2 -> SettingsCardHeader(stringResource(R.string.save_sync_v5_section_sync), R.drawable.ic_cloud_sync)
+        4 -> SettingsCardHeader(stringResource(R.string.sv55_section_safety), R.drawable.ic_history)
         else -> Column {
             SettingsCardHeader(stringResource(R.string.save_sync_v5_section_conflicts), R.drawable.ic_warning) {
                 Pill(conflicts.toString(), tone = PillTone.Warning)
@@ -559,6 +613,8 @@ private fun ConflictRow(conflict: SaveConflict, notSet: String, viewModel: SaveS
             )
         }
         StateShotPair(conflict)
+        ActionPill(stringResource(R.string.sv55_keep_both), { viewModel.resolveKeepBoth(conflict) }, icon = R.drawable.ic_content_copy)
+        Text(stringResource(R.string.sv55_keep_both_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(
             listOfNotNull(newer, sizeNote).joinToString(" · "),
             style = MaterialTheme.typography.bodySmall,
@@ -607,6 +663,8 @@ private fun summary(result: SaveSyncResult): String {
         add(stringResource(R.string.save_sync_summary, result.uploaded, result.downloaded, result.unchanged))
         if (result.conflicts > 0) add(stringResource(R.string.save_sync_summary_conflicts, result.conflicts))
         if (result.notMatched > 0) add(stringResource(R.string.save_sync_summary_not_matched, result.notMatched))
+        if (result.keptAsIs > 0) add(stringResource(R.string.sv55_summary_kept_as_is, result.keptAsIs))
+        if (result.serverCopies > 0) add(stringResource(R.string.sv55_summary_server_copies, result.serverCopies))
         if (result.failed > 0) add(stringResource(R.string.save_sync_summary_failed, result.failed))
         if (result.deletedOnDevice + result.deletedOnServer > 0) add(stringResource(R.string.save_sync_summary_deleted, result.deletedOnDevice, result.deletedOnServer))
         relative(result.finishedAt)?.let { add(it) }
@@ -734,6 +792,53 @@ private fun SharedCardsDialog(folder: EmulatorSaveFolder, viewModel: SaveSyncVie
         confirmButton = { DialogButton(text = stringResource(R.string.dialog_close), onClick = onDone) },
         dismissButton = {
             if (folder.sharedCardsRomId != null) DialogButton(text = stringResource(R.string.saves31_shared_stop), onClick = { viewModel.setSharedCards(context, folder.label, null); onDone() })
+        }
+    )
+}
+
+/**
+ * "Prune now": what would move to the recovery folder, listed in full before anything moves. The
+ * copies are not deleted: they wait there for 14 days and "Bring back" returns them.
+ */
+@Composable
+private fun PruneDialog(state: PruneUi, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    val cancelFocus = rememberInitialFocus()
+    val preview = state as? PruneUi.Preview
+    AlertDialog(
+        modifier = Modifier.closeOnGamepadB(onDismiss),
+        onDismissRequest = onDismiss,
+        icon = { Icon(painterResource(R.drawable.ic_trash), contentDescription = null) },
+        title = { Text(stringResource(R.string.sv55_prune_dialog_title)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState())
+            ) {
+                when (state) {
+                    PruneUi.Checking -> Text(stringResource(R.string.sv55_prune_checking))
+                    is PruneUi.Failed -> Text(stringResource(R.string.sv55_prune_error, state.message))
+                    is PruneUi.Preview -> if (state.copies.isEmpty()) {
+                        Text(stringResource(R.string.sv55_prune_dialog_none, state.keep))
+                    } else {
+                        Text(stringResource(R.string.sv55_prune_dialog_body, state.copies.size, formatBytes(state.bytes), state.keep))
+                        state.copies.forEach { copy ->
+                            Text(
+                                "${copy.path} · ${relative(copy.takenAt) ?: ""} · ${formatBytes(copy.size)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            if (preview != null && preview.copies.isNotEmpty()) DialogButton(stringResource(R.string.sv55_prune_confirm), onClick = onConfirm)
+            else DialogButton(stringResource(R.string.dialog_close), onClick = onDismiss, initialFocus = cancelFocus)
+        },
+        // Cancel has the first focus: two quick presses of A never move anything by accident.
+        dismissButton = {
+            if (preview != null && preview.copies.isNotEmpty()) DialogButton(stringResource(R.string.dialog_cancel), onClick = onDismiss, initialFocus = cancelFocus)
         }
     )
 }

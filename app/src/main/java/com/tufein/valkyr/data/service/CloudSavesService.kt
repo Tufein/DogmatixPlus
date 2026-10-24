@@ -276,6 +276,14 @@ class CloudSavesService @Inject constructor(
         return result
     }
 
+    /** "Copy to slot" of a game's save state; [expectedTarget] is the modified time the preview showed for the slot it replaces (null = a new slot). */
+    suspend fun copySlot(state: GameCloudSaves, sourcePath: String, targetPath: String, expectedTarget: Long?): CloudSaveResult {
+        guard(state.key())
+        val result = saveSync.copyIntoSlot(sourcePath, targetPath, expectedTarget, state.key())
+        invalidate()
+        return result
+    }
+
     // ---- Conflict screenshots -----------------------------------------------------------------
 
     /** The screenshots of both sides of a save-state conflict (either may be missing). */

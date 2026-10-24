@@ -3,8 +3,11 @@ package com.tufein.valkyr.ui.screens.settings.savesync
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tufein.valkyr.R
 import com.tufein.valkyr.data.local.AppSettings
 import com.tufein.valkyr.data.repository.SettingsRepository
+import com.tufein.valkyr.util.SafetyCopy
+import com.tufein.valkyr.util.SaveBackups
 import com.tufein.valkyr.util.SaveConflict
 import com.tufein.valkyr.data.service.SaveSyncService
 import com.tufein.valkyr.data.service.SaveSyncState
@@ -29,8 +32,21 @@ data class SaveSyncUiState(
     val background: Boolean = false,
     val intervalHours: Int = 6,
     val wifiOnly: Boolean = true,
-    val charging: Boolean = false
+    val charging: Boolean = false,
+    /** Safety copies kept per save file (Backups and safety). */
+    val backupKeep: Int = SaveBackups.DEFAULT_KEEP,
+    val nonDestructive: Boolean = false,
+    val preferServer: Boolean = false
 )
+
+/** The "Prune now" dialog: looking, what would move, or why it could not look. */
+sealed interface PruneUi {
+    data object Checking : PruneUi
+    data class Preview(val copies: List<SafetyCopy>, val keep: Int) : PruneUi {
+        val bytes: Long get() = SaveBackups.totalBytes(copies)
+    }
+    data class Failed(val message: String) : PruneUi
+}
 
 @HiltViewModel
 class SaveSyncViewModel @Inject constructor(
@@ -113,17 +129,20 @@ class SaveSyncViewModel @Inject constructor(
 
     val uiState: StateFlow<SaveSyncUiState> = combine(
         combine(
-            settingsRepository.rommUrl,
-            settingsRepository.saveSyncSavesDir,
-            settingsRepository.saveSyncStatesDir,
-            settingsRepository.saveSyncAuto,
-            settingsRepository.saveSyncDeletions
-        ) { url, saves, states, auto, deletions -> SaveSyncUiState(url, saves, states, auto, deletions) },
-        combine(
-            settingsRepository.saveSyncBackground, settingsRepository.saveSyncBgIntervalHours,
-            settingsRepository.saveSyncBgWifiOnly, settingsRepository.saveSyncBgCharging
-        ) { bg, hours, wifi, charging -> listOf(bg, hours, wifi, charging) }
-    ) { base, bg -> base.copy(background = bg[0] as Boolean, intervalHours = bg[1] as Int, wifiOnly = bg[2] as Boolean, charging = bg[3] as Boolean) }
+            combine(
+                settingsRepository.rommUrl,
+                settingsRepository.saveSyncSavesDir,
+                settingsRepository.saveSyncStatesDir,
+                settingsRepository.saveSyncAuto,
+                settingsRepository.saveSyncDeletions
+            ) { url, saves, states, auto, deletions -> SaveSyncUiState(url, saves, states, auto, deletions) },
+            combine(
+                settingsRepository.saveSyncBackground, settingsRepository.saveSyncBgIntervalHours,
+                settingsRepository.saveSyncBgWifiOnly, settingsRepository.saveSyncBgCharging
+            ) { bg, hours, wifi, charging -> listOf(bg, hours, wifi, charging) }
+        ) { base, bg -> base.copy(background = bg[0] as Boolean, intervalHours = bg[1] as Int, wifiOnly = bg[2] as Boolean, charging = bg[3] as Boolean) },
+        combine(appSettings.saveSyncBackupKeep, appSettings.saveSyncNonDestructive, appSettings.saveSyncPreferServer) { keep, safe, prefer -> Triple(keep, safe, prefer) }
+    ) { base, safety -> base.copy(backupKeep = safety.first, nonDestructive = safety.second, preferServer = safety.third) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SaveSyncUiState())
 
     val syncState: StateFlow<SaveSyncState> = service.state
@@ -138,12 +157,80 @@ class SaveSyncViewModel @Inject constructor(
     fun setWifiOnly(context: Context, enabled: Boolean) = executeWithToast(context, TAG) { settingsRepository.setSaveSyncBgWifiOnly(enabled) }
     fun setCharging(context: Context, enabled: Boolean) = executeWithToast(context, TAG) { settingsRepository.setSaveSyncBgCharging(enabled) }
 
+    fun adjustBackupKeep(context: Context, delta: Int) = executeWithToast(context, TAG) {
+        appSettings.setSaveSyncBackupKeep(SaveBackups.nextKeep(appSettings.saveSyncBackupKeep.first(), delta))
+    }
+    fun setNonDestructive(context: Context, enabled: Boolean) = executeWithToast(context, TAG) { appSettings.setSaveSyncNonDestructive(enabled) }
+    fun setPreferServer(context: Context, enabled: Boolean) = executeWithToast(context, TAG) { appSettings.setSaveSyncPreferServer(enabled) }
+
+    // ---- Prune now / undo -----------------------------------------------------------------------
+
+    private val _prune = kotlinx.coroutines.flow.MutableStateFlow<PruneUi?>(null)
+    val prune: StateFlow<PruneUi?> = _prune
+    private val _pruned = kotlinx.coroutines.flow.MutableStateFlow(0)
+    /** Copies waiting in the recovery folder from the last prune (what "Bring back" returns). */
+    val pruned: StateFlow<Int> = _pruned
+
+    init { refreshPruned() }
+
+    private fun refreshPruned() {
+        viewModelScope.launch { _pruned.value = runCatching { service.prunedCount() }.getOrDefault(0) }
+    }
+
+    /** Looks at the backups and shows what would move; nothing is moved yet. */
+    fun openPrune() {
+        _prune.value = PruneUi.Checking
+        viewModelScope.launch {
+            _prune.value = try {
+                val keep = appSettings.saveSyncBackupKeep.first()
+                PruneUi.Preview(service.previewPrune(appSettings.activeProfile.first()), keep)
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) { PruneUi.Failed(e.message ?: e.javaClass.simpleName) }
+        }
+    }
+
+    fun closePrune() { _prune.value = null }
+
+    /** Moves the previewed copies to the recovery folder. */
+    fun confirmPrune(context: Context) {
+        val preview = _prune.value as? PruneUi.Preview ?: return
+        _prune.value = null
+        viewModelScope.launch {
+            val moved = runCatching { service.pruneNow(preview.copies) }
+            moved.onSuccess { n ->
+                if (n == null) com.tufein.valkyr.util.ToastUtil.showInfo(context, context.getString(R.string.csave_busy))
+                else com.tufein.valkyr.util.ToastUtil.showSuccess(context, context.getString(R.string.sv55_prune_done, n))
+            }.onFailure { e ->
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                com.tufein.valkyr.util.ToastUtil.showError(context, context.getString(R.string.sv55_prune_failed, e.message ?: e.javaClass.simpleName))
+            }
+            refreshPruned()
+        }
+    }
+
+    /** Brings the last prune's copies back. */
+    fun undoPrune(context: Context) {
+        viewModelScope.launch {
+            runCatching { service.undoPrune() }.onSuccess { n ->
+                if (n == null) com.tufein.valkyr.util.ToastUtil.showInfo(context, context.getString(R.string.csave_busy))
+                else com.tufein.valkyr.util.ToastUtil.showSuccess(context, context.getString(R.string.sv55_prune_undone, n))
+            }.onFailure { e ->
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                com.tufein.valkyr.util.ToastUtil.showError(context, context.getString(R.string.sv55_prune_failed, e.message ?: e.javaClass.simpleName))
+            }
+            refreshPruned()
+        }
+    }
+
     fun syncNow() = service.syncNow()
 
     /** Lets deletions that were held back (more than usual) go through. */
     fun applyHeldDeletions() = service.syncNow(confirmDeletions = true)
 
     fun resolve(conflict: SaveConflict, keepDevice: Boolean) = service.resolve(conflict, keepDevice)
+
+    /** Keeps both copies: the server version is saved as a safety copy and nothing is replaced. */
+    fun resolveKeepBoth(conflict: SaveConflict) = service.resolveKeepBoth(conflict)
 
     private companion object { const val TAG = "SaveSyncViewModel" }
 }

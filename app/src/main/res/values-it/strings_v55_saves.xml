@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sv55_section_safety">Backup e sicurezza</string>
+    <string name="sv55_keep_title">Backup conservati per salvataggio</string>
+    <string name="sv55_keep_hint">Prima che una sincronizzazione sostituisca un salvataggio, su questo dispositivo o sul server, Valkyr conserva una copia di ciò che viene sostituito. Per ogni file di salvataggio le copie più recenti fino a questo numero restano sempre; quelle oltre questo numero e più vecchie di 30 giorni vengono spostate da una sincronizzazione nella cartella di recupero.</string>
+    <string name="sv55_nondestructive_title">Non sovrascrivere mai, solo aggiungere</string>
+    <string name="sv55_nondestructive_hint">Una sincronizzazione non sostituisce e non elimina nulla. I salvataggi nuovi viaggiano in entrambe le direzioni. Un salvataggio del server modificato viene conservato come copia di sicurezza accanto a quello del tuo dispositivo (ripristinalo dai salvataggi cloud del gioco), un salvataggio del dispositivo modificato non viene inviato sopra quello del server e le eliminazioni non vengono replicate. Scegliere un lato nell’elenco dei conflitti funziona ancora.</string>
+    <string name="sv55_prefer_title">Preferisci il salvataggio server più recente</string>
+    <string name="sv55_prefer_hint">Quando un salvataggio differisce su entrambi i lati e la copia del server è chiaramente la più recente, viene presa quella del server senza chiedere. Il salvataggio del tuo dispositivo viene prima copiato. Disattivato: scegli ogni volta.</string>
+    <string name="sv55_prune_title">Pulisci i backup vecchi</string>
+    <string name="sv55_prune_hint">Mostra le copie di backup oltre il numero conservato per salvataggio. Nulla viene spostato prima della tua conferma e le copie spostate restano 14 giorni nella cartella di recupero, così puoi riportarle indietro.</string>
+    <string name="sv55_prune_action">Pulisci ora</string>
+    <string name="sv55_prune_checking">Controllo dei backup…</string>
+    <string name="sv55_prune_dialog_title">Pulire i backup vecchi?</string>
+    <string name="sv55_prune_dialog_none">Niente da pulire: ogni salvataggio ha al massimo %1$d copie di backup.</string>
+    <string name="sv55_prune_dialog_body">%1$d copie di backup (%2$s) sono più vecchie delle %3$d più recenti del loro salvataggio. Vanno nella cartella di recupero e si possono riportare indietro per 14 giorni.</string>
+    <string name="sv55_prune_confirm">Sposta nel recupero</string>
+    <string name="sv55_prune_error">Non è stato possibile leggere i backup: %1$s</string>
+    <string name="sv55_prune_done">%1$d copie di backup spostate nella cartella di recupero.</string>
+    <string name="sv55_prune_failed">Pulizia non riuscita: %1$s</string>
+    <string name="sv55_prune_undo_title">Riporta indietro i backup puliti</string>
+    <string name="sv55_prune_undo_hint">%1$d copie dell’ultima pulizia sono nella cartella di recupero.</string>
+    <string name="sv55_prune_undo_action">Riporta indietro</string>
+    <string name="sv55_prune_undone">%1$d copie di backup riportate indietro.</string>
+    <string name="sv55_keep_both">Tieni entrambi</string>
+    <string name="sv55_keep_both_hint">Tieni entrambi non sostituisce nulla: la versione del server viene salvata come copia di sicurezza su questo dispositivo (ripristinala dai salvataggi cloud del gioco) e le due versioni restano come sono finché una non cambia di nuovo.</string>
+    <string name="sv55_summary_kept_as_is">%1$d lasciati come sono</string>
+    <string name="sv55_summary_server_copies">%1$d versioni del server salvate come copia</string>
+    <string name="sv55_slots_group">Slot di salvataggio</string>
+    <string name="sv55_slots_hint">Slot dello stesso gioco. Copiane uno in un altro slot: prima vedi cosa sostituisce e lo slot sostituito viene copiato prima.</string>
+    <string name="sv55_slot_label">Slot %1$d</string>
+    <string name="sv55_slot_auto">Slot automatico</string>
+    <string name="sv55_slot_copy">Copia nello slot…</string>
+    <string name="sv55_slot_new">Nuovo slot %1$d</string>
+    <string name="sv55_slot_pick_title">Copiare %1$s in…</string>
+    <string name="sv55_slot_preview_title">Copiare %1$s?</string>
+    <string name="sv55_slot_preview_new">%1$s (%2$s, %3$s) verrà copiato in un nuovo file, %4$s.</string>
+    <string name="sv55_slot_preview_replace">%1$s (%2$s, %3$s) sostituirà %4$s (%5$s, %6$s). Lo slot sostituito viene copiato prima e la prossima sincronizzazione invia la modifica al server.</string>
+    <string name="sv55_slot_copy_confirm">Copia</string>
+    <string name="sv55_slot_back">Indietro</string>
+    <string name="sv55_slot_copied">Copiato in %1$s.</string>
+</resources>

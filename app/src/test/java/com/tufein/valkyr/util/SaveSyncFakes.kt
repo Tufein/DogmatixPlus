@@ -14,6 +14,10 @@ class FakeSaveStore(private val clock: TestClock, private val kinds: Set<SaveKin
     val files = mutableMapOf<Pair<SaveKind, String>, File>()
     val folders = mutableMapOf<SaveKind, MutableSet<String>>()
     val backups = mutableListOf<String>()
+    /** Safety copies kept through [keepCopy] (the server version an upload replaces, a server version set aside): path to bytes. */
+    val copies = mutableListOf<Pair<String, String>>()
+    /** Set to make [keepCopy] fail like a full disk would. */
+    var copyFailure: Exception? = null
 
     fun put(kind: SaveKind, path: String, content: String) {
         files[kind to path] = File(content.toByteArray(), clock.tick())
@@ -33,6 +37,12 @@ class FakeSaveStore(private val clock: TestClock, private val kinds: Set<SaveKin
     }
     override suspend fun backup(file: LocalSaveFile) { backups += file.path }
     override suspend fun delete(file: LocalSaveFile) { files.remove(file.kind to file.path) }
+    override suspend fun keepCopy(kind: SaveKind, path: String, bytes: ByteArray) {
+        copyFailure?.let { throw it }
+        copies += path to bytes.toString(Charsets.UTF_8)
+    }
+    /** The emulator rewrites the same bytes: only the file time moves. */
+    fun touch(kind: SaveKind, path: String) { files.getValue(kind to path).modified = clock.tick() }
     /** The user deletes a save on this device (no clock tick: nothing was written). */
     fun remove(kind: SaveKind, path: String) { files.remove(kind to path) }
 }
@@ -67,6 +77,8 @@ class FakeSaveServer(private val clock: TestClock, private val roms: List<SaveSy
         return stored.first { it.kind == kind && it.romId == romId && it.name == fileName }.also { it.emulator = emulator }.remote(precise = true)
     }
     override suspend fun delete(save: RemoteSaveFile) { stored.removeAll { it.id == save.id && it.kind == save.kind } }
+    /** The server only touches its timestamp: same bytes, newer time. */
+    fun touch(kind: SaveKind, name: String) { stored.first { it.kind == kind && it.name == name }.updated = clock.tick() }
     /** Deleted in RomM's web interface. */
     fun remove(kind: SaveKind, name: String) { stored.removeAll { it.kind == kind && it.name == name } }
     override suspend fun searchRoms(term: String): List<SaveSyncPlanner.RomCandidate> {
