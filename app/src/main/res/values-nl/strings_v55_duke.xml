@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="duke55_slot_label">Hervatten vanaf opslagslot: %1$s</string>
+    <string name="duke55_slot_value">Slot %1$d</string>
+    <string name="duke55_slot_off">Uit</string>
+    <string name="duke55_slot_hint">DukeStation laadt bij het starten de savestate uit dit slot (slot 1 t/m %1$d). Staat er niets in het slot, dan start het spel gewoon. Wordt onthouden voor dit spel.</string>
+    <string name="duke55_format_unsupported">DukeStation noemt het formaat van deze bestanden niet. Gebruik een cue-, bin-, iso-, img-, chd-, pbp-, ecm-, mds- of m3u-bestand, of een andere emulator.</string>
+</resources>

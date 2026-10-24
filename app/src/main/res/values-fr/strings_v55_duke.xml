@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="duke55_slot_label">Reprendre depuis l’emplacement : %1$s</string>
+    <string name="duke55_slot_value">Emplacement %1$d</string>
+    <string name="duke55_slot_off">Non</string>
+    <string name="duke55_slot_hint">DukeStation charge au démarrage l’état enregistré dans cet emplacement (emplacements 1 à %1$d). Si l’emplacement est vide, le jeu démarre normalement. Mémorisé pour ce jeu.</string>
+    <string name="duke55_format_unsupported">DukeStation ne liste pas le format de ces fichiers. Utilisez un fichier cue, bin, iso, img, chd, pbp, ecm, mds ou m3u, ou un autre émulateur.</string>
+</resources>

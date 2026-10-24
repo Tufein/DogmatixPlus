@@ -31,6 +31,7 @@ object GameLaunchIntents {
             when (extra) {
                 is SpecExtra.Text -> putExtra(extra.key, extra.value)
                 is SpecExtra.Flag -> putExtra(extra.key, extra.value)
+                is SpecExtra.Number -> putExtra(extra.key, extra.value)
             }
         }
         if (spec.grantUris.isNotEmpty()) {

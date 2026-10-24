@@ -193,7 +193,7 @@ class GameShortcutService @Inject constructor(
                 if (choices.isEmpty()) return@withActiveProfile StartResult.NO_FILES
                 val (game, handler) = launcher.direct(key.consoleId, key.fileName, choices)
                     ?: return@withActiveProfile StartResult.PLAY_ON_PAGE
-                when (launcher.launch(activity, key.consoleId, game, handler, remember = false)) {
+                when (launcher.launch(activity, key.consoleId, game, handler, remember = false, gameFileName = key.fileName)) {
                     LaunchOutcome.STARTED -> {
                         runCatching { ShortcutManagerCompat.reportShortcutUsed(context, key.shortcutId) }
                         StartResult.STARTED

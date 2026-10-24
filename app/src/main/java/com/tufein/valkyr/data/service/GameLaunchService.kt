@@ -88,6 +88,8 @@ class GameLaunchService @Inject constructor(
 ) {
     private val preferences = context.getSharedPreferences("game_launchers", Context.MODE_PRIVATE)
     private val gamePreferences = GameEmulatorPreferences(preferences, profiles::currentIdNow)
+    // Per-game "resume from save slot" for emulators that have one; a small separate file, not part of the settings backup.
+    private val resumeSlots = context.getSharedPreferences("game_resume_slots", Context.MODE_PRIVATE)
     private val _preferenceRevision = MutableStateFlow(0L)
     val preferenceRevision = _preferenceRevision.asStateFlow()
     // Keep a strong reference: Android stores preference listeners weakly.
@@ -147,6 +149,18 @@ class GameLaunchService @Inject constructor(
     /** Null returns this game to the console's default, without changing any other game. */
     fun setGamePreferred(consoleId: String, fileName: String, key: String?) = gamePreferences.setGame(consoleId, fileName, key)
 
+    private fun resumeKey(consoleId: String, fileName: String) = GameEmulatorOverrides.storageKey(profiles.currentIdNow(), consoleId, fileName)
+
+    /** The save-state slot remembered for this game (resumed by emulators that support it), null = start normally. */
+    fun resumeSlot(consoleId: String, fileName: String): Int? =
+        resumeSlots.getInt(resumeKey(consoleId, fileName), 0).takeIf { it > 0 }
+
+    /** Remembers [slot] (1 or more) for this game; null forgets it. */
+    fun setResumeSlot(consoleId: String, fileName: String, slot: Int?) {
+        val key = resumeKey(consoleId, fileName)
+        resumeSlots.edit().apply { if (slot == null || slot < 1) remove(key) else putInt(key, slot) }.apply()
+    }
+
     fun effective(consoleId: String, fileName: String, game: GameLaunch): GameEmulatorOverrides.Resolution<GameHandler> =
         GameEmulatorOverrides.resolve(gamePreferred(consoleId, fileName), preferred(consoleId), game.handlers, { it.key }, { it.packageName })
 
@@ -191,10 +205,11 @@ class GameLaunchService @Inject constructor(
      * Starts [game] with [handler]. A catalogue emulator gets its recipe's intents in order until
      * one finds an activity; any other app the plain `ACTION_VIEW`. When it started and [remember]
      * is set, the handler (or [GameLaunchKeys.AUTOMATIC] when [automatic]) is kept for the console.
+     * With [gameFileName] (the library file) the game's remembered resume slot goes to an emulator that has one.
      */
-    fun launch(context: Context, consoleId: String, game: GameLaunch, handler: GameHandler, remember: Boolean, automatic: Boolean = false): LaunchOutcome {
+    fun launch(context: Context, consoleId: String, game: GameLaunch, handler: GameHandler, remember: Boolean, automatic: Boolean = false, gameFileName: String? = null): LaunchOutcome {
         check(game.handlers.any { it.key == handler.key })
-        val outcome = if (handler.emulatorId != null) launchCatalogue(context, game, handler) else {
+        val outcome = if (handler.emulatorId != null) launchCatalogue(context, game, handler, gameFileName?.let { resumeSlot(consoleId, it) }) else {
             val component = ComponentName.unflattenFromString(handler.key) ?: error("Application unavailable")
             if (start(context, GameLaunchIntents.view(game.uri, game.name, game.siblings).setComponent(component))) LaunchOutcome.STARTED else LaunchOutcome.FAILED
         }
@@ -203,12 +218,12 @@ class GameLaunchService @Inject constructor(
         return outcome
     }
 
-    private fun launchCatalogue(context: Context, game: GameLaunch, handler: GameHandler): LaunchOutcome {
+    private fun launchCatalogue(context: Context, game: GameLaunch, handler: GameHandler, resumeSlot: Int?): LaunchOutcome {
         val emulator = EmulatorCatalog.byId(handler.emulatorId ?: return LaunchOutcome.FAILED) ?: return LaunchOutcome.FAILED
         val variant = emulator.variants.firstOrNull { it.packageName == handler.packageName } ?: return LaunchOutcome.FAILED
         val system = game.system
         if (system != null && PlayRecipe.needsExtract(emulator, system, game.name)) return LaunchOutcome.NEEDS_EXTRACT
-        val built = PlayRecipe.build(emulator, variant, handler.core, game.file, externalRoot(), game.siblings)
+        val built = PlayRecipe.build(emulator, variant, handler.core, game.file, externalRoot(), game.siblings, resumeSlot)
         return if (built.attempts.any { start(context, GameLaunchIntents.fromSpec(it)) }) LaunchOutcome.STARTED else LaunchOutcome.FAILED
     }
 

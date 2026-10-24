@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="duke55_slot_label">Reanudar desde la ranura: %1$s</string>
+    <string name="duke55_slot_value">Ranura %1$d</string>
+    <string name="duke55_slot_off">No</string>
+    <string name="duke55_slot_hint">DukeStation carga al iniciar el estado guardado en esta ranura (ranuras 1 a %1$d). Si la ranura está vacía, el juego arranca con normalidad. Se recuerda para este juego.</string>
+    <string name="duke55_format_unsupported">DukeStation no incluye el formato de estos archivos. Usa un archivo cue, bin, iso, img, chd, pbp, ecm, mds o m3u, u otro emulador.</string>
+</resources>

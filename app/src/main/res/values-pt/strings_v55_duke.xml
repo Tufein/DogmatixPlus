@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="duke55_slot_label">Retomar do slot de gravação: %1$s</string>
+    <string name="duke55_slot_value">Slot %1$d</string>
+    <string name="duke55_slot_off">Desligado</string>
+    <string name="duke55_slot_hint">O DukeStation carrega ao iniciar o estado guardado neste slot (slots 1 a %1$d). Se o slot estiver vazio, o jogo arranca normalmente. Fica memorizado para este jogo.</string>
+    <string name="duke55_format_unsupported">O DukeStation não lista o formato destes ficheiros. Usa um ficheiro cue, bin, iso, img, chd, pbp, ecm, mds ou m3u, ou outro emulador.</string>
+</resources>

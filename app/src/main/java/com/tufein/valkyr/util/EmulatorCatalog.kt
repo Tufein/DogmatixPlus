@@ -96,6 +96,12 @@ sealed interface ExtraValue {
 data class ExtraSpec(val key: String, val value: ExtraValue)
 
 /**
+ * An emulator that can resume a numbered save-state slot at launch: the intent extra [key] takes
+ * an integer 1..[max]. Play sends it only when the player picked a slot for that game.
+ */
+data class ResumeSlotSpec(val key: String, val max: Int)
+
+/**
  * How to start one game in an emulator: the intent's action, categories, data and extras.
  * A null [action] leaves it unset (an explicit component needs none; ES-DE sends none for these).
  * [clearTask] adds CLEAR_TASK | CLEAR_TOP (ES-DE's `%ACTIVITY_CLEAR_TASK%` / `%ACTIVITY_CLEAR_TOP%`).
@@ -123,6 +129,9 @@ data class Variant(val packageName: String, val activities: List<String> = empty
  * @property archives archive extensions the app opens itself for cartridge systems; any other
  *  archive has to be extracted first.
  * @property libretro RetroArch: needs a core ([PlaySystem.cores]) on top of the package.
+ * @property formats lower-case file extensions the app is documented to open for its system (see
+ *  [EmulatorCatalog.supportsFormat]); empty = not declared, anything is tried.
+ * @property resumeSlot the launch extra that resumes a save-state slot, null = the app has none.
  */
 data class Emulator(
     val id: String,
@@ -132,7 +141,9 @@ data class Emulator(
     val template: LaunchTemplate?,
     val confidence: Confidence,
     val archives: Set<String> = emptySet(),
-    val libretro: Boolean = false
+    val libretro: Boolean = false,
+    val formats: Set<String> = emptySet(),
+    val resumeSlot: ResumeSlotSpec? = null
 )
 
 /** One thing Play can start a game with: an installed emulator package (and a RetroArch core). */
@@ -150,6 +161,7 @@ data class PlayTarget(
 object EmulatorCatalog {
 
     private const val NS = "android.intent.action"
+    const val DUKESTATION_PACKAGE = "com.sbro.emucorer"
     private const val RA_ACTIVITY = "com.retroarch.browser.retroactivity.RetroActivityFuture"
     private const val YUZU_ACTIVITY = "org.yuzu.yuzu_emu.activities.EmulationActivity"
     private const val CITRA_ACTIVITY = "org.citra.citra_emu.activities.EmulationActivity"
@@ -178,6 +190,20 @@ object EmulatorCatalog {
             "epsxe", "ePSXe", listOf(Variant("com.epsxe.ePSXe", listOf(".ePSXe"))), setOf(PlaySystem.PS1),
             LaunchTemplate("$NS.MAIN", extras = listOf(ExtraSpec("com.epsxe.ePSXe.isoName", ExtraValue.Of(Slot.PATH)))),
             Confidence.SURE
+        ),
+        // DukeStation (github.com/thecrixux/dukestation, a PS1 app built on EmuCoreR; the same package
+        // serves both). Read from its source (AndroidManifest.xml, core/GameLaunchShortcut.kt,
+        // MainActivity), not tested on a device and not in ES-DE: MainActivity takes
+        // com.sbro.emucorer.action.LAUNCH_GAME with GAME_PATH as a String (a file path or a content
+        // URI, its launch parser keeps either as it is) and SAVE_SLOT as an Int (1..10). It also
+        // declares VIEW filters for cue/bin/iso/img/chd/pbp/ecm/mds/m3u, which the generic fallback uses.
+        Emulator(
+            "dukestation", "DukeStation", listOf(Variant(DUKESTATION_PACKAGE, listOf(".MainActivity"))),
+            setOf(PlaySystem.PS1),
+            LaunchTemplate("com.sbro.emucorer.action.LAUNCH_GAME", extras = listOf(ExtraSpec("com.sbro.emucorer.extra.GAME_PATH", ExtraValue.Of(Slot.SAF_URI)))),
+            Confidence.LIKELY,
+            formats = setOf("cue", "bin", "iso", "img", "chd", "pbp", "ecm", "mds", "m3u"),
+            resumeSlot = ResumeSlotSpec("com.sbro.emucorer.extra.SAVE_SLOT", 10)
         ),
         Emulator(
             "nethersx2", "NetherSX2 / AetherSX2",
@@ -443,6 +469,30 @@ object EmulatorCatalog {
         "playstation_vita", "ps_vita", "psvita", "vita", "playstation_4", "playstation4", "ps4", "playstation_5", "playstation5", "ps5",
         "nintendo_switch_2", "switch_2", "switch2"
     )
+
+    /**
+     * Whether [emulator] is documented to open [fileName]. Archives are [PlayRecipe.needsExtract]'s
+     * business and an emulator without declared [Emulator.formats] is given the benefit of the doubt.
+     */
+    fun supportsFormat(emulator: Emulator, fileName: String): Boolean {
+        val ext = fileName.substringAfterLast('.', "").lowercase()
+        return emulator.formats.isEmpty() || ext in emulator.formats || ext in PlayRecipe.archiveExtensions
+    }
+
+    /** [slot] when [emulator] can resume it (an integer within its range), else null. */
+    fun resumeSlotFor(emulator: Emulator, slot: Int?): Int? =
+        slot?.takeIf { emulator.resumeSlot != null && it in 1..emulator.resumeSlot.max }
+
+    /** The highest resume slot any of the catalogue emulators [ids] offers; 0 = none does (the game page shows no slot control). */
+    fun maxResumeSlot(ids: Collection<String?>): Int = ids.maxOfOrNull { id -> id?.let(::byId)?.resumeSlot?.max ?: 0 } ?: 0
+
+    /** The next value of the slot control: off, 1, 2 ... [max], off again. */
+    fun nextResumeSlot(current: Int?, max: Int): Int? = when {
+        max < 1 -> null
+        current == null || current < 1 -> 1
+        current >= max -> null
+        else -> current + 1
+    }
 
     /** The first installed variant of [emulator] (packages in [installed]), or null when none is. */
     fun installedVariant(emulator: Emulator, installed: Set<String>): Variant? = emulator.variants.firstOrNull { it.packageName in installed }

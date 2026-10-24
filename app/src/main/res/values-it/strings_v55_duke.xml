@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="duke55_slot_label">Riprendi dallo slot di salvataggio: %1$s</string>
+    <string name="duke55_slot_value">Slot %1$d</string>
+    <string name="duke55_slot_off">No</string>
+    <string name="duke55_slot_hint">DukeStation carica all’avvio lo stato salvato in questo slot (slot da 1 a %1$d). Se lo slot è vuoto, il gioco parte normalmente. Ricordato per questo gioco.</string>
+    <string name="duke55_format_unsupported">DukeStation non elenca il formato di questi file. Usa un file cue, bin, iso, img, chd, pbp, ecm, mds o m3u, oppure un altro emulatore.</string>
+</resources>

@@ -27,6 +27,7 @@
         <!-- Emulators Play can start directly (EmulatorCatalog) -->
         <package android:name="com.github.stenzek.duckstation" />
         <package android:name="com.epsxe.ePSXe" />
+        <package android:name="com.sbro.emucorer" />
         <package android:name="xyz.aethersx2.android" />
         <package android:name="xyz.aethersx2.tturnip" />
         <package android:name="xyz.aethersx2.cturnip" />

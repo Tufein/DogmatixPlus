@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="duke55_slot_label">Von Speicherslot fortsetzen: %1$s</string>
+    <string name="duke55_slot_value">Slot %1$d</string>
+    <string name="duke55_slot_off">Aus</string>
+    <string name="duke55_slot_hint">DukeStation lädt beim Start den in diesem Slot gespeicherten Spielstand (Slots 1 bis %1$d). Ist der Slot leer, startet das Spiel normal. Wird für dieses Spiel gemerkt.</string>
+    <string name="duke55_format_unsupported">DukeStation führt das Format dieser Dateien nicht auf. Verwende eine cue-, bin-, iso-, img-, chd-, pbp-, ecm-, mds- oder m3u-Datei oder einen anderen Emulator.</string>
+</resources>

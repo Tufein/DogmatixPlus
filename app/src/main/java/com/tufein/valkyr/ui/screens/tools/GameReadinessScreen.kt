@@ -86,8 +86,8 @@ class GameReadinessViewModel @Inject constructor(
                         ReadyRow(R.string.ready25_files, if (report.filesOk) R.string.ready25_ok else R.string.ready25_missing, report.filesOk, NavRoutes.Files.route),
                         ReadyRow(R.string.ready25_discs, if (report.discsOk) R.string.ready25_ok else R.string.ready25_disc_problem, report.discsOk, NavRoutes.Sets.route),
                         ReadyRow(R.string.ready25_bios, if (report.biosOk) R.string.ready25_ok else R.string.ready25_bios_problem, report.biosOk, NavRoutes.Bios.route),
-                        ReadyRow(R.string.ready25_emulator, if (report.needsExtract) R.string.ready25_extract else if (report.emulatorOk || report.emulatorChoiceNeeded) R.string.ready25_choose else R.string.ready25_no_emulator,
-                            report.emulatorOk && !report.needsExtract, if (report.needsExtract) NavRoutes.Files.route else NavRoutes.Settings.route)
+                        ReadyRow(R.string.ready25_emulator, if (report.needsExtract) R.string.ready25_extract else if (report.formatUnsupported) R.string.duke55_format_unsupported else if (report.emulatorOk || report.emulatorChoiceNeeded) R.string.ready25_choose else R.string.ready25_no_emulator,
+                            report.emulatorOk && !report.needsExtract && !report.formatUnsupported, if (report.needsExtract) NavRoutes.Files.route else NavRoutes.Settings.route)
                     ), report.games, gameOverride = report.gameOverride, consoleDefault = report.consoleDefault,
                         packageFiles = report.packageInspection?.manifest?.parts?.size,
                         packageComplete = report.packageInspection?.complete == true)

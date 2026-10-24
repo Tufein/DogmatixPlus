@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="duke55_slot_label">Resume from save slot: %1$s</string>
+    <string name="duke55_slot_value">Slot %1$d</string>
+    <string name="duke55_slot_off">Off</string>
+    <string name="duke55_slot_hint">DukeStation loads the state saved in this slot when the game starts (slots 1 to %1$d). With no state in the slot the game starts normally. Remembered for this game.</string>
+    <string name="duke55_format_unsupported">DukeStation does not list the format of these files. Use a cue, bin, iso, img, chd, pbp, ecm, mds or m3u file, or another emulator.</string>
+</resources>

@@ -239,6 +239,9 @@ private fun GamePageContent(
     var rememberEmulator by rememberSaveable { mutableStateOf(true) }
     var rememberForGame by rememberSaveable { mutableStateOf(false) }
     var staleChoice by remember { mutableStateOf(false) }
+    // Save slot to resume (DukeStation), remembered per game; the control only shows for emulators that take one.
+    var resumeSlot by remember(rom.consoleId, rom.fileName) { mutableStateOf(viewModel.gameLauncher.resumeSlot(rom.consoleId, rom.fileName)) }
+    val changeResumeSlot: (Int?) -> Unit = { slot -> resumeSlot = slot; viewModel.gameLauncher.setResumeSlot(rom.consoleId, rom.fileName, slot) }
     var preparing by remember { mutableStateOf(false) }
     val planError = stringResource(R.string.recovery_action_failed)
     val missingEmulator = stringResource(R.string.play_no_handler)
@@ -255,7 +258,7 @@ private fun GamePageContent(
     val launchFailedMessage = stringResource(R.string.play24_launch_failed, "%s")
     // Starts [handler]; false when it did not start (the reason is shown).
     val start: (com.tufein.valkyr.data.service.GameLaunch, com.tufein.valkyr.data.service.GameHandler, Boolean, Boolean) -> Boolean = { game, handler, remember, automatic ->
-        when (viewModel.gameLauncher.launch(context, rom.consoleId, game, handler, remember && !rememberForGame, automatic)) {
+        when (viewModel.gameLauncher.launch(context, rom.consoleId, game, handler, remember && !rememberForGame, automatic, rom.fileName)) {
             com.tufein.valkyr.data.service.LaunchOutcome.STARTED -> {
                 if (remember && rememberForGame) viewModel.gameLauncher.setGamePreferred(rom.consoleId, rom.fileName,
                     if (automatic) com.tufein.valkyr.util.GameLaunchKeys.AUTOMATIC else handler.key)
@@ -346,6 +349,7 @@ private fun GamePageContent(
                 RememberCheckRow(stringResource(R.string.play26_remember_choice), rememberEmulator) { rememberEmulator = it }
                 if (rememberEmulator) RememberCheckRow(stringResource(R.string.play26_remember_game), rememberForGame) { rememberForGame = it }
                 if (rememberEmulator && !rememberForGame) Text(stringResource(R.string.play_remember), style = MaterialTheme.typography.bodySmall)
+                ResumeSlotRow(resumeSlot, com.tufein.valkyr.util.EmulatorCatalog.maxResumeSlot(choices.flatMap { c -> c.handlers.map { it.emulatorId } }), changeResumeSlot)
                 // Automatic: the best app offered (a known emulator first), now and, when remembered, every time.
                 val best = choices.firstOrNull { it.handlers.isNotEmpty() }
                 best?.let { game -> ActionPill(stringResource(R.string.play24_automatic, game.handlers.first().label), { pick(game, game.handlers.first(), true) }, icon = R.drawable.ic_controller) }
@@ -362,6 +366,7 @@ private fun GamePageContent(
     emulatorChoices?.let { choices ->
         GameEmulatorChoiceDialog(choices, emulatorChoice?.gameOverride, emulatorChoice?.consoleDefault,
             onPick = { key -> viewModel.gameLauncher.setGamePreferred(rom.consoleId, rom.fileName, key); emulatorChoices = null },
+            resumeSlot = resumeSlot, onResumeSlot = changeResumeSlot,
             onDismiss = { emulatorChoices = null })
     }
 

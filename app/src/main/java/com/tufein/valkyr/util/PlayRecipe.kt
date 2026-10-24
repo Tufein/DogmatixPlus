@@ -86,6 +86,7 @@ sealed interface SpecExtra {
 
     data class Text(override val key: String, val value: String) : SpecExtra
     data class Flag(override val key: String, val value: Boolean) : SpecExtra
+    data class Number(override val key: String, val value: Int) : SpecExtra
 }
 
 /**
@@ -124,7 +125,7 @@ object PlayRecipe {
     val archiveExtensions = setOf("zip", "7z", "rar", "gz", "tar")
 
     /** Extensions in the order they are the better entry of a game: playlist, sheets, then images. */
-    private val entryPriority = listOf("m3u", "cue", "gdi", "ccd", "mds", "toc", "chd", "cso", "ciso", "iso", "pbp", "rvz", "wbfs", "gcz", "nsp", "xci", "3ds", "cia", "cci", "cxi")
+    private val entryPriority = listOf("m3u", "cue", "gdi", "ccd", "mds", "toc", "chd", "cso", "ciso", "iso", "pbp", "ecm", "rvz", "wbfs", "gcz", "nsp", "xci", "3ds", "cia", "cci", "cxi")
 
     private fun ext(name: String) = name.substringAfterLast('.', "").lowercase()
 
@@ -166,14 +167,17 @@ object PlayRecipe {
      * The attempts for [file] in [emulator] ([variant] is the installed package). [siblings] are the
      * document URIs of the game's other files (a cue sheet's tracks, an m3u's discs): they are
      * granted with the file so an emulator that opens them next to it may read them.
+     * [resumeSlot] is a save-state slot to resume, sent only to an emulator that has one
+     * ([Emulator.resumeSlot]) and only inside its range.
      */
-    fun build(emulator: Emulator, variant: Variant, core: String?, file: FileRef, externalRoot: String, siblings: List<String> = emptyList()): BuiltRecipe {
+    fun build(emulator: Emulator, variant: Variant, core: String?, file: FileRef, externalRoot: String, siblings: List<String> = emptyList(), resumeSlot: Int? = null): BuiltRecipe {
         val attempts = ArrayList<IntentSpec>()
         var needsPath = false
         val template = emulator.template
+        val slotExtra = emulator.resumeSlot?.let { spec -> EmulatorCatalog.resumeSlotFor(emulator, resumeSlot)?.let { SpecExtra.Number(spec.key, it) } }
         if (template != null) {
             for (activity in variant.activities) {
-                val spec = fromTemplate(template, variant.packageName, className(variant.packageName, activity), core, file, externalRoot, siblings)
+                val spec = fromTemplate(template, variant.packageName, className(variant.packageName, activity), core, file, externalRoot, siblings, slotExtra)
                 if (spec == null) needsPath = true else attempts += spec
             }
         }
@@ -181,7 +185,7 @@ object PlayRecipe {
         return BuiltRecipe(attempts, needsPath)
     }
 
-    private fun fromTemplate(t: LaunchTemplate, packageName: String, className: String, core: String?, file: FileRef, externalRoot: String, siblings: List<String>): IntentSpec? {
+    private fun fromTemplate(t: LaunchTemplate, packageName: String, className: String, core: String?, file: FileRef, externalRoot: String, siblings: List<String>, slotExtra: SpecExtra? = null): IntentSpec? {
         val grants = LinkedHashSet<String>()
         var data: String? = null
         if (t.data != null) {
@@ -202,6 +206,8 @@ object PlayRecipe {
                 ExtraValue.Config -> extras += SpecExtra.Text(extra.key, configPath(externalRoot, packageName))
             }
         }
+        // Only on a template: the generic ACTION_VIEW knows nothing of save slots.
+        slotExtra?.let { extras += it }
         // A template that reads a path opens the other files by path as well: no grants needed.
         if (grants.isNotEmpty()) grants += siblings
         return IntentSpec(t.action, packageName, className, t.categories, data, null, extras, t.clearTask, grants.toList())

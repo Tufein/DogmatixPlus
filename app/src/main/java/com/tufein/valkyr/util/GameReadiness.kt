@@ -3,7 +3,12 @@ package com.tufein.valkyr.util
 import com.tufein.valkyr.data.service.GameLaunch
 
 object GameReadiness {
-    data class EmulatorState(val available: Boolean, val needsExtract: Boolean, val needsChoice: Boolean)
+    /**
+     * [formatUnsupported]: a chosen emulator that declares its formats ([Emulator.formats]) lists none
+     * of the game's launch files. CHD, PBP (also a multi-disc one) and M3U are not in that case for
+     * the PS1 emulators that list them, so they are never reported as missing for that reason.
+     */
+    data class EmulatorState(val available: Boolean, val needsExtract: Boolean, val needsChoice: Boolean, val formatUnsupported: Boolean = false)
 
     /** Only a currently resolved preference can make an offline report ready to play. */
     fun emulatorState(games: List<GameLaunch>, gameOverride: String?, consoleDefault: String?): EmulatorState {
@@ -13,10 +18,10 @@ object GameReadiness {
             val handler = resolved.handler ?: return@mapNotNull null
             val emulator = handler.emulatorId?.let(EmulatorCatalog::byId)
             val needsExtract = emulator != null && game.system != null && PlayRecipe.needsExtract(emulator, game.system, game.name)
-            needsExtract
+            needsExtract to (emulator != null && !needsExtract && !EmulatorCatalog.supportsFormat(emulator, game.name))
         }
-        return EmulatorState(effective.isNotEmpty(), effective.isNotEmpty() && effective.all { it },
-            effective.isEmpty() && games.any { it.handlers.isNotEmpty() })
+        return EmulatorState(effective.isNotEmpty(), effective.isNotEmpty() && effective.all { it.first },
+            effective.isEmpty() && games.any { it.handlers.isNotEmpty() }, effective.isNotEmpty() && effective.all { it.second })
     }
     /** Paths are relative to one read-only package/root; references stay in descendants. */
     fun referencesPresentAt(path: String, text: String, paths: Collection<String>): Boolean {

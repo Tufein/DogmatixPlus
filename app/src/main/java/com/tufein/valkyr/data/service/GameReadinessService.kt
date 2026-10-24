@@ -16,8 +16,9 @@ import javax.inject.Singleton
 data class GameReadyReport(val filesOk: Boolean, val discsOk: Boolean, val biosOk: Boolean,
     val emulatorOk: Boolean, val needsExtract: Boolean, val games: List<GameLaunch> = emptyList(),
     val gameOverride: String? = null, val consoleDefault: String? = null,
-    val packageInspection: PackageInspection? = null, val emulatorChoiceNeeded: Boolean = false) {
-    val ready: Boolean get() = filesOk && discsOk && biosOk && emulatorOk && !needsExtract
+    val packageInspection: PackageInspection? = null, val emulatorChoiceNeeded: Boolean = false,
+    val formatUnsupported: Boolean = false) {
+    val ready: Boolean get() = filesOk && discsOk && biosOk && emulatorOk && !needsExtract && !formatUnsupported
 }
 
 /** A read-only local check shared by individual games and offline collections; never launches apps. */
@@ -60,6 +61,6 @@ class GameReadinessService @Inject constructor(@param:ApplicationContext private
         val default = launcher.preferred(file.consoleId)
         val emulator = GameReadiness.emulatorState(games, override, default)
         GameReadyReport(readable, sheetsOk, biosOk, emulator.available, emulator.needsExtract, games,
-            override, default, receipt, emulator.needsChoice)
+            override, default, receipt, emulator.needsChoice, emulator.formatUnsupported)
     }
 }

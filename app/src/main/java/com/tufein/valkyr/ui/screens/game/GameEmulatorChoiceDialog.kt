@@ -18,6 +18,7 @@ import com.tufein.valkyr.ui.components.ActionPill
 import com.tufein.valkyr.ui.components.DialogButton
 import com.tufein.valkyr.ui.components.closeOnGamepadB
 import com.tufein.valkyr.ui.components.rememberInitialFocus
+import com.tufein.valkyr.util.EmulatorCatalog
 import com.tufein.valkyr.util.GameEmulatorOverrides
 import com.tufein.valkyr.util.GameLaunchKeys
 
@@ -28,7 +29,9 @@ fun GameEmulatorChoiceDialog(
     gameOverride: String?,
     consoleDefault: String?,
     onPick: (String?) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    resumeSlot: Int? = null,
+    onResumeSlot: ((Int?) -> Unit)? = null
 ) {
     val focus = rememberInitialFocus()
     val handlers = games.flatMap { it.handlers }.distinctBy { it.key }
@@ -50,6 +53,7 @@ fun GameEmulatorChoiceDialog(
                 ActionPill(handler.label, { onPick(handler.key) }, icon = if (gameOverride == handler.key) R.drawable.ic_check else R.drawable.ic_controller)
             }
             if (handlers.any { it.core != null }) Text(stringResource(R.string.play24_core_hint), style = MaterialTheme.typography.bodySmall)
+            if (onResumeSlot != null) ResumeSlotRow(resumeSlot, EmulatorCatalog.maxResumeSlot(handlers.map { it.emulatorId }), onResumeSlot)
         } },
         confirmButton = {},
         dismissButton = { DialogButton(stringResource(R.string.dialog_cancel), onDismiss, initialFocus = focus) }
