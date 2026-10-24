@@ -162,9 +162,10 @@ fun remoteInstallRows(viewModel: RommPairingViewModel): List<@Composable () -> U
 fun DevicePairingDialog(viewModel: RommPairingViewModel) {
     val state by viewModel.pairState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val pairedText = stringResource(R.string.romm55_remote_paired)
     LaunchedEffect(state) {
         if (state is PairState.Done) {
-            ToastUtil.showSuccess(context, context.getString(R.string.romm55_remote_paired))
+            ToastUtil.showSuccess(context, pairedText)
             viewModel.cancelDevicePairing()
         }
     }
