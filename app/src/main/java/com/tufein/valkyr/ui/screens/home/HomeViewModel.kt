@@ -786,11 +786,6 @@ class HomeViewModel @Inject constructor(
         )
         val rommOff = !rommEnabled.value
         val ownedNow = if (params.ownership.isActive || rommOff) libraryIndex.ownedKeys.value else emptySet()
-        // "Use RomM" off: a row that only RomM serves is listed while its file is on the device (nothing is purged).
-        val ownershipOnly: (DownloadableFileWithTags) -> Boolean = {
-            val owned = libraryIndex.isOwned(it.file, ownedNow)
-            params.ownership.matches(owned) && RommSwitch.listRow(!rommOff, it.file.isRomm, owned) && statusOk(it)
-        }
         // 5.5: the completed flag and the RA status are matched here too (from memory, no call per row).
         val statusActive = params.completed.isActive || params.raStatus.isActive
         val completedNow = if (params.completed.isActive) completed.keys.value else emptySet()
@@ -801,6 +796,11 @@ class HomeViewModel @Inject constructor(
                 params.completed.matches(CompletedGames.key(it.file.consoleId, it.file.fileName) in completedNow) &&
                     params.raStatus.matches(raStatusOf(it.file, marksNow, awardsNow))
                 )
+        }
+        // "Use RomM" off: a row that only RomM serves is listed while its file is on the device (nothing is purged).
+        val ownershipOnly: (DownloadableFileWithTags) -> Boolean = {
+            val owned = libraryIndex.isOwned(it.file, ownedNow)
+            params.ownership.matches(owned) && RommSwitch.listRow(!rommOff, it.file.isRomm, owned) && statusOk(it)
         }
         if (!filter.isActive && !params.ownership.isActive && !rommOff && !statusActive) {
             val rows = query(want, offset)
