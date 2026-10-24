@@ -80,6 +80,7 @@ private const val SCREENSCRAPER_SITE = "https://www.screenscraper.fr/"
 @Composable
 fun CoverSourcesScreen(viewModel: CoverSourcesViewModel = hiltViewModel()) {
     val chain = viewModel.chain.collectAsStateWithLifecycle().value ?: CoverSources.Chain()
+    val artwork by viewModel.artwork.collectAsStateWithLifecycle()
     val login by viewModel.login.collectAsStateWithLifecycle()
     val stats by viewModel.stats.collectAsStateWithLifecycle()
     val testing by viewModel.testing.collectAsStateWithLifecycle()
@@ -122,6 +123,27 @@ fun CoverSourcesScreen(viewModel: CoverSourcesViewModel = hiltViewModel()) {
                 onClick = { viewModel.setNonBoxArt(!chain.nonBoxArt) },
                 onAdjust = { viewModel.setNonBoxArt(it > 0) }
             ) { ThemedSwitch(chain.nonBoxArt) { viewModel.setNonBoxArt(it) } }
+        }
+    }
+
+    // 5.6.0: the second field, with its own order and switches (RomM is not pinned here).
+    val artworkRows: List<@Composable () -> Unit> = buildList {
+        add { InfoRow(R.drawable.ic_info, R.string.romm55_art_info_title, stringResource(R.string.romm55_art_info_hint)) }
+        artwork.order.forEachIndexed { index, source ->
+            add {
+                SourceRow(
+                    position = index + 1,
+                    source = source,
+                    hint = stringResource(artworkHint(source)) + if (source == Source.SCREENSCRAPER) "\n" + screenScraperState(login, stats) else "",
+                    enabled = artwork.enabled(source),
+                    canUp = index > 0,
+                    canDown = index < artwork.order.lastIndex,
+                    onToggle = { viewModel.setArtworkEnabled(source, it) },
+                    onUp = { viewModel.moveArtwork(source, -1) },
+                    onDown = { viewModel.moveArtwork(source, 1) },
+                    pinned = false
+                )
+            }
         }
     }
 
@@ -244,6 +266,7 @@ fun CoverSourcesScreen(viewModel: CoverSourcesViewModel = hiltViewModel()) {
     // The sections of the screen, top to bottom: header and rows.
     val sections: List<Pair<Pair<Int, Int>, List<@Composable () -> Unit>>> = listOf(
         (R.string.covers43_order_title to R.drawable.ic_sort) to orderRows,
+        (R.string.romm55_art_title to R.drawable.ic_image) to artworkRows,
         (R.string.covers43_ss_title to R.drawable.ic_key) to loginRows,
         (R.string.covers44_tgdb_title to R.drawable.ic_storage) to theGamesDbRows,
         (R.string.covers44_sgdb_title to R.drawable.ic_palette) to steamGridDbRows,
@@ -318,6 +341,12 @@ internal fun sourceName(source: Source): String = stringResource(
         Source.METADATA -> R.string.covers43_source_metadata
     }
 )
+
+private fun artworkHint(source: Source): Int = when (source) {
+    Source.ROMM -> R.string.romm55_art_romm_hint
+    Source.SCREENSCRAPER -> R.string.romm55_art_screenscraper_hint
+    else -> R.string.romm55_art_libretro_hint
+}
 
 private fun sourceIcon(source: Source): Int = when (source) {
     Source.ROMM -> R.drawable.ic_server
@@ -512,7 +541,9 @@ private fun SourceRow(
     canDown: Boolean,
     onToggle: (Boolean) -> Unit,
     onUp: () -> Unit,
-    onDown: () -> Unit
+    onDown: () -> Unit,
+    /** RomM stays first in the cover chain; in the screenshots chain nothing is pinned. */
+    pinned: Boolean = source == Source.ROMM
 ) {
     val name = sourceName(source)
     SettingRow(
@@ -521,7 +552,7 @@ private fun SourceRow(
         hint = hint,
         onClick = { onToggle(!enabled) }
     ) {
-        if (source != Source.ROMM) {
+        if (!pinned) {
             MoveButton(R.drawable.ic_arrow_upward, stringResource(R.string.covers43_move_up, name), canUp, onUp)
             MoveButton(R.drawable.ic_arrow_downward, stringResource(R.string.covers43_move_down, name), canDown, onDown)
         }

@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Sicherere Spielstand-Synchronisierung: Backups vor jedem Überschreiben mit Aufbewahrung, Konflikte entscheidest du selbst (Gerät, Server oder beide) und Speicherplätze auf einer Karte.</item>
+        <item>RomM mit einem kurzen Code koppeln, von der RomM-Webseite gesendete Spiele installieren und eine eigene Quellenreihenfolge für Screenshots festlegen.</item>
     </string-array>
 
     <!-- 4.0 -->

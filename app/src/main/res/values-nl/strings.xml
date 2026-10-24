@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">ongeveer %1$d min</string>
     <string name="whats_new_title">Nieuw in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Veiliger save-sync: back-ups vóór elke overschrijving met bewaartermijn, conflicten die je zelf beslist (apparaat, server of beide) en save-slots op één kaart.</item>
+        <item>Koppel RomM met een korte code, installeer spellen die je vanaf de RomM-webpagina stuurt en stel een aparte bronvolgorde voor screenshots in.</item>
     </string-array>
 
     <!-- 4.0 -->

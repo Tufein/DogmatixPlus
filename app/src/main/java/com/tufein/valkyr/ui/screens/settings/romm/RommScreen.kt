@@ -89,6 +89,11 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
     LaunchedEffect(ui.url, ui.token, ui.enabled) { if (ui.enabled && ui.url.isNotBlank() && ui.token.isNotBlank()) viewModel.loadPlatforms(null) }
 
     var showUrlDialog by remember { mutableStateOf(false) }
+    var showPairDialog by remember { mutableStateOf(false) }
+    val pairing: RommPairingViewModel = hiltViewModel()
+    val remoteRows = remoteInstallRows(pairing)
+    DevicePairingDialog(pairing)
+    if (showPairDialog) PairWithCodeDialog(pairing) { showPairDialog = false }
     var showTokenDialog by remember { mutableStateOf(false) }
     if (showUrlDialog) {
         ApiKeyDialog(
@@ -153,6 +158,7 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                 ActionPill(stringResource(R.string.settings_change), { showTokenDialog = true }, icon = R.drawable.ic_edit)
             }
         }
+        add { PairWithCodeRow { showPairDialog = true } }
         add {
             SettingRow(
                 icon = R.drawable.ic_network_check,
@@ -228,6 +234,7 @@ fun RommScreen(viewModel: RommViewModel = hiltViewModel()) {
                 ActionPill(stringResource(R.string.romm_marks_refresh), viewModel::refreshMarks, icon = R.drawable.ic_sync)
             }
         }
+        remoteRows.forEach { add(it) }
         add {
             val fav: RommFavouritesViewModel = hiltViewModel()
             val favOn by fav.enabled.collectAsStateWithLifecycle()

@@ -51,6 +51,8 @@ object SettingSchema {
         putAll(CoverApis.SETTING_TYPES)
         putAll(LibraryBrowse.SETTING_TYPES)
         putAll(SaveMerge.SETTING_TYPES)
+        putAll(RommRemoteInstall.SETTING_TYPES)
+        putAll(CoverArtwork.SETTING_TYPES)
     }
 
     fun localName(name: String): String =

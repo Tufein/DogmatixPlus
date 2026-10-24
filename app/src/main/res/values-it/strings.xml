@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Sincronizzazione dei salvataggi più sicura: copie prima di ogni sovrascrittura con conservazione, conflitti che decidi tu (dispositivo, server o entrambi) e slot su una sola scheda.</item>
+        <item>Associa RomM con un codice breve, installa i giochi inviati dalla pagina web di RomM e imposta un ordine di fonti separato per gli screenshot.</item>
     </string-array>
 
     <!-- 4.0 -->

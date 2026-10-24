@@ -7,6 +7,7 @@ import com.tufein.valkyr.util.RommFirmware
 import com.tufein.valkyr.util.RommFirmwareMatcher
 import com.tufein.valkyr.util.RommGameDetails
 import com.tufein.valkyr.util.RommGameInfo
+import com.tufein.valkyr.util.RommPairing
 import com.tufein.valkyr.util.RommProps
 import com.tufein.valkyr.util.RommServerParser
 import com.tufein.valkyr.util.RommUserProps
@@ -178,6 +179,23 @@ class RommClient @Inject constructor(
         val (body, type) = JsonHttp.multipartBody(mapOf("name" to name, "rom_ids" to ids))
         JsonHttp.requireOk(JsonHttp.request("PUT", "${baseUrl()}/api/collections/$id", headers(), body = body, contentType = type))
         Unit
+    }
+
+    /** The configured server address (no trailing slash); throws while "Use RomM" is off or no address is set. */
+    suspend fun serverBase(): String = baseUrl()
+
+    /**
+     * 5.6.0, pair with code: trades the code the RomM web interface shows for a client token
+     * (`POST /api/client-tokens/exchange`, no login needed; see [RommPairing] for what is verified). Nothing is saved here.
+     */
+    suspend fun exchangePairCode(code: String): RommPairing.Exchange = withContext(Dispatchers.IO) {
+        val base = baseUrl()
+        val response = JsonHttp.request(
+            "POST", "$base/api/client-tokens/exchange", emptyMap(),
+            body = RommPairing.exchangeBody(code).toByteArray(Charsets.UTF_8), contentType = JsonHttp.JSON,
+            followRedirects = false
+        )
+        RommPairing.parseExchange(response.code, response.json)
     }
 
     /** Returns the number of platforms the server reports, as a connection check. */

@@ -195,6 +195,10 @@
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <service
+            android:name=".data.service.RommRemoteInstallJobService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
             android:name=".data.service.AutoBackupJobService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />

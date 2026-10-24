@@ -44,7 +44,7 @@ object CloudSettingKeys {
      * 4.3.0: the ScreenScraper passwords (developer and user) stay out of backups the same way.
      * 4.4.0: so do the TheGamesDB / SteamGridDB keys and the Twitch client secret (the client id may travel).
      */
-    fun isSecret(name: String): Boolean = name in SECRETS || name in ScreenScraper.SECRETS || name in CoverApis.SECRETS
+    fun isSecret(name: String): Boolean = name in SECRETS || name in ScreenScraper.SECRETS || name in CoverApis.SECRETS || name in RommRemoteInstall.SECRETS
 
     /** [value] of the setting [name] brought into what the app accepts; null drops it. */
     fun sanitize(name: String, value: Any): Any? = when (name) {

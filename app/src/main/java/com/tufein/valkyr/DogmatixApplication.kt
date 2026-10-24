@@ -78,6 +78,10 @@ class DogmatixApplication : Application(), ImageLoaderFactory {
     @Inject
     lateinit var saveSyncScheduler: dagger.Lazy<SaveSyncScheduler>
 
+    /** Injected so the background poll for installs pushed from RomM follows its settings from the start. */
+    @Inject
+    lateinit var rommRemoteInstallScheduler: dagger.Lazy<com.tufein.valkyr.data.service.RommRemoteInstallScheduler>
+
     /** Injected so finished scans are checked against the wishlist from the start. */
     @Inject
     lateinit var wishlistRepository: dagger.Lazy<WishlistRepository>
@@ -200,6 +204,7 @@ class DogmatixApplication : Application(), ImageLoaderFactory {
                     rommLibraryService.get()
                     rommCollectionsService.get()
                     saveSyncScheduler.get()
+                    rommRemoteInstallScheduler.get()
                     wishlistRepository.get()
                     autoScanScheduler.get()
                     offlineCollectionsService.get()

@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.tufein.valkyr.BuildConfig
 import com.tufein.valkyr.data.service.CoverSourceStats
 import com.tufein.valkyr.util.CoverApis
+import com.tufein.valkyr.util.CoverArtwork
 import com.tufein.valkyr.util.CoverSources
 import com.tufein.valkyr.util.ScreenScraper
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -34,6 +35,8 @@ class CoverSourceSettings @Inject constructor(
     private val orderKey = stringPreferencesKey(CoverSources.ORDER_KEY)
     private val disabledKey = stringSetPreferencesKey(CoverSources.DISABLED_KEY)
     private val nonBoxKey = booleanPreferencesKey(CoverSources.NON_BOX_KEY)
+    private val artOrderKey = stringPreferencesKey(CoverArtwork.ORDER_KEY)
+    private val artDisabledKey = stringSetPreferencesKey(CoverArtwork.DISABLED_KEY)
     private val devIdKey = stringPreferencesKey(ScreenScraper.DEV_ID_KEY)
     private val devPasswordKey = stringPreferencesKey(ScreenScraper.DEV_PASSWORD_KEY)
     private val softNameKey = stringPreferencesKey(ScreenScraper.SOFT_NAME_KEY)
@@ -49,6 +52,14 @@ class CoverSourceSettings @Inject constructor(
             order = CoverSources.orderOf(it[orderKey]),
             disabled = CoverSources.disabledOf(it[disabledKey], withKey(it)),
             nonBoxArt = it[nonBoxKey] ?: false
+        )
+    }.distinctUntilChanged()
+
+    /** 5.6.0: the order and switches of the second field, screenshots and title screens ([CoverArtwork]). */
+    val artworkChain: Flow<CoverArtwork.Chain> = context.dataStore.data.map {
+        CoverArtwork.Chain(
+            order = CoverArtwork.orderOf(it[artOrderKey]),
+            disabled = CoverArtwork.disabledOf(it[artDisabledKey], CoverSources.disabledOf(it[disabledKey], withKey(it)))
         )
     }.distinctUntilChanged()
 
@@ -85,6 +96,15 @@ class CoverSourceSettings @Inject constructor(
     suspend fun setEnabled(source: CoverSources.Source, on: Boolean) = context.dataStore.edit {
         val now = CoverSources.disabledOf(it[disabledKey], withKey(it))
         it[disabledKey] = (if (on) now - source else now + source).map { s -> s.key }.toSet()
+    }
+
+    suspend fun moveArtwork(source: CoverSources.Source, delta: Int) = context.dataStore.edit {
+        it[artOrderKey] = CoverArtwork.encodeOrder(CoverArtwork.move(CoverArtwork.orderOf(it[artOrderKey]), source, delta))
+    }
+
+    suspend fun setArtworkEnabled(source: CoverSources.Source, on: Boolean) = context.dataStore.edit {
+        val now = CoverArtwork.disabledOf(it[artDisabledKey], CoverSources.disabledOf(it[disabledKey], withKey(it)))
+        it[artDisabledKey] = (if (on) now - source else now + source).map { s -> s.key }.toSet()
     }
 
     suspend fun setNonBoxArt(on: Boolean) = context.dataStore.edit { it[nonBoxKey] = on }
