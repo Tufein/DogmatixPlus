@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">circa %1$d min</string>
     <string name="whats_new_title">Novità di Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Supporto a DukeStation con ripresa da uno slot di salvataggio, segno di completato con filtro, filtri RetroAchievements Battuto/Padroneggiato e limiti di ScreenScraper visibili.</item>
+        <item>Sincronizzazione dei salvataggi più sicura: copie prima di ogni sovrascrittura con conservazione, conflitti che decidi tu (dispositivo, server o entrambi) e slot su una sola scheda.</item>
     </string-array>
 
     <!-- 4.0 -->

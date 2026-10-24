@@ -1317,7 +1317,7 @@
     <string name="downloads_eta_minutes">environ %1$d min</string>
     <string name="whats_new_title">Nouveau dans Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Prise en charge de DukeStation avec reprise depuis un emplacement de sauvegarde, marque « Terminé » avec filtre, filtres RetroAchievements Battu/Maîtrisé et limites de ScreenScraper affichées.</item>
+        <item>Synchronisation des sauvegardes plus sûre : copies avant chaque écrasement avec conservation limitée, conflits que vous tranchez (appareil, serveur ou les deux) et emplacements sur une seule carte.</item>
     </string-array>
 
     <!-- 4.0 -->

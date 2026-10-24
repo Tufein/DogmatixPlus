@@ -1262,7 +1262,7 @@
     <string name="downloads_eta_minutes">cerca de %1$d min</string>
     <string name="whats_new_title">Novidades do Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>Suporte ao DukeStation com retoma a partir de uma ranhura de gravação, marca de concluído com filtro, filtros RetroAchievements Terminado/Dominado e limites do ScreenScraper visíveis.</item>
+        <item>Sincronização de gravações mais segura: cópias antes de cada substituição com retenção, conflitos que decide (dispositivo, servidor ou ambos) e ranhuras num só cartão.</item>
     </string-array>
 
     <!-- 4.0 -->

@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">etwa %1$d min</string>
     <string name="whats_new_title">Neu in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>DukeStation-Unterstützung mit Fortsetzen ab Speicherplatz, Markierung „Durchgespielt“ mit Filter, RetroAchievements-Filter Besiegt/Gemeistert und ScreenScraper-Limits in der Anzeige.</item>
+        <item>Sicherere Spielstand-Synchronisierung: Backups vor jedem Überschreiben mit Aufbewahrung, Konflikte entscheidest du selbst (Gerät, Server oder beide) und Speicherplätze auf einer Karte.</item>
     </string-array>
 
     <!-- 4.0 -->

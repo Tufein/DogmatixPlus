@@ -1312,7 +1312,7 @@
     <string name="downloads_eta_minutes">about %1$d min</string>
     <string name="whats_new_title">New in Valkyr %1$s</string>
     <string-array name="whats_new_items">
-        <item>DukeStation support with save-slot resume, a Completed mark and filter, RetroAchievements Beaten/Mastered filters, and ScreenScraper limits shown.</item>
+        <item>Safer save sync: backups before every overwrite with retention, conflicts you decide (keep device, server or both), and save slots on one card.</item>
     </string-array>
 
     <!-- 4.0 -->
