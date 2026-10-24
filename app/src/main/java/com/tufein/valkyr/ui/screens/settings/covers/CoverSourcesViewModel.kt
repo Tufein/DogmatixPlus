@@ -12,6 +12,7 @@ import com.tufein.valkyr.data.service.ScreenScraperService
 import com.tufein.valkyr.data.service.SteamGridDbService
 import com.tufein.valkyr.data.service.TheGamesDbService
 import com.tufein.valkyr.util.CoverApis
+import com.tufein.valkyr.util.CoverArtwork
 import com.tufein.valkyr.util.CoverSources
 import com.tufein.valkyr.util.ToastUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -49,6 +50,9 @@ class CoverSourcesViewModel @Inject constructor(
 
     val chain: StateFlow<CoverSources.Chain?> = settings.chain.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    /** 5.6.0: the order and switches of screenshots and title screens, apart from the covers. */
+    val artwork: StateFlow<CoverArtwork.Chain> = settings.artworkChain.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CoverArtwork.Chain())
+
     val login: StateFlow<ScreenScraperLogin> = combine(settings.credentials, settings.softNameTyped) { c, soft ->
         ScreenScraperLogin(c.devId, c.devPassword, soft, c.user, c.password)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ScreenScraperLogin())
@@ -80,6 +84,10 @@ class CoverSourcesViewModel @Inject constructor(
     fun move(source: CoverSources.Source, delta: Int) = viewModelScope.launch { runCatching { settings.move(source, delta) } }
 
     fun setEnabled(source: CoverSources.Source, on: Boolean) = viewModelScope.launch { runCatching { settings.setEnabled(source, on) } }
+
+    fun moveArtwork(source: CoverSources.Source, delta: Int) = viewModelScope.launch { runCatching { settings.moveArtwork(source, delta) } }
+
+    fun setArtworkEnabled(source: CoverSources.Source, on: Boolean) = viewModelScope.launch { runCatching { settings.setArtworkEnabled(source, on) } }
 
     fun setNonBoxArt(on: Boolean) = viewModelScope.launch { runCatching { settings.setNonBoxArt(on) } }
 

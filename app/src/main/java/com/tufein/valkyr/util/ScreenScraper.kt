@@ -260,13 +260,21 @@ object ScreenScraper {
      * Returned without credentials, or null.
      */
     fun pickCover(game: Game, regions: List<String>, nonBoxArt: Boolean): String? {
-        fun pick(type: String): Media? {
-            val of = game.medias.filter { it.type.equals(type, ignoreCase = true) }
-            if (of.isEmpty()) return null
-            return regions.firstNotNullOfOrNull { r -> of.firstOrNull { it.region.equals(r, ignoreCase = true) } } ?: of.first()
-        }
-        val media = pick("box-2D") ?: if (nonBoxArt) (pick("sstitle") ?: pick("ss")) else null
+        val media = pickMedia(game, regions, "box-2D") ?: if (nonBoxArt) (pickMedia(game, regions, "sstitle") ?: pickMedia(game, regions, "ss")) else null
         return media?.url?.let(::stripCredentials)
+    }
+
+    /**
+     * 5.6.0: the title screen (`sstitle`) or screenshot (`ss`) of [game] for the launcher covers, in the first of [regions]
+     * that has one, else any. Returned without credentials, or null.
+     */
+    fun pickArt(game: Game, regions: List<String>, art: LibretroThumbnails.Art): String? =
+        pickMedia(game, regions, if (art == LibretroThumbnails.Art.TITLE) "sstitle" else "ss")?.url?.let(::stripCredentials)
+
+    private fun pickMedia(game: Game, regions: List<String>, type: String): Media? {
+        val of = game.medias.filter { it.type.equals(type, ignoreCase = true) }
+        if (of.isEmpty()) return null
+        return regions.firstNotNullOfOrNull { r -> of.firstOrNull { it.region.equals(r, ignoreCase = true) } } ?: of.first()
     }
 
     /** Whether [url] is a ScreenScraper API address (media included), which needs the credentials. */

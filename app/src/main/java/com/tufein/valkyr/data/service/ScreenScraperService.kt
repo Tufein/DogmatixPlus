@@ -4,6 +4,7 @@ import android.util.Log
 import com.tufein.valkyr.data.local.CoverSourceSettings
 import com.tufein.valkyr.util.CoverSources
 import com.tufein.valkyr.util.GameTitleCleaner
+import com.tufein.valkyr.util.LibretroThumbnails
 import com.tufein.valkyr.util.ScreenScraper
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -66,7 +67,14 @@ class ScreenScraperService @Inject constructor(
         if (ScreenScraper.isApiUrl(url)) ScreenScraper.withCredentials(url, settings.credentials.first()) else url
 
     /** The cover of a game: [fileName] on its console, else the best match of [title]'s search. */
-    override suspend fun find(consoleId: String, fileName: String, title: String, regions: List<String>, nonBoxArt: Boolean): CoverSources.Answer {
+    override suspend fun find(consoleId: String, fileName: String, title: String, regions: List<String>, nonBoxArt: Boolean): CoverSources.Answer =
+        lookup(consoleId, fileName, title) { game -> ScreenScraper.pickCover(game, regions, nonBoxArt) }
+
+    /** 5.6.0: the title screen or screenshot of a game (the launcher covers' extra image types); answers like [find]. */
+    suspend fun findArt(consoleId: String, fileName: String, title: String, regions: List<String>, art: LibretroThumbnails.Art): CoverSources.Answer =
+        lookup(consoleId, fileName, title) { game -> ScreenScraper.pickArt(game, regions, art) }
+
+    private suspend fun lookup(consoleId: String, fileName: String, title: String, pick: (ScreenScraper.Game) -> String?): CoverSources.Answer {
         val system = ScreenScraper.systemId(consoleId) ?: return CoverSources.Answer.Miss
         val c = settings.credentials.first()
         if (!c.ready || !usable(System.currentTimeMillis())) return CoverSources.Answer.Unavailable
@@ -74,7 +82,7 @@ class ScreenScraperService @Inject constructor(
         when (byName.status) {
             ScreenScraper.Status.OK -> {
                 val game = ScreenScraper.parseGame(byName.json) ?: return CoverSources.Answer.Miss
-                return answer(ScreenScraper.pickCover(game, regions, nonBoxArt))
+                return answer(pick(game))
             }
             // 400: ScreenScraper could not take this file name; the title search may still find the game.
             ScreenScraper.Status.NOT_FOUND, ScreenScraper.Status.BAD_REQUEST -> Unit
@@ -86,7 +94,7 @@ class ScreenScraperService @Inject constructor(
         return when (search.status) {
             ScreenScraper.Status.OK -> {
                 val game = ScreenScraper.bestMatch(ScreenScraper.parseSearch(search.json), query) ?: return CoverSources.Answer.Miss
-                answer(ScreenScraper.pickCover(game, regions, nonBoxArt))
+                answer(pick(game))
             }
             // A request ScreenScraper refuses as malformed would be refused again: a miss for this title.
             ScreenScraper.Status.NOT_FOUND, ScreenScraper.Status.BAD_REQUEST -> CoverSources.Answer.Miss

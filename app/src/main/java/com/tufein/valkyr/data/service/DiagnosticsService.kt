@@ -45,7 +45,8 @@ class DiagnosticsService @Inject constructor(
     private val rommLibraryService: RommLibraryService,
     private val appSettings: AppSettings,
     private val cloudSettings: CloudSettings,
-    private val coverSourceSettings: com.tufein.valkyr.data.local.CoverSourceSettings
+    private val coverSourceSettings: com.tufein.valkyr.data.local.CoverSourceSettings,
+    private val remoteInstallSettings: com.tufein.valkyr.data.local.RommDeviceSettings
 ) {
 
     /**
@@ -58,6 +59,7 @@ class DiagnosticsService @Inject constructor(
         val rommToken = s.rommToken.first()
         return buildList {
             add(rommToken)
+            add(remoteInstallSettings.pairing.first().token)
             add(CertTrust.hostOf(rommUrl))
             add(rommUrl.removePrefix("https://").removePrefix("http://").substringBefore('/'))
             add(s.torboxApiKey.first())

@@ -7,14 +7,17 @@ import android.util.Log
 import androidx.documentfile.provider.DocumentFile
 import com.tufein.valkyr.data.local.CoverSourceSettings
 import com.tufein.valkyr.data.local.FrontendCoversSettings
+import com.tufein.valkyr.data.local.VersionPreferenceSettings
 import com.tufein.valkyr.data.local.dao.DownloadableFileDao
 import com.tufein.valkyr.util.DiskDir
 import com.tufein.valkyr.util.DiskEntry
 import com.tufein.valkyr.util.DiskScanner
 import com.tufein.valkyr.util.FileParsingUtils
+import com.tufein.valkyr.util.CoverArtwork
 import com.tufein.valkyr.util.CoverSources
 import com.tufein.valkyr.util.FrontendCovers
 import com.tufein.valkyr.util.LibraryRestrictions
+import com.tufein.valkyr.util.LibretroThumbnails
 import com.tufein.valkyr.util.StorageHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
@@ -107,7 +110,10 @@ class FrontendCoversService @Inject constructor(
     private val sourceSettings: CoverSourceSettings,
     private val rommClient: RommClient,
     private val fileDao: DownloadableFileDao,
-    private val profiles: ProfileService
+    private val profiles: ProfileService,
+    private val screenScraper: ScreenScraperService,
+    private val rommGames: RommGameService,
+    private val versionSettings: VersionPreferenceSettings
 ) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val _state = MutableStateFlow(CoversRunState())
@@ -358,18 +364,43 @@ class FrontendCoversService @Inject constructor(
     private class ExtraUnavailable : Exception()
 
     /**
-     * The picture of an extra image type: libretro-thumbnails' title screen or snap of the game, the
-     * same source the cover chain uses for them ([CoverSources.Source.LIBRETRO]); null when libretro has none
-     * (or the user switched that source off in Settings → Cover sources, which then covers these too).
-     * Throws [ExtraUnavailable] when libretro could not answer (offline, rate limit): not a miss.
+     * The picture of an extra image type (title screen or screenshot). 5.6.0: asked of the sources of the
+     * "screenshots and title screens" field of Settings → Cover sources ([CoverArtwork]) in the user's order, the first
+     * picture found wins; by default that is still libretro-thumbnails alone. Null when no source has one. Throws
+     * [ExtraUnavailable] when no source had one and some could not answer (offline, rate limit): not a miss.
      */
     private suspend fun extraUrl(game: FrontendCovers.Game, extra: FrontendCovers.Extra): String? {
-        if (!sourceSettings.chain.first().enabled(CoverSources.Source.LIBRETRO)) return null
-        return when (val answer = thumbnails.findArt(game.consoleId, game.fileName, extra.art)) {
-            is CoverSources.Answer.Found -> answer.url
-            CoverSources.Answer.Miss -> null
-            CoverSources.Answer.Unavailable -> throw ExtraUnavailable()
+        val chain = sourceSettings.artworkChain.first()
+        val regions = runCatching { versionSettings.effectiveFlow(game.consoleId).first().regions }.getOrDefault(emptyList())
+        val answers = ArrayList<CoverSources.Answer>()
+        for (source in chain.active) {
+            if (!CoverArtwork.supports(source, extra.art)) continue
+            val answer = askArtwork(source, game, extra.art, regions)
+            if (answer is CoverSources.Answer.Found) return answer.url
+            answers += answer
         }
+        return when (CoverArtwork.verdict(answers)) {
+            CoverSources.Answer.Unavailable -> throw ExtraUnavailable()
+            else -> null
+        }
+    }
+
+    private suspend fun askArtwork(source: CoverSources.Source, game: FrontendCovers.Game, art: LibretroThumbnails.Art, regions: List<String>): CoverSources.Answer = try {
+        when (source) {
+            CoverSources.Source.LIBRETRO -> thumbnails.findArt(game.consoleId, game.fileName, art)
+            CoverSources.Source.SCREENSCRAPER -> if (screenScraper.configured()) screenScraper.findArt(game.consoleId, game.fileName, game.title, regions, art) else CoverSources.Answer.Miss
+            // The RomM server keeps screenshots of its games (RomM's own picture list, no title screens).
+            CoverSources.Source.ROMM -> {
+                val romId = if (rommGames.isConfigured()) rommGames.romIdFor(game.consoleId, game.fileName) else null
+                val shot = romId?.let { rommGames.details(it).screenshots.firstOrNull() }
+                shot?.let { CoverSources.Answer.Found(it) } ?: CoverSources.Answer.Miss
+            }
+            else -> CoverSources.Answer.Miss
+        }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        CoverSources.Answer.Unavailable
     }
 
     /** The image as PNG, at most [FrontendCovers.MAX_SIDE] pixels on its longer side; null when it is no image. */

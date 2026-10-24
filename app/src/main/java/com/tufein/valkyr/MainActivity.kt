@@ -184,6 +184,7 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var saveSyncService: SaveSyncService
     @Inject lateinit var appSettings: AppSettings
     @Inject lateinit var downloadService: DownloadService
+    @Inject lateinit var rommRemoteInstall: com.tufein.valkyr.data.service.RommRemoteInstallService
     @Inject lateinit var storageAvailability: com.tufein.valkyr.data.service.StorageAvailabilityService
     @Inject lateinit var metadataService: GameMetadataService
     @Inject lateinit var lookSettings: LookSettings
@@ -211,6 +212,12 @@ class MainActivity : AppCompatActivity() {
                         kotlinx.coroutines.delay(15_000)
                     }
                 }
+            }
+        }
+        // While visible, installs pushed from the RomM web interface are picked up once a minute (only when paired and switched on).
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                withContext(Dispatchers.IO) { rommRemoteInstall.runWhileOpen() }
             }
         }
         // Downloads that were cut off when the app closed join the queue again (once per run).
