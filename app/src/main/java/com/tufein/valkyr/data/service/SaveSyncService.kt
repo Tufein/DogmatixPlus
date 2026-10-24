@@ -18,7 +18,12 @@ import com.tufein.valkyr.util.LocalSaveFile
 import com.tufein.valkyr.util.RemoteSaveFile
 import com.tufein.valkyr.util.RestoreTarget
 import com.tufein.valkyr.util.SafetyCopy
+import com.tufein.valkyr.util.SaveBackups
 import com.tufein.valkyr.util.SaveConflict
+import com.tufein.valkyr.util.SafetyCopyTrash
+import com.tufein.valkyr.util.SaveMerge
+import com.tufein.valkyr.util.SaveSlots
+import com.tufein.valkyr.util.SaveSyncOptions
 import com.tufein.valkyr.util.SaveKind
 import com.tufein.valkyr.util.SaveServer
 import com.tufein.valkyr.util.SaveStore
@@ -85,9 +90,6 @@ private const val MAX_HANDOFF_LOOKUPS = 40
 /** Automatic syncs (app opened / back in front) run at most this often. */
 private const val AUTO_INTERVAL_MS = 2 * 60 * 1000L
 
-/** Device copies replaced by a download are kept this long in the app's private storage. */
-private const val BACKUP_KEEP_MS = 30L * 24 * 60 * 60 * 1000
-
 /** The size limit of the save or safety copy [path]: memory cards may be larger than other saves. */
 private fun maxBytesOf(path: String): Long = EmulatorSaveLayouts.sizeLimit(path.substringAfterLast('/'), MAX_FILE_BYTES)
 
@@ -118,7 +120,8 @@ data class LocalSafetyRestorePreview(
  * [SaveSyncEngine] does the work; this class gives it the picked folders (Storage Access
  * Framework) and the server ([RommClient]), runs it one sync at a time and keeps its records
  * in the app's private storage. A device file overwritten by a download is first copied to
- * `files/save-backups/` (kept 30 days).
+ * `files/save-backups/` (and so is the server save an upload replaces); the newest copies of each
+ * save stay, older ones move to a recovery folder first ([SaveBackups], [SafetyCopyTrash]).
  */
 @Singleton
 class SaveSyncService @Inject constructor(
@@ -134,6 +137,8 @@ class SaveSyncService @Inject constructor(
     private val lock = Mutex()
     private val storeFile = File(context.filesDir, "save_sync.json")
     private val backupDir = File(context.filesDir, "save-backups")
+    private val trashDir = File(context.filesDir, "save-backups-trash")
+    private val trash = SafetyCopyTrash(backupDir, trashDir)
     @Volatile private var lastAutoSync = 0L
 
     private val _state = MutableStateFlow(SaveSyncState())
@@ -143,7 +148,8 @@ class SaveSyncService @Inject constructor(
         server = RommSaveServer(rommClient),
         store = SafSaveStore(),
         onProgress = { done, total -> _state.update { it.copy(progress = "$done / $total") } },
-        syncDeletions = { settingsRepository.saveSyncDeletions.first() }
+        syncDeletions = { settingsRepository.saveSyncDeletions.first() },
+        options = { SaveSyncOptions(appSettings.saveSyncPreferServer.first(), appSettings.saveSyncNonDestructive.first()) }
     )
 
     suspend fun isConfigured(): Boolean =
@@ -174,12 +180,17 @@ class SaveSyncService @Inject constructor(
         }
     }
 
-    /** Keeps [keepDevice] ? the device copy (uploads it) : the server copy (downloads it). */
-    fun resolve(conflict: SaveConflict, keepDevice: Boolean) {
+    /** Keeps [keepDevice] ? the device copy (uploads it) : the server copy (downloads it); what is replaced is backed up first. */
+    fun resolve(conflict: SaveConflict, keepDevice: Boolean) = resolveWith(conflict) { records -> engine.resolve(conflict, keepDevice, records) }
+
+    /** Keeps both: the server version is set aside as a safety copy on the device and nothing is replaced. */
+    fun resolveKeepBoth(conflict: SaveConflict) = resolveWith(conflict) { records -> engine.resolveKeepBoth(conflict, records) }
+
+    private fun resolveWith(conflict: SaveConflict, block: suspend (MutableMap<String, SaveSyncRecord>) -> Unit) {
         scope.launch {
             lock.withLock {
                 val records = loadRecords().toMutableMap()
-                runCatching { engine.resolve(conflict, keepDevice, records) }
+                runCatching { block(records) }
                     .onSuccess {
                         saveRecords(records)
                         _state.update { s -> s.copy(error = null, conflicts = s.conflicts.filterNot { it.local.kind == conflict.local.kind && it.local.path == conflict.local.path }) }
@@ -222,9 +233,61 @@ class SaveSyncService @Inject constructor(
         }
     }
 
-    private fun pruneBackups() {
-        val cutoff = System.currentTimeMillis() - BACKUP_KEEP_MS
-        backupDir.listFiles()?.filter { it.lastModified() < cutoff }?.forEach { it.deleteRecursively() }
+    /**
+     * Housekeeping at the start of a sync: copies older than 30 days *and* beyond the newest N of their
+     * save move to the recovery folder (never deleted outright); the recovery folder is emptied of
+     * moves older than 14 days. Failures only cost a log line.
+     */
+    private suspend fun pruneBackups() {
+        runCatching {
+            val keep = appSettings.saveSyncBackupKeep.first()
+            val expired = SaveBackups.expired(allSafetyCopies(), keep, System.currentTimeMillis())
+            if (expired.isNotEmpty()) trash.move(expired)
+            trash.purge()
+        }.onFailure { if (it is CancellationException) throw it; Log.w(TAG, "Safety copy housekeeping failed", it) }
+    }
+
+    /** Every safety copy on disk, whoever's it is (housekeeping only; the screens use [localSafetyCopies]). */
+    private fun allSafetyCopies(): List<SafetyCopy> {
+        if (!backupDir.isDirectory) return emptyList()
+        val zone = ZoneId.systemDefault()
+        return backupDir.walkTopDown().maxDepth(8).filter { it.isFile }.take(20_001).mapNotNull { file ->
+            val relative = file.relativeToOrNull(backupDir)?.invariantSeparatorsPath ?: return@mapNotNull null
+            CloudSaves.safetyCopy(relative, file.length(), file.lastModified(), zone)
+        }.toList()
+    }
+
+    /** What "Prune now" would move to the recovery folder: the copies of [profileId]'s games beyond the newest N of each save. */
+    suspend fun previewPrune(profileId: String): List<SafetyCopy> = withContext(Dispatchers.IO) {
+        SaveBackups.excess(localSafetyCopies(profileId), appSettings.saveSyncBackupKeep.first())
+    }
+
+    /** Moves the previewed copies to the recovery folder (kept 14 days); returns how many moved. Refused while a sync runs. */
+    suspend fun pruneNow(copies: List<SafetyCopy>): Int? {
+        if (!lock.tryLock()) return null
+        try {
+            return withContext(Dispatchers.IO) {
+                // Only what is still an excess copy right now: a copy the sync just made is never in the list.
+                val moved = trash.move(copies)
+                history.event("save_backup_prune", "$moved", "done")
+                moved
+            }
+        } finally { lock.unlock() }
+    }
+
+    /** Copies waiting in the recovery folder from the last prune. */
+    suspend fun prunedCount(): Int = withContext(Dispatchers.IO) { trash.lastCount() }
+
+    /** Brings the last prune back; returns how many copies returned. */
+    suspend fun undoPrune(): Int? {
+        if (!lock.tryLock()) return null
+        try {
+            return withContext(Dispatchers.IO) {
+                val restored = trash.undoLast()
+                history.event("save_backup_prune_undo", "$restored", "done")
+                restored
+            }
+        } finally { lock.unlock() }
     }
 
     // ---- Server -------------------------------------------------------------------------------
@@ -446,6 +509,10 @@ class SaveSyncService @Inject constructor(
             val bytes = read(file)
             keepSafetyCopy(file.kind, file.path, bytes)
             if (file.layout == SaveFolderLayout.SAVEDATA || DolphinSaveBundles.isBundle(file)) packCopies += SaveHandoff.sha256(bytes)
+        }
+
+        override suspend fun keepCopy(kind: SaveKind, path: String, bytes: ByteArray) {
+            withContext(Dispatchers.IO) { keepSafetyCopy(kind, path, bytes) }
         }
 
         /** A PPSSPP save folder as its pack; the files must still be what the listing saw. */
@@ -859,7 +926,8 @@ class SaveSyncService @Inject constructor(
                     localSize = o.get("localSize").asLong,
                     localModified = o.get("localModified").asLong,
                     remoteSize = o.get("remoteSize")?.takeUnless { it.isJsonNull }?.asLong ?: -1,
-                    remoteHash = o.get("remoteHash")?.takeUnless { it.isJsonNull }?.asString
+                    remoteHash = o.get("remoteHash")?.takeUnless { it.isJsonNull }?.asString,
+                    baseHash = o.get("baseHash")?.takeUnless { it.isJsonNull }?.asString
                 )
             }.getOrNull()
         }.associateBy { SaveSyncPlanner.key(it.kind, it.path) }
@@ -878,6 +946,7 @@ class SaveSyncService @Inject constructor(
                 addProperty("localModified", r.localModified)
                 addProperty("remoteSize", r.remoteSize)
                 r.remoteHash?.let { addProperty("remoteHash", it) }
+                r.baseHash?.let { addProperty("baseHash", it) }
             })
         }
         val tmp = File(storeFile.parentFile, storeFile.name + ".tmp")
@@ -1312,7 +1381,7 @@ class SaveSyncService @Inject constructor(
                             ?: rommClient.saves(kind).filter { it.romId == romId && it.fileName.equals(local.name, ignoreCase = true) }
                                 .maxByOrNull { SaveSyncPlanner.epochMillis(it.updatedAt) ?: Long.MIN_VALUE }
                             ?: throw IOException("Server did not confirm the save upload")
-                        records[SaveSyncEngine.key(local)] = SaveSyncEngine.record(local, stored)
+                        records[SaveSyncEngine.key(local)] = SaveSyncEngine.record(local, stored, SaveSyncEngine.md5(bytes))
                         saveRecords(records)
                         dropConflict(kind, local.path)
                         CloudSaveResult.Done(local.name)
@@ -1321,6 +1390,63 @@ class SaveSyncService @Inject constructor(
                 }.getOrElse { e ->
                     if (e is CancellationException) throw e
                     Log.w(TAG, "Upload of $path failed", e)
+                    CloudSaveResult.Failed(e.message ?: e.javaClass.simpleName)
+                }
+            }
+        } finally {
+            lock.unlock()
+        }
+    }
+
+    /**
+     * "Copy to slot": copies the save state [sourcePath] into [targetPath], another slot of the same game
+     * (see [SaveSlots]). What the target slot held is kept as a safety copy first (and the write is read
+     * back and compared); the next sync sends the new slot up like any local change. Nothing is written
+     * when a sync runs, when the folders or the server changed since the preview, or the slot changed.
+     */
+    suspend fun copyIntoSlot(sourcePath: String, targetPath: String, expectedTarget: Long?, profileKey: JournalKey? = null): CloudSaveResult {
+        if (!lock.tryLock()) return CloudSaveResult.Busy
+        try {
+            return withContext(Dispatchers.IO) {
+                runCatching<CloudSaveResult> {
+                    profileKey?.let { guardGame(it) }
+                    require(SaveSlots.sameGame(sourcePath, targetPath) && !sourcePath.equals(targetPath, ignoreCase = true)) { "Not a slot of the same game" }
+                    val configuration = configurationSignature()
+                    val store = SafSaveStore()
+                    val listing = store.list()
+                    val source = listing.files.firstOrNull { it.kind == SaveKind.STATE && it.path.equals(sourcePath, ignoreCase = true) }
+                        ?: return@runCatching CloudSaveResult.Failed(context.getString(R.string.csave_error_gone, sourcePath.substringAfterLast('/')))
+                    val existing = listing.files.filter { it.kind == SaveKind.STATE && it.path.equals(targetPath, ignoreCase = true) }
+                    require(existing.size <= 1) { "Several save files match this slot" }
+                    val target = existing.singleOrNull()
+                    // The preview showed this slot as it was; a slot that changed since is looked at again first.
+                    check(target?.modified == expectedTarget) { "The slot changed; check the copy again" }
+                    val bytes = store.read(source)
+                    val old = target?.let { store.read(it) }
+                    if (old != null && target != null) {
+                        if (profileKey == null) keepSafetyCopy(SaveKind.STATE, target.path, old)
+                        else appSettings.withActiveProfile(profileKey.profileId) { gameAccess.check(profileKey); keepGameSafetyCopy(profileKey, SaveKind.STATE, target.path, old) }
+                    }
+                    val commit: suspend () -> CloudSaveResult = {
+                        check(configurationSignature() == configuration) { "Save folders or server changed; check the copy again" }
+                        val actual = store.list().files.filter { it.kind == SaveKind.STATE && it.path.equals(targetPath, ignoreCase = true) }
+                        require(actual.size <= 1)
+                        check(actual.singleOrNull()?.let { SaveHandoff.sha256(store.read(it)) } == old?.let(SaveHandoff::sha256)) { "Slot changed; check the copy again" }
+                        val written = store.write(SaveKind.STATE, target?.path ?: targetPath, bytes)
+                        check(store.read(written).contentEquals(bytes)) { "The copied slot could not be verified" }
+                        // Paired with the server's file but marked as changed here, so the next sync sends it (the safety copy keeps what it replaces).
+                        val records = loadRecords().toMutableMap()
+                        val key = SaveSyncEngine.key(written)
+                        records[key]?.let { records[key] = it.copy(localSize = -1, localModified = -1) }
+                        saveRecords(records)
+                        dropConflict(SaveKind.STATE, written.path)
+                        history.event("save_slot_copy", written.name, "done")
+                        CloudSaveResult.Done(written.path)
+                    }
+                    if (profileKey == null) commit() else appSettings.withActiveProfile(profileKey.profileId) { gameAccess.check(profileKey); commit() }
+                }.getOrElse { e ->
+                    if (e is CancellationException) throw e
+                    Log.w(TAG, "Slot copy failed", e)
                     CloudSaveResult.Failed(e.message ?: e.javaClass.simpleName)
                 }
             }

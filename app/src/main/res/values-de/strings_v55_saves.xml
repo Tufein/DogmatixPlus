@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sv55_section_safety">Backups und Sicherheit</string>
+    <string name="sv55_keep_title">Backups pro Spielstand</string>
+    <string name="sv55_keep_hint">Bevor ein Sync einen Spielstand ersetzt, auf diesem Gerät oder auf dem Server, behält Valkyr eine Kopie dessen, was ersetzt wird. Pro Spielstand-Datei bleiben die neuesten Kopien bis zu dieser Anzahl immer erhalten; darüber hinausgehende Kopien, die älter als 30 Tage sind, verschiebt ein Sync in den Wiederherstellungsordner.</string>
+    <string name="sv55_nondestructive_title">Nie überschreiben, nur hinzufügen</string>
+    <string name="sv55_nondestructive_hint">Ein Sync ersetzt und löscht nichts. Neue Spielstände wandern in beide Richtungen. Ein geänderter Server-Spielstand wird als Sicherheitskopie neben deinem Geräte-Spielstand abgelegt (stelle ihn über die Cloud-Spielstände des Spiels wieder her), ein geänderter Geräte-Spielstand wird nicht über den des Servers geschickt, und Löschungen werden nicht übernommen. Eine Seite in der Konfliktliste zu wählen funktioniert weiterhin.</string>
+    <string name="sv55_prefer_title">Neueren Server-Spielstand bevorzugen</string>
+    <string name="sv55_prefer_hint">Unterscheidet sich ein Spielstand auf beiden Seiten und ist die Kopie des Servers deutlich neuer, wird die des Servers ohne Rückfrage übernommen. Dein Geräte-Spielstand wird vorher gesichert. Aus: Du entscheidest jedes Mal selbst.</string>
+    <string name="sv55_prune_title">Alte Backups aufräumen</string>
+    <string name="sv55_prune_hint">Zeigt die Backup-Kopien oberhalb der pro Spielstand behaltenen Anzahl. Nichts wird verschoben, bevor du bestätigst, und verschobene Kopien bleiben 14 Tage im Wiederherstellungsordner, sodass du sie zurückholen kannst.</string>
+    <string name="sv55_prune_action">Jetzt aufräumen</string>
+    <string name="sv55_prune_checking">Backups werden geprüft…</string>
+    <string name="sv55_prune_dialog_title">Alte Backups aufräumen?</string>
+    <string name="sv55_prune_dialog_none">Nichts aufzuräumen: Jeder Spielstand hat höchstens %1$d Backup-Kopien.</string>
+    <string name="sv55_prune_dialog_body">%1$d Backup-Kopien (%2$s) sind älter als die neuesten %3$d ihres Spielstands. Sie wandern in den Wiederherstellungsordner und können 14 Tage lang zurückgeholt werden.</string>
+    <string name="sv55_prune_confirm">In Wiederherstellung verschieben</string>
+    <string name="sv55_prune_error">Die Backups konnten nicht gelesen werden: %1$s</string>
+    <string name="sv55_prune_done">%1$d Backup-Kopien in den Wiederherstellungsordner verschoben.</string>
+    <string name="sv55_prune_failed">Aufräumen fehlgeschlagen: %1$s</string>
+    <string name="sv55_prune_undo_title">Aufgeräumte Backups zurückholen</string>
+    <string name="sv55_prune_undo_hint">%1$d Backup-Kopien vom letzten Aufräumen liegen im Wiederherstellungsordner.</string>
+    <string name="sv55_prune_undo_action">Zurückholen</string>
+    <string name="sv55_prune_undone">%1$d Backup-Kopien zurückgeholt.</string>
+    <string name="sv55_keep_both">Beide behalten</string>
+    <string name="sv55_keep_both_hint">Beide behalten ersetzt nichts: Die Server-Version wird als Sicherheitskopie auf diesem Gerät gespeichert (stelle sie über die Cloud-Spielstände des Spiels wieder her), und beide Versionen bleiben unverändert, bis sich eine wieder ändert.</string>
+    <string name="sv55_summary_kept_as_is">%1$d unverändert gelassen</string>
+    <string name="sv55_summary_server_copies">%1$d Server-Versionen als Kopie gesichert</string>
+    <string name="sv55_slots_group">Speicherplätze</string>
+    <string name="sv55_slots_hint">Speicherplätze desselben Spiels. Kopiere einen in einen anderen Platz: Du siehst zuerst, was ersetzt wird, und der ersetzte Platz wird vorher gesichert.</string>
+    <string name="sv55_slot_label">Platz %1$d</string>
+    <string name="sv55_slot_auto">Auto-Platz</string>
+    <string name="sv55_slot_copy">In Platz kopieren…</string>
+    <string name="sv55_slot_new">Neuer Platz %1$d</string>
+    <string name="sv55_slot_pick_title">%1$s kopieren nach…</string>
+    <string name="sv55_slot_preview_title">%1$s kopieren?</string>
+    <string name="sv55_slot_preview_new">%1$s (%2$s, %3$s) wird in eine neue Datei kopiert, %4$s.</string>
+    <string name="sv55_slot_preview_replace">%1$s (%2$s, %3$s) ersetzt %4$s (%5$s, %6$s). Der ersetzte Platz wird vorher gesichert, und der nächste Sync schickt die Änderung zum Server.</string>
+    <string name="sv55_slot_copy_confirm">Kopieren</string>
+    <string name="sv55_slot_back">Zurück</string>
+    <string name="sv55_slot_copied">Nach %1$s kopiert.</string>
+</resources>

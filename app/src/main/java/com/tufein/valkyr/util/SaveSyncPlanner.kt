@@ -59,7 +59,13 @@ data class SaveSyncRecord(
     val localModified: Long,
     /** Server size and hash at that moment: a change within the same second still shows. */
     val remoteSize: Long = -1,
-    val remoteHash: String? = null
+    val remoteHash: String? = null,
+    /**
+     * MD5 of the bytes both sides held when the last sync (or the user) made them equal: the local
+     * manifest of [SaveMerge]. Null for records of earlier versions (and until the next transfer):
+     * those are judged by size and time alone.
+     */
+    val baseHash: String? = null
 )
 
 /** One step of a sync. */
@@ -157,7 +163,9 @@ object SaveSyncPlanner {
         /** Emulator folders whose shared memory cards are not synced: server copies of them stay on the server. */
         holdSharedCards: Set<String> = emptySet(),
         /** Sync paths of the Dolphin bundles the device takes: every other server bundle stays on the server. */
-        syncedBundles: Set<String> = emptySet()
+        syncedBundles: Set<String> = emptySet(),
+        /** MD5 of device files whose size or time differ from their record, by [key] (see [SaveMerge]); a file with the base's bytes did not change. */
+        localHashes: Map<String, String> = emptyMap()
     ): List<SaveSyncAction> {
         val bundlePaths = syncedBundles.map { it.lowercase() }.toSet()
         val remotes = remotes.filterNot { r ->
@@ -203,9 +211,12 @@ object SaveSyncPlanner {
         pairs.forEach { (local, remote) ->
             val record = recordByPath[key(local.kind, local.path)]?.takeIf { it.remoteId == remote.id }
             actions += if (record == null) SaveSyncAction.Compare(local, remote) else {
-                val localChanged = localChanged(local, record)
-                val remoteChanged = remoteChanged(remote, record)
+                val localHash = localHashes[key(local.kind, local.path)]
+                val localChanged = SaveMerge.localChanged(local, record, localHash)
+                val remoteChanged = SaveMerge.remoteChanged(remote, record)
                 when {
+                    // Both moved, but to the same bytes: the engine records them as equal.
+                    localChanged && remoteChanged && SaveMerge.sameHash(localHash, remote.contentHash) -> SaveSyncAction.Compare(local, remote)
                     localChanged && remoteChanged -> SaveSyncAction.Conflict(local, remote)
                     localChanged -> SaveSyncAction.Upload(local, remote.romId, remote)
                     // A shared memory card (DuckStation's, every PS2 and GameCube card) or a Dolphin bundle
@@ -252,10 +263,10 @@ object SaveSyncPlanner {
         return actions
     }
 
-    private fun localChanged(local: LocalSaveFile, record: SaveSyncRecord) =
+    fun localChanged(local: LocalSaveFile, record: SaveSyncRecord) =
         local.size != record.localSize || local.modified != record.localModified
 
-    private fun remoteChanged(remote: RemoteSaveFile, record: SaveSyncRecord) =
+    fun remoteChanged(remote: RemoteSaveFile, record: SaveSyncRecord) =
         !sameTime(remote.updatedAt, record.remoteUpdatedAt) ||
             (record.remoteSize >= 0 && remote.size != record.remoteSize) ||
             (record.remoteHash != null && remote.contentHash != null && !remote.contentHash.equals(record.remoteHash, ignoreCase = true))

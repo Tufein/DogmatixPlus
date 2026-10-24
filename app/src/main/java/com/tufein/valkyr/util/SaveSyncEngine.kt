@@ -26,7 +26,11 @@ data class SaveSyncResult(
     /** Deletions that were not carried out: there were more than expected, the user has to confirm. */
     val deletionsHeld: Int = 0,
     /** The first few device saves no single game was found for (memory cards, save folders…), as paths; they stay as they are. */
-    val unmatched: List<String> = emptyList()
+    val unmatched: List<String> = emptyList(),
+    /** Changed saves left as they are because "never overwrite" is on (a device save not sent, a server save not applied). */
+    val keptAsIs: Int = 0,
+    /** Server versions set aside as safety copies on the device instead of replacing the device save. */
+    val serverCopies: Int = 0
 )
 
 /** The RomM side of a save sync (implemented over [com.tufein.valkyr.data.service.RommClient]). */
@@ -70,6 +74,12 @@ interface SaveStore {
     suspend fun backup(file: LocalSaveFile)
     /** Removes [file] from the device (the caller has made a backup). */
     suspend fun delete(file: LocalSaveFile)
+    /**
+     * Keeps a verified safety copy of [bytes] under [path]: a version about to be replaced somewhere
+     * else (the server's save an upload replaces) or set aside instead of replacing the device file.
+     * Must throw when the copy cannot be kept; a store that cannot keep copies must not pretend to.
+     */
+    suspend fun keepCopy(kind: SaveKind, path: String, bytes: ByteArray): Unit = throw IOException("This store cannot keep safety copies")
 }
 
 /**
@@ -83,15 +93,23 @@ class SaveSyncEngine(
     private val clock: () -> Long = System::currentTimeMillis,
     private val onProgress: (done: Int, total: Int) -> Unit = { _, _ -> },
     /** Whether deletions are mirrored (Settings → Save sync); read at the start of every sync. */
-    private val syncDeletions: suspend () -> Boolean = { false }
+    private val syncDeletions: suspend () -> Boolean = { false },
+    /** Prefer-newer-server and never-overwrite (Settings → Save sync); read at the start of every sync. */
+    private val options: suspend () -> SaveSyncOptions = { SaveSyncOptions() }
 ) {
     /** Save files RomM had no (single) game for, with when it was asked: not asked again for a day. */
     private val notFoundCache = mutableMapOf<String, Long>()
 
     suspend fun sync(records: MutableMap<String, SaveSyncRecord>, confirmDeletions: Boolean = false): Pair<SaveSyncResult, List<SaveConflict>> {
+        val opts = options()
         val listing = store.list()
         val remotes = SaveSyncPlanner.latestPerName(listing.topFolders.keys.flatMap { server.list(it) })
-        val planned = SaveSyncPlanner.plan(listing.files, remotes, records.values.toList(), listing.topFolders, syncDeletions(), listing.noRootFolder, listing.holdSharedCards, listing.syncedBundles)
+        // Files whose size or time moved are read once to see whether their bytes did (the manifest's base hash).
+        val localHashes = hashChanged(listing.files, records)
+        val planned = SaveSyncPlanner.plan(
+            listing.files, remotes, records.values.toList(), listing.topFolders, SaveMerge.mirrorsDeletions(syncDeletions(), opts),
+            listing.noRootFolder, listing.holdSharedCards, listing.syncedBundles, localHashes
+        )
         // A lot of deletions at once usually means something is wrong (a folder emptied, a wrong
         // server), not that the user cleaned up: hold them back until the user says yes.
         val deletions = planned.count { it is SaveSyncAction.DeleteRemote || it is SaveSyncAction.DeleteLocal }
@@ -99,7 +117,7 @@ class SaveSyncEngine(
         val actions = if (held) planned.filterNot { it is SaveSyncAction.DeleteRemote || it is SaveSyncAction.DeleteLocal } else planned
 
         var uploaded = 0; var downloaded = 0; var unchanged = 0; var notMatched = listing.tooLarge; var failed = 0
-        var deletedOnDevice = 0; var deletedOnServer = 0
+        var deletedOnDevice = 0; var deletedOnServer = 0; var keptAsIs = 0; var serverCopies = 0
         val conflicts = mutableListOf<SaveConflict>()
         val errors = listing.problems.take(5).toMutableList()
         val unmatched = mutableListOf<String>()
@@ -111,8 +129,17 @@ class SaveSyncEngine(
             if (action.isTransfer()) onProgress(++done, transfers)
             try {
                 when (action) {
-                    is SaveSyncAction.InSync -> unchanged++
-                    is SaveSyncAction.Conflict -> conflicts += SaveConflict(action.local, action.remote)
+                    is SaveSyncAction.InSync -> {
+                        unchanged++
+                        // A time that moved with the same bytes: the snapshot catches up, so the file is not read again.
+                        records[key(action.local)]?.takeIf { SaveMerge.needsRefresh(it, action.local, action.remote) }
+                            ?.let { records[key(action.local)] = SaveMerge.refreshed(it, action.local, action.remote) }
+                    }
+                    is SaveSyncAction.Conflict -> when (SaveMerge.onDiffer(action.local, action.remote, opts)) {
+                        SaveMerge.OnDiffer.ASK -> conflicts += SaveConflict(action.local, action.remote)
+                        SaveMerge.OnDiffer.TAKE_SERVER -> { download(action.remote, action.local.path, action.local, records); downloaded++ }
+                        SaveMerge.OnDiffer.KEEP_BOTH -> { keepBoth(action.local, action.remote, records); serverCopies++ }
+                    }
                     is SaveSyncAction.Ambiguous -> { notMatched++; if (action.local.layout != SaveFolderLayout.FILES && unmatched.size < MAX_UNMATCHED_LISTED) unmatched += action.local.path }
                     is SaveSyncAction.Blocked -> notMatched++
                     is SaveSyncAction.DeleteRemote -> {
@@ -127,22 +154,32 @@ class SaveSyncEngine(
                         records.remove(SaveSyncPlanner.key(action.record.kind, action.record.path))
                         deletedOnDevice++
                     }
-                    is SaveSyncAction.Download -> { download(action.remote, action.path, action.replacing, records); downloaded++ }
+                    is SaveSyncAction.Download -> when {
+                        action.replacing == null || SaveMerge.replacesDevice(opts) -> { download(action.remote, action.path, action.replacing, records); downloaded++ }
+                        else -> { keepBoth(action.replacing, action.remote, records, keepBase = true); serverCopies++ }
+                    }
                     is SaveSyncAction.Upload -> {
                         val romId = action.romId ?: findRom(action.local)
                         if (romId == null) {
                             notMatched++
                             if (action.local.layout != SaveFolderLayout.FILES && unmatched.size < MAX_UNMATCHED_LISTED) unmatched += action.local.path
-                        } else { upload(action.local, romId, records); uploaded++ }
+                        } else if (action.replacing != null && !SaveMerge.replacesServer(opts)) {
+                            keptAsIs++
+                        } else { upload(action.local, romId, records, action.replacing); uploaded++ }
                     }
                     is SaveSyncAction.Compare -> {
                         val localBytes = store.read(action.local)
-                        val same = action.remote.contentHash?.let { it.equals(md5(localBytes), ignoreCase = true) }
+                        val localHash = md5(localBytes)
+                        val same = action.remote.contentHash?.let { it.equals(localHash, ignoreCase = true) }
                             ?: server.download(action.remote).contentEquals(localBytes)
                         if (same) {
-                            records[key(action.local)] = record(action.local, action.remote)
+                            records[key(action.local)] = record(action.local, action.remote, localHash)
                             unchanged++
-                        } else conflicts += SaveConflict(action.local, action.remote)
+                        } else when (SaveMerge.onDiffer(action.local, action.remote, opts)) {
+                            SaveMerge.OnDiffer.ASK -> conflicts += SaveConflict(action.local, action.remote)
+                            SaveMerge.OnDiffer.TAKE_SERVER -> { download(action.remote, action.local.path, action.local, records); downloaded++ }
+                            SaveMerge.OnDiffer.KEEP_BOTH -> { keepBoth(action.local, action.remote, records); serverCopies++ }
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -159,25 +196,56 @@ class SaveSyncEngine(
 
         val result = SaveSyncResult(
             clock(), uploaded, downloaded, unchanged, conflicts.size, notMatched, failed, errors,
-            deletedOnDevice, deletedOnServer, if (held) deletions else 0, unmatched
+            deletedOnDevice, deletedOnServer, if (held) deletions else 0, unmatched, keptAsIs, serverCopies
         )
         return result to conflicts
     }
 
-    /** Keeps the device copy (uploads it) or the server copy (downloads it) of [conflict]. */
+    /** Keeps the device copy (uploads it) or the server copy (downloads it) of [conflict]; the copy that is replaced is backed up first. */
     suspend fun resolve(conflict: SaveConflict, keepDevice: Boolean, records: MutableMap<String, SaveSyncRecord>) {
-        val local = store.list().files.firstOrNull { it.kind == conflict.local.kind && it.path == conflict.local.path }
-            ?: throw IOException("${conflict.local.name} is no longer on the device")
-        if (keepDevice) upload(local, conflict.remote.romId, records)
+        val local = freshLocal(conflict)
+        if (keepDevice) upload(local, conflict.remote.romId, records, conflict.remote)
         else download(conflict.remote, local.path, local, records)
     }
 
-    private suspend fun upload(local: LocalSaveFile, romId: Int, records: MutableMap<String, SaveSyncRecord>) {
-        val stored = server.upload(local.kind, romId, local.name, SaveSyncPlanner.emulatorFor(local), store.read(local))
+    /**
+     * Keeps both copies of [conflict]: nothing is replaced. The server version is set aside as a safety
+     * copy on the device and both sides are noted as seen (see [SaveMerge.keepBothRecord]).
+     */
+    suspend fun resolveKeepBoth(conflict: SaveConflict, records: MutableMap<String, SaveSyncRecord>) {
+        keepBoth(freshLocal(conflict), conflict.remote, records)
+    }
+
+    private suspend fun freshLocal(conflict: SaveConflict): LocalSaveFile =
+        store.list().files.firstOrNull { it.kind == conflict.local.kind && it.path == conflict.local.path }
+            ?: throw IOException("${conflict.local.name} is no longer on the device")
+
+    /** The files whose size or time differ from their record, hashed (a read that fails leaves the file to the size-and-time rules). */
+    private suspend fun hashChanged(files: List<LocalSaveFile>, records: Map<String, SaveSyncRecord>): Map<String, String> {
+        val out = HashMap<String, String>()
+        for (file in files) {
+            if (!SaveMerge.needsHash(file, records[key(file)])) continue
+            currentCoroutineContext().ensureActive()
+            try { out[key(file)] = md5(store.read(file)) }
+            catch (e: Exception) { if (e is CancellationException) throw e }
+        }
+        return out
+    }
+
+    private suspend fun upload(local: LocalSaveFile, romId: Int, records: MutableMap<String, SaveSyncRecord>, replacing: RemoteSaveFile? = null) {
+        val bytes = store.read(local)
+        val hash = md5(bytes)
+        // The server's save is about to be replaced: what it holds now is kept on the device first (if that fails, nothing is sent).
+        if (replacing != null && !(replacing.contentHash?.equals(hash, ignoreCase = true) ?: false)) {
+            val old = server.download(replacing)
+            if (!old.contentEquals(bytes)) store.keepCopy(replacing.kind, local.path, old)
+        }
+        currentCoroutineContext().ensureActive()
+        val stored = server.upload(local.kind, romId, local.name, SaveSyncPlanner.emulatorFor(local), bytes)
             ?: server.list(local.kind).filter { it.romId == romId && it.fileName.equals(local.name, ignoreCase = true) }
                 .maxByOrNull { SaveSyncPlanner.epochMillis(it.updatedAt) ?: Long.MIN_VALUE }
             ?: throw IOException("RomM did not confirm the upload")
-        records[key(local)] = record(local, stored)
+        records[key(local)] = record(local, stored, hash)
     }
 
     private suspend fun download(remote: RemoteSaveFile, path: String, replacing: LocalSaveFile?, records: MutableMap<String, SaveSyncRecord>) {
@@ -185,7 +253,17 @@ class SaveSyncEngine(
         if (replacing != null) store.backup(replacing)
         currentCoroutineContext().ensureActive()
         val written = store.write(remote.kind, path, bytes)
-        records[key(written)] = record(written, remote)
+        records[key(written)] = record(written, remote, md5(bytes))
+    }
+
+    /** Sets the server version aside as a safety copy and notes both sides as seen; nothing is replaced. */
+    private suspend fun keepBoth(local: LocalSaveFile, remote: RemoteSaveFile, records: MutableMap<String, SaveSyncRecord>, keepBase: Boolean = false) {
+        val bytes = server.download(remote)
+        store.keepCopy(remote.kind, local.path, bytes)
+        currentCoroutineContext().ensureActive()
+        val seen = SaveMerge.keepBothRecord(local, remote)
+        // A device file that did not change keeps its base: a later change of either side is still told apart.
+        records[key(local)] = if (keepBase) seen.copy(baseHash = records[key(local)]?.baseHash) else seen
     }
 
     private suspend fun findRom(local: LocalSaveFile): Int? {
@@ -230,8 +308,8 @@ class SaveSyncEngine(
 
         fun key(local: LocalSaveFile) = SaveSyncPlanner.key(local.kind, local.path)
 
-        fun record(local: LocalSaveFile, remote: RemoteSaveFile) =
-            SaveSyncRecord(local.kind, local.path, remote.romId, remote.id, remote.updatedAt, local.size, local.modified, remote.size, remote.contentHash)
+        fun record(local: LocalSaveFile, remote: RemoteSaveFile, baseHash: String? = null) =
+            SaveSyncRecord(local.kind, local.path, remote.romId, remote.id, remote.updatedAt, local.size, local.modified, remote.size, remote.contentHash, baseHash)
 
         /** RomM's `content_hash` of a save: the MD5 of its bytes, in hex. */
         fun md5(bytes: ByteArray): String =

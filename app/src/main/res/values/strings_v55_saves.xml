@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sv55_section_safety">Backups and safety</string>
+    <string name="sv55_keep_title">Backups kept per save</string>
+    <string name="sv55_keep_hint">Before a sync replaces a save, on this device or on the server, Valkyr keeps a copy of what it replaces. For each save file the newest copies up to this number always stay; copies beyond it that are older than 30 days are moved to the recovery folder by a sync.</string>
+    <string name="sv55_nondestructive_title">Never overwrite, only add</string>
+    <string name="sv55_nondestructive_hint">A sync replaces and deletes nothing. New saves travel both ways. A server save that changed is kept as a safety copy next to your device save (restore it from the game\'s cloud saves), a device save that changed is not sent over the server\'s, and deletions are not mirrored. Choosing a side in the conflict list still works.</string>
+    <string name="sv55_prefer_title">Prefer the newer server save</string>
+    <string name="sv55_prefer_hint">When a save differs on both sides and the server\'s copy is clearly the newer one, the server\'s copy is taken without asking. Your device save is backed up first. Off: you choose each time.</string>
+    <string name="sv55_prune_title">Prune old backups</string>
+    <string name="sv55_prune_hint">Shows the backup copies beyond the number kept per save. Nothing moves before you confirm, and moved copies wait in the recovery folder for 14 days, so you can bring them back.</string>
+    <string name="sv55_prune_action">Prune now</string>
+    <string name="sv55_prune_checking">Looking at your backups…</string>
+    <string name="sv55_prune_dialog_title">Prune old backups?</string>
+    <string name="sv55_prune_dialog_none">Nothing to prune: every save has %1$d backup copies or fewer.</string>
+    <string name="sv55_prune_dialog_body">%1$d backup copies (%2$s) are older than the newest %3$d of their save. They move to the recovery folder and can be brought back for 14 days.</string>
+    <string name="sv55_prune_confirm">Move to recovery</string>
+    <string name="sv55_prune_error">The backups could not be read: %1$s</string>
+    <string name="sv55_prune_done">%1$d backup copies moved to the recovery folder.</string>
+    <string name="sv55_prune_failed">Pruning failed: %1$s</string>
+    <string name="sv55_prune_undo_title">Bring back pruned backups</string>
+    <string name="sv55_prune_undo_hint">%1$d backup copies from the last prune are in the recovery folder.</string>
+    <string name="sv55_prune_undo_action">Bring back</string>
+    <string name="sv55_prune_undone">%1$d backup copies brought back.</string>
+    <string name="sv55_keep_both">Keep both</string>
+    <string name="sv55_keep_both_hint">Keep both replaces nothing: the server version is saved as a safety copy on this device (restore it from the game\'s cloud saves) and both versions stay as they are until one changes again.</string>
+    <string name="sv55_summary_kept_as_is">%1$d kept as they are</string>
+    <string name="sv55_summary_server_copies">%1$d server versions saved as copies</string>
+    <string name="sv55_slots_group">Save slots</string>
+    <string name="sv55_slots_hint">Slots of the same game. Copy one into another slot: you see what it replaces first, and the slot it replaces is backed up.</string>
+    <string name="sv55_slot_label">Slot %1$d</string>
+    <string name="sv55_slot_auto">Auto slot</string>
+    <string name="sv55_slot_copy">Copy to slot…</string>
+    <string name="sv55_slot_new">New slot %1$d</string>
+    <string name="sv55_slot_pick_title">Copy %1$s to…</string>
+    <string name="sv55_slot_preview_title">Copy %1$s?</string>
+    <string name="sv55_slot_preview_new">%1$s (%2$s, %3$s) will be copied into a new file, %4$s.</string>
+    <string name="sv55_slot_preview_replace">%1$s (%2$s, %3$s) will replace %4$s (%5$s, %6$s). The slot it replaces is backed up first, and the next sync sends the change to the server.</string>
+    <string name="sv55_slot_copy_confirm">Copy</string>
+    <string name="sv55_slot_back">Back</string>
+    <string name="sv55_slot_copied">Copied into %1$s.</string>
+</resources>

@@ -143,6 +143,15 @@ fun CloudSavesSection(
                     )
                 }
             }
+            // ---- Several save slots of one game on one card
+            if (data.canRestoreStates) {
+                SaveSlotsCard(
+                    files = data.device.map { it.local },
+                    enabled = !busy,
+                    workingId = ui.working,
+                    onCopy = { source, target, expected -> viewModel.copySlot(source, target, expected) }
+                )
+            }
             data.deviceError?.let { InfoLine(stringResource(R.string.csave_device_error, it)) }
             // ---- Safety copies
             if (data.safetyCopies.isNotEmpty()) {
@@ -189,7 +198,7 @@ fun CloudSavesSection(
 }
 
 @Composable
-private fun GroupLabel(text: String) {
+internal fun GroupLabel(text: String) {
     Text(
         text,
         style = MaterialTheme.typography.labelMedium,
@@ -199,7 +208,7 @@ private fun GroupLabel(text: String) {
 }
 
 @Composable
-private fun InfoLine(text: String) {
+internal fun InfoLine(text: String) {
     Text(
         text,
         style = MaterialTheme.typography.bodySmall,
@@ -213,7 +222,7 @@ private fun InfoLine(text: String) {
  * action, its label at the end. Only rows with an action take focus (A runs it).
  */
 @Composable
-private fun SaveRow(
+internal fun SaveRow(
     title: String,
     detail: String,
     actionLabel: String?,
@@ -366,6 +375,7 @@ private fun Notice(notice: CloudSavesNotice) {
     val (text, tone) = when (notice) {
         is CloudSavesNotice.Restored -> stringResource(R.string.csave_restored, notice.path) to PillTone.Success
         is CloudSavesNotice.Uploaded -> stringResource(R.string.csave_uploaded, notice.name) to PillTone.Success
+        is CloudSavesNotice.SlotCopied -> stringResource(R.string.sv55_slot_copied, notice.path) to PillTone.Success
         is CloudSavesNotice.Failed -> stringResource(R.string.csave_failed, notice.name, notice.message) to PillTone.Danger
         CloudSavesNotice.Busy -> stringResource(R.string.csave_busy) to PillTone.Warning
     }

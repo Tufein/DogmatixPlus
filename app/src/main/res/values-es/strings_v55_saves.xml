@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sv55_section_safety">Copias y seguridad</string>
+    <string name="sv55_keep_title">Copias guardadas por partida</string>
+    <string name="sv55_keep_hint">Antes de que una sincronización reemplace una partida guardada, en este dispositivo o en el servidor, Valkyr guarda una copia de lo que se reemplaza. De cada archivo de guardado se conservan siempre las copias más recientes hasta este número; las que superan ese número y tienen más de 30 días las mueve una sincronización a la carpeta de recuperación.</string>
+    <string name="sv55_nondestructive_title">No sobrescribir nunca, solo añadir</string>
+    <string name="sv55_nondestructive_hint">Una sincronización no reemplaza ni borra nada. Los guardados nuevos viajan en ambos sentidos. Un guardado del servidor que cambió se conserva como copia de seguridad junto al guardado de tu dispositivo (restáuralo desde los guardados en la nube del juego), un guardado del dispositivo que cambió no se envía sobre el del servidor, y los borrados no se replican. Elegir un lado en la lista de conflictos sigue funcionando.</string>
+    <string name="sv55_prefer_title">Preferir el guardado más reciente del servidor</string>
+    <string name="sv55_prefer_hint">Cuando un guardado difiere en ambos lados y la copia del servidor es claramente la más reciente, se toma la del servidor sin preguntar. Antes se hace una copia de tu guardado del dispositivo. Desactivado: eliges cada vez.</string>
+    <string name="sv55_prune_title">Limpiar copias antiguas</string>
+    <string name="sv55_prune_hint">Muestra las copias de seguridad que superan el número guardado por partida. No se mueve nada hasta que confirmes, y las copias movidas esperan 14 días en la carpeta de recuperación para que puedas recuperarlas.</string>
+    <string name="sv55_prune_action">Limpiar ahora</string>
+    <string name="sv55_prune_checking">Revisando tus copias…</string>
+    <string name="sv55_prune_dialog_title">¿Limpiar copias antiguas?</string>
+    <string name="sv55_prune_dialog_none">Nada que limpiar: cada guardado tiene como máximo %1$d copias.</string>
+    <string name="sv55_prune_dialog_body">%1$d copias (%2$s) son más antiguas que las %3$d más recientes de su guardado. Se mueven a la carpeta de recuperación y se pueden recuperar durante 14 días.</string>
+    <string name="sv55_prune_confirm">Mover a recuperación</string>
+    <string name="sv55_prune_error">No se pudieron leer las copias: %1$s</string>
+    <string name="sv55_prune_done">%1$d copias movidas a la carpeta de recuperación.</string>
+    <string name="sv55_prune_failed">La limpieza falló: %1$s</string>
+    <string name="sv55_prune_undo_title">Recuperar copias limpiadas</string>
+    <string name="sv55_prune_undo_hint">%1$d copias de la última limpieza están en la carpeta de recuperación.</string>
+    <string name="sv55_prune_undo_action">Recuperar</string>
+    <string name="sv55_prune_undone">%1$d copias recuperadas.</string>
+    <string name="sv55_keep_both">Conservar ambas</string>
+    <string name="sv55_keep_both_hint">Conservar ambas no reemplaza nada: la versión del servidor se guarda como copia de seguridad en este dispositivo (restáurala desde los guardados en la nube del juego) y ambas versiones se quedan como están hasta que una cambie de nuevo.</string>
+    <string name="sv55_summary_kept_as_is">%1$d sin tocar</string>
+    <string name="sv55_summary_server_copies">%1$d versiones del servidor guardadas como copia</string>
+    <string name="sv55_slots_group">Ranuras de guardado</string>
+    <string name="sv55_slots_hint">Ranuras del mismo juego. Copia una en otra ranura: primero ves lo que reemplaza, y de la ranura reemplazada se hace una copia antes.</string>
+    <string name="sv55_slot_label">Ranura %1$d</string>
+    <string name="sv55_slot_auto">Ranura automática</string>
+    <string name="sv55_slot_copy">Copiar a ranura…</string>
+    <string name="sv55_slot_new">Nueva ranura %1$d</string>
+    <string name="sv55_slot_pick_title">¿Copiar %1$s a…?</string>
+    <string name="sv55_slot_preview_title">¿Copiar %1$s?</string>
+    <string name="sv55_slot_preview_new">%1$s (%2$s, %3$s) se copiará en un archivo nuevo, %4$s.</string>
+    <string name="sv55_slot_preview_replace">%1$s (%2$s, %3$s) reemplazará a %4$s (%5$s, %6$s). De la ranura reemplazada se hace una copia antes, y la próxima sincronización envía el cambio al servidor.</string>
+    <string name="sv55_slot_copy_confirm">Copiar</string>
+    <string name="sv55_slot_back">Atrás</string>
+    <string name="sv55_slot_copied">Copiado en %1$s.</string>
+</resources>

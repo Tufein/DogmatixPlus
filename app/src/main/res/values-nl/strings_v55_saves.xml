@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sv55_section_safety">Back-ups en veiligheid</string>
+    <string name="sv55_keep_title">Back-ups per save</string>
+    <string name="sv55_keep_hint">Voordat een sync een save vervangt, op dit apparaat of op de server, bewaart Valkyr een kopie van wat er vervangen wordt. Per savebestand blijven de nieuwste kopieën tot dit aantal altijd staan; kopieën daarboven die ouder zijn dan 30 dagen verplaatst een sync naar de herstelmap.</string>
+    <string name="sv55_nondestructive_title">Nooit overschrijven, alleen toevoegen</string>
+    <string name="sv55_nondestructive_hint">Een sync vervangt en verwijdert niets. Nieuwe saves gaan beide kanten op. Een gewijzigde serversave wordt als veiligheidskopie naast je save op het apparaat bewaard (zet hem terug via de cloudsaves van de game), een gewijzigde save van het apparaat wordt niet over die van de server heen gestuurd, en verwijderingen worden niet doorgegeven. Een kant kiezen in de conflictenlijst werkt nog steeds.</string>
+    <string name="sv55_prefer_title">Nieuwere serversave verkiezen</string>
+    <string name="sv55_prefer_hint">Verschilt een save aan beide kanten en is de kopie van de server duidelijk de nieuwste, dan wordt die van de server zonder vragen genomen. Je save op het apparaat wordt eerst veiliggesteld. Uit: je kiest elke keer zelf.</string>
+    <string name="sv55_prune_title">Oude back-ups opruimen</string>
+    <string name="sv55_prune_hint">Toont de back-upkopieën boven het aantal dat per save bewaard blijft. Er verplaatst niets voordat je bevestigt, en verplaatste kopieën blijven 14 dagen in de herstelmap staan, zodat je ze kunt terughalen.</string>
+    <string name="sv55_prune_action">Nu opruimen</string>
+    <string name="sv55_prune_checking">Je back-ups bekijken…</string>
+    <string name="sv55_prune_dialog_title">Oude back-ups opruimen?</string>
+    <string name="sv55_prune_dialog_none">Niets op te ruimen: elke save heeft hooguit %1$d back-upkopieën.</string>
+    <string name="sv55_prune_dialog_body">%1$d back-upkopieën (%2$s) zijn ouder dan de nieuwste %3$d van hun save. Ze gaan naar de herstelmap en kunnen 14 dagen worden teruggehaald.</string>
+    <string name="sv55_prune_confirm">Naar herstelmap</string>
+    <string name="sv55_prune_error">De back-ups konden niet worden gelezen: %1$s</string>
+    <string name="sv55_prune_done">%1$d back-upkopieën naar de herstelmap verplaatst.</string>
+    <string name="sv55_prune_failed">Opruimen mislukt: %1$s</string>
+    <string name="sv55_prune_undo_title">Opgeruimde back-ups terughalen</string>
+    <string name="sv55_prune_undo_hint">%1$d back-upkopieën van de laatste opruimronde staan in de herstelmap.</string>
+    <string name="sv55_prune_undo_action">Terughalen</string>
+    <string name="sv55_prune_undone">%1$d back-upkopieën teruggehaald.</string>
+    <string name="sv55_keep_both">Beide bewaren</string>
+    <string name="sv55_keep_both_hint">Beide bewaren vervangt niets: de serverversie wordt als veiligheidskopie op dit apparaat bewaard (zet hem terug via de cloudsaves van de game) en beide versies blijven zoals ze zijn tot er weer een verandert.</string>
+    <string name="sv55_summary_kept_as_is">%1$d ongemoeid gelaten</string>
+    <string name="sv55_summary_server_copies">%1$d serverversies als kopie bewaard</string>
+    <string name="sv55_slots_group">Savesloten</string>
+    <string name="sv55_slots_hint">Sloten van dezelfde game. Kopieer er één naar een ander slot: je ziet eerst wat er vervangen wordt, en het slot dat vervangen wordt, krijgt eerst een back-up.</string>
+    <string name="sv55_slot_label">Slot %1$d</string>
+    <string name="sv55_slot_auto">Autoslot</string>
+    <string name="sv55_slot_copy">Naar slot kopiëren…</string>
+    <string name="sv55_slot_new">Nieuw slot %1$d</string>
+    <string name="sv55_slot_pick_title">%1$s kopiëren naar…</string>
+    <string name="sv55_slot_preview_title">%1$s kopiëren?</string>
+    <string name="sv55_slot_preview_new">%1$s (%2$s, %3$s) wordt gekopieerd naar een nieuw bestand, %4$s.</string>
+    <string name="sv55_slot_preview_replace">%1$s (%2$s, %3$s) vervangt %4$s (%5$s, %6$s). Het slot dat vervangen wordt, krijgt eerst een back-up en de volgende sync stuurt de wijziging naar de server.</string>
+    <string name="sv55_slot_copy_confirm">Kopiëren</string>
+    <string name="sv55_slot_back">Terug</string>
+    <string name="sv55_slot_copied">Gekopieerd naar %1$s.</string>
+</resources>

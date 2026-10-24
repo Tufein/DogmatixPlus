@@ -9,6 +9,9 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.tufein.valkyr.util.EmulatorSaveFolder
 import com.tufein.valkyr.util.EmulatorSaveFolders
 import com.tufein.valkyr.util.RecentSearches
+import com.tufein.valkyr.util.SaveBackups
+import com.tufein.valkyr.util.SaveMerge
+import com.tufein.valkyr.util.SaveSyncOptions
 import com.tufein.valkyr.util.TextSize
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
@@ -50,6 +53,10 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
         val AUTO_BACKUP_DIR = stringPreferencesKey("auto_backup_dir")
         val AUTO_BACKUP_LAST = longPreferencesKey("auto_backup_last")
         val LIBRARY_VIEWS = stringPreferencesKey("library_views")
+        // 5.5 safer save sync (names and types: SaveMerge.SETTING_TYPES)
+        val SAVE_SYNC_BACKUP_KEEP = intPreferencesKey(SaveMerge.KEY_BACKUP_KEEP)
+        val SAVE_SYNC_NON_DESTRUCTIVE = booleanPreferencesKey(SaveMerge.KEY_NON_DESTRUCTIVE)
+        val SAVE_SYNC_PREFER_SERVER = booleanPreferencesKey(SaveMerge.KEY_PREFER_SERVER)
         val SECOND_SCREEN = booleanPreferencesKey("second_screen")
         // 3.0
         val RESUME_DOWNLOADS = booleanPreferencesKey("resume_downloads")
@@ -124,6 +131,12 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
     /** Saves folders of standalone emulators synced with RomM (see [com.tufein.valkyr.util.EmulatorSaveFolder]). */
     val saveSyncEmulatorFolders: Flow<List<EmulatorSaveFolder>> =
         context.dataStore.data.map { EmulatorSaveFolders.fromJson(it[Keys.SAVE_SYNC_EMULATOR_FOLDERS]) }
+    /** Safety copies kept per save file before a sync replaces it (see [SaveBackups]). */
+    val saveSyncBackupKeep: Flow<Int> = context.dataStore.data.map { SaveBackups.clampKeep(it[Keys.SAVE_SYNC_BACKUP_KEEP] ?: SaveBackups.DEFAULT_KEEP) }
+    /** A sync never replaces or deletes a save, it only adds (see [SaveSyncOptions.nonDestructive]). */
+    val saveSyncNonDestructive: Flow<Boolean> = context.dataStore.data.map { it[Keys.SAVE_SYNC_NON_DESTRUCTIVE] ?: false }
+    /** A save that differs on both sides is taken from the server when the server's is newer (see [SaveSyncOptions.preferNewerServer]). */
+    val saveSyncPreferServer: Flow<Boolean> = context.dataStore.data.map { it[Keys.SAVE_SYNC_PREFER_SERVER] ?: false }
     /** Start downloads that failed for a passing reason again by themselves (see [com.tufein.valkyr.util.AutoRetry]). */
     val autoRetryFailed: Flow<Boolean> = context.dataStore.data.map { it[Keys.AUTO_RETRY] ?: true }
     /** The queue is on hold: running downloads finish, nothing new starts (see [com.tufein.valkyr.data.service.DownloadGate]). */
@@ -159,6 +172,9 @@ class AppSettings @Inject constructor(@param:ApplicationContext private val cont
         it[Keys.RECENT_SEARCHES] = RecentSearches.encode(RecentSearches.add(RecentSearches.decode(it[Keys.RECENT_SEARCHES] ?: ""), query))
     }
     suspend fun clearRecentSearches() = context.dataStore.edit { it.remove(Keys.RECENT_SEARCHES) }
+    suspend fun setSaveSyncBackupKeep(n: Int) = context.dataStore.edit { it[Keys.SAVE_SYNC_BACKUP_KEEP] = SaveBackups.clampKeep(n) }
+    suspend fun setSaveSyncNonDestructive(on: Boolean) = context.dataStore.edit { it[Keys.SAVE_SYNC_NON_DESTRUCTIVE] = on }
+    suspend fun setSaveSyncPreferServer(on: Boolean) = context.dataStore.edit { it[Keys.SAVE_SYNC_PREFER_SERVER] = on }
     suspend fun setSaveSyncEmulatorFolders(folders: List<EmulatorSaveFolder>) =
         context.dataStore.edit { it[Keys.SAVE_SYNC_EMULATOR_FOLDERS] = EmulatorSaveFolders.toJson(folders) }
     suspend fun setProfiles(json: String) = profileLock.withLock { context.dataStore.edit { it[Keys.PROFILES] = json } }

@@ -9,6 +9,7 @@ import com.tufein.valkyr.util.JournalKey
 import com.tufein.valkyr.util.CloudSaveResult
 import com.tufein.valkyr.util.CloudSaveVersion
 import com.tufein.valkyr.util.DeviceSave
+import com.tufein.valkyr.util.LocalSaveFile
 import com.tufein.valkyr.util.SafetyCopy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -23,6 +24,7 @@ import javax.inject.Inject
 sealed interface CloudSavesNotice {
     data class Restored(val path: String) : CloudSavesNotice
     data class Uploaded(val name: String) : CloudSavesNotice
+    data class SlotCopied(val path: String) : CloudSavesNotice
     data class Failed(val name: String, val message: String) : CloudSavesNotice
     data object Busy : CloudSavesNotice
 }
@@ -102,9 +104,13 @@ class CloudSavesViewModel @Inject constructor(
     fun upload(save: DeviceSave) =
         act(rowId(save), save.local.name, upload = true) { service.upload(it, save) }
 
+    /** Copies the state [source] into [targetPath] (another slot of the game); [expectedTarget] is the replaced slot's time as the preview showed it. */
+    fun copySlot(source: LocalSaveFile, targetPath: String, expectedTarget: Long?) =
+        act(rowId(source), source.name, upload = false, slot = true) { service.copySlot(it, source.path, targetPath, expectedTarget) }
+
     fun dismissNotice() = _ui.update { it.copy(notice = null) }
 
-    private fun act(id: String, name: String, upload: Boolean, block: suspend (GameCloudSaves) -> CloudSaveResult) {
+    private fun act(id: String, name: String, upload: Boolean, slot: Boolean = false, block: suspend (GameCloudSaves) -> CloudSaveResult) {
         val data = _ui.value.data ?: return
         val g = game ?: return
         if (_ui.value.working != null) return
@@ -115,7 +121,11 @@ class CloudSavesViewModel @Inject constructor(
             catch (e: Exception) { CloudSaveResult.Failed(e.message ?: e.javaClass.simpleName) }
             if (game != g) return@launch
             val notice = when (result) {
-                is CloudSaveResult.Done -> if (upload) CloudSavesNotice.Uploaded(name) else CloudSavesNotice.Restored(result.path)
+                is CloudSaveResult.Done -> when {
+                    slot -> CloudSavesNotice.SlotCopied(result.path)
+                    upload -> CloudSavesNotice.Uploaded(name)
+                    else -> CloudSavesNotice.Restored(result.path)
+                }
                 is CloudSaveResult.Failed -> CloudSavesNotice.Failed(name, result.message)
                 CloudSaveResult.Busy -> CloudSavesNotice.Busy
             }
@@ -128,5 +138,6 @@ class CloudSavesViewModel @Inject constructor(
         fun rowId(version: CloudSaveVersion) = "v:${version.entry.kind}:${version.entry.id}"
         fun rowId(copy: SafetyCopy) = "c:${copy.relative}"
         fun rowId(save: DeviceSave) = "d:${save.local.kind}:${save.local.path}"
+        fun rowId(slot: LocalSaveFile) = "s:${slot.kind}:${slot.path}"
     }
 }
