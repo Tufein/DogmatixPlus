@@ -165,17 +165,28 @@ object RommRemoteInstall {
 
     /** Why a claim did not give a list. */
     enum class ClaimFailure {
-        /** 401/403/404: the token was revoked, is not bound to the device, or the device was removed in RomM. The pairing is of no use. */
+        /** RomM itself answered 401/403/404 with its JSON error: the token was revoked, is not bound to the device, or the device was removed. The pairing is of no use. */
         PAIRING_LOST,
+        /** 401/403 without a RomM JSON body (a proxy or SSO page, say): the pairing is dropped only after [AUTH_FAILURES_BEFORE_LOST] such answers in a row. */
+        AUTH_UNCERTAIN,
         /** 404 "Installing on a device is disabled on this server": the pairing stays, the server may switch it on again. */
         DISABLED_ON_SERVER,
-        /** Anything else (offline, server busy): try again at the next poll. */
+        /** Anything else (offline, server busy, a 404 that is not RomM's, an older RomM without the route): try again at the next poll. */
         TEMPORARY
     }
 
+    /** Consecutive 401/403 answers without a RomM error body after which the pairing counts as lost. */
+    const val AUTH_FAILURES_BEFORE_LOST = 3
+
+    /** True when [body] is a RomM (FastAPI) error: a JSON object with a `detail`. */
+    fun isRommError(body: String): Boolean = runCatching {
+        com.google.gson.JsonParser.parseString(body).takeIf { it.isJsonObject }?.asJsonObject?.has("detail") == true
+    }.getOrDefault(false)
+
     fun claimFailure(status: Int, body: String): ClaimFailure = when {
-        status == 404 && body.contains("disabled", ignoreCase = true) -> ClaimFailure.DISABLED_ON_SERVER
-        status == 401 || status == 403 || status == 404 -> ClaimFailure.PAIRING_LOST
+        status == 404 && body.contains("disabled", ignoreCase = true) && isRommError(body) -> ClaimFailure.DISABLED_ON_SERVER
+        (status == 401 || status == 403 || status == 404) && isRommError(body) -> ClaimFailure.PAIRING_LOST
+        status == 401 || status == 403 -> ClaimFailure.AUTH_UNCERTAIN
         else -> ClaimFailure.TEMPORARY
     }
 

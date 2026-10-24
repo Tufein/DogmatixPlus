@@ -127,11 +127,22 @@ class RommRemoteInstallTest {
     }
 
     @Test fun `a failed claim is sorted into lost pairing, switched off, or try later`() {
-        assertEquals(ClaimFailure.PAIRING_LOST, RommRemoteInstall.claimFailure(401, ""))
+        assertEquals(ClaimFailure.PAIRING_LOST, RommRemoteInstall.claimFailure(401, """{"detail":"Not authenticated"}"""))
         assertEquals(ClaimFailure.PAIRING_LOST, RommRemoteInstall.claimFailure(403, """{"detail":"Only the device itself can do this"}"""))
         assertEquals(ClaimFailure.PAIRING_LOST, RommRemoteInstall.claimFailure(404, """{"detail":"Device with ID x not found"}"""))
         assertEquals(ClaimFailure.DISABLED_ON_SERVER, RommRemoteInstall.claimFailure(404, """{"detail":"Installing on a device is disabled on this server"}"""))
         assertEquals(ClaimFailure.TEMPORARY, RommRemoteInstall.claimFailure(500, ""))
+    }
+
+    @Test fun `a proxy page or a route-less server does not cost the pairing`() {
+        assertEquals(ClaimFailure.AUTH_UNCERTAIN, RommRemoteInstall.claimFailure(401, ""))
+        assertEquals(ClaimFailure.AUTH_UNCERTAIN, RommRemoteInstall.claimFailure(403, "<html>Sign in</html>"))
+        assertEquals(ClaimFailure.TEMPORARY, RommRemoteInstall.claimFailure(404, "<html>Maintenance</html>"))
+        assertEquals(ClaimFailure.TEMPORARY, RommRemoteInstall.claimFailure(404, ""))
+        assertEquals(ClaimFailure.TEMPORARY, RommRemoteInstall.claimFailure(404, """{"error":"disabled"}"""))
+        assertTrue(RommRemoteInstall.isRommError("""{"detail":["x"]}"""))
+        assertFalse(RommRemoteInstall.isRommError("not json"))
+        assertEquals(3, RommRemoteInstall.AUTH_FAILURES_BEFORE_LOST)
         assertEquals(ClaimFailure.TEMPORARY, RommRemoteInstall.claimFailure(409, ""))
     }
 

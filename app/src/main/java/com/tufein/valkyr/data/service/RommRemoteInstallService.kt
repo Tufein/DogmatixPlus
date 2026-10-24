@@ -52,6 +52,8 @@ class RommRemoteInstallService @Inject constructor(
     private val pollLock = Mutex()
     private var pairingJob: Job? = null
     @Volatile private var lastPollAt = 0L
+    /** Consecutive 401/403 answers that were not RomM's own error; only touched under [pollLock]. */
+    private var authFailures = 0
 
     // ---- pairing ---------------------------------------------------------------------------------
 
@@ -146,8 +148,12 @@ class RommRemoteInstallService @Inject constructor(
     /** Forgets the pairing on this handheld. The device stays listed in RomM until it is removed there. */
     suspend fun unpair() {
         cancelPairing()
-        settings.clearPairing()
-        _summary.value = null
+        // Waits for a running poll, so it cannot queue downloads after the pairing is gone.
+        pollLock.withLock {
+            settings.clearPairing()
+            authFailures = 0
+            _summary.value = null
+        }
     }
 
     // ---- polling ---------------------------------------------------------------------------------
@@ -187,12 +193,18 @@ class RommRemoteInstallService @Inject constructor(
         val headers = bearer(pairing.token)
         val claim = JsonHttp.request("POST", "$base/api/devices/${pairing.deviceId}/installs/claim", headers, body = ByteArray(0), contentType = JsonHttp.JSON, followRedirects = false)
         if (!claim.ok) {
-            return@withContext when (RommRemoteInstall.claimFailure(claim.code, claim.body)) {
+            val failure = RommRemoteInstall.claimFailure(claim.code, claim.body)
+            if (failure == RommRemoteInstall.ClaimFailure.AUTH_UNCERTAIN) authFailures++ else authFailures = 0
+            return@withContext when (failure) {
                 RommRemoteInstall.ClaimFailure.PAIRING_LOST -> { settings.clearPairing(); Summary(now, 0, 0, PollProblem.REJECTED) }
+                RommRemoteInstall.ClaimFailure.AUTH_UNCERTAIN ->
+                    if (authFailures >= RommRemoteInstall.AUTH_FAILURES_BEFORE_LOST) { authFailures = 0; settings.clearPairing(); Summary(now, 0, 0, PollProblem.REJECTED) }
+                    else Summary(now, 0, 0, PollProblem.OFFLINE)
                 RommRemoteInstall.ClaimFailure.DISABLED_ON_SERVER -> Summary(now, 0, 0, PollProblem.DISABLED)
                 RommRemoteInstall.ClaimFailure.TEMPORARY -> Summary(now, 0, 0, PollProblem.OFFLINE)
             }
         }
+        authFailures = 0
         val claimed = RommRemoteInstall.parseClaim(claim.json)
         var queued = 0
         var reported = 0
@@ -203,6 +215,8 @@ class RommRemoteInstallService @Inject constructor(
                 val rows = entities.map { RommRemoteInstall.Row(it.id, it.fileName, owned = runCatching { libraryIndex.isOwned(it) }.getOrDefault(false)) }
                 val report = when (val decision = RommRemoteInstall.decide(rows)) {
                     is RommRemoteInstall.Decision.Start -> {
+                        // Unpaired meanwhile: queue nothing more.
+                        if (settings.pairing.first().token != pairing.token) return@withContext Summary(now, queued, reported)
                         // A file already queued or running is skipped by the queue itself, so a request that is
                         // answered again after a failed report does not download twice.
                         downloadService.startDownload(entities.first { it.id == decision.row.key })
